@@ -17,9 +17,12 @@ package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,8 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ConcurrentBitSet implements NativeIdSetBI {
 
-    private final int          offset      = Integer.MIN_VALUE;
-
+    private final int offset = Integer.MIN_VALUE;
     private static final int BITS_PER_UNIT = 64;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private volatile AtomicLongArray units;
@@ -47,7 +49,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             set(bit);
         }
     }
-    
+
     public ConcurrentBitSet(NativeIdSetBI nativeIdSet) {
         if (nativeIdSet instanceof ConcurrentBitSet) {
             ConcurrentBitSet other = (ConcurrentBitSet) nativeIdSet;
@@ -143,7 +145,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public void clear(int bit) {
-        bit = bit + offset;
+        //bit = bit + offset;
         int unit = bit / BITS_PER_UNIT;
         int index = bit % BITS_PER_UNIT;
         long mask = 1L << index;
@@ -151,7 +153,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         lock.readLock().lock();
         try {
             long old = units.get(unit);
-            long upd = old | mask;
+            long upd = old & (~mask);
             while (!units.compareAndSet(unit, old, upd)) {
                 old = units.get(unit);
                 upd = old & ~mask;
@@ -344,26 +346,6 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
     }
 
-    public long[] toLongArray() {
-        return toLongArray(null, 0);
-    }
-
-    public long[] toLongArray(long[] arr, int offset) {
-        lock.readLock().lock();
-        try {
-            final int len = units.length();
-            if (arr == null || arr.length < len + offset) {
-                arr = new long[len + offset];
-            }
-            for (int i = 0; i < len; i++) {
-                arr[i] = units.get(i);
-            }
-            return arr;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
     public int[] toIntArray() {
         int lengthOfBitSet = this.cardinality();
         int[] intArray = new int[this.cardinality()];
@@ -376,22 +358,6 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
         return intArray;
 
-    }
-
-    public int[] toIntArray(int[] arr, int offset) {
-        lock.readLock().lock();
-        try {
-            final int len = units.length();
-            if (arr == null || arr.length < len + offset) {
-                arr = new int[len + offset];
-            }
-            for (int i = 0; i < len; i++) {
-                arr[i] = (int) units.get(i) + this.offset;
-            }
-            return arr;
-        } finally {
-            lock.readLock().unlock();
-        }
     }
 
     public int cardinality() {
@@ -470,7 +436,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     private class Iterator implements NativeIdSetItrBI {
-        
+
         int currentBit = 0;
 
         @Override
@@ -481,12 +447,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         @Override
         public boolean next() throws IOException {
             if (currentBit != -1) {
-                currentBit = nextSetBit(currentBit+1);
+                currentBit = nextSetBit(currentBit + 1);
             }
             return currentBit != -1;
         }
-        
     }
+
     @Override
     public NativeIdSetItrBI getIterator() {
         return new Iterator();
@@ -509,7 +475,21 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     @Override
     public void and(NativeIdSetBI other) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (other instanceof ConcurrentBitSet) {
+            and(other);
+        } else {
+            NativeIdSetItrBI iter = this.getIterator();
+            try {
+                while (iter.next()) {
+                    if (!other.isMember(iter.nid())) {
+                        this.remove(iter.nid());
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
     @Override
@@ -517,18 +497,47 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (other instanceof ConcurrentBitSet) {
             or((ConcurrentBitSet) other);
         } else {
-            throw new UnsupportedOperationException("Not supported yet.");
+            NativeIdSetItrBI iter = other.getIterator();
+            try {
+                while (iter.next()) {
+                    if (!this.contains(iter.nid())) {
+                        this.add(iter.nid());
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
     @Override
     public void xor(NativeIdSetBI other) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (other instanceof ConcurrentBitSet) {
+            xor(other);
+        } else {
+            NativeIdSetItrBI iter = other.getIterator();
+            try {
+                while (iter.next()) {
+                    if (!this.isMember(iter.nid())) {
+                        this.add(iter.nid());
+                    } else {
+                        this.remove(iter.nid());
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
     }
 
     @Override
     public boolean contains(int nid) {
         return this.get(nid);
+    }
+
+    public int getOffSet() {
+        return this.offset;
     }
 
     @Override
@@ -570,7 +579,21 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     @Override
     public int getMax() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (this.cardinality() == 0) {
+            return offset;
+        } else {
+            NativeIdSetItrBI iter = this.getIterator();
+            int max = 0;
+            try {
+                while (iter.next()) {
+                    max = iter.nid();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return max;
+        }
+
     }
 
     @Override
@@ -585,22 +608,66 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     @Override
     public boolean contiguous() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (this.cardinality() == 0 || this.cardinality() == 1) {
+            return true;
+        } else {
+            NativeIdSetItrBI iter = this.getIterator();
+            int temp = this.getMin();
+            try {
+                while (iter.next()) {
+                    if (iter.nid() - temp > 1) {
+                        return false;
+                    }
+                    temp = iter.nid();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return true;
+        }
     }
 
     @Override
     public void union(NativeIdSetBI other) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (other instanceof ConcurrentBitSet) {
+            or((ConcurrentBitSet) other);
+        } else {
+            NativeIdSetItrBI iter = other.getIterator();
+            try {
+                while (iter.next()) {
+                    if (!this.contains(iter.nid())) {
+                        this.add(iter.nid());
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
     public void setNotMember(int nid) {
         nid = nid + offset;
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.clear(nid);
     }
 
     @Override
     public void andNot(NativeIdSetBI other) {
+        if (other instanceof ConcurrentBitSet) {
+            andNot(other);
+        } else {
+            NativeIdSetItrBI iter = other.getIterator();
+            try {
+                while (iter.next()) {
+                    if (this.contains(iter.nid())) {
+                        this.remove(iter.nid());
+                    }
+
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
@@ -654,6 +721,41 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             } finally {
                 lock.readLock().unlock();
             }
+        }
+    }
+
+    private class ConcurrentBitSetItr implements NativeIdSetItrBI {
+
+        private final ConcurrentBitSet bitset;
+        private int index = 0;
+
+        public ConcurrentBitSetItr(ConcurrentBitSet bitset) {
+            this.bitset = bitset;
+
+        }
+
+        public boolean hasNext() {
+            return index < bitset.length();
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int nid() {
+            if (index >= bitset.length()) {
+                throw new NoSuchElementException();
+            }
+            return bitset.nextSetBit(index++);
+        }
+
+        @Override
+        public boolean next() throws IOException {
+            if (index >= bitset.length()) {
+                throw new NoSuchElementException();
+            }
+            return bitset.get(index++);
         }
     }
 }

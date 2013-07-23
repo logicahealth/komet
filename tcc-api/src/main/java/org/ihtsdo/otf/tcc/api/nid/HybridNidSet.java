@@ -44,8 +44,8 @@ public class HybridNidSet implements NativeIdSetBI {
         nidSet.add(nid);
     }
     
-    public HybridNidSet(NativeIdSetBI anotherSet){
-        this.nidSet = new ConcurrentBitSet(anotherSet);
+    public HybridNidSet(IntSet anotherSet){
+        this.nidSet = anotherSet;
         if(this.nidSet.size() < threshold){
             this.nidSet = new IntSet(anotherSet);
         }
@@ -244,7 +244,7 @@ public class HybridNidSet implements NativeIdSetBI {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.nidSet.isEmpty();
     }
 
 }

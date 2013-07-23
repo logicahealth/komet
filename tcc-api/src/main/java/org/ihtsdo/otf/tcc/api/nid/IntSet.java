@@ -17,6 +17,8 @@ package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -38,19 +40,18 @@ public class IntSet implements NativeIdSetBI {
             this.hashSet.add(i);
         }
     }
-    
-    public IntSet(ConcurrentBitSet other){
+
+    public IntSet(ConcurrentBitSet other) throws IOException {
         this.hashSet = new OpenIntHashSet();
-        int[] otherSet = other.getSetValues();
-        for(int i: otherSet){
-            this.hashSet.add(i);
+        NativeIdSetItrBI iter = other.getIterator();
+        while (iter.next()) {
+            this.hashSet.add(iter.nid());
         }
     }
 
-    public IntSet(NativeIdSetBI other){
+    public IntSet(NativeIdSetBI other) {
         throw new UnsupportedOperationException();
     }
-
 
     @Override
     public int size() {
@@ -72,10 +73,15 @@ public class IntSet implements NativeIdSetBI {
         if (other.isEmpty()) {
             this.clear();
         } else {
-            for (int i : this.getSetValues()) {
-                if (!other.isMember(i)) {
-                    this.remove(i);
+            NativeIdSetItrBI iter = this.getIterator();
+            try {
+                while (iter.next()) {
+                    if (!other.isMember(iter.nid())) {
+                        this.remove(iter.nid());
+                    }
                 }
+            } catch (IOException ex) {
+                Logger.getLogger(IntSet.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -87,14 +93,17 @@ public class IntSet implements NativeIdSetBI {
 
     @Override
     public void xor(NativeIdSetBI other) {
-        int[] otherValues = other.getSetValues();
-        for (int i : otherValues) {
-            if (!this.isMember(i)) {
-                this.add(i);
-
-            } else {
-                this.remove(i);
+        NativeIdSetItrBI iter = other.getIterator();
+        try {
+            while (iter.next()) {
+                if (!this.isMember(iter.nid())) {
+                    this.add(iter.nid());
+                } else {
+                    this.remove(iter.nid());
+                }
             }
+        } catch (IOException ex) {
+            Logger.getLogger(IntSet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -170,23 +179,34 @@ public class IntSet implements NativeIdSetBI {
         if (setValues.length < 2) {
             return true;
         }
-        int prev = setValues[0] - 1;
-        for (int i : setValues) {
-            if (prev != i - 1) {
-                return false;
+
+        NativeIdSetItrBI iter = this.getIterator();
+        int temp = this.getMin();
+        try {
+            while (iter.next()) {
+                if (temp - iter.nid() > 1) {
+                    return false;
+                }
+                temp = iter.nid();
             }
-            prev = i;
+        } catch (IOException ex) {
+            Logger.getLogger(IntSet.class.getName()).log(Level.SEVERE, null, ex);
         }
         return true;
+
     }
 
     @Override
     public void union(NativeIdSetBI other) {
-        int[] otherValues = other.getSetValues();
-        for (int i : otherValues) {
-            if (!this.isMember(i)) {
-                this.add(i);
+        NativeIdSetItrBI iter = other.getIterator();
+        try {
+            while (iter.next()) {
+                if (!this.isMember(iter.nid())) {
+                    this.add(iter.nid());
+                }
             }
+        } catch (IOException ex) {
+            Logger.getLogger(IntSet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -197,10 +217,15 @@ public class IntSet implements NativeIdSetBI {
 
     @Override
     public void andNot(NativeIdSetBI other) {
-        for (int i : this.getSetValues()) {
-            if (other.isMember(i)) {
-                this.remove(i);
+        NativeIdSetItrBI iter = this.getIterator();
+        try {
+            while (iter.next()) {
+                if (other.isMember(iter.nid())) {
+                    this.remove(iter.nid());
+                }
             }
+        } catch (IOException ex) {
+            Logger.getLogger(IntSet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -216,19 +241,20 @@ public class IntSet implements NativeIdSetBI {
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.hashSet.isEmpty();
     }
-    
+
     private class Iterator implements NativeIdSetItrBI {
+
         IntArrayList items;
         int index = -1;
         int size;
+
         public Iterator() {
             items = hashSet.keys();
             size = items.size();
         }
 
-        
         @Override
         public int nid() {
             return items.get(index);
@@ -242,6 +268,5 @@ public class IntSet implements NativeIdSetBI {
             }
             return false;
         }
-        
     }
 }
