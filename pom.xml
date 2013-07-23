@@ -40,7 +40,7 @@ the specific language governing permissions and limitations under the License. -
         <javafx.version>2.2.21</javafx.version>
         <org.apache.lucene.version>4.3.1</org.apache.lucene.version>
         <je.version>5.0.84</je.version>
-        <juint.version>4.11</juint.version>
+        <junit.version>4.11</junit.version>
         <jersey-version>2.0</jersey-version>
         <maven-release-plugin.version>2.0</maven-release-plugin.version>
         <maven-jxr-plugin.version>2.2</maven-jxr-plugin.version>
@@ -59,12 +59,6 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>org-openide-util-lookup</artifactId>
                 <version>${netbeans-platform-version}</version>
             </dependency>
-             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${juint.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>com.sleepycat</groupId>
                 <artifactId>je</artifactId>
@@ -75,11 +69,28 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>jfxrt</artifactId>
                 <version>${javafx.version}</version>
             </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>        
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>        
+    </dependencies>
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>                
                 <plugin>
                     <groupId>ch.syabru.maven.plugins</groupId>
                     <artifactId>maven-timemachine-plugin</artifactId>
@@ -262,9 +273,13 @@ the specific language governing permissions and limitations under the License. -
         </plugins>
     </build>
     <modules>
-        <module>terminology-component-chronicle-api</module>
+        <module>tcc-api</module>
         <module>tcc-dto-ddo</module>
         <module>tcc-lookup</module>
+        <module>tcc-model-impl</module>
+        <module>tcc-rest-client</module>
+        <module>tcc-rest-server</module>
+        <module>tcc-datastore</module>
     </modules>
     <profiles>
          <profile>
