@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite failures="0" time="0.041" errors="0" skipped="27" tests="37" name="org.ihtsdo.ttk.api.ConcurrentBitSetTest">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib"/>
+    <property name="java.vm.version" value="24.0-b52"/>
+    <property name="gopherProxySet" value="false"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="path.separator" value=":"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/Users/kec/Git Repositorys/OTF-Versioning-Service"/>
+    <property name="java.runtime.version" value="1.7.0_40-ea-b33"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.CGraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/endorsed"/>
+    <property name="os.arch" value="x86_64"/>
+    <property name="java.io.tmpdir" value="/var/folders/t6/6_7929ls20ndghgtfyrf09wm0000gn/T/"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="os.name" value="Mac OS X"/>
+    <property name="classworlds.conf" value="/Applications/NetBeans/NetBeans 7.3.1.app/Contents/Resources/NetBeans/java/maven/bin/m2.conf"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/Users/kec/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="51.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="10.8.4"/>
+    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="user.home" value="/Users/kec"/>
+    <property name="user.timezone" value="America/Los_Angeles"/>
+    <property name="java.awt.printerjob" value="sun.lwawt.macosx.CPrinterJob"/>
+    <property name="java.specification.version" value="1.7"/>
+    <property name="file.encoding" value="US-ASCII"/>
+    <property name="user.name" value="kec"/>
+    <property name="java.class.path" value="/Applications/NetBeans/NetBeans 7.3.1.app/Contents/Resources/NetBeans/java/maven/boot/plexus-classworlds-2.4.jar"/>
+    <property name="java.vm.specification.version" value="1.7"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher clean install"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.language" value="en"/>
+    <property name="awt.toolkit" value="sun.lwawt.macosx.LWCToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.7.0_40-ea"/>
+    <property name="java.ext.dirs" value="/Users/kec/Library/Java/Extensions:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/ext:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java"/>
+    <property name="sun.boot.class.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/sunrsasign.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib/JObjC.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/classes"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="maven.home" value="/Applications/NetBeans/NetBeans 7.3.1.app/Contents/Resources/NetBeans/java/maven"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
+    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="sun.cpu.isalist" value=""/>
+  </properties>
+  <testcase time="0.004" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testNextSetBit"/>
+  <testcase time="0.005" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClear_0args">
+    <skipped/>
+  </testcase>
+  <testcase time="0.005" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetIterator">
+    <skipped/>
+  </testcase>
+  <testcase time="0.005" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToLongArray_0args">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAdd"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGet"/>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testOr_ConcurrentBitSet">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testUnion">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSize"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testOr_NativeIdSetBI">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAndNot_NativeIdSetBI">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSetNotMember">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClear_int">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testContiguous">
+    <skipped/>
+  </testcase>
+  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToIntArray_0args">
+    <skipped/>
+  </testcase>
+  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAnd_ConcurrentBitSet">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testContains"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testCardinality">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAndNot_ConcurrentBitSet"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testIsMember"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSet_int_boolean">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToLongArray_longArr_int">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToIntArray_intArr_int">
+    <skipped/>
+  </testcase>
+  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAnd_NativeIdSetBI">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSetMember"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testXor_NativeIdSetBI">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAddAll">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetMax">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetMin">
+    <skipped/>
+  </testcase>
+  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testXor_ConcurrentBitSet">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClearAll"/>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testLength">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSet_int">
+    <skipped/>
+  </testcase>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testIsEmpty">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetSetValues"/>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testRemove">
+    <skipped/>
+  </testcase>
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testRemoveAll">
+    <skipped/>
+  </testcase>
+</testsuite>
