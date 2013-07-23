@@ -263,6 +263,8 @@ the specific language governing permissions and limitations under the License. -
     </build>
     <modules>
         <module>terminology-component-chronicle-api</module>
+        <module>tcc-dto-ddo</module>
+        <module>tcc-lookup</module>
     </modules>
     <profiles>
          <profile>

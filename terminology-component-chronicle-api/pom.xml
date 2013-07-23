@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>terminology-component-chronicle-api</artifactId>
     <packaging>jar</packaging>
-    <name>OTF:TCC API</name>
+    <name>${branch}: TCC API</name>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0.007" errors="0" skipped="0" tests="3" name="org.ihtsdo.country.COUNTRY_CODETest">
+<testsuite failures="0" time="0.008" errors="0" skipped="0" tests="3" name="org.ihtsdo.country.COUNTRY_CODETest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib"/>
@@ -63,5 +63,5 @@
   </properties>
   <testcase time="0.006" classname="org.ihtsdo.country.COUNTRY_CODETest" name="testValueOf"/>
   <testcase time="0" classname="org.ihtsdo.country.COUNTRY_CODETest" name="testGetFormatedCountryCode"/>
-  <testcase time="0.001" classname="org.ihtsdo.country.COUNTRY_CODETest" name="testValues"/>
+  <testcase time="0.002" classname="org.ihtsdo.country.COUNTRY_CODETest" name="testValues"/>
 </testsuite>

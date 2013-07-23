@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="0.041" errors="0" skipped="27" tests="37" name="org.ihtsdo.ttk.api.ConcurrentBitSetTest">
+<testsuite failures="0" time="0.04" errors="0" skipped="27" tests="37" name="org.ihtsdo.ttk.api.ConcurrentBitSetTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.7.0_40.jdk/Contents/Home/jre/lib"/>
@@ -61,19 +61,19 @@
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.004" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testNextSetBit"/>
-  <testcase time="0.005" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClear_0args">
+  <testcase time="0.003" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testNextSetBit"/>
+  <testcase time="0.004" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClear_0args">
     <skipped/>
   </testcase>
-  <testcase time="0.005" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetIterator">
+  <testcase time="0.004" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetIterator">
     <skipped/>
   </testcase>
-  <testcase time="0.005" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToLongArray_0args">
+  <testcase time="0.004" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToLongArray_0args">
     <skipped/>
   </testcase>
-  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAdd"/>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAdd"/>
   <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGet"/>
-  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testOr_ConcurrentBitSet">
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testOr_ConcurrentBitSet">
     <skipped/>
   </testcase>
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testUnion">
@@ -83,7 +83,7 @@
   <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testOr_NativeIdSetBI">
     <skipped/>
   </testcase>
-  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAndNot_NativeIdSetBI">
+  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAndNot_NativeIdSetBI">
     <skipped/>
   </testcase>
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSetNotMember">
@@ -95,7 +95,7 @@
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testContiguous">
     <skipped/>
   </testcase>
-  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToIntArray_0args">
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToIntArray_0args">
     <skipped/>
   </testcase>
   <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAnd_ConcurrentBitSet">
@@ -107,20 +107,20 @@
   </testcase>
   <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAndNot_ConcurrentBitSet"/>
   <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testIsMember"/>
-  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSet_int_boolean">
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSet_int_boolean">
     <skipped/>
   </testcase>
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToLongArray_longArr_int">
     <skipped/>
   </testcase>
-  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToIntArray_intArr_int">
+  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testToIntArray_intArr_int">
     <skipped/>
   </testcase>
   <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAnd_NativeIdSetBI">
     <skipped/>
   </testcase>
   <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testSetMember"/>
-  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testXor_NativeIdSetBI">
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testXor_NativeIdSetBI">
     <skipped/>
   </testcase>
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testAddAll">
@@ -129,13 +129,13 @@
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetMax">
     <skipped/>
   </testcase>
-  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetMin">
+  <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testGetMin">
     <skipped/>
   </testcase>
   <testcase time="0.002" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testXor_ConcurrentBitSet">
     <skipped/>
   </testcase>
-  <testcase time="0" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClearAll"/>
+  <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testClearAll"/>
   <testcase time="0.001" classname="org.ihtsdo.ttk.api.ConcurrentBitSetTest" name="testLength">
     <skipped/>
   </testcase>
