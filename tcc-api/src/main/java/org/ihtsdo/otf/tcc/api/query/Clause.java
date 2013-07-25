@@ -50,7 +50,7 @@ public abstract class Clause {
 
     public Clause(Query enclosingQuery) {
         this.enclosingQuery = enclosingQuery;
-        enclosingQuery.getComputeTypes().addAll(getComputePhases());
+        enclosingQuery.getComputePhases().addAll(getComputePhases());
     }
     
     public Clause[] getChildren() {

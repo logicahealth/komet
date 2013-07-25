@@ -8,9 +8,7 @@
     <artifactId>tcc-rest-server</artifactId>
     <packaging>war</packaging>
     <name>${branch}: TCC REST Server</name>
-    <properties>
-        <netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
-    </properties>
+    <properties></properties>
     <build>
         <plugins>
             <plugin>

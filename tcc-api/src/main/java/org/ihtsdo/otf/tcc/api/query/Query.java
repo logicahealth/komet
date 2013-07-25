@@ -40,7 +40,7 @@ public abstract class Query {
             EnumSet.noneOf(ClauseComputeType.class);
     private ViewCoordinate viewCoordinate;
     
-    public EnumSet<ClauseComputeType> getComputeTypes() {
+    public EnumSet<ClauseComputeType> getComputePhases() {
         return computeTypes;
     }
     
@@ -63,7 +63,7 @@ public abstract class Query {
         Clause rootClause = Where();
         NativeIdSetBI possibleComponents =
                 rootClause.computePossibleComponents(forSet);
-                if (computeTypes.contains(ClauseComputeType.ITERATION)) {
+        if (computeTypes.contains(ClauseComputeType.ITERATION)) {
             NativeIdSetBI conceptsToIterateOver =
                     Ts.get().getConceptNidsForComponentNids(possibleComponents);
             

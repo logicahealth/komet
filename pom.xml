@@ -20,7 +20,7 @@ the specific language governing permissions and limitations under the License. -
     <artifactId>tcc-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>${branch}: (MMP) Terminology Component Chronicle</name>
+    <name>${branch}: (MMP) Terminology Component Chronicle Service</name>
     <description>The Terminology Component Chronicle project provides the ability to
         store, retrieve, and edit terminology components, and maintains a complete chronicle
         of all changes.
