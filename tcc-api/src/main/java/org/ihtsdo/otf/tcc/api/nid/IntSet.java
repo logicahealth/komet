@@ -181,7 +181,7 @@ public class IntSet implements NativeIdSetBI {
         }
 
         NativeIdSetItrBI iter = this.getIterator();
-        int temp = this.getMin();
+        int temp = Integer.MIN_VALUE;
         try {
             while (iter.next()) {
                 if (temp - iter.nid() > 1) {

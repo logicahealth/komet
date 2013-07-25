@@ -592,8 +592,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
             return max;
-        }
 
+        }
     }
 
     @Override
