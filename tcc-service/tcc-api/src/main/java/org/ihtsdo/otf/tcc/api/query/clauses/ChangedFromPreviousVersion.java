@@ -22,14 +22,16 @@ import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 
 /**
  *
  * @author dylangrald
  */
 public class ChangedFromPreviousVersion extends LeafClause {
-    
+
     ViewCoordinate previousViewCoordinate;
 
     public ChangedFromPreviousVersion(Query enclosingQuery, ViewCoordinate previousViewCoordinate) {
@@ -48,7 +50,11 @@ public class ChangedFromPreviousVersion extends LeafClause {
     }
 
     @Override
-    public void getQueryMatches(ConceptVersionBI conceptVersion) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
+        for (DescriptionVersionBI dv : conceptVersion.getDescriptionsActive()) {
+            if (!dv.getVersion(previousViewCoordinate).toString().equals(dv.getChronicle().toString())) {
+                getResultsCache().add(dv.getNid());
+            }
+        }
     }
 }

@@ -15,36 +15,53 @@
  */
 package org.ihtsdo.otf.tcc.api.query.clauses;
 
+import java.io.IOException;
 import java.util.EnumSet;
+import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
 import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
+import org.ihtsdo.otf.tcc.api.spec.ValidationException;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
  * @author dylangrald
  */
 public class ConceptIsMemberOfRefset extends LeafClause {
-
-    public ConceptIsMemberOfRefset(Query enclosingQuery) {
+    
+    ConceptSpec refsetSpec;
+    
+    public ConceptIsMemberOfRefset(Query enclosingQuery, ConceptSpec refsetSpec) {
         super(enclosingQuery);
     }
-
+    
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return PRE_AND_POST_ITERATION;
     }
-
+    
     @Override
-    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws ValidationException, IOException, ContradictionException {
+        ViewCoordinate viewCoordinate = getEnclosingQuery().getViewCoordinate();
+        int parentNid = refsetSpec.getNid(viewCoordinate);
+        NativeIdSetItrBI itr = incomingPossibleComponents.getIterator();
+        while (itr.next()) {
+            if (Ts.get().isKindOf(itr.nid(), parentNid, viewCoordinate)) {
+                getResultsCache().setMember(itr.nid());
+            }
+        }
+        return getResultsCache();
     }
-
+    
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //Nothing to do here (?)
     }
-
 }

@@ -15,31 +15,61 @@
  */
 package org.ihtsdo.otf.tcc.api.query.clauses;
 
+import java.io.IOException;
 import java.util.EnumSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 
 /**
  *
  * @author dylangrald
  */
 public class DescriptionActiveLuceneMatch extends DescriptionLuceneMatch {
-
+    
+    DescriptionLuceneMatch descriptionLuceneMatch;
+    
     public DescriptionActiveLuceneMatch(Query enclosingQuery, String luceneMatch) {
         super(enclosingQuery, luceneMatch);
         this.luceneMatch = luceneMatch;
+        descriptionLuceneMatch = new DescriptionLuceneMatch(enclosingQuery, luceneMatch);
     }
+
     @Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return PRE_ITERATION_AND_ITERATION;
     }
 
-
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
-        // see if the descriptions are active...
-        // remove any from the cached set that are not active
-        throw new UnsupportedOperationException("Not supported yet."); 
+        /*
+            NativeIdSetBI matches = descriptionLuceneMatch.getResultsCache();
+            NativeIdSetItrBI iter = matches.getIterator();
+            while(iter.next()){
+                for(DescriptionVersionBI dv: conceptVersion.getDescriptionsActive()){
+                    if(dv.){
+                        matches.r;
+                    }
+            }
+            // see if the descriptions are active...
+            // remove any from the cached set that are not active
+            for (DescriptionVersionBI dv : conceptVersion.getDescriptionsActive()) {
+                if (!dv.isActive()) {
+                    getResultsCache().remove(dv.getNid());
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(DescriptionActiveLuceneMatch.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ContradictionException ex) {
+            Logger.getLogger(DescriptionActiveLuceneMatch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }*/
+        throw new UnsupportedOperationException("Not supported yet");
     }
 }
