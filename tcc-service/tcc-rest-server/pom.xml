@@ -7,7 +7,7 @@
     </parent>
     <artifactId>tcc-rest-server</artifactId>
     <packaging>war</packaging>
-    <name>${branch}: TCC REST Server</name>
+    <name>${branch}: REST server</name>
     <properties></properties>
     <build>
         <plugins>

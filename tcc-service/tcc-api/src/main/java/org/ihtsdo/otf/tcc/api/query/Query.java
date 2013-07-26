@@ -58,8 +58,9 @@ public abstract class Query {
         letDeclarations.put(key, object);
     }
     
-    NativeIdSetBI compute() throws IOException, Exception {
+    public NativeIdSetBI compute() throws IOException, Exception {
         forSet = For();
+        Let();
         Clause rootClause = Where();
         NativeIdSetBI possibleComponents =
                 rootClause.computePossibleComponents(forSet);

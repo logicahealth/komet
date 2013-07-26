@@ -7,7 +7,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-model-impl</artifactId>
-    <name>${branch}: TCC Model Implementation</name>
+    <name>${branch}: Model implementation</name>
     <description>Classes that provide state and behaviour to implement the concepts and 
         concept components defined by the API. </description>
     <url>http://maven.apache.org</url>

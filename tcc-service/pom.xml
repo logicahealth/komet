@@ -32,7 +32,7 @@ the specific language governing permissions and limitations under the License. -
     </scm>
    	
     <properties>
-        <branch>trunk</branch>
+        <branch>TCC trunk</branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
@@ -280,6 +280,8 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-rest-client</module>
         <module>tcc-rest-server</module>
         <module>tcc-datastore</module>
+        <module>tcc-integration-test</module>
+        <module>tcc-junit-ext</module>
     </modules>
     <profiles>
          <profile>
