@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.ihtsdo.otf</groupId>
+        <artifactId>tcc-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>tcc-dto-ddo</artifactId>
+    <name>${branch}: Data display &amp; transfer objects</name>
+    <url>http://maven.apache.org</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+       <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>jfxrt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcc-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcc-lookup</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.1</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+<!--         <plugin>              
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>schemagen</id>
+                        <goals>
+                            <goal>schemagen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformSchemas>
+                        
+                            Each schema element defines:
+
+                            a) A <<namespace uri>> for one of your namespaces.
+                               This namespace uri must be unique within the schemas element.
+
+                            b) A <<toPrefix>> that you want to use for the namespace.
+                               Should not contain whitespace or exotic characters.
+                               This yields a namespace definition on the form
+                               <xs:schema ... xmlns:[toPrefix]="[uri]" ... />
+
+                               (I.e: <xs:schema ... xmlns:some="http://some/namespace"
+                                                    xmlns:xs="http://www.w3.org/2001/XMLSchema"> )
+
+                               ... and transforms relevant xml schema elements to use the provided namespace prefix:
+
+                               <some:elementName ... />
+
+                            c) The desired <<toFile>> name of the generated XML schema definition file,
+                               excluding the ".xsd" suffix (which will be added automatically).
+                        
+                        <transformSchema>
+                            <uri>http://org.ihtsdo.snomed</uri>
+                            <toPrefix>sct</toPrefix>
+                            <toFile>sct</toFile>
+                        </transformSchema>
+                    </transformSchemas>
+                    <includes>
+                        <include>**/Ttk*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>-->
+        </plugins>
+    </build>
+</project>
