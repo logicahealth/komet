@@ -47,6 +47,9 @@ public class ConceptIsKindOf extends LeafClause {
         ViewCoordinate viewCoordinate = getEnclosingQuery().getViewCoordinate();
         int parentNid = kindOfSpec.getNid(viewCoordinate);
         NativeIdSetItrBI itr = incomingPossibleComponents.getIterator();
+        //TODO make routine more efficient by having new method for getKindOf, and
+        // then just anding the results. Eliminates the iteration, and redundant
+        // checking...
         while (itr.next()) {
             if (Ts.get().isKindOf(itr.nid(), parentNid, viewCoordinate)) {
                 getResultsCache().setMember(itr.nid());

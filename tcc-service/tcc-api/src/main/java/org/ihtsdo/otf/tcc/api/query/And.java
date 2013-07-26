@@ -33,7 +33,7 @@ public class And extends ParentClause {
 
     @Override
     public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
-        NativeIdSetBI results = new ConcurrentBitSet();
+        NativeIdSetBI results = new ConcurrentBitSet(incomingPossibleComponents);
         for(Clause clause : getChildren()){
             results.and(clause.computePossibleComponents(incomingPossibleComponents));
         }

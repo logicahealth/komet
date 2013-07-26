@@ -16,13 +16,10 @@
 package org.ihtsdo.otf.tcc.test.integration;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
-import org.ihtsdo.otf.tcc.api.query.ExampleQuery;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.junit.BdbTestRunner;
@@ -85,6 +82,7 @@ public class TestQuery {
 
             NativeIdSetBI results = q.compute();
             System.out.println("Query result count: " + results.size());
+            Assert.assertEquals(11, results.size());
         } catch (IOException ex) {
             Assert.fail(ex.toString());
         } catch (Exception ex) {
