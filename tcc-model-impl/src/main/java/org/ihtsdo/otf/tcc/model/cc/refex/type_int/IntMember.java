@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_int;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -7,10 +7,10 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.refex.type_int.RefexIntAnalogBI;

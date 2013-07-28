@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cs;
+package org.ihtsdo.otf.tcc.model.cs;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -12,14 +12,14 @@ import java.util.Date;
 import java.util.Set;
 import java.util.logging.Level;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.chronicle.cs.ChangeSetLogger;
-import org.ihtsdo.otf.tcc.chronicle.ChangeSetReaderI;
-import org.ihtsdo.otf.tcc.chronicle.CsProperty;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetLogger;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetReaderI;
+import org.ihtsdo.otf.tcc.model.cs.CsProperty;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 public class ChangeSetReader implements ChangeSetReaderI {

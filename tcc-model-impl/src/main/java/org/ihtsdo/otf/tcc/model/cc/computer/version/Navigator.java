@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.computer.version;
+package org.ihtsdo.otf.tcc.model.cc.computer.version;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.OpenBitSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputer;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputerBI;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
 /**
  * The Navigation class can take multiple positions and determine where they are in the bundle's "path space"

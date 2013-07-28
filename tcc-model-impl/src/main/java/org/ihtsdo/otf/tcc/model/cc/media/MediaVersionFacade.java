@@ -1,8 +1,8 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.media;
+package org.ihtsdo.otf.tcc.model.cc.media;
 
 import java.beans.PropertyVetoException;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.TypedComponentFacade;
+import org.ihtsdo.otf.tcc.model.cc.component.TypedComponentFacade;
 import org.ihtsdo.otf.tcc.api.media.MediaAnalogBI;
 
 public interface MediaVersionFacade

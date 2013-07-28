@@ -2,8 +2,10 @@ package org.ihtsdo.otf.tcc.api.conflict;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 
+@XmlRootElement(name = "view-path-wins-strategy")
 public class ViewPathWinsStrategy extends ContradictionManagementStrategy {
 
     /**
@@ -34,7 +36,7 @@ public class ViewPathWinsStrategy extends ContradictionManagementStrategy {
         if (vc.getPositionSet().getViewPathNidSet().contains(part2.getPathNid())) {
             returnValues.add(part2);
         }
-        if (returnValues.size() == 0) {
+        if (returnValues.isEmpty()) {
             returnValues.add(part1);
             returnValues.add(part2);
         }

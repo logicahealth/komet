@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.api.AnalogBI;

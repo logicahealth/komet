@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
 import com.sleepycat.bind.tuple.TupleInput;
@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid.NidMember.Version;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid.NidMember.Version;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;

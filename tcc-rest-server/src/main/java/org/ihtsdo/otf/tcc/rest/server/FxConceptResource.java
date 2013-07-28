@@ -31,7 +31,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataFetcherI;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 
 /**
  *

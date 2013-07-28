@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.lucene;
+package org.ihtsdo.otf.tcc.model.cc.lucene;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -22,9 +22,9 @@ import org.apache.lucene.util.Version;
 
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -46,7 +46,7 @@ import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
-import org.ihtsdo.otf.tcc.chronicle.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 
 public abstract class LuceneManager {
 

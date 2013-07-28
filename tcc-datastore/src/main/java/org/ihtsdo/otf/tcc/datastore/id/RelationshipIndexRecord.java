@@ -28,7 +28,7 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.VersionPoint;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputerBI;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
 /**
  * Origin relationship data stores the following data for each entry:

@@ -4,8 +4,10 @@ package org.ihtsdo.otf.tcc.api.conflict;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 
+@XmlRootElement(name = "edit-path-wins-strategy")
 public class EditPathWinsStrategy extends ContradictionManagementStrategy {
 
    /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.lucene;
+package org.ihtsdo.otf.tcc.model.cc.lucene;
 /**
  * @TODO move lucene to it's own module with a implementation free interface. 
  */

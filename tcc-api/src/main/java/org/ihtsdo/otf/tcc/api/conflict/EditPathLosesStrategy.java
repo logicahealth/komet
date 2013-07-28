@@ -2,7 +2,10 @@ package org.ihtsdo.otf.tcc.api.conflict;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+
+@XmlRootElement(name = "edit-path-loses-strategy")
 
 public class EditPathLosesStrategy extends ContradictionManagementStrategy {
 
@@ -35,7 +38,7 @@ public class EditPathLosesStrategy extends ContradictionManagementStrategy {
         if (!ec.getEditPaths().contains(part2.getPathNid())) {
             returnValues.add(part2);
         }
-        if (returnValues.size() == 0) {
+        if (returnValues.isEmpty()) {
             returnValues.add(part1);
             returnValues.add(part2);
         }
@@ -50,7 +53,7 @@ public class EditPathLosesStrategy extends ContradictionManagementStrategy {
                 returnValues.add(v);
             }
         }
-        if (returnValues.size() == 0) {
+        if (returnValues.isEmpty()) {
             returnValues.addAll(versions);
         }
         return returnValues;

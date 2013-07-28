@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_boolean;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -7,8 +7,8 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_boolean.BooleanMember.Version;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanMember.Version;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;

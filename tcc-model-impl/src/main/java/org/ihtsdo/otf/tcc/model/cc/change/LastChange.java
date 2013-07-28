@@ -16,7 +16,7 @@
 
 
 
-package org.ihtsdo.otf.tcc.chronicle.cc.change;
+package org.ihtsdo.otf.tcc.model.cc.change;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,10 +28,10 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
-import org.ihtsdo.otf.tcc.chronicle.concurrency.ConcurrentReentrantLocks;
+import org.ihtsdo.otf.tcc.api.concurrency.ConcurrentReentrantLocks;
 
 /**
  *

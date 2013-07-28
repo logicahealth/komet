@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.concept;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import java.io.IOException;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc;
+package org.ihtsdo.otf.tcc.model.cc;
 
 import java.io.DataInput;
 import java.io.DataOutput;

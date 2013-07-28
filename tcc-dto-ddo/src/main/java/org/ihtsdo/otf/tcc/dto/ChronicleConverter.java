@@ -17,7 +17,7 @@ package org.ihtsdo.otf.tcc.dto;
 
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.ttk.lookup.Looker;
+import org.ihtsdo.otf.tcc.lookup.Looker;
 
 /**
  *

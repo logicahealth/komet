@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.concept.processor;
+package org.ihtsdo.otf.tcc.model.cc.concept.processor;
 
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;

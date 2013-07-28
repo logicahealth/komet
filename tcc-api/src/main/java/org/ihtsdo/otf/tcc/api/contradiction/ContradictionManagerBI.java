@@ -3,8 +3,6 @@ package org.ihtsdo.otf.tcc.api.contradiction;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import java.io.Serializable;
 import java.util.List;
-import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 /**
  * Interface for classes that resolve contradictions - i.e. the scenario where two

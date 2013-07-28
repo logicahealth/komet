@@ -1,13 +1,13 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.io.IOException;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ComponentFactory;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.component.ComponentFactory;
 
 import com.sleepycat.bind.tuple.TupleInput;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.Media;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.MediaRevision;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.media.MediaRevision;
 
 public class MediaFactory extends ComponentFactory<MediaRevision, Media> {
 

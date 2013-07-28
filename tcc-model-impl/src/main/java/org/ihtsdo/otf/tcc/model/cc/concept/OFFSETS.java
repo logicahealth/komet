@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.concept;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import com.sleepycat.bind.tuple.TupleInput;
 

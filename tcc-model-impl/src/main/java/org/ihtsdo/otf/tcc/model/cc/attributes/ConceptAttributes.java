@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.attributes;
+package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
 import com.sleepycat.bind.tuple.TupleInput;
@@ -6,9 +6,9 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;

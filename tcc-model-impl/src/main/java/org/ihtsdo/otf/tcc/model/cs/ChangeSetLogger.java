@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cs;
+package org.ihtsdo.otf.tcc.model.cs;
 
 import java.util.logging.Logger;
 

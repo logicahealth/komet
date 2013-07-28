@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.description;
+package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
@@ -7,10 +7,10 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;

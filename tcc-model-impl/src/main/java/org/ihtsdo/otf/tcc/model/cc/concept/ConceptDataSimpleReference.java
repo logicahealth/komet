@@ -1,24 +1,24 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.concept;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.MediaBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
 import com.sleepycat.bind.tuple.TupleInput;
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponentBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.Revision;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptAttributesBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.DescriptionBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.identifier.IdentifierVersion;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RefexMemberBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RelationshipBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.component.DescriptionBinder;
+import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidList;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
@@ -40,8 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
 
 public class ConceptDataSimpleReference extends ConceptDataManager {
    private AtomicReference<ConceptAttributes>              attributes =

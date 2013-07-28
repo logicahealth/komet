@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.relationship;
+package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;

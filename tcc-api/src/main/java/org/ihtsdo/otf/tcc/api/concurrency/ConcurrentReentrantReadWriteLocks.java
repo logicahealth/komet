@@ -16,7 +16,7 @@
 
 
 
-package org.ihtsdo.otf.tcc.chronicle.concurrency;
+package org.ihtsdo.otf.tcc.api.concurrency;
 
 //~--- JDK imports ------------------------------------------------------------
 

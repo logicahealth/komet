@@ -3,7 +3,7 @@
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
  */
-package org.ihtsdo.otf.tcc.chronicle.jsr166y;
+package org.ihtsdo.otf.tcc.model.jsr166y;
 
 import java.io.IOException;
 import java.io.Serializable;

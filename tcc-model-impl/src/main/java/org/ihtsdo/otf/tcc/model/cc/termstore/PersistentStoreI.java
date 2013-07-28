@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.termstore;
+package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.chronicle.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataFetcherI;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.ddo.store.FxTerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;

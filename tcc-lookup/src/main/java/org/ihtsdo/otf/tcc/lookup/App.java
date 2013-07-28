@@ -1,4 +1,4 @@
-package org.ihtsdo.ttk.lookup;
+package org.ihtsdo.otf.tcc.lookup;
 
 //~--- non-JDK imports --------------------------------------------------------
 

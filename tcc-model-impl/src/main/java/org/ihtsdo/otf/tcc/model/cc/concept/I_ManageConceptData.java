@@ -1,14 +1,14 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.concept;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.sleepycat.bind.tuple.TupleInput;
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -21,11 +21,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataManager.AddDescriptionSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataManager.AddMediaSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataManager.AddMemberSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataManager.AddSrcRelSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddDescriptionSet;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMediaSet;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberSet;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddSrcRelSet;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
 
 public interface I_ManageConceptData {
    void add(Description desc) throws IOException;

@@ -29,20 +29,20 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributesRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.DescriptionRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.Media;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.MediaRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMemberFactory;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.RelationshipRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.description.DescriptionRevision;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.media.MediaRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 
 public class BdbTermBuilder implements TerminologyBuilderBI {
 

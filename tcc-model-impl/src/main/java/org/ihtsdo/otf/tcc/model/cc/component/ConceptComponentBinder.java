@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,15 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.I_BindConceptComponents;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_BindConceptComponents;
 
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 import com.sleepycat.je.DatabaseEntry;
 import java.util.HashSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 
 public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptComponent<V, C>>

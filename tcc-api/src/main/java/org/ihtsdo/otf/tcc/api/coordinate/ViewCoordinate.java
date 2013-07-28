@@ -24,9 +24,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
+@XmlRootElement(name = "view-coordinate")
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class ViewCoordinate implements Externalizable {
    private long                   lastModSequence = Long.MIN_VALUE;
    private EnumSet<Status>        allowedStatus;
@@ -336,10 +343,12 @@ public class ViewCoordinate implements Externalizable {
       return allowedStatus;
    }
 
+   @XmlTransient
    public int getClassifierNid() {
       return classifierNid;
    }
 
+   @XmlTransient
    private void getConceptText(StringBuilder sb, TerminologySnapshotDI snap, int nid) {
       if (nid == Integer.MAX_VALUE) {
          sb.append("Integer.MAX_VALUE");
@@ -369,6 +378,7 @@ public class ViewCoordinate implements Externalizable {
       return contradictionManager;
    }
 
+   @XmlTransient
    public int getIsaNid() {
        if (isaNid == 0) {
            try {
@@ -390,6 +400,7 @@ public class ViewCoordinate implements Externalizable {
       return langSort;
    }
 
+   @XmlTransient
    public int getLanguageNid() {
       return languageNid;
    }
@@ -402,6 +413,8 @@ public class ViewCoordinate implements Externalizable {
       return name;
    }
 
+   
+   @XmlAnyElement
    public PositionSetBI getPositionSet() {
       return positionSet;
    }
@@ -418,6 +431,7 @@ public class ViewCoordinate implements Externalizable {
       return vcUuid;
    }
 
+   @XmlTransient
    public ViewCoordinate getVcWithAllStatusValues() {
       if (vcWithAllStatusValues == null) {
          vcWithAllStatusValues                   = new ViewCoordinate(this);
@@ -440,6 +454,7 @@ public class ViewCoordinate implements Externalizable {
       this.classifierNid         = classifierNid;
    }
 
+   @XmlAnyElement
    public void setContradictionManager(ContradictionManagerBI contradictionManager) {
       this.lastModSequence      = Ts.get().getSequence();
       this.contradictionManager = contradictionManager;
@@ -461,10 +476,12 @@ public class ViewCoordinate implements Externalizable {
       this.relAssertionType      = relAssertionType;
    }
    
+   @XmlTransient
    public TerminologySnapshotDI getSnapshot() {
        return Ts.get().getSnapshot(this);
    }
    
+   @XmlTransient
    public TerminologySnapshotDI getCachedSnapshot() {
        return Ts.get().cacheSnapshot(vcUuid, this);
    }

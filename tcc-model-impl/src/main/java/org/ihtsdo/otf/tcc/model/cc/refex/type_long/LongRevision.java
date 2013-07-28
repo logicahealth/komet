@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_long;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_long.LongMember.Version;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember.Version;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;

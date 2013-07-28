@@ -1,8 +1,8 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.relationship;
+package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 import java.beans.PropertyVetoException;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.TypedComponentFacade;
+import org.ihtsdo.otf.tcc.model.cc.component.TypedComponentFacade;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 
 public interface RelationshipFacade

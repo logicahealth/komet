@@ -1,9 +1,9 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex;
+package org.ihtsdo.otf.tcc.model.cc.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 import com.sleepycat.bind.tuple.TupleInput;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
@@ -16,7 +16,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 import java.util.Set;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;

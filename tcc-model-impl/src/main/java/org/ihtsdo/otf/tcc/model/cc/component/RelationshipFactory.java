@@ -1,13 +1,13 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.io.IOException;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ComponentFactory;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.component.ComponentFactory;
 
 import com.sleepycat.bind.tuple.TupleInput;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.RelationshipRevision;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 
 public class RelationshipFactory extends ComponentFactory<RelationshipRevision, Relationship> {
 

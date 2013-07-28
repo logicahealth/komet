@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.version;
+package org.ihtsdo.otf.tcc.model.version;
 
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;

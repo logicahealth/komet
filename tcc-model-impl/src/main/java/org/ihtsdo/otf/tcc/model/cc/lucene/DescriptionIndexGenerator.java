@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.lucene;
+package org.ihtsdo.otf.tcc.model.cc.lucene;
 
 //~--- non-JDK imports --------------------------------------------------------
 

@@ -16,7 +16,7 @@
 
 
 
-package org.ihtsdo.otf.tcc.chronicle.econcept;
+package org.ihtsdo.otf.tcc.model.econcept;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

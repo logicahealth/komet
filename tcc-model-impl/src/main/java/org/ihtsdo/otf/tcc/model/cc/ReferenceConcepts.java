@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc;
+package org.ihtsdo.otf.tcc.model.cc;
 
 import java.io.IOException;
 import java.util.ArrayList;

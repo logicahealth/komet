@@ -25,7 +25,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
 import org.ihtsdo.otf.tcc.datastore.ComponentBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
-import org.ihtsdo.otf.tcc.chronicle.cc.Position;
+import org.ihtsdo.otf.tcc.model.cc.Position;
 
 /**
  * @author kec

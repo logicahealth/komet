@@ -1,10 +1,10 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponentBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.Media;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.MediaRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.media.MediaRevision;
 
 public class MediaBinder extends ConceptComponentBinder<MediaRevision, Media> {
 

@@ -26,7 +26,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
-import org.ihtsdo.ttk.lookup.Looker;
+import org.ihtsdo.otf.tcc.lookup.Looker;
 
 //~--- JDK imports ------------------------------------------------------------
 

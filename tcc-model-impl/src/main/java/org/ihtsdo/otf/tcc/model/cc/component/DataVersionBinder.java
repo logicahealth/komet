@@ -1,6 +1,6 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.OFFSETS;
+import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;

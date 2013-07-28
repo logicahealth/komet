@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cs;
+package org.ihtsdo.otf.tcc.model.cs;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -11,17 +11,17 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.chronicle.ComputeEConceptForChangeSetI;
-import org.ihtsdo.otf.tcc.chronicle.CsProperty;
-import org.ihtsdo.otf.tcc.chronicle.econcept.transfrom.EConceptTransformerBI;
-import org.ihtsdo.otf.tcc.chronicle.io.FileIO;
+import org.ihtsdo.otf.tcc.model.cs.ComputeEConceptForChangeSetI;
+import org.ihtsdo.otf.tcc.model.cs.CsProperty;
+import org.ihtsdo.otf.tcc.model.econcept.transfrom.EConceptTransformerBI;
+import org.ihtsdo.otf.tcc.api.io.FileIO;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 public class ChangeSetWriter implements ChangeSetGeneratorBI {

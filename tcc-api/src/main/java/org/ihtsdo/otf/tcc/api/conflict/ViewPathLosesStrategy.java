@@ -2,8 +2,10 @@ package org.ihtsdo.otf.tcc.api.conflict;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 
+@XmlRootElement(name = "view-path-looses-strategy")
 public class ViewPathLosesStrategy extends ContradictionManagementStrategy {
 
     /**

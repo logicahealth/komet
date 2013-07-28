@@ -27,22 +27,22 @@ import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributesRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.change.BdbCommitSequence;
-import org.ihtsdo.otf.tcc.chronicle.cc.change.LastChange;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.DescriptionRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.RelationshipRevision;
-import org.ihtsdo.otf.tcc.chronicle.ChangeSetWriterHandler;
-import org.ihtsdo.otf.tcc.chronicle.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
+import org.ihtsdo.otf.tcc.model.cc.change.BdbCommitSequence;
+import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.description.DescriptionRevision;
+import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 
 public class BdbCommitManager {
 

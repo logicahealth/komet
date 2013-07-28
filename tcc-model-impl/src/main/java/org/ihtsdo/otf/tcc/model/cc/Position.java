@@ -14,11 +14,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc;
+package org.ihtsdo.otf.tcc.model.cc;
 
 //~--- non-JDK imports --------------------------------------------------------
 //~--- JDK imports ------------------------------------------------------------
-import org.ihtsdo.otf.tcc.chronicle.cc.Path;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

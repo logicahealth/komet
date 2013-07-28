@@ -1,8 +1,8 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.description;
+package org.ihtsdo.otf.tcc.model.cc.description;
 
 import java.beans.PropertyVetoException;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.TypedComponentFacade;
+import org.ihtsdo.otf.tcc.model.cc.component.TypedComponentFacade;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 
 public interface DescriptionFacade

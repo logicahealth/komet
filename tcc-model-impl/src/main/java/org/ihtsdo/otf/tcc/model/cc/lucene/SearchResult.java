@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.lucene;
+package org.ihtsdo.otf.tcc.model.cc.lucene;
 
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;

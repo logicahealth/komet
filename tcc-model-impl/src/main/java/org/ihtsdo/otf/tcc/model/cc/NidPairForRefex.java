@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc;
+package org.ihtsdo.otf.tcc.model.cc;
 
 public class NidPairForRefex extends NidPair {
 

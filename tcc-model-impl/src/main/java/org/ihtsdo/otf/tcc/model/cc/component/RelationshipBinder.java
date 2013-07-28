@@ -1,10 +1,10 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponentBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.RelationshipRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 
 public class RelationshipBinder extends ConceptComponentBinder<RelationshipRevision, Relationship> {
 

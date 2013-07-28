@@ -19,7 +19,7 @@
 package org.ihtsdo.otf.tcc.datastore.id;
 
 import org.ihtsdo.otf.tcc.datastore.id.IndexCacheRecord;
-import org.ihtsdo.otf.tcc.chronicle.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.junit.After;
 import org.junit.AfterClass;
 

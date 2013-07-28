@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_nid_nid_int;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -13,9 +13,9 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int
    .RefexNidNidNidIntAnalogBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
    .TtkRefexUuidUuidUuidIntRevision;
 

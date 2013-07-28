@@ -38,10 +38,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.chronicle.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputerBI;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
 /**
  * Stores cross-reference information for origin relationships, destination relationship origins, and

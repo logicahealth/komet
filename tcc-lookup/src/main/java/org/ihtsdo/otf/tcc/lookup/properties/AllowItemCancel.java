@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.ttk.lookup.properties;
+package org.ihtsdo.otf.tcc.lookup.properties;
 
-import org.ihtsdo.ttk.lookup.InstancePropertyBI;
+import org.ihtsdo.otf.tcc.lookup.InstancePropertyBI;
 
 /**
  *

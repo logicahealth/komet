@@ -1,12 +1,12 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.component;
+package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.io.IOException;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import com.sleepycat.bind.tuple.TupleInput;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.chronicle.cc.attributes.ConceptAttributesRevision;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 
 public class ConceptAttributesFactory extends ComponentFactory<ConceptAttributesRevision, ConceptAttributes> {
 

@@ -24,14 +24,14 @@ import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
 import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.Path;
-import org.ihtsdo.otf.tcc.chronicle.cc.Position;
-import org.ihtsdo.otf.tcc.chronicle.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid.NidMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_int.NidIntMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_long.NidLongMember;
+import org.ihtsdo.otf.tcc.model.cc.Path;
+import org.ihtsdo.otf.tcc.model.cc.Position;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid.NidMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int.NidIntMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long.NidLongMember;
 
 /**
  * Path management.

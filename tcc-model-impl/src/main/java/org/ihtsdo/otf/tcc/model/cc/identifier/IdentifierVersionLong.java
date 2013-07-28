@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.identifier;
+package org.ihtsdo.otf.tcc.model.cc.identifier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.api.id.LongIdBI;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
 

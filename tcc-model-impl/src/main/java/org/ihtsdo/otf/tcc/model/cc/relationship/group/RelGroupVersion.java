@@ -1,9 +1,9 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.relationship.group;
+package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.chronicle.cc.Position;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.Position;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;

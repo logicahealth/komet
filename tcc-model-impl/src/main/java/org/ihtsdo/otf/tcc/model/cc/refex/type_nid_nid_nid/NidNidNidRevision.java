@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_nid_nid;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -7,8 +7,8 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.P;
 
 public class NidNidNidRevision extends RefexRevision<NidNidNidRevision, NidNidNidMember>
         implements RefexNidNidNidAnalogBI<NidNidNidRevision> {

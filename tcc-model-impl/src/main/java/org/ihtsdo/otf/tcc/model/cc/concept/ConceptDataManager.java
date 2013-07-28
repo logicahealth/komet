@@ -2,7 +2,7 @@
 /**
  *
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.concept;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import java.io.IOException;
@@ -13,16 +13,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
-import org.ihtsdo.otf.tcc.chronicle.cc.NidPair;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.AnnotationIndexBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.AnnotationStyleBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.DataVersionBinder;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
-import org.ihtsdo.otf.tcc.chronicle.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.chronicle.cc.media.Media;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.NidPair;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.AnnotationIndexBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.AnnotationStyleBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.DataVersionBinder;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 

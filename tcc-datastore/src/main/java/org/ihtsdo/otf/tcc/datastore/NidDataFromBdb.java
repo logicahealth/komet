@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataFetcherI;
-import org.ihtsdo.otf.tcc.chronicle.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 
 public class NidDataFromBdb implements ConceptDataFetcherI {
 

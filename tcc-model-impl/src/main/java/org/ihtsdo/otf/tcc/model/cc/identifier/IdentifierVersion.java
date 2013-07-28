@@ -1,13 +1,13 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.identifier;
+package org.ihtsdo.otf.tcc.model.cc.identifier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 
 //import org.ihtsdo.db.bdb.Bdb;

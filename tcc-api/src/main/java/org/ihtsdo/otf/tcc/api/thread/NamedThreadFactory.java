@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.ihtsdo.otf.tcc.chronicle.thread;
+package org.ihtsdo.otf.tcc.api.thread;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

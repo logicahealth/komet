@@ -1,14 +1,14 @@
 package org.ihtsdo.otf.tcc.chronicle.cc.refex.Boolean;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_boolean.BooleanRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_boolean.BooleanMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanMember;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

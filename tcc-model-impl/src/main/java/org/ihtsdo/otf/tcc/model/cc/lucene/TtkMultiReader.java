@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.lucene;
+package org.ihtsdo.otf.tcc.model.cc.lucene;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;

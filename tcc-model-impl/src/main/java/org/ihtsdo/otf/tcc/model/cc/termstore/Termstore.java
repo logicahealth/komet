@@ -16,7 +16,7 @@
 
 
 
-package org.ihtsdo.otf.tcc.chronicle.cc.termstore;
+package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -50,18 +50,18 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.conflict.IdentifyAllConflictStrategy;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.Path;
-import org.ihtsdo.otf.tcc.chronicle.cc.Position;
-import org.ihtsdo.otf.tcc.chronicle.cc.PositionSetReadOnly;
-import org.ihtsdo.otf.tcc.chronicle.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.chronicle.cc.change.LastChange;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptVersion;
-import org.ihtsdo.otf.tcc.chronicle.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.chronicle.cc.lucene.SearchResult;
-import org.ihtsdo.otf.tcc.chronicle.ChangeSetWriterHandler;
-import org.ihtsdo.otf.tcc.chronicle.cs.ChangeSetWriter;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.Path;
+import org.ihtsdo.otf.tcc.model.cc.Position;
+import org.ihtsdo.otf.tcc.model.cc.PositionSetReadOnly;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
+import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
+import org.ihtsdo.otf.tcc.model.cc.lucene.SearchResult;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriter;
 
 //~--- JDK imports ------------------------------------------------------------
 

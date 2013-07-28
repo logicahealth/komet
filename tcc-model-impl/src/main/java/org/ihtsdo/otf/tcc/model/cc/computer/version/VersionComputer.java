@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.computer.version;
+package org.ihtsdo.otf.tcc.model.cc.computer.version;
 
 import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
@@ -19,9 +19,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.chronicle.cc.PositionSetReadOnly;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.PositionSetReadOnly;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.api.coordinate.PositionSet;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -29,9 +29,9 @@ import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputer;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputerBI;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputerBI.RelativePosition;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI.RelativePosition;
 
 public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
 

@@ -9,7 +9,7 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.OFFSETS;
+import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 
 public class ReadWriteDataVersion {
 	public static long get(int nid) throws IOException {

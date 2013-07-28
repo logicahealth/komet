@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.concept;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -18,10 +18,10 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.group.RelGroupVersion;
+import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;

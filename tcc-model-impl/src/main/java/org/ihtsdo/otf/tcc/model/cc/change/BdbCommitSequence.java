@@ -16,7 +16,7 @@
 
 
 
-package org.ihtsdo.otf.tcc.chronicle.cc.change;
+package org.ihtsdo.otf.tcc.model.cc.change;
 
 /**
  *

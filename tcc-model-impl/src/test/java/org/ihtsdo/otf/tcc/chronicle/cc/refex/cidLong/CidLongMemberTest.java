@@ -1,13 +1,13 @@
 package org.ihtsdo.otf.tcc.chronicle.cc.refex.cidLong;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_long.NidLongRevision;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_long.NidLongMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long.NidLongRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long.NidLongMember;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

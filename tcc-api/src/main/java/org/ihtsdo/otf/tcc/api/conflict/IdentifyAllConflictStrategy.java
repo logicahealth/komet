@@ -22,6 +22,7 @@ package org.ihtsdo.otf.tcc.api.conflict;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 
 /**
@@ -38,6 +39,8 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
  * @author Dion
  * 
  */
+@XmlRootElement(name = "identify-all-conflicts-strategy")
+
 public class IdentifyAllConflictStrategy extends ContradictionManagementStrategy implements Serializable {
 
     private static final long serialVersionUID = 1L;

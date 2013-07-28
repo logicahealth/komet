@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.chronicle.cc.refex.cidFloat;
 
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_float.NidFloatMember;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_float.NidFloatRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_float.NidFloatMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_float.NidFloatRevision;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

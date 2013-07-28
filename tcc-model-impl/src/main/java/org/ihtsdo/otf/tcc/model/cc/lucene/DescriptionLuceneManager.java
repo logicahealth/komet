@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.lucene;
+package org.ihtsdo.otf.tcc.model.cc.lucene;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,8 +6,8 @@ import java.util.Collection;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
-import org.ihtsdo.otf.tcc.chronicle.cc.description.Description;
-import static org.ihtsdo.otf.tcc.chronicle.cc.lucene.LuceneManager.descWriter;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import static org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager.descWriter;
 
 public class DescriptionLuceneManager extends LuceneManager {
 

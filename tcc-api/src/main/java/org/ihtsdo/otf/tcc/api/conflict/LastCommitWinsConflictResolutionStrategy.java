@@ -21,6 +21,7 @@ package org.ihtsdo.otf.tcc.api.conflict;
 
 import java.io.Serializable;
 import java.util.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 
 /**
@@ -44,6 +45,8 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
  * 
  * @author Dion
  */
+@XmlRootElement(name = "last-commit-wins-strategy")
+
 public class LastCommitWinsConflictResolutionStrategy extends ContradictionManagementStrategy implements Serializable {
 
     private static final long serialVersionUID = 1L;

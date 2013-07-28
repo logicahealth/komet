@@ -21,11 +21,11 @@ import org.ihtsdo.otf.tcc.datastore.Bdb;
 import org.ihtsdo.otf.tcc.datastore.ComponentBdb;
 import org.ihtsdo.otf.tcc.datastore.id.NidCNidMapBdb;
 import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
-import org.ihtsdo.ttk.lookup.Looker;
-import org.ihtsdo.ttk.lookup.TtkEnvironment;
-import org.ihtsdo.ttk.lookup.WorkerPublisher;
-import org.ihtsdo.ttk.lookup.properties.AllowItemCancel;
-import org.ihtsdo.ttk.lookup.properties.ShowGlobalTaskProgress;
+import org.ihtsdo.otf.tcc.lookup.Looker;
+import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
+import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
+import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
+import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -45,9 +45,9 @@ import java.util.concurrent.Future;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSetReadOnly;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.chronicle.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 
 /**
  * Class description

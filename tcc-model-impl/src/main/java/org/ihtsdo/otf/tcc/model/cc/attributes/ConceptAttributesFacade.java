@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.chronicle.cc.attributes;
+package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;

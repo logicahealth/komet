@@ -19,7 +19,7 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptDataFetcherI;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 
 /**
  *

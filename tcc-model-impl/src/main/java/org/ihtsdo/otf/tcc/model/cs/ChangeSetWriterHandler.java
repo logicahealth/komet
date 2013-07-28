@@ -1,13 +1,13 @@
-package org.ihtsdo.otf.tcc.chronicle;
+package org.ihtsdo.otf.tcc.model.cs;
 
-import org.ihtsdo.otf.tcc.chronicle.cs.ChangeSetLogger;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetLogger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;

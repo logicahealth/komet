@@ -49,23 +49,23 @@ import org.ihtsdo.otf.tcc.datastore.temp.I_ShowActivity;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.chronicle.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.OFFSETS;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.TtkConceptChronicleConverter;
-import org.ihtsdo.otf.tcc.chronicle.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.chronicle.io.FileIO;
-import org.ihtsdo.otf.tcc.chronicle.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.api.io.FileIO;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
+import org.ihtsdo.otf.tcc.model.cc.concept.TtkConceptChronicleConverter;
+import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
-import org.ihtsdo.ttk.lookup.properties.AllowItemCancel;
-import org.ihtsdo.ttk.lookup.properties.ShowGlobalTaskProgress;
+import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
+import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
-import org.ihtsdo.ttk.lookup.Looker;
-import org.ihtsdo.ttk.lookup.TermstoreLatch;
-import org.ihtsdo.ttk.lookup.TtkEnvironment;
-import org.ihtsdo.ttk.lookup.WorkerPublisher;
+import org.ihtsdo.otf.tcc.lookup.Looker;
+import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
+import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
+import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
 
 public class Bdb {
 

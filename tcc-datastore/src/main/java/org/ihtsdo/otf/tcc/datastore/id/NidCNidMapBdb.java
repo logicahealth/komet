@@ -35,12 +35,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.chronicle.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.chronicle.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.chronicle.concurrency.ConcurrentReentrantLocks;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputer;
-import org.ihtsdo.otf.tcc.chronicle.version.RelativePositionComputerBI;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.api.concurrency.ConcurrentReentrantLocks;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
+import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
 /**
  * <h2>Implementation Details</h2> The

@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.chronicle.cc.refex.type_nid_nid_nid_string;
+package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -14,11 +14,11 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string
    .RefexNidNidNidStringAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string
    .RefexNidNidNidStringVersionBI;
-import org.ihtsdo.otf.tcc.chronicle.cc.P;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.chronicle.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.chronicle.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.chronicle.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string
    .TtkRefexUuidUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string

@@ -24,9 +24,14 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
+
+@XmlRootElement(name = "position-set")
 
 public class PositionSet implements PositionSetBI, Serializable {
   private static final int dataVersion = 1;
@@ -57,14 +62,15 @@ public class PositionSet implements PositionSetBI, Serializable {
     PositionBI[] positions = new PositionBI[0];
     NidSetBI pathNids = new NidSet();
 
+    /**
+     * No arg constructor for JAXB. 
+     */
+    public PositionSet() {
+    }
+
     public PositionSet(Set<? extends PositionBI> positionSet) {
         super();
-        if (positionSet != null) {
-            this.positions = positionSet.toArray(this.positions);
-            for (PositionBI p : positionSet) {
-                pathNids.add(p.getPath().getConceptNid());
-            }
-        }
+        processPositionSet(positionSet);
     }
 
     public PositionSet(PositionBI viewPosition) {
@@ -73,9 +79,14 @@ public class PositionSet implements PositionSetBI, Serializable {
             pathNids.add(viewPosition.getPath().getConceptNid());
         }
     }
-
-    
+    public void setPositionSet(Set<? extends PositionBI> positionSet) {
+        processPositionSet(positionSet);
+    }
+    public Set<? extends PositionBI> getPositionSet() {
+        return new HashSet<>(Arrays.asList(positions));
+    }
     @Override
+    @XmlTransient
     public NidSetBI getViewPathNidSet() {
         return pathNids;
     }
@@ -113,6 +124,18 @@ public class PositionSet implements PositionSetBI, Serializable {
     @Override
     public boolean isEmpty() {
         return positions.length == 0;
+    }
+
+    private void processPositionSet(Set<? extends PositionBI> positionSet) {
+        pathNids.clear();
+        if (positionSet != null) {
+            this.positions = positionSet.toArray(this.positions);
+            for (PositionBI p : positionSet) {
+                pathNids.add(p.getPath().getConceptNid());
+            }
+        } else {
+            this.positions = new PositionBI[] {};
+        }
     }
 
     private class PositionIterator implements Iterator<PositionBI> {
@@ -174,16 +197,6 @@ public class PositionSet implements PositionSetBI, Serializable {
     @Override
     public String toString() {
         return Arrays.asList(positions).toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
     }
     
     @Override
