@@ -17,7 +17,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidList;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
@@ -500,8 +500,8 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    public DescriptionVersionBI getFullySpecifiedDescription() throws IOException, ContradictionException {
       setupFsnOrder();
 
-      return concept.getDesc(fsnOrder, vc.getLangPrefList(), vc.getAllowedStatus(), vc.getPositionSet(),
-                             LANGUAGE_SORT_PREF.getPref(vc.getLangSort()), vc.getPrecedence(),
+      return concept.getDesc(fsnOrder, vc.getLangPrefList(), vc.getAllowedStatus(), vc.getViewPosition(),
+                             LANGUAGE_SORT_PREF.getPref(vc.getLanguageSort()), vc.getPrecedence(),
                              vc.getContradictionManager());
    }
 
@@ -603,12 +603,12 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    }
 
    @Override
-   public PositionBI getPosition() throws IOException {
+   public Position getPosition() throws IOException {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Set<PositionBI> getPositions() throws IOException {
+   public Set<Position> getPositions() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
@@ -624,7 +624,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       setupPreferredOrder();
 
       return concept.getDesc(preferredOrder, vc.getLangPrefList(), vc.getAllowedStatus(),
-                             vc.getPositionSet(), LANGUAGE_SORT_PREF.getPref(vc.getLangSort()),
+                             vc.getViewPosition(), LANGUAGE_SORT_PREF.getPref(vc.getLanguageSort()),
                              vc.getPrecedence(), vc.getContradictionManager());
    }
 

@@ -1,7 +1,5 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;

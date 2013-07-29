@@ -17,13 +17,14 @@
 /**
  * 
  */
-package org.ihtsdo.otf.tcc.api.conflict;
+package org.ihtsdo.otf.tcc.api.contradiction.strategy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerPolicy;
 
 /**
  * Implements the original ACE conflict resolution strategy. This is also used
@@ -41,7 +42,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
  */
 @XmlRootElement(name = "identify-all-conflicts-strategy")
 
-public class IdentifyAllConflictStrategy extends ContradictionManagementStrategy implements Serializable {
+public class IdentifyAllConflict extends ContradictionManagementStrategy implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -141,5 +142,10 @@ public class IdentifyAllConflictStrategy extends ContradictionManagementStrategy
         values.add(part1);
         values.add(part2);
         return values;
+    }
+
+    @Override
+    public ContradictionManagerPolicy getPolicy() {
+        return ContradictionManagerPolicy.IDENTIFY_ALL_CONFLICTS;
     }
 }

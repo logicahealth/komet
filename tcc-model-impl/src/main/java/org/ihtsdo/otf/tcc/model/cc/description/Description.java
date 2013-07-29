@@ -14,7 +14,6 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
@@ -40,6 +39,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 
 public class Description extends ConceptComponent<DescriptionRevision, Description>
         implements DescriptionAnalogBI<DescriptionRevision> {
@@ -409,7 +409,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     public List<Description.Version> getVersions(ViewCoordinate c) {
         List<Version> returnTuples = new ArrayList<>(2);
 
-        computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getPositionSet(),
+        computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getViewPosition(),
                 returnTuples, getVersions(), c.getPrecedence(),
                 c.getContradictionManager());
 
@@ -417,10 +417,10 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     public List<Description.Version> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
-            PositionSetBI viewPositions, Precedence precedence, ContradictionManagerBI contradictionMgr) {
+            Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr) {
         List<Version> returnTuples = new ArrayList<>(2);
 
-        computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPositions, returnTuples, getVersions(),
+        computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPosition, returnTuples, getVersions(),
                 precedence, contradictionMgr);
 
         return returnTuples;

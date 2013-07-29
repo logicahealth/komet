@@ -2,12 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.model.cc.Position;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.blueprint.CreateOrAmendBlueprint;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
@@ -318,12 +316,12 @@ public class RelGroupVersion implements RelGroupVersionBI {
    }
 
    @Override
-   public PositionBI getPosition() throws IOException {
+   public Position getPosition() throws IOException {
       return new Position(getTime(), P.s.getPath(getPathNid()));
    }
 
    @Override
-   public Set<PositionBI> getPositions() throws IOException {
+   public Set<Position> getPositions() throws IOException {
       return rg.getPositions();
    }
 

@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.OpenBitSet;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
@@ -26,8 +26,8 @@ public abstract class Navigator {
             ViewCoordinate vc) throws IOException {
         V latest = null;
         OpenBitSet resultsPartSet = new OpenBitSet(parts.size());
-        for (PositionBI pos : vc.getPositionSet()) {
-            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(pos);
+        
+            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(vc.getViewPosition());
             OpenBitSet iteratorPartSet = new OpenBitSet(parts.size());
             for (int i = 0; i < parts.size(); i++) {
                 V part = parts.get(i);
@@ -58,7 +58,7 @@ public abstract class Navigator {
                 }
             }
             resultsPartSet.or(iteratorPartSet);
-        }
+        
         List<V> resultsList = new ArrayList<>((int) resultsPartSet.cardinality());
         DocIdSetIterator resultsItr = resultsPartSet.iterator();
         int id = resultsItr.nextDoc();

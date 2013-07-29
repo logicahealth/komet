@@ -16,7 +16,7 @@
 package org.ihtsdo.otf.tcc.model.version;
 
 import java.io.IOException;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.VersionPointBI;
 
@@ -48,7 +48,7 @@ public interface RelativePositionComputerBI {
      */
     RelativePosition fastRelativePosition(VersionPointBI v1, VersionPointBI v2, Precedence precedencePolicy);
 
-    PositionBI getDestination();
+    Position getDestination();
 
     /**
      *

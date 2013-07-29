@@ -22,36 +22,36 @@ import java.util.Iterator;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
 
-public class PathSetReadOnly implements Set<PathBI> {
-	PathBI[] paths = new PathBI[0];
+public class PathSetReadOnly implements Set<Path> {
+	Path[] paths = new Path[0];
 	NidSetBI pathNids = new NidSet();
 	
 	public NidSetBI getPathNidSet() {
 	    return pathNids;
 	}
-	public PathSetReadOnly(Set<PathBI> paths) {
+	public PathSetReadOnly(Set<Path> paths) {
 		super();
 		this.paths = paths.toArray(this.paths);
-		for (PathBI p: paths) {
+		for (Path p: paths) {
 		    pathNids.add(p.getConceptNid());
 		}
 	}
 
-	public PathSetReadOnly(PathBI path) {
+	public PathSetReadOnly(Path path) {
 		super();
-		this.paths = new PathBI[1];
+		this.paths = new Path[1];
 		this.paths[0] = path;
 	}
 
 	@Override
-	public boolean add(PathBI e) {
+	public boolean add(Path e) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends PathBI> c) {
+	public boolean addAll(Collection<? extends Path> c) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -62,7 +62,7 @@ public class PathSetReadOnly implements Set<PathBI> {
 
 	@Override
 	public boolean contains(Object o) {
-		for (PathBI p: paths) {
+		for (Path p: paths) {
 			if (p.equals(o)) {
 				return true;
 			}
@@ -80,7 +80,7 @@ public class PathSetReadOnly implements Set<PathBI> {
 		return paths.length == 0;
 	}
 	
-	private class PositionIterator implements Iterator<PathBI> {
+	private class PositionIterator implements Iterator<Path> {
 		int index = 0;
 		@Override
 		public boolean hasNext() {
@@ -88,7 +88,7 @@ public class PathSetReadOnly implements Set<PathBI> {
 		}
 
 		@Override
-		public PathBI next() {
+		public Path next() {
 			return paths[index++];
 		}
 
@@ -100,7 +100,7 @@ public class PathSetReadOnly implements Set<PathBI> {
 	}
 
 	@Override
-	public Iterator<PathBI> iterator() {
+	public Iterator<Path> iterator() {
 		return new PositionIterator();
 	}
 

@@ -32,24 +32,24 @@ public class StandardViewCoordinates {
    public static ViewCoordinate getSnomedInferredLatest() throws IOException {
       ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
                                    "SNOMED Infered-Latest", Ts.get().getMetadataVC());
-      PositionBI snomedPosition =
+      Position snomedPosition =
          Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                               Long.MAX_VALUE);
 
-      snomedVc.setPositionSet(new PositionSet(snomedPosition));
-      snomedVc.setRelAssertionType(RelAssertionType.INFERRED);
+      snomedVc.setViewPosition(snomedPosition);
+      snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED);
 
       return snomedVc;
    }
    public static ViewCoordinate getSnomedStatedLatest() throws IOException {
       ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734871-836a-11e2-9e96-0800200c9a66"),
                                    "SNOMED Stated-Latest", Ts.get().getMetadataVC());
-      PositionBI snomedPosition =
+      Position snomedPosition =
          Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                               Long.MAX_VALUE);
 
-      snomedVc.setPositionSet(new PositionSet(snomedPosition));
-      snomedVc.setRelAssertionType(RelAssertionType.STATED);
+      snomedVc.setViewPosition(snomedPosition);
+      snomedVc.setRelationshipAssertionType(RelAssertionType.STATED);
 
       return snomedVc;
    }
@@ -57,12 +57,12 @@ public class StandardViewCoordinates {
       public static ViewCoordinate getSnomedInferredThenStatedLatest() throws IOException {
       ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734872-836a-11e2-9e96-0800200c9a66"),
                                    "SNOMED Inferred then Stated-Latest", Ts.get().getMetadataVC());
-      PositionBI snomedPosition =
+      Position snomedPosition =
          Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                               Long.MAX_VALUE);
 
-      snomedVc.setPositionSet(new PositionSet(snomedPosition));
-      snomedVc.setRelAssertionType(RelAssertionType.INFERRED_THEN_STATED);
+      snomedVc.setViewPosition(snomedPosition);
+      snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED_THEN_STATED);
 
       return snomedVc;
    }

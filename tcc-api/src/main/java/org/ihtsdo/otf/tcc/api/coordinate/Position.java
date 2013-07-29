@@ -1,30 +1,12 @@
-/**
- * Copyright (c) 2009 International Health Terminology Standards Development
- * Organisation
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-package org.ihtsdo.otf.tcc.model.cc;
+package org.ihtsdo.otf.tcc.api.coordinate;
 
-//~--- non-JDK imports --------------------------------------------------------
-//~--- JDK imports ------------------------------------------------------------
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,14 +18,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
-public class Position implements PositionBI, Serializable {
+@XmlRootElement(name = "position")
+@XmlAccessorType(XmlAccessType.PROPERTY)
+
+public class Position implements Externalizable {
+
 
     private static final int dataVersion = 1;
     /**
@@ -51,29 +38,38 @@ public class Position implements PositionBI, Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(dataVersion);
+        out.writeLong(time);
+        out.writeObject(path);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         int objDataVersion = in.readInt();
 
         if (objDataVersion == 1) {
             time = in.readLong();
-            path = (PathBI) in.readObject();
+            path = (Path) in.readObject();
         } else {
             throw new IOException("Can't handle dataversion: " + objDataVersion);
         }
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.writeInt(dataVersion);
-        out.writeLong(time);
-        out.writeObject(path);
-    }
     static SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
     //~--- fields --------------------------------------------------------------
-    private PathBI path;
+    private Path path;
     private long time;
 
+    /**
+     * No arg constructor for JAXB
+     */
+    public Position() {
+    }
+
     //~--- constructors --------------------------------------------------------
-    public Position(long time, PathBI path) {
+    public Position(long time, Path path) {
         super();
 
         if (path == null) {
@@ -93,9 +89,8 @@ public class Position implements PositionBI, Serializable {
      * org.dwfa.vodb.types.I_Position#checkAntecedentOrEqualToOrigins(java.util
      * .List)
      */
-    @Override
-    public boolean checkAntecedentOrEqualToOrigins(Collection<? extends PositionBI> origins) {
-        for (PositionBI origin : origins) {
+    public boolean checkAntecedentOrEqualToOrigins(Collection<? extends Position> origins) {
+        for (Position origin : origins) {
             if (path.getConceptNid() == origin.getPath().getConceptNid()) {
                 return time <= origin.getTime();
             } else if (checkAntecedentOrEqualToOrigins(origin.getPath().getOrigins())) {
@@ -106,9 +101,9 @@ public class Position implements PositionBI, Serializable {
         return false;
     }
     
-    private boolean checkAntecedentOrEqualToOrigins(Collection<? extends PositionBI> origins, long testTime,
+    private boolean checkAntecedentOrEqualToOrigins(Collection<? extends Position> origins, long testTime,
             int testPathId) {
-        for (PositionBI origin : origins) {
+        for (Position origin : origins) {
             if (testPathId == origin.getPath().getConceptNid()) {
                 return origin.getTime() <= testTime;
             } else if (checkAntecedentOrEqualToOrigins(origin.getPath().getOrigins(), testTime, testPathId)) {
@@ -119,9 +114,9 @@ public class Position implements PositionBI, Serializable {
         return false;
     }
 
-    private boolean checkSubsequentOrEqualToOrigins(Collection<? extends PositionBI> origins, long testTime,
+    private boolean checkSubsequentOrEqualToOrigins(Collection<? extends Position> origins, long testTime,
             int testPathId) {
-        for (PositionBI origin : origins) {
+        for (Position origin : origins) {
             if (testPathId == origin.getPath().getConceptNid()) {
                 return origin.getTime() >= testTime;
             } else if (checkSubsequentOrEqualToOrigins(origin.getPath().getOrigins(), testTime, testPathId)) {
@@ -135,22 +130,21 @@ public class Position implements PositionBI, Serializable {
     /*
      * (non-Javadoc)
      *
-     * @see org.dwfa.vodb.types.I_Position#equals(org.dwfa.vodb.types.Position)
+     * @see org.dwfa.vodb.types.I_Position#equals(org.dwfa.vodb.types.OldPosition)
      */
-    public boolean equals(PositionBI another) {
+    public boolean equals(Position another) {
         return ((time == another.getTime()) && (path.getConceptNid() == another.getPath().getConceptNid()));
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (PositionBI.class.isAssignableFrom(obj.getClass())) {
-            return equals((PositionBI) obj);
+        if (Position.class.isAssignableFrom(obj.getClass())) {
+            return equals((Position) obj);
         }
 
         return false;
     }
 
-    @Override
     public boolean equals(long time, int pathId) {
         return ((this.time == time) && (path.getConceptNid() == pathId));
     }
@@ -161,7 +155,7 @@ public class Position implements PositionBI, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public static PositionBI readPosition(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    public static Position readPosition(ObjectInputStream in) throws IOException, ClassNotFoundException {
         int version = in.readInt();
         int pathConceptId;
 
@@ -174,7 +168,7 @@ public class Position implements PositionBI, Serializable {
         }
 
         int size = in.readInt();
-        List<PositionBI> origins = new ArrayList<>(size);
+        List<Position> origins = new ArrayList<>(size);
 
         for (int i = 0; i < size; i++) {
             origins.add(readPosition(in));
@@ -185,16 +179,16 @@ public class Position implements PositionBI, Serializable {
         return new Position(version, p);
     }
 
-    public static Set<PositionBI> readPositionSet(ObjectInputStream in)
+    public static Set<Position> readPositionSet(ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         int size = in.readInt();
-        Set<PositionBI> positions = Collections.synchronizedSet(new HashSet<PositionBI>(size));
+        Set<Position> positions = Collections.synchronizedSet(new HashSet<Position>(size));
 
         for (int i = 0; i < size; i++) {
             try {
-                PositionBI position = readPosition(in);
+                Position position = readPosition(in);
                 ConceptChronicleBI pathConcept = Ts.get().getConcept(position.getPath().getConceptNid());
-                PathBI path = Ts.get().getPath(pathConcept.getNid());
+                Path path = Ts.get().getPath(pathConcept.getNid());
 
                 positions.add(Ts.get().newPosition(path, position.getTime()));
             } catch (NullPointerException npe) {
@@ -233,7 +227,7 @@ public class Position implements PositionBI, Serializable {
         return buff.toString();
     }
 
-    public static void writePosition(ObjectOutputStream out, PositionBI p) throws IOException {
+    public static void writePosition(ObjectOutputStream out, Position p) throws IOException {
         out.writeLong(p.getTime());
 
         if (Ts.get().getUuidsForNid(p.getPath().getConceptNid()) != null) {
@@ -244,23 +238,22 @@ public class Position implements PositionBI, Serializable {
 
         out.writeInt(p.getPath().getOrigins().size());
 
-        for (PositionBI origin : p.getPath().getOrigins()) {
+        for (Position origin : p.getPath().getOrigins()) {
             writePosition(out, origin);
         }
     }
 
-    public static void writePositionSet(ObjectOutputStream out, Set<PositionBI> viewPositions)
+    public static void writePositionSet(ObjectOutputStream out, Set<Position> viewPositions)
             throws IOException {
         out.writeInt(viewPositions.size());
 
-        for (PositionBI p : viewPositions) {
+        for (Position p : viewPositions) {
             writePosition(out, p);
         }
     }
 
     //~--- get methods ---------------------------------------------------------
-    @Override
-    public Collection<? extends PositionBI> getAllOrigins() {
+    public Collection<? extends Position> getOrigins() {
         return path.getOrigins();
     }
 
@@ -276,20 +269,20 @@ public class Position implements PositionBI, Serializable {
             return depth;
         }
 
-        List<PositionBI> depthOrigins = new ArrayList<>(path.getOrigins());
+        List<Position> depthOrigins = new ArrayList<>(path.getOrigins());
 
         while (depthOrigins.size() > 0) {
             depth++;
 
-            for (PositionBI o : depthOrigins) {
+            for (Position o : depthOrigins) {
                 if (o.getPath().getConceptNid() == pathId) {
                     return depth;
                 }
             }
 
-            List<PositionBI> newOrigins = new ArrayList<>();
+            List<Position> newOrigins = new ArrayList<>();
 
-            for (PositionBI p : depthOrigins) {
+            for (Position p : depthOrigins) {
                 newOrigins.addAll(p.getPath().getOrigins());
             }
 
@@ -304,18 +297,28 @@ public class Position implements PositionBI, Serializable {
      *
      * @see org.dwfa.vodb.types.I_Position#getPath()
      */
-    @Override
-    public PathBI getPath() {
+    public Path getPath() {
         return path;
     }
 
-    public int getPositionId() {
-        throw new UnsupportedOperationException();
+    /**
+     * To support jaxb unmarshalling.
+     * @param path 
+     */
+    public void setPath(Path path) {
+        this.path = path;
     }
 
-    @Override
     public long getTime() {
         return time;
+    }
+    
+    /**
+     * To support jaxb unmarshalling.
+     * @param time 
+     */
+    public void setTime(long time) {
+        this.time = time;
     }
 
     /*
@@ -323,10 +326,9 @@ public class Position implements PositionBI, Serializable {
      *
      * @see
      * org.dwfa.vodb.types.I_Position#isAntecedentOrEqualTo(org.dwfa.vodb.types
-     * .Position)
+     * .OldPosition)
      */
-    @Override
-    public boolean isAntecedentOrEqualTo(PositionBI another) {
+    public boolean isAntecedentOrEqualTo(Position another) {
         if (equals(another)) {
             return true;
         }
@@ -338,7 +340,6 @@ public class Position implements PositionBI, Serializable {
         return checkAntecedentOrEqualToOrigins(another.getPath().getOrigins());
     }
 
-    @Override
     public boolean isAntecedentOrEqualTo(long time, int pathId) {
         if (equals(time, pathId)) {
             return true;
@@ -358,12 +359,10 @@ public class Position implements PositionBI, Serializable {
      * org.dwfa.vodb.types.I_Position#isSubsequentOrEqualTo(org.dwfa.vodb.types
      * .I_Position)
      */
-    @Override
-    public boolean isSubsequentOrEqualTo(PositionBI another) {
+    public boolean isSubsequentOrEqualTo(Position another) {
         return another.isAntecedentOrEqualTo(this);
     }
 
-    @Override
     public boolean isSubsequentOrEqualTo(long time, int pathId) {
         if (equals(time, pathId)) {
             return true;
@@ -376,13 +375,14 @@ public class Position implements PositionBI, Serializable {
         return checkSubsequentOrEqualToOrigins(path.getOrigins(), time, pathId);
     }
 
-    @Override
-    public Map<Long, ? extends PositionBI> getIntersections() {
+    public Map<Long, ? extends Position> getIntersections() {
+        // TODO support intersections
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public Collection<? extends PositionBI> getBarriers() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Collection<? extends Position> getBarriers() {
+        // TODO support barriers
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
+
 }

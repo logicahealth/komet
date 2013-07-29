@@ -358,7 +358,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         List<RefexMember<R, C>.Version> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
-                c.getPositionSet(), returnTuples, getVersions(), c.getPrecedence(),
+                c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
                 c.getContradictionManager());
 
         return returnTuples;
@@ -368,7 +368,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         List<RefexMember<R, C>.Version> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
-                c.getPositionSet(), returnTuples, getVersions(), c.getPrecedence(),
+                c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
                 c.getContradictionManager(), time);
 
         return returnTuples;

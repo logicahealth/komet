@@ -43,7 +43,7 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 public abstract class Query {
     
     private final HashMap<String, Object> letDeclarations =
-            new HashMap<String, Object>();
+            new HashMap<>();
     private NativeIdSetBI forSet;
     private EnumSet<ClauseComputeType> computeTypes =
             EnumSet.noneOf(ClauseComputeType.class);

@@ -20,7 +20,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.VersionPointBI;
 
@@ -34,10 +34,10 @@ import org.ihtsdo.otf.tcc.api.coordinate.VersionPointBI;
  */
 public class RelativePositionComputer implements RelativePositionComputerBI {
 
-    private static ConcurrentHashMap<PositionBI, RelativePositionComputerBI> mapperCache =
+    private static ConcurrentHashMap<Position, RelativePositionComputerBI> mapperCache =
             new ConcurrentHashMap<>();
 
-    public static RelativePositionComputerBI getComputer(PositionBI position) {
+    public static RelativePositionComputerBI getComputer(Position position) {
         RelativePositionComputerBI pm = mapperCache.get(position);
 
         if (pm != null) {
@@ -54,10 +54,10 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
 
         return pm;
     }
-    PositionBI destination;
+    Position destination;
     HashMap<Integer, Segment> pathNidSegmentMap;
 
-    public RelativePositionComputer(PositionBI destination) {
+    public RelativePositionComputer(Position destination) {
         this.destination = destination;
         pathNidSegmentMap = setupPathNidSegmentMap(destination);
     }
@@ -85,7 +85,7 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
         }
     }
 
-    private static HashMap<Integer, Segment>  setupPathNidSegmentMap(PositionBI destination) {
+    private static HashMap<Integer, Segment>  setupPathNidSegmentMap(Position destination) {
         HashMap<Integer, Segment> pathNidSegmentMap = new HashMap<>();
         AtomicInteger segmentNidSequence = new AtomicInteger(0);
         BitSet precedingSegments = new BitSet();
@@ -95,13 +95,13 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
 
     }
 
-    private static void addOriginsToPathNidSegmentMap(PositionBI destination,
+    private static void addOriginsToPathNidSegmentMap(Position destination,
             HashMap<Integer, Segment> pathNidRpcNidMap, AtomicInteger segmentNidSequence, BitSet precedingSegments) {
         Segment segment = new Segment(segmentNidSequence.getAndIncrement(), destination.getPath().getConceptNid(),
                 destination.getTime(), precedingSegments);
         precedingSegments.set(segment.segmentNid);
         pathNidRpcNidMap.put(destination.getPath().getConceptNid(), segment);
-        for (PositionBI origin : destination.getAllOrigins()) {
+        for (Position origin : destination.getOrigins()) {
             addOriginsToPathNidSegmentMap(origin, pathNidRpcNidMap, segmentNidSequence, precedingSegments);
         }
     }
@@ -155,7 +155,7 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
     }
 
     @Override
-    public PositionBI getDestination() {
+    public Position getDestination() {
         return destination;
     }
 

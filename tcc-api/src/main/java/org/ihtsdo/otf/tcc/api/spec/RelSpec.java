@@ -19,10 +19,15 @@ package org.ihtsdo.otf.tcc.api.spec;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintOutgoing;
 
+@XmlRootElement(name = "rel-spec")
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class RelSpec implements SpecBI {
 
     /**
@@ -52,8 +57,16 @@ public class RelSpec implements SpecBI {
     }
 
     private ConceptSpec originSpec;
-	private ConceptSpec relTypeSpec;
+    private ConceptSpec relTypeSpec;
     private ConceptSpec destinationSpec;
+
+    /**
+     * No arg constructor for jaxb
+     */
+    public RelSpec() {
+    }
+    
+    
 
     public RelSpec(ConceptSpec originSpec, ConceptSpec relTypeSpec, ConceptSpec destinationSpec) {
         super();

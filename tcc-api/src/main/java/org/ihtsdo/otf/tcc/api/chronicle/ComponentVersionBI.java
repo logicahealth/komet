@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.coordinate.VersionPointBI;
@@ -34,7 +34,7 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI {
 
    ComponentChronicleBI getChronicle();
 
-   PositionBI getPosition() throws IOException;
+   Position getPosition() throws IOException;
 
    int getStamp();
 

@@ -6,8 +6,8 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
@@ -40,7 +40,6 @@ import java.beans.VetoableChangeListener;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import java.util.Collection;
 import java.util.Map;
@@ -400,7 +399,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
    }
 
    @Override
-   public void loadEconFiles(Path[] econFiles) throws Exception {
+   public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
       store.loadEconFiles(econFiles);
    }
 
@@ -429,7 +428,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public PositionBI newPosition(PathBI path, long time) throws IOException {
+   public Position newPosition(Path path, long time) throws IOException {
       return store.newPosition(path, time);
    }
 
@@ -889,7 +888,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public PathBI getPath(int pathNid) throws IOException {
+   public Path getPath(int pathNid) throws IOException {
       return store.getPath(pathNid);
    }
 
@@ -917,7 +916,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<PathBI> getPathSetFromPositionSet(Set<PositionBI> positions) throws IOException {
+   public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
       return store.getPathSetFromPositionSet(positions);
    }
 
@@ -932,7 +931,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<PathBI> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
+   public Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
       return store.getPathSetFromSapSet(sapNids);
    }
 
@@ -947,7 +946,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<PositionBI> getPositionSet(Set<Integer> sapNids) throws IOException {
+   public Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException {
       return store.getPositionSet(sapNids);
    }
 

@@ -5,7 +5,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
@@ -169,8 +169,8 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    }
 
    @Override
-   public Set<PositionBI> getPositions() throws IOException {
-      Set<PositionBI> positions = new HashSet<>();
+   public Set<Position> getPositions() throws IOException {
+      Set<Position> positions = new HashSet<>();
 
       for (RelationshipChronicleBI rc : rels) {
          positions.addAll(rc.getPositions());

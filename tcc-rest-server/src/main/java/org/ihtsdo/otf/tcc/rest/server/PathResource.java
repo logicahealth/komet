@@ -14,7 +14,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
 
 /**
  *
@@ -42,7 +41,7 @@ public class PathResource {
 
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                PathBI path = BdbSingleton.get().getPath(pathNid);
+                org.ihtsdo.otf.tcc.api.coordinate.Path path = BdbSingleton.get().getPath(pathNid);
                 ObjectOutputStream oos = new ObjectOutputStream(output);
                 oos.writeObject(path);
             }

@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 public class NidSet implements NidSetBI, Serializable {
@@ -53,13 +53,13 @@ public class NidSet implements NidSetBI, Serializable {
       this.setValues = new int[0];
    }
 
-   public NidSet(Collection<PathBI> pathSet) {
+   public NidSet(Collection<Path> pathSet) {
       super();
       setValues = new int[pathSet.size()];
 
       int i = 0;
 
-      for (PathBI p : pathSet) {
+      for (Path p : pathSet) {
          setValues[i++] = p.getConceptNid();
       }
 

@@ -10,7 +10,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
@@ -23,7 +23,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.Position;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionLong;
@@ -2062,7 +2061,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @throws IOException
      */
     @Override
-    public PositionBI getPosition() throws IOException {
+    public Position getPosition() throws IOException {
         return new Position(getTime(), P.s.getPath(getPathNid()));
     }
 
@@ -2074,9 +2073,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @throws IOException
      */
-    public Set<PositionBI> getPositions() throws IOException {
+    public Set<Position> getPositions() throws IOException {
         List<? extends Version> localVersions = getVersions();
-        Set<PositionBI> positions = new HashSet<>(localVersions.size());
+        Set<Position> positions = new HashSet<>(localVersions.size());
         
         for (Version v : localVersions) {
             positions.add(v.getPosition());
@@ -3128,7 +3127,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          * @throws IOException
          */
         @Override
-        public PositionBI getPosition() throws IOException {
+        public Position getPosition() throws IOException {
             return cv.getPosition();
         }
 
@@ -3140,7 +3139,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          *
          * @throws IOException
          */
-        public Set<PositionBI> getPositions() throws IOException {
+        public Set<Position> getPositions() throws IOException {
             return ConceptComponent.this.getPositions();
         }
 

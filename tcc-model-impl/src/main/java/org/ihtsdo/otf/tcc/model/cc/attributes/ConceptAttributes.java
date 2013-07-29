@@ -12,7 +12,6 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -35,6 +34,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 
 public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevision, ConceptAttributes>
         implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
@@ -324,14 +324,14 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     public List<ConceptAttributes.Version> getVersions(ViewCoordinate c) {
         List<Version> returnTuples = new ArrayList<>(2);
 
-        computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getPositionSet(),
+        computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getViewPosition(),
                 returnTuples, getVersions(), c.getPrecedence(),
                 c.getContradictionManager());
 
         return returnTuples;
     }
 
-    public Collection<Version> getVersions(EnumSet<Status> allowedStatus, PositionSetBI viewPositions,
+    public Collection<Version> getVersions(EnumSet<Status> allowedStatus, Position viewPositions,
             Precedence precedence, ContradictionManagerBI contradictionMgr) {
         List<Version> returnTuples = new ArrayList<>(2);
 

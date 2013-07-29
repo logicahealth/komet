@@ -65,4 +65,5 @@ public interface ContradictionManagerBI extends Serializable {
      */
     <T extends ComponentVersionBI> List<T> resolveVersions(T part1, T part2);
   
+    ContradictionManagerPolicy getPolicy();
 }

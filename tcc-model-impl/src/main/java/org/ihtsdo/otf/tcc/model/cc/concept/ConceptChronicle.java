@@ -1,6 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
@@ -10,7 +9,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -51,7 +50,7 @@ import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationThreadingPolicy;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.conflict.IdentifyAllConflictStrategy;
+import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate.LANGUAGE_SORT;
@@ -99,7 +98,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private I_ManageConceptData data;
     protected int hashCode;
     protected int nid;
-    PositionSetBI positions;
     Precedence precedencePolicy;
 
     //~--- constructors --------------------------------------------------------
@@ -895,7 +893,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public Collection<ConceptAttributes.Version> getConceptAttrVersions(EnumSet<Status> allowedStatus,
-            PositionSetBI viewPositions, Precedence precedence, ContradictionManagerBI contradictionMgr)
+            Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
             return new ArrayList<>();
@@ -903,7 +901,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         List<ConceptAttributes.Version> versions = new ArrayList<>(2);
 
-        versions.addAll(getConceptAttributes().getVersions(allowedStatus, viewPositions, precedence,
+        versions.addAll(getConceptAttributes().getVersions(allowedStatus, viewPosition, precedence,
                 contradictionMgr));
 
         return versions;
@@ -1033,7 +1031,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public Description.Version getDesc(NidListBI typePrefOrder, NidListBI langPrefOrder,
-            EnumSet<Status> allowedStatus, PositionSetBI positionSet,
+            EnumSet<Status> allowedStatus, Position viewPosition,
             LANGUAGE_SORT_PREF sortPref, Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager)
             throws IOException {
@@ -1042,7 +1040,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         switch (sortPref) {
             case TYPE_B4_LANG:
                 result = getTypePreferredDesc(getDescriptionVersions(allowedStatus,
-                        new NidSet(typePrefOrder.getListArray()), positionSet, precedencePolicy,
+                        new NidSet(typePrefOrder.getListArray()), viewPosition, precedencePolicy,
                         contradictionManager), typePrefOrder);
 
                 if (result != null) {
@@ -1057,26 +1055,26 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
             case LANG_REFEX:
                 result = getRefexSpecifiedDesc(getDescriptionVersions(allowedStatus,
-                        new NidSet(typePrefOrder.getListArray()), positionSet, precedencePolicy,
-                        contradictionManager), typePrefOrder, langPrefOrder, allowedStatus, positionSet);
+                        new NidSet(typePrefOrder.getListArray()), viewPosition, precedencePolicy,
+                        contradictionManager), typePrefOrder, langPrefOrder, allowedStatus, viewPosition);
 
                 if (result != null) {
                     return result;
                 }
 
-                return getDesc(typePrefOrder, langPrefOrder, allowedStatus, positionSet,
+                return getDesc(typePrefOrder, langPrefOrder, allowedStatus, viewPosition,
                         LANGUAGE_SORT_PREF.TYPE_B4_LANG, precedencePolicy, contradictionManager);
 
             case RF2_LANG_REFEX:
                 result = getRf2RefexSpecifiedDesc(getDescriptionVersions(allowedStatus,
-                        new NidSet(typePrefOrder.getListArray()), positionSet, precedencePolicy,
-                        contradictionManager), typePrefOrder, langPrefOrder, allowedStatus, positionSet);
+                        new NidSet(typePrefOrder.getListArray()), viewPosition, precedencePolicy,
+                        contradictionManager), typePrefOrder, langPrefOrder, allowedStatus, viewPosition);
 
                 if (result != null) {
                     return result;
                 }
 
-                return getDesc(typePrefOrder, langPrefOrder, allowedStatus, positionSet,
+                return getDesc(typePrefOrder, langPrefOrder, allowedStatus, viewPosition,
                         LANGUAGE_SORT_PREF.LANG_REFEX, precedencePolicy, contradictionManager);
 
             default:
@@ -1104,7 +1102,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public Collection<Description.Version> getDescriptionVersions(EnumSet<Status> allowedStatus,
-            NidSetBI allowedTypes, PositionSetBI viewPositions, Precedence precedence,
+            NidSetBI allowedTypes, Position viewPosition, Precedence precedence,
             ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
@@ -1115,7 +1113,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         List<Description.Version> versions = new ArrayList<>(descriptions.size());
 
         for (Description d : descriptions) {
-            versions.addAll(d.getVersions(allowedStatus, allowedTypes, viewPositions, precedence,
+            versions.addAll(d.getVersions(allowedStatus, allowedTypes, viewPosition, precedence,
                     contradictionMgr));
         }
 
@@ -1199,7 +1197,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public Collection<Media.Version> getMediaVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
-            PositionSetBI viewPositions, Precedence precedence, ContradictionManagerBI contradictionMgr)
+            Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
             return new ConcurrentSkipListSet<>(new ComponentComparator());
@@ -1209,7 +1207,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         List<Media.Version> versions = new ArrayList<>(media.size());
 
         for (Media m : media) {
-            versions.addAll(m.getVersions(allowedStatus, allowedTypes, viewPositions, precedence,
+            versions.addAll(m.getVersions(allowedStatus, allowedTypes, viewPosition, precedence,
                     contradictionMgr));
         }
 
@@ -1230,7 +1228,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Set<PositionBI> getPositions() throws IOException {
+    public Set<Position> getPositions() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1294,10 +1292,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     private Description.Version getRefexSpecifiedDesc(Collection<Description.Version> descriptions,
             NidListBI typePrefOrder, NidListBI langRefexOrder, EnumSet<Status> allowedStatus,
-            PositionSetBI positionSet)
+            Position viewPosition)
             throws IOException {
         ViewCoordinate vc = new ViewCoordinate(UUID.randomUUID(), "getRefexSpecifiedDesc", Precedence.PATH,
-                positionSet, allowedStatus, new IdentifyAllConflictStrategy(),
+                viewPosition, allowedStatus, new IdentifyAllConflict(),
                 Integer.MIN_VALUE, Integer.MIN_VALUE, RelAssertionType.STATED, langRefexOrder,
                 LANGUAGE_SORT.LANG_REFEX);
 
@@ -1363,9 +1361,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         if (vc.getRelationshipAssertionType() == RelAssertionType.INFERRED_THEN_STATED) {
             ViewCoordinate tempVc = new ViewCoordinate(UUID.randomUUID(), "getRelGroups", vc);
 
-            tempVc.setRelAssertionType(RelAssertionType.STATED);
+            tempVc.setRelationshipAssertionType(RelAssertionType.STATED);
             getRelGroups(tempVc, results);
-            tempVc.setRelAssertionType(RelAssertionType.INFERRED);
+            tempVc.setRelationshipAssertionType(RelAssertionType.INFERRED);
             getRelGroups(tempVc, results);
         } else {
             getRelGroups(vc, results);
@@ -1433,10 +1431,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     private Description.Version getRf2RefexSpecifiedDesc(Collection<Description.Version> descriptions,
             NidListBI typePrefOrder, NidListBI langRefexOrder, EnumSet<Status> allowedStatus,
-            PositionSetBI positionSet)
+            Position viewPosition)
             throws IOException {
         ViewCoordinate vc = new ViewCoordinate(UUID.randomUUID(), "getRf2RefexSpecifiedDesc", Precedence.PATH,
-                positionSet, allowedStatus, new IdentifyAllConflictStrategy(),
+                viewPosition, allowedStatus, new IdentifyAllConflict(),
                 Integer.MIN_VALUE, Integer.MIN_VALUE, RelAssertionType.STATED, langRefexOrder,
                 LANGUAGE_SORT.RF2_LANG_REFEX);
 
@@ -1498,7 +1496,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public Collection<Relationship.Version> getSrcRelVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
-            PositionSetBI viewPositions, Precedence precedence, ContradictionManagerBI contradictionMgr)
+            Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
             return new ArrayList<>();
@@ -1508,7 +1506,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         List<Relationship.Version> versions = new ArrayList<>(rels.size());
 
         for (Relationship r : rels) {
-            versions.addAll(r.getVersions(allowedStatus, allowedTypes, viewPositions, precedence,
+            versions.addAll(r.getVersions(allowedStatus, allowedTypes, viewPosition, precedence,
                     contradictionMgr));
         }
 

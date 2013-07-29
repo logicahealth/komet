@@ -17,7 +17,6 @@ import org.ihtsdo.otf.tcc.datastore.ComponentBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -525,14 +523,8 @@ found:
         }
 
         IndexCacheRecord     indexCacheRecord = getIndexCacheRecord(childNid);
-        Iterator<PositionBI> viewPositionItr  = vc.getPositionSet().iterator();
-        PositionBI           position         = viewPositionItr.next();
 
-        if (viewPositionItr.hasNext()) {
-            throw new UnsupportedOperationException("Can only determine is kind of with a single view position. " + vc);
-        }
-
-        RelativePositionComputerBI computer = RelativePositionComputer.getComputer(position);
+        RelativePositionComputerBI computer = RelativePositionComputer.getComputer(vc.getViewPosition());
 
         return indexCacheRecord.isKindOf(parentNid, vc, computer);
     }
@@ -582,14 +574,8 @@ found:
         }
 
         IndexCacheRecord     indexCacheRecord = getIndexCacheRecord(childNid);
-        Iterator<PositionBI> viewPositionItr  = vc.getPositionSet().iterator();
-        PositionBI           position         = viewPositionItr.next();
 
-        if (viewPositionItr.hasNext()) {
-            throw new UnsupportedOperationException("Can only determine is kind of with a single view position. " + vc);
-        }
-
-        RelativePositionComputerBI computer = RelativePositionComputer.getComputer(position);
+        RelativePositionComputerBI computer = RelativePositionComputer.getComputer(vc.getViewPosition());
 
         return indexCacheRecord.isChildOf(parentNid, vc, computer);
     }
@@ -631,14 +617,7 @@ found:
     public Set<Integer> getAncestorNids(int childNid, ViewCoordinate vc) throws IOException, ContradictionException {
         Set<Integer>         ancestorSet     = new HashSet<>();
         Set<Long>            testedSet       = new HashSet<>();
-        Iterator<PositionBI> viewPositionItr = vc.getPositionSet().iterator();
-        PositionBI           position        = viewPositionItr.next();
-
-        if (viewPositionItr.hasNext()) {
-            throw new UnsupportedOperationException("Can only determine is kind of with a single view position. " + vc);
-        }
-
-        RelativePositionComputerBI computer = RelativePositionComputer.getComputer(position);
+        RelativePositionComputerBI computer = RelativePositionComputer.getComputer(vc.getViewPosition());
 
         getAncestorNids(childNid, vc, ancestorSet, testedSet, computer);
 

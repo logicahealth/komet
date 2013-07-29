@@ -5,7 +5,7 @@ package org.ihtsdo.otf.tcc.api.store;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -86,7 +86,7 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
    Collection<DbDependency> getLatestChangeSetDependencies() throws IOException;
 
-   List<? extends PathBI> getPathChildren(int nid);
+   List<? extends Path> getPathChildren(int nid);
 
    int[] getPossibleChildren(int cNid, ViewCoordinate vc) throws IOException;
 

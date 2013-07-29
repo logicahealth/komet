@@ -20,12 +20,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.Path;
-import org.ihtsdo.otf.tcc.model.cc.Position;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
@@ -34,12 +32,12 @@ import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int.NidIntMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long.NidLongMember;
 
 /**
- * Path management.
+ * OldPath management.
  *
  * Defines methods for obtaining and modifying paths. Paths are now stored/defined in reference sets
  * (extension by reference).
  *
- * This implementation avoids the use of the redundant Path store and instead marshals to to the Extension
+ * This implementation avoids the use of the redundant OldPath store and instead marshals to to the Extension
  * store (indirectly).
  *
  */
@@ -50,8 +48,8 @@ public class BdbPathManager {
     private static BdbPathManager singleton;
     //~--- fields --------------------------------------------------------------
 //   private RefsetHelperGetter       helperGetter = new RefsetHelperGetter();
-    protected PathBI editPath;
-    ConcurrentHashMap<Integer, PathBI> pathMap;
+    protected Path editPath;
+    ConcurrentHashMap<Integer, Path> pathMap;
     private ConceptChronicle pathRefsetConcept;
     private ConceptChronicle refsetPathOriginsConcept;
 
@@ -110,7 +108,7 @@ public class BdbPathManager {
 //   /**
 //    * Set an origin on a path
 //    */
-//   public void writeOrigin(final PathBI path, final PositionBI origin, I_ConfigAceFrame config)
+//   public void writeOrigin(final Path path, final Position origin, I_ConfigAceFrame config)
 //           throws IOException {
 //      assert path.getOrigins().contains(origin) : "Must add origin: " + origin + " before writing: " + path;
 //
@@ -148,7 +146,7 @@ public class BdbPathManager {
 //         ConceptChronicle pathOriginRefConcept = getRefsetPathOriginsConcept();
 //
 //         BdbCommitManager.addUncommittedNoChecks(pathOriginRefConcept);
-//         pathMap.put(path.getConceptNid(), (Path) path);
+//         pathMap.put(path.getConceptNid(), (OldPath) path);
 //      } catch (Exception e) {
 //         throw new IOException("Unable to write path origin: " + origin + " to path " + path, e);
 //      }
@@ -187,11 +185,11 @@ public class BdbPathManager {
         }
     }
 
-    public PathBI get(int nid) throws IOException {
+    public Path get(int nid) throws IOException {
         if (exists(nid)) {
             return pathMap.get(nid);
         } else {
-            PathBI p = getFromDisk(nid);
+            Path p = getFromDisk(nid);
 
             if (p != null) {
                 return p;
@@ -204,12 +202,12 @@ public class BdbPathManager {
         return pathMap.get(nid);
     }
 
-    public Set<PathBI> getAll() {
+    public Set<Path> getAll() {
         return new HashSet<>(pathMap.values());
     }
 
-    public List<PositionBI> getAllPathOrigins(int nid) throws IOException {
-        PathBI p = pathMap.get(nid);
+    public List<Position> getAllPathOrigins(int nid) throws IOException {
+        Path p = pathMap.get(nid);
 
         if (p == null) {
             p = getFromDisk(nid);
@@ -219,7 +217,7 @@ public class BdbPathManager {
     }
 
     @SuppressWarnings("unchecked")
-    private PathBI getFromDisk(int cNid) throws IOException {
+    private Path getFromDisk(int cNid) throws IOException {
         try {
             for (RefexMember extPart : getPathRefsetConcept().getExtensions()) {
                 NidMember conceptExtension = (NidMember) extPart;
@@ -238,12 +236,12 @@ public class BdbPathManager {
         return null;
     }
 
-    public List<PathBI> getPathChildren(int nid) {
-        List<PathBI> children = new ArrayList<>();
+    public List<Path> getPathChildren(int nid) {
+        List<Path> children = new ArrayList<>();
 
-        for (PathBI p : pathMap.values()) {
+        for (Path p : pathMap.values()) {
             if (p.getOrigins() != null) {
-                for (PositionBI origin : p.getOrigins()) {
+                for (Position origin : p.getOrigins()) {
                     if (origin.getPath().getConceptNid() == nid) {
                         children.add(p);
                     }
@@ -271,9 +269,9 @@ public class BdbPathManager {
         }
     }
 
-    public Collection<? extends PositionBI> getPathOrigins(int nid) throws IOException {
+    public Collection<? extends Position> getPathOrigins(int nid) throws IOException {
         try {
-            PathBI p = pathMap.get(nid);
+            Path p = pathMap.get(nid);
 
             return p.getOrigins();
         } catch (Exception e) {
@@ -281,13 +279,13 @@ public class BdbPathManager {
         }
     }
 
-    private List<PositionBI> getPathOriginsFromDb(int nid) throws IOException {
+    private List<Position> getPathOriginsFromDb(int nid) throws IOException {
         return getPathOriginsWithDepth(nid, 0);
     }
 
-    private List<PositionBI> getPathOriginsWithDepth(int nid, int depth) throws IOException {
+    private List<Position> getPathOriginsWithDepth(int nid, int depth) throws IOException {
         try {
-            ArrayList<PositionBI> result = new ArrayList<>();
+            ArrayList<Position> result = new ArrayList<>();
             ConceptChronicle pathConcept = Bdb.getConceptDb().getConcept(nid);
 
             for (RefexChronicleBI<?> extPart : pathConcept.getRefexMembers(ReferenceConcepts.REFSET_PATH_ORIGINS.getNid())) {
@@ -384,7 +382,7 @@ public class BdbPathManager {
         if (exists(nid)) {
             return true;
         } else {
-            PathBI p = getFromDisk(nid);
+            Path p = getFromDisk(nid);
 
             if (p != null) {
                 return true;

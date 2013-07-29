@@ -17,7 +17,7 @@
 /**
  * 
  */
-package org.ihtsdo.otf.tcc.api.conflict;
+package org.ihtsdo.otf.tcc.api.contradiction.strategy;
 
 import java.util.Comparator;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;

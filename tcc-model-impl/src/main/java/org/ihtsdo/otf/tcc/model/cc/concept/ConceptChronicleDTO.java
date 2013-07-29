@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
@@ -438,7 +438,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     }
 
     @Override
-    public Set<PositionBI> getPositions() throws IOException {
+    public Set<Position> getPositions() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

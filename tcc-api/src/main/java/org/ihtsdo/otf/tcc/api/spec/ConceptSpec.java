@@ -41,6 +41,11 @@ import java.io.ObjectOutputStream;
 
 import java.util.Arrays;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 
 /**
  * Class description
@@ -49,6 +54,9 @@ import java.util.UUID;
  * @version        Enter version here..., 13/03/24
  * @author         Enter your name here...
  */
+
+@XmlRootElement(name = "concept-spec")
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class ConceptSpec implements SpecBI {
 
    /**
@@ -128,6 +136,11 @@ public class ConceptSpec implements SpecBI {
     */
    public ConceptSpec(String description, UUID uuid, RelSpec... relSpecs) {
       this(description, new UUID[] { uuid }, relSpecs);
+   }
+
+   public ConceptSpec(int nid) throws IOException {
+      this(Ts.get().getConcept(nid).getDescriptions().iterator().next().getPrimordialVersion().getText(), 
+              Ts.get().getUuidPrimordialForNid(nid));
    }
 
    /**
@@ -488,6 +501,7 @@ next:
     *
     * @return
     */
+   @XmlTransient
    public UUID[] getUuids() {
       return uuids;
    }
@@ -499,6 +513,7 @@ next:
     *
     * @return
     */
+   @XmlTransient
    public String[] getUuidsAsString() {
       String[] returnVal = new String[uuids.length];
       int      i         = 0;

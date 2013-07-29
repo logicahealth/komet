@@ -1,8 +1,8 @@
 package org.ihtsdo.otf.tcc.datastore.stamp;
 
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import com.sleepycat.bind.tuple.IntegerBinding;
 import com.sleepycat.bind.tuple.TupleBinding;
@@ -25,7 +25,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
 import org.ihtsdo.otf.tcc.datastore.ComponentBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
-import org.ihtsdo.otf.tcc.model.cc.Position;
 
 /**
  * @author kec
@@ -322,7 +321,7 @@ public class StampBdb extends ComponentBdb {
       }
    }
 
-   public PositionBI getPosition(int stamp) throws IOException {
+   public Position getPosition(int stamp) throws IOException {
       Status  status;
       int  author;
       int  pathNid;
@@ -348,7 +347,7 @@ public class StampBdb extends ComponentBdb {
                                    + " author: " + author);
       }
 
-      PathBI path = Bdb.getPathManager().get(pathNid);
+      Path path = Bdb.getPathManager().get(pathNid);
 
       return new Position(time, path);
    }

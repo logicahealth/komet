@@ -13,7 +13,6 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
@@ -35,6 +34,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 
 public class Media extends ConceptComponent<MediaRevision, Media>
         implements MediaVersionFacade {
@@ -387,7 +387,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     public List<Media.Version> getVersions(ViewCoordinate c) {
         List<Version> returnTuples = new ArrayList<>(2);
 
-        computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getPositionSet(),
+        computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getViewPosition(),
                 returnTuples, getVersions(), c.getPrecedence(),
                 c.getContradictionManager());
 
@@ -395,10 +395,10 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     public Collection<Media.Version> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
-            PositionSetBI viewPositions, Precedence precedence, ContradictionManagerBI contradictionMgr) {
+            Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr) {
         List<Version> returnTuples = new ArrayList<>(2);
 
-        computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPositions, returnTuples, getVersions(),
+        computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPosition, returnTuples, getVersions(),
                 precedence, contradictionMgr);
 
         return returnTuples;

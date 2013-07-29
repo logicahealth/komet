@@ -22,8 +22,8 @@ package org.ihtsdo.oft.tcc.rest.client;
 
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyDI.CONCEPT_EVENT;
@@ -63,7 +63,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.nio.file.Path;
 
 import java.util.*;
 import javax.ws.rs.client.Client;
@@ -306,12 +305,12 @@ public class TccRestClient extends Termstore {
    }
 
    @Override
-   public PathBI getPath(int pathNid) throws IOException {
+   public Path getPath(int pathNid) throws IOException {
       WebTarget r  = restClient.target(serverUrlStr + "path/" + pathNid);
       InputStream is = r.request(bdbMediaType).get(InputStream.class);
 
       try (ObjectInputStream ois = new ObjectInputStream(is)) {
-         return (PathBI) ois.readObject();
+         return (Path) ois.readObject();
       } catch (ClassNotFoundException ex) {
          throw new IOException(ex);
       }
@@ -596,7 +595,7 @@ public class TccRestClient extends Termstore {
    }
 
     @Override
-    public void loadEconFiles(Path[] econFiles) throws Exception {
+    public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -621,17 +620,17 @@ public class TccRestClient extends Termstore {
    }
 
    @Override
-   public Set<PathBI> getPathSetFromPositionSet(Set<PositionBI> positions) throws IOException {
+   public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
    @Override
-   public Set<PathBI> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
+   public Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
    @Override
-   public Set<PositionBI> getPositionSet(Set<Integer> sapNids) throws IOException {
+   public Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
@@ -648,7 +647,7 @@ public class TccRestClient extends Termstore {
 
 
    @Override
-   public List<? extends PathBI> getPathChildren(int nid) {
+   public List<? extends Path> getPathChildren(int nid) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 

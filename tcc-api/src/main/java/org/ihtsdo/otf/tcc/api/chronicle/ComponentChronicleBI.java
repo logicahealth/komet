@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -22,7 +22,7 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
 
     Set<Integer> getAllStamps() throws IOException;
     
-    Set<PositionBI> getPositions() throws IOException;
+    Set<Position> getPositions() throws IOException;
     
     T getPrimordialVersion();
     

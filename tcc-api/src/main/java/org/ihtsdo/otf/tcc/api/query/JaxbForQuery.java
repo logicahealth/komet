@@ -17,13 +17,13 @@ package org.ihtsdo.otf.tcc.api.query;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import org.ihtsdo.otf.tcc.api.conflict.EditPathLosesStrategy;
-import org.ihtsdo.otf.tcc.api.conflict.IdentifyAllConflictStrategy;
-import org.ihtsdo.otf.tcc.api.conflict.LastCommitWinsConflictResolutionStrategy;
-import org.ihtsdo.otf.tcc.api.conflict.ViewPathLosesStrategy;
-import org.ihtsdo.otf.tcc.api.conflict.ViewPathWinsStrategy;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSet;
+import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
+import org.ihtsdo.otf.tcc.api.contradiction.strategy.LastCommitWins;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
+import org.ihtsdo.otf.tcc.api.spec.RelSpec;
 
 /**
  *
@@ -35,10 +35,11 @@ public class JaxbForQuery {
 
     public static JAXBContext get() throws JAXBException {
         if (singleton == null) {
-            singleton = JAXBContext.newInstance(ViewCoordinate.class, EditPathLosesStrategy.class,
-                    IdentifyAllConflictStrategy.class, LastCommitWinsConflictResolutionStrategy.class,
-                    ViewPathLosesStrategy.class,
-                    ViewPathWinsStrategy.class, PositionSet.class);
+            singleton = JAXBContext.newInstance(ViewCoordinate.class, 
+                    IdentifyAllConflict.class, 
+                    LastCommitWins.class,
+                    Position.class, 
+                    Path.class, ConceptSpec.class, RelSpec.class);
         }
         return singleton;
     }

@@ -5,11 +5,10 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.model.cc.Position;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
@@ -357,11 +356,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
    }
 
    @Override
-   public PositionBI getPosition() throws IOException {
+   public Position getPosition() throws IOException {
       return new Position(getTime(), P.s.getPath(getPathNid()));
    }
 
-   public Set<PositionBI> getPositions() throws IOException {
+   public Set<Position> getPositions() throws IOException {
       return primordialComponent.getPositions();
    }
 

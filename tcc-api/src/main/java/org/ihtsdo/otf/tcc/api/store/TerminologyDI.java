@@ -1,14 +1,13 @@
 package org.ihtsdo.otf.tcc.api.store;
 
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -81,11 +80,11 @@ public interface TerminologyDI {
 
    void loadEconFiles(File[] econFiles) throws Exception;
 
-   void loadEconFiles(Path[] econFiles) throws Exception;
+   void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception;
 
    void loadEconFiles(String[] econFileStrings) throws Exception;
 
-   PositionBI newPosition(PathBI path, long time) throws IOException;
+   Position newPosition(Path path, long time) throws IOException;
 
    void removeChangeSetGenerator(String key);
 
@@ -113,15 +112,15 @@ public interface TerminologyDI {
 
    int getModuleNidForStamp(int sapNid);
 
-   PathBI getPath(int pathNid) throws IOException;
+   Path getPath(int pathNid) throws IOException;
 
    int getPathNidForStamp(int sapNid);
 
-   Set<PathBI> getPathSetFromPositionSet(Set<PositionBI> positions) throws IOException;
+   Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
 
-   Set<PathBI> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException;
+   Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException;
 
-   Set<PositionBI> getPositionSet(Set<Integer> sapNids) throws IOException;
+   Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException;
 
     Status getStatusForStamp(int stamp);
 

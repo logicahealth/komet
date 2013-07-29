@@ -6,8 +6,8 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyDI.CONCEPT_EVENT;
@@ -50,7 +50,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 
 import java.io.*;
-import java.nio.file.Path;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -64,12 +63,12 @@ import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 public class BdbTerminologyStore extends Termstore {
    private static ViewCoordinate metadataVC = null;
 
-   private void addOrigins(Set<PathBI> paths, Collection<? extends PositionBI> origins) {
+   private void addOrigins(Set<Path> paths, Collection<? extends Position> origins) {
       if (origins == null) {
          return;
       }
 
-      for (PositionBI o : origins) {
+      for (Position o : origins) {
          paths.add(o.getPath());
          addOrigins(paths, o.getPath().getOrigins());
       }
@@ -200,7 +199,7 @@ public class BdbTerminologyStore extends Termstore {
    }
 
     @Override
-    public void loadEconFiles(Path[] econFiles) throws Exception {
+    public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
         File[] files = new File[econFiles.length];
         for (int i = 0; i < files.length; i++) {
             files[i] = econFiles[i].toFile();
@@ -548,12 +547,12 @@ public class BdbTerminologyStore extends Termstore {
    }
 
    @Override
-   public PathBI getPath(int pathNid) throws IOException {
+   public Path getPath(int pathNid) throws IOException {
       return BdbPathManager.get().get(pathNid);
    }
 
    @Override
-   public List<? extends PathBI> getPathChildren(int nid) {
+   public List<? extends Path> getPathChildren(int nid) {
       return BdbPathManager.get().getPathChildren(nid);
    }
 
@@ -563,10 +562,10 @@ public class BdbTerminologyStore extends Termstore {
    }
 
    @Override
-   public Set<PathBI> getPathSetFromPositionSet(Set<PositionBI> positions) throws IOException {
-      HashSet<PathBI> paths = new HashSet<>(positions.size());
+   public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
+      HashSet<Path> paths = new HashSet<>(positions.size());
 
-      for (PositionBI position : positions) {
+      for (Position position : positions) {
          paths.add(position.getPath());
 
          // addOrigins(paths, position.getPath().getInheritedOrigins());
@@ -576,11 +575,11 @@ public class BdbTerminologyStore extends Termstore {
    }
 
    @Override
-   public Set<PathBI> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
-      HashSet<PathBI> paths = new HashSet<>(sapNids.size());
+   public Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
+      HashSet<Path> paths = new HashSet<>(sapNids.size());
 
       for (int sap : sapNids) {
-         PathBI path = Bdb.getStampDb().getPosition(sap).getPath();
+         Path path = Bdb.getStampDb().getPosition(sap).getPath();
 
          paths.add(path);
          addOrigins(paths, path.getOrigins());
@@ -590,8 +589,8 @@ public class BdbTerminologyStore extends Termstore {
    }
 
    @Override
-   public Set<PositionBI> getPositionSet(Set<Integer> sapNids) throws IOException {
-      HashSet<PositionBI> positions = new HashSet<>(sapNids.size());
+   public Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException {
+      HashSet<Position> positions = new HashSet<>(sapNids.size());
 
       for (int sap : sapNids) {
          if (sap >= 0) {

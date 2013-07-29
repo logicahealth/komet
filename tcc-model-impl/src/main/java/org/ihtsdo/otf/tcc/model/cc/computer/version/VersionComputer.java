@@ -1,13 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.computer.version;
 
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,13 +18,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.model.cc.PositionSetReadOnly;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSet;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
@@ -124,102 +120,67 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
     private int errorCount = 0;
 
     public void addSpecifiedVersions(EnumSet<Status>  allowedStatus,
-            PositionBI viewPosition, List<V> specifiedVersions,
+            Position viewPosition, List<V> specifiedVersions,
             List<V> versions, Precedence precedencePolicy,
             ContradictionManagerBI contradictionMgr) {
         addSpecifiedVersions(allowedStatus, (NidSetBI) null,
-                new PositionSetReadOnly(viewPosition),
+                viewPosition,
                 specifiedVersions, versions, precedencePolicy, contradictionMgr);
     }
 
     public Collection<V> getSpecifiedVersions(EnumSet<Status>  allowedStatus,
-            PositionBI viewPosition,
+            Position viewPosition,
             List<? extends V> versions, Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager) {
         List<V> specifiedVersions = new ArrayList<>();
         addSpecifiedVersions(allowedStatus, (NidSetBI) null,
-                new PositionSetReadOnly(viewPosition),
+                viewPosition,
                 specifiedVersions, versions, precedencePolicy,
                 contradictionManager);
         return specifiedVersions;
 
     }
 
-    public Collection<IdBI> getSpecifiedIdParts(PositionSet positions,
-            List<IdBI> versions, int[] authorityNids) {
-        HashSet<IdBI> specifiedIdParts = new HashSet<>();
-        HashSet<Integer> authorityNidsFilterList = new HashSet<>();
-        if (authorityNids != null && authorityNids.length > 0) {
-            for (int i = 0; i < authorityNids.length; i++) {
-                authorityNidsFilterList.add(authorityNids[i]);
-            }
-        }
-
-        if (positions != null && !positions.isEmpty()) {
-            for (PositionBI position : positions) {
-                RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(position);
-                for (IdBI part : versions) {
-                    if (part.getTime() > Long.MIN_VALUE
-                            && (authorityNidsFilterList.isEmpty()
-                            || authorityNidsFilterList.contains(part.getAuthorityNid()))) {
-                        if (mapper.onRoute(part)) {
-                            specifiedIdParts.add(part);
-                        }
-                    }
-                }
-            }
-        }
-        return specifiedIdParts;
-    }
-
-    public void addSpecifiedVersions(EnumSet<Status> allowedStatus,
-            PositionSetBI positions, List<V> matchingTuples,
-            List<V> versions, Precedence precedencePolicy,
-            ContradictionManagerBI contradictionManager) {
-        addSpecifiedVersions(allowedStatus, null, positions,
-                matchingTuples, versions, precedencePolicy, contradictionManager);
-    }
-
     public void addSpecifiedRelVersions(EnumSet<Status>  allowedStatus, NidSetBI allowedTypes,
-            PositionSetBI positions, List<V> matchingTuples,
+            Position viewPosition, List<V> matchingTuples,
             List<V> versions, Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager) {
-        if (positions == null || positions.isEmpty()) {
+        if (viewPosition == null) {
             addSpecifiedVersionsNullPositions(allowedStatus, allowedTypes,
                     matchingTuples, versions, precedencePolicy,
                     contradictionManager, null);
         } else {
             addSpecifiedVersionsWithPositions(allowedStatus, allowedTypes,
-                    positions, matchingTuples, versions, precedencePolicy,
+                    viewPosition, matchingTuples, versions, precedencePolicy,
                     contradictionManager, new InferredFilter(ReferenceConcepts.SNOROCKET.getNid()));
             addSpecifiedVersionsWithPositions(allowedStatus, allowedTypes,
-                    positions, matchingTuples, versions, precedencePolicy,
+                    viewPosition, matchingTuples, versions, precedencePolicy,
                     contradictionManager, new StatedFilter(ReferenceConcepts.SNOROCKET.getNid()));
         }
     }
 
     public void addSpecifiedRelVersions(List<V> matchingVersions, List<V> versions, ViewCoordinate c) {
-        if (c.getPositionSet() == null || c.getPositionSet().isEmpty()) {
+        if (c.getViewPosition() == null) {
             addSpecifiedVersionsNullPositions(c.getAllowedStatus(), null,
                     matchingVersions, versions, c.getPrecedence(),
                     c.getContradictionManager(), null);
         } else {
             if (c.getRelationshipAssertionType() == RelAssertionType.INFERRED) {
                 addSpecifiedVersionsWithPositions(c.getAllowedStatus(), null,
-                        c.getPositionSet(), matchingVersions, versions, c.getPrecedence(),
+                        c.getViewPosition(), matchingVersions, versions, c.getPrecedence(),
                         c.getContradictionManager(), new InferredFilter(c.getClassifierNid()));
             } else if (c.getRelationshipAssertionType() == RelAssertionType.STATED) {
                 addSpecifiedVersionsWithPositions(c.getAllowedStatus(), null,
-                        c.getPositionSet(), matchingVersions, versions, c.getPrecedence(),
+                        c.getViewPosition(), matchingVersions, versions, c.getPrecedence(),
                         c.getContradictionManager(), new StatedFilter(c.getClassifierNid()));
             } else if (c.getRelationshipAssertionType() == RelAssertionType.INFERRED_THEN_STATED) {
                 List<V> possibleValues = new ArrayList<>();
                 addSpecifiedVersionsWithPositions(c.getAllowedStatus(), null,
-                        c.getPositionSet(), possibleValues, versions, c.getPrecedence(),
+                        c.getViewPosition(), possibleValues, versions, c.getPrecedence(),
                         c.getContradictionManager(), new InferredFilter(c.getClassifierNid()));
                 if (possibleValues.isEmpty()) {
                     addSpecifiedVersionsWithPositions(c.getAllowedStatus(), null,
-                            c.getPositionSet(), possibleValues, versions, c.getPrecedence(),
+                            c.getViewPosition(), possibleValues, versions, c.getPrecedence(),
                             c.getContradictionManager(), new StatedFilter(c.getClassifierNid()));
                 }
                 matchingVersions.addAll(possibleValues);
@@ -236,7 +197,7 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
      * <code>null</code> is a wildcard.
      * @param allowedTypes
      * <code>null</code> is a wildcard.
-     * @param positions
+     * @param viewPosition
      * <code>null</code> is a wildcard.
      * @param specifiedVersions
      * @param addUncommitted
@@ -244,28 +205,28 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
      * @param core
      */
     public void addSpecifiedVersions(EnumSet<Status>  allowedStatus,
-            NidSetBI allowedTypes, PositionSetBI positions,
+            NidSetBI allowedTypes, Position viewPosition,
             List<V> specifiedVersions, List<? extends V> versions,
             Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager) {
-        if (positions == null || positions.size() < 1) {
+        if (viewPosition == null) {
             addSpecifiedVersionsNullPositions(allowedStatus, allowedTypes,
                     specifiedVersions, versions, precedencePolicy,
                     contradictionManager, null);
         } else {
             addSpecifiedVersionsWithPositions(allowedStatus, allowedTypes,
-                    positions, specifiedVersions, versions, precedencePolicy,
+                    viewPosition, specifiedVersions, versions, precedencePolicy,
                     contradictionManager, null);
         }
     }
 
     public void addSpecifiedVersions(EnumSet<Status> allowedStatus,
-            NidSetBI allowedTypes, PositionSetBI positions,
+            NidSetBI allowedTypes, Position viewPosition,
             List<V> specifiedVersions, List<? extends V> versions,
             Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager,
             long cutoffTime) {
-        if (positions == null || positions.size() < 1) {
+        if (viewPosition == null) {
             addSpecifiedVersionsNullPositions(allowedStatus, allowedTypes,
                     specifiedVersions, versions, precedencePolicy,
                     contradictionManager, null);
@@ -274,11 +235,11 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
             InferredFilter[] filters = new InferredFilter[1];
             filters[0] = new CutoffFilter(cutoffTime);
             addSpecifiedVersionsWithCutoff(allowedStatus, allowedTypes,
-                    positions, specifiedVersions, versions, precedencePolicy,
+                    viewPosition, specifiedVersions, versions, precedencePolicy,
                     contradictionManager, filters);
         } else {
             addSpecifiedVersionsWithPositions(allowedStatus, allowedTypes,
-                    positions, specifiedVersions, versions, precedencePolicy,
+                    viewPosition, specifiedVersions, versions, precedencePolicy,
                     contradictionManager, null);
         }
     }
@@ -353,15 +314,15 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
 
     private void addSpecifiedVersionsWithCutoff(EnumSet<Status> allowedStatus,
             NidSetBI allowedTypes,
-            PositionSetBI positions,
+            Position viewPosition,
             List<V> specifiedVersions,
             List<? extends V> versions,
             Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager, InferredFilter[] filters) {
         HashSet<V> partsToAdd = new HashSet<>();
-        for (PositionBI p : positions) {
+        
             HashSet<V> partsForPosition = new HashSet<>();
-            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(p);
+            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(viewPosition);
             nextpart:
             for (V part : versions) {
                 if (part.getTime() == Long.MIN_VALUE) {
@@ -405,21 +366,21 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
             if (partsForPosition.size() > 0) {
                 partsToAdd.addAll(partsForPosition);
             }
-        }
+        
         specifiedVersions.addAll(partsToAdd);
     }
 
     private void addSpecifiedVersionsWithPositions(EnumSet<Status>  allowedStatus,
             NidSetBI allowedTypes,
-            PositionSetBI positions,
+            Position viewPosition,
             List<V> specifiedVersions,
             List<? extends V> versions,
             Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager, InferredFilter filter) {
         HashSet<V> partsToAdd = new HashSet<>();
-        for (PositionBI p : positions) {
+        
             HashSet<V> partsForPosition = new HashSet<>();
-            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(p);
+            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(viewPosition);
             nextpart:
             for (V part : versions) {
                 if (part.getTime() == Long.MIN_VALUE) {
@@ -461,7 +422,7 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
             if (partsForPosition.size() > 0) {
                 partsToAdd.addAll(partsForPosition);
             }
-        }
+        
         specifiedVersions.addAll(partsToAdd);
     }
 

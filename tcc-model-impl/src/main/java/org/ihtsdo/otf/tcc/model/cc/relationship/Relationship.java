@@ -1,6 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
@@ -30,6 +29,7 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -484,10 +484,10 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    public Collection<Relationship.Version> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
-           PositionSetBI viewPositions, Precedence precedence, ContradictionManagerBI contradictionMgr) {
+           Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr) {
       List<Version> returnTuples = new ArrayList<>(2);
 
-      computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPositions, returnTuples, getVersions(),
+      computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPosition, returnTuples, getVersions(),
                                     precedence, contradictionMgr);
 
       return returnTuples;

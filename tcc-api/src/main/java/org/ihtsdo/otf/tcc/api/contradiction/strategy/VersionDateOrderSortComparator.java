@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.api.conflict;
+package org.ihtsdo.otf.tcc.api.contradiction.strategy;
 
 import java.util.Comparator;
 

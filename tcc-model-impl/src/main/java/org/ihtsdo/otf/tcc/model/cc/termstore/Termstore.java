@@ -35,9 +35,8 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PathBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionBI;
-import org.ihtsdo.otf.tcc.api.coordinate.PositionSetBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
@@ -47,13 +46,10 @@ import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.conflict.IdentifyAllConflictStrategy;
+import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.Path;
-import org.ihtsdo.otf.tcc.model.cc.Position;
-import org.ihtsdo.otf.tcc.model.cc.PositionSetReadOnly;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -321,17 +317,16 @@ public abstract class Termstore implements PersistentStoreI {
     * @throws IOException
     */
    protected ViewCoordinate makeMetaVc() throws IOException {
-      PathBI        viewPath          = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
-      PositionBI    viewPosition      = new Position(Long.MAX_VALUE, viewPath);
-      PositionSetBI positionSet       = new PositionSetReadOnly(viewPosition);
+      Path        viewPath          = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
+      Position    viewPosition      = new Position(Long.MAX_VALUE, viewPath);
       EnumSet<Status>        allowedStatusNids = EnumSet.of(Status.ACTIVE);
 
-      ContradictionManagerBI contradictionManager = new IdentifyAllConflictStrategy();
+      ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
       int                    languageNid          = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
       int                    classifierNid        = ReferenceConcepts.SNOROCKET.getNid();
 
       return new ViewCoordinate(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"), "meta-vc",
-                                Precedence.PATH, positionSet, allowedStatusNids,
+                                Precedence.PATH, viewPosition, allowedStatusNids,
                                 contradictionManager, languageNid, classifierNid,
                                 RelAssertionType.INFERRED_THEN_STATED, null,
                                 ViewCoordinate.LANGUAGE_SORT.RF2_LANG_REFEX);
@@ -349,7 +344,7 @@ public abstract class Termstore implements PersistentStoreI {
     * @throws IOException
     */
    @Override
-   public PositionBI newPosition(PathBI path, long time) throws IOException {
+   public Position newPosition(Path path, long time) throws IOException {
       return new Position(time, path);
    }
 

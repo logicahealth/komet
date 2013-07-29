@@ -17,12 +17,13 @@
 /**
  * 
  */
-package org.ihtsdo.otf.tcc.api.conflict;
+package org.ihtsdo.otf.tcc.api.contradiction.strategy;
 
 import java.io.Serializable;
 import java.util.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerPolicy;
 
 /**
  * "Last commit wins" implementation of a conflict resolution strategy.
@@ -47,7 +48,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
  */
 @XmlRootElement(name = "last-commit-wins-strategy")
 
-public class LastCommitWinsConflictResolutionStrategy extends ContradictionManagementStrategy implements Serializable {
+public class LastCommitWins extends ContradictionManagementStrategy implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -183,6 +184,11 @@ public class LastCommitWinsConflictResolutionStrategy extends ContradictionManag
             values.add(part2);
         }
         return values;
+    }
+
+    @Override
+    public ContradictionManagerPolicy getPolicy() {
+        return ContradictionManagerPolicy.LAST_COMMIT_WINS;
     }
 
 }
