@@ -38,7 +38,7 @@ public class JaxbForQuery {
             singleton = JAXBContext.newInstance(ViewCoordinate.class, 
                     IdentifyAllConflict.class, 
                     LastCommitWins.class,
-                    Position.class, 
+                    Position.class, LetMap.class,
                     Path.class, ConceptSpec.class, RelSpec.class);
         }
         return singleton;

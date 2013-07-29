@@ -18,8 +18,10 @@ package org.ihtsdo.otf.tcc.api.query;
 import java.io.IOException;
 import java.io.StringReader;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
@@ -27,20 +29,24 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
  */
 public class QueryFromJaxb extends Query {
 
+    
     public QueryFromJaxb(String viewCoordinateXml, String forXml,
             String letXml, String whereXml) throws JAXBException {
         super((ViewCoordinate) JaxbForQuery.get().createUnmarshaller()
                           .unmarshal(new StringReader(viewCoordinateXml)));
+        Unmarshaller unmarshaller = JaxbForQuery.get().createUnmarshaller();
+        LetMap letMap = (LetMap) unmarshaller.unmarshal(new StringReader(letXml));
+        getLetDeclarations().putAll(letMap.getMap());
     }
 
     @Override
     protected NativeIdSetBI For() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Ts.get().getAllConceptNids();
     }
 
     @Override
     protected void Let() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // lets are set in the constructor. 
     }
 
     @Override

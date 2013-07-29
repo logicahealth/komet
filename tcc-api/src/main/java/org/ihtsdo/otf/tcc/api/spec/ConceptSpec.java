@@ -40,6 +40,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -58,6 +59,39 @@ import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 @XmlRootElement(name = "concept-spec")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class ConceptSpec implements SpecBI {
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + Arrays.deepHashCode(this.uuids);
+        hash = 79 * hash + Objects.hashCode(this.description);
+        hash = 79 * hash + Arrays.deepHashCode(this.relSpecs);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConceptSpec other = (ConceptSpec) obj;
+        if (!Arrays.deepEquals(this.uuids, other.uuids)) {
+            return false;
+        }
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        if (this.relSpecs != other.relSpecs) {
+            if (!Arrays.deepEquals(this.relSpecs, other.relSpecs)) {
+                return false;
+            }
+            
+        }
+        return true;
+    }
 
    /**
     *
@@ -83,7 +117,7 @@ public class ConceptSpec implements SpecBI {
    private String description;
 
    /** Field description */
-   private RelSpec[] relSpecs;
+   private RelSpec[] relSpecs = new RelSpec[0];
 
    /**
     * added to allow JavaBeans spec use.

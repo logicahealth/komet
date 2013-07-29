@@ -191,4 +191,10 @@ public abstract class Query {
     protected ChangedFromPreviousVersion ChangedFromPreviousVersion(ViewCoordinate previousViewCoordinate){
         return new ChangedFromPreviousVersion(this, previousViewCoordinate);
     }
+    
+    
+    public HashMap<String, Object> getLetDeclarations() {
+        return letDeclarations;
+    }
+
 }

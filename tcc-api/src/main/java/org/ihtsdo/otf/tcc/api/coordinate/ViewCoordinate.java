@@ -477,6 +477,10 @@ public class ViewCoordinate implements Externalizable {
     public String getName() {
         return name;
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public Position getViewPosition() {
         return viewPosition;
@@ -492,6 +496,10 @@ public class ViewCoordinate implements Externalizable {
 
     public UUID getVcUuid() {
         return vcUuid;
+    }
+
+    public void setVcUuid(UUID vcUuid) {
+        this.vcUuid = vcUuid;
     }
 
     @XmlTransient
