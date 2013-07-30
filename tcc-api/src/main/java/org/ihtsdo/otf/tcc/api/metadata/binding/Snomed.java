@@ -268,4 +268,30 @@ public class Snomed {
     public static ConceptSpec USING_SUBSTANCE =
 		new ConceptSpec("Using substance (attribute)",
 		UUID.fromString("996261c3-3c12-3f09-8f14-e30e85e9e70d"));
+        public static ConceptSpec ACCELERATION =
+            new ConceptSpec("Acceleration (physical force)",
+            UUID.fromString("6ef49616-e2c7-3557-b7f1-456a2c5a5e54"));
+    
+    public static ConceptSpec CENTRIFUGAL_FORCE =
+            new ConceptSpec("Centrifugal force (physical force)",
+            UUID.fromString("2b684fe1-8baf-34ef-9d2a-df03142c915a"));
+    
+    public static ConceptSpec CONTINUED_MOVEMENT =
+            new ConceptSpec("Continued movement (physical force)",
+            UUID.fromString("5a6abaa5-adac-3c31-a32e-acf4710dca9d"));
+    
+    public static ConceptSpec DECELERATION =
+            new ConceptSpec("Deceleration (physical force)",
+            UUID.fromString("02df5644-8644-3430-98de-f740ada3286b"));
+    
+    public static ConceptSpec MOMENTUM =
+            new ConceptSpec("Momentum (physical force)",
+            UUID.fromString("20fc8b77-9137-385c-92cc-ed4cec5b33a2"));
+    
+    public static ConceptSpec VIBRATION =
+            new ConceptSpec("Vibration (physical force)",
+            UUID.fromString("20fc8b77-9137-385c-92cc-ed4cec5b33a2"));
+       public static ConceptSpec MOTION =
+            new ConceptSpec("Motion (physical force)",
+            UUID.fromString("45a8fde8-535d-3d2a-b76b-95ab67718b41"));
 }
