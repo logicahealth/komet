@@ -47,7 +47,7 @@ public class OrTest {
 
             @Override
             protected Clause Where() {
-                return And(Or(ConceptIsKindOf("person"), ConceptIsKindOf("allergic-asthma")), Not(ConceptIsKindOf("allergic-asthma")));
+                return Or(ConceptIsKindOf("person"), ConceptIsKindOf("allergic-asthma"));
                 //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
             }
         };

@@ -17,6 +17,7 @@ package org.ihtsdo.otf.tcc.test.integration;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
@@ -46,6 +47,7 @@ public class ChangedFromPreviousVersionTest {
             @Override
             protected void Let() throws IOException {
                 let("motion", Snomed.MOTION);
+                let("v2", Ts.get().getViewCoordinate(UUID.fromString("2b684fe1-8baf-34ef-9d2a-df03142c915a")));
             }
 
             @Override

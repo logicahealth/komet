@@ -39,31 +39,31 @@ import org.junit.runner.RunWith;
 @RunWith(BdbTestRunner.class)
 @BdbTestRunnerConfig()
 public class TestQuery {
-    
+
     public TestQuery() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
     @Test
-     public void testQuery() throws IOException, Exception {
+    public void testQuery() throws IOException, Exception {
         System.out.println("Sequence: " + Ts.get().getSequence());
         try {
-           Query q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
+            Query q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
                 @Override
                 protected NativeIdSetBI For() throws IOException {
                     return Ts.get().getAllConceptNids();
@@ -83,22 +83,22 @@ public class TestQuery {
             NativeIdSetBI results = q.compute();
             System.out.println("Query result count: " + results.size());
             Assert.assertEquals(11, results.size());
-            
-            
+
+
         } catch (IOException ex) {
             Assert.fail(ex.toString());
         } catch (Exception ex) {
             Assert.fail(ex.toString());
         }
-    
+
         System.out.println("Sequence: " + Ts.get().getSequence());
         OrTest orTest = new OrTest();
         Query q2 = orTest.getOrTest();
         NativeIdSetBI results2 = q2.compute();
         System.out.println("Query result count:" + results2.size());
         Assert.assertEquals(11 + 427, results2.size());
-        
-        
+
+
         //System.out.println("Sequence: " + Ts.get().getSequence());
 
         NotTest notTest = new NotTest();
@@ -106,36 +106,44 @@ public class TestQuery {
         NativeIdSetBI notResults = notQuery.compute();
         System.out.println("Query result count: " + notResults.size());
         Assert.assertEquals(Ts.get().getAllConceptNids().size() - 438, notResults.size());
-        
+
         /*
-        IsChildOfTest isChildOfTest = new IsChildOfTest();
-        Query q3 = isChildOfTest.getQuery();
-        NativeIdSetBI results3 = q3.compute();
-        System.out.println("Query result count " + results3.size());
-        Assert.assertEquals(5, results3.size());
+        ChangedFromPreviousVersionTest versionTest = new ChangedFromPreviousVersionTest();
+        Query versionQuery = versionTest.getQuery();
+        NativeIdSetBI versionResults = versionQuery.compute();
+        System.out.println("Query result count: " + notResults.size());
+        Assert.assertEquals(5, versionResults.size());
         */
+
         /*
-        IsDescendentOfTest isDescendent = new IsDescendentOfTest();
-        Query q4 = isDescendent.getQuery();
-        NativeIdSetBI results4 = q4.compute();
-        System.out.println("Query result count " + results4.size());
-        Assert.assertEquals(6, results4.size());
-        */
-        
+         IsChildOfTest isChildOfTest = new IsChildOfTest();
+         Query q3 = isChildOfTest.getQuery();
+         NativeIdSetBI results3 = q3.compute();
+         System.out.println("Query result count " + results3.size());
+         Assert.assertEquals(5, results3.size());
+         */
         /*
-        ChangedFromPreviousVersionTest previous = new ChangedFromPreviousVersionTest();
-        Query changesQuery = previous.getQuery();
-        NativeIdSetBI changesResults = changesQuery.compute();
-        System.out.println("Query result count " + changesResults.size());
-        Assert.assertEquals(6, changesResults.size());
-        */
-        
+         IsDescendentOfTest isDescendent = new IsDescendentOfTest();
+         Query q4 = isDescendent.getQuery();
+         NativeIdSetBI results4 = q4.compute();
+         System.out.println("Query result count " + results4.size());
+         Assert.assertEquals(6, results4.size());
+         */
+
         /*
-        DescriptionRegexMatchTest regexMatch = new DescriptionRegexMatchTest();
-        Query regexMatchQuery = regexMatch.getQuery();
-        NativeIdSetBI regexResults = regexMatchQuery.compute();
-        System.out.println("Query result count " + regexResults.size());
-        Assert.assertEquals(20, regexResults.size());
-        */
-     }
+         ChangedFromPreviousVersionTest previous = new ChangedFromPreviousVersionTest();
+         Query changesQuery = previous.getQuery();
+         NativeIdSetBI changesResults = changesQuery.compute();
+         System.out.println("Query result count " + changesResults.size());
+         Assert.assertEquals(6, changesResults.size());
+         */
+
+        /*
+         DescriptionRegexMatchTest regexMatch = new DescriptionRegexMatchTest();
+         Query regexMatchQuery = regexMatch.getQuery();
+         NativeIdSetBI regexResults = regexMatchQuery.compute();
+         System.out.println("Query result count " + regexResults.size());
+         Assert.assertEquals(20, regexResults.size());
+         */
+    }
 }

@@ -15,8 +15,11 @@
  */
 package org.ihtsdo.otf.tcc.api.query;
 
+import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
  *
@@ -29,10 +32,14 @@ public class Not extends ParentClause {
     }
 
     @Override
-    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) {
-        ConcurrentBitSet notSet = new ConcurrentBitSet(enclosingQuery.getForSet());
-        notSet.andNot(incomingPossibleComponents);
-        return notSet;
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI copyOfIncoming = new ConcurrentBitSet(incomingPossibleComponents);
+        NativeIdSetBI notSet = new ConcurrentBitSet();
+        for (Clause c : getChildren()) {
+            notSet.or(c.computePossibleComponents(incomingPossibleComponents));
+        }
+        copyOfIncoming.andNot(notSet);
+        return copyOfIncoming;
     }
     @Override
     public Where.WhereClause getWhereClause() {
