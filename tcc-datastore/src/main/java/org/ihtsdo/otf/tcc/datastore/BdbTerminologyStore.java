@@ -58,6 +58,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 
 public class BdbTerminologyStore extends Termstore {
@@ -752,7 +754,12 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException {
-        throw new UnsupportedOperationException();
+       NativeIdSetItrBI iter = componentNativeIds.getIterator();
+        NativeIdSetBI cNidSet = new ConcurrentBitSet();
+        while (iter.next()) {
+            cNidSet.add(Bdb.getNidCNidMap().getCNid(iter.nid()));
+        }
+        return cNidSet;
     }
 
     @Override

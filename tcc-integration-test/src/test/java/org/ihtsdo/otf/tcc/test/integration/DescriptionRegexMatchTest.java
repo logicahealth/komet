@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Query;
@@ -32,19 +33,28 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  * @author dylangrald
  */
 public class DescriptionRegexMatchTest {
+
     Query q;
     
-    public DescriptionRegexMatchTest() throws IOException{
-         q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
+    public DescriptionRegexMatchTest() throws IOException {
+        q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
             @Override
             protected NativeIdSetBI For() throws IOException {
-                return Ts.get().getAllConceptNids();
+                NativeIdSetBI forSet = new ConcurrentBitSet();
+                forSet.add(Snomed.MOTION.getNid());
+                forSet.add(Snomed.ACCELERATION.getNid());
+                forSet.add(Snomed.CENTRIFUGAL_FORCE.getNid());
+                forSet.add(Snomed.CONTINUED_MOVEMENT.getNid());
+                forSet.add(Snomed.DECELERATION.getNid());
+                forSet.add((Snomed.MOMENTUM.getNid()));
+                forSet.add(Snomed.VIBRATION.getNid());
+                return forSet;
             }
-
+            
             @Override
             protected void Let() throws IOException {
             }
-
+            
             @Override
             protected Clause Where() {
                 String regex = "[Cc]entrifugal";
@@ -52,11 +62,10 @@ public class DescriptionRegexMatchTest {
                 //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
             }
         };
- 
+        
     }
     
-    public Query getQuery(){
+    public Query getQuery() {
         return q;
     }
-    
 }

@@ -110,7 +110,9 @@ public abstract class Query {
         public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fetcher) throws Exception {
             if (conceptsToIterate.contains(cNid)) {
                 ConceptVersionBI concept = fetcher.fetch(viewCoordinate);
-                this.rootClause.getQueryMatches(concept);
+                for(Clause c: rootClause.getChildren()){
+                    c.getQueryMatches(concept);
+                }
             }
         }
         

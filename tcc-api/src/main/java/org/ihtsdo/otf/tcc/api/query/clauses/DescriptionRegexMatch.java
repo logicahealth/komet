@@ -35,12 +35,13 @@ import org.ihtsdo.otf.tcc.api.query.Where;
 public class DescriptionRegexMatch extends LeafClause {
 
     String regex;
-    String regexKey;
+    //String regexKey;
 
-    public DescriptionRegexMatch(Query enclosingQuery, String regexKey) {
+    public DescriptionRegexMatch(Query enclosingQuery, String regex) {
         super(enclosingQuery);
-        this.regexKey = regexKey;
-        this.regex = (String) enclosingQuery.getLetDeclarations().get(regexKey);
+        //this.regexKey = regexKey;
+        //this.regex = (String) enclosingQuery.getLetDeclarations().get(regexKey);
+        this.regex = regex;
     }
 
     @Override
@@ -71,7 +72,7 @@ public class DescriptionRegexMatch extends LeafClause {
         for(Clause clause : getChildren()){
             whereClause.getChildren().add(clause.getWhereClause());
         }
-        whereClause.getLetKeys().add(regexKey);
+        //whereClause.getLetKeys().add(regexKey);
         return whereClause;
     }
 }

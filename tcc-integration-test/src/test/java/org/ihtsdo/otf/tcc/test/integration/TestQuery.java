@@ -107,8 +107,7 @@ public class TestQuery {
         System.out.println("Query result count: " + notResults.size());
         Assert.assertEquals(Ts.get().getAllConceptNids().size() - 438, notResults.size());
 
-        /*
-        ChangedFromPreviousVersionTest versionTest = new ChangedFromPreviousVersionTest();
+        /*ChangedFromPreviousVersionTest versionTest = new ChangedFromPreviousVersionTest();
         Query versionQuery = versionTest.getQuery();
         NativeIdSetBI versionResults = versionQuery.compute();
         System.out.println("Query result count: " + notResults.size());
@@ -138,8 +137,7 @@ public class TestQuery {
          Assert.assertEquals(6, changesResults.size());
          */
 
-        /*
-         DescriptionRegexMatchTest regexMatch = new DescriptionRegexMatchTest();
+         /*DescriptionRegexMatchTest regexMatch = new DescriptionRegexMatchTest();
          Query regexMatchQuery = regexMatch.getQuery();
          NativeIdSetBI regexResults = regexMatchQuery.compute();
          System.out.println("Query result count " + regexResults.size());

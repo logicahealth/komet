@@ -288,9 +288,9 @@ public class Snomed {
             new ConceptSpec("Momentum (physical force)",
             UUID.fromString("20fc8b77-9137-385c-92cc-ed4cec5b33a2"));
     
-    public static ConceptSpec VIBRATION =
+ public static ConceptSpec VIBRATION =
             new ConceptSpec("Vibration (physical force)",
-            UUID.fromString("20fc8b77-9137-385c-92cc-ed4cec5b33a2"));
+            UUID.fromString("c3cfddd6-71bc-34f4-97bc-745f475c88ff"));
        public static ConceptSpec MOTION =
             new ConceptSpec("Motion (physical force)",
             UUID.fromString("45a8fde8-535d-3d2a-b76b-95ab67718b41"));

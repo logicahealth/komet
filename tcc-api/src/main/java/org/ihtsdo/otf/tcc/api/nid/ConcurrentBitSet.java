@@ -547,7 +547,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void xor(NativeIdSetBI other) {
         if (other instanceof ConcurrentBitSet) {
-            xor(other);
+            xor((ConcurrentBitSet)other);
         } else {
             NativeIdSetItrBI iter = other.getIterator();
             try {
@@ -688,7 +688,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void andNot(NativeIdSetBI other) {
         if (other instanceof ConcurrentBitSet) {
-            andNot(other);
+            andNot((ConcurrentBitSet)other);
         } else {
             NativeIdSetItrBI iter = other.getIterator();
             try {
