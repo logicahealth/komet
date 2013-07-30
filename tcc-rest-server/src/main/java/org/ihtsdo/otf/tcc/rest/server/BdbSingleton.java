@@ -31,6 +31,9 @@ public class BdbSingleton {
             if (System.getProperty("BdbSingleton.BDB_LOCATION") != null) {
                 directory = System.getProperty("BdbSingleton.BDB_LOCATION");
             }
+            if (Ts.get() != null) {
+                System.out.println("Bdb already initialized. ");
+            } else {
             System.out.println("Initializing BdbSingleton from directory: " + directory);
             if (new File(directory).exists()) {
                 Ts.setup(Ts.EMBEDDED_BERKELEY_DB_IMPL_CLASS, directory);
@@ -47,6 +50,7 @@ public class BdbSingleton {
             Ts.get().setGlobalSnapshot(Ts.get().getSnapshot(StandardViewCoordinates.getSnomedInferredLatest()));
             Ts.get().putViewCoordinate(StandardViewCoordinates.getSnomedInferredThenStatedLatest());
             Ts.get().putViewCoordinate(StandardViewCoordinates.getSnomedStatedLatest());
+            }
         } catch (Throwable ex) {
             Logger.getLogger(BdbSingleton.class.getName()).log(Level.SEVERE, null, ex);
         }

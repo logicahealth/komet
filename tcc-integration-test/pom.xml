@@ -14,6 +14,17 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework</groupId>
+            <artifactId>jersey-test-framework-core</artifactId>
+            <version>${jersey-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-junit-ext</artifactId>
             <version>${project.version}</version>
@@ -24,6 +35,14 @@
             <artifactId>tcc-api</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcc-rest-server</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+            <classifier>classes</classifier>
             <type>jar</type>
         </dependency>
         <dependency>
