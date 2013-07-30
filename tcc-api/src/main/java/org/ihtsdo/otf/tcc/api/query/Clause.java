@@ -57,6 +57,8 @@ public abstract class Clause {
         return new Clause[] {};
     }
     
+    public abstract Where.WhereClause getWhereClause();
+    
     /**
      * 
      * @return the ClauseComputeType for this clause. 

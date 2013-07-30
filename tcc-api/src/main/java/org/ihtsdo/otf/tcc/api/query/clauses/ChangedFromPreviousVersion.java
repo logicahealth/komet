@@ -25,6 +25,8 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.query.Clause;
+import org.ihtsdo.otf.tcc.api.query.Where;
 
 /**
  *
@@ -33,10 +35,12 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 public class ChangedFromPreviousVersion extends LeafClause {
 
     ViewCoordinate previousViewCoordinate;
+    String previousViewCoordinateKey;
 
-    public ChangedFromPreviousVersion(Query enclosingQuery, ViewCoordinate previousViewCoordinate) {
+    public ChangedFromPreviousVersion(Query enclosingQuery, String previousViewCoordinateKey) {
         super(enclosingQuery);
-        this.previousViewCoordinate = previousViewCoordinate;
+        this.previousViewCoordinateKey = previousViewCoordinateKey;
+        this.previousViewCoordinate = (ViewCoordinate) enclosingQuery.getLetDeclarations().get(previousViewCoordinateKey);
     }
 
     @Override
@@ -56,5 +60,16 @@ public class ChangedFromPreviousVersion extends LeafClause {
                 getResultsCache().add(dv.getNid());
             }
         }
+    }
+    
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.CHANGED_FROM_PREVIOUS_VERSION);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(previousViewCoordinateKey);
+        return whereClause;
     }
 }

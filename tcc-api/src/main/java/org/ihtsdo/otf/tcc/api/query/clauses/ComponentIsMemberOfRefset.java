@@ -17,7 +17,6 @@ package org.ihtsdo.otf.tcc.api.query.clauses;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
 import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
@@ -26,6 +25,8 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
+import org.ihtsdo.otf.tcc.api.query.Clause;
+import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -34,12 +35,16 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  *
  * @author dylangrald
  */
-public class ConceptIsMemberOfRefset extends LeafClause {
+public class ComponentIsMemberOfRefset extends LeafClause {
     
+    String refsetSpecKey;
     ConceptSpec refsetSpec;
     
-    public ConceptIsMemberOfRefset(Query enclosingQuery, ConceptSpec refsetSpec) {
+    public ComponentIsMemberOfRefset(Query enclosingQuery, String refsetSpecKey) {
         super(enclosingQuery);
+        this.refsetSpecKey = refsetSpecKey;
+        this.refsetSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(refsetSpecKey);
+        
     }
     
     @Override
@@ -63,5 +68,15 @@ public class ConceptIsMemberOfRefset extends LeafClause {
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
         //Nothing to do here (?)
+    }
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.COMPONENT_IS_MEMBER_OF_REFSET);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(refsetSpecKey);
+        return whereClause;
     }
 }

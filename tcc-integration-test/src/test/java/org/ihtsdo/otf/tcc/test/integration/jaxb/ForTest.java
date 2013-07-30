@@ -18,17 +18,12 @@ package org.ihtsdo.otf.tcc.test.integration.jaxb;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import junit.framework.Assert;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
-import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.query.ForCollection;
 import org.ihtsdo.otf.tcc.api.query.JaxbForQuery;
-import org.ihtsdo.otf.tcc.api.query.LetMap;
 import org.ihtsdo.otf.tcc.junit.BdbTestRunner;
 import org.ihtsdo.otf.tcc.junit.BdbTestRunnerConfig;
 import org.junit.After;
@@ -44,52 +39,48 @@ import org.junit.runner.RunWith;
  */
 @RunWith(BdbTestRunner.class)
 @BdbTestRunnerConfig()
-public class ForMapTest {
-    
-    public ForMapTest() {
+public class ForTest {
+
+    public ForTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
-    
-    @Test
-    public void testForMap() {
-        try {
-            Map<String, Object> map = new HashMap<>();
-            map.put("kind-of", Snomed.ALLERGIC_ASTHMA);
-            map.put("old-view", StandardViewCoordinates.getSnomedInferredLatest());
 
+    @Test
+    public void conceptTest() {
+        try {
+            ForCollection forCollection = new ForCollection();
             JAXBContext ctx = JaxbForQuery.get();
             StringWriter writer = new StringWriter();
 
-            LetMap wrappedMap = new LetMap(map);
-            ctx.createMarshaller().marshal(wrappedMap, writer);
+            ctx.createMarshaller().marshal(forCollection, writer);
 
-            String viewCoordinateXml = writer.toString();
-            System.out.println("Map: " + viewCoordinateXml);
+            String forXml = writer.toString();
+            System.out.println("For list: " + forXml);
 
-            LetMap unmarshalledWrappedMap = (LetMap) ctx.createUnmarshaller()
-                          .unmarshal(new StringReader(viewCoordinateXml));   
-            boolean aTest = map.equals(unmarshalledWrappedMap.getMap());
-            org.junit.Assert.assertEquals(map, unmarshalledWrappedMap.getMap());
-            
-            
-        } catch (IOException | JAXBException ex) {
-            Logger.getLogger(ForMapTest.class.getName()).log(Level.SEVERE, null, ex);
-            Assert.fail(ex.toString());
+            ForCollection unmarshalledForCollection = (ForCollection) ctx.createUnmarshaller()
+                    .unmarshal(new StringReader(forXml));
+            org.junit.Assert.assertEquals(forCollection.getCollection(), unmarshalledForCollection.getCollection());
+        } catch (JAXBException | IOException ex) {
+            Logger.getLogger(ForTest.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
+
+
     }
 }

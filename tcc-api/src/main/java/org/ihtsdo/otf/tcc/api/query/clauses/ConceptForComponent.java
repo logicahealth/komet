@@ -22,6 +22,7 @@ import org.ihtsdo.otf.tcc.api.query.ParentClause;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
@@ -46,4 +47,14 @@ public class ConceptForComponent extends ParentClause {
         }
         return outgoingPossibleConceptNids;
     }
-}
+    
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.CONCEPT_FOR_COMPONENT);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        return whereClause;
+    }
+  }

@@ -15,30 +15,22 @@
  */
 package org.ihtsdo.otf.tcc.api.query.clauses;
 
-import java.io.IOException;
 import java.util.EnumSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
+import org.ihtsdo.otf.tcc.api.query.Clause;
+import org.ihtsdo.otf.tcc.api.query.Where;
 
 /**
- *
+ * TODO discuss subclassing with Dylan. 
  * @author dylangrald
  */
 public class DescriptionActiveLuceneMatch extends DescriptionLuceneMatch {
     
-    DescriptionLuceneMatch descriptionLuceneMatch;
     
-    public DescriptionActiveLuceneMatch(Query enclosingQuery, String luceneMatch) {
-        super(enclosingQuery, luceneMatch);
-        this.luceneMatch = luceneMatch;
-        descriptionLuceneMatch = new DescriptionLuceneMatch(enclosingQuery, luceneMatch);
+    public DescriptionActiveLuceneMatch(Query enclosingQuery, String luceneMatchKey) {
+        super(enclosingQuery, luceneMatchKey);
     }
 
     @Override
@@ -71,5 +63,15 @@ public class DescriptionActiveLuceneMatch extends DescriptionLuceneMatch {
         }
     }*/
         throw new UnsupportedOperationException("Not supported yet");
+    }
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.DESCRIPTION_ACTIVE_LUCENE_MATCH);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(luceneMatchKey);
+        return whereClause;
     }
 }

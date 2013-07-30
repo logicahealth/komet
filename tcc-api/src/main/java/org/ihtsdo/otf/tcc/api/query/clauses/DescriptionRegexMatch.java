@@ -25,6 +25,8 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.query.Clause;
+import org.ihtsdo.otf.tcc.api.query.Where;
 
 /**
  *
@@ -33,10 +35,12 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 public class DescriptionRegexMatch extends LeafClause {
 
     String regex;
+    String regexKey;
 
-    public DescriptionRegexMatch(Query enclosingQuery, String regex) {
+    public DescriptionRegexMatch(Query enclosingQuery, String regexKey) {
         super(enclosingQuery);
-        this.regex = regex;
+        this.regexKey = regexKey;
+        this.regex = (String) enclosingQuery.getLetDeclarations().get(regexKey);
     }
 
     @Override
@@ -59,5 +63,15 @@ public class DescriptionRegexMatch extends LeafClause {
                 }
             }
         }
+    }
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.DESCRIPTION_REGEX_MATCH);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(regexKey);
+        return whereClause;
     }
 }

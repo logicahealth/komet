@@ -27,6 +27,7 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
@@ -36,10 +37,12 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
  */
 public class ConceptIsChildOf extends LeafClause {
     ConceptSpec kindOfSpec;
+    String kindOfSpecKey;
 
-    public ConceptIsChildOf(Query enclosingQuery, ConceptSpec kindOfSpec) {
+    public ConceptIsChildOf(Query enclosingQuery, String kindOfSpecKey) {
         super(enclosingQuery);
-        this.kindOfSpec = kindOfSpec;
+        this.kindOfSpecKey = kindOfSpecKey;
+        this.kindOfSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(kindOfSpecKey);
     }
 
     @Override
@@ -65,4 +68,16 @@ public class ConceptIsChildOf extends LeafClause {
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
         // Nothing to do...
     }
+    
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.CONCEPT_IS_CHILD_OF);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(kindOfSpecKey);
+        return whereClause;
+    }
+    
 }

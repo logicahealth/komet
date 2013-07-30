@@ -21,6 +21,8 @@ import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.query.Clause;
+import org.ihtsdo.otf.tcc.api.query.Where;
 
 /**
  *
@@ -29,10 +31,12 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 public class DescriptionLuceneMatch extends LeafClause {
 
     String luceneMatch;
+    String luceneMatchKey;
 
-    public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatch) {
+    public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatchKey) {
         super(enclosingQuery);
-        this.luceneMatch = luceneMatch;
+        this.luceneMatchKey = luceneMatchKey;
+        this.luceneMatch = (String) enclosingQuery.getLetDeclarations().get(luceneMatchKey);
     }
 
     @Override
@@ -49,5 +53,15 @@ public class DescriptionLuceneMatch extends LeafClause {
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
         // Nothing to do...
+    }
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(luceneMatchKey);
+        return whereClause;
     }
 }

@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
@@ -30,18 +29,24 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 public class QueryFromJaxb extends Query {
 
     
+    private Clause rootClause;
+    private NativeIdSetBI forCollection;
     public QueryFromJaxb(String viewCoordinateXml, String forXml,
-            String letXml, String whereXml) throws JAXBException {
+            String letXml, String whereXml) throws JAXBException, IOException {
         super((ViewCoordinate) JaxbForQuery.get().createUnmarshaller()
                           .unmarshal(new StringReader(viewCoordinateXml)));
         Unmarshaller unmarshaller = JaxbForQuery.get().createUnmarshaller();
+        ForCollection _for = (ForCollection) unmarshaller.unmarshal(new StringReader(forXml));
+        this.forCollection = _for.getCollection();
         LetMap letMap = (LetMap) unmarshaller.unmarshal(new StringReader(letXml));
         getLetDeclarations().putAll(letMap.getMap());
+        Where.WhereClause where = (Where.WhereClause) unmarshaller.unmarshal(new StringReader(whereXml));
+        rootClause = where.getWhereClause(this);
     }
 
     @Override
     protected NativeIdSetBI For() throws IOException {
-        return Ts.get().getAllConceptNids();
+        return this.forCollection;
     }
 
     @Override
@@ -51,7 +56,7 @@ public class QueryFromJaxb extends Query {
 
     @Override
     protected Clause Where() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return rootClause;
     }
     
 }

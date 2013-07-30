@@ -38,6 +38,8 @@ public class JaxbForQuery {
             singleton = JAXBContext.newInstance(ViewCoordinate.class, 
                     IdentifyAllConflict.class, 
                     LastCommitWins.class,
+                    Where.class,
+                    ForCollection.class,
                     Position.class, LetMap.class,
                     Path.class, ConceptSpec.class, RelSpec.class);
         }

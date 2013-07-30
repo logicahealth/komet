@@ -34,4 +34,13 @@ public class Not extends ParentClause {
         notSet.andNot(incomingPossibleComponents);
         return notSet;
     }
+    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.NOT);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        return whereClause;
+    }
 }

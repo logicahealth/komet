@@ -16,8 +16,10 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -75,6 +77,38 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     public AtomicLongArray getUnits() {
         return units;
+    }
+
+    @Override
+    public int hashCode() {
+        // collection values may change. 
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConcurrentBitSet other = (ConcurrentBitSet) obj;
+        NativeIdSetItrBI thisIterator = this.getIterator();
+        NativeIdSetItrBI otherIterator = other.getIterator();
+        try {
+            while (thisIterator.next() && otherIterator.next()) {
+                if (thisIterator.nid() != otherIterator.nid()) {
+                    return false;
+                }
+            }
+            if (thisIterator.next() != otherIterator.next()) {
+                return false;
+            }
+            return true;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     //CONDITION: no lock held

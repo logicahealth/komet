@@ -29,12 +29,11 @@ import org.ihtsdo.otf.tcc.api.query.clauses.ChangedFromPreviousVersion;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptForComponent;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptIsChildOf;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptIsDescendentOf;
-import org.ihtsdo.otf.tcc.api.query.clauses.ConceptIsMemberOfRefset;
+import org.ihtsdo.otf.tcc.api.query.clauses.ComponentIsMemberOfRefset;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionActiveLuceneMatch;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionActiveRegexMatch;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionLuceneMatch;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionRegexMatch;
-import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 
 /**
  *
@@ -44,6 +43,10 @@ public abstract class Query {
     
     private final HashMap<String, Object> letDeclarations =
             new HashMap<>();
+
+    public HashMap<String, Object> getLetDeclarations() {
+        return letDeclarations;
+    }
     private NativeIdSetBI forSet;
     private EnumSet<ClauseComputeType> computeTypes =
             EnumSet.noneOf(ClauseComputeType.class);
@@ -128,16 +131,15 @@ public abstract class Query {
     }
     
     protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey) {
-        return new ConceptIsKindOf(this,
-                (ConceptSpec) letDeclarations.get(conceptSpecKey));
+        return new ConceptIsKindOf(this, conceptSpecKey);
     }
     
-    protected DescriptionRegexMatch DescriptionRegexMatch(String regex) {
-        return new DescriptionRegexMatch(this, regex);
+    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey) {
+        return new DescriptionRegexMatch(this, regexKey);
     }
     
-    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regex){
-        return new DescriptionActiveRegexMatch(this, regex);
+    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey){
+        return new DescriptionActiveRegexMatch(this, regexKey);
     }
     
     protected ConceptForComponent ConceptForComponent(Clause child){
@@ -145,23 +147,23 @@ public abstract class Query {
     }
     
     protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey){
-        return new ConceptIsDescendentOf(this, (ConceptSpec) letDeclarations.get(conceptSpecKey));
+        return new ConceptIsDescendentOf(this, conceptSpecKey);
     }
     
-    protected ConceptIsMemberOfRefset ConceptIsMemberOfRefset(String refsetSpecKey){
-        return new ConceptIsMemberOfRefset(this, (ConceptSpec) letDeclarations.get(refsetSpecKey));
+    protected ComponentIsMemberOfRefset ConceptIsMemberOfRefset(String refsetSpecKey){
+        return new ComponentIsMemberOfRefset(this, refsetSpecKey);
     }
     
     protected ConceptIsChildOf ConceptIsChildOf(String refsetSpecKey){
-        return new ConceptIsChildOf(this, (ConceptSpec) letDeclarations.get(refsetSpecKey));
+        return new ConceptIsChildOf(this, refsetSpecKey);
     }
     
-    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryText){
-        return new DescriptionActiveLuceneMatch(this, queryText);
+    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey){
+        return new DescriptionActiveLuceneMatch(this, queryTextKey);
     }
     
-    protected DescriptionLuceneMatch DescriptionLuceneMatch(String queryText){
-        return new DescriptionLuceneMatch(this, queryText);
+    protected DescriptionLuceneMatch DescriptionLuceneMatch(String queryTextKey){
+        return new DescriptionLuceneMatch(this, queryTextKey);
     }
     
     protected And And(Clause... clauses) {
@@ -188,13 +190,7 @@ public abstract class Query {
         return new Or(this, clauses);
     }
     
-    protected ChangedFromPreviousVersion ChangedFromPreviousVersion(ViewCoordinate previousViewCoordinate){
-        return new ChangedFromPreviousVersion(this, previousViewCoordinate);
+    protected ChangedFromPreviousVersion ChangedFromPreviousVersion(String previousCoordinateKey){
+        return new ChangedFromPreviousVersion(this, previousCoordinateKey);
     }
-    
-    
-    public HashMap<String, Object> getLetDeclarations() {
-        return letDeclarations;
-    }
-
 }

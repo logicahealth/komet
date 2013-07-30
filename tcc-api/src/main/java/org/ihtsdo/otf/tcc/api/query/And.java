@@ -19,6 +19,8 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.query.Where.ClauseSemantic;
+import org.ihtsdo.otf.tcc.api.query.Where.WhereClause;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
@@ -38,6 +40,16 @@ public class And extends ParentClause {
             results.and(clause.computePossibleComponents(incomingPossibleComponents));
         }
         return results;
+    }
+
+    @Override
+    public WhereClause getWhereClause() {
+        WhereClause whereClause = new WhereClause();
+        whereClause.setSemantic(ClauseSemantic.AND);
+        for(Clause clause : getChildren()){
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        return whereClause;
     }
     
 }
