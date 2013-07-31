@@ -16,7 +16,7 @@ the specific language governing permissions and limitations under the License. -
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) Terminology Component Chronicle Service</name>
     <description>The Terminology Component Chronicle project provides the ability to
@@ -27,7 +27,7 @@ the specific language governing permissions and limitations under the License. -
         <connection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</connection>
         <developerConnection>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</developerConnection>
         <url>https://github.com/IHTSDO/OTF-Versioning-Service</url>
-      <tag>tcc-1.0</tag>
+      <tag>HEAD</tag>
   </scm>
    	
     <properties>
