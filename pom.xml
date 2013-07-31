@@ -27,7 +27,7 @@ the specific language governing permissions and limitations under the License. -
     </description>
     <scm>
         <connection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</connection>
-        <developerConnection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</developerConnection>
         <url>https://github.com/IHTSDO/OTF-Versioning-Service</url>
     </scm>
    	
