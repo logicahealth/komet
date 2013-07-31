@@ -11,7 +11,7 @@ the specific language governing permissions and limitations under the License. -
     <parent>
         <groupId>org.ihtsdo</groupId>
         <artifactId>ihtsdo-otf-parent</artifactId>
-        <version>2</version>
+        <version>3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ihtsdo.otf</groupId>
@@ -42,12 +42,7 @@ the specific language governing permissions and limitations under the License. -
         <junit.version>4.11</junit.version>
         <jersey-version>2.1</jersey-version>
         <maven-release-plugin.version>2.4.1</maven-release-plugin.version>
-        <maven-jxr-plugin.version>2.2</maven-jxr-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-        <maven-project-info-reports-plugin.version>2.2</maven-project-info-reports-plugin.version>
-        <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
-        <maven-plugin-plugin.version>2.6</maven-plugin-plugin.version>
-        <maven-surefire-report-plugin.version>2.6</maven-surefire-report-plugin.version>
         <netbeans-platform-version>RELEASE73</netbeans-platform-version>
         <yDoc.path>/Applications/yworks-uml-doclet-3.0_02-jdk1.5</yDoc.path>
     </properties>
@@ -164,112 +159,11 @@ the specific language governing permissions and limitations under the License. -
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
-                    <additionalparam>-umlautogen</additionalparam>
-                    <docfilessubdirs>true</docfilessubdirs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <reportPlugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.2</version>
-                            <reports>
-                                <report>index</report>
-                                <report>project-team</report>
-                                <report>license</report>
-                                <report>mailing-list</report>
-                                <report>dependencies</report>
-                                <report>dependency-convergence</report>
-                                <report>plugin-management</report>
-                                <report>cim</report>
-                                <report>issue-tracking</report>
-                                <report>scm</report>
-                                <report>summary</report>
-                            </reports>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-javadoc-plugin</artifactId>
-                            <version>${maven-javadoc-plugin.version}</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-jxr-plugin</artifactId>
-                            <version>2.1</version>
-                            <configuration>
-                                <aggregate>true</aggregate>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-report-plugin</artifactId>
-                            <version>2.6</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>cobertura-maven-plugin</artifactId>
-                            <version>2.4</version>
-                            <configuration>
-                                <formats>
-                                    <format>xml</format>
-                                    <format>html</format>
-                                </formats>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-checkstyle-plugin</artifactId>
-                            <version>2.6</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>2.3.1</version>
-                            <configuration>
-                                <argLine>-Xmx256m</argLine>
-                                <argLine>-XX:MaxPermSize=256m</argLine>
-                            </configuration>
-                            <!-- Usually findbugs needs a lot of memory, change these values if needed. -->
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>jdepend-maven-plugin</artifactId>
-                            <version>2.0-beta-2</version>
-                        </plugin>                    
-                    </reportPlugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>cobertura-maven-plugin</artifactId>
-                        <version>2.4</version>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>taglist-maven-plugin</artifactId>
-                        <version>2.4</version>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jxr-plugin</artifactId>
-                        <version>2.1</version>
-                    </plugin>
                 </configuration>
             </plugin>
         </plugins>
@@ -316,5 +210,97 @@ the specific language governing permissions and limitations under the License. -
                 </pluginManagement>
             </build>
         </profile>
+        <profile>
+            <id>github-site</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.github</groupId>
+                        <artifactId>site-maven-plugin</artifactId>
+                        <version>0.8</version>
+                        <configuration>
+                            <message>Creating site for ${project.version}</message>
+                            <server>github</server>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <phase>site</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
+    <reporting>
+        <excludeDefaults>true</excludeDefaults>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                            <report>license</report>
+                            <report>dependencies</report>
+                            <report>dependency-convergence</report>
+                            <report>plugin-management</report>
+                            <report>scm</report>
+                            <report>summary</report>
+<!-- Not currently useful with POM metadata
+                            <report>project-team</report>
+                            <report>mailing-list</report>
+                            <report>cim</report>
+                            <report>issue-tracking</report>
+-->
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <doclet>ydoc.doclets.YStandard</doclet>
+                    <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
+                    <additionalparam>-umlautogen</additionalparam>
+                    <docfilessubdirs>true</docfilessubdirs>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <inherited>false</inherited>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jdepend-maven-plugin</artifactId>
+                <version>2.0-beta-2</version>
+            </plugin>                    
+        </plugins>
+    </reporting>
 </project>
