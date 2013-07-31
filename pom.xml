@@ -32,7 +32,7 @@ the specific language governing permissions and limitations under the License. -
     <distributionManagement>
       <site>
         <id>site</id>
-        <url>${project.scm.developerConnection}</url>
+        <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
       </site>
     </distributionManagement>
    	
