@@ -95,8 +95,10 @@ public class EConceptToChangeSet {
                }
             }
          } catch (EOFException e) {
+             //
+         } finally {
             in.close();
-            dos.close();
+            dos.close();             
          }
 
          System.out.println("\nFinished conversion of " + conceptsRead + " concepts from: "

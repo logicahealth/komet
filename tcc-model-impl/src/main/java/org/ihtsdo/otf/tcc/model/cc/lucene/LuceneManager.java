@@ -150,8 +150,10 @@ public abstract class LuceneManager {
             try {
                 if (descLuceneReadOnlyDir == null) {
                     descLuceneReadOnlyDir = initDirectory(DescriptionLuceneManager.descLuceneReadOnlyDirFile, false);
-                    descReadOnlyReader = DirectoryReader.open(descLuceneReadOnlyDir);
-
+                    if (DirectoryReader.indexExists(descLuceneReadOnlyDir)) {
+                            descReadOnlyReader = DirectoryReader.open(descLuceneReadOnlyDir);
+                     }
+ 
                 }
             } catch (IndexNotFoundException ex) {
                 System.out.println(ex.toString());
