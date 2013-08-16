@@ -27,13 +27,13 @@ the specific language governing permissions and limitations under the License. -
         <connection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</connection>
         <developerConnection>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</developerConnection>
         <url>https://github.com/IHTSDO/OTF-Versioning-Service</url>
-      <tag>sprint2</tag>
+        <tag>sprint2</tag>
     </scm>
     <distributionManagement>
-      <site>
-        <id>site</id>
-        <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
-      </site>
+        <site>
+            <id>site</id>
+            <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
+        </site>
     </distributionManagement>
    	
     <properties>
@@ -55,6 +55,11 @@ the specific language governing permissions and limitations under the License. -
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2</artifactId>
+                <version>2.2.0-b14</version>
+            </dependency>
+            <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-util-lookup</artifactId>
                 <version>${netbeans-platform-version}</version>
@@ -69,12 +74,12 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>jfxrt</artifactId>
                 <version>${javafx.version}</version>
             </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -136,7 +141,7 @@ the specific language governing permissions and limitations under the License. -
                         </dependency>
                     </dependencies>
                 </plugin>
-             </plugins>
+            </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
@@ -192,7 +197,7 @@ the specific language governing permissions and limitations under the License. -
                 <module>tcc-integration-test</module>
             </modules>
         </profile>
-         <profile>
+        <profile>
             <id>default-tools.jar</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -235,12 +240,12 @@ the specific language governing permissions and limitations under the License. -
                             <report>plugin-management</report>
                             <report>scm</report>
                             <report>summary</report>
-<!-- Not currently useful with POM metadata
-                            <report>project-team</report>
-                            <report>mailing-list</report>
-                            <report>cim</report>
-                            <report>issue-tracking</report>
--->
+                            <!-- Not currently useful with POM metadata
+                                                        <report>project-team</report>
+                                                        <report>mailing-list</report>
+                                                        <report>cim</report>
+                                                        <report>issue-tracking</report>
+                            -->
                         </reports>
                     </reportSet>
                 </reportSets>
