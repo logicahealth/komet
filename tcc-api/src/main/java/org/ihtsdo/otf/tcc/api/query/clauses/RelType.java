@@ -36,17 +36,16 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  */
 public class RelType extends LeafClause {
 
-    ConceptSpec relSpec;
-    String relSpecKey;
+    ConceptSpec conceptSpec;
+    String conceptSpecKey;
     String viewCoordinateKey;
     ViewCoordinate vc;
     Query enclosingQuery;
-    NativeIdSetBI cache;
 
-    public RelType(Query enclosingQuery, String relSpecKey, String viewCoordinateKey) {
+    public RelType(Query enclosingQuery, String conceptSpecKey, String viewCoordinateKey) {
         super(enclosingQuery);
-        this.relSpecKey = relSpecKey;
-        this.relSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(relSpecKey);
+        this.conceptSpecKey = conceptSpecKey;
+        this.conceptSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(conceptSpecKey);
         this.viewCoordinateKey = viewCoordinateKey;
         this.enclosingQuery = enclosingQuery;
 
@@ -59,7 +58,7 @@ public class RelType extends LeafClause {
         for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
-        whereClause.getLetKeys().add(relSpecKey);
+        whereClause.getLetKeys().add(conceptSpecKey);
         return whereClause;
     }
 
@@ -75,18 +74,13 @@ public class RelType extends LeafClause {
         } else {
             this.vc = (ViewCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
         }
-        this.cache = incomingPossibleComponents;
         return incomingPossibleComponents;
     }
 
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
-        int nid = conceptVersion.getNid();
-        int relSpecNid = relSpec.getNid(vc);
-        if (this.cache.contains(nid)) {
-            getResultsCache().or(Ts.get().relationshipSet(relSpecNid, vc));
-        }
-
+        int parentNid = conceptSpec.getNid(vc);
+        getResultsCache().or(Ts.get().relationshipSet(parentNid, vc));
 
     }
 }
