@@ -13,40 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.test.integration.rest;
+
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
+ * Creates a test for ConceptIsKindOf clause.
  *
- * @author kec
+ * @author dylangrald
  */
-public class ExampleQuery extends Query {
+public class IsKindOfTest {
 
-    public ExampleQuery(ViewCoordinate viewCoordinate) {
-        super(viewCoordinate);
+    Query q;
+
+    public IsKindOfTest() throws IOException {
+        q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
+            @Override
+            protected NativeIdSetBI For() throws IOException {
+                return Ts.get().getAllConceptNids();
+            }
+
+            @Override
+            protected void Let() throws IOException {
+                let("Physical force", Snomed.PHYSICAL_FORCE);
+            }
+
+            @Override
+            protected Clause Where() {
+                    return And(ConceptIsKindOf("Physical force"));
+            }
+        };
     }
 
-    @Override
-    protected NativeIdSetBI For() throws IOException {
-        return Ts.get().getAllConceptNids();
-    }
-
-    @Override
-    protected void Let() throws IOException {
-        let("allergic-asthma", Snomed.ALLERGIC_ASTHMA);
-    }
-
-    @Override
-    protected Clause Where() {
-            return And(ConceptIsKindOf("allergic-asthma"));
+    public Query getQuery() {
+        return q;
     }
 }

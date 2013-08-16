@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 International Health Terminology Standards Development Organisation.
+ * Copyright 2013 International Health Terminology Standards Development Organisation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.termstore;
+package org.ihtsdo.otf.tcc.api.query;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author kec
  */
-public enum SearchType {
-    CONCEPT, DESCRIPTION, REFSET,
+@XmlRootElement
+public class LetMap {
+    private Map<String, Object> map = new HashMap<>();
+
+    public LetMap() {
+    }
+
+    public LetMap(Map<String, Object> map) {
+        this.map = map;
+    }
+
+    public Map<String, Object> getMap() {
+        return map;
+    }
     
+    public void setMap(Map<String, Object> map) {
+        this.map = map;
+    }
+
 }

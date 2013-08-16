@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 International Health Terminology Standards Development Organisation.
+ * Copyright 2013 International Health Terminology Standards Development Organisation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.termstore;
+package org.ihtsdo.otf.tcc.api.query;
 
 /**
- *
+ * Specifies the components 
  * @author kec
  */
-public enum SearchType {
-    CONCEPT, DESCRIPTION, REFSET,
-    
+public enum ClauseComponentType {
+    CONCEPT, DESCRIPTION, RELATIONSHIP, MEDIA, REFEX
 }

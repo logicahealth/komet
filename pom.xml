@@ -8,12 +8,12 @@ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 OR CONDITIONS OF ANY KIND, either express or implied. See the License for
 the specific language governing permissions and limitations under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.ihtsdo</groupId>
         <artifactId>ihtsdo-otf-parent</artifactId>
-        <version>2</version>
+        <version>2-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
     <version>1.1-sprint2-SNAPSHOT</version>
@@ -27,17 +27,17 @@ the specific language governing permissions and limitations under the License. -
         <connection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</connection>
         <developerConnection>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</developerConnection>
         <url>https://github.com/IHTSDO/OTF-Versioning-Service</url>
-      <tag>sprint2</tag>
+        <tag>sprint2</tag>
     </scm>
     <distributionManagement>
-      <site>
-        <id>site</id>
-        <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
-      </site>
+        <site>
+            <id>site</id>
+            <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
+        </site>
     </distributionManagement>
    	
     <properties>
-        <branch>TCC trunk</branch>
+        <branch>TCC ${project.scm.tag}</branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
@@ -69,12 +69,12 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>jfxrt</artifactId>
                 <version>${javafx.version}</version>
             </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -136,7 +136,7 @@ the specific language governing permissions and limitations under the License. -
                         </dependency>
                     </dependencies>
                 </plugin>
-             </plugins>
+            </plugins>
         </pluginManagement>
         <plugins>
             <plugin>
@@ -184,6 +184,7 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-rest-server</module>
         <module>tcc-datastore</module>
         <module>tcc-junit-ext</module>
+        <module>tcc-integration-test</module>
     </modules>
     <profiles>
         <profile>
@@ -192,7 +193,7 @@ the specific language governing permissions and limitations under the License. -
                 <module>tcc-integration-test</module>
             </modules>
         </profile>
-         <profile>
+        <profile>
             <id>default-tools.jar</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -235,12 +236,12 @@ the specific language governing permissions and limitations under the License. -
                             <report>plugin-management</report>
                             <report>scm</report>
                             <report>summary</report>
-<!-- Not currently useful with POM metadata
-                            <report>project-team</report>
-                            <report>mailing-list</report>
-                            <report>cim</report>
-                            <report>issue-tracking</report>
--->
+                            <!-- Not currently useful with POM metadata
+                                                        <report>project-team</report>
+                                                        <report>mailing-list</report>
+                                                        <report>cim</report>
+                                                        <report>issue-tracking</report>
+                            -->
                         </reports>
                     </reportSet>
                 </reportSets>
