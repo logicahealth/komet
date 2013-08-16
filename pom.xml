@@ -37,7 +37,7 @@ the specific language governing permissions and limitations under the License. -
     </distributionManagement>
    	
     <properties>
-        <branch>TCC trunk</branch>
+        <branch>TCC ${project.scm.tag}</branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
