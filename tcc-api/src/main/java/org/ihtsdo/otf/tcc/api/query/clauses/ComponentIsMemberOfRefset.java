@@ -17,20 +17,15 @@ package org.ihtsdo.otf.tcc.api.query.clauses;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.List;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
 import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
-import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.datastore.Bdb;
-import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 
 /**
  * TODO: Not supported yet. Calculates the set of concepts that are members of
@@ -51,7 +46,7 @@ public class ComponentIsMemberOfRefset extends LeafClause {
 
     }
 
-    @Override
+    /*@Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return PRE_AND_POST_ITERATION;
     }
@@ -85,5 +80,25 @@ public class ComponentIsMemberOfRefset extends LeafClause {
         }
         whereClause.getLetKeys().add(refsetSpecKey);
         return whereClause;
+    }*/
+
+    @Override
+    public Where.WhereClause getWhereClause() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
