@@ -50,7 +50,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-model-impl</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>

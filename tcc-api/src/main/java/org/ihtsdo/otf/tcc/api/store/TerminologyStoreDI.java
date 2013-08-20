@@ -26,7 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
-import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
 
 public interface TerminologyStoreDI extends TerminologyDI {
 
@@ -44,11 +43,11 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     public NativeIdSetBI relationshipSet(int parentNid, ViewCoordinate viewCoordinate);
 
-    public Collection<Integer> searchLucene(String luceneMatch, SearchType searchType) throws IOException, ParseException;
+    /*public Collection<Integer> searchLucene(String luceneMatch, SearchType searchType) throws IOException, ParseException;
 
     public Collection<Integer> searchLuceneRefset(String query, SearchType searchType)
             throws IOException, ParseException;
-
+            * */
     enum DatabaseOptionPreferences {
 
         DB_LOCATION, BASELINE_FILES;

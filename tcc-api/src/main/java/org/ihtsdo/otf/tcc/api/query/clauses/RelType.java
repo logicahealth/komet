@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
@@ -28,10 +29,9 @@ import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
- *
+ * TODO: Not implemented yet.
  * @author dylangrald
  */
 public class RelType extends LeafClause {
@@ -41,13 +41,19 @@ public class RelType extends LeafClause {
     String viewCoordinateKey;
     ViewCoordinate vc;
     Query enclosingQuery;
+    ConceptSpec relType;
+    String relTypeKey;
+    NativeIdSetBI cache;
+    
 
-    public RelType(Query enclosingQuery, String conceptSpecKey, String viewCoordinateKey) {
+    public RelType(Query enclosingQuery, String relTypeKey, String conceptSpecKey, String viewCoordinateKey) {
         super(enclosingQuery);
         this.conceptSpecKey = conceptSpecKey;
         this.conceptSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(conceptSpecKey);
         this.viewCoordinateKey = viewCoordinateKey;
         this.enclosingQuery = enclosingQuery;
+        this.relTypeKey = relTypeKey;
+        this.relType = (ConceptSpec) enclosingQuery.getLetDeclarations().get(relTypeKey);
 
     }
 
@@ -74,13 +80,18 @@ public class RelType extends LeafClause {
         } else {
             this.vc = (ViewCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
         }
-        return incomingPossibleComponents;
+        NativeIdSetBI resultSet = new ConcurrentBitSet();
+        resultSet = incomingPossibleComponents;
+        NativeIdSetBI relTypeSet = new ConcurrentBitSet();
+        relTypeSet.add(this.relType.getNid());
+        //NativeIdSetBI relationshipSet = Bdb.getNidCNidMap().getDestRelNids(this.conceptSpec.getNid(), relTypeSet);
+        //resultSet.and(relationshipSet);
+        return resultSet;
     }
 
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
-        int parentNid = conceptSpec.getNid(vc);
-        getResultsCache().or(Ts.get().relationshipSet(parentNid, vc));
+        //TO DO
 
     }
 }

@@ -36,7 +36,6 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.TerminologySnapshot;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
 import org.ihtsdo.otf.tcc.model.cs.CsProperty;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
@@ -55,11 +54,15 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
 
 public class BdbTerminologyStore extends Termstore {
 
@@ -803,6 +806,11 @@ public class BdbTerminologyStore extends Termstore {
         //åBdb.getNidCNidMap().getDestRelNids(parentNid, null)
         throw new UnsupportedOperationException("Not supported yet");
     }
+
+    /*@Override
+    public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
 
     private static class ConceptConverter implements Runnable {
 

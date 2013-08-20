@@ -113,10 +113,6 @@ public class Where {
                     assert childClauses.length == 0 : childClauses;
                     assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.ChangedFromPreviousVersion(letKeys.get(0));
-                case COMPONENT_IS_MEMBER_OF_REFSET:
-                    assert childClauses.length == 0 : childClauses;
-                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
-                    return q.ConceptIsMemberOfRefset(letKeys.get(0));
                 case DESCRIPTION_LUCENE_MATCH:
                     assert childClauses.length == 0 : childClauses;
                     assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
@@ -148,7 +144,7 @@ public class Where {
                 case REL_TYPE:
                     assert childClauses.length == 0 : childClauses;
                     assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
-                    return q.RelType(letKeys.get(0));
+                    return q.RelType(letKeys.get(0), letKeys.get(1));
                 default:
                     throw new UnsupportedOperationException("Can't handle: " + semantic);
             }

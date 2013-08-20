@@ -16,28 +16,19 @@
 package org.ihtsdo.otf.tcc.api.query.clauses;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.ClauseComputeType;
 import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
 
 /**
- *
+ * TODO: Not implemented yet.
  * @author dylangrald
  */
 public class RefsetLuceneMatch extends LeafClause {
@@ -53,7 +44,7 @@ public class RefsetLuceneMatch extends LeafClause {
         vc = enclosingQuery.getViewCoordinate();
     }
 
-    @Override
+/*    @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.REFSET_LUCENE_MATCH);
@@ -95,5 +86,25 @@ public class RefsetLuceneMatch extends LeafClause {
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
         getResultsCache();
+    }*/
+
+    @Override
+    public Where.WhereClause getWhereClause() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.ihtsdo.otf</groupId>
             <artifactId>tcc-dto-ddo</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>

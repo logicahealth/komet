@@ -15,6 +15,7 @@
  */
 
 import java.io.IOException;
+import java.util.ArrayList;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
@@ -101,7 +102,7 @@ public class QueryTest {
         }
     }
 
-    @Test
+    /*@Test
     public void testDescriptionLuceneMatch() throws IOException, Exception {
         System.out.println("Sequence: " + Ts.get().getSequence());
 
@@ -125,9 +126,9 @@ public class QueryTest {
         System.out.println(results.size());
         Assert.assertEquals(2, results.size());
 
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void testDescriptionLuceneMatch2() throws IOException, Exception {
         System.out.println("Sequence: " + Ts.get().getSequence());
 
@@ -151,7 +152,7 @@ public class QueryTest {
         System.out.println(results.size());
         Assert.assertEquals(49, results.size());
 
-    }
+    }*/
 
     @Test
     public void testXor() throws IOException, Exception {
@@ -263,6 +264,32 @@ public class QueryTest {
 
     }
 
+    /*@Test
+    public void TestRelType() throws IOException, Exception {
+        System.out.println("Sequence: " + Ts.get().getSequence());
+        
+        Query q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
+
+            @Override
+            protected NativeIdSetBI For() throws IOException {
+                return Ts.get().getAllConceptNids();
+            }
+
+            @Override
+            protected void Let() throws IOException {
+                let("Associated with", Snomed.ASSOCIATED_WITH);
+                let("Diabetes metillus", Snomed.DIABETES_MELLITUS);
+            }
+
+            @Override
+            protected Clause Where() {
+                return Or(RelType("Associated with", "Diabetes metillus"));
+            }
+        };
+        NativeIdSetBI results = q.compute();
+        System.out.println("Rel type query result size: " + results.size());
+    }*/
+    
     @Test
     public void testQuery() throws IOException, Exception {
         System.out.println("Sequence: " + Ts.get().getSequence());

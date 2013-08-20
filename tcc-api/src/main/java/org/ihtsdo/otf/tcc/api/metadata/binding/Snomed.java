@@ -314,4 +314,7 @@ public class Snomed {
     public static ConceptSpec CLINICAL_FINDING_ABSENT =
             new ConceptSpec("Clinical finding absent (situation)",
             UUID.fromString("66387a1b-9bb6-361d-99f0-0a3147cad7f2"));
+    public static ConceptSpec DIABETES_MELLITUS =
+            new ConceptSpec("Diabetes mellitus (disorder)",
+            UUID.fromString("dd25374d-b4a9-3622-bba5-c82ae028631c"));
 }

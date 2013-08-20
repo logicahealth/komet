@@ -18,19 +18,22 @@ package org.ihtsdo.otf.tcc.api.query;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptIsKindOf;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.query.clauses.ChangedFromPreviousVersion;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptForComponent;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptIsChildOf;
 import org.ihtsdo.otf.tcc.api.query.clauses.ConceptIsDescendentOf;
-import org.ihtsdo.otf.tcc.api.query.clauses.ComponentIsMemberOfRefset;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionActiveLuceneMatch;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionActiveRegexMatch;
 import org.ihtsdo.otf.tcc.api.query.clauses.DescriptionLuceneMatch;
@@ -52,9 +55,13 @@ public abstract class Query {
     private final HashMap<String, Object> letDeclarations =
             new HashMap<>();
 
-    public HashMap<String, Object> getLetDeclarations(){
+    public HashMap<String, Object> getLetDeclarations() {
         return letDeclarations;
     }
+    /**
+     * Number of Components output in the returnResultSet method.
+     */
+    int resultSetLimit = 50;
 
     public HashMap<String, Object> getVCLetDeclarations() throws IOException {
         HashMap<String, Object> letVCDeclarations =
@@ -189,6 +196,21 @@ public abstract class Query {
         }
     }
 
+    public ArrayList<String> returnResultSet(NativeIdSetBI resultSet) throws IOException, ContradictionException {
+        ArrayList<String> resultSetDesc = null;
+        NativeIdSetItrBI iter = resultSet.getIterator();
+        while (iter.next() && resultSetDesc.size() <= resultSetLimit) {
+            ComponentChronicleBI chronicle = Ts.get().getComponent(iter.nid());
+            resultSetDesc.add(chronicle.getVersion(StandardViewCoordinates.getSnomedInferredLatest()).toUserString(null));
+        }
+        return resultSetDesc;
+
+    }
+    
+    public void setResultSetLimit(int limit){
+        this.resultSetLimit = limit;
+    }
+
     protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey) {
         return new ConceptIsKindOf(this, conceptSpecKey, this.currentViewCoordinateKey);
     }
@@ -217,10 +239,6 @@ public abstract class Query {
         return new ConceptIsDescendentOf(this, conceptSpecKey, viewCoordinateKey);
     }
 
-    protected ComponentIsMemberOfRefset ConceptIsMemberOfRefset(String refsetSpecKey) {
-        return new ComponentIsMemberOfRefset(this, refsetSpecKey);
-    }
-
     protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey) {
         return new ConceptIsChildOf(this, conceptSpecKey, this.currentViewCoordinateKey);
     }
@@ -241,12 +259,12 @@ public abstract class Query {
         return new And(this, clauses);
     }
 
-    protected RelType RelType(String conceptSpecKey) {
-        return new RelType(this, conceptSpecKey, this.currentViewCoordinateKey);
+    protected RelType RelType(String relTypeKey, String conceptSpecKey) {
+        return new RelType(this, relTypeKey, conceptSpecKey, this.currentViewCoordinateKey);
     }
 
-    protected RelType RelType(String conceptSpecKey, String viewCoordinateKey) {
-        return new RelType(this, conceptSpecKey, viewCoordinateKey);
+    protected RelType RelType(String relTypeKey, String conceptSpecKey, String viewCoordinateKey) {
+        return new RelType(this, relTypeKey, conceptSpecKey, viewCoordinateKey);
     }
 
     protected PreferredNameForConcept PreferredNameForConcept(Clause clause) {

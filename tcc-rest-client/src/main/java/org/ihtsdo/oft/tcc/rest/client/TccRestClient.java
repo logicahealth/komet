@@ -721,10 +721,10 @@ public class TccRestClient extends Termstore {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
+    /*@Override
     public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    }*/
 
     @Override
     public NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc) {

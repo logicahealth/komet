@@ -18,40 +18,43 @@
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
- * Creates a test for ConceptIsKindOf clause.
  *
  * @author dylangrald
  */
-public class IsKindOfTest {
-
+public class MemberOfRefsetTest {
     Query q;
-
-    public IsKindOfTest() throws IOException {
+    
+    public MemberOfRefsetTest() throws IOException{
         q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
+
             @Override
             protected NativeIdSetBI For() throws IOException {
-                return Ts.get().getAllConceptNids();
+                NativeIdSetBI forSet = new ConcurrentBitSet();
+                forSet.add(Snomed.ABDOMINAL_WALL_STRUCTURE.getNid());
+                return forSet;
             }
 
             @Override
             protected void Let() throws IOException {
-                let("Physical force", Snomed.PHYSICAL_FORCE);
+                let("Body structure refset", Snomed.BODY_STRUCTURE_REFSET);
             }
 
             @Override
             protected Clause Where() {
-                    return And(ConceptIsKindOf("Physical force"));
+                return And(ConceptIsMemberOfRefset("Body structure refset"));
             }
         };
     }
-
-    public Query getQuery() {
+    
+    public Query getQuery(){
         return q;
     }
+    
 }
