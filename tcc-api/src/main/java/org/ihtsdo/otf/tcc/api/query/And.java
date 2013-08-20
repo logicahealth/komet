@@ -24,6 +24,8 @@ import org.ihtsdo.otf.tcc.api.query.Where.WhereClause;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
+ * Clause that computes the intersection of the set results from given child
+ * clauses.
  *
  * @author kec
  */
@@ -36,7 +38,7 @@ public class And extends ParentClause {
     @Override
     public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
         NativeIdSetBI results = new ConcurrentBitSet(incomingPossibleComponents);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             results.and(clause.computePossibleComponents(incomingPossibleComponents));
         }
         return results;
@@ -46,10 +48,18 @@ public class And extends ParentClause {
     public WhereClause getWhereClause() {
         WhereClause whereClause = new WhereClause();
         whereClause.setSemantic(ClauseSemantic.AND);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
         return whereClause;
     }
-    
+
+    @Override
+    public NativeIdSetBI computeComponents(NativeIdSetBI incomingComponents) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI results = new ConcurrentBitSet(incomingComponents);
+        for (Clause clause : getChildren()) {
+            results.and(clause.computeComponents(incomingComponents));
+        }
+        return results;
+    }
 }

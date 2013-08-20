@@ -13,30 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.test.integration;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Query;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
+ * Creates a test for the Not
+ * <code>Clause</code>.
  *
  * @author dylangrald
+ *
  */
-public class DescriptionRegexMatchTest {
+public class NotTest {
 
-    Query q;
-    
-    public DescriptionRegexMatchTest() throws IOException {
+    private Query q;
+
+    public NotTest() throws IOException {
+
         q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
             @Override
             protected NativeIdSetBI For() throws IOException {
@@ -49,22 +47,26 @@ public class DescriptionRegexMatchTest {
                 forSet.add((Snomed.MOMENTUM.getNid()));
                 forSet.add(Snomed.VIBRATION.getNid());
                 return forSet;
+
             }
-            
+
             @Override
             protected void Let() throws IOException {
+                let("motion", Snomed.MOTION);
+                let("acceleration", Snomed.ACCELERATION);
+                let("person", Snomed.PERSON);
+                let("allergic-asthma", Snomed.ALLERGIC_ASTHMA);
+                let("regex", "[Vv]ibration");
             }
-            
+
             @Override
             protected Clause Where() {
-                String regex = "[Cc]entrifugal";
-                return And(DescriptionRegexMatch(regex));
-                //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
+                return And(ConceptIsDescendentOf("motion"), Not(ConceptForComponent(DescriptionRegexMatch("regex"))));
             }
         };
-        
+
     }
-    
+
     public Query getQuery() {
         return q;
     }

@@ -8,6 +8,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import static org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager.descWriter;
+import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
 
 public class DescriptionLuceneManager extends LuceneManager {
 
@@ -19,7 +20,7 @@ public class DescriptionLuceneManager extends LuceneManager {
 
     protected static void writeToLuceneNoLock(Collection<Description> descriptions) throws CorruptIndexException, IOException {
         if (descWriter == null) {
-            descLuceneMutableDir = setupWriter(descLuceneMutableDirFile, descLuceneMutableDir);
+            descLuceneMutableDir = setupWriter(descLuceneMutableDirFile, descLuceneMutableDir, SearchType.DESCRIPTION);
         }
 
         if (descWriter != null) {

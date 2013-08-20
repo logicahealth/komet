@@ -38,6 +38,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
@@ -224,6 +226,35 @@ public class IndexCacheRecord {
 
         return returnValueArray;
     }
+    
+    /**
+     * 
+     * @param cNid
+     * @param relTypes
+     * @return
+     * @throws IOException 
+     */
+    public NativeIdSetBI getDestRelNidsSet(int cNid, NativeIdSetBI relTypes) throws IOException{
+        NativeIdSetBI returnValues = new ConcurrentBitSet();
+        int[]            originCNids  = getDestinationOriginNids();
+
+        for (int originCNid : originCNids) {
+            ConceptChronicleBI c = Ts.get().getConcept(originCNid);
+
+            for (RelationshipChronicleBI r : c.getRelationshipsOutgoing()) {
+                if (r.getDestinationNid() == cNid) {
+                    for (RelationshipVersionBI rv : r.getVersions()) {
+                        if (relTypes.contains(rv.getTypeNid())) {
+                            returnValues.add(r.getNid());
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return returnValues;
+    }
 
     /**
      *
@@ -405,5 +436,15 @@ public class IndexCacheRecord {
         }
 
         return sb.toString();
+    }
+
+    NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc, RelativePositionComputerBI computer) {
+        NativeIdSetBI resultSet = new ConcurrentBitSet();
+        if (data[DESTINATION_OFFSET_INDEX] > RELATIONSHIP_OFFSET) {
+            for (RelationshipIndexRecord record : getRelationshipsRecord()) {
+                resultSet.add(record.getDestinationNid());
+            }
+        }
+        return resultSet;
     }
 }

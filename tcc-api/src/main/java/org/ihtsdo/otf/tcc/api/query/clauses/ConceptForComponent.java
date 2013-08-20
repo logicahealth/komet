@@ -27,6 +27,8 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
+ * Computes the set of concepts that are enclosed in the set of components that
+ * is returned from the child clause.
  *
  * @author kec
  */
@@ -37,8 +39,8 @@ public class ConceptForComponent extends ParentClause {
     }
 
     @Override
-    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleConcepNids) throws IOException, ValidationException, ContradictionException {
-        NativeIdSetBI incomingPossibleComponentNids = Ts.get().getComponentNidsForConceptNids(incomingPossibleConcepNids);
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleConceptNids) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI incomingPossibleComponentNids = Ts.get().getComponentNidsForConceptNids(incomingPossibleConceptNids);
 
         NativeIdSetBI outgoingPossibleConceptNids = new ConcurrentBitSet();
         for (Clause childClause : getChildren()) {
@@ -47,14 +49,25 @@ public class ConceptForComponent extends ParentClause {
         }
         return outgoingPossibleConceptNids;
     }
-    
+
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.CONCEPT_FOR_COMPONENT);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
         return whereClause;
     }
-  }
+
+    @Override
+    public NativeIdSetBI computeComponents(NativeIdSetBI incomingComponents) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI incomingPossibleComponentNids = Ts.get().getComponentNidsForConceptNids(incomingComponents);
+        NativeIdSetBI outgoingPossibleConceptNids = new ConcurrentBitSet();
+        for (Clause childClause : getChildren()) {
+            NativeIdSetBI childPossibleComponentNids = childClause.computeComponents(incomingPossibleComponentNids);
+            outgoingPossibleConceptNids.or(Ts.get().getConceptNidsForComponentNids(childPossibleComponentNids));
+        }
+        return outgoingPossibleConceptNids;
+    }
+}

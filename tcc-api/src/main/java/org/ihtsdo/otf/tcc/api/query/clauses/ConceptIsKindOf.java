@@ -22,7 +22,6 @@ import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -32,32 +31,42 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
+ * Calculates the set of concepts that are a kind of the specified concept. The
+ * calculated set is the union of the input concept and all concepts that lie
+ * lie beneath the input concept in the terminology hierarchy. This
+ * <code>Clause</code> has an optional parameter for a previous
+ * <code>ViewCoordinate</code>, which allows for queries of previous versions.
  *
  * @author kec
  */
 public class ConceptIsKindOf extends LeafClause {
+
     ConceptSpec kindOfSpec;
     String kindOfSpecKey;
+    String viewCoordinateKey;
+    ViewCoordinate viewCoordinate;
+    Query enclosingQuery;
 
-    public ConceptIsKindOf(Query enclosingQuery, String kindOfSpecKey) {
+    public ConceptIsKindOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
         super(enclosingQuery);
         this.kindOfSpecKey = kindOfSpecKey;
         this.kindOfSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(kindOfSpecKey);
+        this.viewCoordinateKey = viewCoordinateKey;
+        this.enclosingQuery = enclosingQuery;
     }
+
     @Override
-    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) 
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents)
             throws ValidationException, IOException, ContradictionException {
-        ViewCoordinate viewCoordinate = getEnclosingQuery().getViewCoordinate();
-        int parentNid = kindOfSpec.getNid(viewCoordinate);
-        NativeIdSetItrBI itr = incomingPossibleComponents.getIterator();
-        //TODO make routine more efficient by having new method for getKindOf, and
-        // then just anding the results. Eliminates the iteration, and redundant
-        // checking...
-        while (itr.next()) {
-            if (Ts.get().isKindOf(itr.nid(), parentNid, viewCoordinate)) {
-                getResultsCache().setMember(itr.nid());
-            }
+        //ViewCoordinate viewCoordinate = getEnclosingQuery().getViewCoordinate();
+        if (this.viewCoordinateKey.equals(enclosingQuery.currentViewCoordinateKey)) {
+            this.viewCoordinate = (ViewCoordinate) enclosingQuery.getVCLetDeclarations().get(viewCoordinateKey);
+        } else {
+            this.viewCoordinate = (ViewCoordinate) enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
         }
+        int parentNid = kindOfSpec.getNid(this.viewCoordinate);
+        getResultsCache().or(Ts.get().isKindOfSet(parentNid, this.viewCoordinate));
+
         return getResultsCache();
     }
 
@@ -70,15 +79,15 @@ public class ConceptIsKindOf extends LeafClause {
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
         // Nothing to do...
     }
-    
+
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.CONCEPT_IS_CHILD_OF);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
         whereClause.getLetKeys().add(kindOfSpecKey);
         return whereClause;
     }
-  }
+}

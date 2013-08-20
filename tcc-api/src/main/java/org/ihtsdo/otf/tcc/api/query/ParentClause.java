@@ -23,40 +23,51 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
+ * Acts as root node for the construction of queries. Sorts results from one of
+ * more child clauses, which can be instances of a ParentClause or
+ * <code>LeafClause</code>. Every
+ * <code>Query</code> must contain a ParentClause as the root node.
  *
  * @author kec
  */
 public abstract class ParentClause extends Clause {
 
+    /**
+     * Array of instances of
+     * <code>Clause</code> that are children of the ParentClause in the tree
+     * used to compute the constructed
+     * <code>Query</code>.
+     */
     private Clause[] children;
 
     @Override
     public Clause[] getChildren() {
         return children;
     }
-    
+
+    /**
+     * Constructor from a Query and child clauses.
+     *
+     * @param enclosingQuery
+     * @param children
+     */
     public ParentClause(Query enclosingQuery, Clause... children) {
         super(enclosingQuery);
         this.children = children;
-        for (Clause child: children) {
+        for (Clause child : children) {
             child.setParent(this);
         }
     }
 
-    
     @Override
     public final EnumSet<ClauseComputeType> getComputePhases() {
         return PRE_AND_POST_ITERATION;
     }
 
     @Override
-    public final void getQueryMatches(ConceptVersionBI conceptVersion) {
-        // nothing to do...
+    public final void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
+        for (Clause c : children) {
+            c.getQueryMatches(conceptVersion);
+        }
     }
-
-    @Override
-    public final NativeIdSetBI computeComponents(NativeIdSetBI incomingComponents) throws ContradictionException, IOException, ValidationException {
-        return computePossibleComponents(incomingComponents);
-    }
-    
 }

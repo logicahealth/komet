@@ -25,7 +25,6 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -62,6 +61,7 @@ import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
 import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
 import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
+import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
@@ -535,6 +535,7 @@ public class Bdb {
             viewCoordinateMapFile = new File(bdbDirectory, "viewCoordinates.oos");
             bdbDirectory.mkdirs();
             LuceneManager.setLuceneRootDir(bdbDirectory);
+            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
 
             mutable = new Bdb(false, new File(bdbDirectory, "mutable"));
             File readOnlyDir = new File(bdbDirectory, "read-only");
@@ -854,6 +855,7 @@ public class Bdb {
                 BdbCommitManager.shutdown();
                 activity.setProgressInfoLower("8/11: Starting LuceneManager close.");
                 LuceneManager.close();
+                LuceneManager.closeRefset();
 
                 NidDataFromBdb.close();
                 activity.setProgressInfoLower("9/11: Starting mutable.bdbEnv.sync().");

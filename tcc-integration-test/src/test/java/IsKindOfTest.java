@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.test.integration;
+
 
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
@@ -24,14 +24,15 @@ import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
+ * Creates a test for ConceptIsKindOf clause.
  *
  * @author dylangrald
  */
-public class IsChildOfTest {
+public class IsKindOfTest {
 
     Query q;
 
-    public IsChildOfTest() throws IOException {
+    public IsKindOfTest() throws IOException {
         q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
             @Override
             protected NativeIdSetBI For() throws IOException {
@@ -40,18 +41,17 @@ public class IsChildOfTest {
 
             @Override
             protected void Let() throws IOException {
-                let("motion", Snomed.MOTION);
+                let("Physical force", Snomed.PHYSICAL_FORCE);
             }
 
             @Override
             protected Clause Where() {
-                return And(ConceptIsChildOf("motion"));
-                //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
+                    return And(ConceptIsKindOf("Physical force"));
             }
         };
     }
-    
-    public Query getQuery(){
+
+    public Query getQuery() {
         return q;
     }
 }

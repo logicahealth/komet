@@ -28,13 +28,65 @@ import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
- * TODO: Calculates the descriptions that match the results from an input Lucene
- * search.
- * 
- *
- * @author kec
+ * TODO: Not implemented yet.
+ * @author dylangrald
  */
-public class DescriptionLuceneMatch extends LeafClause {
+public class RefsetLuceneMatch extends LeafClause {
+
+    String luceneMatch;
+    String luceneMatchKey;
+    ViewCoordinate vc;
+
+    public RefsetLuceneMatch(Query enclosingQuery, String luceneMatchKey) {
+        super(enclosingQuery);
+        this.luceneMatchKey = luceneMatchKey;
+        this.luceneMatch = (String) enclosingQuery.getLetDeclarations().get(luceneMatchKey);
+        vc = enclosingQuery.getViewCoordinate();
+    }
+
+/*    @Override
+    public Where.WhereClause getWhereClause() {
+        Where.WhereClause whereClause = new Where.WhereClause();
+        whereClause.setSemantic(Where.ClauseSemantic.REFSET_LUCENE_MATCH);
+        for (Clause clause : getChildren()) {
+            whereClause.getChildren().add(clause.getWhereClause());
+        }
+        whereClause.getLetKeys().add(luceneMatchKey);
+        return whereClause;
+    }
+
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        return PRE_ITERATION;
+    }
+
+    @Override
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
+        Collection<Integer> nids = new HashSet<>();
+        try {
+            nids = Ts.get().searchLuceneRefset(luceneMatch, SearchType.REFSET);
+            //nids = store.searchLucene(luceneMatch, SearchType.DESCRIPTION);
+        } catch (ParseException ex) {
+            Logger.getLogger(DescriptionLuceneMatch.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        NativeIdSetBI outgoingNids = new ConcurrentBitSet();
+        for (Integer nid : nids) {
+            outgoingNids.add(nid);
+
+        }
+
+        getResultsCache().or(outgoingNids);
+
+        return outgoingNids;
+
+
+    }
+
+    @Override
+    public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
+        getResultsCache();
+    }*/
 
     @Override
     public Where.WhereClause getWhereClause() {
@@ -55,57 +107,4 @@ public class DescriptionLuceneMatch extends LeafClause {
     public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    String luceneMatch;
-    String luceneMatchKey;
-    ViewCoordinate vc;
-
-    public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatchKey) {
-        super(enclosingQuery);
-        this.luceneMatchKey = luceneMatchKey;
-        this.luceneMatch = (String) enclosingQuery.getLetDeclarations().get(luceneMatchKey);
-        vc = enclosingQuery.getViewCoordinate();
-    }
-/*
-    @Override
-    public EnumSet<ClauseComputeType> getComputePhases() {
-        return PRE_ITERATION;
-    }
-
-    @Override
-    public final NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws CorruptIndexException, IOException {
-        Collection<Integer> nids = new HashSet<>();
-        try {
-            nids = Ts.get().searchLucene(luceneMatch, SearchType.DESCRIPTION);
-        } catch (ParseException ex) {
-            Logger.getLogger(DescriptionLuceneMatch.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        NativeIdSetBI outgoingNids = new ConcurrentBitSet();
-        for (Integer nid : nids) {
-            outgoingNids.add(nid);
-
-        }
-
-        getResultsCache().or(outgoingNids);
-
-        return outgoingNids;
-
-    }
-
-    @Override
-    public void getQueryMatches(ConceptVersionBI conceptVersion) {
-        getResultsCache();
-    }
-
-    @Override
-    public Where.WhereClause getWhereClause() {
-        Where.WhereClause whereClause = new Where.WhereClause();
-        whereClause.setSemantic(Where.ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
-        for (Clause clause : getChildren()) {
-            whereClause.getChildren().add(clause.getWhereClause());
-        }
-        whereClause.getLetKeys().add(luceneMatchKey);
-        return whereClause;
-    }*/
 }

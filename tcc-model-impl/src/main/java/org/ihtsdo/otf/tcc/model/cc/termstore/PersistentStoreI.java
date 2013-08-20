@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
@@ -74,14 +75,17 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
     void forgetXrefPair(int nid, NidPairForRefex pair) throws IOException;
 
     /**
-     * @TODO modify the write concept routine to update the identifiers map (UUIDs, etc) Possibly remove
-     * identifiers from Lucene?
+     * @TODO modify the write concept routine to update the identifiers map
+     * (UUIDs, etc) Possibly remove identifiers from Lucene?
      */
     List<NidPairForRefex> getRefexPairs(int nid) throws IOException;
 
     int[] getDestRelOriginNids(int cNid, NidSetBI relTypes) throws IOException;
+
     int[] getDestRelOriginNids(int cNid) throws IOException;
+
     Collection<Relationship> getDestRels(int cNid) throws IOException;
+
     void setConceptNidForNid(int cNid, int nid) throws IOException;
 
     void resetConceptNidForNid(int cNid, int nid) throws IOException;
@@ -89,4 +93,7 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
     public void addRelOrigin(int destinationCNid, int originCNid) throws IOException;
 
     public void put(UUID uuid, int nid);
+
+    public Collection<Integer> searchLucene(String query, SearchType searchType)
+            throws IOException, ParseException;
 }

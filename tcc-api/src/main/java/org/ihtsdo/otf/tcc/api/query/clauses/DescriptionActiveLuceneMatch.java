@@ -23,7 +23,8 @@ import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Where;
 
 /**
- * TODO discuss subclassing with Dylan. 
+ * TODO: not implemented yet.
+ * 
  * @author dylangrald
  */
 public class DescriptionActiveLuceneMatch extends DescriptionLuceneMatch {
@@ -40,29 +41,7 @@ public class DescriptionActiveLuceneMatch extends DescriptionLuceneMatch {
 
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
-        /*
-            NativeIdSetBI matches = descriptionLuceneMatch.getResultsCache();
-            NativeIdSetItrBI iter = matches.getIterator();
-            while(iter.next()){
-                for(DescriptionVersionBI dv: conceptVersion.getDescriptionsActive()){
-                    if(dv.){
-                        matches.r;
-                    }
-            }
-            // see if the descriptions are active...
-            // remove any from the cached set that are not active
-            for (DescriptionVersionBI dv : conceptVersion.getDescriptionsActive()) {
-                if (!dv.isActive()) {
-                    getResultsCache().remove(dv.getNid());
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(DescriptionActiveLuceneMatch.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ContradictionException ex) {
-            Logger.getLogger(DescriptionActiveLuceneMatch.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }*/
-        throw new UnsupportedOperationException("Not supported yet");
+        //TO DO
     }
     @Override
     public Where.WhereClause getWhereClause() {

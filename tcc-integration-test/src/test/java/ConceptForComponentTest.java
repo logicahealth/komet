@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.test.integration;
+
 
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
@@ -22,51 +22,40 @@ import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Query;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
  * @author dylangrald
  */
-public class NotTest {
+public class ConceptForComponentTest {
 
-    private Query q;
+    Query q;
 
-    public NotTest() throws IOException {
-
+    public ConceptForComponentTest() throws IOException {
         q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
             @Override
             protected NativeIdSetBI For() throws IOException {
-                /*
                 NativeIdSetBI forSet = new ConcurrentBitSet();
                 forSet.add(Snomed.MOTION.getNid());
                 forSet.add(Snomed.ACCELERATION.getNid());
                 forSet.add(Snomed.CENTRIFUGAL_FORCE.getNid());
                 forSet.add(Snomed.CONTINUED_MOVEMENT.getNid());
                 forSet.add(Snomed.DECELERATION.getNid());
-                forSet.add(Snomed.MOMENTUM.getNid());
+                forSet.add((Snomed.MOMENTUM.getNid()));
                 forSet.add(Snomed.VIBRATION.getNid());
                 return forSet;
-                */
-                return Ts.get().getAllConceptNids();
-                
             }
 
             @Override
             protected void Let() throws IOException {
-                 let("motion", Snomed.MOTION);
-                 let("acceleration", Snomed.ACCELERATION);
-                 let("person", Snomed.PERSON);
-                 let("allergic-asthma", Snomed.ALLERGIC_ASTHMA);
+                let("motion", Snomed.MOTION);
             }
 
             @Override
             protected Clause Where() {
-                //return And(ConceptIsKindOf("allergic-asthma"), Not(ConceptIsKindOf("non-ige")));
-                return Not(Or(ConceptIsKindOf("person"), ConceptIsKindOf("allergic-asthma")));
+                return And(ConceptIsChildOf("motion"), ConceptForComponent(DescriptionRegexMatch("[Dd]eceleration")));
             }
         };
-  
     }
     
     public Query getQuery(){

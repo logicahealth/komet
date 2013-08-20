@@ -51,6 +51,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-model-impl</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>

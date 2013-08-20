@@ -15,6 +15,7 @@
  */
 package org.ihtsdo.otf.tcc.api.query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,7 +35,7 @@ public class Where {
 
     public enum ClauseSemantic {
 
-        AND, OR, NOT,
+        AND, OR, NOT, XOR,
         CHANGED_FROM_PREVIOUS_VERSION,
         CONCEPT_FOR_COMPONENT,
         CONCEPT_IS_CHILD_OF,
@@ -45,6 +46,10 @@ public class Where {
         DESCRIPTION_ACTIVE_REGEX_MATCH,
         DESCRIPTION_LUCENE_MATCH,
         DESCRIPTION_REGEX_MATCH,
+        FULLY_SPECIFIED_NAME_FOR_CONCEPT,
+        PREFERRED_NAME_FOR_CONCEPT,
+        REFSET_LUCENE_MATCH,
+        REL_TYPE,
     }
     private WhereClause rootClause;
 
@@ -56,7 +61,7 @@ public class Where {
         this.rootClause = rootClause;
     }
 
-    public Clause getWhereClause(Query q) {
+    public Clause getWhereClause(Query q) throws IOException {
         return rootClause.getWhereClause(q);
 
     }
@@ -69,62 +74,77 @@ public class Where {
         List<String> letKeys = new ArrayList<>();
         List<WhereClause> children = new ArrayList<>();
 
-        public Clause getWhereClause(Query q) {
+        public Clause getWhereClause(Query q) throws IOException {
             Clause[] childClauses = new Clause[children.size()];
             for (int i = 0; i < childClauses.length; i++) {
                 childClauses[i] = children.get(i).getWhereClause(q);
             }
             switch (semantic) {
                 case AND:
-                    assert letKeys.isEmpty(): "Let keys should be empty: " + letKeys;
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
                     return q.And(childClauses);
                 case NOT:
-                    assert letKeys.isEmpty(): "Let keys should be empty: " + letKeys;
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
                     assert childClauses.length == 1;
                     return q.Not(childClauses[0]);
                 case OR:
-                    assert letKeys.isEmpty(): "Let keys should be empty: " + letKeys;
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
                     return q.Or(childClauses);
+                case XOR:
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
+                    return q.Xor(childClauses);
                 case CONCEPT_FOR_COMPONENT:
-                    assert letKeys.isEmpty(): "Let keys should be empty: " + letKeys;
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
                     assert childClauses.length == 1;
                     return q.ConceptForComponent(childClauses[0]);
                 case CONCEPT_IS_CHILD_OF:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.ConceptIsChildOf(letKeys.get(0));
                 case CONCEPT_IS_DESCENDENT_OF:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.ConceptIsDescendentOf(letKeys.get(0));
                 case CONCEPT_IS_KIND_OF:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.ConceptIsKindOf(letKeys.get(0));
                 case CHANGED_FROM_PREVIOUS_VERSION:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.ChangedFromPreviousVersion(letKeys.get(0));
-                case COMPONENT_IS_MEMBER_OF_REFSET:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
-                    return q.ConceptIsMemberOfRefset(letKeys.get(0));
                 case DESCRIPTION_LUCENE_MATCH:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.DescriptionLuceneMatch(letKeys.get(0));
                 case DESCRIPTION_ACTIVE_LUCENE_MATCH:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.DescriptionActiveLuceneMatch(letKeys.get(0));
                 case DESCRIPTION_ACTIVE_REGEX_MATCH:
-                    assert childClauses.length == 0: childClauses;
-                    assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
                     return q.DescriptionActiveRegexMatch(letKeys.get(0));
                 case DESCRIPTION_REGEX_MATCH:
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
+                    return q.DescriptionRegexMatch(letKeys.get(0));
+                case FULLY_SPECIFIED_NAME_FOR_CONCEPT:
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
+                    assert childClauses.length == 1;
+                    return q.PreferredNameForConcept(childClauses[0]);
+                case PREFERRED_NAME_FOR_CONCEPT:
+                    assert letKeys.isEmpty() : "Let keys should be empty: " + letKeys;
+                    assert childClauses.length == 1;
+                    return q.PreferredNameForConcept(childClauses[0]);
+                case REFSET_LUCENE_MATCH:
                     assert childClauses.length == 0: childClauses;
                     assert letKeys.size() == 1: "Let keys should have one and only one value: " + letKeys;
-                    return q.DescriptionRegexMatch(letKeys.get(0));
+                    return q.RefsetLuceneMatch(letKeys.get(0));
+                case REL_TYPE:
+                    assert childClauses.length == 0 : childClauses;
+                    assert letKeys.size() == 1 : "Let keys should have one and only one value: " + letKeys;
+                    return q.RelType(letKeys.get(0), letKeys.get(1));
                 default:
                     throw new UnsupportedOperationException("Can't handle: " + semantic);
             }

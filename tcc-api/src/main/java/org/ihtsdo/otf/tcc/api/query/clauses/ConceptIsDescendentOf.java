@@ -22,7 +22,6 @@ import org.ihtsdo.otf.tcc.api.query.LeafClause;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -32,6 +31,11 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
+ * Computes the set of concepts that are descendents of the specified concept
+ * spec. The set of descendents of a given concept is the set of concepts that
+ * lie beneath the input concept in the terminology hierarchy. This
+ * <code>Clause</code> has an optional parameter for a previous
+ * <code>ViewCoordinate</code>, which allows for queries of previous versions.
  *
  * @author dylangrald
  */
@@ -39,24 +43,30 @@ public class ConceptIsDescendentOf extends LeafClause {
 
     ConceptSpec kindOfSpec;
     String kindOfSpecKey;
+    Query enclosingQuery;
+    ViewCoordinate viewCoordinate;
+    String viewCoordinateKey;
 
-    public ConceptIsDescendentOf(Query enclosingQuery, String kindOfSpecKey) {
+    public ConceptIsDescendentOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
         super(enclosingQuery);
         this.kindOfSpecKey = kindOfSpecKey;
         this.kindOfSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(kindOfSpecKey);
+        this.viewCoordinateKey = viewCoordinateKey;
+        this.enclosingQuery = enclosingQuery;
+
     }
 
     @Override
-    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) 
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents)
             throws ValidationException, IOException, ContradictionException {
-        ViewCoordinate viewCoordinate = getEnclosingQuery().getViewCoordinate();
-        int parentNid = kindOfSpec.getNid(viewCoordinate);
-        NativeIdSetItrBI itr = incomingPossibleComponents.getIterator();
-        while (itr.next()) {
-            if (itr.nid() != parentNid && Ts.get().isKindOf(itr.nid(), parentNid, viewCoordinate)) {
-                getResultsCache().setMember(itr.nid());
-            }
+        if (this.viewCoordinateKey.equals(this.enclosingQuery.currentViewCoordinateKey)) {
+            this.viewCoordinate = (ViewCoordinate) this.enclosingQuery.getVCLetDeclarations().get(viewCoordinateKey);
+        } else {
+            this.viewCoordinate = (ViewCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
         }
+        int parentNid = kindOfSpec.getNid(viewCoordinate);
+        getResultsCache().or(Ts.get().isKindOfSet(parentNid, viewCoordinate));
+        getResultsCache().remove(parentNid);
         return getResultsCache();
     }
 
@@ -69,12 +79,12 @@ public class ConceptIsDescendentOf extends LeafClause {
     public void getQueryMatches(ConceptVersionBI conceptVersion) {
         // Nothing to do...
     }
-    
+
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.CONCEPT_IS_DESCENDENT_OF);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
         whereClause.getLetKeys().add(kindOfSpecKey);

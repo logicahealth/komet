@@ -22,33 +22,21 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
- * Clause that computes the relative complement of the result of the child
- * clause with respect to the For set.
+ * Computes the exclusive disjunction between the result sets for the child
+ * clauses.
  *
- * @author kec
+ * @author dylangrald
  */
-public class Not extends ParentClause {
+public class Xor extends ParentClause {
 
-    NativeIdSetBI forSet;
-
-    public Not(Query enclosingQuery, Clause child) {
-        super(enclosingQuery, child);
-        forSet = enclosingQuery.getForSet();
-    }
-
-    @Override
-    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
-        NativeIdSetBI notSet = new ConcurrentBitSet();
-        for (Clause c : getChildren()) {
-            notSet.or(c.computePossibleComponents(incomingPossibleComponents));
-        }
-        return notSet;
+    public Xor(Query enclosingQuery, Clause... clauses) {
+        super(enclosingQuery, clauses);
     }
 
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
-        whereClause.setSemantic(Where.ClauseSemantic.NOT);
+        whereClause.setSemantic(Where.ClauseSemantic.XOR);
         for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
@@ -56,13 +44,20 @@ public class Not extends ParentClause {
     }
 
     @Override
-    public NativeIdSetBI computeComponents(NativeIdSetBI incomingComponents) throws IOException, ValidationException, ContradictionException {
-        NativeIdSetBI forSetCopy = new ConcurrentBitSet(forSet);
-        NativeIdSetBI notSet = new ConcurrentBitSet();
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI unionSet = new ConcurrentBitSet();
         for (Clause c : getChildren()) {
-            notSet.or(c.computeComponents(incomingComponents));
+            unionSet.or(c.computePossibleComponents(incomingPossibleComponents));
         }
-        forSetCopy.andNot(notSet);
-        return forSetCopy;
+        return unionSet;
+    }
+
+    @Override
+    public NativeIdSetBI computeComponents(NativeIdSetBI incomingComponents) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI xorSet = new ConcurrentBitSet();
+        for (Clause c : getChildren()) {
+            xorSet.xor(c.computeComponents(incomingComponents));
+        }
+        return xorSet;
     }
 }

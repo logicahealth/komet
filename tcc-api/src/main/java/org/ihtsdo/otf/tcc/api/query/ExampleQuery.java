@@ -24,6 +24,8 @@ import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 
 /**
+ * Demonstrates the syntax to construct and compute a
+ * <code>Query</code>.
  *
  * @author kec
  */
@@ -44,10 +46,10 @@ public class ExampleQuery {
 
                 @Override
                 protected Clause Where() {
-                    return And(ConceptIsKindOf("allergic-asthma"),
-                            Not(ConceptIsKindOf("another-let")),
-                            Intersection(ConceptIsKindOf(""),
-                            ConceptIsKindOf("")));
+                        return And(ConceptIsKindOf("allergic-asthma"),
+                                Not(ConceptIsKindOf("another-let")),
+                                Intersection(ConceptIsKindOf(""),
+                                ConceptIsKindOf("")));
                 }
             };
 

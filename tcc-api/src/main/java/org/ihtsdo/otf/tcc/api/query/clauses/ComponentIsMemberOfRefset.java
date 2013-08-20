@@ -23,60 +23,82 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
-import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Where;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
+ * TODO: Not supported yet. Calculates the set of concepts that are members of
+ * the specified refset.
  *
  * @author dylangrald
  */
 public class ComponentIsMemberOfRefset extends LeafClause {
-    
+
     String refsetSpecKey;
     ConceptSpec refsetSpec;
-    
+    NativeIdSetBI cache;
+
     public ComponentIsMemberOfRefset(Query enclosingQuery, String refsetSpecKey) {
         super(enclosingQuery);
         this.refsetSpecKey = refsetSpecKey;
         this.refsetSpec = (ConceptSpec) enclosingQuery.getLetDeclarations().get(refsetSpecKey);
-        
+
     }
-    
-    @Override
+
+    /*@Override
     public EnumSet<ClauseComputeType> getComputePhases() {
         return PRE_AND_POST_ITERATION;
     }
-    
+
     @Override
     public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws ValidationException, IOException, ContradictionException {
-        ViewCoordinate viewCoordinate = getEnclosingQuery().getViewCoordinate();
-        int parentNid = refsetSpec.getNid(viewCoordinate);
-        NativeIdSetItrBI itr = incomingPossibleComponents.getIterator();
-        while (itr.next()) {
-            if (Ts.get().isKindOf(itr.nid(), parentNid, viewCoordinate)) {
-                getResultsCache().setMember(itr.nid());
+        int refsetNid = refsetSpec.getNid();
+        NativeIdSetItrBI iter = incomingPossibleComponents.getIterator();
+        while (iter.next()) {
+            List<NidPairForRefex> refsetPairs = Bdb.getRefsetPairs(iter.nid());
+            for (NidPairForRefex nidPair : refsetPairs) {
+                if (nidPair.getRefexNid() == refsetNid) {
+                    getResultsCache().add(nidPair.getMemberNid());
+                }
             }
+
         }
         return getResultsCache();
     }
-    
+
     @Override
-    public void getQueryMatches(ConceptVersionBI conceptVersion) {
-        //Nothing to do here (?)
+    public void getQueryMatches(ConceptVersionBI conceptVersion) throws ValidationException, IOException {
     }
+
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.COMPONENT_IS_MEMBER_OF_REFSET);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
         whereClause.getLetKeys().add(refsetSpecKey);
         return whereClause;
+    }*/
+
+    @Override
+    public Where.WhereClause getWhereClause() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public EnumSet<ClauseComputeType> getComputePhases() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) throws IOException, ValidationException, ContradictionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -24,123 +24,137 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 
 public interface TerminologyDI {
-   public static enum CONCEPT_EVENT { PRE_COMMIT, POST_COMMIT, ADD_UNCOMMITTED }
 
-   //~--- methods -------------------------------------------------------------
+    public static enum CONCEPT_EVENT {
 
-   void addChangeSetGenerator(String key, ChangeSetGeneratorBI writer);
+        PRE_COMMIT, POST_COMMIT, ADD_UNCOMMITTED
+    }
 
-   void addPropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, PropertyChangeListener l);
+    //~--- methods -------------------------------------------------------------
+    void addChangeSetGenerator(String key, ChangeSetGeneratorBI writer);
 
-   void addTermChangeListener(TermChangeListener cl);
+    void addPropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, PropertyChangeListener l);
 
-   void addUncommitted(ConceptChronicleBI cc) throws IOException;
+    void addTermChangeListener(TermChangeListener cl);
 
-   void addUncommitted(ConceptVersionBI cv) throws IOException;
+    void addUncommitted(ConceptChronicleBI cc) throws IOException;
 
-   void addUncommittedNoChecks(ConceptChronicleBI cc) throws IOException;
+    void addUncommitted(ConceptVersionBI cv) throws IOException;
 
-   void addUncommittedNoChecks(ConceptVersionBI cv) throws IOException;
+    void addUncommittedNoChecks(ConceptChronicleBI cc) throws IOException;
 
-   /**
-    * Only CONCEPT_EVENT.PRE_COMMIT is a vetoable change
-    * @param pce
-    * @param l
-    */
-   void addVetoablePropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, VetoableChangeListener l);
+    void addUncommittedNoChecks(ConceptVersionBI cv) throws IOException;
 
-   void cancel() throws IOException;
+    /**
+     * Only CONCEPT_EVENT.PRE_COMMIT is a vetoable change
+     *
+     * @param pce
+     * @param l
+     */
+    void addVetoablePropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, VetoableChangeListener l);
 
-   void cancel(ConceptChronicleBI cc) throws IOException;
+    void cancel() throws IOException;
 
-   void cancel(ConceptVersionBI cv) throws IOException;
+    void cancel(ConceptChronicleBI cc) throws IOException;
 
-   void commit() throws IOException;
+    void cancel(ConceptVersionBI cv) throws IOException;
 
-   void commit(ConceptChronicleBI cc) throws IOException;
+    void commit() throws IOException;
 
-   void commit(ConceptVersionBI cv) throws IOException;
+    void commit(ConceptChronicleBI cc) throws IOException;
 
-   ChangeSetGeneratorBI createDtoChangeSetGenerator(File changeSetFileName, File changeSetTempFileName,
-           ChangeSetGenerationPolicy policy);
+    void commit(ConceptVersionBI cv) throws IOException;
 
-   boolean forget(ConceptAttributeVersionBI attr) throws IOException;
+    ChangeSetGeneratorBI createDtoChangeSetGenerator(File changeSetFileName, File changeSetTempFileName,
+            ChangeSetGenerationPolicy policy);
 
-   void forget(ConceptChronicleBI concept) throws IOException;
+    boolean forget(ConceptAttributeVersionBI attr) throws IOException;
 
-   void forget(DescriptionVersionBI desc) throws IOException;
+    void forget(ConceptChronicleBI concept) throws IOException;
 
-   void forget(RefexChronicleBI extension) throws IOException;
+    void forget(DescriptionVersionBI desc) throws IOException;
 
-   void forget(RelationshipVersionBI rel) throws IOException;
+    void forget(RefexChronicleBI extension) throws IOException;
 
-   void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;
+    void forget(RelationshipVersionBI rel) throws IOException;
 
-   void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception;
+    void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;
 
-   void loadEconFiles(File[] econFiles) throws Exception;
+    void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception;
 
-   void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception;
+    void loadEconFiles(File[] econFiles) throws Exception;
 
-   void loadEconFiles(String[] econFileStrings) throws Exception;
+    void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception;
 
-   Position newPosition(Path path, long time) throws IOException;
+    void loadEconFiles(String[] econFileStrings) throws Exception;
 
-   void removeChangeSetGenerator(String key);
+    Position newPosition(Path path, long time) throws IOException;
 
-   void removeTermChangeListener(TermChangeListener cl);
+    void removeChangeSetGenerator(String key);
 
-   void resumeChangeNotifications();
+    void removeTermChangeListener(TermChangeListener cl);
 
-   boolean satisfiesDependencies(Collection<DbDependency> dependencies);
+    void resumeChangeNotifications();
 
-   void suspendChangeNotifications();
+    boolean satisfiesDependencies(Collection<DbDependency> dependencies);
 
-   //~--- get methods ---------------------------------------------------------
+    void suspendChangeNotifications();
 
-   NativeIdSetBI getAllConceptNids() throws IOException;
-   
-   NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException;
+    //~--- get methods ---------------------------------------------------------
+    NativeIdSetBI getAllConceptNids() throws IOException;
 
-   NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException;
+    NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException;
 
-   int getAuthorNidForStamp(int sapNid);
+    /**
+     * Retrieves the components nids from the input concept nids
+     *
+     * @param conceptNativeIds the <code>NativeIdSetBI<code> for which the components nids will be retrieved
+     */
+    NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException;
 
-   NativeIdSetBI getEmptyNidSet() throws IOException;
+    int getAuthorNidForStamp(int sapNid);
 
-   ViewCoordinate getMetadataVC() throws IOException;
+    NativeIdSetBI getEmptyNidSet() throws IOException;
 
-   int getModuleNidForStamp(int sapNid);
+    ViewCoordinate getMetadataVC() throws IOException;
 
-   Path getPath(int pathNid) throws IOException;
+    int getModuleNidForStamp(int sapNid);
 
-   int getPathNidForStamp(int sapNid);
+    Path getPath(int pathNid) throws IOException;
 
-   Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
+    int getPathNidForStamp(int sapNid);
 
-   Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException;
+    Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
 
-   Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException;
+    Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException;
+
+    Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException;
 
     Status getStatusForStamp(int stamp);
 
-   long getTimeForStamp(int sapNid);
-   
-   
-   int getNidForUuids(Collection<UUID> uuids) throws IOException;
+    long getTimeForStamp(int sapNid);
 
-   Collection<UUID> getUuidCollection(Collection<Integer> nids) throws IOException;
-   
-   Collection<Integer> getNidCollection(Collection<UUID> uuids) throws IOException;
+    int getNidForUuids(Collection<UUID> uuids) throws IOException;
 
-   int getNidForUuids(UUID... uuids) throws IOException;
-   
-   int getConceptNidForNid(int nid);
-   
-   int getNidFromAlternateId(UUID authorityUuid, String altId) throws IOException;
-   
-   CharSequence informAboutUuid(UUID uuid);
-   CharSequence informAboutNid(int nid);
-   CharSequence informAboutId(Object id);
+    Collection<UUID> getUuidCollection(Collection<Integer> nids) throws IOException;
 
+    Collection<Integer> getNidCollection(Collection<UUID> uuids) throws IOException;
+
+    int getNidForUuids(UUID... uuids) throws IOException;
+
+    /**
+     * Retrieve the concept nid from a specified nid.
+     *
+     * @param nid
+     * @return the <code>int</code> concept nid of the specified nid
+     */
+    int getConceptNidForNid(int nid);
+
+    int getNidFromAlternateId(UUID authorityUuid, String altId) throws IOException;
+
+    CharSequence informAboutUuid(UUID uuid);
+
+    CharSequence informAboutNid(int nid);
+
+    CharSequence informAboutId(Object id);
 }

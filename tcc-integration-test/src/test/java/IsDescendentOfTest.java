@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.test.integration;
+
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.query.Clause;
@@ -29,16 +24,17 @@ import org.ihtsdo.otf.tcc.api.query.Query;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
+ * Creates a test for ConceptIsDescendentOf <code>Clause</code>.
  *
  * @author dylangrald
+ *
  */
-public class ChangedFromPreviousVersionTest {
-    
+public class IsDescendentOfTest {
+
     Query q;
-    
-    public ChangedFromPreviousVersionTest() throws IOException{
+
+    public IsDescendentOfTest() throws IOException {
         q = new Query(StandardViewCoordinates.getSnomedInferredLatest()) {
-            private ViewCoordinate v2 = null;
             @Override
             protected NativeIdSetBI For() throws IOException {
                 return Ts.get().getAllConceptNids();
@@ -47,26 +43,16 @@ public class ChangedFromPreviousVersionTest {
             @Override
             protected void Let() throws IOException {
                 let("motion", Snomed.MOTION);
-                let("v2", Ts.get().getViewCoordinate(UUID.fromString("2b684fe1-8baf-34ef-9d2a-df03142c915a")));
             }
 
             @Override
             protected Clause Where() {
-                try {
-                    Collection<ViewCoordinate> v2Group = Ts.get().getViewCoordinates();
-                    v2 = v2Group.iterator().next();
-                } catch (IOException ex) {
-                    Logger.getLogger(ChangedFromPreviousVersionTest.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                return And(ChangedFromPreviousVersion("v2"));
-                //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
+                return And(ConceptIsDescendentOf("motion"));
             }
         };
-        
     }
-    
-    public Query getQuery(){
+
+    public Query getQuery() {
         return q;
     }
-    
 }

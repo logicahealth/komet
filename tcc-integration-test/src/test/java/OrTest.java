@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.test.integration;
+
 
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
@@ -47,8 +47,8 @@ public class OrTest {
 
             @Override
             protected Clause Where() {
-                return Or(ConceptIsKindOf("person"), ConceptIsKindOf("allergic-asthma"));
-                //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
+                    return Or(ConceptIsKindOf("person"), ConceptIsKindOf("allergic-asthma"));
+                    //return Or(ConceptIsKindOf("allergic-asthma"), ConceptIsKindOf("respiratory disorder"));
             }
         };
     }

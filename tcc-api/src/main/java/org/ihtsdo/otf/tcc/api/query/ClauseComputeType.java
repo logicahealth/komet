@@ -16,9 +16,14 @@
 package org.ihtsdo.otf.tcc.api.query;
 
 /**
+ * Enumeration of the phases of iteration required to compute a
+ * <code>LeafClause</code>.
+ * <code>ClauseComputeType.ITERATION</code> is required for all LeafClauses that
+ * iterate over the database.
  *
  * @author kec
  */
 public enum ClauseComputeType {
+
     PRE_ITERATION, ITERATION, POST_ITERATION;
 }

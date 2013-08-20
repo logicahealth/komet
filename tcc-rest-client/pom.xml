@@ -28,6 +28,12 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.ihtsdo.otf</groupId>
+            <artifactId>tcc-dto-ddo</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -71,11 +71,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 
 import javax.ws.rs.core.MediaType;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
+import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
 
 /**
  *
@@ -706,6 +708,26 @@ public class TccRestClient extends Termstore {
 
     @Override
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NativeIdSetBI isChildOfSet(int parentNid, ViewCoordinate viewCoordinate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NativeIdSetBI relationshipSet(int parentNid, ViewCoordinate viewCoordinate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /*@Override
+    public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
+
+    @Override
+    public NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

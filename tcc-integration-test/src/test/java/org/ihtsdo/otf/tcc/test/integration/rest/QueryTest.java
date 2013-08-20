@@ -26,8 +26,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.spi.TestContainerException;
-import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.ihtsdo.otf.tcc.api.query.ForCollection;
 import org.ihtsdo.otf.tcc.api.query.JaxbForQuery;
 import org.ihtsdo.otf.tcc.api.query.LetMap;
@@ -40,7 +38,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 
 /**
@@ -82,6 +79,7 @@ public class QueryTest extends JerseyTest {
 //        return super.getTestContainerFactory(); 
 //    }
     
+
     @Test
     public void testQuery() {
         try {

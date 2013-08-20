@@ -16,7 +16,7 @@
 package org.ihtsdo.otf.tcc.api.query;
 
 /**
- *
+ * Specifies the components 
  * @author kec
  */
 public enum ClauseComponentType {

@@ -15,16 +15,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-dto-ddo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
          <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-lookup</artifactId>
@@ -55,6 +45,18 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
             <version>${org.apache.lucene.version}</version>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>org.ihtsdo.otf</groupId>
+            <artifactId>tcc-api</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ihtsdo.otf</groupId>
+            <artifactId>tcc-dto-ddo</artifactId>
+            <version>1.1-sprint2-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

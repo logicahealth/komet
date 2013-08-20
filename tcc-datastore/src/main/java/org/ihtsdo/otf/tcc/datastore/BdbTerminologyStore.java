@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.datastore;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
@@ -37,7 +36,6 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.TerminologySnapshot;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
 import org.ihtsdo.otf.tcc.model.cs.CsProperty;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
@@ -56,149 +54,154 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
 
 public class BdbTerminologyStore extends Termstore {
-   private static ViewCoordinate metadataVC = null;
 
-   private void addOrigins(Set<Path> paths, Collection<? extends Position> origins) {
-      if (origins == null) {
-         return;
-      }
+    private static ViewCoordinate metadataVC = null;
 
-      for (Position o : origins) {
-         paths.add(o.getPath());
-         addOrigins(paths, o.getPath().getOrigins());
-      }
-   }
+    private void addOrigins(Set<Path> paths, Collection<? extends Position> origins) {
+        if (origins == null) {
+            return;
+        }
 
-   @Override
-   public void addPropertyChangeListener(CONCEPT_EVENT pce, PropertyChangeListener l) {
-      GlobalPropertyChange.addPropertyChangeListener(pce, l);
-   }
+        for (Position o : origins) {
+            paths.add(o.getPath());
+            addOrigins(paths, o.getPath().getOrigins());
+        }
+    }
 
-   @Override
-   public void addRelOrigin(int destinationCNid, int originCNid) throws IOException {
-      Bdb.addRelOrigin(destinationCNid, originCNid);
-   }
+    @Override
+    public void addPropertyChangeListener(CONCEPT_EVENT pce, PropertyChangeListener l) {
+        GlobalPropertyChange.addPropertyChangeListener(pce, l);
+    }
 
-   @Override
-   public void addUncommitted(ConceptChronicleBI concept) throws IOException {
-      BdbCommitManager.addUncommitted(concept);
-   }
+    @Override
+    public void addRelOrigin(int destinationCNid, int originCNid) throws IOException {
+        Bdb.addRelOrigin(destinationCNid, originCNid);
+    }
 
-   @Override
-   public void addUncommittedNoChecks(ConceptChronicleBI cc) throws IOException {
-      BdbCommitManager.addUncommittedNoChecks(cc);
-   }
+    @Override
+    public void addUncommitted(ConceptChronicleBI concept) throws IOException {
+        BdbCommitManager.addUncommitted(concept);
+    }
 
-   @Override
-   public void addVetoablePropertyChangeListener(CONCEPT_EVENT pce, VetoableChangeListener l) {
-      GlobalPropertyChange.addVetoableChangeListener(pce, l);
-   }
+    @Override
+    public void addUncommittedNoChecks(ConceptChronicleBI cc) throws IOException {
+        BdbCommitManager.addUncommittedNoChecks(cc);
+    }
 
-   @Override
-   public void addXrefPair(int nid, NidPairForRefex pair) throws IOException {
-      Bdb.addXrefPair(nid, pair);
-   }
+    @Override
+    public void addVetoablePropertyChangeListener(CONCEPT_EVENT pce, VetoableChangeListener l) {
+        GlobalPropertyChange.addVetoableChangeListener(pce, l);
+    }
 
-   @Override
-   public void cancel() {
-      BdbCommitManager.cancel();
-   }
+    @Override
+    public void addXrefPair(int nid, NidPairForRefex pair) throws IOException {
+        Bdb.addXrefPair(nid, pair);
+    }
 
-   @Override
-   public void cancel(ConceptChronicleBI concept) {
-      throw new UnsupportedOperationException();
-   }
+    @Override
+    public void cancel() {
+        BdbCommitManager.cancel();
+    }
 
-   @Override
-   public void cancel(ConceptVersionBI concept) {
-      throw new UnsupportedOperationException();
-   }
+    @Override
+    public void cancel(ConceptChronicleBI concept) {
+        throw new UnsupportedOperationException();
+    }
 
-   @Override
-   public void cancelAfterCommit(NidSetBI commitSapNids) throws IOException {
-      Bdb.getStampDb().cancelAfterCommit(commitSapNids);
-   }
+    @Override
+    public void cancel(ConceptVersionBI concept) {
+        throw new UnsupportedOperationException();
+    }
 
-   @Override
-   public void commit() throws IOException {
-      BdbCommitManager.commit(ChangeSetPolicy.MUTABLE_ONLY, ChangeSetWriterThreading.SINGLE_THREAD);
-   }
+    @Override
+    public void cancelAfterCommit(NidSetBI commitSapNids) throws IOException {
+        Bdb.getStampDb().cancelAfterCommit(commitSapNids);
+    }
 
-   @Override
-   public void commit(ConceptChronicleBI cc) throws IOException {
-      BdbCommitManager.commit((ConceptChronicle) cc, ChangeSetPolicy.MUTABLE_ONLY,
-                              ChangeSetWriterThreading.SINGLE_THREAD);
-   }
+    @Override
+    public void commit() throws IOException {
+        BdbCommitManager.commit(ChangeSetPolicy.MUTABLE_ONLY, ChangeSetWriterThreading.SINGLE_THREAD);
+    }
 
-   @Override
-   public void commit(ConceptVersionBI concept) throws IOException {
-      this.commit(concept.getChronicle());
-   }
+    @Override
+    public void commit(ConceptChronicleBI cc) throws IOException {
+        BdbCommitManager.commit((ConceptChronicle) cc, ChangeSetPolicy.MUTABLE_ONLY,
+                ChangeSetWriterThreading.SINGLE_THREAD);
+    }
 
-   @Override
-   public boolean commit(ConceptChronicleBI cc, ChangeSetPolicy changeSetPolicy,
-                         ChangeSetWriterThreading changeSetWriterThreading)
-           throws IOException {
-      return BdbCommitManager.commit((ConceptChronicle) cc, changeSetPolicy, changeSetWriterThreading);
-   }
+    @Override
+    public void commit(ConceptVersionBI concept) throws IOException {
+        this.commit(concept.getChronicle());
+    }
 
-   @Override
-   public boolean forget(ConceptAttributeVersionBI attr) throws IOException {
-      boolean forgotten = BdbCommitManager.forget(attr);
+    @Override
+    public boolean commit(ConceptChronicleBI cc, ChangeSetPolicy changeSetPolicy,
+            ChangeSetWriterThreading changeSetWriterThreading)
+            throws IOException {
+        return BdbCommitManager.commit((ConceptChronicle) cc, changeSetPolicy, changeSetWriterThreading);
+    }
 
-      if (forgotten) {
-         Bdb.getConceptDb().forget((ConceptChronicle) attr.getEnclosingConcept());
-      }
+    @Override
+    public boolean forget(ConceptAttributeVersionBI attr) throws IOException {
+        boolean forgotten = BdbCommitManager.forget(attr);
 
-      return forgotten;
-   }
+        if (forgotten) {
+            Bdb.getConceptDb().forget((ConceptChronicle) attr.getEnclosingConcept());
+        }
 
-   @Override
-   public void forget(ConceptChronicleBI concept) throws IOException {
-      BdbCommitManager.forget(concept);
-   }
+        return forgotten;
+    }
 
-   @Override
-   public void forget(DescriptionVersionBI desc) throws IOException {
-      BdbCommitManager.forget(desc);
-   }
+    @Override
+    public void forget(ConceptChronicleBI concept) throws IOException {
+        BdbCommitManager.forget(concept);
+    }
 
-   @Override
-   public void forget(RefexChronicleBI extension) throws IOException {
-      BdbCommitManager.forget(extension);
-   }
+    @Override
+    public void forget(DescriptionVersionBI desc) throws IOException {
+        BdbCommitManager.forget(desc);
+    }
 
-   @Override
-   public void forget(RelationshipVersionBI rel) throws IOException {
-      BdbCommitManager.forget(rel);
-   }
+    @Override
+    public void forget(RefexChronicleBI extension) throws IOException {
+        BdbCommitManager.forget(extension);
+    }
 
-   @Override
-   public void forgetXrefPair(int nid, NidPairForRefex pair) {
-      Bdb.forgetXrefPair(nid, pair);
-   }
+    @Override
+    public void forget(RelationshipVersionBI rel) throws IOException {
+        BdbCommitManager.forget(rel);
+    }
 
-   @Override
-   public long incrementAndGetSequence() {
-      return Bdb.gVersion.incrementAndGet();
-   }
+    @Override
+    public void forgetXrefPair(int nid, NidPairForRefex pair) {
+        Bdb.forgetXrefPair(nid, pair);
+    }
 
-   @Override
-   public void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception {
-      Bdb.getConceptDb().iterateConceptDataInParallel(processor);
-   }
+    @Override
+    public long incrementAndGetSequence() {
+        return Bdb.gVersion.incrementAndGet();
+    }
 
-   @Override
-   public void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception {
-      Bdb.getConceptDb().iterateConceptDataInSequence(processor);
-   }
+    @Override
+    public void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception {
+        Bdb.getConceptDb().iterateConceptDataInParallel(processor);
+    }
+
+    @Override
+    public void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception {
+        Bdb.getConceptDb().iterateConceptDataInSequence(processor);
+    }
 
     @Override
     public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
@@ -209,88 +212,88 @@ public class BdbTerminologyStore extends Termstore {
         loadEconFiles(files);
     }
 
-   @Override
-   public void loadEconFiles(File[] econFiles) throws Exception {
-       boolean consoleFeedback = true;
-      ThreadGroup loadBdbMultiDbThreadGroup = new ThreadGroup(this.getClass().getSimpleName()
-                                                 + ".loadEconFiles threads");
-      ExecutorService executors =
-         Executors.newCachedThreadPool(new NamedThreadFactory(loadBdbMultiDbThreadGroup, "converter "));
+    @Override
+    public void loadEconFiles(File[] econFiles) throws Exception {
+        boolean consoleFeedback = true;
+        ThreadGroup loadBdbMultiDbThreadGroup = new ThreadGroup(this.getClass().getSimpleName()
+                + ".loadEconFiles threads");
+        ExecutorService executors =
+                Executors.newCachedThreadPool(new NamedThreadFactory(loadBdbMultiDbThreadGroup, "converter "));
 
-      try {
-         LinkedBlockingQueue<ConceptConverter>     converters                = new LinkedBlockingQueue<>();
-         int                                       runtimeConverterSize      =
-            Runtime.getRuntime().availableProcessors() * 2;
-         int                                       converterSize             = runtimeConverterSize;
-         AtomicInteger                             conceptsRead              = new AtomicInteger();
-         AtomicInteger                             conceptsProcessed         = new AtomicInteger();
-         ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts = new ConcurrentSkipListSet<>();
+        try {
+            LinkedBlockingQueue<ConceptConverter> converters = new LinkedBlockingQueue<>();
+            int runtimeConverterSize =
+                    Runtime.getRuntime().availableProcessors() * 2;
+            int converterSize = runtimeConverterSize;
+            AtomicInteger conceptsRead = new AtomicInteger();
+            AtomicInteger conceptsProcessed = new AtomicInteger();
+            ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts = new ConcurrentSkipListSet<>();
 
-         for (int i = 0; i < converterSize; i++) {
-            converters.add(new ConceptConverter(converters, conceptsProcessed, indexedAnnotationConcepts));
-         }
-
-         for (File conceptsFile : econFiles) {
-            System.out.println("Starting load from: " + conceptsFile.getAbsolutePath());
-
-            FileInputStream     fis = new FileInputStream(conceptsFile);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            DataInputStream     in  = new DataInputStream(bis);
-
-            try {
-               System.out.print(conceptsRead + "-");
-
-               while (true) {
-                  TtkConceptChronicle eConcept = new TtkConceptChronicle(in);
-                  int       read     = conceptsRead.incrementAndGet();
-                  if (consoleFeedback && read % 100 == 0) {
-                     if (read % 8000 == 0) {
-                        System.out.println('.');
-                        System.out.print(read + "-");
-                     } else {
-                        System.out.print('.');
-                     }
-                  }
-
-                  ConceptConverter conceptConverter = converters.take();
-
-                  try {
-                     conceptConverter.setEConcept(eConcept);
-                  } catch (Throwable ex) {
-                     throw new IOException(ex);
-                  }
-
-                  executors.execute(conceptConverter);
-               }
-            } catch (EOFException e) {
-               in.close();
+            for (int i = 0; i < converterSize; i++) {
+                converters.add(new ConceptConverter(converters, conceptsProcessed, indexedAnnotationConcepts));
             }
 
-            // See if any exceptions in the last converters;
-            while (converters.isEmpty() == false) {
-               ConceptConverter conceptConverter = converters.take();
+            for (File conceptsFile : econFiles) {
+                System.out.println("Starting load from: " + conceptsFile.getAbsolutePath());
 
-               try {
-                  conceptConverter.setEConcept(null);
-               } catch (Throwable ex) {
-                  Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
-               }
+                FileInputStream fis = new FileInputStream(conceptsFile);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                DataInputStream in = new DataInputStream(bis);
+
+                try {
+                    System.out.print(conceptsRead + "-");
+
+                    while (true) {
+                        TtkConceptChronicle eConcept = new TtkConceptChronicle(in);
+                        int read = conceptsRead.incrementAndGet();
+                        if (consoleFeedback && read % 100 == 0) {
+                            if (read % 8000 == 0) {
+                                System.out.println('.');
+                                System.out.print(read + "-");
+                            } else {
+                                System.out.print('.');
+                            }
+                        }
+
+                        ConceptConverter conceptConverter = converters.take();
+
+                        try {
+                            conceptConverter.setEConcept(eConcept);
+                        } catch (Throwable ex) {
+                            throw new IOException(ex);
+                        }
+
+                        executors.execute(conceptConverter);
+                    }
+                } catch (EOFException e) {
+                    in.close();
+                }
+
+                // See if any exceptions in the last converters;
+                while (converters.isEmpty() == false) {
+                    ConceptConverter conceptConverter = converters.take();
+
+                    try {
+                        conceptConverter.setEConcept(null);
+                    } catch (Throwable ex) {
+                        Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                while (conceptsProcessed.get() < conceptsRead.get()) {
+                    Thread.sleep(1000);
+                }
+
+                for (ConceptChronicleBI indexedAnnotationConcept : indexedAnnotationConcepts) {
+                    Ts.get().addUncommittedNoChecks(indexedAnnotationConcept);
+                }
+
+                System.out.println("\nFinished load of " + conceptsRead + " concepts from: "
+                        + conceptsFile.getAbsolutePath());
             }
-
-            while (conceptsProcessed.get() < conceptsRead.get()) {
-               Thread.sleep(1000);
-            }
-
-            for (ConceptChronicleBI indexedAnnotationConcept : indexedAnnotationConcepts) {
-               Ts.get().addUncommittedNoChecks(indexedAnnotationConcept);
-            }
-
-            System.out.println("\nFinished load of " + conceptsRead + " concepts from: "
-                               + conceptsFile.getAbsolutePath());
-         }
-      } finally {
-         executors.shutdown();
-      }
+        } finally {
+            executors.shutdown();
+        }
 //      ViewCoordinate vc = StandardViewCoordinates.getSnomedInferredLatest();
 //
 //      vc.setRelAssertionType(RelAssertionType.STATED);
@@ -307,454 +310,479 @@ public class BdbTerminologyStore extends Termstore {
 //      Ts.get().commit();
 //      System.out.println("Conversion time: "
 //                         + TimeHelper.getElapsedTimeString(System.currentTimeMillis() - time));
-      
-      System.out.println("Starting db sync.");
-      Bdb.sync();
-      System.out.println("Finished db sync, starting generate lucene index.");
-      LuceneManager.createLuceneIndex();
-      Bdb.commit();
-      System.out.println("Finished create lucene index.");
-   }
 
-   @Override
-   public void put(UUID uuid, int nid) {
-      Bdb.getUuidsToNidMap().put(uuid, nid);
-   }
+        System.out.println("Starting db sync.");
+        Bdb.sync();
+        System.out.println("Finished db sync, starting generate lucene index.");
+        LuceneManager.createLuceneIndex();
+        LuceneManager.createRefsetLuceneIndex();
+        Bdb.commit();
+        System.out.println("Finished create lucene index.");
+    }
 
-   @Override
-   public void putViewCoordinate(ViewCoordinate vc) throws IOException {
-      Bdb.putViewCoordinate(vc);
-   }
+    @Override
+    public void put(UUID uuid, int nid) {
+        Bdb.getUuidsToNidMap().put(uuid, nid);
+    }
 
-   @Override
-   public void resetConceptNidForNid(int cNid, int nid) throws IOException {
-      Bdb.getNidCNidMap().resetCNidForNid(cNid, nid);
-   }
+    @Override
+    public void putViewCoordinate(ViewCoordinate vc) throws IOException {
+        Bdb.putViewCoordinate(vc);
+    }
 
-   @Override
-   public void resumeChangeNotifications() {
-      LastChange.resumeChangeNotifications();
-   }
+    @Override
+    public void resetConceptNidForNid(int cNid, int nid) throws IOException {
+        Bdb.getNidCNidMap().resetCNidForNid(cNid, nid);
+    }
 
-   @Override
-   public boolean satisfiesDependencies(Collection<DbDependency> dependencies) {
-      if (dependencies != null) {
-         try {
-            for (DbDependency d : dependencies) {
-               String value = P.s.getProperty(d.getKey());
+    @Override
+    public void resumeChangeNotifications() {
+        LastChange.resumeChangeNotifications();
+    }
 
-               if (d.satisfactoryValue(value) == false) {
-                  return false;
-               }
+    @Override
+    public boolean satisfiesDependencies(Collection<DbDependency> dependencies) {
+        if (dependencies != null) {
+            try {
+                for (DbDependency d : dependencies) {
+                    String value = P.s.getProperty(d.getKey());
+
+                    if (d.satisfactoryValue(value) == false) {
+                        return false;
+                    }
+                }
+            } catch (Throwable e) {
+                AceLog.getAppLog().alertAndLogException(e);
+
+                return false;
             }
-         } catch (Throwable e) {
-            AceLog.getAppLog().alertAndLogException(e);
+        }
 
+        return true;
+    }
+
+    @Override
+    public void suspendChangeNotifications() {
+        LastChange.suspendChangeNotifications();
+    }
+
+    public int uuidsToNid(Collection<UUID> uuids) throws IOException {
+        return Bdb.uuidsToNid(uuids);
+    }
+
+    public int uuidsToNid(UUID... uuids) throws IOException {
+        return Bdb.uuidToNid(uuids);
+    }
+
+    @Override
+    public void waitTillWritesFinished() {
+        BdbCommitManager.waitTillWritesFinished();
+    }
+
+    @Override
+    public void xrefAnnotation(RefexChronicleBI annotation) throws IOException {
+        Bdb.xrefAnnotation(annotation);
+    }
+
+    @Override
+    public NativeIdSetBI getAllConceptNids() throws IOException {
+        return Bdb.getConceptDb().getConceptNidSet();
+    }
+
+    @Override
+    public int getAuthorNidForStamp(int sapNid) {
+        return Bdb.getAuthorNidForSapNid(sapNid);
+    }
+
+    @Override
+    public int getConceptCount() throws IOException {
+        return Bdb.getConceptDb().getCount();
+    }
+
+    @Override
+    public ConceptDataFetcherI getConceptDataFetcher(int cNid) throws IOException {
+        return new NidDataFromBdb(cNid);
+    }
+
+    @Override
+    public int getConceptNidForNid(int nid) {
+        return Bdb.getConceptNid(nid);
+    }
+
+    @Override
+    public int[] getDestRelOriginNids(int cNid) throws IOException {
+        return Bdb.getNidCNidMap().getDestRelNids(cNid);
+    }
+
+    @Override
+    public int[] getDestRelOriginNids(int cNid, NidSetBI relTypes) throws IOException {
+        return Bdb.getNidCNidMap().getDestRelNids(cNid, relTypes);
+    }
+
+    @Override
+    public Collection<Relationship> getDestRels(int cNid) throws IOException {
+        return Bdb.getNidCNidMap().getDestRels(cNid);
+    }
+
+    @Override
+    public NativeIdSetBI getEmptyNidSet() throws IOException {
+        return Bdb.getConceptDb().getEmptyIdSet();
+    }
+
+    @Override
+    public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
+            throws IOException, ContradictionException {
+        TerminologySnapshotDI ts = getSnapshot(vc);
+        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
+
+        return new ConceptChronicleDdo(ts, c, VersionPolicy.ALL_VERSIONS, RefexPolicy.REFEX_MEMBERS,
+                RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
+    }
+
+    @Override
+    public ConceptChronicleDdo getFxConcept(ComponentReference ref, UUID viewCoordinateUuid,
+            VersionPolicy versionPolicy, RefexPolicy refexPolicy,
+            RelationshipPolicy relationshipPolicy)
+            throws IOException, ContradictionException {
+        TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
+        ConceptVersionBI c;
+
+        if (ref.getNid() != Integer.MAX_VALUE) {
+            c = ts.getConceptVersion(ref.getNid());
+        } else {
+            c = ts.getConceptVersion(ref.getUuid());
+        }
+
+        return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
+    }
+
+    @Override
+    public ConceptChronicleDdo getFxConcept(ComponentReference ref, ViewCoordinate vc, VersionPolicy versionPolicy,
+            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
+            throws IOException, ContradictionException {
+        TerminologySnapshotDI ts = getSnapshot(vc);
+        ConceptVersionBI c;
+
+        if (ref.getNid() != Integer.MAX_VALUE) {
+            c = ts.getConceptVersion(ref.getNid());
+        } else {
+            c = ts.getConceptVersion(ref.getUuid());
+        }
+
+        return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
+    }
+
+    @Override
+    public ConceptChronicleDdo getFxConcept(UUID conceptUUID, UUID viewCoordinateUuid, VersionPolicy versionPolicy,
+            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
+            throws IOException, ContradictionException {
+        TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
+        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
+
+        return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
+    }
+
+    @Override
+    public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc, VersionPolicy versionPolicy,
+            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
+            throws IOException, ContradictionException {
+        TerminologySnapshotDI ts = getSnapshot(vc);
+        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
+
+        return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
+    }
+
+    @Override
+    public long getLastCancel() {
+        return BdbCommitManager.getLastCancel();
+    }
+
+    @Override
+    public long getLastCommit() {
+        return BdbCommitManager.getLastCommit();
+    }
+
+    @Override
+    public Collection<DbDependency> getLatestChangeSetDependencies() throws IOException {
+        CsProperty[] keysToCheck = new CsProperty[]{CsProperty.LAST_CHANGE_SET_WRITTEN,
+            CsProperty.LAST_CHANGE_SET_READ};
+        List<DbDependency> latestDependencies = new ArrayList<>(2);
+
+        for (CsProperty prop : keysToCheck) {
+            String value = Bdb.getProperty(prop.toString());
+
+            if (value != null) {
+                String changeSetName = value;
+                String changeSetSize = Bdb.getProperty(changeSetName);
+
+                latestDependencies.add(new EccsDependency(changeSetName, changeSetSize));
+            }
+        }
+
+        return latestDependencies;
+    }
+
+    @Override
+    public int getMaxReadOnlyStamp() {
+        return Bdb.getStampDb().getReadOnlyMax();
+    }
+
+    @Override
+    public ViewCoordinate getMetadataVC() throws IOException {
+        if (metadataVC == null) {
+            metadataVC = makeMetaVc();
+            Bdb.putViewCoordinate(metadataVC);
+        }
+
+        return metadataVC;
+    }
+
+    @Override
+    public int getModuleNidForStamp(int sapNid) {
+        return Bdb.getModuleNidForSapNid(sapNid);
+    }
+
+    @Override
+    public int getNidForUuids(Collection<UUID> uuids) throws IOException {
+        return Bdb.uuidsToNid(uuids);
+    }
+
+    @Override
+    public int getNidForUuids(UUID... uuids) throws IOException {
+        return Bdb.uuidToNid(uuids);
+    }
+
+    @Override
+    public Path getPath(int pathNid) throws IOException {
+        return BdbPathManager.get().get(pathNid);
+    }
+
+    @Override
+    public List<? extends Path> getPathChildren(int nid) {
+        return BdbPathManager.get().getPathChildren(nid);
+    }
+
+    @Override
+    public int getPathNidForStamp(int sapNid) {
+        return Bdb.getPathNidForSapNid(sapNid);
+    }
+
+    @Override
+    public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
+        HashSet<Path> paths = new HashSet<>(positions.size());
+
+        for (Position position : positions) {
+            paths.add(position.getPath());
+
+            // addOrigins(paths, position.getPath().getInheritedOrigins());
+        }
+
+        return paths;
+    }
+
+    @Override
+    public Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
+        HashSet<Path> paths = new HashSet<>(sapNids.size());
+
+        for (int sap : sapNids) {
+            Path path = Bdb.getStampDb().getPosition(sap).getPath();
+
+            paths.add(path);
+            addOrigins(paths, path.getOrigins());
+        }
+
+        return paths;
+    }
+
+    @Override
+    public Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException {
+        HashSet<Position> positions = new HashSet<>(sapNids.size());
+
+        for (int sap : sapNids) {
+            if (sap >= 0) {
+                positions.add(Bdb.getStampDb().getPosition(sap));
+            }
+        }
+
+        return positions;
+    }
+
+    @Override
+    public int[] getPossibleChildren(int parentNid, ViewCoordinate vc) throws IOException {
+        throw new UnsupportedOperationException("needs to get concept nids, not rel nids");
+
+        // return Bdb.getNidCNidMap().getDestRelNids(parentNid, vc);
+    }
+
+    @Override
+    public Map<String, String> getProperties() throws IOException {
+        return Bdb.getProperties();
+    }
+
+    @Override
+    public String getProperty(String key) throws IOException {
+        return Bdb.getProperty(key);
+    }
+
+    @Override
+    public List<NidPairForRefex> getRefexPairs(int nid) {
+        return Bdb.getRefsetPairs(nid);
+    }
+
+    @Override
+    public long getSequence() {
+        return Bdb.gVersion.incrementAndGet();
+    }
+
+    @Override
+    public TerminologySnapshotDI getSnapshot(ViewCoordinate c) {
+        assert c != null;
+        return new TerminologySnapshot(this, c);
+    }
+
+    @Override
+    public int getStamp(ExternalStampBI version) {
+        return Bdb.getStamp(version);
+    }
+
+    @Override
+    public int getStamp(Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        return Bdb.getStampDb().getStamp(status, time, authorNid, moduleNid, pathNid);
+    }
+
+    @Override
+    public Status getStatusForStamp(int stamp) {
+        return Bdb.getStatusForStamp(stamp);
+    }
+
+    @Override
+    public TerminologyBuilderBI getTerminologyBuilder(EditCoordinate ec, ViewCoordinate vc) {
+        return new BdbTermBuilder(ec, vc);
+    }
+
+    @Override
+    public long getTimeForStamp(int sapNid) {
+        return Bdb.getTimeForSapNid(sapNid);
+    }
+
+    @Override
+    public Collection<? extends ConceptChronicleBI> getUncommittedConcepts() {
+        return BdbCommitManager.getUncommitted();
+    }
+
+    @Override
+    public UUID getUuidPrimordialForNid(int nid) throws IOException {
+        ComponentChronicleBI<?> c = getComponent(nid);
+
+        if (c != null) {
+            return c.getPrimordialUuid();
+        }
+
+        return UUID.fromString("00000000-0000-0000-C000-000000000046");
+    }
+
+    @Override
+    public List<UUID> getUuidsForNid(int nid) throws IOException {
+        return Bdb.getUuidsToNidMap().getUuidsForNid(nid);
+    }
+
+    @Override
+    public ViewCoordinate getViewCoordinate(UUID vcUuid) throws IOException {
+        return Bdb.getViewCoordinate(vcUuid);
+    }
+
+    @Override
+    public Collection<ViewCoordinate> getViewCoordinates() throws IOException {
+        return Bdb.getViewCoordinates();
+    }
+
+    @Override
+    public boolean hasConcept(int cNid) throws IOException {
+        return Bdb.isConcept(cNid);
+    }
+
+    @Override
+    public boolean hasPath(int nid) throws IOException {
+        return BdbPathManager.get().hasPath(nid);
+    }
+
+    @Override
+    public boolean hasUncommittedChanges() {
+        if (BdbCommitManager.getUncommitted().isEmpty()) {
             return false;
-         }
-      }
-
-      return true;
-   }
-
-   @Override
-   public void suspendChangeNotifications() {
-      LastChange.suspendChangeNotifications();
-   }
-
-   public int uuidsToNid(Collection<UUID> uuids) throws IOException {
-      return Bdb.uuidsToNid(uuids);
-   }
-
-   public int uuidsToNid(UUID... uuids) throws IOException {
-      return Bdb.uuidToNid(uuids);
-   }
-
-   @Override
-   public void waitTillWritesFinished() {
-      BdbCommitManager.waitTillWritesFinished();
-   }
-
-   @Override
-   public void xrefAnnotation(RefexChronicleBI annotation) throws IOException {
-      Bdb.xrefAnnotation(annotation);
-   }
-
-   @Override
-   public NativeIdSetBI getAllConceptNids() throws IOException {
-      return Bdb.getConceptDb().getConceptNidSet();
-   }
-
-   @Override
-   public int getAuthorNidForStamp(int sapNid) {
-      return Bdb.getAuthorNidForSapNid(sapNid);
-   }
-
-   @Override
-   public int getConceptCount() throws IOException {
-      return Bdb.getConceptDb().getCount();
-   }
-
-   @Override
-   public ConceptDataFetcherI getConceptDataFetcher(int cNid) throws IOException {
-      return new NidDataFromBdb(cNid);
-   }
-
-   @Override
-   public int getConceptNidForNid(int nid) {
-      return Bdb.getConceptNid(nid);
-   }
-
-   @Override
-   public int[] getDestRelOriginNids(int cNid) throws IOException {
-      return Bdb.getNidCNidMap().getDestRelNids(cNid);
-   }
-
-   @Override
-   public int[] getDestRelOriginNids(int cNid, NidSetBI relTypes) throws IOException {
-      return Bdb.getNidCNidMap().getDestRelNids(cNid, relTypes);
-   }
-
-   @Override
-   public Collection<Relationship> getDestRels(int cNid) throws IOException {
-      return Bdb.getNidCNidMap().getDestRels(cNid);
-   }
-
-   @Override
-   public NativeIdSetBI getEmptyNidSet() throws IOException {
-      return Bdb.getConceptDb().getEmptyIdSet();
-   }
-
-   @Override
-   public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
-           throws IOException, ContradictionException {
-      TerminologySnapshotDI ts = getSnapshot(vc);
-      ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
-
-      return new ConceptChronicleDdo(ts, c, VersionPolicy.ALL_VERSIONS, RefexPolicy.REFEX_MEMBERS,
-                           RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
-   }
-
-   @Override
-   public ConceptChronicleDdo getFxConcept(ComponentReference ref, UUID viewCoordinateUuid,
-                                 VersionPolicy versionPolicy, RefexPolicy refexPolicy,
-                                 RelationshipPolicy relationshipPolicy)
-           throws IOException, ContradictionException {
-      TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
-      ConceptVersionBI      c;
-
-      if (ref.getNid() != Integer.MAX_VALUE) {
-         c = ts.getConceptVersion(ref.getNid());
-      } else {
-         c = ts.getConceptVersion(ref.getUuid());
-      }
-
-      return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
-   }
-
-   @Override
-   public ConceptChronicleDdo getFxConcept(ComponentReference ref, ViewCoordinate vc, VersionPolicy versionPolicy,
-                                 RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
-           throws IOException, ContradictionException {
-      TerminologySnapshotDI ts = getSnapshot(vc);
-      ConceptVersionBI      c;
-
-      if (ref.getNid() != Integer.MAX_VALUE) {
-         c = ts.getConceptVersion(ref.getNid());
-      } else {
-         c = ts.getConceptVersion(ref.getUuid());
-      }
-
-      return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
-   }
-
-   @Override
-   public ConceptChronicleDdo getFxConcept(UUID conceptUUID, UUID viewCoordinateUuid, VersionPolicy versionPolicy,
-                                 RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
-           throws IOException, ContradictionException {
-      TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
-      ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
-
-      return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
-   }
-
-   @Override
-   public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc, VersionPolicy versionPolicy,
-                                 RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
-           throws IOException, ContradictionException {
-      TerminologySnapshotDI ts = getSnapshot(vc);
-      ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
-
-      return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
-   }
-
-   @Override
-   public long getLastCancel() {
-      return BdbCommitManager.getLastCancel();
-   }
-
-   @Override
-   public long getLastCommit() {
-      return BdbCommitManager.getLastCommit();
-   }
-
-   @Override
-   public Collection<DbDependency> getLatestChangeSetDependencies() throws IOException {
-      CsProperty[] keysToCheck = new CsProperty[] { CsProperty.LAST_CHANGE_SET_WRITTEN,
-          CsProperty.LAST_CHANGE_SET_READ };
-      List<DbDependency> latestDependencies = new ArrayList<>(2);
-
-      for (CsProperty prop : keysToCheck) {
-         String value = Bdb.getProperty(prop.toString());
-
-         if (value != null) {
-            String changeSetName = value;
-            String changeSetSize = Bdb.getProperty(changeSetName);
-
-            latestDependencies.add(new EccsDependency(changeSetName, changeSetSize));
-         }
-      }
-
-      return latestDependencies;
-   }
-
-   @Override
-   public int getMaxReadOnlyStamp() {
-      return Bdb.getStampDb().getReadOnlyMax();
-   }
-
-   @Override
-   public ViewCoordinate getMetadataVC() throws IOException {
-      if (metadataVC == null) {
-         metadataVC = makeMetaVc();
-         Bdb.putViewCoordinate(metadataVC);
-      }
-
-      return metadataVC;
-   }
-
-   @Override
-   public int getModuleNidForStamp(int sapNid) {
-      return Bdb.getModuleNidForSapNid(sapNid);
-   }
-
-   @Override
-   public int getNidForUuids(Collection<UUID> uuids) throws IOException {
-      return Bdb.uuidsToNid(uuids);
-   }
-
-   @Override
-   public int getNidForUuids(UUID... uuids) throws IOException {
-      return Bdb.uuidToNid(uuids);
-   }
-
-   @Override
-   public Path getPath(int pathNid) throws IOException {
-      return BdbPathManager.get().get(pathNid);
-   }
-
-   @Override
-   public List<? extends Path> getPathChildren(int nid) {
-      return BdbPathManager.get().getPathChildren(nid);
-   }
-
-   @Override
-   public int getPathNidForStamp(int sapNid) {
-      return Bdb.getPathNidForSapNid(sapNid);
-   }
-
-   @Override
-   public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
-      HashSet<Path> paths = new HashSet<>(positions.size());
-
-      for (Position position : positions) {
-         paths.add(position.getPath());
-
-         // addOrigins(paths, position.getPath().getInheritedOrigins());
-      }
-
-      return paths;
-   }
-
-   @Override
-   public Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
-      HashSet<Path> paths = new HashSet<>(sapNids.size());
-
-      for (int sap : sapNids) {
-         Path path = Bdb.getStampDb().getPosition(sap).getPath();
-
-         paths.add(path);
-         addOrigins(paths, path.getOrigins());
-      }
-
-      return paths;
-   }
-
-   @Override
-   public Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException {
-      HashSet<Position> positions = new HashSet<>(sapNids.size());
-
-      for (int sap : sapNids) {
-         if (sap >= 0) {
-            positions.add(Bdb.getStampDb().getPosition(sap));
-         }
-      }
-
-      return positions;
-   }
-
-   @Override
-   public int[] getPossibleChildren(int parentNid, ViewCoordinate vc) throws IOException {
-      throw new UnsupportedOperationException("needs to get concept nids, not rel nids");
-
-      // return Bdb.getNidCNidMap().getDestRelNids(parentNid, vc);
-   }
-
-   @Override
-   public Map<String, String> getProperties() throws IOException {
-      return Bdb.getProperties();
-   }
-
-   @Override
-   public String getProperty(String key) throws IOException {
-      return Bdb.getProperty(key);
-   }
-
-   @Override
-   public List<NidPairForRefex> getRefexPairs(int nid) {
-      return Bdb.getRefsetPairs(nid);
-   }
-
-   @Override
-   public long getSequence() {
-      return Bdb.gVersion.incrementAndGet();
-   }
-
-   @Override
-   public TerminologySnapshotDI getSnapshot(ViewCoordinate c) {
-      assert c != null;
-      return new TerminologySnapshot(this, c);
-   }
-
-   @Override
-   public int getStamp(ExternalStampBI version) {
-      return Bdb.getStamp(version);
-   }
-
-   @Override
-   public int getStamp(Status status, long time, int authorNid, int moduleNid, int pathNid) {
-      return Bdb.getStampDb().getStamp(status, time, authorNid, moduleNid, pathNid);
-   }
-
-   @Override
-   public Status getStatusForStamp(int stamp) {
-      return Bdb.getStatusForStamp(stamp);
-   }
-
-   @Override
-   public TerminologyBuilderBI getTerminologyBuilder(EditCoordinate ec, ViewCoordinate vc) {
-      return new BdbTermBuilder(ec, vc);
-   }
-
-   @Override
-   public long getTimeForStamp(int sapNid) {
-      return Bdb.getTimeForSapNid(sapNid);
-   }
-
-   @Override
-   public Collection<? extends ConceptChronicleBI> getUncommittedConcepts() {
-      return BdbCommitManager.getUncommitted();
-   }
-
-   @Override
-   public UUID getUuidPrimordialForNid(int nid) throws IOException {
-      ComponentChronicleBI<?> c = getComponent(nid);
-
-      if (c != null) {
-         return c.getPrimordialUuid();
-      }
-
-      return UUID.fromString("00000000-0000-0000-C000-000000000046");
-   }
-
-   @Override
-   public List<UUID> getUuidsForNid(int nid) throws IOException {
-      return Bdb.getUuidsToNidMap().getUuidsForNid(nid);
-   }
-
-   @Override
-   public ViewCoordinate getViewCoordinate(UUID vcUuid) throws IOException {
-      return Bdb.getViewCoordinate(vcUuid);
-   }
-
-   @Override
-   public Collection<ViewCoordinate> getViewCoordinates() throws IOException {
-      return Bdb.getViewCoordinates();
-   }
-
-   @Override
-   public boolean hasConcept(int cNid) throws IOException {
-      return Bdb.isConcept(cNid);
-   }
-
-   @Override
-   public boolean hasPath(int nid) throws IOException {
-      return BdbPathManager.get().hasPath(nid);
-   }
-
-   @Override
-   public boolean hasUncommittedChanges() {
-      if (BdbCommitManager.getUncommitted().isEmpty()) {
-         return false;
-      }
-
-      return true;
-   }
-
-   @Override
-   public boolean hasUuid(List<UUID> memberUUIDs) {
-      assert memberUUIDs != null;
-
-      for (UUID uuid : memberUUIDs) {
-         if (Bdb.hasUuid(uuid)) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   @Override
-   public boolean hasUuid(UUID memberUUID) {
-      assert memberUUID != null;
-
-      return Bdb.hasUuid(memberUUID);
-   }
-
-   @Override
-   public boolean isKindOf(int childNid, int parentNid, ViewCoordinate vc)
-           throws IOException, ContradictionException {
-      return Bdb.getNidCNidMap().isKindOf(childNid, parentNid, vc);
-   }
-
-   @Override
-   public void setConceptNidForNid(int cNid, int nid) throws IOException {
-      Bdb.getNidCNidMap().setCNidForNid(cNid, nid);
-   }
-
-   @Override
-   public void setProperty(String key, String value) throws IOException {
-      Bdb.setProperty(key, value);
-   }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean hasUuid(List<UUID> memberUUIDs) {
+        assert memberUUIDs != null;
+
+        for (UUID uuid : memberUUIDs) {
+            if (Bdb.hasUuid(uuid)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean hasUuid(UUID memberUUID) {
+        assert memberUUID != null;
+
+        return Bdb.hasUuid(memberUUID);
+    }
+
+    @Override
+    public boolean isKindOf(int childNid, int parentNid, ViewCoordinate vc)
+            throws IOException, ContradictionException {
+        return Bdb.getNidCNidMap().isKindOf(childNid, parentNid, vc);
+    }
+
+    @Override
+    public NativeIdSetBI isChildOfSet(int parentNid, ViewCoordinate vc) {
+        try {
+            return Bdb.getNidCNidMap().isChildOfSet(parentNid, vc);
+        } catch (IOException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ContradictionException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc) {
+        try {
+            return Bdb.getNidCNidMap().isKindOfSet(parentNid, vc);
+        } catch (IOException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ContradictionException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public void setConceptNidForNid(int cNid, int nid) throws IOException {
+        Bdb.getNidCNidMap().setCNidForNid(cNid, nid);
+    }
+
+    @Override
+    public void setProperty(String key, String value) throws IOException {
+        Bdb.setProperty(key, value);
+    }
 
     @Override
     public boolean isChildOf(int childNid, int parentNid, ViewCoordinate vc) throws IOException, ContradictionException {
-       return Bdb.getNidCNidMap().isChildOf(childNid, parentNid, vc);
+        return Bdb.getNidCNidMap().isChildOf(childNid, parentNid, vc);
     }
 
     @Override
     public NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException {
-       NativeIdSetItrBI iter = componentNativeIds.getIterator();
+        NativeIdSetItrBI iter = componentNativeIds.getIterator();
         NativeIdSetBI cNidSet = new ConcurrentBitSet();
         while (iter.next()) {
             cNidSet.add(Bdb.getNidCNidMap().getCNid(iter.nid()));
@@ -762,68 +790,86 @@ public class BdbTerminologyStore extends Termstore {
         return cNidSet;
     }
 
+    /**
+     * Retrieves the components nids from the input concept nids
+     *
+     * @param conceptNativeIds the <code>NativeIdSetBI<code> for which the components nids will be retrieved
+     */
     @Override
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Bdb.getNidCNidMap().getComponentNidsForConceptNids(conceptNativeIds);
     }
 
-   private static class ConceptConverter implements Runnable {
-      TtkConceptChronicle                                 eConcept   = null;
-      Throwable                                 exception  = null;
-      ConceptChronicle                                   newConcept = null;
-      AtomicInteger                             conceptsProcessed;
-      LinkedBlockingQueue<ConceptConverter>     converters;
-      ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts;
-      NidCNidMapBdb                             nidCnidMap;
+    @Override
+    public NativeIdSetBI relationshipSet(int parentNid, ViewCoordinate viewCoordinate) {
+        //Bdb.getNidCNidMap().getDestRels(parentNid);
+        //åBdb.getNidCNidMap().getDestRelNids(parentNid, null)
+        throw new UnsupportedOperationException("Not supported yet");
+    }
 
-      public ConceptConverter(LinkedBlockingQueue<ConceptConverter> converters, AtomicInteger conceptsRead,
-                              ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts) {
-         this.converters                = converters;
-         this.conceptsProcessed         = conceptsRead;
-         this.indexedAnnotationConcepts = indexedAnnotationConcepts;
-      }
+    /*@Override
+    public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
 
-      @Override
-      public void run() {
-         if (nidCnidMap == null) {
-            nidCnidMap = Bdb.getNidCNidMap();
-         }
+    private static class ConceptConverter implements Runnable {
 
-         try {
-            newConcept = ConceptChronicle.get(eConcept, indexedAnnotationConcepts);
+        TtkConceptChronicle eConcept = null;
+        Throwable exception = null;
+        ConceptChronicle newConcept = null;
+        AtomicInteger conceptsProcessed;
+        LinkedBlockingQueue<ConceptConverter> converters;
+        ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts;
+        NidCNidMapBdb nidCnidMap;
 
-            if (newConcept != null) {
-               assert newConcept.readyToWrite();
-               Bdb.getConceptDb().writeConcept(newConcept);
+        public ConceptConverter(LinkedBlockingQueue<ConceptConverter> converters, AtomicInteger conceptsRead,
+                ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts) {
+            this.converters = converters;
+            this.conceptsProcessed = conceptsRead;
+            this.indexedAnnotationConcepts = indexedAnnotationConcepts;
+        }
 
-               Collection<Integer> nids = newConcept.getAllNids();
-
-               assert nidCnidMap.getCNid(newConcept.getNid()) == newConcept.getNid();
-
-               for (int nid : nids) {
-                  assert nidCnidMap.getCNid(nid) == newConcept.getNid();
-               }
+        @Override
+        public void run() {
+            if (nidCnidMap == null) {
+                nidCnidMap = Bdb.getNidCNidMap();
             }
 
-            conceptsProcessed.incrementAndGet();
-         } catch (Throwable e) {
-            exception = e;
-         }
+            try {
+                newConcept = ConceptChronicle.get(eConcept, indexedAnnotationConcepts);
 
-         converters.add(this);
-      }
+                if (newConcept != null) {
+                    assert newConcept.readyToWrite();
+                    Bdb.getConceptDb().writeConcept(newConcept);
 
-      /*
-       * (non-Javadoc)
-       *
-       * @see org.ihtsdo.db.bdb.I_ProcessEConcept#setEConcept(org.ihtsdo.etypes .EConcept)
-       */
-      public void setEConcept(TtkConceptChronicle eConcept) throws Throwable {
-         if (exception != null) {
-            throw exception;
-         }
+                    Collection<Integer> nids = newConcept.getAllNids();
 
-         this.eConcept = eConcept;
-      }
-   }
+                    assert nidCnidMap.getCNid(newConcept.getNid()) == newConcept.getNid();
+
+                    for (int nid : nids) {
+                        assert nidCnidMap.getCNid(nid) == newConcept.getNid();
+                    }
+                }
+
+                conceptsProcessed.incrementAndGet();
+            } catch (Throwable e) {
+                exception = e;
+            }
+
+            converters.add(this);
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see org.ihtsdo.db.bdb.I_ProcessEConcept#setEConcept(org.ihtsdo.etypes .EConcept)
+         */
+        public void setEConcept(TtkConceptChronicle eConcept) throws Throwable {
+            if (exception != null) {
+                throw exception;
+            }
+
+            this.eConcept = eConcept;
+        }
+    }
 }

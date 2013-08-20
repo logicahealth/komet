@@ -20,6 +20,6 @@ package org.ihtsdo.otf.tcc.model.cc.termstore;
  * @author kec
  */
 public enum SearchType {
-    CONCEPT, DESCRIPTION
+    CONCEPT, DESCRIPTION, REFSET,
     
 }

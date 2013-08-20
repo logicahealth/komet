@@ -25,23 +25,25 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.query.Clause;
 import org.ihtsdo.otf.tcc.api.query.Where;
 
 /**
+ * Calculates descriptions that contain the input Java Regular Expression.
  *
  * @author kec
  */
 public class DescriptionRegexMatch extends LeafClause {
 
     String regex;
-    //String regexKey;
+    NativeIdSetBI cache = new ConcurrentBitSet();
+    String regexKey;
 
-    public DescriptionRegexMatch(Query enclosingQuery, String regex) {
+    public DescriptionRegexMatch(Query enclosingQuery, String regexKey) {
         super(enclosingQuery);
-        //this.regexKey = regexKey;
-        //this.regex = (String) enclosingQuery.getLetDeclarations().get(regexKey);
-        this.regex = regex;
+        this.regexKey = regexKey;
+        this.regex = (String) enclosingQuery.getLetDeclarations().get(regexKey);
     }
 
     @Override
@@ -51,28 +53,32 @@ public class DescriptionRegexMatch extends LeafClause {
 
     @Override
     public NativeIdSetBI computePossibleComponents(NativeIdSetBI incomingPossibleComponents) {
+        this.cache = incomingPossibleComponents;
         return incomingPossibleComponents;
     }
 
     @Override
     public void getQueryMatches(ConceptVersionBI conceptVersion) throws IOException, ContradictionException {
-
         for (DescriptionChronicleBI dc : conceptVersion.getDescriptions()) {
-            for (DescriptionVersionBI dv : dc.getVersions()) {
-                if (dv.getText().matches(regex)) {
-                    getResultsCache().add(dv.getNid());
+            if (cache.contains(dc.getNid())) {
+                for (DescriptionVersionBI dv : dc.getVersions()) {
+                    if (dv.getText().matches(regex)) {
+                        addToResultsCache((dv.getNid()));
+                    }
                 }
             }
         }
+
     }
+
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.DESCRIPTION_REGEX_MATCH);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
-        //whereClause.getLetKeys().add(regexKey);
+        whereClause.getLetKeys().add(regexKey);
         return whereClause;
     }
 }

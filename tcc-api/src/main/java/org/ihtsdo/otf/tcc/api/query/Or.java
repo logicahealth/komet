@@ -22,30 +22,41 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 /**
+ * Clause that computes the union of the results of the child clauses.
  *
  * @author dylangrald
  */
-public class Or extends ParentClause{
-    
-    public Or(Query enclosingQuery, Clause... clauses){
+public class Or extends ParentClause {
+
+    public Or(Query enclosingQuery, Clause... clauses) {
         super(enclosingQuery, clauses);
     }
 
     @Override
     public NativeIdSetBI computePossibleComponents(NativeIdSetBI searchSpace) throws IOException, ValidationException, ContradictionException {
         NativeIdSetBI results = new ConcurrentBitSet();
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             results.union(clause.computePossibleComponents(searchSpace));
         }
         return results;
     }
+
     @Override
     public Where.WhereClause getWhereClause() {
         Where.WhereClause whereClause = new Where.WhereClause();
         whereClause.setSemantic(Where.ClauseSemantic.OR);
-        for(Clause clause : getChildren()){
+        for (Clause clause : getChildren()) {
             whereClause.getChildren().add(clause.getWhereClause());
         }
         return whereClause;
+    }
+
+    @Override
+    public NativeIdSetBI computeComponents(NativeIdSetBI incomingComponents) throws IOException, ValidationException, ContradictionException {
+        NativeIdSetBI results = new ConcurrentBitSet();
+        for (Clause clause : getChildren()) {
+            results.or(clause.computeComponents(incomingComponents));
+        }
+        return results;
     }
 }
