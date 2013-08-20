@@ -36,6 +36,7 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.TerminologySnapshot;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
 import org.ihtsdo.otf.tcc.model.cs.CsProperty;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
@@ -51,22 +52,54 @@ import java.io.*;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.lucene.queryparser.classic.ParseException;
+import javax.inject.Singleton;
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.termstore.SearchType;
+import org.jvnet.hk2.annotations.Service;
 
+@RunLevel(RunLevel.RUNLEVEL_VAL_IMMEDIATE)
+@Service(
+        name = "Bdb Terminology Service")
 public class BdbTerminologyStore extends Termstore {
 
+    private static final Logger LOG = Logger.getLogger(BdbTerminologyStore.class.getName());
+    public static final String BDB_LOCATION_PROPERTY = "org.ihtsdo.otf.tcc.datastore.bdb-location";
+    public static final String DEFAULT_BDB_LOCATION = "berkeley-db";
     private static ViewCoordinate metadataVC = null;
+    private static AtomicBoolean databaseSetup = new AtomicBoolean(false);
+    private static CountDownLatch setupComplete = new CountDownLatch(1);
+    String bdbLocation;
+
+    public BdbTerminologyStore() {
+        if (databaseSetup.compareAndSet(false, true)) {
+            bdbLocation = System.getProperty(BDB_LOCATION_PROPERTY);
+            if (bdbLocation == null) {
+                bdbLocation = "berkeley-db";
+                LOG.info(BDB_LOCATION_PROPERTY
+                        + " not set. Using default location of: " + DEFAULT_BDB_LOCATION);
+            } else {
+                LOG.log(Level.INFO, BDB_LOCATION_PROPERTY
+                        + " set. Starting from location: {0}", bdbLocation);
+            }
+            Bdb.setup(bdbLocation, this);
+            setupComplete.countDown();
+        } else {
+            LOG.info("Database setup already initialized");
+        }
+        try {
+            setupComplete.await();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void addOrigins(Set<Path> paths, Collection<? extends Position> origins) {
         if (origins == null) {
@@ -315,7 +348,6 @@ public class BdbTerminologyStore extends Termstore {
         Bdb.sync();
         System.out.println("Finished db sync, starting generate lucene index.");
         LuceneManager.createLuceneIndex();
-        LuceneManager.createRefsetLuceneIndex();
         Bdb.commit();
         System.out.println("Finished create lucene index.");
     }
@@ -745,9 +777,7 @@ public class BdbTerminologyStore extends Termstore {
     public NativeIdSetBI isChildOfSet(int parentNid, ViewCoordinate vc) {
         try {
             return Bdb.getNidCNidMap().isChildOfSet(parentNid, vc);
-        } catch (IOException ex) {
-            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ContradictionException ex) {
+        } catch (IOException | ContradictionException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
@@ -757,9 +787,7 @@ public class BdbTerminologyStore extends Termstore {
     public NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc) {
         try {
             return Bdb.getNidCNidMap().isKindOfSet(parentNid, vc);
-        } catch (IOException ex) {
-            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ContradictionException ex) {
+        } catch (IOException | ContradictionException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
@@ -790,14 +818,9 @@ public class BdbTerminologyStore extends Termstore {
         return cNidSet;
     }
 
-    /**
-     * Retrieves the components nids from the input concept nids
-     *
-     * @param conceptNativeIds the <code>NativeIdSetBI<code> for which the components nids will be retrieved
-     */
     @Override
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException {
-        return Bdb.getNidCNidMap().getComponentNidsForConceptNids(conceptNativeIds);
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

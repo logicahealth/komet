@@ -7,7 +7,10 @@ import java.lang.reflect.Method;
  *
  * @author kec
  *
+ * @deprecated This class will be removed in a future sprint, 
+ * replaced by HK2 dependency injection
  */
+@Deprecated
 public class Ts {
    public static final String        BERKELEY_DB_FOLDER              = "berkeley-db";
    public static final String        EMBEDDED_BERKELEY_DB_IMPL_CLASS = "org.ihtsdo.otf.tcc.datastore.Bdb";

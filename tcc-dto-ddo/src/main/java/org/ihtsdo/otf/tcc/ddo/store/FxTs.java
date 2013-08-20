@@ -18,9 +18,12 @@ package org.ihtsdo.otf.tcc.ddo.store;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
- *
+ * 
  * @author kec
+ * @deprecated This class will be removed in a future sprint, 
+ * replaced by HK2 dependency injection
  */
+@Deprecated
 public class FxTs {
     private static FxTerminologyStoreDI singleton;
 

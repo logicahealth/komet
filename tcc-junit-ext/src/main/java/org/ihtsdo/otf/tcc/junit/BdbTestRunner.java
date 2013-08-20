@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
+import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 /**
  *
@@ -80,8 +81,9 @@ public class BdbTestRunner extends BlockJUnit4ClassRunner {
          } catch (IOException ex) {
             throw new InitializationError(ex);
          }
-
-         Bdb.setup(dbDir.getAbsolutePath());
+         System.setProperty(BdbTerminologyStore.BDB_LOCATION_PROPERTY, dbDir.getAbsolutePath());
+         BdbTerminologyStore store = new BdbTerminologyStore();
+         
          bdbLocation = dbDir.getAbsolutePath();
       }
 

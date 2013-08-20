@@ -32,11 +32,13 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
+@Contract
 public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStoreDI {
 
     int getStamp(Status status, long time, int authorNid, int moduleNid, int pathNid);

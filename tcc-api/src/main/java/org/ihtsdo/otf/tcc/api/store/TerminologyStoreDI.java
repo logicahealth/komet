@@ -26,7 +26,9 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
+import org.jvnet.hk2.annotations.Contract;
 
+@Contract
 public interface TerminologyStoreDI extends TerminologyDI {
 
     boolean isConceptNid(int nid);

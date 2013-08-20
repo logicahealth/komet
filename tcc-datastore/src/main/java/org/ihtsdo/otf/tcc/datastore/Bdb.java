@@ -88,6 +88,7 @@ public class Bdb {
     private static File bdbDirectory;
     private static File viewCoordinateMapFile;
     private static CountDownLatch setupLatch = new CountDownLatch(5);
+    private static BdbTerminologyStore ts;
 
     public static boolean removeMemoryMonitorListener(LowMemoryListener listener) {
         return memoryMonitor.removeListener(listener);
@@ -110,8 +111,8 @@ public class Bdb {
         stampDb.commit(commitTime);
     }
 
-    public static void setup() {
-        setup("berkeley-db");
+    public static void setup(BdbTerminologyStore ts) {
+        setup("berkeley-db", ts);
     }
 
     public static void setCacheSize(String cacheSize) {
@@ -510,13 +511,10 @@ public class Bdb {
         System.out.println("!## maxMem: " + maxMem + " heapSize: " + heapSize);
     }
 
-    public static void setup(String dbRoot) {
-        setup(dbRoot, true);
-    }
-
-    public static void setup(String dbRoot, boolean staticPublish) {
+    protected static void setup(String dbRoot, BdbTerminologyStore ts) {
 
         System.out.println("setup dbRoot: " + dbRoot);
+        Bdb.ts = ts;
         stampCache = new ConcurrentHashMap<>();
         try {
             closed = false;
@@ -573,7 +571,6 @@ public class Bdb {
         setupLatch.countDown();
         if (setupLatch.getCount() == 0) {
             try {
-                BdbTerminologyStore ts = new BdbTerminologyStore();
                 if (P.s == null) {
                     Ts.set(ts);
                     FxTs.set(ts);
