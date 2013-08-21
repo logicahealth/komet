@@ -8,7 +8,6 @@
     </parent>
     <artifactId>tcc-dto-ddo</artifactId>
     <name>${branch}: Data display and transfer objects</name>
-    <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

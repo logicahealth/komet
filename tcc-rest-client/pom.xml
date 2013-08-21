@@ -8,7 +8,6 @@
   </parent>
   <artifactId>tcc-rest-client</artifactId>
     <name>${branch}: REST client</name>
-  <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
