@@ -56,7 +56,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.inject.Singleton;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
@@ -820,7 +819,7 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Bdb.getNidCNidMap().getComponentNidsForConceptNids(conceptNativeIds);
     }
 
     @Override
