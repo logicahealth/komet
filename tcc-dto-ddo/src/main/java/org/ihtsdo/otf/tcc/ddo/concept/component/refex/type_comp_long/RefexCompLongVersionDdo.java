@@ -13,6 +13,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
 
 import java.io.IOException;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_long.RefexCompCompCompLongVersionDdo;
@@ -26,6 +27,7 @@ public class RefexCompLongVersionDdo <T extends RefexChronicleDdo, V extends Ref
 
    //~--- fields --------------------------------------------------------------
 
+   @XmlTransient
    public SimpleLongProperty long1Property = new SimpleLongProperty(this, "long1");
 
    //~--- constructors --------------------------------------------------------

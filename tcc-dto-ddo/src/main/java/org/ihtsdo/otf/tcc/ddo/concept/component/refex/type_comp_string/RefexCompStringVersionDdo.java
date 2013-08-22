@@ -14,6 +14,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
 
 import java.io.IOException;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_string.RefexCompCompCompStringVersionDdo;
 
 
@@ -26,6 +27,7 @@ public class RefexCompStringVersionDdo<T extends RefexChronicleDdo, V extends Re
 
    //~--- fields --------------------------------------------------------------
 
+   @XmlTransient
    public SimpleStringProperty string1Property = new SimpleStringProperty(this, "string1");
 
    //~--- constructors --------------------------------------------------------

@@ -133,7 +133,7 @@ public class Position implements Externalizable {
      * @see org.dwfa.vodb.types.I_Position#equals(org.dwfa.vodb.types.OldPosition)
      */
     public boolean equals(Position another) {
-        return ((time == another.getTime()) && (path.getConceptNid() == another.getPath().getConceptNid()));
+        return (time == another.getTime() && path.equals(another.getPath()));
     }
 
     @Override
@@ -151,7 +151,7 @@ public class Position implements Externalizable {
 
     @Override
     public int hashCode() {
-        return Hashcode.computeLong(time, path.getConceptNid());
+        return Hashcode.computeLong(time, path.hashCode());
     }
 
     @SuppressWarnings("unchecked")

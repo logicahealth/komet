@@ -16,12 +16,6 @@
 @javax.xml.bind.annotation.XmlSchema (
       namespace = "http://object.data.display.ihtsdo.org"
     )
-package org.ihtsdo.otf.tcc.ddo;
+package org.ihtsdo.otf.tcc.ddo.fetchpolicy;
 
-/**
- * ddo = Data Display Objects. Objects that represent the information necessary
- * to display terminology component chronicles in a user interface without 
- * requiring UI callbacks to get additional data. This data is not 
- * GUI technology specific. 
- */
 

@@ -6,9 +6,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.dto.component.identifier.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
@@ -45,6 +43,7 @@ import java.io.IOException;
 import java.util.*;
 
 import javax.xml.bind.annotation.*;
+import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
 
 /**
  * Class description

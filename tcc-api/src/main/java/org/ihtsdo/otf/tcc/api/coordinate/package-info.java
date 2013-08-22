@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 @javax.xml.bind.annotation.XmlSchema (
-      namespace = "http://object.data.display.ihtsdo.org"
+      namespace = "http://api.chronicle.otf.ihtsdo.org"
     )
-package org.ihtsdo.otf.tcc.ddo;
-
-/**
- * ddo = Data Display Objects. Objects that represent the information necessary
- * to display terminology component chronicles in a user interface without 
- * requiring UI callbacks to get additional data. This data is not 
- * GUI technology specific. 
- */
-
+package org.ihtsdo.otf.tcc.api.coordinate;
