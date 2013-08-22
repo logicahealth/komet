@@ -12,7 +12,7 @@ the specific language governing permissions and limitations under the License. -
     <parent>
         <groupId>org.ihtsdo</groupId>
         <artifactId>ihtsdo-otf-parent</artifactId>
-        <version>2-SNAPSHOT</version>
+        <version>2</version>
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
