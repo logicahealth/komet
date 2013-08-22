@@ -175,19 +175,69 @@ public class ViewCoordinate implements Externalizable {
                 return false;
             }
 
-            if (!testEquals(languageNid, another.languageNid)) {
-                return false;
+            if (languageNid != Integer.MAX_VALUE && another.languageNid != Integer.MAX_VALUE) {
+                if (!testEquals(languageNid, another.languageNid)) {
+                    return false;
+                }
+            } else {
+                if (languageNid == Integer.MAX_VALUE && another.languageNid == Integer.MAX_VALUE) {
+                    if (!languageSpec.equals(another.languageSpec)) {
+                        return false;
+                    }
+                } else {
+
+                    try {
+                        if (languageNid == Integer.MAX_VALUE) {
+
+                            if (this.languageSpec.getNid() != another.languageNid) {
+                                return false;
+                            }
+
+                        } else {
+                            if (this.languageNid != another.languageSpec.getNid()) {
+                                return false;
+                            }
+                        }
+                    } catch (ValidationException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
 
-            if (!testEquals(classifierNid, another.classifierNid)) {
-                return false;
-            }
 
+            if (classifierNid != Integer.MAX_VALUE && another.classifierNid != Integer.MAX_VALUE) {
+                if (!testEquals(classifierNid, another.classifierNid)) {
+                    return false;
+                }
+            } else {
+                if (classifierNid == Integer.MAX_VALUE && another.classifierNid == Integer.MAX_VALUE) {
+                    if (!classifierSpec.equals(another.classifierSpec)) {
+                        return false;
+                    }
+                } else {
+
+                    try {
+                        if (classifierNid == Integer.MAX_VALUE) {
+
+                            if (this.classifierSpec.getNid() != another.classifierNid) {
+                                return false;
+                            }
+
+                        } else {
+                            if (this.classifierNid != another.classifierSpec.getNid()) {
+                                return false;
+                            }
+                        }
+                    } catch (ValidationException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
             if (!testEquals(relAssertionType, another.relAssertionType)) {
-                return false;
-            }
-
-            if (!testEquals(langPrefList, another.langPrefList)) {
                 return false;
             }
 
