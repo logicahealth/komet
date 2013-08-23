@@ -90,6 +90,11 @@ public class ViewCoordinate implements Externalizable {
 
         this.langSort = another.langSort;
         this.lastModSequence = another.lastModSequence;
+        
+        classifierSpec = another.classifierSpec;
+        languageSpec = another.languageSpec;
+        langPrefSpecs = another.langPrefSpecs;
+ 
     }
 
     public ViewCoordinate(UUID vcUuid, String name, ViewCoordinate another) {
@@ -287,6 +292,12 @@ public class ViewCoordinate implements Externalizable {
         precedence = (Precedence) in.readObject();
         relAssertionType = (RelAssertionType) in.readObject();
         vcUuid = (UUID) in.readObject();
+
+        classifierSpec = (ConceptSpec) in.readObject();
+        languageSpec = (ConceptSpec) in.readObject();
+        langPrefSpecs = (List<ConceptSpec>) in.readObject();
+    
+    
     }
 
     private static boolean testEquals(Object o1, Object o2) {
@@ -374,6 +385,10 @@ public class ViewCoordinate implements Externalizable {
         out.writeObject(precedence);
         out.writeObject(relAssertionType);
         out.writeObject(vcUuid);
+
+        out.writeObject(classifierSpec);
+        out.writeObject(languageSpec);
+        out.writeObject(langPrefSpecs);
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -499,13 +514,25 @@ public class ViewCoordinate implements Externalizable {
     public NidListBI getLangPrefList() {
         if (langPrefList == null || langPrefList.isEmpty()) {
             langPrefList = new NidList();
-            for (ConceptSpec spec : langPrefSpecs) {
-                try {
-                    langPrefList.add(spec.getNid());
-                } catch (ValidationException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+            if (langPrefSpecs != null) {
+                for (ConceptSpec spec : langPrefSpecs) {
+                    try {
+                        langPrefList.add(spec.getNid());
+                    } catch (ValidationException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            } else {
+                if (languageSpec != null) {
+                    try {
+                        langPrefList.add(languageSpec.getNid());
+                    } catch (ValidationException ex) {
+                        Logger.getLogger(ViewCoordinate.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         }

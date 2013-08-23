@@ -46,6 +46,7 @@ public class Path implements Externalizable {
             UUID conceptUuid = (UUID) in.readObject();
             conceptNid = Ts.get().getNidForUuids(conceptUuid);
             origins = (Set<Position>) in.readObject();
+            conceptSpec = (ConceptSpec) in.readObject();
         } else {
             throw new IOException("Can't handle dataversion: " + objDataVersion);
         }
@@ -56,6 +57,7 @@ public class Path implements Externalizable {
         out.writeInt(dataVersion);
         out.writeObject(Ts.get().getUuidPrimordialForNid(conceptNid));
         out.writeObject(origins);
+        out.writeObject(conceptSpec);
     }
     /**
      *
@@ -82,10 +84,8 @@ public class Path implements Externalizable {
     }
 
     public boolean equals(Path another) {
-        if (conceptNid != Integer.MAX_VALUE) {
-            return (conceptNid == another.getConceptNid());
-        }
-        return conceptSpec.getUuids()[0].equals(another.conceptSpec.getUuids()[0]);
+        return (getConceptNid() == another.getConceptNid());
+        
     }
 
     @Override

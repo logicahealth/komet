@@ -94,6 +94,7 @@
                     <includes>
                         <include>**/*Ddo.java</include>
                         <include>**/ComponentReference.java</include>
+                        <include>**/ResultList.java</include>
                         <include>**/TaxonomyReferenceWithConcept.java</include>
                         <include>**/RefexPolicy.java</include>
                         <include>**/RelationshipPolicy.java</include>
