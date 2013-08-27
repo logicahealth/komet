@@ -35,6 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 @XmlSeeAlso( {
@@ -228,10 +229,16 @@ public abstract class VersionDdo implements Serializable {
              ? pathReference
              : pathReferenceProperty.get();
    }
+   @XmlTransient
    public Status getStatus() {
       return (statusProperty == null)
              ? status
              : statusProperty.get();
+   }
+   public String getStatusString() {
+      return (statusProperty == null)
+             ? status.name()
+             : statusProperty.get().name();
    }
 
    public UUID getViewCoordinateUuid() {
@@ -276,6 +283,10 @@ public abstract class VersionDdo implements Serializable {
       } else {
          statusProperty.set(status);
       }
+   }
+
+   public void setStatusString(String status) {
+      setStatus(Status.valueOf(status));
    }
 
    public void setViewCoordinateUuid(UUID viewCoordinateUuid) {

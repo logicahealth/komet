@@ -34,11 +34,13 @@ import java.io.IOException;
 
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
+@Contract
 public interface FxTerminologyStoreDI extends TerminologyStoreDI {
    ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc) throws IOException, ContradictionException;
 

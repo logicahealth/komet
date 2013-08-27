@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1-sprint2-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-datastore</artifactId>
     <name>${branch}: Datastore</name>
@@ -18,6 +18,17 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-inhabitant-generator</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-inhabitants</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -51,6 +62,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-model-impl</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -69,4 +81,4 @@
             </dependencies>              
         </profile>
     </profiles>
- </project>
+</project>

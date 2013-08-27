@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@javax.xml.bind.annotation.XmlSchema (
+      namespace = "http://object.data.display.ihtsdo.org"
+    )
 package org.ihtsdo.otf.tcc.ddo;
 
 /**
@@ -21,3 +24,4 @@ package org.ihtsdo.otf.tcc.ddo;
  * requiring UI callbacks to get additional data. This data is not 
  * GUI technology specific. 
  */
+

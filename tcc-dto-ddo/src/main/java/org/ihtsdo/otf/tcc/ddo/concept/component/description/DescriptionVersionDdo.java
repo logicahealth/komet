@@ -3,11 +3,9 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.description;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
-import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentVersionDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
@@ -15,9 +13,11 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.ddo.concept.component.TypedComponentVersionDdo;
 
 
+@XmlRootElement
 public class DescriptionVersionDdo extends TypedComponentVersionDdo<DescriptionChronicleDdo, DescriptionVersionDdo> {
    public static final long serialVersionUID = 1;
 

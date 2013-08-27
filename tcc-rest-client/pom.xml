@@ -4,11 +4,10 @@
   <parent>
       <groupId>org.ihtsdo.otf</groupId>
       <artifactId>tcc-parent</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.1-sprint2-SNAPSHOT</version>
   </parent>
   <artifactId>tcc-rest-client</artifactId>
     <name>${branch}: REST client</name>
-  <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -25,6 +24,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-api</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ihtsdo.otf</groupId>
+            <artifactId>tcc-dto-ddo</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>

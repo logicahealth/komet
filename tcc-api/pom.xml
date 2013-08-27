@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1-sprint2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tcc-api</artifactId>
@@ -25,9 +25,19 @@
     <name>${branch}: API</name>
     <dependencies>
         <dependency>
+            <groupId>org.glassfish.hk2</groupId>
+            <artifactId>hk2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-collections</artifactId>
             <version>1.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>4.3.1</version>
             <type>jar</type>
         </dependency>
     </dependencies>

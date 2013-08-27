@@ -25,7 +25,6 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -62,6 +61,7 @@ import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
 import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
 import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
+import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
@@ -88,6 +88,7 @@ public class Bdb {
     private static File bdbDirectory;
     private static File viewCoordinateMapFile;
     private static CountDownLatch setupLatch = new CountDownLatch(5);
+    private static BdbTerminologyStore ts;
 
     public static boolean removeMemoryMonitorListener(LowMemoryListener listener) {
         return memoryMonitor.removeListener(listener);
@@ -110,8 +111,8 @@ public class Bdb {
         stampDb.commit(commitTime);
     }
 
-    public static void setup() {
-        setup("berkeley-db");
+    public static void setup(BdbTerminologyStore ts) {
+        setup("berkeley-db", ts);
     }
 
     public static void setCacheSize(String cacheSize) {
@@ -510,13 +511,10 @@ public class Bdb {
         System.out.println("!## maxMem: " + maxMem + " heapSize: " + heapSize);
     }
 
-    public static void setup(String dbRoot) {
-        setup(dbRoot, true);
-    }
-
-    public static void setup(String dbRoot, boolean staticPublish) {
+    protected static void setup(String dbRoot, BdbTerminologyStore ts) {
 
         System.out.println("setup dbRoot: " + dbRoot);
+        Bdb.ts = ts;
         stampCache = new ConcurrentHashMap<>();
         try {
             closed = false;
@@ -535,6 +533,7 @@ public class Bdb {
             viewCoordinateMapFile = new File(bdbDirectory, "viewCoordinates.oos");
             bdbDirectory.mkdirs();
             LuceneManager.setLuceneRootDir(bdbDirectory);
+            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
 
             mutable = new Bdb(false, new File(bdbDirectory, "mutable"));
             File readOnlyDir = new File(bdbDirectory, "read-only");
@@ -572,7 +571,6 @@ public class Bdb {
         setupLatch.countDown();
         if (setupLatch.getCount() == 0) {
             try {
-                BdbTerminologyStore ts = new BdbTerminologyStore();
                 if (P.s == null) {
                     Ts.set(ts);
                     FxTs.set(ts);
@@ -854,6 +852,7 @@ public class Bdb {
                 BdbCommitManager.shutdown();
                 activity.setProgressInfoLower("8/11: Starting LuceneManager close.");
                 LuceneManager.close();
+                LuceneManager.closeRefset();
 
                 NidDataFromBdb.close();
                 activity.setProgressInfoLower("9/11: Starting mutable.bdbEnv.sync().");

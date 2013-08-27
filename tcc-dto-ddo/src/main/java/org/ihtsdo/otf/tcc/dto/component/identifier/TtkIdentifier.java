@@ -20,6 +20,7 @@ import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 

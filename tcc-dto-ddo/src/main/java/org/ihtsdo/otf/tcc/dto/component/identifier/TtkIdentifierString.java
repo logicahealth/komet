@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAttribute;
+import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 

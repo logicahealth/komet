@@ -20,7 +20,10 @@ import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 /**
  *
  * @author kec
+ * @deprecated This class will be removed in a future sprint, 
+ * replaced by HK2 dependency injection
  */
+@Deprecated
 public class P {
     public static PersistentStoreI s;
 }

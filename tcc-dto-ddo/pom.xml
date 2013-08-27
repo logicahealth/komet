@@ -4,11 +4,10 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1-sprint2-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-dto-ddo</artifactId>
     <name>${branch}: Data display and transfer objects</name>
-    <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -30,7 +29,30 @@
     </dependencies>
     <build>
         <plugins>
-<!--         <plugin>              
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-xsd</id>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/xsd.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+         <plugin>              
+             <!-- 
+                TODO: Consider this alternative:
+                http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+                https://github.com/whummer/jaxb-facets
+             -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
                 <version>1.5</version>
@@ -45,7 +67,7 @@
                 <configuration>
                     <transformSchemas>
                         
-                            Each schema element defines:
+<!--                            Each schema element defines:
 
                             a) A <<namespace uri>> for one of your namespaces.
                                This namespace uri must be unique within the schemas element.
@@ -62,19 +84,29 @@
                                <some:elementName ... />
 
                             c) The desired <<toFile>> name of the generated XML schema definition file,
-                               excluding the ".xsd" suffix (which will be added automatically).
+                               excluding the ".xsd" suffix (which will be added automatically).-->
                         
                         <transformSchema>
-                            <uri>http://org.ihtsdo.snomed</uri>
-                            <toPrefix>sct</toPrefix>
-                            <toFile>sct</toFile>
+                            <uri>http://object.data.display.ihtsdo.org</uri>
+                            <toFile>data-display-objects.xsd</toFile>
                         </transformSchema>
                     </transformSchemas>
                     <includes>
-                        <include>**/Ttk*.java</include>
+                        <include>**/*Ddo.java</include>
+                        <include>**/ComponentReference.java</include>
+                        <include>**/ResultList.java</include>
+                        <include>**/TaxonomyReferenceWithConcept.java</include>
+                        <include>**/RefexPolicy.java</include>
+                        <include>**/RelationshipPolicy.java</include>
+                        <include>**/VersionPolicy.java</include>
+                        <include>**/TimeReference.java</include>
+                        <include>**/IDENTIFIER_PART_TYPES.java</include>
+                        <include>**/REFEX_TYPE_DDO.java</include>
+                        <include>**/ddo/package-info.java</include>
+                        <include>**/ddo/**/package-info.java</include>
                     </includes>
                 </configuration>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 </project>

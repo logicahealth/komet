@@ -11,7 +11,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
+import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 @XmlRootElement(name = "path")
@@ -46,6 +46,7 @@ public class Path implements Externalizable {
             UUID conceptUuid = (UUID) in.readObject();
             conceptNid = Ts.get().getNidForUuids(conceptUuid);
             origins = (Set<Position>) in.readObject();
+            conceptSpec = (ConceptSpec) in.readObject();
         } else {
             throw new IOException("Can't handle dataversion: " + objDataVersion);
         }
@@ -56,12 +57,14 @@ public class Path implements Externalizable {
         out.writeInt(dataVersion);
         out.writeObject(Ts.get().getUuidPrimordialForNid(conceptNid));
         out.writeObject(origins);
+        out.writeObject(conceptSpec);
     }
     /**
      *
      */
     int conceptNid;
     Set<Position> origins = new HashSet<>();
+    ConceptSpec conceptSpec;
 
     /**
      * No arg constructor for JAXB
@@ -81,7 +84,8 @@ public class Path implements Externalizable {
     }
 
     public boolean equals(Path another) {
-        return (conceptNid == another.getConceptNid());
+        return (getConceptNid() == another.getConceptNid());
+        
     }
 
     @Override
@@ -97,7 +101,14 @@ public class Path implements Externalizable {
 
     @Override
     public int hashCode() {
-        return conceptNid;
+        try {
+            if (conceptSpec != null) {
+                return conceptSpec.getUuids()[0].hashCode();
+            }
+            return Ts.get().getUuidPrimordialForNid(conceptNid).hashCode();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     /*
@@ -106,13 +117,26 @@ public class Path implements Externalizable {
      * @see org.dwfa.vodb.types.Path#getConceptNid()
      */
     public int getConceptNid() {
+        if (conceptNid == Integer.MAX_VALUE) {
+            try {
+                conceptNid = conceptSpec.getNid();
+            } catch (ValidationException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
         return conceptNid;
     }
    public ConceptSpec getConceptSpec() throws IOException {
+      if (this.conceptSpec != null) {
+          return conceptSpec;
+      }
       return new ConceptSpec(this.conceptNid);
    }
    public void setConceptSpec(ConceptSpec conceptSpec) throws IOException {
-      this.conceptNid = conceptSpec.getNid();
+       this.conceptSpec = conceptSpec;
+      this.conceptNid = Integer.MAX_VALUE;
    }
  
    
