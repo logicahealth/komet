@@ -103,7 +103,7 @@ public interface ConceptVersionBI extends ComponentVersionBI, ConceptChronicleBI
     Collection<? extends ConceptVersionBI> getRelationshipsOutgoingDestinations(int typeNid) throws IOException;
 
     Collection<? extends ConceptVersionBI> getRelationshipsOutgoingDestinations(NidSetBI typeNids) throws IOException;
-
+    
     Collection<? extends ConceptVersionBI> getRelationshipsOutgoingDestinationsActive()
             throws IOException, ContradictionException;
 

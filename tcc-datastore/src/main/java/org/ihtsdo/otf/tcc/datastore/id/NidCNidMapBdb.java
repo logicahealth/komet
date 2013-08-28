@@ -452,8 +452,12 @@ public class NidCNidMapBdb extends ComponentBdb {
      * @return
      * @throws IOException 
      */
-    public NativeIdSetBI getDestRelNids(int cNid, NativeIdSetBI relTypes) throws IOException{
-        return getIndexCacheRecord(cNid).getDestRelNidsSet(cNid, relTypes);
+    public NativeIdSetBI getDestRelNids(int cNid, NativeIdSetBI relTypes, ViewCoordinate vc) throws IOException, ContradictionException{
+        return getIndexCacheRecord(cNid).getDestRelNidsSet(cNid, relTypes, vc);
+    }
+    
+    public NativeIdSetBI getOutgoingRelNids(int cNid, NativeIdSetBI relTypes) throws IOException{
+        return getIndexCacheRecord(cNid).getOutgoingRelNidSet(cNid, relTypes);
     }
 
     public int[] getDestRelNids(int cNid, NidSetBI relTypes) throws IOException {

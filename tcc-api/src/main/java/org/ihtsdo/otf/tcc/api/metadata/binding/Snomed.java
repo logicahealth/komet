@@ -52,6 +52,12 @@ public class Snomed {
     public static ConceptSpec CORE_MODULE =
             new ConceptSpec("SNOMED CT core module",
             UUID.fromString("1b4f1ba5-b725-390f-8c3b-33ec7096bdca"));
+    public static ConceptSpec DISEASE =
+            new ConceptSpec("Disease (disorder)",
+            UUID.fromString("ab4e618b-b954-3d56-a44b-f0f29d6f59d3"));
+    public static ConceptSpec DISORDER_OF_EYE =
+            new ConceptSpec("Disorder of eye proper (disorder)",
+            UUID.fromString("70ed9379-15e5-3716-a0d3-b9f5bef3d9a0"));
     public static ConceptSpec SNOMED_RELEASE_PATH =
             new ConceptSpec("SNOMED Core",
             UUID.fromString("8c230474-9f11-30ce-9cad-185a96fd03a2"));
@@ -70,6 +76,9 @@ public class Snomed {
     public static ConceptSpec INACTIVE_CONCEPT =
             new ConceptSpec("Inactive concept (inactive concept)",
             UUID.fromString("f267fc6f-7c4d-3a79-9f17-88b82b42709a"));
+    public static ConceptSpec STRUCTURE_OF_ENDOCRINE_SYSTEM =
+            new ConceptSpec("Structure of endocrine system (body structure)",
+            UUID.fromString("9d902867-4e0e-39e0-b6dd-e4be495b6ab1"));
     //Concept Specs for context sensitive role relationships
     public static ConceptSpec ACCESS =
             new ConceptSpec("Access (attribute)",
@@ -317,4 +326,13 @@ public class Snomed {
     public static ConceptSpec DIABETES_MELLITUS =
             new ConceptSpec("Diabetes mellitus (disorder)",
             UUID.fromString("dd25374d-b4a9-3622-bba5-c82ae028631c"));
+    public static ConceptSpec EYE_STRUCTURE =
+            new ConceptSpec("Structure of eye proper (body structure)",
+            UUID.fromString("868b0f47-c952-3587-b0ae-ceafd4597a74"));
+    public static ConceptSpec DISORDER_OF_CORNEA =
+            new ConceptSpec("Disorder of cornea (disorder)",
+            UUID.fromString("932dd33c-b806-3805-b8c9-8fd57f28315d"));
+    public static ConceptSpec SURGICAL_PROCEDURE =
+            new ConceptSpec("Surgical procedure (procedure)",
+            UUID.fromString("85923350-9ead-323f-b2d9-8ade0ac4264c"));
 }
