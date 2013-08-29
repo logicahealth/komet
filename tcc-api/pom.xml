@@ -41,45 +41,87 @@
             <type>jar</type>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>generate-jaxb-schema</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.sun.tools.jxc.maven2</groupId>
-                        <artifactId>maven-jaxb-schemagen-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>generate-dto-schema</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                                <configuration>
-                                    <project>${project}</project>
-                                    <destdir>${project.build.directory}/schemas</destdir>
-                                    <srcdir>${project.build.sourceDirectory}/org/ihtsdo/tk/dto</srcdir>
-                                    <verbose>true</verbose>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>generate-fxmodel-schema</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                                <configuration>
-                                    <project>${project}</project>
-                                    <destdir>${project.build.directory}/schemas</destdir>
-                                    <srcdir>${project.build.sourceDirectory}/org/ihtsdo/fxmodel</srcdir>
-                                    <verbose>true</verbose>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-xsd</id>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/xsd.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+         <plugin>              
+             <!-- 
+                TODO: Consider this alternative:
+                http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+                https://github.com/whummer/jaxb-facets
+             -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>schemagen</id>
+                        <goals>
+                            <goal>schemagen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformSchemas>
+                        
+<!--                            Each schema element defines:
+
+                            a) A <<namespace uri>> for one of your namespaces.
+                               This namespace uri must be unique within the schemas element.
+
+                            b) A <<toPrefix>> that you want to use for the namespace.
+                               Should not contain whitespace or exotic characters.
+                               This yields a namespace definition on the form
+                               <xs:schema ... xmlns:[toPrefix]="[uri]" ... />
+
+                               (I.e: <xs:schema ... xmlns:some="http://some/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema"> )
+
+                               ... and transforms relevant xml schema elements to use the provided namespace prefix:
+
+                               <some:elementName ... />
+
+                            c) The desired <<toFile>> name of the generated XML schema definition file,
+                               excluding the ".xsd" suffix (which will be added automatically).-->
+                        
+                        <transformSchema>
+                            <uri>http://api.chronicle.jaxb.otf.ihtsdo.org</uri>
+                            <toFile>chronicle-api.xsd</toFile>
+                        </transformSchema>
+                    </transformSchemas>
+                    <includes>
+<!--                        <include>**/ViewCoordinate.java</include>-->
+<!--                        <include>**/ConceptSpec.java</include>-->
+<!--                        <include>**/Snomed.java</include>-->
+                        <include>**/LanguageSort.java</include>
+                        <include>**/ContradictionManagerPolicy.java</include>
+                        <include>**/SimplePosition.java</include>
+                        <include>**/SimplePath.java</include>
+                        <include>**/RelAssertionType.java</include>
+                        <include>**/Precedence.java</include>
+                        <include>**/Status.java</include>
+                        <include>**/SimpleViewCoordinate.java</include>
+                        <include>**/SimpleConceptSpecification.java</include>
+                        <include>**/package-info.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>    

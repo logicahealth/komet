@@ -36,6 +36,7 @@ import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.contradiction.strategy.LastCommitWins;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
+import org.ihtsdo.otf.tcc.api.spec.SimpleConceptSpecification;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 @XmlRootElement(name = "view-coordinate")
@@ -47,7 +48,7 @@ public class ViewCoordinate implements Externalizable {
     private int classifierNid = Integer.MAX_VALUE;
     private ContradictionManagerBI contradictionManager;
     private NidListBI langPrefList = new NidList();
-    private LANGUAGE_SORT langSort;
+    private LanguageSort langSort;
     private int languageNid = Integer.MAX_VALUE;
     private String name;
     private Position viewPosition;
@@ -63,6 +64,31 @@ public class ViewCoordinate implements Externalizable {
     //~--- constructors --------------------------------------------------------
     public ViewCoordinate() throws ValidationException {
         super();
+    }
+    
+    
+    public ViewCoordinate(SimpleViewCoordinate another) throws ValidationException {
+        super();
+        this.vcUuid = another.getCoordinateUuid();
+        this.name = another.getName();
+        this.precedence = another.getPrecedence();
+        if (another.getViewPosition() != null) {
+            this.viewPosition = new Position(another.getViewPosition());
+        }
+        
+        if (another.getAllowedStatus() != null) {
+            this.allowedStatus = another.getAllowedStatus().clone();
+        }
+        setContradictionManagerPolicy(another.getContradictionPolicy());
+        this.languageSpec = new ConceptSpec(another.getLanguageSpecification());
+        this.classifierSpec = new ConceptSpec(another.getClassifierSpecification());
+        this.relAssertionType = another.getRelAssertionType();
+        this.langPrefSpecs = new ArrayList<>();
+        for (SimpleConceptSpecification langSpec: another.getLanguagePreferenceOrderList()) {
+            this.langPrefSpecs.add(new ConceptSpec(langSpec));
+        }
+        this.langSort = another.getLangSort();
+        
     }
 
     protected ViewCoordinate(ViewCoordinate another) {
@@ -93,7 +119,9 @@ public class ViewCoordinate implements Externalizable {
         
         classifierSpec = another.classifierSpec;
         languageSpec = another.languageSpec;
-        langPrefSpecs = another.langPrefSpecs;
+        if (another.langPrefSpecs != null) {
+            langPrefSpecs = new ArrayList(another.langPrefSpecs);
+        }
  
     }
 
@@ -106,7 +134,7 @@ public class ViewCoordinate implements Externalizable {
     public ViewCoordinate(UUID vcUuid, String name, Precedence precedence, Position viewPosition,
             EnumSet<Status> allowedStatus,
             ContradictionManagerBI contradictionManager, int languageNid, int classifierNid,
-            RelAssertionType relAssertionType, NidListBI langPrefList, LANGUAGE_SORT langSort) {
+            RelAssertionType relAssertionType, NidListBI langPrefList, LanguageSort langSort) {
         super();
         assert precedence != null;
         assert contradictionManager != null;
@@ -133,25 +161,6 @@ public class ViewCoordinate implements Externalizable {
         }
 
         this.langSort = langSort;
-    }
-
-    //~--- enums ---------------------------------------------------------------
-    public enum LANGUAGE_SORT {
-
-        LANG_BEFORE_TYPE("language before type"), TYPE_BEFORE_LANG("type before language"),
-        LANG_REFEX("use language refex"), RF2_LANG_REFEX("use RF2 language refex");
-        private String desc;
-
-        //~--- constructors -----------------------------------------------------
-        private LANGUAGE_SORT(String desc) {
-            this.desc = desc;
-        }
-
-        //~--- methods ----------------------------------------------------------
-        @Override
-        public String toString() {
-            return desc;
-        }
     }
 
     //~--- methods -------------------------------------------------------------
@@ -285,7 +294,7 @@ public class ViewCoordinate implements Externalizable {
             langPrefList.addAll(ts.getNidCollection((Collection<UUID>) readObject));
         }
 
-        langSort = (LANGUAGE_SORT) in.readObject();
+        langSort = (LanguageSort) in.readObject();
         languageNid = ts.getNidForUuids((UUID) in.readObject());
         name = (String) in.readObject();
         viewPosition = (Position) in.readObject();
@@ -484,7 +493,7 @@ public class ViewCoordinate implements Externalizable {
         return this.contradictionManager.getPolicy();
     }
 
-    public void setContradictionManagerPolicy(ContradictionManagerPolicy policy) {
+    public final void setContradictionManagerPolicy(ContradictionManagerPolicy policy) {
         switch (policy) {
             case IDENTIFY_ALL_CONFLICTS:
                 this.contradictionManager = new IdentifyAllConflict();
@@ -558,11 +567,11 @@ public class ViewCoordinate implements Externalizable {
         this.langPrefSpecs = langPrefSpecs;
     }
 
-    public LANGUAGE_SORT getLanguageSort() {
+    public LanguageSort getLanguageSort() {
         return langSort;
     }
 
-    public void setLanguageSort(LANGUAGE_SORT langSort) {
+    public void setLanguageSort(LanguageSort langSort) {
         this.langSort = langSort;
     }
 

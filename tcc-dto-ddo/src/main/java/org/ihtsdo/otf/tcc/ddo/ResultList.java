@@ -25,25 +25,25 @@ import javax.xml.bind.annotation.XmlRootElement;
  * or concrete subtype of ComponentChronicleDdo or ComponentVersionDdo. 
  * @author kec
  */
-@XmlRootElement
+@XmlRootElement(name="result-list")
 public class ResultList {
-    List<Object> resultList = new ArrayList();
+    List<Object> theResults = new ArrayList();
 
 
     /**
      * 
-     * @return the <code>resultList</code>
+     * @return the <code>theResults</code>
      */
-    public List<Object> getResultList() {
-        return resultList;
+    public List<Object> getTheResults() {
+        return theResults;
     }
 
     /**
      * 
-     * @param resultList the <code>resultList</code> to set. 
+     * @param theResults the <code>theResults</code> to set. 
      */
-    public void setResultList(List<Object> resultList) {
-        this.resultList = resultList;
+    public void setTheResults(List<Object> resultList) {
+        this.theResults = resultList;
     }
     
 }
