@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
 import org.jvnet.hk2.annotations.Contract;
 

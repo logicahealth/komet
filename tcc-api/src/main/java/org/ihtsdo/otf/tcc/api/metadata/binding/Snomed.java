@@ -335,4 +335,19 @@ public class Snomed {
     public static ConceptSpec SURGICAL_PROCEDURE =
             new ConceptSpec("Surgical procedure (procedure)",
             UUID.fromString("85923350-9ead-323f-b2d9-8ade0ac4264c"));
+    public static ConceptSpec DISCHARGE_FROM_HOSPICE =
+            new ConceptSpec("Discharge from hospice (procedure)",
+            UUID.fromString("ccb0fa22-4f01-3dba-88ab-75b2007325cc"));
+    public static ConceptSpec GRADES =
+            new ConceptSpec("Grades (qualifier value)",
+            UUID.fromString("15384acd-0151-3973-841b-6c1f05c375b3"));
+    public static ConceptSpec PATIENT_DISCHARGE =
+            new ConceptSpec("Patient discharge (procedure)",
+            UUID.fromString("d74af504-62d8-3b95-9e7c-0c18365bdcb7"));
+    public static ConceptSpec SEVERITY_REFSET =
+            new ConceptSpec("Severity (valid targets) refset",
+            UUID.fromString("f0133e8f-547f-4fc6-8c10-6c6d1be0f531"));
+    public static ConceptSpec SEVERITY_REFSET_SPEC =
+            new ConceptSpec("Severity (valid targets) refset spec",
+            UUID.fromString("897b6c64-fbdc-4a38-9e95-3eb100b730af"));
 }
