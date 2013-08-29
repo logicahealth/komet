@@ -53,7 +53,7 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate.LANGUAGE_SORT;
+import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
@@ -1297,7 +1297,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         ViewCoordinate vc = new ViewCoordinate(UUID.randomUUID(), "getRefexSpecifiedDesc", Precedence.PATH,
                 viewPosition, allowedStatus, new IdentifyAllConflict(),
                 Integer.MIN_VALUE, Integer.MIN_VALUE, RelAssertionType.STATED, langRefexOrder,
-                LANGUAGE_SORT.LANG_REFEX);
+                LanguageSort.LANG_REFEX);
 
         if (descriptions.size() > 0) {
             if (descriptions.size() > 1) {
@@ -1436,7 +1436,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         ViewCoordinate vc = new ViewCoordinate(UUID.randomUUID(), "getRf2RefexSpecifiedDesc", Precedence.PATH,
                 viewPosition, allowedStatus, new IdentifyAllConflict(),
                 Integer.MIN_VALUE, Integer.MIN_VALUE, RelAssertionType.STATED, langRefexOrder,
-                LANGUAGE_SORT.RF2_LANG_REFEX);
+                LanguageSort.RF2_LANG_REFEX);
 
         if (descriptions.size() > 0) {
             if (descriptions.size() > 1) {

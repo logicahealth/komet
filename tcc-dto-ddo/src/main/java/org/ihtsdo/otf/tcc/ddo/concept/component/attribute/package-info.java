@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @javax.xml.bind.annotation.XmlSchema (
-      namespace = "http://object.data.display.ihtsdo.org"
+      namespace = "http://display.object.jaxb.otf.ihtsdo.org"
     )
 package org.ihtsdo.otf.tcc.ddo.concept.component.attribute;

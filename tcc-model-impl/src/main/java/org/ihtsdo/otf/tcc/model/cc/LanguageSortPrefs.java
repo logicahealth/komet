@@ -15,12 +15,14 @@
  */
 package org.ihtsdo.otf.tcc.model.cc;
 
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate.LANGUAGE_SORT;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
 
 /**
  *
  * @author kec
  */
+@XmlRootElement(name = "language-sorting-preferences")
 public class LanguageSortPrefs {
 
     public enum LANGUAGE_SORT_PREF {
@@ -39,18 +41,18 @@ public class LanguageSortPrefs {
             return desc;
         }
 
-        public LANGUAGE_SORT getLangSort() {
+        public LanguageSort getLangSort() {
             switch (this) {
                 case LANG_REFEX:
-                    return LANGUAGE_SORT.LANG_REFEX;
+                    return LanguageSort.LANG_REFEX;
                 case TYPE_B4_LANG:
-                    return LANGUAGE_SORT.TYPE_BEFORE_LANG;
+                    return LanguageSort.TYPE_BEFORE_LANG;
                 case RF2_LANG_REFEX:
-                    return LANGUAGE_SORT.RF2_LANG_REFEX;
+                    return LanguageSort.RF2_LANG_REFEX;
             }
             throw new UnsupportedOperationException("Can't handle: " + this);
         }
-        public static LANGUAGE_SORT_PREF  getPref(LANGUAGE_SORT sort) {
+        public static LANGUAGE_SORT_PREF  getPref(LanguageSort sort) {
             switch (sort) {
                  case LANG_REFEX:
                     return LANG_REFEX;

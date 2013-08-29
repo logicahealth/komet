@@ -87,7 +87,7 @@
                                excluding the ".xsd" suffix (which will be added automatically).-->
                         
                         <transformSchema>
-                            <uri>http://object.data.display.ihtsdo.org</uri>
+                            <uri>http://display.object.jaxb.otf.ihtsdo.org</uri>
                             <toFile>data-display-objects.xsd</toFile>
                         </transformSchema>
                     </transformSchemas>

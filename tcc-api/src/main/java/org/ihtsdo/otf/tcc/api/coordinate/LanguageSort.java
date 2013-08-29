@@ -13,7 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@javax.xml.bind.annotation.XmlSchema (
-      namespace = "http://display.object.jaxb.otf.ihtsdo.org"
-    )
-package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp;
+package org.ihtsdo.otf.tcc.api.coordinate;
+
+//~--- enums ---------------------------------------------------------------
+
+public enum LanguageSort {
+    LANG_BEFORE_TYPE("language before type"), TYPE_BEFORE_LANG("type before language"), LANG_REFEX("use language refex"), RF2_LANG_REFEX("use RF2 language refex");
+    private String desc;
+
+    //~--- constructors -----------------------------------------------------
+    private LanguageSort(String desc) {
+        this.desc = desc;
+    }
+
+    //~--- methods ----------------------------------------------------------
+    @Override
+    public String toString() {
+        return desc;
+    }
+    
+}

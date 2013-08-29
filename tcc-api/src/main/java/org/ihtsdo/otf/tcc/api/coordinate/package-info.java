@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @javax.xml.bind.annotation.XmlSchema (
-      namespace = "http://api.chronicle.otf.ihtsdo.org"
+      namespace = "http://api.chronicle.jaxb.otf.ihtsdo.org"
     )
 package org.ihtsdo.otf.tcc.api.coordinate;

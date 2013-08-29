@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @javax.xml.bind.annotation.XmlSchema (
-      namespace = "http://display.object.jaxb.otf.ihtsdo.org"
+      namespace = "http://api.chronicle.jaxb.otf.ihtsdo.org"
     )
-package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp;
+package org.ihtsdo.otf.tcc.api.relationship;

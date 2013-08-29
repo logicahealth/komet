@@ -135,6 +135,16 @@ public class ConceptSpec implements SpecBI {
    public ConceptSpec(String description, String uuid) {
       this(description, uuid, new RelSpec[] {});
    }
+   /**
+    * Constructs ...
+    *
+    *
+    * @param description
+    * @param uuid
+    */
+   public ConceptSpec(SimpleConceptSpecification simpleSpec) {
+      this(simpleSpec.getDescription(), simpleSpec.getUuid(), new RelSpec[] {});
+   }
 
    /**
     * Constructs ...

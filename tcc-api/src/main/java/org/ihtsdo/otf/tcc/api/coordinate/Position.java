@@ -68,6 +68,11 @@ public class Position implements Externalizable {
     public Position() {
     }
 
+    public Position(SimplePosition another) {
+        this.time = another.getTimePoint();
+        this.path = new Path(another.getPath());
+    }
+
     //~--- constructors --------------------------------------------------------
     public Position(long time, Path path) {
         super();
