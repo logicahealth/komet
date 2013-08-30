@@ -16,10 +16,11 @@
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 /**
+ * The component types to be searched using Lucene.
  *
  * @author kec
  */
 public enum SearchType {
+
     CONCEPT, DESCRIPTION, REFSET,
-    
 }

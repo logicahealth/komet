@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-sprint2-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-dto-ddo</artifactId>
     <name>${branch}: Data display and transfer objects</name>
@@ -87,7 +87,7 @@
                                excluding the ".xsd" suffix (which will be added automatically).-->
                         
                         <transformSchema>
-                            <uri>http://object.data.display.ihtsdo.org</uri>
+                            <uri>http://display.object.jaxb.otf.ihtsdo.org</uri>
                             <toFile>data-display-objects.xsd</toFile>
                         </transformSchema>
                     </transformSchemas>

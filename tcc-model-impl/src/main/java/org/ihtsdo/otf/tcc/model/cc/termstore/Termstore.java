@@ -67,6 +67,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
@@ -332,7 +333,7 @@ public abstract class Termstore implements PersistentStoreI {
                 Precedence.PATH, viewPosition, allowedStatusNids,
                 contradictionManager, languageNid, classifierNid,
                 RelAssertionType.INFERRED_THEN_STATED, null,
-                ViewCoordinate.LANGUAGE_SORT.RF2_LANG_REFEX);
+                LanguageSort.RF2_LANG_REFEX);
     }
 
     /**

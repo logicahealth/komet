@@ -18,15 +18,23 @@
 package org.ihtsdo.otf.tcc.api.relationship;
 
 /**
- *
+ * Enumeration that defines a relationship assertion type matching policy. 
  * @author maestro
  */
 public enum RelAssertionType {
+    /**
+     * Match only stated relationships. 
+     */
     STATED("stated"),
     
-    INFERRED("inferred"),
     /**
-     * Inferred if it exists on the concept. If not, find a stated.
+     * Match only inferred relationships.
+     */
+    INFERRED("inferred"),
+    
+    /**
+     * Match inferred relationships if at least one exists on the concept;
+     * Otherwise match stated relationships. 
      */
     INFERRED_THEN_STATED("inferred then stated");
 

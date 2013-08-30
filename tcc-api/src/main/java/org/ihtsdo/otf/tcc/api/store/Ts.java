@@ -26,7 +26,7 @@ public class Ts {
 
       method.invoke(null);
    }
-
+   
    public static void close(String storeClassName) throws Exception {
       Class<?> class1 = Class.forName(storeClassName);
       Method   method = class1.getMethod("close");

@@ -73,6 +73,13 @@ public class Path implements Externalizable {
     public Path() {
     }
 
+    public Path(SimplePath another) {
+        this.conceptSpec = new ConceptSpec(another.getPathConceptSpecification());
+        for (SimplePosition origin: another.getOrigins()) {
+            origins.add(new Position(origin));
+        }
+    }
+
     public Path(int conceptId, List<? extends Position> origins) {
         super();
         this.conceptNid = conceptId;

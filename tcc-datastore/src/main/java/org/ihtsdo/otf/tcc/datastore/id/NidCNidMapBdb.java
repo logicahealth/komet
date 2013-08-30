@@ -37,7 +37,6 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.concurrency.ConcurrentReentrantLocks;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
@@ -452,8 +451,12 @@ public class NidCNidMapBdb extends ComponentBdb {
      * @return
      * @throws IOException 
      */
-    public NativeIdSetBI getDestRelNids(int cNid, NativeIdSetBI relTypes) throws IOException{
-        return getIndexCacheRecord(cNid).getDestRelNidsSet(cNid, relTypes);
+    public NativeIdSetBI getDestRelNids(int cNid, NativeIdSetBI relTypes, ViewCoordinate vc) throws IOException, ContradictionException{
+        return getIndexCacheRecord(cNid).getDestRelNidsSet(cNid, relTypes, vc);
+    }
+    
+    public NativeIdSetBI getOutgoingRelNids(int cNid, NativeIdSetBI relTypes) throws IOException{
+        return getIndexCacheRecord(cNid).getOutgoingRelNidSet(cNid, relTypes);
     }
 
     public int[] getDestRelNids(int cNid, NidSetBI relTypes) throws IOException {

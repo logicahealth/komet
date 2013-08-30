@@ -1,0 +1,16 @@
+<assembly>
+    <id>xsd</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}/generated-resources/schemagen</directory>
+            <includes>
+                <include>**/*.xsd</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <includeBaseDirectory>false</includeBaseDirectory>
+</assembly>
