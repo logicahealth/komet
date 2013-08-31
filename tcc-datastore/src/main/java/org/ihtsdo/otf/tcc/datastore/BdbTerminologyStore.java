@@ -99,6 +99,14 @@ public class BdbTerminologyStore extends Termstore {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void shutdown() {
+        try {
+            Bdb.close();
+        } catch (InterruptedException | ExecutionException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void addOrigins(Set<Path> paths, Collection<? extends Position> origins) {
         if (origins == null) {
