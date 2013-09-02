@@ -23,58 +23,32 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.time.FastDateFormat;
 
 /**
  *
  * @author kec
  */
 public class TimeHelper {
-   public static final ThreadLocal<SimpleDateFormat> localDateFormat = new ThreadLocal<SimpleDateFormat>() {
-      @Override
-      protected SimpleDateFormat initialValue() {
-         return new SimpleDateFormat("MM/dd/yy HH:mm:ss");
-      }
-   };
-   public static final ThreadLocal<SimpleDateFormat> localLongFileFormat =
-      new ThreadLocal<SimpleDateFormat>() {
-      @Override
-      protected SimpleDateFormat initialValue() {
-         return new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
-      }
-   };
-   public static final ThreadLocal<SimpleDateFormat> localShortFileFormat =
-      new ThreadLocal<SimpleDateFormat>() {
-      @Override
-      protected SimpleDateFormat initialValue() {
-         return new SimpleDateFormat("yyyyMMdd");
-      }
-   };
-   private static final ConcurrentHashMap<String, ThreadLocal<SimpleDateFormat>> formatters =
-      new ConcurrentHashMap<>();
-
-   //~--- static initializers -------------------------------------------------
-
-   static {
-      formatters.put(localShortFileFormat.get().toPattern(), localDateFormat);
-      formatters.put(localShortFileFormat.get().toPattern(), localLongFileFormat);
-      formatters.put(localShortFileFormat.get().toPattern(), localShortFileFormat);
-   }
-
+   public static final FastDateFormat localDateFormat = FastDateFormat.getInstance("MM/dd/yy HH:mm:ss");
+   public static final FastDateFormat localLongFileFormat = FastDateFormat.getInstance("yyyy-MM-dd-HH.mm.ss");
+   public static final FastDateFormat localShortFileFormat = FastDateFormat.getInstance("yyyyMMdd");
+ 
    //~--- methods -------------------------------------------------------------
 
    private static String FormatDateForFile(Date date) {
-      return formatDate(date, localLongFileFormat);
+      return localDateFormat.format(date);
    }
 
    private static String formatDate(Date date) {
-      return formatDate(date, localDateFormat);
+      return localDateFormat.format(date);
    }
 
    public static String formatDate(long time) {
       return formatDate(new Date(time));
    }
 
-   public static String formatDate(Date date, ThreadLocal<SimpleDateFormat> formatter) {
+   public static String formatDate(Date date, FastDateFormat formatter) {
       if (date.getTime() == Long.MIN_VALUE) {
          return "beginning of time";
       }
@@ -83,11 +57,11 @@ public class TimeHelper {
          return "end of time";
       }
 
-      return formatter.get().format(date);
+      return formatter.format(date);
    }
 
-   public static String formatDate(long time, ThreadLocal<SimpleDateFormat> formatter) {
-      return formatDate(new Date(time), localDateFormat);
+   public static String formatDate(long time, FastDateFormat formatter) {
+      return formatDate(new Date(time), formatter);
    }
 
    public static String formatDateForFile(long time) {
@@ -96,8 +70,8 @@ public class TimeHelper {
 
    //~--- get methods ---------------------------------------------------------
 
-   public static SimpleDateFormat getDateFormat() {
-      return localDateFormat.get();
+   public static FastDateFormat getDateFormat() {
+      return localDateFormat;
    }
 
    public static String getElapsedTimeString(long elapsed) {
@@ -109,21 +83,12 @@ public class TimeHelper {
       return elapsedStr;
    }
 
-   public static SimpleDateFormat getFileDateFormat() {
-      return localLongFileFormat.get();
+   public static FastDateFormat getFileDateFormat() {
+      return localLongFileFormat;
    }
 
-   public static ThreadLocal<SimpleDateFormat> getFormatter(final String pattern) {
-      if (!formatters.containsKey(pattern)) {
-         formatters.put(pattern, new ThreadLocal<SimpleDateFormat>() {
-            @Override
-            protected SimpleDateFormat initialValue() {
-               return new SimpleDateFormat(pattern);
-            }
-         });
-      }
-
-      return formatters.get(pattern);
+   public static FastDateFormat getFormatter(final String pattern) {
+      return FastDateFormat.getInstance(pattern);
    }
 
    public static String getRemainingTimeString(int completedCount, int totalCount, long elapsed) {
@@ -137,8 +102,8 @@ public class TimeHelper {
       return remainingStr;
    }
 
-   public static SimpleDateFormat getShortFileDateFormat() {
-      return localShortFileFormat.get();
+   public static FastDateFormat getShortFileDateFormat() {
+      return localShortFileFormat;
    }
 
    public static long getTimeFromString(String time, SimpleDateFormat formatter) throws ParseException {

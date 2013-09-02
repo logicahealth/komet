@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 
 /**
@@ -37,8 +38,8 @@ public class TimeReference implements Externalizable {
 
    //~--- fields --------------------------------------------------------------
 
-   private ThreadLocal<SimpleDateFormat>                       formatter;
-   private SimpleObjectProperty<ThreadLocal<SimpleDateFormat>> formatterProperty;
+   private FastDateFormat                       formatter;
+   private SimpleObjectProperty<FastDateFormat> formatterProperty;
    private long                                                time;
    private SimpleLongProperty                                  timeProperty;
    private StringBinding                                       timeTextBinding;
@@ -53,7 +54,7 @@ public class TimeReference implements Externalizable {
 
    //~--- methods -------------------------------------------------------------
 
-   public SimpleObjectProperty<ThreadLocal<SimpleDateFormat>> formatterProperty() {
+   public SimpleObjectProperty<FastDateFormat> formatterProperty() {
       if (formatterProperty == null) {
          formatterProperty = new SimpleObjectProperty<>(this, "formatterProperty", getFormatter());
          timeTextBinding   = new StringBinding() {
@@ -100,7 +101,7 @@ public class TimeReference implements Externalizable {
 
       if ((formatterProperty != null) || (formatter != null)) {
          out.writeBoolean(true);
-         out.writeUTF(getFormatter().get().toPattern());
+         out.writeUTF(getFormatter().getPattern());
       } else {
          out.writeBoolean(false);
       }
@@ -108,7 +109,7 @@ public class TimeReference implements Externalizable {
 
    //~--- get methods ---------------------------------------------------------
 
-   private ThreadLocal<SimpleDateFormat> getFormatter() {
+   private FastDateFormat getFormatter() {
       if (formatterProperty == null) {
          if (formatter == null) {
             return TimeHelper.localShortFileFormat;
@@ -136,7 +137,7 @@ public class TimeReference implements Externalizable {
 
    //~--- set methods ---------------------------------------------------------
 
-   public void setFormatter(ThreadLocal<SimpleDateFormat> formatter) {
+   public void setFormatter(FastDateFormat formatter) {
       if (formatterProperty == null) {
          this.formatter = formatter;
       } else {
