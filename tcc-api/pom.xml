@@ -25,6 +25,10 @@
     <name>${branch}: API</name>
     <dependencies>
         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>hk2</artifactId>
         </dependency>
@@ -97,8 +101,8 @@
 
                                <some:elementName ... />
 
-                            c) The desired <<toFile>> name of the generated XML schema definition file,
-                               excluding the ".xsd" suffix (which will be added automatically).-->
+                     c) The desired <<toFile>> name of the generated XML schema definition file,
+                        excluding the ".xsd" suffix (which will be added automatically).-->
                         
                         <transformSchema>
                             <uri>http://api.chronicle.jaxb.otf.ihtsdo.org</uri>
@@ -106,9 +110,9 @@
                         </transformSchema>
                     </transformSchemas>
                     <includes>
-<!--                        <include>**/ViewCoordinate.java</include>-->
-<!--                        <include>**/ConceptSpec.java</include>-->
-<!--                        <include>**/Snomed.java</include>-->
+                        <!--                        <include>**/ViewCoordinate.java</include>-->
+                        <!--                        <include>**/ConceptSpec.java</include>-->
+                        <!--                        <include>**/Snomed.java</include>-->
                         <include>**/LanguageSort.java</include>
                         <include>**/ContradictionManagerPolicy.java</include>
                         <include>**/SimplePosition.java</include>

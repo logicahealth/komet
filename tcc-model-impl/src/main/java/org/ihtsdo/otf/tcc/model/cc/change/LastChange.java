@@ -41,7 +41,7 @@ public class LastChange {
    private static final int                                       MAP_SIZE      = 50000;
    private static boolean                                         suspended     = false;
    private static ConcurrentReentrantLocks                        locks         = new ConcurrentReentrantLocks(128);
-   private static final Timer                                     timer         = new Timer("LastChange", true);
+   private static Timer                                           timer         = null;
    private static ReentrantReadWriteLock                          rwl           = new ReentrantReadWriteLock();
    private static AtomicReference<int[][]>                        lastChangeMap = new AtomicReference<>(new int[0][]);
    private static AtomicReference<ConcurrentSkipListSet<Integer>> changedXrefs  =
@@ -51,12 +51,6 @@ public class LastChange {
    private static ConcurrentSkipListSet<WeakReference<TermChangeListener>> changeListenerRefs =
       new ConcurrentSkipListSet<>();
 
-   //~--- static initializers -------------------------------------------------
-
-   static {
-      timer.schedule(new Notifier(), 5000, 2000);
-   }
-
    //~--- constant enums ------------------------------------------------------
 
    public enum Change { COMPONENT, XREF }
@@ -64,7 +58,14 @@ public class LastChange {
    //~--- methods -------------------------------------------------------------
 
    public static void addTermChangeListener(TermChangeListener cl) {
-      changeListenerRefs.add(new ComparableWeakRef(cl));
+       if (cl != null) {
+           if (timer == null) {
+              timer         = new Timer("LastChange", true);
+              timer.schedule(new Notifier(), 5000, 2000);
+          }
+           changeListenerRefs.add(new ComparableWeakRef(cl));
+       }
+      
    }
 
    private static int asInt(short componentSequence, short xrefSequence) {
@@ -126,6 +127,11 @@ public class LastChange {
 
    public static void removeTermChangeListener(TermChangeListener cl) {
       changeListenerRefs.remove(new ComparableWeakRef(cl));
+      if (changeListenerRefs.isEmpty()) {
+          if (timer != null) {
+              timer.cancel();
+          }
+      }
    }
 
    public static void resumeChangeNotifications() {

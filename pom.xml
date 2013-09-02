@@ -56,6 +56,11 @@ the specific language governing permissions and limitations under the License. -
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
                 <groupId>net.sf.docbook</groupId>
                 <artifactId>docbook-xml</artifactId>
                 <version>5.0-all</version>
