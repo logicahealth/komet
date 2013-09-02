@@ -89,6 +89,7 @@ public class BdbTerminologyStore extends Termstore {
                         + " set. Starting from location: {0}", bdbLocation);
             }
             Bdb.setup(bdbLocation, this);
+            LOG.info("Database setup complete");
             setupComplete.countDown();
         } else {
             LOG.info("Database setup already initialized");
@@ -100,6 +101,13 @@ public class BdbTerminologyStore extends Termstore {
         }
     }
     
+    public static void waitForSetup() {
+        try {
+            setupComplete.await();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public void shutdown() {
         try {
             Bdb.close();
