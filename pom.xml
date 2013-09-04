@@ -43,7 +43,7 @@ the specific language governing permissions and limitations under the License. -
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
         <mvel2.version>2.1.3.Final</mvel2.version>
-        <javafx.version>2.2.21</javafx.version>
+        <javafx.version>[2.2.21,2.3)</javafx.version>
         <org.apache.lucene.version>4.3.1</org.apache.lucene.version>
         <je.version>5.0.84</je.version>
         <junit.version>4.11</junit.version>
@@ -84,7 +84,7 @@ the specific language governing permissions and limitations under the License. -
                 <version>${je.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
+                <groupId>com.sun.javafx</groupId>
                 <artifactId>jfxrt</artifactId>
                 <version>${javafx.version}</version>
             </dependency>

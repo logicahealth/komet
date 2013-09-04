@@ -55,7 +55,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
+            <groupId>com.sun.javafx</groupId>
             <artifactId>jfxrt</artifactId>
         </dependency>
     </dependencies>
