@@ -52,6 +52,8 @@ the specific language governing permissions and limitations under the License. -
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <netbeans-platform-version>RELEASE73</netbeans-platform-version>
         <yDoc.path>/Applications/yworks-uml-doclet-3.0_02-jdk1.5</yDoc.path>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>           
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -165,9 +167,38 @@ the specific language governing permissions and limitations under the License. -
                         </dependency>
                     </dependencies>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.6.3.201306030806</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <includes>example.*</includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pre-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>ch.syabru.maven.plugins</groupId>
                 <artifactId>maven-timemachine-plugin</artifactId>
