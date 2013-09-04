@@ -189,11 +189,15 @@ the specific language governing permissions and limitations under the License. -
                     <execution>
                         <id>post-test</id>
                         <phase>test</phase>
+                        <inherited>false</inherited>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                  <destFile>${sonar.jacoco.itReportPath}</destFile>
+                </configuration>
             </plugin>
 
             <plugin>
