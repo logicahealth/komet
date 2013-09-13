@@ -92,6 +92,7 @@
                         </transformSchema>
                     </transformSchemas>
                     <includes>
+                        <include>**/DefinitionalState.java</include>
                         <include>**/*Ddo.java</include>
                         <include>**/ComponentReference.java</include>
                         <include>**/ResultList.java</include>

@@ -49,6 +49,7 @@ public class ComponentReference implements Externalizable {
    private long                       uuidMsb;
    private long                       uuidLsb;
    private SimpleObjectProperty<UUID> uuidProperty;
+   private DefinitionalState          definitionalState = DefinitionalState.UNDETERMINED;
 
    //~--- constructors --------------------------------------------------------
 
@@ -59,10 +60,19 @@ public class ComponentReference implements Externalizable {
       uuidMsb = concept.getPrimordialUuid().getMostSignificantBits();
       uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
       text = concept.getPreferredDescription().getText();
+      if (concept.getConceptAttributesActive() != null && 
+              concept.getConceptAttributesActive().isDefined()) {
+        definitionalState = DefinitionalState.NECESSARY_AND_SUFFICIENT;
+      } else {
+        definitionalState = DefinitionalState.NECESSARY;
+      }
    }
 
    public ComponentReference(int nid) throws IOException {
       this.nid = nid;
+      if (Ts.get().getConceptNidForNid(nid) != nid) {
+        definitionalState = DefinitionalState.NOT_A_DEFINED_COMPONENT;
+       }
    }
 
    public ComponentReference(UUID uuid) {
@@ -202,6 +212,14 @@ public class ComponentReference implements Externalizable {
        
        return sb.toString();
    }
+    public DefinitionalState getDefinitionalState() {
+        return definitionalState;
+    }
+
+    public void setDefinitionalState(DefinitionalState definitionalState) {
+        this.definitionalState = definitionalState;
+    }
+
 
 
    /**
