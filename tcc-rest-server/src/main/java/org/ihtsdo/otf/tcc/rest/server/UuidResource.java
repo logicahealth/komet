@@ -10,22 +10,20 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
  * @author kec
  */
-@Path("/uuid")
+@Path("chronicle/uuid")
 public class UuidResource {
-    static {
-        BdbSingleton.get();
-    }
     
     @GET
     @Path("{uuid}")
     @Produces("text/plain")
     public String getNid(@PathParam("uuid") String uuidStr) throws IOException {
-        return Boolean.toString(BdbSingleton.get().hasUuid(UUID.fromString(uuidStr)));
+        return Boolean.toString(Ts.get().hasUuid(UUID.fromString(uuidStr)));
     }
     
 
@@ -33,7 +31,7 @@ public class UuidResource {
     @Path("primordial/{nid}")
     @Produces("text/plain")
     public String getNid(@PathParam("nid") int nid) throws IOException {
-        return BdbSingleton.get().getUuidPrimordialForNid(nid).toString();
+        return Ts.get().getUuidPrimordialForNid(nid).toString();
     }
     
 }

@@ -14,15 +14,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
  * @author kec
  */
-@Path("/path")
+@Path("chronicle/path")
 public class PathResource {
     static {
-        BdbSingleton.get();
+        Ts.get();
     }
     
 
@@ -33,7 +34,7 @@ public class PathResource {
         final int pathNid;
         if (id.length() == 36) {
             UUID uuid = UUID.fromString(id);
-            pathNid = BdbSingleton.get().getNidForUuids(uuid);
+            pathNid = Ts.get().getNidForUuids(uuid);
         } else {
             pathNid = Integer.parseInt(id);
         }
@@ -41,7 +42,7 @@ public class PathResource {
 
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                org.ihtsdo.otf.tcc.api.coordinate.Path path = BdbSingleton.get().getPath(pathNid);
+                org.ihtsdo.otf.tcc.api.coordinate.Path path = Ts.get().getPath(pathNid);
                 ObjectOutputStream oos = new ObjectOutputStream(output);
                 oos.writeObject(path);
             }

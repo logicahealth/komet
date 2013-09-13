@@ -9,22 +9,20 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import org.ihtsdo.otf.tcc.model.cc.P;
 
 /**
  *
  * @author kec
  */
-@Path("/termstore")
+@Path("chronicle/termstore")
 public class TermStore {
-    static {
-        BdbSingleton.get();
-    }
 
     @GET
     @Path("/wait-for-writes")
     @Produces("text/plain")
-    public String getConceptNid(@PathParam("id") String idStr) throws IOException {
-        BdbSingleton.get().waitTillWritesFinished();
+    public String waitForWrites(@PathParam("id") String idStr) throws IOException {
+        P.s.waitTillWritesFinished();
         return "OK";
     }
 }

@@ -16,16 +16,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
+import org.ihtsdo.otf.tcc.model.cc.P;
 
 /**
  *
  * @author kec
  */
-@Path("/relationship")
+@Path("chronicle/relationship")
 public class RelationshipPairResource {
-    static {
-        BdbSingleton.get();
-    }
    //~--- get methods ---------------------------------------------------------
 
    @GET
@@ -37,7 +35,7 @@ public class RelationshipPairResource {
          public void write(OutputStream output) throws IOException, WebApplicationException {
             ObjectOutputStream oos = new ObjectOutputStream(output);
 
-            oos.writeObject(BdbSingleton.get().getDestRelOriginNids(nid));
+            oos.writeObject(P.s.getDestRelOriginNids(nid));
          }
       };
    }
@@ -53,7 +51,7 @@ public class RelationshipPairResource {
          public void write(OutputStream output) throws IOException, WebApplicationException {
             ObjectOutputStream oos = new ObjectOutputStream(output);
 
-            oos.writeObject(BdbSingleton.get().getDestRelOriginNids(nid, relTypes));
+            oos.writeObject(P.s.getDestRelOriginNids(nid, relTypes));
          }
       };
    }
