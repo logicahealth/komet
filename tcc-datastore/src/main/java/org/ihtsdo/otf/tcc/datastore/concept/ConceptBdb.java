@@ -405,6 +405,13 @@ public class ConceptBdb extends ComponentBdb {
       return ConceptChronicle.get(cNid);
    }
 
+    public NativeIdSetBI getAllComponents() throws IOException {
+        int currentMaxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
+        ConcurrentBitSet componentSet = new ConcurrentBitSet(currentMaxNid - Integer.MIN_VALUE);
+        componentSet.setAll(currentMaxNid);
+        return componentSet;
+    }
+
    /**
     * Class description
     *

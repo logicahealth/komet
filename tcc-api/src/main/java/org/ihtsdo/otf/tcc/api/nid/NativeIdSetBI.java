@@ -73,4 +73,6 @@ public interface NativeIdSetBI {
     
     boolean isEmpty();
     
+    void setAll(int max);
+    
 }

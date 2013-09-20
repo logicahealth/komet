@@ -845,6 +845,11 @@ public class BdbTerminologyStore extends Termstore {
         throw new UnsupportedOperationException("Not supported yet");
     }
 
+    @Override
+    public NativeIdSetBI getAllComponentNids() throws IOException {
+        return Bdb.getConceptDb().getAllComponents();
+    }
+
     /*@Override
     public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

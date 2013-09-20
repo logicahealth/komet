@@ -1053,4 +1053,9 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException {
         return store.getComponentNidsForConceptNids(conceptNativeIds);
     }
+
+    @Override
+    public NativeIdSetBI getAllComponentNids() throws IOException {
+        return store.getAllComponentNids();
+    }
 }
