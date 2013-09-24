@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.lucene;
+package org.ihtsdo.tcc.model.index.service;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
+import java.io.IOException;
+import java.util.Collection;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
- *
- * @author kec
+ * The conract interface for the refset indexing service.
+ * @author aimeefurber
  */
-public class TtkMultiReader extends MultiReader {
 
-    public TtkMultiReader(IndexReader... subReaders) {
-        super(subReaders);
-    }
-
-    public TtkMultiReader(IndexReader[] subReaders, boolean closeSubReaders) {
-        super(subReaders, closeSubReaders);
-    }
-    
-    public boolean isFirstIndex(int docID) {
-        return readerIndex(docID) == 0;
-    }
+@Contract
+public interface RefsetIndexer extends Indexer{
+    public void addRefex(RefexMember refexMember); //TODO needs type
+    public void writeToIndex(Collection<RefexMember> items) throws IOException;
+    public void writeToIndex(Collection<RefexMember> items, ViewCoordinate viewCoordinate) throws IOException;
 }

@@ -16,8 +16,6 @@
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -50,8 +48,6 @@ import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.model.cc.lucene.SearchResult;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriter;
 
@@ -389,61 +385,63 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public Collection<Integer> searchLucene(String query, SearchType searchType)
             throws IOException, ParseException {
-        try {
-            Query q = new QueryParser(LuceneManager.version, "desc",
-                    new StandardAnalyzer(LuceneManager.version)).parse(query);
-            SearchResult result = LuceneManager.search(q, searchType);
-
-            if (result.topDocs.totalHits > 0) {
-                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-                    TermstoreLogger.logger.log(Level.FINE, "StandardAnalyzer query returned {0} hits",
-                            result.topDocs.totalHits);
-                }
-            } else {
-                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-                    TermstoreLogger.logger.fine(
-                            "StandardAnalyzer query returned no results. Now trying WhitespaceAnalyzer query");
-                    q = new QueryParser(LuceneManager.version, "desc",
-                            new WhitespaceAnalyzer(LuceneManager.version)).parse(query);
-                }
-
-                result = LuceneManager.search(q, searchType);
-            }
-
-            HashSet<Integer> nidSet = new HashSet<>(result.topDocs.totalHits);
-
-            for (int i = 0; i < result.topDocs.totalHits; i++) {
-                Document doc = result.searcher.doc(result.topDocs.scoreDocs[i].doc);
-                int dnid = Integer.parseInt(doc.get("dnid"));
-                int cnid = Integer.parseInt(doc.get("cnid"));
-
-
-                switch (searchType) {
-                    case CONCEPT:
-                        nidSet.add(cnid);
-
-                        break;
-
-                    case DESCRIPTION:
-                        nidSet.add(dnid);
-
-                        break;
-
-                    default:
-                        throw new IOException("Can't handle: " + searchType);
-                }
-
-                float score = result.topDocs.scoreDocs[i].score;
-
-                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-                    TermstoreLogger.logger.log(Level.FINE, "Hit: {0} Score: {1}", new Object[]{doc, score});
-                }
-            }
-
-            return nidSet;
-        } catch (ParseException | IOException | NumberFormatException e) {
-            throw new IOException(e);
-        }
+//        try {
+//            Query q = new QueryParser(LuceneManager.version, "desc",
+//                    new StandardAnalyzer(LuceneManager.version)).parse(query);
+//            SearchResult result = LuceneManager.search(q, searchType);
+//
+//            if (result.topDocs.totalHits > 0) {
+//                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
+//                    TermstoreLogger.logger.log(Level.FINE, "StandardAnalyzer query returned {0} hits",
+//                            result.topDocs.totalHits);
+//                }
+//            } else {
+//                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
+//                    TermstoreLogger.logger.fine(
+//                            "StandardAnalyzer query returned no results. Now trying WhitespaceAnalyzer query");
+//                    q = new QueryParser(LuceneManager.version, "desc",
+//                            new WhitespaceAnalyzer(LuceneManager.version)).parse(query);
+//                }
+//
+//                result = LuceneManager.search(q, searchType);
+//            }
+//
+//            HashSet<Integer> nidSet = new HashSet<>(result.topDocs.totalHits);
+//
+//            for (int i = 0; i < result.topDocs.totalHits; i++) {
+//                Document doc = result.searcher.doc(result.topDocs.scoreDocs[i].doc);
+//                int dnid = Integer.parseInt(doc.get("dnid"));
+//                int cnid = Integer.parseInt(doc.get("cnid"));
+//
+//
+//                switch (searchType) {
+//                    case CONCEPT:
+//                        nidSet.add(cnid);
+//
+//                        break;
+//
+//                    case DESCRIPTION:
+//                        nidSet.add(dnid);
+//
+//                        break;
+//
+//                    default:
+//                        throw new IOException("Can't handle: " + searchType);
+//                }
+//
+//                float score = result.topDocs.scoreDocs[i].score;
+//
+//                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
+//                    TermstoreLogger.logger.log(Level.FINE, "Hit: {0} Score: {1}", new Object[]{doc, score});
+//                }
+//            }
+//
+//            return nidSet;
+//        } catch (ParseException | IOException | NumberFormatException e) {
+//            throw new IOException(e);
+//        }
+        
+        return null;
     }
 
     /**

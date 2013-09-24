@@ -36,13 +36,14 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.description.DescriptionRevision;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
 
 public class BdbCommitManager {
 
@@ -62,6 +63,7 @@ public class BdbCommitManager {
             new ThreadGroup("commit manager threads");
     private static ExecutorService changeSetWriterService;
     private static ExecutorService dbWriterService;
+    protected static DescriptionIndexer descIndexer;
     /**
      * <p> listeners </p>
      */
@@ -70,6 +72,7 @@ public class BdbCommitManager {
     //~--- static initializers -------------------------------------------------
     static {
         reset();
+        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -264,7 +267,7 @@ public class BdbCommitManager {
                             notifyCommit();
                             uncommittedCNids.clear();
                             uncommittedCNidsNoChecks = Bdb.getConceptDb().getEmptyIdSet();
-                            LuceneManager.commitDescriptionsToLucene();
+                            descIndexer.commitToLucene();
                         }
                         GlobalPropertyChange.firePropertyChange(TerminologyStoreDI.CONCEPT_EVENT.POST_COMMIT, null, allUncommitted);
 
@@ -364,7 +367,7 @@ public class BdbCommitManager {
 
                 uncommittedCNids.andNot(commitSet);
                 uncommittedCNidsNoChecks.andNot(commitSet);
-                LuceneManager.commitDescriptionsToLucene(c);
+                descIndexer.commitToLucene(c);
             }
         } catch (Exception e1) {
             AceLog.getAppLog().alertAndLogException(e1);

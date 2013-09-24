@@ -55,17 +55,18 @@ import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 import org.ihtsdo.otf.tcc.model.cc.concept.TtkConceptChronicleConverter;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
 import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
 import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
 import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
+import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
 
 public class Bdb {
 
@@ -89,6 +90,13 @@ public class Bdb {
     private static File viewCoordinateMapFile;
     private static CountDownLatch setupLatch = new CountDownLatch(5);
     private static BdbTerminologyStore ts;
+    
+    protected static DescriptionIndexer descIndexer;
+
+    static {
+
+        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
+    }
 
     public static boolean removeMemoryMonitorListener(LowMemoryListener listener) {
         return memoryMonitor.removeListener(listener);
@@ -532,8 +540,8 @@ public class Bdb {
             System.out.println("absolute dbRoot: " + bdbDirectory.getAbsolutePath());
             viewCoordinateMapFile = new File(bdbDirectory, "viewCoordinates.oos");
             bdbDirectory.mkdirs();
-            LuceneManager.setLuceneRootDir(bdbDirectory);
-            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
+//            LuceneManager.setLuceneRootDir(bdbDirectory);
+//            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
 
             mutable = new Bdb(false, new File(bdbDirectory, "mutable"));
             File readOnlyDir = new File(bdbDirectory, "read-only");
@@ -851,8 +859,8 @@ public class Bdb {
                 activity.setProgressInfoLower("7/11: Starting BdbCommitManager shutdown.");
                 BdbCommitManager.shutdown();
                 activity.setProgressInfoLower("8/11: Starting LuceneManager close.");
-                LuceneManager.close();
-                LuceneManager.closeRefset();
+                descIndexer.closeWriter();
+//                LuceneManager.closeRefset();
 
                 NidDataFromBdb.close();
                 activity.setProgressInfoLower("9/11: Starting mutable.bdbEnv.sync().");

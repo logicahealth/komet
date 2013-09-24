@@ -34,7 +34,6 @@ import org.ihtsdo.otf.tcc.model.cc.concept.processor.AdjudicationAnalogCreator;
 import org.ihtsdo.otf.tcc.model.cc.concept.processor.VersionFlusher;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.description.Description.Version;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
@@ -72,7 +71,9 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.DataMarker;
+import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
     
@@ -85,10 +86,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private static NidSet rf1LangRefexNidSet;
     private static NidSet rf2LangRefexNidSet;
     private static List<TtkRefexAbstractMemberChronicle<?>> unresolvedAnnotations;
+    protected static DescriptionIndexer descIndexer;
 
     //~--- static initializers -------------------------------------------------
     static {
         init();
+        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
     }
     //~--- fields --------------------------------------------------------------
     private boolean canceled = false;
@@ -400,7 +403,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             }
 
             if (updateLucene) {
-                LuceneManager.writeToLucene(c.getDescriptions());
+                descIndexer.writeToIndex(c.getDescriptions());
             }
         }
 

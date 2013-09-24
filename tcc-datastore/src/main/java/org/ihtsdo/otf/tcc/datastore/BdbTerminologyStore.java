@@ -31,7 +31,6 @@ import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.TerminologySnapshot;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
@@ -62,6 +61,8 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
 import org.jvnet.hk2.annotations.Service;
 
 @RunLevel(RunLevel.RUNLEVEL_VAL_IMMEDIATE)
@@ -75,6 +76,12 @@ public class BdbTerminologyStore extends Termstore {
     private static ViewCoordinate metadataVC = null;
     private static AtomicBoolean databaseSetup = new AtomicBoolean(false);
     private static CountDownLatch setupComplete = new CountDownLatch(1);
+    protected static DescriptionIndexer descIndexer;
+
+    static {
+
+        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
+    }
     String bdbLocation;
 
     public BdbTerminologyStore() {
@@ -362,7 +369,7 @@ public class BdbTerminologyStore extends Termstore {
         System.out.println("Starting db sync.");
         Bdb.sync();
         System.out.println("Finished db sync, starting generate lucene index.");
-        LuceneManager.createLuceneIndex();
+        descIndexer.createIndex();
         Bdb.commit();
         System.out.println("Finished create lucene index.");
     }

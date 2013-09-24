@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 International Health Terminology Standards Development Organisation.
+ * Copyright 2013 International Health Terminology Standards Development Organisation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.lucene;
+package org.ihtsdo.tcc.model.index.service;
+
+import org.jvnet.hk2.annotations.Contract;
+
 /**
- * @TODO move lucene to it's own module with a implementation free interface. 
+ * The contract interface for the ID indexing service
+ * @author aimeefurber
  */
+
+@Contract
+public interface IdIndexer extends Indexer{
+    public void addId();
+}

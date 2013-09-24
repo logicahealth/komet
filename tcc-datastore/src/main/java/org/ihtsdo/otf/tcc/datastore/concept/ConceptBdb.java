@@ -46,8 +46,9 @@ import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSetReadOnly;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
 
 /**
  * Class description
@@ -67,6 +68,12 @@ public class ConceptBdb extends ComponentBdb {
    /** Field description */
    private static final ExecutorService iteratorService =
       Executors.newCachedThreadPool(new NamedThreadFactory(conDbThreadGroup, "parallel iterator service"));
+   
+   protected static DescriptionIndexer descIndexer;
+   static {
+       
+       descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
+   }
 
    /** Field description */
    private NativeIdSetBI conceptIdSet;
@@ -468,6 +475,6 @@ public class ConceptBdb extends ComponentBdb {
     @Override
     public void sync() throws IOException {
         super.sync(); 
-        LuceneManager.commit();
+        descIndexer.commitWriter();
     }
 }
