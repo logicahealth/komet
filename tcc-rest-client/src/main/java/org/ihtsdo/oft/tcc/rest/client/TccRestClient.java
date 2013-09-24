@@ -730,4 +730,9 @@ public class TccRestClient extends Termstore {
     public NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public NativeIdSetBI getAllComponentNids() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

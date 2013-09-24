@@ -102,6 +102,8 @@ public interface TerminologyDI {
 
     //~--- get methods ---------------------------------------------------------
     NativeIdSetBI getAllConceptNids() throws IOException;
+    
+    NativeIdSetBI getAllComponentNids() throws IOException;
 
     NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException;
 

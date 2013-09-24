@@ -16,10 +16,8 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -469,6 +467,13 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         return sb.toString();
     }
 
+    @Override
+    public void setAll(int max) {
+        for (int i = Integer.MIN_VALUE; i < max; i++) {
+            add(i);
+        }
+    }
+
     private class Iterator implements NativeIdSetItrBI {
 
         int currentBit = 0;
@@ -547,7 +552,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void xor(NativeIdSetBI other) {
         if (other instanceof ConcurrentBitSet) {
-            xor((ConcurrentBitSet)other);
+            xor((ConcurrentBitSet) other);
         } else {
             NativeIdSetItrBI iter = other.getIterator();
             try {
@@ -688,7 +693,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void andNot(NativeIdSetBI other) {
         if (other instanceof ConcurrentBitSet) {
-            andNot((ConcurrentBitSet)other);
+            andNot((ConcurrentBitSet) other);
         } else {
             NativeIdSetItrBI iter = other.getIterator();
             try {

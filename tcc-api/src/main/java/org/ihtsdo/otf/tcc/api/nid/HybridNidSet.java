@@ -317,4 +317,9 @@ public class HybridNidSet implements NativeIdSetBI {
     public boolean isEmpty() {
         return this.nidSet.isEmpty();
     }
+
+    @Override
+    public void setAll(int max) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
