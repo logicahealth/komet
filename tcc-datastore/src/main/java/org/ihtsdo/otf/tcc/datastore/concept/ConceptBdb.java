@@ -48,7 +48,7 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 
 /**
  * Class description
@@ -482,6 +482,8 @@ public class ConceptBdb extends ComponentBdb {
     @Override
     public void sync() throws IOException {
         super.sync(); 
-        descIndexer.commitWriter();
+        if (descIndexer != null) {
+            descIndexer.commitWriter();
+        }
     }
 }

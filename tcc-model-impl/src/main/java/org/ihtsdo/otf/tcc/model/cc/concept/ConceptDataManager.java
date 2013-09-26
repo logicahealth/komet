@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 import org.jvnet.hk2.annotations.Service;
 
 /**

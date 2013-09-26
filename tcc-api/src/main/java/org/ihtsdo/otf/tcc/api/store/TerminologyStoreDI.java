@@ -205,4 +205,6 @@ public interface TerminologyStoreDI extends TerminologyDI {
      * parentNid
      */
     NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc);
+    
+    void shutdown();
 }

@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.api.store;
 
 import java.lang.reflect.Method;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 /**
  * Ts is short for Terminology store...
@@ -16,37 +17,29 @@ public class Ts {
    public static final String        EMBEDDED_BERKELEY_DB_IMPL_CLASS = "org.ihtsdo.otf.tcc.datastore.Bdb";
    public static final String        DEFAULT_LOCAL_HOST_SERVER = "http://localhost:8080/terminology/rest/";
    public static final String        DEFAULT_CLIENT_IMPL_CLASS = "org.ihtsdo.oft.tcc.rest.client.TccRestClient";
-   private static Class<?>           implClass;
    private static TerminologyStoreDI store;
 
    //~--- methods -------------------------------------------------------------
 
    public static void close() throws Exception {
-      Method method = implClass.getMethod("close");
-
-      method.invoke(null);
-   }
-   
-   public static void close(String storeClassName) throws Exception {
-      Class<?> class1 = Class.forName(storeClassName);
-      Method   method = class1.getMethod("close");
-
-      method.invoke(null);
+      store.shutdown();
    }
 
+   @Deprecated
    public static void setupEmbedded() throws Exception {
       setup(EMBEDDED_BERKELEY_DB_IMPL_CLASS, BERKELEY_DB_FOLDER);
    }
+   @Deprecated
    public static void setupClient() throws Exception {
       setup(DEFAULT_CLIENT_IMPL_CLASS, DEFAULT_LOCAL_HOST_SERVER);
    }
 
+   @Deprecated
    public static void setup(String storeClassName, String dbRoot) throws Exception {
-      implClass = Class.forName(storeClassName);
-
-      Method method = implClass.getMethod("setup", String.class);
-
-      method.invoke(null, dbRoot);
+      
+      System.out.println("Ts.setup(String storeClassName, String dbRoot) is deprecated. Use Hk2 lookup.");
+      System.setProperty("org.ihtsdo.otf.tcc.datastore.bdb-location", dbRoot);
+      store = Hk2Looker.get().getService(TerminologyStoreDI.class);
    }
 
    //~--- get methods ---------------------------------------------------------

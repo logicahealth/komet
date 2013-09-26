@@ -96,6 +96,7 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
 
     public void put(UUID uuid, int nid);
 
+    @Deprecated
     public Collection<Integer> searchLucene(String query, SearchType searchType)
             throws IOException, ParseException;
 }

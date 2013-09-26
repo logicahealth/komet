@@ -43,7 +43,7 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 
 public class BdbCommitManager {
 
@@ -267,7 +267,9 @@ public class BdbCommitManager {
                             notifyCommit();
                             uncommittedCNids.clear();
                             uncommittedCNidsNoChecks = Bdb.getConceptDb().getEmptyIdSet();
-                            descIndexer.commitToLucene();
+                if (descIndexer != null) {
+                    descIndexer.commitToLucene();                    
+                }
                         }
                         GlobalPropertyChange.firePropertyChange(TerminologyStoreDI.CONCEPT_EVENT.POST_COMMIT, null, allUncommitted);
 
@@ -367,7 +369,9 @@ public class BdbCommitManager {
 
                 uncommittedCNids.andNot(commitSet);
                 uncommittedCNidsNoChecks.andNot(commitSet);
-                descIndexer.commitToLucene(c);
+                if (descIndexer != null) {
+                    descIndexer.commitToLucene(c);                    
+                }
             }
         } catch (Exception e1) {
             AceLog.getAppLog().alertAndLogException(e1);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.tcc.model.index.service;
+package org.ihtsdo.otf.tcc.model.index.service;
 
 import java.io.IOException;
 import java.util.Collection;

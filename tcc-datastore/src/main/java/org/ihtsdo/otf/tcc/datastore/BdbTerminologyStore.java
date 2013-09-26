@@ -55,19 +55,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.glassfish.hk2.runlevel.RunLevel;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 import org.jvnet.hk2.annotations.Service;
 
-@RunLevel(RunLevel.RUNLEVEL_VAL_IMMEDIATE)
-@Service(
-        name = "Bdb Terminology Service")
+@Service(name = "Bdb Terminology Service")
 public class BdbTerminologyStore extends Termstore {
 
     private static final Logger LOG = Logger.getLogger(BdbTerminologyStore.class.getName());
@@ -368,8 +365,14 @@ public class BdbTerminologyStore extends Termstore {
 
         System.out.println("Starting db sync.");
         Bdb.sync();
-        System.out.println("Finished db sync, starting generate lucene index.");
-        descIndexer.createIndex();
+        System.out.println("Finished db sync.");
+        if (descIndexer != null) {
+            if (descIndexer != null) {
+                System.out.println("Found description indexer. Creating index");
+                descIndexer.createIndex();
+            }
+        }
+        
         Bdb.commit();
         System.out.println("Finished create lucene index.");
     }

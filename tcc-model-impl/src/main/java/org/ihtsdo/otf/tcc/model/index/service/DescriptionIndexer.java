@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.tcc.model.index.service;
+package org.ihtsdo.otf.tcc.model.index.service;
 
+import java.io.IOException;
+import java.util.Collection;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
- * The contract interface for the ID indexing service
+ * The contract interface for the description indexing service.
  * @author aimeefurber
  */
 
 @Contract
-public interface IdIndexer extends Indexer{
-    public void addId();
+public interface DescriptionIndexer extends Indexer{
+    public void addDescription(Description description);
+    public void writeToIndex(Collection<Description> items) throws IOException;
+    public void writeToIndex(Collection<Description> items, ViewCoordinate viewCoordinate) throws IOException;
 }

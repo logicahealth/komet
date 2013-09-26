@@ -94,11 +94,6 @@ the specific language governing permissions and limitations under the License. -
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
-<!--            <dependency>
-                <groupId>com.sun.enterprise</groupId>
-                <artifactId>hk2</artifactId>
-                <version>1.6.9</version>
-            </dependency>-->
         </dependencies>
     </dependencyManagement>
     <dependencies>

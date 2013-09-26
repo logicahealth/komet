@@ -66,7 +66,7 @@ import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
 import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
-import org.ihtsdo.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 
 public class Bdb {
 
@@ -859,7 +859,10 @@ public class Bdb {
                 activity.setProgressInfoLower("7/11: Starting BdbCommitManager shutdown.");
                 BdbCommitManager.shutdown();
                 activity.setProgressInfoLower("8/11: Starting LuceneManager close.");
-                descIndexer.closeWriter();
+                if (descIndexer != null) {
+                    descIndexer.closeWriter();
+                }
+                
 //                LuceneManager.closeRefset();
 
                 NidDataFromBdb.close();
