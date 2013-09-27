@@ -139,7 +139,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
                RefexChronicleBI r = (RefexChronicleBI) cc;
 
                affectedConceptNids.add(P.s.getConceptNidForNid(r.getReferencedComponentNid()));
-               affectedConceptNids.add(r.getRefexExtensionNid());
+               affectedConceptNids.add(r.getAssemblageNid());
             } else {
                affectedConceptNids.add(getNid());
             }
@@ -406,7 +406,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
 
    private void removeRefsetReferences(ConceptComponent<?, ?> cc) throws IOException {
       for (RefexChronicleBI<?> rc : cc.getRefsetMembers()) {
-         ConceptChronicle      refsetCon = ConceptChronicle.get(rc.getRefexExtensionNid());
+         ConceptChronicle      refsetCon = ConceptChronicle.get(rc.getAssemblageNid());
          RefexMember rm        = (RefexMember) rc;
 
          rm.primordialStamp = -1;

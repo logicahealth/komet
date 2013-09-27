@@ -159,7 +159,7 @@ public class Bdb {
     static ConcurrentSkipListSet<ConceptChronicle> annotationConcepts = new ConcurrentSkipListSet<>();
 
     public static void xrefAnnotation(RefexChronicleBI annotation) throws IOException {
-        ConceptChronicle refexConcept = ConceptChronicle.get(annotation.getRefexExtensionNid());
+        ConceptChronicle refexConcept = ConceptChronicle.get(annotation.getAssemblageNid());
         if (refexConcept.isAnnotationIndex()) {
             if (refexConcept.addMemberNid(annotation.getNid())) {
                 annotationConcepts.add(refexConcept);

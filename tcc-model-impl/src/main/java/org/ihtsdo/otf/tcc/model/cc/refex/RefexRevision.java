@@ -53,7 +53,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     @Override
     protected void addComponentNids(Set<Integer> allNids) {
         allNids.add(primordialComponent.referencedComponentNid);
-        allNids.add(primordialComponent.refexExtensionNid);
+        allNids.add(primordialComponent.assemblageNid);
         addRefsetTypeNids(allNids);
     }
 
@@ -118,8 +118,14 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
 
     //~--- get methods ---------------------------------------------------------
     @Override
+    public int getAssemblageNid() {
+        return primordialComponent.assemblageNid;
+    }
+
+    @Override
+    @Deprecated
     public int getRefexExtensionNid() {
-        return primordialComponent.refexExtensionNid;
+        return getAssemblageNid();
     }
 
     @Override
@@ -139,7 +145,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
         RefexCAB rcs = new RefexCAB(
                 getTkRefsetType(),
                 P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
-                getRefexExtensionNid(),
+                getAssemblageNid(),
                 getVersion(vc), 
                 vc, 
                 idDirective, 
@@ -154,8 +160,14 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
 
     //~--- set methods ---------------------------------------------------------
     @Override
+    public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
+        primordialComponent.setAssemblageNid(collectionNid);
+    }
+
+    @Override
+    @Deprecated
     public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-        primordialComponent.setRefexExtensionNid(collectionNid);
+        setAssemblageNid(collectionNid);
     }
 
     @Override

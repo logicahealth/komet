@@ -692,7 +692,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public void updateXrefs() throws IOException {
         for (RefexMember<?, ?> m : getRefsetMembers()) {
-            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getRefexExtensionNid(), m.getNid());
+            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
 
             P.s.addXrefPair(m.referencedComponentNid, npr);
         }
@@ -1254,7 +1254,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         for (Description.Version d : descriptions) {
             if (d.getTypeNid() == typePrefNid) {
                 for (RefexVersionBI<?> refex : d.getRefexMembersActive(vc)) {
-                    if (refex.getRefexExtensionNid() == langRefexNid) {
+                    if (refex.getAssemblageNid() == langRefexNid) {
                         RefexNidVersionBI<?> langRefex = (RefexNidVersionBI<?>) refex;
 
                         if ((langRefex.getNid1() == ReferenceConcepts.PREFERRED_ACCEPTABILITY_RF1.getNid())

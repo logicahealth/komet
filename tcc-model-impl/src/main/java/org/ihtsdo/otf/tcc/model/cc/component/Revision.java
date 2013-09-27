@@ -90,11 +90,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
    abstract protected void addComponentNids(Set<Integer> allNids);
 
-   @Override
-   public boolean addLongId(Long longId, int authorityNid, org.ihtsdo.otf.tcc.api.coordinate.Status status, EditCoordinate ec, long time) {
-      return primordialComponent.addLongId(longId, authorityNid, status, ec, time);
-   }
-
    protected String assertionString() {
       try {
          return P.s.getConcept(primordialComponent.enclosingConceptNid).toLongString();

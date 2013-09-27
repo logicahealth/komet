@@ -302,11 +302,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
 
                 if ((idv.getStamp() >= minSapNid) && (idv.getStamp() <= maxSapNid)
                         && (v.getTime() != Long.MIN_VALUE) && (v.getTime() != Long.MAX_VALUE)) {
-                    if (IdentifierVersionLong.class.isAssignableFrom(idv.getClass())) {
-                        eIdv = new TtkIdentifierLong();
-                    } else if (IdentifierVersionString.class.isAssignableFrom(idv.getClass())) {
-                        eIdv = new TtkIdentifierString();
-                    } else if (IdentifierVersionUuid.class.isAssignableFrom(idv.getClass())) {
+                    if (IdentifierVersionUuid.class.isAssignableFrom(idv.getClass())) {
                         eIdv = new TtkIdentifierUuid();
                     }
 

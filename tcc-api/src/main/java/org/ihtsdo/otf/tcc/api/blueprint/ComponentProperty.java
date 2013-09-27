@@ -32,7 +32,7 @@ public enum ComponentProperty {
    /**
     * An identifier to the refex extension to which this member belongs.
     */
-   REFEX_EXTENSION_ID,
+   ASSEMBLAGE_ID,
 
    /**
     * Identifier of the referenced component&mdash;the component this refex extends&mdash;

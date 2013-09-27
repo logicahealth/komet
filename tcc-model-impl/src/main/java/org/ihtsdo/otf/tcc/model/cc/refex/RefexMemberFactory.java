@@ -339,7 +339,7 @@ public class RefexMemberFactory {
            throws IOException, InvalidCAB {
       ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexCollectionNid());
 
-      member.refexExtensionNid = refexColCon.getNid();
+      member.assemblageNid = refexColCon.getNid();
       member.nid               = P.s.getNidForUuids(blueprint.getMemberUUID());
 
       if (refexColCon.isAnnotationStyleRefex()) {

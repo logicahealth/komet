@@ -39,11 +39,10 @@ import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.COMPONENT_ID;
 import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.MODULE_ID;
 import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.PATH_ID;
 import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.REFERENCED_COMPONENT_ID;
-import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.REFEX_EXTENSION_ID;
+import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.ASSEMBLAGE_ID;
 import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.STATUS;
 import static org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty.TIME_IN_MS;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
 import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
@@ -97,7 +96,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
         try {
             UUID memberComponentUuid = UuidT5Generator.get(refexSpecNamespace,
                     memberType.name()
-                    + getPrimordialUuidStringForNidProp(ComponentProperty.REFEX_EXTENSION_ID)
+                    + getPrimordialUuidStringForNidProp(ComponentProperty.ASSEMBLAGE_ID)
                     + getReferencedComponentUuid().toString());
             properties.put(ComponentProperty.COMPONENT_ID, memberComponentUuid);
             return memberComponentUuid;
@@ -135,7 +134,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                 switch (prop) {
                     case COMPONENT_ID:
                     case STATUS:
-                    case REFEX_EXTENSION_ID:
+                    case ASSEMBLAGE_ID:
                     case REFERENCED_COMPONENT_ID:
                         break;
                     default:
@@ -146,7 +145,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             }
             return UuidT5Generator.get(refexSpecNamespace,
                     memberType.name()
-                    + getPrimordialUuidStringForNidProp(ComponentProperty.REFEX_EXTENSION_ID)
+                    + getPrimordialUuidStringForNidProp(ComponentProperty.ASSEMBLAGE_ID)
                     + getPrimordialUuidStringForNidProp(ComponentProperty.REFERENCED_COMPONENT_ID)
                     + sb.toString());
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
@@ -343,7 +342,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
         super(memberUuid, refexVersion, viewCoordinate, idDirective, refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUuid);
-        this.properties.put(ComponentProperty.REFEX_EXTENSION_ID, collectionNid);
+        this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionNid);
         this.properties.put(ComponentProperty.STATUS,
                 Status.ACTIVE);
         if (getMemberUUID() != null) {
@@ -473,7 +472,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                 || key == ComponentProperty.MODULE_ID
                 || key == ComponentProperty.PATH_ID
                 || key == ComponentProperty.REFERENCED_COMPONENT_ID
-                || key == ComponentProperty.REFEX_EXTENSION_ID
+                || key == ComponentProperty.ASSEMBLAGE_ID
                 || key == ComponentProperty.COMPONENT_EXTENSION_1_ID
                 || key == ComponentProperty.COMPONENT_EXTENSION_2_ID
                 || key == ComponentProperty.COMPONENT_EXTENSION_3_ID;
@@ -710,8 +709,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                     RefexBooleanAnalogBI<?> booleanPart = (RefexBooleanAnalogBI<?>) refexAnalog;
                     booleanPart.setBoolean1((Boolean) entry.getValue());
                     break;
-                case REFEX_EXTENSION_ID:
-                    refexAnalog.setRefexExtensionNid((Integer) entry.getValue());
+                case ASSEMBLAGE_ID:
+                    refexAnalog.setAssemblageNid((Integer) entry.getValue());
                     break;
                 case REFERENCED_COMPONENT_ID:
                     refexAnalog.setReferencedComponentNid(Ts.get().getNidForUuids((UUID) entry.getValue()));
@@ -785,8 +784,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                         return false;
                     }
                     break;
-                case REFEX_EXTENSION_ID:
-                    if (getInt(REFEX_EXTENSION_ID) != refexVersion.getRefexExtensionNid()) {
+                case ASSEMBLAGE_ID:
+                    if (getInt(ASSEMBLAGE_ID) != refexVersion.getAssemblageNid()) {
                         return false;
                     }
                     break;
@@ -894,11 +893,11 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * @return the refex collection nid
      */
     public int getRefexCollectionNid() {
-        return getInt(ComponentProperty.REFEX_EXTENSION_ID);
+        return getInt(ComponentProperty.ASSEMBLAGE_ID);
     }
 
     public UUID getRefexCollectionUuid() {
-        return getUuid(ComponentProperty.REFEX_EXTENSION_ID);
+        return getUuid(ComponentProperty.ASSEMBLAGE_ID);
     }
 
     /**

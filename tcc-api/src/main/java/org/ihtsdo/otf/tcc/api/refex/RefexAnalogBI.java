@@ -28,6 +28,19 @@ import org.ihtsdo.otf.tcc.api.AnalogBI;
 public interface RefexAnalogBI <A extends RefexAnalogBI<A>>
         extends RefexVersionBI<A>, AnalogBI {
 	
+        /**
+         * Assemblage an assembled collection of objects. Used instead of RefexExtensionId because
+         * of confusion with the component the Refex Extends, or the ReferencedComponentId. 
+         */
+	void setAssemblageNid(int refexNid) throws IOException, PropertyVetoException;
+        /**
+         * 
+         * @param refexNid
+         * @throws IOException
+         * @throws PropertyVetoException
+         * @deprecated use setAssemblageNid instead. 
+         */
+        @Deprecated
 	void setRefexExtensionNid(int refexNid) throws IOException, PropertyVetoException;
         void setReferencedComponentNid(int componentNid) throws IOException, PropertyVetoException;
 

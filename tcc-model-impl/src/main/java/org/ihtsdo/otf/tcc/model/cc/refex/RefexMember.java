@@ -45,14 +45,14 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R> {
 
     public int referencedComponentNid;
-    public int refexExtensionNid;
+    public int assemblageNid;
     protected List<? extends Version> versions;
 
     //~--- constructors --------------------------------------------------------
     public RefexMember() {
         super();
         referencedComponentNid = Integer.MAX_VALUE;
-        refexExtensionNid = Integer.MAX_VALUE;
+        assemblageNid = Integer.MAX_VALUE;
     }
 
     public RefexMember(int enclosingConceptNid, TupleInput input) throws IOException {
@@ -61,19 +61,19 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     public RefexMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        refexExtensionNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
+        assemblageNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
         referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
         primordialStamp = P.s.getStamp(refsetMember);
         assert primordialStamp != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;
-        assert refexExtensionNid != Integer.MAX_VALUE;
+        assert assemblageNid != Integer.MAX_VALUE;
     }
 
     //~--- methods -------------------------------------------------------------
     @Override
     protected void addComponentNids(Set<Integer> allNids) {
         allNids.add(referencedComponentNid);
-        allNids.add(refexExtensionNid);
+        allNids.add(assemblageNid);
         addRefsetTypeNids(allNids);
     }
 
@@ -104,7 +104,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     @Deprecated
     public abstract int getTypeNid();
-    
+
     @Override
     public boolean fieldsEqual(ConceptComponent<R, C> obj) {
         if (ConceptAttributes.class.isAssignableFrom(obj.getClass())) {
@@ -138,9 +138,9 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     @Override
     public void readFromBdb(TupleInput input) {
-        refexExtensionNid = input.readInt();
+        assemblageNid = input.readInt();
         referencedComponentNid = input.readInt();
-        assert refexExtensionNid != Integer.MAX_VALUE;
+        assert assemblageNid != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;
         readMemberFields(input);
 
@@ -169,8 +169,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     public final boolean readyToWriteComponent() {
         assert referencedComponentNid != Integer.MAX_VALUE : assertionString();
         assert referencedComponentNid != 0 : assertionString();
-        assert refexExtensionNid != Integer.MAX_VALUE : assertionString();
-        assert refexExtensionNid != 0 : assertionString();
+        assert assemblageNid != Integer.MAX_VALUE : assertionString();
+        assert assemblageNid != 0 : assertionString();
         assert readyToWriteRefsetMember() : assertionString();
 
         return true;
@@ -187,7 +187,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         StringBuffer buf = new StringBuffer();
 
         buf.append(" refset:");
-        addNidToBuffer(buf, refexExtensionNid);
+        addNidToBuffer(buf, assemblageNid);
         buf.append(" type:");
         buf.append(getTkRefsetType());
         buf.append(" rcNid:");
@@ -205,16 +205,17 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     @Override
     public String toUserString(TerminologySnapshotDI snapshot) throws IOException, ContradictionException {
-        ComponentVersionBI c1Component = snapshot.getConceptVersion(refexExtensionNid);
+        ComponentVersionBI c1Component = snapshot.getConceptVersion(assemblageNid);
 
         return "refex: " + c1Component.toUserString(snapshot);
     }
 
     /**
      * Test method to check to see if two objects are equal in all respects.
+     *
      * @param another
-     * @return either a zero length String, or a String containing a description of the
-     * validation failures.
+     * @return either a zero length String, or a String containing a description
+     * of the validation failures.
      * @throws IOException
      */
     public String validate(RefexMember<?, ?> another) throws IOException {
@@ -251,18 +252,18 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             }
         }
 
-        assert refexExtensionNid != Integer.MAX_VALUE;
+        assert assemblageNid != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;
-        output.writeInt(refexExtensionNid);
+        output.writeInt(assemblageNid);
         output.writeInt(referencedComponentNid);
         writeMember(output);
         output.writeShort(additionalVersionsToWrite.size());
 
-        NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(refexExtensionNid, nid);
+        NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(assemblageNid, nid);
         try {
             P.s.addXrefPair(referencedComponentNid, npr);
         } catch (IOException ex) {
-           throw new RuntimeException(ex);
+            throw new RuntimeException(ex);
         }
 
         for (RefexRevision<R, C> p : additionalVersionsToWrite) {
@@ -272,8 +273,14 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     //~--- get methods ---------------------------------------------------------
     @Override
+    public int getAssemblageNid() {
+        return assemblageNid;
+    }
+
+    @Override
+    @Deprecated
     public int getRefexExtensionNid() {
-        return refexExtensionNid;
+        return getAssemblageNid();
     }
 
     @Override
@@ -287,12 +294,12 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     @Override
-    public RefexCAB makeBlueprint(ViewCoordinate vc, 
+    public RefexCAB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
-        RefexCAB rcs = new RefexCAB(getTkRefsetType(), 
+        RefexCAB rcs = new RefexCAB(getTkRefsetType(),
                 P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
-                getRefexExtensionNid(),
+                getAssemblageNid(),
                 getVersion(vc), vc, idDirective, refexDirective);
 
         addSpecProperties(rcs);
@@ -300,7 +307,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return rcs;
     }
 
-  
     protected abstract RefexType getTkRefsetType();
 
     @Override
@@ -376,18 +382,18 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     //~--- set methods ---------------------------------------------------------
     @Override
-    public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-        if ((this.refexExtensionNid == Integer.MAX_VALUE) || (this.refexExtensionNid == collectionNid)
+    public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
+        if ((this.assemblageNid == Integer.MAX_VALUE) || (this.assemblageNid == collectionNid)
                 || (getTime() == Long.MAX_VALUE)) {
-            if (this.refexExtensionNid != collectionNid) {
-                if ((this.refexExtensionNid != 0) && (this.nid != 0)) {
-                    NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.refexExtensionNid, this.nid);
+            if (this.assemblageNid != collectionNid) {
+                if ((this.assemblageNid != 0) && (this.nid != 0)) {
+                    NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
 
                     P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
                 }
 
                 // new xref is added on the dbWrite.
-                this.refexExtensionNid = collectionNid;
+                this.assemblageNid = collectionNid;
                 modified();
             }
         } else {
@@ -396,13 +402,19 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     @Override
+    @Deprecated
+    public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
+        setAssemblageNid(collectionNid);
+    }
+
+    @Override
     public void setReferencedComponentNid(int referencedComponentNid) throws IOException {
-        assert referencedComponentNid != Integer.MAX_VALUE: "referencedComponentNid is Integer.MAX_VALUE";
-        assert refexExtensionNid != Integer.MAX_VALUE: "refexExtensionNid is Integer.MAX_VALUE";
-        assert nid != Integer.MAX_VALUE: "nid is Integer.MAX_VALUE";
+        assert referencedComponentNid != Integer.MAX_VALUE : "referencedComponentNid is Integer.MAX_VALUE";
+        assert assemblageNid != Integer.MAX_VALUE : "assemblageNid is Integer.MAX_VALUE";
+        assert nid != Integer.MAX_VALUE : "nid is Integer.MAX_VALUE";
         if (this.referencedComponentNid != referencedComponentNid) {
-            if ((this.referencedComponentNid != Integer.MAX_VALUE) && (this.refexExtensionNid != 0) && (this.nid != 0)) {
-                NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.refexExtensionNid, this.nid);
+            if ((this.referencedComponentNid != Integer.MAX_VALUE) && (this.assemblageNid != 0) && (this.nid != 0)) {
+                NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
 
                 P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
             }
@@ -418,7 +430,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return getTkRefsetType();
     }
 
- 
     //~--- inner classes -------------------------------------------------------
     public class Version extends ConceptComponent<R, C>.Version
             implements RefexAnalogBI<R> {
@@ -433,7 +444,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             return RefexMember.this.getRefexType();
         }
 
-
         public R makeAnalog() {
             if (RefexMember.this != cv) {
             }
@@ -441,7 +451,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             return (R) RefexMember.this.makeAnalog();
         }
 
- 
         @Override
         public R makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
             return getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
@@ -454,7 +463,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
                 return false;
             }
 
-            if (this.getRefexExtensionNid() != anotherVersion.getRefexExtensionNid()) {
+            if (this.getAssemblageNid() != anotherVersion.getAssemblageNid()) {
                 return false;
             }
 
@@ -475,8 +484,14 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
         //~--- get methods ------------------------------------------------------
         @Override
+        public int getAssemblageNid() {
+            return assemblageNid;
+        }
+
+        @Override
+        @Deprecated
         public int getRefexExtensionNid() {
-            return refexExtensionNid;
+            return getAssemblageNid();
         }
 
         RefexAnalogBI<R> getCv() {
@@ -502,11 +517,11 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
 
         @Override
-        public RefexCAB makeBlueprint(ViewCoordinate vc, 
-            IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
+        public RefexCAB makeBlueprint(ViewCoordinate vc,
+                IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
             return getCv().makeBlueprint(vc, idDirective, refexDirective);
         }
-    
+
         public int getTypeNid() {
             return RefexMember.this.getTypeNid();
         }
@@ -537,14 +552,19 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
         //~--- set methods ------------------------------------------------------
         @Override
+        public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
+            RefexMember.this.setAssemblageNid(collectionNid);
+        }
+
+        @Override
+        @Deprecated
         public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-            RefexMember.this.setRefexExtensionNid(collectionNid);
+            setAssemblageNid(collectionNid);
         }
 
         @Override
         public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
             RefexMember.this.setReferencedComponentNid(componentNid);
         }
-
     }
 }

@@ -37,7 +37,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private long longValue;
+   protected long longValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -227,7 +227,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setLong1(long l) throws PropertyVetoException {
+   public void setLong1(long l) {
       this.longValue = l;
       modified();
    }
