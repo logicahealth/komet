@@ -12,13 +12,13 @@ the specific language governing permissions and limitations under the License. -
     <parent>
         <groupId>org.ihtsdo</groupId>
         <artifactId>ihtsdo-otf-parent</artifactId>
-        <version>2</version>
+        <version>3</version>
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
     <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>${branch}: (MMP) Terminology Component Chronicle Service</name>
+    <name>${branch}: (MMP) Component chronicle service</name>
     <description>The Terminology Component Chronicle project provides the ability to
         store, retrieve, and edit terminology components, and maintains a complete chronicle
         of all changes.

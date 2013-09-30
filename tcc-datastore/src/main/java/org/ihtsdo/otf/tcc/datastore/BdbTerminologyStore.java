@@ -24,7 +24,7 @@ import org.ihtsdo.otf.tcc.api.db.EccsDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.datastore.id.NidCNidMapBdb;
+import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.P;
@@ -60,8 +60,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 import org.jvnet.hk2.annotations.Service;
 
 @Service(name = "Bdb Terminology Service")
@@ -73,12 +71,6 @@ public class BdbTerminologyStore extends Termstore {
     private static ViewCoordinate metadataVC = null;
     private static AtomicBoolean databaseSetup = new AtomicBoolean(false);
     private static CountDownLatch setupComplete = new CountDownLatch(1);
-    protected static DescriptionIndexer descIndexer;
-
-    static {
-
-        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
-    }
     String bdbLocation;
 
     public BdbTerminologyStore() {
@@ -366,12 +358,6 @@ public class BdbTerminologyStore extends Termstore {
         System.out.println("Starting db sync.");
         Bdb.sync();
         System.out.println("Finished db sync.");
-        if (descIndexer != null) {
-            if (descIndexer != null) {
-                System.out.println("Found description indexer. Creating index");
-                descIndexer.createIndex();
-            }
-        }
         
         Bdb.commit();
         System.out.println("Finished create lucene index.");
@@ -434,11 +420,6 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public void waitTillWritesFinished() {
         BdbCommitManager.waitTillWritesFinished();
-    }
-
-    @Override
-    public void xrefAnnotation(RefexChronicleBI annotation) throws IOException {
-        Bdb.xrefAnnotation(annotation);
     }
 
     @Override
@@ -873,7 +854,7 @@ public class BdbTerminologyStore extends Termstore {
         AtomicInteger conceptsProcessed;
         LinkedBlockingQueue<ConceptConverter> converters;
         ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts;
-        NidCNidMapBdb nidCnidMap;
+        MemoryCacheBdb nidCnidMap;
 
         public ConceptConverter(LinkedBlockingQueue<ConceptConverter> converters, AtomicInteger conceptsRead,
                 ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts) {
@@ -924,5 +905,15 @@ public class BdbTerminologyStore extends Termstore {
 
             this.eConcept = eConcept;
         }
+    }
+
+    @Override
+    public void setIndexed(int nid, boolean indexed) {
+        Bdb.setIndexed(nid, indexed);
+    }
+
+    @Override
+    public boolean isIndexed(int nid) {
+        return  Bdb.isIndexed(nid);
     }
 }

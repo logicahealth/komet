@@ -41,30 +41,32 @@ import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
 /**
+ * Caches a variety of relationships of a component to other components as
+ * defined by nids in arrays kept in memory for performance.
  * <h2>Implementation Details</h2> The
  * <code>nid</code> is the
  * <code>(nid - Integer.MIN_VALUE)</code> index into an
- * <code>int[]</code> which stores the cNid. <br> <br>This single array approach
- * is taken because Java stores multidimensional arrays as arrays of arrays,
- * rather than a contiguous block of arrays. Each array has an overhead of 96
- * bits (above and beyond its data), which doubles the memory size, and also
- * increases the burden on the garbage collector.
+ * <code>int[][]</code> which stores sequentially increasing arrays of cNid.
+ * <br> <br>This array approach is taken because Java stores multidimensional
+ * arrays as arrays of arrays, rather than a contiguous block of arrays. Each
+ * array has an overhead of 96 bits (above and beyond its data), which doubles
+ * the memory size, and also increases the burden on the garbage collector.
  *
  *
  * @author kec
  *
  */
-public class NidCNidMapBdb extends ComponentBdb {
+public class MemoryCacheBdb extends ComponentBdb {
 
     private static final int NID_CNID_MAP_SIZE = 12800;
     private ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-    ConcurrentReentrantLocks locks = new ConcurrentReentrantLocks();
+    private ConcurrentReentrantLocks locks = new ConcurrentReentrantLocks();
     private AtomicReference<int[][][]> indexCacheRecords;
     private boolean[] mapChanged;
     private AtomicReference<int[][]> nidCNidMaps;
     private int readOnlyRecords;
 
-    public NidCNidMapBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv) throws IOException {
+    public MemoryCacheBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv) throws IOException {
         super(readOnlyBdbEnv, mutableBdbEnv);
     }
 
@@ -327,7 +329,11 @@ public class NidCNidMapBdb extends ComponentBdb {
 
         if ((nidCNidMaps.get() != null) && (nidCNidMaps.get()[mapIndex] != null)) {
             if (nidCNidMaps.get()[mapIndex][cNidIndexInMap] != cNid) {
-                nidCNidMaps.get()[mapIndex][cNidIndexInMap] = cNid;
+                if (cNid < 0) {
+                    nidCNidMaps.get()[mapIndex][cNidIndexInMap] = cNid * -1;
+                } else {
+                    nidCNidMaps.get()[mapIndex][cNidIndexInMap] = cNid;
+                }
                 mapChanged[mapIndex] = true;
             }
         } else {
@@ -419,6 +425,46 @@ public class NidCNidMapBdb extends ComponentBdb {
         }
     }
 
+    public void setIndexed(int nid, boolean indexed) {
+        assert nid != Integer.MAX_VALUE;
+
+        int mapIndex = (nid - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
+        int nidIndexInMap = ((nid - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
+
+        assert (mapIndex >= 0) && (nidIndexInMap >= 0) :
+                "mapIndex: " + mapIndex + " indexInMap: " + nidIndexInMap + " nid: " + nid;
+
+        if (mapIndex >= nidCNidMaps.get().length) {
+            return;
+        }
+        int cNid = nidCNidMaps.get()[mapIndex][nidIndexInMap];
+
+        if ((indexed && cNid > 0)
+                || (!indexed && cNid < 0)) {
+            nidCNidMaps.get()[mapIndex][nidIndexInMap] = cNid * -1;
+            mapChanged[mapIndex] = true;
+        }
+    }
+
+    public boolean isIndexed(int nid) {
+        assert nid != Integer.MAX_VALUE;
+
+        int mapIndex = (nid - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
+        int nidIndexInMap = ((nid - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
+
+        assert (mapIndex >= 0) && (nidIndexInMap >= 0) :
+                "mapIndex: " + mapIndex + " indexInMap: " + nidIndexInMap + " nid: " + nid;
+
+        if (mapIndex >= nidCNidMaps.get().length) {
+            return false;
+        }
+        if (nidCNidMaps.get()[mapIndex][nidIndexInMap] < 0) {
+            return true;
+        }
+        return false;
+
+    }
+
     public int getCNid(int nid) {
         assert nid != Integer.MAX_VALUE;
 
@@ -431,31 +477,34 @@ public class NidCNidMapBdb extends ComponentBdb {
         if (mapIndex >= nidCNidMaps.get().length) {
             return Integer.MAX_VALUE;
         }
-
-        return nidCNidMaps.get()[mapIndex][nidIndexInMap];
+        int cNid = nidCNidMaps.get()[mapIndex][nidIndexInMap];
+        if (cNid > 0) {
+            return cNid * -1;
+        }
+        return cNid;
     }
 
     @Override
     protected String getDbName() {
-        return "NidCidMap";
+        return "MemoryCache";
     }
 
     public int[] getDestRelNids(int cNid) throws IOException {
         return getIndexCacheRecord(cNid).getDestRelNids(cNid);
     }
-    
+
     /**
-     * 
+     *
      * @param cNid
      * @param relTypes
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
-    public NativeIdSetBI getDestRelNids(int cNid, NativeIdSetBI relTypes, ViewCoordinate vc) throws IOException, ContradictionException{
+    public NativeIdSetBI getDestRelNids(int cNid, NativeIdSetBI relTypes, ViewCoordinate vc) throws IOException, ContradictionException {
         return getIndexCacheRecord(cNid).getDestRelNidsSet(cNid, relTypes, vc);
     }
-    
-    public NativeIdSetBI getOutgoingRelNids(int cNid, NativeIdSetBI relTypes) throws IOException{
+
+    public NativeIdSetBI getOutgoingRelNids(int cNid, NativeIdSetBI relTypes) throws IOException {
         return getIndexCacheRecord(cNid).getOutgoingRelNidSet(cNid, relTypes);
     }
 
@@ -509,7 +558,11 @@ public class NidCNidMapBdb extends ComponentBdb {
         for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
             int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
             int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
-            if (conceptNids.contains(nidCNidMaps.get()[mapIndex][cNidIndexInMap])) {
+            int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
+            if (nid > 0) {
+                nid = nid * -1;
+            }
+            if (conceptNids.contains(nid)) {
                 componentNids.add(i);
             }
         }
@@ -533,7 +586,12 @@ public class NidCNidMapBdb extends ComponentBdb {
             return false;
         }
 
-        if (nidCNidMaps.get()[mapIndex][cNidIndexInMap] == cNid) {
+        int cNid2 = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
+
+        if (cNid2 == cNid) {
+            return true;
+        }
+        if (cNid2 == cNid * -1) {
             return true;
         }
 
@@ -582,7 +640,8 @@ public class NidCNidMapBdb extends ComponentBdb {
         int[][] nidCNidMapArrays = nidCNidMaps.get();
 
         assert (nidCNidMapArrays[mapIndex][nidIndexInMap] == Integer.MAX_VALUE)
-                || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid) :
+                || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid
+                || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid * -1)) :
                 "processing cNid: " + cNid + " " + Bdb.getUuidsToNidMap().getUuidsForNid(cNid) + " nid: " + nid
                 + " found existing cNid: " + ((int) nidCNidMapArrays[mapIndex][nidIndexInMap]) + " "
                 + Bdb.getUuidsToNidMap().getUuidsForNid((int) nidCNidMapArrays[mapIndex][nidIndexInMap]) + "\n    "
@@ -591,7 +650,12 @@ public class NidCNidMapBdb extends ComponentBdb {
 
         if ((nidCNidMapArrays != null) && (nidCNidMapArrays[mapIndex] != null)) {
             if (nidCNidMapArrays[mapIndex][nidIndexInMap] != cNid) {
-                nidCNidMapArrays[mapIndex][nidIndexInMap] = cNid;
+                if (cNid < 0) {
+                    nidCNidMapArrays[mapIndex][nidIndexInMap] = cNid * -1;
+                } else {
+                    nidCNidMapArrays[mapIndex][nidIndexInMap] = cNid;
+                }
+
                 mapChanged[mapIndex] = true;
             }
         } else {
@@ -721,7 +785,8 @@ public class NidCNidMapBdb extends ComponentBdb {
      *
      * @param parentNid
      * @param vc the desired <code>ViewCoordinate</code>
-     * @return a <code>NativeIdSetBI</code> of concepts that are a kind of parentNid
+     * @return a <code>NativeIdSetBI</code> of concepts that are a kind of
+     * parentNid
      * @throws IOException
      * @throws ContradictionException
      */

@@ -19,19 +19,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.ihtsdo.otf.tcc.datastore.concept.ConceptBdb;
 import org.ihtsdo.otf.tcc.datastore.BdbMemoryMonitor.LowMemoryListener;
-import org.ihtsdo.otf.tcc.datastore.id.NidCNidMapBdb;
+import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
 import org.ihtsdo.otf.tcc.datastore.stamp.StampBdb;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -66,7 +64,7 @@ import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
 import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
-import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class Bdb {
 
@@ -75,7 +73,7 @@ public class Bdb {
     private static Bdb readOnly;
     private static Bdb mutable;
     private static UuidToNidMapBdb uuidsToNidMapDb;
-    public static NidCNidMapBdb nidCidMapDb;
+    public static MemoryCacheBdb memoryCacheBdb;
     private static StampBdb stampDb;
     private static ConceptBdb conceptDb;
     private static PropertiesBdb propDb;
@@ -91,11 +89,10 @@ public class Bdb {
     private static CountDownLatch setupLatch = new CountDownLatch(5);
     private static BdbTerminologyStore ts;
     
-    protected static DescriptionIndexer descIndexer;
+    protected static List<IndexerBI> indexers;
 
     static {
-
-        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
+        indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
     }
 
     public static boolean removeMemoryMonitorListener(LowMemoryListener listener) {
@@ -156,16 +153,6 @@ public class Bdb {
     public static int getCachePercent() {
         return Bdb.mutable.bdbEnv.getMutableConfig().getCachePercent();
     }
-    static ConcurrentSkipListSet<ConceptChronicle> annotationConcepts = new ConcurrentSkipListSet<>();
-
-    public static void xrefAnnotation(RefexChronicleBI annotation) throws IOException {
-        ConceptChronicle refexConcept = ConceptChronicle.get(annotation.getAssemblageNid());
-        if (refexConcept.isAnnotationIndex()) {
-            if (refexConcept.addMemberNid(annotation.getNid())) {
-                annotationConcepts.add(refexConcept);
-            }
-        }
-    }
 
     static int getAuthorNidForSapNid(int sapNid) {
         return stampDb.getAuthorNid(sapNid);
@@ -200,7 +187,7 @@ public class Bdb {
     }
 
     static void addRelOrigin(int destinationCNid, int originCNid) throws IOException {
-        nidCidMapDb.addRelOrigin(destinationCNid, originCNid);
+        memoryCacheBdb.addRelOrigin(destinationCNid, originCNid);
     }
 
     private static void startupWithFx() throws InterruptedException, ExecutionException {
@@ -270,7 +257,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                nidCidMapDb = new NidCNidMapBdb(readOnly, mutable);
+                memoryCacheBdb = new MemoryCacheBdb(readOnly, mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -385,7 +372,7 @@ public class Bdb {
         FutureTask<Void> setupComponentNidToConceptNidDb = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                nidCidMapDb = new NidCNidMapBdb(readOnly, mutable);
+                memoryCacheBdb = new MemoryCacheBdb(readOnly, mutable);
                 finishSetup();
                 return null;
             }
@@ -719,10 +706,10 @@ public class Bdb {
     }
 
     public static int getConceptNid(int componentNid) {
-        if (nidCidMapDb == null) {
+        if (memoryCacheBdb == null) {
             return Integer.MAX_VALUE;
         }
-        return nidCidMapDb.getCNid(componentNid);
+        return memoryCacheBdb.getCNid(componentNid);
     }
 
     public static ConceptChronicle getConceptForComponent(int componentNid) throws IOException {
@@ -776,7 +763,7 @@ public class Bdb {
                 activity.setProgressInfoLower("Writing uuidsToNidMapDb... ");
                 uuidsToNidMapDb.sync();
                 activity.setValue(2);
-                nidCidMapDb.sync();
+                memoryCacheBdb.sync();
                 activity.setValue(3);
                 activity.setProgressInfoLower("Writing statusAtPositionDb... ");
                 stampDb.sync();
@@ -858,9 +845,12 @@ public class Bdb {
                 BdbCommitManager.cancel();
                 activity.setProgressInfoLower("7/11: Starting BdbCommitManager shutdown.");
                 BdbCommitManager.shutdown();
-                activity.setProgressInfoLower("8/11: Starting LuceneManager close.");
-                if (descIndexer != null) {
-                    descIndexer.closeWriter();
+                activity.setProgressInfoLower("8/11: Starting Indexers close.");
+                
+                if (indexers != null) {
+                    for (IndexerBI i: indexers) {
+                        i.closeWriter();
+                    }
                 }
                 
 //                LuceneManager.closeRefset();
@@ -870,7 +860,7 @@ public class Bdb {
                 mutable.bdbEnv.sync();
                 activity.setProgressInfoLower("10/11: mutable.bdbEnv.sync() finished.");
                 uuidsToNidMapDb.close();
-                nidCidMapDb.close();
+                memoryCacheBdb.close();
                 stampDb.close();
                 conceptDb.close();
                 propDb.close();
@@ -887,10 +877,9 @@ public class Bdb {
         if (readOnly != null && readOnly.bdbEnv != null) {
             readOnly.bdbEnv.close();
         }
-        annotationConcepts = null;
         conceptDb = null;
         mutable = null;
-        nidCidMapDb = null;
+        memoryCacheBdb = null;
         pathManager = null;
         propDb = null;
         readOnly = null;
@@ -902,8 +891,8 @@ public class Bdb {
         AceLog.getAppLog().info("bdb close finished.");
     }
 
-    public static NidCNidMapBdb getNidCNidMap() {
-        return nidCidMapDb;
+    public static MemoryCacheBdb getNidCNidMap() {
+        return memoryCacheBdb;
     }
 
     public static int uuidsToNid(Collection<UUID> uuids) {
@@ -1044,4 +1033,14 @@ public class Bdb {
     public static List<NidPairForRefex> getRefsetPairs(int nid) {
         return Arrays.asList(Bdb.getNidCNidMap().getRefsetPairs(nid));
     }
+    
+    
+    public static void setIndexed(int nid, boolean indexed) {
+        memoryCacheBdb.setIndexed(nid, indexed);
+    }
+
+    public static boolean isIndexed(int nid) {
+        return memoryCacheBdb.isIndexed(nid);
+    }
+
 }

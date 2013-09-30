@@ -20,7 +20,6 @@ package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.lucene.queryparser.classic.ParseException;
 
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
@@ -70,6 +69,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
+import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 /**
  *
@@ -372,80 +376,7 @@ public abstract class Termstore implements PersistentStoreI {
         LastChange.removeTermChangeListener(cl);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param query
-     * @param searchType
-     *
-     * @return
-     *
-     * @throws IOException
-     * @throws ParseException
-     */
-    @Override
-    @Deprecated
-    public Collection<Integer> searchLucene(String query, SearchType searchType) throws IOException, ParseException {
-
-//      try {
-//          Query q = new QueryParser(LuceneManager.version, "desc",
-//                  new StandardAnalyzer(LuceneManager.version)).parse(query);
-//          SearchResult result = LuceneManager.search(q, searchType);
-//
-//          if (result.topDocs.totalHits > 0) {
-//              if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-//                  TermstoreLogger.logger.log(Level.FINE, "StandardAnalyzer query returned {0} hits",
-//                          result.topDocs.totalHits);
-//              }
-//          } else {
-//              if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-//                  TermstoreLogger.logger.fine(
-//                          "StandardAnalyzer query returned no results. Now trying WhitespaceAnalyzer query");
-//                  q = new QueryParser(LuceneManager.version, "desc",
-//                          new WhitespaceAnalyzer(LuceneManager.version)).parse(query);
-//              }
-//
-//              result = LuceneManager.search(q, searchType);
-//          }
-//
-//          HashSet<Integer> nidSet = new HashSet<>(result.topDocs.totalHits);
-//
-//          for (int i = 0; i < result.topDocs.totalHits; i++) {
-//              Document doc = result.searcher.doc(result.topDocs.scoreDocs[i].doc);
-//              int dnid = Integer.parseInt(doc.get("dnid"));
-//              int cnid = Integer.parseInt(doc.get("cnid"));
-//
-//
-//              switch (searchType) {
-//                  case CONCEPT:
-//                      nidSet.add(cnid);
-//
-//                      break;
-//
-//                  case DESCRIPTION:
-//                      nidSet.add(dnid);
-//
-//                      break;
-//
-//                  default:
-//                      throw new IOException("Can't handle: " + searchType);
-//              }
-//
-//              float score = result.topDocs.scoreDocs[i].score;
-//
-//              if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-//                  TermstoreLogger.logger.log(Level.FINE, "Hit: {0} Score: {1}", new Object[]{doc, score});
-//              }
-//          }
-//
-//          return nidSet;
-//      } catch (ParseException | IOException | NumberFormatException e) {
-//          throw new IOException(e);
-//      }
-        return null;
-    }
-
+    
     /**
      * Method description
      *
@@ -1031,4 +962,70 @@ public abstract class Termstore implements PersistentStoreI {
 
         return id.toString();
     }
+
+    private static class IndexGenerator implements ProcessUnfetchedConceptDataBI, 
+            ProcessComponentChronicleBI {
+        NativeIdSetBI nids;
+        List<IndexerBI> indexers;
+
+        public IndexGenerator() throws IOException {
+            this.nids = P.s.getAllConceptNids();
+            indexers = Hk2Looker.get().getAllServices(IndexerBI.class);        
+            for (IndexerBI i: indexers) {
+                i.clearIndex();
+            }
+        }
+        
+        @Override
+        public boolean allowCancel() {
+            return false;
+        }
+
+        @Override
+        public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fetcher) throws Exception {
+            ConceptChronicle cc = (ConceptChronicle) fetcher.fetch();
+            cc.processComponentChronicles(this);
+        }
+
+        @Override
+        public NativeIdSetBI getNidSet() throws IOException {
+            return nids;
+        }
+
+        @Override
+        public String getTitle() {
+            return "Index generator";
+        }
+
+        @Override
+        public boolean continueWork() {
+            return true; 
+        }
+
+        @Override
+        public void process(ComponentChronicleBI cc) throws Exception {
+            for (IndexerBI i: indexers) {
+                i.index(cc);
+            }
+        }
+        
+        public void commit() {
+            for (IndexerBI i: indexers) {
+                i.commitWriter();
+            }
+        }
+    }
+    @Override
+    public void index() throws IOException {
+        try {
+            IndexGenerator ig = new IndexGenerator();
+            P.s.iterateConceptDataInParallel(ig);
+            ig.commit();
+        } catch (Exception ex) {
+            throw new IOException(ex);
+        }
+        
+    }
+    
+    
 }

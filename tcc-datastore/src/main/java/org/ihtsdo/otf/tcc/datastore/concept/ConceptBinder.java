@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
@@ -27,15 +28,18 @@ import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
 import org.ihtsdo.otf.tcc.model.cc.concept.IntSetBinder;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class ConceptBinder extends TupleBinding<ConceptChronicle> {
 
     public static final byte[] zeroOutputArray;
-
+   protected static List<IndexerBI> indexers;
+   
     static {
         TupleOutput zeroOutput = new TupleOutput();
         zeroOutput.writeInt(0);
         zeroOutputArray = zeroOutput.toByteArray();
+       indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
     }
 
     @Override

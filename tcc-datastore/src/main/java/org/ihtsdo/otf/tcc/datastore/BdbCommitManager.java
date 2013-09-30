@@ -18,7 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.datastore.id.NidCNidMapBdb;
+import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
@@ -42,8 +42,9 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import static org.ihtsdo.otf.tcc.datastore.Bdb.indexers;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class BdbCommitManager {
 
@@ -63,7 +64,11 @@ public class BdbCommitManager {
             new ThreadGroup("commit manager threads");
     private static ExecutorService changeSetWriterService;
     private static ExecutorService dbWriterService;
-    protected static DescriptionIndexer descIndexer;
+    protected static List<IndexerBI> indexers;
+
+    static {
+        indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
+    }
     /**
      * <p> listeners </p>
      */
@@ -72,7 +77,6 @@ public class BdbCommitManager {
     //~--- static initializers -------------------------------------------------
     static {
         reset();
-        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -207,12 +211,7 @@ public class BdbCommitManager {
 
                         if (performCommit) {
                             lastCommit = Bdb.gVersion.incrementAndGet();
-                            if (Bdb.annotationConcepts != null) {
-                                for (ConceptChronicle annotationConcept : Bdb.annotationConcepts) {
-                                    dbWriterService.execute(new ConceptWriter(annotationConcept));
-                                }
-                                Bdb.annotationConcepts.clear();
-                            }
+                            
 
 
                             while (uncommittedCNidItr.next()) {
@@ -267,8 +266,10 @@ public class BdbCommitManager {
                             notifyCommit();
                             uncommittedCNids.clear();
                             uncommittedCNidsNoChecks = Bdb.getConceptDb().getEmptyIdSet();
-                if (descIndexer != null) {
-                    descIndexer.commitToLucene();                    
+                if (indexers != null) {
+                    for (IndexerBI i: indexers) {
+                        i.commitWriter();
+                    }
                 }
                         }
                         GlobalPropertyChange.firePropertyChange(TerminologyStoreDI.CONCEPT_EVENT.POST_COMMIT, null, allUncommitted);
@@ -322,12 +323,6 @@ public class BdbCommitManager {
             if (performCommit) {
                 BdbCommitSequence.nextSequence();
 
-                for (ConceptChronicle annotationConcept : Bdb.annotationConcepts) {
-                    dbWriterService.execute(new ConceptWriter(annotationConcept));
-                }
-
-                Bdb.annotationConcepts.clear();
-
                 long commitTime = System.currentTimeMillis();
                 NidSetBI sapNidsFromCommit = c.setCommitTime(commitTime);
                 NativeIdSetBI commitSet = new ConcurrentBitSet();
@@ -369,8 +364,10 @@ public class BdbCommitManager {
 
                 uncommittedCNids.andNot(commitSet);
                 uncommittedCNidsNoChecks.andNot(commitSet);
-                if (descIndexer != null) {
-                    descIndexer.commitToLucene(c);                    
+                if (indexers != null) {
+                    for (IndexerBI i: indexers) {
+                        i.commitWriter();
+                    }
                 }
             }
         } catch (Exception e1) {
@@ -784,7 +781,7 @@ public class BdbCommitManager {
         public void run() {
             try {
                 Collection<Integer> nids = concept.getAllNids();
-                NidCNidMapBdb nidCidMap = Bdb.getNidCNidMap();
+                MemoryCacheBdb nidCidMap = Bdb.getNidCNidMap();
 
                 for (int nid : nids) {
                     nidCidMap.setCNidForNid(concept.getNid(), nid);

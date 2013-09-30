@@ -71,9 +71,7 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.DataMarker;
-import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
     
@@ -86,13 +84,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private static NidSet rf1LangRefexNidSet;
     private static NidSet rf2LangRefexNidSet;
     private static List<TtkRefexAbstractMemberChronicle<?>> unresolvedAnnotations;
-    protected static DescriptionIndexer descIndexer;
 
-    //~--- static initializers -------------------------------------------------
-    static {
-        init();
-        descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
-    }
+
     //~--- fields --------------------------------------------------------------
     private boolean canceled = false;
     NidSetBI allowedStatus;
@@ -401,10 +394,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     }
                 }
             }
-
-            if (updateLucene) {
-                descIndexer.writeToIndex(c.getDescriptions());
-            }
         }
 
         if ((eConcept.getRelationships() != null) && !eConcept.getRelationships().isEmpty()) {
@@ -526,36 +515,86 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         return c;
     }
+    
+    private static class SetIndexedProcessor implements ProcessComponentChronicleBI {
 
+        @Override
+        public void process(ComponentChronicleBI cc) throws Exception {
+            ((ConceptComponent)cc).setIndexed();
+        }
+    
+    }
+
+    private static class IsIndexedProcessor implements ProcessComponentChronicleBI {
+        boolean indexed  = true;
+        @Override
+        public void process(ComponentChronicleBI cc) throws Exception {
+            if (!((ConceptComponent)cc).isIndexed()) {
+                indexed = false;
+            }
+        }
+    
+    }
+
+   
+    public boolean isIndexed() {
+        try {
+            IsIndexedProcessor p = new IsIndexedProcessor();
+            processComponentChronicles(p);
+            return p.indexed;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    
+    public void setIndexed() {
+        try {
+            processComponentChronicles(new SetIndexedProcessor());
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    
+    
     @Override
     public void processComponentChronicles(ProcessComponentChronicleBI processor) throws Exception {
         if (getConceptAttributes() != null) {
-            processor.process(getConceptAttributes());
+            processComponentChronicles(getConceptAttributes(), processor);
         }
 
         if (getDescriptions() != null) {
             for (ComponentChronicleBI cc : getDescriptions()) {
-                processor.process(cc);
+                processComponentChronicles(cc, processor);
             }
         }
 
         if (getNativeSourceRels() != null) {
             for (ComponentChronicleBI cc : getNativeSourceRels()) {
-                processor.process(cc);
+                processComponentChronicles(cc, processor);
             }
         }
 
         if (getImages() != null) {
             for (ComponentChronicleBI cc : getImages()) {
-                processor.process(cc);
+                processComponentChronicles(cc, processor);
             }
         }
 
         if (getRefsetMembers() != null) {
             for (ComponentChronicleBI cc : getRefsetMembers()) {
-                processor.process(cc);
+                processComponentChronicles(cc, processor);
             }
         }
+    }
+    
+    private void processComponentChronicles(ComponentChronicleBI cc, 
+      ProcessComponentChronicleBI processor) throws Exception {
+      processor.process(cc);
+      for (RefexChronicleBI refex: cc.getAnnotations()) {
+          processComponentChronicles(refex, processor);
+      }
     }
 
     public boolean readyToWrite() {

@@ -2,7 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.media.MediaRevision;
 

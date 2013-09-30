@@ -15,8 +15,6 @@
  */
 package org.ihtsdo.otf.tcc.api.chronicle;
 
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-
 /**
  *
  * @author kec

@@ -77,6 +77,16 @@ public interface TerminologyDI {
     void forget(RefexChronicleBI extension) throws IOException;
 
     void forget(RelationshipVersionBI rel) throws IOException;
+    
+    /**
+     * Cause all index generators implementing the <code>IndexerBI</code> to first
+     * <code>clearIndex()</code> then iterate over all chronicles in the database
+     * and pass those chronicles to <code>index(ComponentChronicleBI chronicle)</code>
+     * and when complete, to call <code>commitWriter()</code>. <code>IndexerBI</code> services
+     * will be discovered using the HK2 dependency injection framework. 
+     * @throws IOException 
+     */
+    void index() throws IOException;
 
     void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;
 

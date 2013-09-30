@@ -52,11 +52,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT3Generator;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
@@ -91,11 +89,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Field description
      */
     private static AnnotationWriter annotationWriter = new AnnotationWriter();
-    /**
-     * Field description
-     */
-    private static final UUID snomedAuthorityUuid = TermAux.SNOMED_IDENTIFIER.getUuids()[0];
-    ;
 
    /** Field description */
    protected ArrayList<IdentifierVersion> additionalIdVersions;
@@ -232,7 +225,16 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             }
         }
     }
-
+    
+    public boolean isIndexed() {
+        return P.s.isIndexed(nid);
+    }
+    
+    public void setIndexed() {
+        if (!isUncommitted()) {
+            P.s.setIndexed(nid, true);
+        }
+    }
     /**
      * Enum description
      *
@@ -334,8 +336,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         modified();
-        P.s.xrefAnnotation(annotation);
-
         return annotations.add((RefexMember<?, ?>) annotation);
     }
 
@@ -918,6 +918,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             throws IOException {
         Set<Integer> versionSapNids = getVersionStamps();
 
+        P.s.setIndexed(nid, false);
         // merge versions
         for (ConceptComponent<R, C>.Version v : another.getVersions()) {
             if ((v.getStamp() != -1) && !versionSapNids.contains(v.getStamp())) {
@@ -987,9 +988,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Call when data has changed, so concept updates it's version.
      */
     protected void modified() {
+        
         try {
             if (enclosingConceptNid != Integer.MIN_VALUE) {
                 if ((P.s != null) && P.s.hasConcept(enclosingConceptNid)) {
+                    P.s.setIndexed(nid, false);
                     ConceptChronicle c = (ConceptChronicle) P.s.getConcept(enclosingConceptNid);
 
                     if (c != null) {
@@ -2658,6 +2661,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         public Version(ComponentVersionBI cv) {
             super();
             this.cv = cv;
+        }
+        public boolean isIndexed() {
+            return P.s.isIndexed(nid);
+        }
+    
+        public void setIndexed() {
+            if (!isUncommitted()) {
+                P.s.setIndexed(nid, true);
+            }
         }
 
         @Override

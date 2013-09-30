@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
@@ -26,187 +25,193 @@ import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>>>
         implements I_BindConceptComponents {
-   public static AtomicInteger encountered                   = new AtomicInteger();
-   public static AtomicInteger written                       = new AtomicInteger();
-   private static int          maxReadOnlyStatusAtPositionId = P.s.getMaxReadOnlyStamp();
 
-   //~--- fields --------------------------------------------------------------
+    public static AtomicInteger encountered = new AtomicInteger();
+    public static AtomicInteger written = new AtomicInteger();
+    private static int maxReadOnlyStatusAtPositionId = P.s.getMaxReadOnlyStamp();
+    protected static List<IndexerBI> indexers;
 
-   RefexMemberFactory                    factory = new RefexMemberFactory();
-   private ConceptChronicle                        enclosingConcept;
-   private Collection<RefexMember<?, ?>> refsetMemberList;
+    static {
+        indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
+    }
+    //~--- fields --------------------------------------------------------------
+    RefexMemberFactory factory = new RefexMemberFactory();
+    private ConceptChronicle enclosingConcept;
+    private Collection<RefexMember<?, ?>> refsetMemberList;
 
-   //~--- constructors --------------------------------------------------------
+    //~--- constructors --------------------------------------------------------
+    public RefexMemberBinder(ConceptChronicle concept) {
+        this.enclosingConcept = concept;
+    }
 
-   public RefexMemberBinder(ConceptChronicle concept) {
-      this.enclosingConcept = concept;
-   }
+    //~--- methods -------------------------------------------------------------
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<RefexMember<?, ?>> entryToObject(TupleInput input) {
+        assert enclosingConcept != null;
 
-   //~--- methods -------------------------------------------------------------
+        int listSize = input.readInt();
+        Collection<RefexMember<?, ?>> newRefsetMemberList;
+        HashMap<Integer, RefexMember<?, ?>> nidToRefsetMemberMap = null;
 
-   @SuppressWarnings("unchecked")
-   @Override
-   public Collection<RefexMember<?, ?>> entryToObject(TupleInput input) {
-      assert enclosingConcept != null;
+        if (refsetMemberList != null) {
+            newRefsetMemberList = refsetMemberList;
+            nidToRefsetMemberMap = new HashMap<>(listSize);
 
-      int                                  listSize = input.readInt();
-      Collection<RefexMember<?, ?>>       newRefsetMemberList;
-      HashMap<Integer, RefexMember<?, ?>> nidToRefsetMemberMap = null;
-
-      if (refsetMemberList != null) {
-         newRefsetMemberList  = refsetMemberList;
-         nidToRefsetMemberMap = new HashMap<>(listSize);
-
-         for (RefexMember<?, ?> component : refsetMemberList) {
-            nidToRefsetMemberMap.put(component.nid, component);
-         }
-      } else {
-         newRefsetMemberList = new ArrayList<>(listSize);
-      }
-
-      for (int index = 0; index < listSize; index++) {
-         int typeNid = input.readInt();
-
-         input.mark(8);
-
-         int nid = input.readInt();
-
-         input.reset();
-
-         Object component = ConceptChronicle.componentsCRHM.get(nid);
-
-         if ((component == null) || (component instanceof RefexMember)) {
-            RefexMember<?, ?> refsetMember = (RefexMember<?, ?>) component;
-
-            if ((refsetMember != null) && (refsetMember.getTime() == Long.MIN_VALUE)) {
-               refsetMember = null;
-               ConceptChronicle.componentsCRHM.remove(nid);
+            for (RefexMember<?, ?> component : refsetMemberList) {
+                nidToRefsetMemberMap.put(component.nid, component);
             }
+        } else {
+            newRefsetMemberList = new ArrayList<>(listSize);
+        }
 
-            if ((nidToRefsetMemberMap != null) && nidToRefsetMemberMap.containsKey(nid)) {
-               if (refsetMember == null) {
-                  refsetMember = nidToRefsetMemberMap.get(nid);
+        for (int index = 0; index < listSize; index++) {
+            int typeNid = input.readInt();
 
-                  RefexMember<?, ?> oldMember = (RefexMember<?,
-                                                    ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid, refsetMember);
+            input.mark(8);
 
-                  if (oldMember != null) {
-                     refsetMember = oldMember;
+            int nid = input.readInt();
 
-                     if (nidToRefsetMemberMap != null) {
-                        nidToRefsetMemberMap.put(nid, refsetMember);
-                     }
-                  }
-               }
+            input.reset();
 
-               refsetMember.readComponentFromBdb(input);
-            } else {
-               try {
-                  if (refsetMember == null) {
-                     refsetMember = factory.create(nid, typeNid, enclosingConcept.getNid(), input);
+            Object component = ConceptChronicle.componentsCRHM.get(nid);
 
-                     if (refsetMember.getTime() != Long.MIN_VALUE) {
-                        RefexMember<?, ?> oldMember = (RefexMember<?,
-                                                          ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid,
-                                                             refsetMember);
+            if ((component == null) || (component instanceof RefexMember)) {
+                RefexMember<?, ?> refsetMember = (RefexMember<?, ?>) component;
+
+                if ((refsetMember != null) && (refsetMember.getTime() == Long.MIN_VALUE)) {
+                    refsetMember = null;
+                    ConceptChronicle.componentsCRHM.remove(nid);
+                }
+
+                if ((nidToRefsetMemberMap != null) && nidToRefsetMemberMap.containsKey(nid)) {
+                    if (refsetMember == null) {
+                        refsetMember = nidToRefsetMemberMap.get(nid);
+
+                        RefexMember<?, ?> oldMember = (RefexMember<?, ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid, refsetMember);
 
                         if (oldMember != null) {
-                           refsetMember = oldMember;
+                            refsetMember = oldMember;
 
-                           if (nidToRefsetMemberMap != null) {
-                              nidToRefsetMemberMap.put(nid, refsetMember);
-                           }
+                            if (nidToRefsetMemberMap != null) {
+                                nidToRefsetMemberMap.put(nid, refsetMember);
+                            }
                         }
-                     }
-                  } else {
-                     refsetMember.merge(factory.create(nid, typeNid, enclosingConcept.getNid(), input), 
-                             new HashSet<ConceptChronicleBI>());
-                  }
-               } catch (IOException e) {
-                  throw new RuntimeException(e);
-               }
+                    }
 
-               if (refsetMember.getTime() != Long.MIN_VALUE) {
-                  newRefsetMemberList.add(refsetMember);
-               }
-            }
-         } else {
-            StringBuilder sb = new StringBuilder();
+                    refsetMember.readComponentFromBdb(input);
+                } else {
+                    try {
+                        if (refsetMember == null) {
+                            refsetMember = factory.create(nid, typeNid, enclosingConcept.getNid(), input);
 
-            sb.append("Refset member has nid: ").append(nid);
-            sb.append(" But another component has same nid:\n").append(component);
+                            if (refsetMember.getTime() != Long.MIN_VALUE) {
+                                RefexMember<?, ?> oldMember = (RefexMember<?, ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid,
+                                        refsetMember);
 
-            try {
+                                if (oldMember != null) {
+                                    refsetMember = oldMember;
+
+                                    if (nidToRefsetMemberMap != null) {
+                                        nidToRefsetMemberMap.put(nid, refsetMember);
+                                    }
+                                }
+                            }
+                        } else {
+                            refsetMember.merge(factory.create(nid, typeNid, enclosingConcept.getNid(), input),
+                                    new HashSet<ConceptChronicleBI>());
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    if (refsetMember.getTime() != Long.MIN_VALUE) {
+                        newRefsetMemberList.add(refsetMember);
+                    }
+                }
+            } else {
+                StringBuilder sb = new StringBuilder();
+
+                sb.append("Refset member has nid: ").append(nid);
+                sb.append(" But another component has same nid:\n").append(component);
+
+                try {
                     sb.append("Refset member: \n").append(factory.create(nid, typeNid, enclosingConcept.getNid(), input));
-            } catch (IOException ex) {
-               ConceptComponent.logger.log(Level.WARNING, ex.getMessage(), ex);
+                } catch (IOException ex) {
+                    ConceptComponent.logger.log(Level.WARNING, ex.getMessage(), ex);
+                }
+                ConceptComponent.logger.log(Level.SEVERE,
+                        "Nid overlap discovered. See log for more info.",
+                        new Exception(sb.toString()));
+
             }
-               ConceptComponent.logger.log(Level.SEVERE, 
-                       "Nid overlap discovered. See log for more info.", 
-                       new Exception(sb.toString()));
+        }
 
-          }
-      }
+        return newRefsetMemberList;
+    }
 
-      return newRefsetMemberList;
-   }
+    @Override
+    public void objectToEntry(Collection<RefexMember<?, ?>> list, TupleOutput output) {
+        List<RefexMember<?, ?>> refsetMembersToWrite = new ArrayList<>(list.size());
 
-   @Override
-   public void objectToEntry(Collection<RefexMember<?, ?>> list, TupleOutput output) {
-      List<RefexMember<?, ?>> refsetMembersToWrite = new ArrayList<>(list.size());
-
-      for (RefexMember<?, ?> refsetMember : list) {
-         encountered.incrementAndGet();
-         assert refsetMember.primordialStamp != Integer.MAX_VALUE;
-
-         if ((refsetMember.primordialStamp > maxReadOnlyStatusAtPositionId)
-                 && (refsetMember.getTime() != Long.MIN_VALUE)) {
-            refsetMembersToWrite.add(refsetMember);
-         } else {
-            if (refsetMember.revisions != null) {
-               for (RefexRevision<?, ?> r : refsetMember.revisions) {
-                  if ((r.getStamp() > maxReadOnlyStatusAtPositionId)
-                          && (r.getTime() != Long.MIN_VALUE)) {
-                     refsetMembersToWrite.add(refsetMember);
-
-                     break;
-                  }
-               }
+        for (RefexMember<?, ?> refsetMember : list) {
+            encountered.incrementAndGet();
+            assert refsetMember.primordialStamp != Integer.MAX_VALUE;
+            if (!refsetMember.isIndexed()) {
+                for (IndexerBI i : indexers) {
+                    i.index(refsetMember);
+                }
+                refsetMember.setIndexed();
             }
-         }
-      }
 
-      output.writeInt(refsetMembersToWrite.size());    // List size
+            if ((refsetMember.primordialStamp > maxReadOnlyStatusAtPositionId)
+                    && (refsetMember.getTime() != Long.MIN_VALUE)) {
+                refsetMembersToWrite.add(refsetMember);
+            } else {
+                if (refsetMember.revisions != null) {
+                    for (RefexRevision<?, ?> r : refsetMember.revisions) {
+                        if ((r.getStamp() > maxReadOnlyStatusAtPositionId)
+                                && (r.getTime() != Long.MIN_VALUE)) {
+                            refsetMembersToWrite.add(refsetMember);
 
-      for (RefexMember<?, ?> refsetMember : refsetMembersToWrite) {
-         written.incrementAndGet();
-         output.writeInt(refsetMember.getTypeNid());
-         refsetMember.writeComponentToBdb(output, maxReadOnlyStatusAtPositionId);
-      }
-   }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
-   @Override
-   public void setupBinder(ConceptChronicle enclosingConcept) {
-      this.enclosingConcept = enclosingConcept;
-   }
+        output.writeInt(refsetMembersToWrite.size());    // List size
 
-   //~--- get methods ---------------------------------------------------------
+        for (RefexMember<?, ?> refsetMember : refsetMembersToWrite) {
+            written.incrementAndGet();
+            output.writeInt(refsetMember.getTypeNid());
+            refsetMember.writeComponentToBdb(output, maxReadOnlyStatusAtPositionId);
+        }
+    }
 
-   @Override
-   public ConceptChronicle getEnclosingConcept() {
-      return enclosingConcept;
-   }
+    @Override
+    public void setupBinder(ConceptChronicle enclosingConcept) {
+        this.enclosingConcept = enclosingConcept;
+    }
 
-   //~--- set methods ---------------------------------------------------------
+    //~--- get methods ---------------------------------------------------------
+    @Override
+    public ConceptChronicle getEnclosingConcept() {
+        return enclosingConcept;
+    }
 
-   public void setEnclosingConcept(ConceptChronicle enclosingConcept) {
-      this.enclosingConcept = enclosingConcept;
-   }
+    //~--- set methods ---------------------------------------------------------
+    public void setEnclosingConcept(ConceptChronicle enclosingConcept) {
+        this.enclosingConcept = enclosingConcept;
+    }
 
-   public void setTermComponentList(Collection<RefexMember<?, ?>> componentList) {
-      this.refsetMemberList = componentList;
-   }
+    public void setTermComponentList(Collection<RefexMember<?, ?>> componentList) {
+        this.refsetMemberList = componentList;
+    }
 }

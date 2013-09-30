@@ -1246,4 +1246,16 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    public void setAnnotationStyleRefex(boolean annotationStyleRefset) {
       concept.setAnnotationStyleRefex(annotationStyleRefset);
    }
+   
+   
+   
+    public boolean isIndexed() {
+        return concept.isIndexed();
+    }
+
+   
+    public void setIndexed() {
+        concept.setIndexed();
+    }
+
 }

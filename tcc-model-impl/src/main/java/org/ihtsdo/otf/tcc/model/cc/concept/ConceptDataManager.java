@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.AnnotationIndexBinder;
@@ -26,9 +24,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.index.service.DescriptionIndexer;
-import org.jvnet.hk2.annotations.Service;
 
 /**
  * File format:<br>
@@ -43,11 +38,6 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
     * for looking up members instead of iterating through a list.
     */
    protected static int useMemberMapThreshold = 15;
-   protected static DescriptionIndexer descIndexer;
-   static {
-       
-       descIndexer = Hk2Looker.get().getService(DescriptionIndexer.class);
-   }
 
    //~--- fields --------------------------------------------------------------
 
@@ -130,18 +120,19 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
 
    @Override
    public void modified() {
+       P.s.setIndexed(getNid(), false);
       lastChange = P.s.incrementAndGetSequence();
    }
 
    @Override
    public void modified(long sequence) {
+       P.s.setIndexed(getNid(), false);
       lastChange = sequence;
    }
    
    void processNewDesc(Description e) throws IOException {
       assert e.nid != 0 : "descNid is 0: " + this;
       getDescNids().add(e.nid);
-      descIndexer.addDescription(e);
       modified();
    }
 

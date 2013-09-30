@@ -20,7 +20,7 @@ package org.ihtsdo.otf.tcc.api.blueprint;
 
    /**
      * The Enum ComponentProperty lists the available properties that can be
-     * associated with a refex member.
+     * associated with a component.
      */
 public enum ComponentProperty {
 
@@ -94,7 +94,12 @@ public enum ComponentProperty {
         /**
          * The array bytearray value associated with this refex member.
          */
-   ARRAY_OF_BYTEARRAY
+   ARRAY_OF_BYTEARRAY,
+   
+   /**
+    * Text of a description. 
+    */
+   DESCRIPTION_TEXT
 }
 
 
