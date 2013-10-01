@@ -14,10 +14,8 @@ import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 import com.sleepycat.je.DatabaseEntry;
-import java.util.HashSet;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
@@ -96,7 +94,7 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
                     }
                 }
                 try {
-                    conceptComponent.merge(factory.create(enclosingConcept, input), new HashSet<ConceptChronicleBI>());
+                    conceptComponent.merge(factory.create(enclosingConcept, input));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -114,7 +112,7 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
                             }
                         }
                     } else {
-                        conceptComponent.merge(factory.create(enclosingConcept, input), new HashSet<ConceptChronicleBI>());
+                        conceptComponent.merge(factory.create(enclosingConcept, input));
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

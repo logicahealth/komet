@@ -119,17 +119,7 @@ public interface I_ManageConceptData {
 
    NidListBI getUncommittedNids();
 
-   boolean isAnnotationIndex() throws IOException;
-
    boolean isAnnotationStyleRefex() throws IOException;
-
-   /**
-    *
-    * @return
-    * @deprecated use isAnnotationStyleRefex
-    */
-   @Deprecated
-   boolean isAnnotationStyleSet() throws IOException;
 
    boolean isPrimordial() throws IOException;
 
@@ -140,8 +130,6 @@ public interface I_ManageConceptData {
    //~--- set methods ---------------------------------------------------------
 
    void set(ConceptAttributes attr) throws IOException;
-
-   public void setAnnotationIndex(boolean annotationIndex) throws IOException;;
 
    void setAnnotationStyleRefset(boolean annotationStyleRefset);
 

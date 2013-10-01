@@ -1,31 +1,42 @@
 package org.ihtsdo.otf.tcc.datastore;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
-import org.ihtsdo.otf.tcc.api.store.TerminologyDI.CONCEPT_EVENT;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.db.EccsDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
+import org.ihtsdo.otf.tcc.api.store.TerminologyDI.CONCEPT_EVENT;
+import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
+import org.ihtsdo.otf.tcc.ddo.ComponentReference;
+import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
+import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
+import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
+import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
@@ -35,12 +46,8 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.TerminologySnapshot;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
 import org.ihtsdo.otf.tcc.model.cs.CsProperty;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.ddo.ComponentReference;
-import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
+
+import org.jvnet.hk2.annotations.Service;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -55,48 +62,42 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
-import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
-import org.jvnet.hk2.annotations.Service;
 
 @Service(name = "Bdb Terminology Service")
 public class BdbTerminologyStore extends Termstore {
-
-    private static final Logger LOG = Logger.getLogger(BdbTerminologyStore.class.getName());
-    public static final String BDB_LOCATION_PROPERTY = "org.ihtsdo.otf.tcc.datastore.bdb-location";
-    public static final String DEFAULT_BDB_LOCATION = "berkeley-db";
-    private static ViewCoordinate metadataVC = null;
-    private static AtomicBoolean databaseSetup = new AtomicBoolean(false);
-    private static CountDownLatch setupComplete = new CountDownLatch(1);
-    String bdbLocation;
+    private static final Logger   LOG                   = Logger.getLogger(BdbTerminologyStore.class.getName());
+    public static final String    BDB_LOCATION_PROPERTY = "org.ihtsdo.otf.tcc.datastore.bdb-location";
+    public static final String    DEFAULT_BDB_LOCATION  = "berkeley-db";
+    private static ViewCoordinate metadataVC            = null;
+    private static AtomicBoolean  databaseSetup         = new AtomicBoolean(false);
+    private static CountDownLatch setupComplete         = new CountDownLatch(1);
+    String                        bdbLocation;
 
     public BdbTerminologyStore() {
         if (databaseSetup.compareAndSet(false, true)) {
             bdbLocation = System.getProperty(BDB_LOCATION_PROPERTY);
+
             if (bdbLocation == null) {
                 bdbLocation = "berkeley-db";
-                LOG.info(BDB_LOCATION_PROPERTY
-                        + " not set. Using default location of: " + DEFAULT_BDB_LOCATION);
+                LOG.info(BDB_LOCATION_PROPERTY + " not set. Using default location of: " + DEFAULT_BDB_LOCATION);
             } else {
-                LOG.log(Level.INFO, BDB_LOCATION_PROPERTY
-                        + " set. Starting from location: {0}", bdbLocation);
+                LOG.log(Level.INFO, BDB_LOCATION_PROPERTY + " set. Starting from location: {0}", bdbLocation);
             }
+
             Bdb.setup(bdbLocation, this);
             LOG.info("Database setup complete");
             setupComplete.countDown();
         } else {
             LOG.info("Database setup already initialized");
         }
+
         try {
             setupComplete.await();
         } catch (InterruptedException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public static void waitForSetup() {
         try {
             setupComplete.await();
@@ -104,6 +105,7 @@ public class BdbTerminologyStore extends Termstore {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public void shutdown() {
         try {
             Bdb.close();
@@ -181,7 +183,7 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public void commit(ConceptChronicleBI cc) throws IOException {
         BdbCommitManager.commit((ConceptChronicle) cc, ChangeSetPolicy.MUTABLE_ONLY,
-                ChangeSetWriterThreading.SINGLE_THREAD);
+                                ChangeSetWriterThreading.SINGLE_THREAD);
     }
 
     @Override
@@ -191,7 +193,7 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public boolean commit(ConceptChronicleBI cc, ChangeSetPolicy changeSetPolicy,
-            ChangeSetWriterThreading changeSetWriterThreading)
+                          ChangeSetWriterThreading changeSetWriterThreading)
             throws IOException {
         return BdbCommitManager.commit((ConceptChronicle) cc, changeSetPolicy, changeSetWriterThreading);
     }
@@ -250,47 +252,50 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
         File[] files = new File[econFiles.length];
+
         for (int i = 0; i < files.length; i++) {
             files[i] = econFiles[i].toFile();
         }
+
         loadEconFiles(files);
     }
 
     @Override
     public void loadEconFiles(File[] econFiles) throws Exception {
-        boolean consoleFeedback = true;
+        boolean     consoleFeedback           = true;
         ThreadGroup loadBdbMultiDbThreadGroup = new ThreadGroup(this.getClass().getSimpleName()
-                + ".loadEconFiles threads");
-        ExecutorService executors =
-                Executors.newCachedThreadPool(new NamedThreadFactory(loadBdbMultiDbThreadGroup, "converter "));
+                                                    + ".loadEconFiles threads");
+        ExecutorService executors = Executors.newCachedThreadPool(new NamedThreadFactory(loadBdbMultiDbThreadGroup,
+                                        "converter "));
 
         try {
-            LinkedBlockingQueue<ConceptConverter> converters = new LinkedBlockingQueue<>();
-            int runtimeConverterSize =
-                    Runtime.getRuntime().availableProcessors() * 2;
-            int converterSize = runtimeConverterSize;
-            AtomicInteger conceptsRead = new AtomicInteger();
-            AtomicInteger conceptsProcessed = new AtomicInteger();
-            ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts = new ConcurrentSkipListSet<>();
-
-            for (int i = 0; i < converterSize; i++) {
-                converters.add(new ConceptConverter(converters, conceptsProcessed, indexedAnnotationConcepts));
-            }
+            LinkedBlockingQueue<ConceptConverter>     converters                = new LinkedBlockingQueue<>();
+            int                                       runtimeConverterSize      =
+                Runtime.getRuntime().availableProcessors() * 2;
+            int                                       converterSize             = 1;    // TODO figure out race condition so multithreading can work again.
+            AtomicInteger                             conceptsRead              = new AtomicInteger();
+            AtomicInteger                             conceptsProcessed         = new AtomicInteger();
 
             for (File conceptsFile : econFiles) {
                 System.out.println("Starting load from: " + conceptsFile.getAbsolutePath());
+                converters.clear();
 
-                FileInputStream fis = new FileInputStream(conceptsFile);
+                for (int i = 0; i < converterSize; i++) {
+                    converters.add(new ConceptConverter(converters, conceptsProcessed));
+                }
+
+                FileInputStream     fis = new FileInputStream(conceptsFile);
                 BufferedInputStream bis = new BufferedInputStream(fis);
-                DataInputStream in = new DataInputStream(bis);
+                DataInputStream     in  = new DataInputStream(bis);
 
                 try {
                     System.out.print(conceptsRead + "-");
 
                     while (true) {
                         TtkConceptChronicle eConcept = new TtkConceptChronicle(in);
-                        int read = conceptsRead.incrementAndGet();
-                        if (consoleFeedback && read % 100 == 0) {
+                        int                 read     = conceptsRead.incrementAndGet();
+
+                        if (consoleFeedback && (read % 100 == 0)) {
                             if (read % 8000 == 0) {
                                 System.out.println('.');
                                 System.out.print(read + "-");
@@ -328,16 +333,13 @@ public class BdbTerminologyStore extends Termstore {
                     Thread.sleep(1000);
                 }
 
-                for (ConceptChronicleBI indexedAnnotationConcept : indexedAnnotationConcepts) {
-                    Ts.get().addUncommittedNoChecks(indexedAnnotationConcept);
-                }
-
                 System.out.println("\nFinished load of " + conceptsRead + " concepts from: "
-                        + conceptsFile.getAbsolutePath());
+                                   + conceptsFile.getAbsolutePath());
             }
         } finally {
             executors.shutdown();
         }
+
 //      ViewCoordinate vc = StandardViewCoordinates.getSnomedInferredLatest();
 //
 //      vc.setRelAssertionType(RelAssertionType.STATED);
@@ -358,7 +360,6 @@ public class BdbTerminologyStore extends Termstore {
         System.out.println("Starting db sync.");
         Bdb.sync();
         System.out.println("Finished db sync.");
-        
         Bdb.commit();
         System.out.println("Finished create lucene index.");
     }
@@ -471,19 +472,18 @@ public class BdbTerminologyStore extends Termstore {
     public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(vc);
-        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
+        ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
 
         return new ConceptChronicleDdo(ts, c, VersionPolicy.ALL_VERSIONS, RefexPolicy.REFEX_MEMBERS,
-                RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
+                                       RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
     }
 
     @Override
     public ConceptChronicleDdo getFxConcept(ComponentReference ref, UUID viewCoordinateUuid,
-            VersionPolicy versionPolicy, RefexPolicy refexPolicy,
-            RelationshipPolicy relationshipPolicy)
+            VersionPolicy versionPolicy, RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
-        ConceptVersionBI c;
+        ConceptVersionBI      c;
 
         if (ref.getNid() != Integer.MAX_VALUE) {
             c = ts.getConceptVersion(ref.getNid());
@@ -499,7 +499,7 @@ public class BdbTerminologyStore extends Termstore {
             RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(vc);
-        ConceptVersionBI c;
+        ConceptVersionBI      c;
 
         if (ref.getNid() != Integer.MAX_VALUE) {
             c = ts.getConceptVersion(ref.getNid());
@@ -515,7 +515,7 @@ public class BdbTerminologyStore extends Termstore {
             RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
-        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
+        ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
 
         return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
     }
@@ -525,7 +525,7 @@ public class BdbTerminologyStore extends Termstore {
             RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(vc);
-        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
+        ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
 
         return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
     }
@@ -542,8 +542,8 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public Collection<DbDependency> getLatestChangeSetDependencies() throws IOException {
-        CsProperty[] keysToCheck = new CsProperty[]{CsProperty.LAST_CHANGE_SET_WRITTEN,
-            CsProperty.LAST_CHANGE_SET_READ};
+        CsProperty[] keysToCheck = new CsProperty[] { CsProperty.LAST_CHANGE_SET_WRITTEN,
+                CsProperty.LAST_CHANGE_SET_READ };
         List<DbDependency> latestDependencies = new ArrayList<>(2);
 
         for (CsProperty prop : keysToCheck) {
@@ -675,6 +675,7 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public TerminologySnapshotDI getSnapshot(ViewCoordinate c) {
         assert c != null;
+
         return new TerminologySnapshot(this, c);
     }
 
@@ -774,8 +775,7 @@ public class BdbTerminologyStore extends Termstore {
     }
 
     @Override
-    public boolean isKindOf(int childNid, int parentNid, ViewCoordinate vc)
-            throws IOException, ContradictionException {
+    public boolean isKindOf(int childNid, int parentNid, ViewCoordinate vc) throws IOException, ContradictionException {
         return Bdb.getNidCNidMap().isKindOf(childNid, parentNid, vc);
     }
 
@@ -786,6 +786,7 @@ public class BdbTerminologyStore extends Termstore {
         } catch (IOException | ContradictionException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return null;
     }
 
@@ -796,6 +797,7 @@ public class BdbTerminologyStore extends Termstore {
         } catch (IOException | ContradictionException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return null;
     }
 
@@ -810,17 +812,20 @@ public class BdbTerminologyStore extends Termstore {
     }
 
     @Override
-    public boolean isChildOf(int childNid, int parentNid, ViewCoordinate vc) throws IOException, ContradictionException {
+    public boolean isChildOf(int childNid, int parentNid, ViewCoordinate vc)
+            throws IOException, ContradictionException {
         return Bdb.getNidCNidMap().isChildOf(childNid, parentNid, vc);
     }
 
     @Override
     public NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException {
-        NativeIdSetItrBI iter = componentNativeIds.getIterator();
-        NativeIdSetBI cNidSet = new ConcurrentBitSet();
+        NativeIdSetItrBI iter    = componentNativeIds.getIterator();
+        NativeIdSetBI    cNidSet = new ConcurrentBitSet();
+
         while (iter.next()) {
             cNidSet.add(Bdb.getNidCNidMap().getCNid(iter.nid()));
         }
+
         return cNidSet;
     }
 
@@ -831,8 +836,9 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public NativeIdSetBI relationshipSet(int parentNid, ViewCoordinate viewCoordinate) {
-        //Bdb.getNidCNidMap().getDestRels(parentNid);
-        //åBdb.getNidCNidMap().getDestRelNids(parentNid, null)
+
+        // Bdb.getNidCNidMap().getDestRels(parentNid);
+        // åBdb.getNidCNidMap().getDestRelNids(parentNid, null)
         throw new UnsupportedOperationException("Not supported yet");
     }
 
@@ -841,26 +847,33 @@ public class BdbTerminologyStore extends Termstore {
         return Bdb.getConceptDb().getAllComponents();
     }
 
-    /*@Override
-    public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }*/
+    @Override
+    public void setIndexed(int nid, boolean indexed) {
+        Bdb.setIndexed(nid, indexed);
+    }
 
+    @Override
+    public boolean isIndexed(int nid) {
+        return Bdb.isIndexed(nid);
+    }
+
+    /*
+     * @Override
+     * public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
+     *   throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+     * }
+     */
     private static class ConceptConverter implements Runnable {
+        TtkConceptChronicle                       eConcept   = null;
+        Throwable                                 exception  = null;
+        ConceptChronicle                          newConcept = null;
+        AtomicInteger                             conceptsProcessed;
+        LinkedBlockingQueue<ConceptConverter>     converters;
+        MemoryCacheBdb                            nidCnidMap;
 
-        TtkConceptChronicle eConcept = null;
-        Throwable exception = null;
-        ConceptChronicle newConcept = null;
-        AtomicInteger conceptsProcessed;
-        LinkedBlockingQueue<ConceptConverter> converters;
-        ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts;
-        MemoryCacheBdb nidCnidMap;
-
-        public ConceptConverter(LinkedBlockingQueue<ConceptConverter> converters, AtomicInteger conceptsRead,
-                ConcurrentSkipListSet<ConceptChronicleBI> indexedAnnotationConcepts) {
-            this.converters = converters;
-            this.conceptsProcessed = conceptsRead;
-            this.indexedAnnotationConcepts = indexedAnnotationConcepts;
+        public ConceptConverter(LinkedBlockingQueue<ConceptConverter> converters, AtomicInteger conceptsRead) {
+            this.converters                = converters;
+            this.conceptsProcessed         = conceptsRead;
         }
 
         @Override
@@ -870,7 +883,7 @@ public class BdbTerminologyStore extends Termstore {
             }
 
             try {
-                newConcept = ConceptChronicle.get(eConcept, indexedAnnotationConcepts);
+                newConcept = ConceptChronicle.get(eConcept);
 
                 if (newConcept != null) {
                     assert newConcept.readyToWrite();
@@ -905,15 +918,5 @@ public class BdbTerminologyStore extends Termstore {
 
             this.eConcept = eConcept;
         }
-    }
-
-    @Override
-    public void setIndexed(int nid, boolean indexed) {
-        Bdb.setIndexed(nid, indexed);
-    }
-
-    @Override
-    public boolean isIndexed(int nid) {
-        return  Bdb.isIndexed(nid);
     }
 }

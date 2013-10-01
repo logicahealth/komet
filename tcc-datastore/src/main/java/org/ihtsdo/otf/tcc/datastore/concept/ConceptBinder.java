@@ -93,9 +93,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
 
             finalOutput.writeInt(OFFSETS.CURRENT_FORMAT_VERSION); // FORMAT_VERSION
             finalOutput.writeLong(dataVersion); // DATA_VERSION
-            if (concept.isAnnotationIndex()) {
-                finalOutput.writeByte(2); // ANNOTATION_STYLE_REFSET
-            } else if (concept.isAnnotationStyleRefex()) {
+            if (concept.isAnnotationStyleRefex()) {
                 finalOutput.writeByte(1); // ANNOTATION_STYLE_REFSET
             } else {
                 finalOutput.writeByte(0); // ANNOTATION_STYLE_REFSET

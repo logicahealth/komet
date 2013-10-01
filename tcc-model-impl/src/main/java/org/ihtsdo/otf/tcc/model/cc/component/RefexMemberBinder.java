@@ -1,14 +1,19 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
-
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.I_BindConceptComponents;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -17,50 +22,38 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
-public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>>>
-        implements I_BindConceptComponents {
-
-    public static AtomicInteger encountered = new AtomicInteger();
-    public static AtomicInteger written = new AtomicInteger();
-    private static int maxReadOnlyStatusAtPositionId = P.s.getMaxReadOnlyStamp();
+public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>>> implements I_BindConceptComponents {
+    public static AtomicInteger      encountered                   = new AtomicInteger();
+    public static AtomicInteger      written                       = new AtomicInteger();
+    private static int               maxReadOnlyStatusAtPositionId = P.s.getMaxReadOnlyStamp();
     protected static List<IndexerBI> indexers;
 
     static {
         indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
     }
-    //~--- fields --------------------------------------------------------------
-    RefexMemberFactory factory = new RefexMemberFactory();
-    private ConceptChronicle enclosingConcept;
+
+    private ConceptChronicle              enclosingConcept;
     private Collection<RefexMember<?, ?>> refsetMemberList;
 
-    //~--- constructors --------------------------------------------------------
     public RefexMemberBinder(ConceptChronicle concept) {
         this.enclosingConcept = concept;
     }
 
-    //~--- methods -------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override
     public Collection<RefexMember<?, ?>> entryToObject(TupleInput input) {
         assert enclosingConcept != null;
 
-        int listSize = input.readInt();
-        Collection<RefexMember<?, ?>> newRefsetMemberList;
+        int                                 listSize = input.readInt();
+        Collection<RefexMember<?, ?>>       newRefsetMemberList;
         HashMap<Integer, RefexMember<?, ?>> nidToRefsetMemberMap = null;
 
         if (refsetMemberList != null) {
-            newRefsetMemberList = refsetMemberList;
+            newRefsetMemberList  = refsetMemberList;
             nidToRefsetMemberMap = new HashMap<>(listSize);
 
             for (RefexMember<?, ?> component : refsetMemberList) {
@@ -93,14 +86,13 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
                     if (refsetMember == null) {
                         refsetMember = nidToRefsetMemberMap.get(nid);
 
-                        RefexMember<?, ?> oldMember = (RefexMember<?, ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid, refsetMember);
+                        RefexMember<?, ?> oldMember = (RefexMember<?,
+                                                          ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid,
+                                                              refsetMember);
 
                         if (oldMember != null) {
                             refsetMember = oldMember;
-
-                            if (nidToRefsetMemberMap != null) {
-                                nidToRefsetMemberMap.put(nid, refsetMember);
-                            }
+                            nidToRefsetMemberMap.put(nid, refsetMember);
                         }
                     }
 
@@ -108,11 +100,12 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
                 } else {
                     try {
                         if (refsetMember == null) {
-                            refsetMember = factory.create(nid, typeNid, enclosingConcept.getNid(), input);
+                            refsetMember = RefexMemberFactory.create(nid, typeNid, enclosingConcept.getNid(), input);
 
                             if (refsetMember.getTime() != Long.MIN_VALUE) {
-                                RefexMember<?, ?> oldMember = (RefexMember<?, ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid,
-                                        refsetMember);
+                                RefexMember<?, ?> oldMember = (RefexMember<?,
+                                                                  ?>) ConceptChronicle.componentsCRHM.putIfAbsent(nid,
+                                                                      refsetMember);
 
                                 if (oldMember != null) {
                                     refsetMember = oldMember;
@@ -123,8 +116,8 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
                                 }
                             }
                         } else {
-                            refsetMember.merge(factory.create(nid, typeNid, enclosingConcept.getNid(), input),
-                                    new HashSet<ConceptChronicleBI>());
+                            refsetMember.merge(RefexMemberFactory.create(nid, typeNid, enclosingConcept.getNid(),
+                                    input));
                         }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -141,14 +134,14 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
                 sb.append(" But another component has same nid:\n").append(component);
 
                 try {
-                    sb.append("Refset member: \n").append(factory.create(nid, typeNid, enclosingConcept.getNid(), input));
+                    sb.append("Refset member: \n").append(RefexMemberFactory.create(nid, typeNid,
+                            enclosingConcept.getNid(), input));
                 } catch (IOException ex) {
                     ConceptComponent.logger.log(Level.WARNING, ex.getMessage(), ex);
                 }
-                ConceptComponent.logger.log(Level.SEVERE,
-                        "Nid overlap discovered. See log for more info.",
-                        new Exception(sb.toString()));
 
+                ConceptComponent.logger.log(Level.SEVERE, "Nid overlap discovered. See log for more info.",
+                                            new Exception(sb.toString()));
             }
         }
 
@@ -162,10 +155,12 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
         for (RefexMember<?, ?> refsetMember : list) {
             encountered.incrementAndGet();
             assert refsetMember.primordialStamp != Integer.MAX_VALUE;
+
             if (!refsetMember.isIndexed()) {
                 for (IndexerBI i : indexers) {
                     i.index(refsetMember);
                 }
+
                 refsetMember.setIndexed();
             }
 
@@ -175,8 +170,7 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
             } else {
                 if (refsetMember.revisions != null) {
                     for (RefexRevision<?, ?> r : refsetMember.revisions) {
-                        if ((r.getStamp() > maxReadOnlyStatusAtPositionId)
-                                && (r.getTime() != Long.MIN_VALUE)) {
+                        if ((r.getStamp() > maxReadOnlyStatusAtPositionId) && (r.getTime() != Long.MIN_VALUE)) {
                             refsetMembersToWrite.add(refsetMember);
 
                             break;
@@ -200,13 +194,11 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
         this.enclosingConcept = enclosingConcept;
     }
 
-    //~--- get methods ---------------------------------------------------------
     @Override
     public ConceptChronicle getEnclosingConcept() {
         return enclosingConcept;
     }
 
-    //~--- set methods ---------------------------------------------------------
     public void setEnclosingConcept(ConceptChronicle enclosingConcept) {
         this.enclosingConcept = enclosingConcept;
     }

@@ -60,10 +60,6 @@ import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
  */
 public class IndexCacheRecord {
 
-    /**
-     * Used to determine when a component was last indexed, so that
-     * we can determine if it needs to be indexed again. 
-     */
     private static final int DESTINATION_OFFSET_INDEX = 0;
     private static final int REFEX_OFFSET_INDEX = 1;
     private static final int RELATIONSHIP_OFFSET = 2;
@@ -163,7 +159,7 @@ public class IndexCacheRecord {
     }
 
     public int[] getData() {
-        if (data.length == 3) {
+        if (data.length == 2) {
             return null;
         }
 

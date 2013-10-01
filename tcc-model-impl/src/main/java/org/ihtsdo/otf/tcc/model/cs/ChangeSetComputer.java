@@ -7,8 +7,6 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TY
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
-import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionLong;
-import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionString;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
@@ -41,8 +39,6 @@ import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.api.id.LongIdBI;
 import org.ihtsdo.otf.tcc.api.id.StringIdBI;
 import org.ihtsdo.otf.tcc.api.id.UuidIdBI;
-import org.ihtsdo.otf.tcc.model.cs.ChangeSetLogger;
-import org.ihtsdo.otf.tcc.model.cs.ComputeEConceptForChangeSetI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
@@ -420,7 +416,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
     public TtkConceptChronicle getEConcept(ConceptChronicle c) throws IOException {
         TtkConceptChronicle ec = new TtkConceptChronicle();
         AtomicBoolean changed = new AtomicBoolean(false);
-        ec.setAnnotationIndexStyleRefex(c.isAnnotationIndex());
+        ec.setAnnotationIndexStyleRefex(false);
         ec.setAnnotationStyleRefex(c.isAnnotationStyleRefex());
 
         ec.setPrimordialUuid(c.getPrimordialUuid());

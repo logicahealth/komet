@@ -12,8 +12,6 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -758,7 +756,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         break;
 
                     case STRING:
-                        if (true) {
+                        if (false) {
                         TtkIdentifierString ids = (TtkIdentifierString) idv;
                         UUID stringMemberUuid = UuidT5Generator.get(refexSpecNamespace,
                                 RefexType.LONG.name()
@@ -908,13 +906,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      *
      * @param another
-     * @param indexedAnnotationConcepts
      *
      * @return
      *
      * @throws IOException
      */
-    public ConceptComponent<R, C> merge(C another, Set<ConceptChronicleBI> indexedAnnotationConcepts)
+    public ConceptComponent<R, C> merge(C another)
             throws IOException {
         Set<Integer> versionSapNids = getVersionStamps();
 
@@ -968,16 +965,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 }
 
                 this.annotations.addAll(anotherAnnotationMap.values());
-
-                for (RefexMember refsetMember : anotherAnnotationMap.values()) {
-                    ConceptChronicle refsetConcept =
-                            (ConceptChronicle) Ts.get().getConceptForNid(refsetMember.getAssemblageNid());
-
-                    if (refsetConcept.isAnnotationIndex()) {
-                        refsetConcept.getData().getMemberNids().add(refsetMember.getNid());
-                        indexedAnnotationConcepts.add(refsetConcept);
-                    }
-                }
             }
         }
 

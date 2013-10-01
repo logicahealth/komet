@@ -65,7 +65,6 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
 
     int nid;
     boolean annotationStyleRefex;
-    boolean annotationIndex;
     ConceptAttributes conceptAttributes;
     Collection<Description> descriptions;
     Collection<Relationship> relationshipsOutgoing;
@@ -75,7 +74,6 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     public ConceptChronicleDTO(TtkConceptChronicle ttkConceptChronicle) throws IOException {
         this.nid = Ts.get().getNidForUuids(ttkConceptChronicle.getPrimordialUuid());
         this.annotationStyleRefex = ttkConceptChronicle.isAnnotationStyleRefex();
-        this.annotationIndex = ttkConceptChronicle.isAnnotationIndexStyleRefex();
 
         TtkConceptAttributesChronicle eAttr = ttkConceptChronicle.getConceptAttributes();
 
@@ -125,7 +123,6 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     public ConceptChronicleDTO(DataInput in) throws IOException {
         nid = in.readInt();
         annotationStyleRefex = in.readBoolean();
-        annotationIndex = in.readBoolean();
         int attributeBytes = in.readInt();
         if (attributeBytes > 0) {
             byte[] bytes = new byte[attributeBytes];
@@ -189,7 +186,6 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     public void writeExternal(DataOutput out) throws IOException {
         out.writeInt(nid);
         out.writeBoolean(annotationStyleRefex);
-        out.writeBoolean(annotationIndex);
         TupleOutput to = new TupleOutput();
         if (conceptAttributes != null) {
             conceptAttributes.writeToBdb(to, Integer.MIN_VALUE);
@@ -270,15 +266,6 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     @Override
     public void setAnnotationStyleRefex(boolean annotationSyleRefex) {
         this.annotationStyleRefex = annotationSyleRefex;
-    }
-
-    @Override
-    public boolean isAnnotationIndex() throws IOException {
-        return annotationIndex;
-    }
-
-    public void setAnnotationIndex(boolean annotationIndex) {
-        this.annotationIndex = annotationIndex;
     }
 
     @Override

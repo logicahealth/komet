@@ -149,7 +149,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         out.writeInt(DATA_VERSION);
         out.writeInt(nid);
         out.writeBoolean(data.isAnnotationStyleRefex());
-        out.writeBoolean(data.isAnnotationIndex());
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
@@ -342,7 +341,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return cab;
     }
 
-    public static ConceptChronicle mergeAndWrite(TtkConceptChronicle eConcept, Set<ConceptChronicleBI> indexedAnnotationConcepts)
+    public static ConceptChronicle mergeAndWrite(TtkConceptChronicle eConcept)
             throws IOException {
         int conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
 
@@ -350,15 +349,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         ConceptChronicle c = get(conceptNid);
 
-        mergeWithEConcept(eConcept, c, true, indexedAnnotationConcepts);
+        mergeWithEConcept(eConcept, c);
         P.s.addUncommittedNoChecks(c);
 
         return c;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static ConceptChronicle mergeWithEConcept(TtkConceptChronicle eConcept, ConceptChronicle c, boolean updateLucene,
-            Set<ConceptChronicleBI> indexedAnnotationConcepts)
+    private static ConceptChronicle mergeWithEConcept(TtkConceptChronicle eConcept, ConceptChronicle c)
             throws IOException {
         if (c.isAnnotationStyleRefex() == false) {
             c.setAnnotationStyleRefex(eConcept.isAnnotationStyleRefex());
@@ -372,7 +370,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             } else {
                 ConceptAttributes ca = c.getConceptAttributes();
 
-                ca.merge(new ConceptAttributes(eAttr, c), indexedAnnotationConcepts);
+                ca.merge(new ConceptAttributes(eAttr, c));
             }
         }
 
@@ -388,7 +386,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     if (currentDNids.contains(dNid)) {
                         Description d = c.getDescription(dNid);
 
-                        d.merge(new Description(ed, c), indexedAnnotationConcepts);
+                        d.merge(new Description(ed, c));
                     } else {
                         c.getDescriptions().add(new Description(ed, c));
                     }
@@ -408,7 +406,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     if (currentSrcRelNids.contains(rNid)) {
                         Relationship r = c.getRelationship(rNid);
 
-                        r.merge(new Relationship(er, c), indexedAnnotationConcepts);
+                        r.merge(new Relationship(er, c));
                     } else {
                         c.getNativeSourceRels().add(new Relationship(er, c));
                     }
@@ -428,7 +426,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     if (currentImageNids.contains(iNid)) {
                         Media img = c.getImage(iNid);
 
-                        img.merge(new Media(eImg, c), indexedAnnotationConcepts);
+                        img.merge(new Media(eImg, c));
                     } else {
                         c.getImages().add(new Media(eImg, c));
                     }
@@ -455,7 +453,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                             cc.addAnnotation(RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
                         } else {
                             r.merge((RefexMember) RefexMemberFactory.create(er,
-                                    P.s.getConceptNidForNid(cc.getNid())), indexedAnnotationConcepts);
+                                    P.s.getConceptNidForNid(cc.getNid())));
                         }
                     } else {
                         unresolvedAnnotations.add(er);
@@ -472,7 +470,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                         RefexMember<?, ?> r = c.getRefsetMember(rNid);
 
                         if (currentMemberNids.contains(rNid) && (r != null)) {
-                            r.merge((RefexMember) RefexMemberFactory.create(er, c.getNid()), indexedAnnotationConcepts);
+                            r.merge((RefexMember) RefexMemberFactory.create(er, c.getNid()));
                         } else {
                             c.getRefsetMembers().add(RefexMemberFactory.create(er, c.getNid()));
                         }
@@ -631,8 +629,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 if (r == null) {
                     cc.addAnnotation(RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
                 } else {
-                    r.merge((RefexMember) RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())),
-                            indexedAnnotationConcepts);
+                    r.merge((RefexMember) RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
                 }
             }
         }
@@ -659,8 +656,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             buff.append(nid);
             buff.append(" annotationRefset: ");
             buff.append(isAnnotationStyleRefex());
-            buff.append(" annotationIndex: ");
-            buff.append(isAnnotationIndex());
             buff.append("\n  data version: ");
             buff.append(getDataVersion());
             buff.append("\n write version: ");
@@ -780,7 +775,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return c;
     }
 
-    public static ConceptChronicle get(TtkConceptChronicle eConcept, Set<ConceptChronicleBI> indexedAnnotationConcepts)
+    public static ConceptChronicle get(TtkConceptChronicle eConcept)
             throws IOException {
         int conceptNid;
         if (P.s.hasUuid(eConcept.getPrimordialUuid())) {
@@ -798,7 +793,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         // return populateFromEConcept(eConcept, c);
         try {
-            return mergeWithEConcept(eConcept, c, false, indexedAnnotationConcepts);
+            return mergeWithEConcept(eConcept, c);
         } catch (Throwable t) {
             System.out.println(t.getLocalizedMessage());
             logger.log(Level.SEVERE, "Cannot merge with eConcept: \n" + eConcept, t);
@@ -1753,11 +1748,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public boolean isAnnotationIndex() throws IOException {
-        return data.isAnnotationIndex();
-    }
-
-    @Override
     public boolean isAnnotationStyleRefex() throws IOException {
         return data.isAnnotationStyleRefex();
     }
@@ -1795,10 +1785,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     //~--- set methods ---------------------------------------------------------
-    public void setAnnotationIndex(boolean annotationIndex) throws IOException {
-        data.setAnnotationIndex(annotationIndex);
-    }
-
     @Override
     public void setAnnotationStyleRefex(boolean annotationStyleRefset) {
         data.setAnnotationStyleRefset(annotationStyleRefset);

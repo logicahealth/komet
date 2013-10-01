@@ -358,10 +358,6 @@ public class RefexMemberFactory {
          }
 
          component.addAnnotation(member);
-         if (refexColCon.isAnnotationIndex()) {
-             // TODO: add support for indexed annotations...
-             throw new UnsupportedOperationException();
-         }
       } else {
          member.enclosingConceptNid = refexColCon.getNid();
          P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);

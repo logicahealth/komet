@@ -17,9 +17,6 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.model.cs.ChangeSetLogger;
-import org.ihtsdo.otf.tcc.model.cs.ChangeSetReaderI;
-import org.ihtsdo.otf.tcc.model.cs.CsProperty;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 public class ChangeSetReader implements ChangeSetReaderI {
@@ -96,7 +93,7 @@ public class ChangeSetReader implements ChangeSetReaderI {
                     ChangeSetLogger.logger.log(Level.FINE, "Read eConcept... {0}", eConcept);
                 }
                 if (!noCommit) {
-                    commitEConcept(eConcept, nextCommit, indexedAnnotationConcepts);
+                    commitEConcept(eConcept, nextCommit);
                 }
                 nextCommit = dataStream.readLong();
             } catch (EOFException ex) {
@@ -136,7 +133,7 @@ public class ChangeSetReader implements ChangeSetReaderI {
         readUntil(Long.MAX_VALUE, indexedAnnotationConcepts);
     }
 
-    private ConceptChronicle commitEConcept(TtkConceptChronicle eConcept, long time, Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException,
+    private ConceptChronicle commitEConcept(TtkConceptChronicle eConcept, long time) throws IOException,
             ClassNotFoundException {
         if (noCommit) {
             return null;
@@ -151,7 +148,7 @@ public class ChangeSetReader implements ChangeSetReaderI {
                 ConceptChronicle before = ConceptChronicle.get(P.s.getNidForUuids(eConcept.getPrimordialUuid()));
                 csrcOut.append(before.toLongString());
                 csrcOut.flush();
-                ConceptChronicle after = ConceptChronicle.mergeAndWrite(eConcept, indexedAnnotationConcepts);
+                ConceptChronicle after = ConceptChronicle.mergeAndWrite(eConcept);
                 csrcOut.append("\n----------- after  -----------\n");
                 csrcOut.append(after.toLongString());
                 return after;
@@ -160,7 +157,7 @@ public class ChangeSetReader implements ChangeSetReaderI {
                     int conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
                     long lastChange = ConceptChronicle.get(conceptNid).getData().getLastChange();
 
-                    ConceptChronicle mergedConcept = ConceptChronicle.mergeAndWrite(eConcept, indexedAnnotationConcepts);
+                    ConceptChronicle mergedConcept = ConceptChronicle.mergeAndWrite(eConcept);
 
                     if (mergedConcept.getData().getLastChange() != lastChange) {
                         fileContentMerged = true;
@@ -168,7 +165,7 @@ public class ChangeSetReader implements ChangeSetReaderI {
 
                     return mergedConcept;
                 } else {
-                    return ConceptChronicle.mergeAndWrite(eConcept, indexedAnnotationConcepts);
+                    return ConceptChronicle.mergeAndWrite(eConcept);
                 }
             }
         } catch (Exception e) {

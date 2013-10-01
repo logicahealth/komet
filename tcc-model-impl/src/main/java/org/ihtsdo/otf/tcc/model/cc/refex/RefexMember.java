@@ -38,7 +38,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 
 public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>>
@@ -132,8 +131,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     protected abstract boolean refexFieldsEqual(ConceptComponent<R, C> obj);
 
     @SuppressWarnings("unchecked")
-    public RefexMember<R, C> merge(RefexMember<R, C> component, Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException {
-        return (RefexMember<R, C>) super.merge((C) component, indexedAnnotationConcepts);
+    public RefexMember<R, C> merge(RefexMember<R, C> component) throws IOException {
+        return (RefexMember<R, C>) super.merge((C) component);
     }
 
     @Override

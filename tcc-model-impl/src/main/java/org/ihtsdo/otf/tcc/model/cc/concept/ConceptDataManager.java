@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.component.AnnotationIndexBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.AnnotationStyleBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.DataVersionBinder;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
@@ -194,7 +193,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       Collection<Integer> imgNids    = getImageNids();
       Collection<Integer> memberNids = new ArrayList<>(0);
 
-      if (!isAnnotationStyleSet()) {
+      if (!isAnnotationStyleRefex()) {
          memberNids = getMemberNids();
       }
 
@@ -281,24 +280,6 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       }
 
       return destRels;
-   }
-
-   public boolean getIsAnnotationStyleIndex() throws IOException {
-      AnnotationIndexBinder binder        = AnnotationIndexBinder.getBinder();
-      TupleInput            readOnlyInput = nidData.getReadOnlyTupleInput();
-      boolean               isIndex       = false;
-
-      if (readOnlyInput.available() > 0) {
-         isIndex = binder.entryToObject(readOnlyInput);
-      }
-
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
-
-      if (readWriteInput.available() > 0) {
-         isIndex = binder.entryToObject(readWriteInput);
-      }
-
-      return isIndex;
    }
 
    public boolean getIsAnnotationStyleRefset() throws IOException {
