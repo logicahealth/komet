@@ -61,6 +61,15 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     ComponentChronicleBI<?> getComponent(UUID... uuids) throws IOException;
 
+    /**
+     * 
+     * @param authorityNid
+     * @param altId
+     * @return
+     * @throws IOException
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ComponentChronicleBI<?> getComponentFromAlternateId(int authorityNid, String altId) throws IOException;
 
     ComponentVersionBI getComponentVersion(ViewCoordinate vc, Collection<UUID> uuids)
@@ -72,9 +81,17 @@ public interface TerminologyStoreDI extends TerminologyDI {
     ComponentVersionBI getComponentVersion(ViewCoordinate vc, UUID... uuids)
             throws IOException, ContradictionException;
 
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId)
             throws IOException, ContradictionException;
 
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUuid, String altId)
             throws IOException, ContradictionException;
 
@@ -85,9 +102,16 @@ public interface TerminologyStoreDI extends TerminologyDI {
     ConceptChronicleBI getConcept(int cNid) throws IOException;
 
     ConceptChronicleBI getConcept(UUID... uuids) throws IOException;
-
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ConceptChronicleBI getConceptFromAlternateId(int authorityNid, String altId) throws IOException;
 
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ConceptChronicleBI getConceptFromAlternateId(UUID authorityUuid, String altId) throws IOException;
 
     /**
@@ -107,8 +131,16 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     ConceptVersionBI getConceptVersion(ViewCoordinate vc, UUID... uuids) throws IOException;
 
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ConceptVersionBI getConceptVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId) throws IOException;
 
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
     ConceptVersionBI getConceptVersionFromAlternateId(ViewCoordinate vc, UUID authorityUuid, String altId) throws IOException;
 
     Map<Integer, ConceptVersionBI> getConceptVersions(ViewCoordinate vc, NativeIdSetBI cNids) throws IOException;
