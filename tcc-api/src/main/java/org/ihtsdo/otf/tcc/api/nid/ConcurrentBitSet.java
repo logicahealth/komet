@@ -51,12 +51,19 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public ConcurrentBitSet(NativeIdSetBI nativeIdSet) {
+        this(nativeIdSet.size());
         if (nativeIdSet instanceof ConcurrentBitSet) {
             ConcurrentBitSet other = (ConcurrentBitSet) nativeIdSet;
-            units = new AtomicLongArray(1 + (other.size() - 1) / BITS_PER_UNIT);
             privateOr(other);
         } else {
-            throw new UnsupportedOperationException();
+            NativeIdSetItrBI iter = nativeIdSet.getIterator();
+            try {
+                while (iter.next()) {
+                    set(iter.nid());
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 

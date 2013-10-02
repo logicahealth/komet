@@ -17,7 +17,9 @@ package org.ihtsdo.ttk.api;
 
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
+import org.ihtsdo.otf.tcc.api.nid.HybridNidSet;
 import org.ihtsdo.otf.tcc.api.nid.IntSet;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -501,5 +503,15 @@ public class ConcurrentBitSetTest {
         ConcurrentBitSet instance = new ConcurrentBitSet(10);
         instance.setAll(Integer.MIN_VALUE + 8);
         assertEquals(8, instance.size());
+    }
+    
+    @Test
+    public void testConstructor(){
+        System.out.println("constructor");
+        NativeIdSetBI other = new HybridNidSet();
+        other.add(Integer.MIN_VALUE + 1);
+        other.add(Integer.MIN_VALUE + 5);
+        ConcurrentBitSet instance = new ConcurrentBitSet(other);
+        assertEquals(2, instance.size());
     }
 }
