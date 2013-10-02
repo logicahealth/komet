@@ -13,13 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+
 package org.ihtsdo.otf.tcc.rest.server;
 
-import java.util.concurrent.Semaphore;
+//~--- non-JDK imports --------------------------------------------------------
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import javax.servlet.ServletException;
+
 import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.io.IOException;
+
+import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.ServletException;
 
 /**
  * Overriding ServletContainer to enable access to
@@ -29,17 +43,10 @@ import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
  * @author kec
  */
 public class ChronicleServletContainer extends ServletContainer {
-
+    private static final Semaphore     storeSemaphore = new Semaphore(1);
     private static BdbTerminologyStore termStore;
-    private static final Semaphore shutdownSemaphore = new Semaphore(1);
-    private static final Semaphore startupSemphore = new Semaphore(1);
 
-    static {
-        shutdownSemaphore.acquireUninterruptibly();
-    }
-
-    public ChronicleServletContainer() {
-    }
+    public ChronicleServletContainer() {}
 
     public ChronicleServletContainer(ResourceConfig resourceConfig) {
         super(resourceConfig);
@@ -48,43 +55,47 @@ public class ChronicleServletContainer extends ServletContainer {
     @Override
     public void destroy() {
         System.out.println("Destroy ChronicleServletContainer");
+
         try {
+            storeSemaphore.acquireUninterruptibly();
+            System.out.println("Aquired storeSemaphore for destroy. ");
+
             if (termStore != null) {
-                shutdownSemaphore.acquireUninterruptibly();
-                System.out.println("Aquired shutdown permit. ");
-                if (termStore != null) {
-                    termStore.shutdown();
-                    termStore = null;
-                }
+                termStore.shutdown();
+                termStore = null;
             }
         } finally {
-            startupSemphore.release();
-            System.out.println("Released startup permit. ");
+            storeSemaphore.release();
+            System.out.println("Released storeSemaphore for destroy. ");
         }
 
         super.destroy();
-
     }
 
     @Override
     public void init() throws ServletException {
-
         Thread bdbStartupThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 System.out.println("Starting BdbTerminologyStore for ChronicleServletContainer in background thread. ");
-                try {
-                    startupSemphore.acquireUninterruptibly();
-                    System.out.println("Aquired startup permit. ");
-                    BdbTerminologyStore temp = new BdbTerminologyStore();
-                    termStore = temp;
-                } finally {
-                    shutdownSemaphore.release();
-                    System.out.println("Released shutdown permit. ");
-                }
 
+                try {
+                    storeSemaphore.acquireUninterruptibly();
+                    System.out.println("Aquired storeSemaphore for init. ");
+
+                    BdbTerminologyStore temp = new BdbTerminologyStore();
+
+                    termStore = temp;
+                    termStore.index();
+                } catch (IOException ex) {
+                    Logger.getLogger(ChronicleServletContainer.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    storeSemaphore.release();
+                    System.out.println("Released storeSemaphore for init. ");
+                }
             }
         }, "Bdb ChronicleServletContainer startup thread");
+
         bdbStartupThread.start();
         super.init();
     }

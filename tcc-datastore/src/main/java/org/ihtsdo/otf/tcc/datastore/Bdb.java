@@ -873,6 +873,9 @@ public class Bdb {
             } catch (Exception e) {
                 AceLog.getAppLog().alertAndLogException(e);
             }
+        } else {
+            AceLog.getAppLog().info("Already closed somehow: closed: " + 
+                    closed + "\n mutable: " + mutable);
         }
         if (readOnly != null && readOnly.bdbEnv != null) {
             readOnly.bdbEnv.close();

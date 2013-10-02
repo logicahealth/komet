@@ -57,7 +57,7 @@ public abstract class ComponentBdb {
 
     private void preload(Database db) {
         PreloadConfig plConfig = new PreloadConfig();
-        plConfig.setLoadLNs(true);
+        plConfig.setLoadLNs(false);
         db.preload(plConfig);
     }
 
@@ -69,11 +69,11 @@ public abstract class ComponentBdb {
             }
             mutable.close();
         } catch (IllegalStateException ex) {
-            if (AceLog.getAppLog().isLoggable(Level.FINE)) {
+            if (AceLog.getAppLog().isLoggable(Level.INFO)) {
                 AceLog.getAppLog().warning(ex.toString());
             }
         } catch (IOException e) {
-            if (AceLog.getAppLog().isLoggable(Level.FINE)) {
+            if (AceLog.getAppLog().isLoggable(Level.INFO)) {
                 AceLog.getAppLog().severe(e.toString());
             }
         }
