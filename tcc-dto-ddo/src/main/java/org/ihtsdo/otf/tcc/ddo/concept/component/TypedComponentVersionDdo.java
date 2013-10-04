@@ -47,7 +47,7 @@ public class TypedComponentVersionDdo<V extends ComponentChronicleDdo, T extends
    public TypedComponentVersionDdo(V chronicle, TerminologySnapshotDI ss, TypedComponentVersionBI another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-      typeReferenceProperty.set(new ComponentReference(ss.getConceptForNid(another.getTypeNid())));
+      typeReferenceProperty.set(new ComponentReference(ss, another.getNid()));
    }
 
    //~--- methods -------------------------------------------------------------
