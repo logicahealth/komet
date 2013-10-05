@@ -71,7 +71,9 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.DataMarker;
+import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
     
@@ -778,7 +780,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public static ConceptChronicle get(TtkConceptChronicle eConcept)
             throws IOException {
         int conceptNid;
-        if (P.s.hasUuid(eConcept.getPrimordialUuid())) {
+        PersistentStoreI store = Hk2Looker.get().getService(PersistentStoreI.class);
+        if (store.hasUuid(eConcept.getPrimordialUuid())) {
             conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
         } else if (eConcept.getConceptAttributes() != null) {
             conceptNid = P.s.getNidForUuids(eConcept.getConceptAttributes().getUuids());

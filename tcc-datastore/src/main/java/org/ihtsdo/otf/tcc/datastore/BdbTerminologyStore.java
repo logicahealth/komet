@@ -75,18 +75,22 @@ public class BdbTerminologyStore extends Termstore {
 
     public BdbTerminologyStore() {
         if (databaseSetup.compareAndSet(false, true)) {
-            bdbLocation = System.getProperty(BDB_LOCATION_PROPERTY);
+            try {
+                bdbLocation = System.getProperty(BDB_LOCATION_PROPERTY);
 
-            if (bdbLocation == null) {
-                bdbLocation = "berkeley-db";
-                LOG.info(BDB_LOCATION_PROPERTY + " not set. Using default location of: " + DEFAULT_BDB_LOCATION);
-            } else {
-                LOG.log(Level.INFO, BDB_LOCATION_PROPERTY + " set. Starting from location: {0}", bdbLocation);
+                if (bdbLocation == null) {
+                    bdbLocation = "berkeley-db";
+                    LOG.info(BDB_LOCATION_PROPERTY + " not set. Using default location of: " + DEFAULT_BDB_LOCATION);
+                } else {
+                    LOG.log(Level.INFO, BDB_LOCATION_PROPERTY + " set. Starting from location: {0}", bdbLocation);
+                }
+                Bdb.selectJeProperties(new File(bdbLocation), new File(bdbLocation));
+                Bdb.setup(bdbLocation, this);
+                LOG.info("Database setup complete");
+                setupComplete.countDown();
+            } catch (IOException ex) {
+                Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            Bdb.setup(bdbLocation, this);
-            LOG.info("Database setup complete");
-            setupComplete.countDown();
         } else {
             LOG.info("Database setup already initialized");
         }

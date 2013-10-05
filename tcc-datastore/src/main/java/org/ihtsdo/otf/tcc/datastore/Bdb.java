@@ -868,7 +868,10 @@ public class Bdb {
                 mutable.bdbEnv.close();
                 stampCache.clear();
                 activity.setProgressInfoLower("11/11: Shutdown complete");
-            } catch (DatabaseException e) {
+            } catch(IllegalStateException e){
+                //TODO can ignore for now, but need to fix the cause
+            }
+            catch (DatabaseException e) {
                 AceLog.getAppLog().alertAndLogException(e);
             } catch (Exception e) {
                 AceLog.getAppLog().alertAndLogException(e);
@@ -878,7 +881,11 @@ public class Bdb {
                     closed + "\n mutable: " + mutable);
         }
         if (readOnly != null && readOnly.bdbEnv != null) {
+            try{
             readOnly.bdbEnv.close();
+            }catch (IllegalStateException e){
+                //TODO can ignore for now, but need to fix the cause
+            }
         }
         conceptDb = null;
         mutable = null;
