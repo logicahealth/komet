@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -98,7 +99,7 @@ public class ComponentVersionDdo<T extends ComponentChronicleDdo, V extends Comp
       return this.chronicle.getIdCount();
    }
 
-   @XmlTransient
+   @XmlElement
    public UUID getPrimordialComponentUuid() {
       return this.chronicle.getPrimordialComponentUuid();
    }
@@ -118,7 +119,7 @@ public class ComponentVersionDdo<T extends ComponentChronicleDdo, V extends Comp
       return this.chronicle.getVersions();
    }
    
-   @XmlTransient
+   @XmlElement
    public int getComponentNid() {
        return this.chronicle.getComponentNid();
    }
