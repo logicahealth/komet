@@ -19,19 +19,16 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 
 /**
  *
  * @author kec
  */
-@Path("/concept")
+@Path("chronicle/concept")
 public class ConceptResource {
 
-    static {
-        BdbSingleton.get();
-    }
-    
     @GET
     @Path("{id}")
     @Produces("text/plain")
@@ -39,10 +36,10 @@ public class ConceptResource {
         ConceptChronicleBI c;
 
         if (id.length() == 36) {
-            c = BdbSingleton.get().getConcept(UUID.fromString(id));
+            c = P.s.getConcept(UUID.fromString(id));
             
         } else {
-            c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+            c = P.s.getConcept(Integer.parseInt(id));
         }
         return c.toLongString();
     }
@@ -57,10 +54,10 @@ public class ConceptResource {
         if (id.length() == 36) {
             uuid = UUID.fromString(id);
         } else {
-            uuid = BdbSingleton.get().getUuidPrimordialForNid(Integer.parseInt(id));
+            uuid = P.s.getUuidPrimordialForNid(Integer.parseInt(id));
         }
         ViewCoordinate vc = StandardViewCoordinates.getSnomedInferredLatest();
-        ConceptChronicleDdo fxc = BdbSingleton.get().getFxConcept(uuid, vc,
+        ConceptChronicleDdo fxc = P.s.getFxConcept(uuid, vc,
                     VersionPolicy.ACTIVE_VERSIONS,
                     RefexPolicy.ANNOTATION_MEMBERS,
                     RelationshipPolicy.ORIGINATING_AND_DESTINATION_RELATIONSHIPS);
@@ -73,9 +70,9 @@ public class ConceptResource {
     public TtkConceptChronicle getConceptXml(@PathParam("id") String id) throws IOException {
         ConceptChronicleBI c;
         if (id.length() == 36) {
-            c = BdbSingleton.get().getConcept(UUID.fromString(id));
+            c = P.s.getConcept(UUID.fromString(id));
         } else {
-            c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+            c = P.s.getConcept(Integer.parseInt(id));
         }
         return new TtkConceptChronicle(c);
     }
@@ -87,11 +84,11 @@ public class ConceptResource {
         final int cnid;
         if (id.length() == 36) {
             UUID uuid = UUID.fromString(id);
-            cnid = BdbSingleton.get().getNidForUuids(uuid);
+            cnid = P.s.getNidForUuids(uuid);
         } else {
             cnid = Integer.parseInt(id);
         }
-        final ConceptDataFetcherI fetcher = BdbSingleton.get().getConceptDataFetcher(cnid);
+        final ConceptDataFetcherI fetcher = P.s.getConceptDataFetcher(cnid);
         return new StreamingOutput() {
 
             @Override
@@ -113,9 +110,9 @@ public class ConceptResource {
     public StreamingOutput getEConceptByteArray(@PathParam("id") String id) throws IOException {
         ConceptChronicleBI c;
         if (id.length() == 36) {
-            c = BdbSingleton.get().getConcept(UUID.fromString(id));
+            c = P.s.getConcept(UUID.fromString(id));
         } else {
-            c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+            c = P.s.getConcept(Integer.parseInt(id));
         }
         final TtkConceptChronicle econ = new TtkConceptChronicle(c);
         return new StreamingOutput() {

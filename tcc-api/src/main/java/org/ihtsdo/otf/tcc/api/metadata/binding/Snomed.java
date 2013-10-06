@@ -350,4 +350,13 @@ public class Snomed {
     public static ConceptSpec SEVERITY_REFSET_SPEC =
             new ConceptSpec("Severity (valid targets) refset spec",
             UUID.fromString("897b6c64-fbdc-4a38-9e95-3eb100b730af"));
+    public static ConceptSpec MILD =
+            new ConceptSpec("Mild (qualifier value)",
+            UUID.fromString("7a25d07f-ad54-3d93-b823-67eb30cf3a6f"));
+    public static ConceptSpec PROCEDURE_REFSET =
+            new ConceptSpec("Procedure (domain) refset",
+            UUID.fromString("8d0f383e-fa0e-4492-843e-bc2003037dfa"));
+    public static ConceptSpec PLACENTOGRAPHY =
+            new ConceptSpec("Placentography-contrast (procedure)",
+            UUID.fromString("c013929e-2fbb-3e24-ab8d-56dc654d5fcf"));
 }

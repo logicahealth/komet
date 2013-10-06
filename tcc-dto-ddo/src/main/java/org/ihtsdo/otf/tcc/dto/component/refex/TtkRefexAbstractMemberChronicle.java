@@ -38,7 +38,7 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    public TtkRefexAbstractMemberChronicle(RefexVersionBI another) throws IOException {
       super(another);
       this.componentUuid = Ts.get().getComponent(another.getReferencedComponentNid()).getPrimordialUuid();
-      this.refexExtensionUuid    = Ts.get().getComponent(another.getRefexExtensionNid()).getPrimordialUuid();
+      this.refexExtensionUuid    = Ts.get().getComponent(another.getAssemblageNid()).getPrimordialUuid();
    }
 
    public TtkRefexAbstractMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

@@ -16,10 +16,8 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -53,12 +51,19 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public ConcurrentBitSet(NativeIdSetBI nativeIdSet) {
+        this(nativeIdSet.size());
         if (nativeIdSet instanceof ConcurrentBitSet) {
             ConcurrentBitSet other = (ConcurrentBitSet) nativeIdSet;
-            units = new AtomicLongArray(1 + (other.size() - 1) / BITS_PER_UNIT);
             privateOr(other);
         } else {
-            throw new UnsupportedOperationException();
+            NativeIdSetItrBI iter = nativeIdSet.getIterator();
+            try {
+                while (iter.next()) {
+                    set(iter.nid());
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -469,6 +474,13 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         return sb.toString();
     }
 
+    @Override
+    public void setAll(int max) {
+        for (int i = Integer.MIN_VALUE; i < max; i++) {
+            add(i);
+        }
+    }
+
     private class Iterator implements NativeIdSetItrBI {
 
         int currentBit = 0;
@@ -547,7 +559,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void xor(NativeIdSetBI other) {
         if (other instanceof ConcurrentBitSet) {
-            xor((ConcurrentBitSet)other);
+            xor((ConcurrentBitSet) other);
         } else {
             NativeIdSetItrBI iter = other.getIterator();
             try {
@@ -688,7 +700,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void andNot(NativeIdSetBI other) {
         if (other instanceof ConcurrentBitSet) {
-            andNot((ConcurrentBitSet)other);
+            andNot((ConcurrentBitSet) other);
         } else {
             NativeIdSetItrBI iter = other.getIterator();
             try {

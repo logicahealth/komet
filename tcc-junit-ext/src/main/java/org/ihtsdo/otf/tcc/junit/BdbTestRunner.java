@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.junit;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.ihtsdo.otf.tcc.datastore.Bdb;
+import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
@@ -29,78 +31,78 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.datastore.Bdb;
-import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 /**
  *
  * @author kec
  */
 public class BdbTestRunner extends BlockJUnit4ClassRunner {
-   private static boolean addHook     = true;
-   private static String  bdbLocation = null;
+    private static boolean addHook      = true;
+    private static String  bdbLocation  = null;
+    private static File    buildDirFile = new File("target");
 
-   //~--- fields --------------------------------------------------------------
+    public BdbTestRunner(Class<?> klass) throws InitializationError {
+        super(klass);
+        buildDirFile = getBuildDirectory();
+        System.out.println("Build directory: " + buildDirFile.getAbsolutePath());
 
-   private File buildDirFile = new File("target");
+        BdbTestRunnerConfig annotation = klass.getAnnotation(BdbTestRunnerConfig.class);
 
-   //~--- constructors --------------------------------------------------------
+        if (annotation == null) {
+            throw new InitializationError("You must specify a BdbTestRunnerConfig annotation for the test");
+        }
 
-   public BdbTestRunner(Class<?> klass) throws InitializationError {
-      super(klass);
+        File dbDir = new File(buildDirFile, annotation.bdbLocation());
 
-      String surefireClassPath = System.getProperty("surefire.test.class.path");
-
-      if (surefireClassPath != null) {
-         String[] surefireClassPathParts = surefireClassPath.split(":");
-
-         buildDirFile = new File(surefireClassPathParts[0].replaceAll("test-classes$", ""));
-         System.out.println(buildDirFile.getAbsolutePath());
-      }
-
-      BdbTestRunnerConfig annotation = klass.getAnnotation(BdbTestRunnerConfig.class);
-
-      if (annotation == null) {
-         throw new InitializationError("You must specify a BdbTestRunnerConfig annotation for the test");
-      }
-
-      File dbDir = new File(buildDirFile, annotation.bdbLocation());
-
-      if ((bdbLocation != null) &&!bdbLocation.equals(dbDir.getAbsolutePath())) {
-         try {
-            Bdb.close();
-            bdbLocation = null;
-         } catch (InterruptedException | ExecutionException ex) {
-            throw new InitializationError(ex);
-         }
-      }
-
-      if (bdbLocation == null) {
-         try {
-            Bdb.selectJeProperties(dbDir, dbDir);
-         } catch (IOException ex) {
-            throw new InitializationError(ex);
-         }
-         System.setProperty(BdbTerminologyStore.BDB_LOCATION_PROPERTY, dbDir.getAbsolutePath());
-         BdbTerminologyStore store = new BdbTerminologyStore();
-         
-         bdbLocation = dbDir.getAbsolutePath();
-      }
-
-      System.out.println("Created BdbTestRunner for: " + klass);
-
-      if (addHook) {
-         addHook = false;
-         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-               try {
-                  Bdb.close();
-               } catch (InterruptedException | ExecutionException ex) {
-                  Logger.getLogger(BdbTestRunner.class.getName()).log(Level.SEVERE, null, ex);
-               }
+        if ((bdbLocation != null) &&!bdbLocation.equals(dbDir.getAbsolutePath())) {
+            try {
+                Bdb.close();
+                bdbLocation = null;
+            } catch (InterruptedException | ExecutionException ex) {
+                throw new InitializationError(ex);
             }
-         }, "Shutdown hook"));
-      }
-   }
+        }
+
+        if (bdbLocation == null) {
+            try {
+                Bdb.selectJeProperties(dbDir, dbDir);
+            } catch (IOException ex) {
+                throw new InitializationError(ex);
+            }
+
+            System.setProperty(BdbTerminologyStore.BDB_LOCATION_PROPERTY, dbDir.getAbsolutePath());
+
+            BdbTerminologyStore store = new BdbTerminologyStore();
+
+            bdbLocation = dbDir.getAbsolutePath();
+        }
+
+        System.out.println("Created BdbTestRunner for: " + klass);
+
+        if (addHook) {
+            addHook = false;
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Bdb.close();
+                    } catch (InterruptedException | ExecutionException ex) {
+                        Logger.getLogger(BdbTestRunner.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }, "Shutdown hook"));
+        }
+    }
+
+    public static File getBuildDirectory() {
+        String surefireClassPath = System.getProperty("surefire.test.class.path");
+
+        if (surefireClassPath != null) {
+            String[] surefireClassPathParts = surefireClassPath.split(":");
+
+            return new File(surefireClassPathParts[0].replaceAll("test-classes$", ""));
+        }
+
+        return new File("target");
+    }
 }

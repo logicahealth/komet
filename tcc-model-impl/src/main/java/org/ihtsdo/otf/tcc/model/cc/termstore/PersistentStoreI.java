@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
@@ -31,7 +30,6 @@ import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -44,8 +42,6 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
     int getStamp(Status status, long time, int authorNid, int moduleNid, int pathNid);
 
     int getMaxReadOnlyStamp();
-
-    void xrefAnnotation(RefexChronicleBI annotation) throws IOException;
 
     boolean hasConcept(int cNid) throws IOException;
 
@@ -95,7 +91,8 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
     public void addRelOrigin(int destinationCNid, int originCNid) throws IOException;
 
     public void put(UUID uuid, int nid);
-
-    public Collection<Integer> searchLucene(String query, SearchType searchType)
-            throws IOException, ParseException;
+    
+    public void setIndexed(int nid, boolean indexed);
+    
+    public boolean isIndexed(int nid);
 }

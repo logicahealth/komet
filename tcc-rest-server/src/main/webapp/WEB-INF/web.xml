@@ -5,8 +5,8 @@ see implementation details http://jersey.java.net/nonav/documentation/latest/jax
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
-        <servlet-name>TCC Jersey REST server</servlet-name>
-        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <servlet-name>OTF Jersey REST server</servlet-name>
+        <servlet-class>org.ihtsdo.otf.tcc.rest.server.ChronicleServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>org.ihtsdo.otf.tcc.rest.server</param-value>
@@ -14,7 +14,7 @@ see implementation details http://jersey.java.net/nonav/documentation/latest/jax
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>TCC Jersey REST server</servlet-name>
-        <url-pattern>/rest/*</url-pattern>
+        <servlet-name>OTF Jersey REST server</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

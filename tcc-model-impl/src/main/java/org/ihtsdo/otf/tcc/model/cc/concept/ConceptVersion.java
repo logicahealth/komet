@@ -1218,7 +1218,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
          if (refexes != null) {
             for (RefexChronicleBI<?> refex : refexes) {
-               if (refex.getRefexExtensionNid() == collectionNid) {
+               if (refex.getAssemblageNid() == collectionNid) {
                   return true;
                }
             }
@@ -1235,15 +1235,22 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       return concept.isUncommitted();
    }
 
-    @Override
-    public boolean isAnnotationIndex() throws IOException {
-        return concept.isAnnotationIndex();
-    }
-
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setAnnotationStyleRefex(boolean annotationStyleRefset) {
       concept.setAnnotationStyleRefex(annotationStyleRefset);
    }
+   
+   
+   
+    public boolean isIndexed() {
+        return concept.isIndexed();
+    }
+
+   
+    public void setIndexed() {
+        concept.setIndexed();
+    }
+
 }

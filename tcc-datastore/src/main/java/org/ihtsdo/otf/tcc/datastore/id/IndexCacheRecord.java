@@ -40,7 +40,6 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
@@ -77,7 +76,7 @@ public class IndexCacheRecord {
             this.data = new int[]{2, 2};
         }
     }
-
+    
     public boolean isRefexMemberAlreadyThere(int memberNid) {
         int arrayLength = data.length - data[REFEX_OFFSET_INDEX];
         int start = data.length - arrayLength;
@@ -176,7 +175,7 @@ public class IndexCacheRecord {
         int[] originCNids = getDestinationOriginNids();
 
         for (int originCNid : originCNids) {
-            ConceptChronicleBI c = Ts.get().getConcept(originCNid);
+            ConceptChronicleBI c = Bdb.getConcept(originCNid);
 
             for (RelationshipChronicleBI r : c.getRelationshipsOutgoing()) {
                 if (r.getDestinationNid() == cNid) {

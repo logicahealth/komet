@@ -13,19 +13,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
+import org.ihtsdo.otf.tcc.model.cc.P;
 
 /**
  *
  * @author kec
  */
-@Path("/property")
+@Path("chronicle/property")
 public class PropertyResource {
-    static {
-        BdbSingleton.get();
-    }
         
     @GET
-    @Path("")
     @Produces("application/bdb")
     public StreamingOutput getProperties() throws IOException  {
         return new StreamingOutput() {
@@ -33,7 +30,7 @@ public class PropertyResource {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 ObjectOutputStream oos = new ObjectOutputStream(output);
-                oos.writeObject(BdbSingleton.get().getProperties());
+                oos.writeObject(P.s.getProperties());
             }
         };
     }
@@ -42,7 +39,7 @@ public class PropertyResource {
     @Path("{key}")
     @Produces("text/plain")
     public String getProperty(@PathParam("key") String key) throws IOException  {
-        return BdbSingleton.get().getProperty(key);
+        return P.s.getProperty(key);
     }
 
     

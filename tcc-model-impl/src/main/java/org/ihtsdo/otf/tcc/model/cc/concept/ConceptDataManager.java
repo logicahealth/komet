@@ -15,11 +15,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.component.AnnotationIndexBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.AnnotationStyleBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.DataVersionBinder;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
@@ -47,7 +45,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    protected long                lastExtinctRemoval = Long.MIN_VALUE;
    protected ConceptChronicle             enclosingConcept;
    protected ConceptDataFetcherI nidData;
-
+   
    //~--- constructors --------------------------------------------------------
 
    public ConceptDataManager(ConceptDataFetcherI nidData) throws IOException {
@@ -121,18 +119,19 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
 
    @Override
    public void modified() {
+       P.s.setIndexed(getNid(), false);
       lastChange = P.s.incrementAndGetSequence();
    }
 
    @Override
    public void modified(long sequence) {
+       P.s.setIndexed(getNid(), false);
       lastChange = sequence;
    }
-
+   
    void processNewDesc(Description e) throws IOException {
       assert e.nid != 0 : "descNid is 0: " + this;
       getDescNids().add(e.nid);
-      LuceneManager.addUncommittedDescNid(e.nid);
       modified();
    }
 
@@ -153,7 +152,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
          addToMemberMap(refsetMember);
          modified();
          P.s.addXrefPair(refsetMember.getReferencedComponentNid(),
-                         NidPair.getRefexNidMemberNidPair(refsetMember.getRefexExtensionNid(), refsetMember.getNid()));
+                         NidPair.getRefexNidMemberNidPair(refsetMember.getAssemblageNid(), refsetMember.getNid()));
       }
    }
 
@@ -194,7 +193,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       Collection<Integer> imgNids    = getImageNids();
       Collection<Integer> memberNids = new ArrayList<>(0);
 
-      if (!isAnnotationStyleSet()) {
+      if (!isAnnotationStyleRefex()) {
          memberNids = getMemberNids();
       }
 
@@ -281,24 +280,6 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       }
 
       return destRels;
-   }
-
-   public boolean getIsAnnotationStyleIndex() throws IOException {
-      AnnotationIndexBinder binder        = AnnotationIndexBinder.getBinder();
-      TupleInput            readOnlyInput = nidData.getReadOnlyTupleInput();
-      boolean               isIndex       = false;
-
-      if (readOnlyInput.available() > 0) {
-         isIndex = binder.entryToObject(readOnlyInput);
-      }
-
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
-
-      if (readWriteInput.available() > 0) {
-         isIndex = binder.entryToObject(readWriteInput);
-      }
-
-      return isIndex;
    }
 
    public boolean getIsAnnotationStyleRefset() throws IOException {

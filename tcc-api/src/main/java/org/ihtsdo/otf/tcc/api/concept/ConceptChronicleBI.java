@@ -92,5 +92,4 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    
    void processComponentChronicles(ProcessComponentChronicleBI processor) throws Exception;
 
-   boolean isAnnotationIndex() throws IOException;
 }

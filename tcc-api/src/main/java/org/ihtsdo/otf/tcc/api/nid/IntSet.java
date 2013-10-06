@@ -244,6 +244,11 @@ public class IntSet implements NativeIdSetBI {
         return this.hashSet.isEmpty();
     }
 
+    @Override
+    public void setAll(int max) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     private class Iterator implements NativeIdSetItrBI {
 
         IntArrayList items;

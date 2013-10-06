@@ -14,9 +14,10 @@ import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 import com.sleepycat.je.DatabaseEntry;
-import java.util.HashSet;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
         extends TupleBinding<Collection<C>>
@@ -24,6 +25,11 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
 
     private static final int maxReadOnlyStatusAtPositionId =
             P.s.getMaxReadOnlyStamp();
+    protected static List<IndexerBI> indexers;
+
+    static {
+        indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
+    }
     private ConceptChronicle enclosingConcept;
     private ArrayList<C> readOnlyConceptComponentList;
     private ComponentFactory<V, C> factory;
@@ -83,13 +89,12 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
                     C oldComponent = (C) ConceptChronicle.componentsCRHM.putIfAbsent(conceptComponent.nid, conceptComponent);
                     if (oldComponent != null) {
                         conceptComponent = oldComponent;
-                        if (nidToConceptComponentMap != null) {
-                            nidToConceptComponentMap.put(nid, oldComponent);
-                        }
+                        nidToConceptComponentMap.put(nid, oldComponent);
+                        
                     }
                 }
                 try {
-                    conceptComponent.merge(factory.create(enclosingConcept, input), new HashSet<ConceptChronicleBI>());
+                    conceptComponent.merge(factory.create(enclosingConcept, input));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -107,7 +112,7 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
                             }
                         }
                     } else {
-                        conceptComponent.merge(factory.create(enclosingConcept, input), new HashSet<ConceptChronicleBI>());
+                        conceptComponent.merge(factory.create(enclosingConcept, input));
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -126,6 +131,12 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
         List<C> componentListToWrite = new ArrayList<>(conceptComponentList.size());
         for (C conceptComponent : conceptComponentList) {
             componentsEncountered.incrementAndGet();
+            if (!conceptComponent.isIndexed()) {
+                for (IndexerBI i : indexers) {
+                    i.index((ComponentChronicleBI) conceptComponent);
+                }
+                conceptComponent.setIndexed();
+            }
             if (conceptComponent.stampIsInRange(maxReadOnlyStatusAtPositionId + 1, Integer.MAX_VALUE) 
                     && conceptComponent.getTime() != Long.MIN_VALUE) {
                 componentListToWrite.add(conceptComponent);

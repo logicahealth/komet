@@ -93,6 +93,7 @@ public class TtkConceptChronicle {
 
    /** Field description */
    @XmlAttribute
+   @Deprecated
    protected boolean annotationIndexStyleRefex = false;
 
    /** Field description */
@@ -140,7 +141,7 @@ public class TtkConceptChronicle {
     */
    public TtkConceptChronicle(ConceptChronicleBI c) throws IOException {
       annotationStyleRefex      = c.isAnnotationStyleRefex();
-      annotationIndexStyleRefex = c.isAnnotationIndex();
+      annotationIndexStyleRefex = false;
       conceptAttributes         = new TtkConceptAttributesChronicle(c.getConceptAttributes());
       primordialUuid            = conceptAttributes.primordialUuid;
       relationships             = new ArrayList<>(c.getRelationshipsOutgoing().size());
@@ -806,7 +807,9 @@ public class TtkConceptChronicle {
     *
     *
     * @return
+    * @deprecated no longer supported. 
     */
+   @Deprecated
    public boolean isAnnotationIndexStyleRefex() {
       return annotationIndexStyleRefex;
    }
@@ -826,7 +829,9 @@ public class TtkConceptChronicle {
     *
     *
     * @param annotationIndexStyleRefex
+    * @deprecated No longer used. 
     */
+   @Deprecated
    public void setAnnotationIndexStyleRefex(boolean annotationIndexStyleRefex) {
       this.annotationIndexStyleRefex = annotationIndexStyleRefex;
    }

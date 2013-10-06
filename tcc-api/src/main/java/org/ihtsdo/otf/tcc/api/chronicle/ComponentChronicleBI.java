@@ -19,6 +19,13 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
     Collection<? extends T> getVersions();
 
     boolean isUncommitted();
+    
+    
+    /**
+     * 
+     * @return the stamps for all versions of this chronicle. 
+     * @throws IOException 
+     */
 
     Set<Integer> getAllStamps() throws IOException;
     

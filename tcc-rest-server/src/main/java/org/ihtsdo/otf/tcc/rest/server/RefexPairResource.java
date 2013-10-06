@@ -13,16 +13,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
+import org.ihtsdo.otf.tcc.model.cc.P;
 
 /**
  *
  * @author kec
  */
-@Path("/nidpairs/refex")
+@Path("chronicle/nidpairs/refex")
 public class RefexPairResource {
-    static {
-        BdbSingleton.get();
-    }
         
     @GET
     @Path("{nid}")
@@ -33,7 +31,7 @@ public class RefexPairResource {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 ObjectOutputStream oos = new ObjectOutputStream(output);
-                oos.writeObject(BdbSingleton.get().getRefexPairs(nid));
+                oos.writeObject(P.s.getRefexPairs(nid));
             }
         };
     }

@@ -13,7 +13,7 @@
     </properties>
     <dependencies>
        <dependency>
-            <groupId>com.oracle</groupId>
+            <groupId>com.sun.javafx</groupId>
             <artifactId>jfxrt</artifactId>
         </dependency>
         <dependency>
@@ -92,6 +92,7 @@
                         </transformSchema>
                     </transformSchemas>
                     <includes>
+                        <include>**/DefinitionalState.java</include>
                         <include>**/*Ddo.java</include>
                         <include>**/ComponentReference.java</include>
                         <include>**/ResultList.java</include>

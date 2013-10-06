@@ -13,47 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.Query;
 
+
+import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
+import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
+import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
+import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
 import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
-import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
+import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
-import org.ihtsdo.otf.tcc.model.cc.lucene.SearchResult;
-import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriter;
+import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -67,14 +69,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
-import static org.ihtsdo.otf.tcc.model.cc.termstore.SearchType.CONCEPT;
-import static org.ihtsdo.otf.tcc.model.cc.termstore.SearchType.DESCRIPTION;
+import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
+import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 /**
  *
@@ -86,6 +85,7 @@ public abstract class Termstore implements PersistentStoreI {
      * Field description
      */
     ConcurrentHashMap<UUID, TerminologySnapshotDI> persistentSnapshots = new ConcurrentHashMap<>();
+
     /**
      * Field description
      */
@@ -176,8 +176,8 @@ public abstract class Termstore implements PersistentStoreI {
      * @return
      */
     @Override
-    public ChangeSetGeneratorBI createDtoChangeSetGenerator(File changeSetFileName,
-            File changeSetTempFileName, ChangeSetGenerationPolicy policy) {
+    public ChangeSetGeneratorBI createDtoChangeSetGenerator(File changeSetFileName, File changeSetTempFileName,
+            ChangeSetGenerationPolicy policy) {
         return new ChangeSetWriter(changeSetFileName, changeSetTempFileName, policy, true);
     }
 
@@ -247,14 +247,19 @@ public abstract class Termstore implements PersistentStoreI {
         if (Ts.get().hasUuid(uuid)) {
             try {
                 int nid = Ts.get().getNidForUuids(uuid);
+
                 if (nid == Integer.MAX_VALUE) {
                     sb.append("Component unassigned (Integer.MAX_VALUE) ").append(uuid);
+
                     return sb;
                 }
+
                 int cNid = Ts.get().getConceptNidForNid(nid);
+
                 if (cNid == Integer.MAX_VALUE) {
                     sb.append("Component: ").append(nid).append(" ").append(uuid);
                     sb.append("Concept unassigned (Integer.MAX_VALUE) ").append(uuid);
+
                     return sb;
                 }
 
@@ -321,19 +326,16 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     protected ViewCoordinate makeMetaVc() throws IOException {
-        Path viewPath = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
-        Position viewPosition = new Position(Long.MAX_VALUE, viewPath);
-        EnumSet<Status> allowedStatusNids = EnumSet.of(Status.ACTIVE);
-
+        Path                   viewPath             = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
+        Position               viewPosition         = new Position(Long.MAX_VALUE, viewPath);
+        EnumSet<Status>        allowedStatusNids    = EnumSet.of(Status.ACTIVE);
         ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
-        int languageNid = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
-        int classifierNid = ReferenceConcepts.SNOROCKET.getNid();
+        int                    languageNid          = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
+        int                    classifierNid        = ReferenceConcepts.SNOROCKET.getNid();
 
-        return new ViewCoordinate(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"), "meta-vc",
-                Precedence.PATH, viewPosition, allowedStatusNids,
-                contradictionManager, languageNid, classifierNid,
-                RelAssertionType.INFERRED_THEN_STATED, null,
-                LanguageSort.RF2_LANG_REFEX);
+        return new ViewCoordinate(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"), "meta-vc", Precedence.PATH,
+                                  viewPosition, allowedStatusNids, contradictionManager, languageNid, classifierNid,
+                                  RelAssertionType.INFERRED_THEN_STATED, null, LanguageSort.RF2_LANG_REFEX);
     }
 
     /**
@@ -374,78 +376,7 @@ public abstract class Termstore implements PersistentStoreI {
         LastChange.removeTermChangeListener(cl);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param query
-     * @param searchType
-     *
-     * @return
-     *
-     * @throws IOException
-     * @throws ParseException
-     */
-    @Override
-    public Collection<Integer> searchLucene(String query, SearchType searchType)
-            throws IOException, ParseException {
-        try {
-            Query q = new QueryParser(LuceneManager.version, "desc",
-                    new StandardAnalyzer(LuceneManager.version)).parse(query);
-            SearchResult result = LuceneManager.search(q, searchType);
-
-            if (result.topDocs.totalHits > 0) {
-                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-                    TermstoreLogger.logger.log(Level.FINE, "StandardAnalyzer query returned {0} hits",
-                            result.topDocs.totalHits);
-                }
-            } else {
-                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-                    TermstoreLogger.logger.fine(
-                            "StandardAnalyzer query returned no results. Now trying WhitespaceAnalyzer query");
-                    q = new QueryParser(LuceneManager.version, "desc",
-                            new WhitespaceAnalyzer(LuceneManager.version)).parse(query);
-                }
-
-                result = LuceneManager.search(q, searchType);
-            }
-
-            HashSet<Integer> nidSet = new HashSet<>(result.topDocs.totalHits);
-
-            for (int i = 0; i < result.topDocs.totalHits; i++) {
-                Document doc = result.searcher.doc(result.topDocs.scoreDocs[i].doc);
-                int dnid = Integer.parseInt(doc.get("dnid"));
-                int cnid = Integer.parseInt(doc.get("cnid"));
-
-
-                switch (searchType) {
-                    case CONCEPT:
-                        nidSet.add(cnid);
-
-                        break;
-
-                    case DESCRIPTION:
-                        nidSet.add(dnid);
-
-                        break;
-
-                    default:
-                        throw new IOException("Can't handle: " + searchType);
-                }
-
-                float score = result.topDocs.scoreDocs[i].score;
-
-                if (TermstoreLogger.logger.isLoggable(Level.FINE)) {
-                    TermstoreLogger.logger.log(Level.FINE, "Hit: {0} Score: {1}", new Object[]{doc, score});
-                }
-            }
-
-            return nidSet;
-        } catch (ParseException | IOException | NumberFormatException e) {
-            throw new IOException(e);
-        }
-    }
-
+    
     /**
      * Method description
      *
@@ -510,6 +441,7 @@ public abstract class Termstore implements PersistentStoreI {
         if (getConceptNidForNid(nid) == Integer.MAX_VALUE) {
             return null;
         }
+
         return getConceptForNid(nid).getComponent(nid);
     }
 
@@ -540,11 +472,10 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentChronicleBI<?> getComponentFromAlternateId(int authorityNid, String altId)
-            throws IOException {
+    public ComponentChronicleBI<?> getComponentFromAlternateId(int authorityNid, String altId) throws IOException {
         try {
-            return getComponent(
-                    P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+            return getComponent(P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid),
+                    altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -624,12 +555,11 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid,
-            String altId)
+    public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId)
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(
-                    vc, P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+                vc, P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -649,8 +579,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUUID,
-            String altId)
+    public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUUID, String altId)
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(vc, P.s.getNidForUuids(UuidT5Generator.get(authorityUUID, altId)));
@@ -749,7 +678,7 @@ public abstract class Termstore implements PersistentStoreI {
     public ConceptChronicle getConceptFromAlternateId(int authorityNid, String altId) throws IOException {
         try {
             return ConceptChronicle.get(
-                    P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+                P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -875,8 +804,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public Map<Integer, ConceptVersionBI> getConceptVersions(ViewCoordinate c, NativeIdSetBI cNids)
-            throws IOException {
+    public Map<Integer, ConceptVersionBI> getConceptVersions(ViewCoordinate c, NativeIdSetBI cNids) throws IOException {
         ConceptVersionGetter processor = new ConceptVersionGetter(cNids, c);
 
         try {
@@ -988,9 +916,8 @@ public abstract class Termstore implements PersistentStoreI {
      */
     @Override
     public int getStamp(ExternalStampBI version) throws IOException {
-        return getStamp(version.getStatus(), version.getTime(),
-                getNidForUuids(version.getAuthorUuid()), getNidForUuids(version.getModuleUuid()),
-                getNidForUuids(version.getPathUuid()));
+        return getStamp(version.getStatus(), version.getTime(), getNidForUuids(version.getAuthorUuid()),
+                        getNidForUuids(version.getModuleUuid()), getNidForUuids(version.getPathUuid()));
     }
 
     /**
@@ -1032,6 +959,73 @@ public abstract class Termstore implements PersistentStoreI {
         } else if (id instanceof Number) {
             informAboutNid((Integer) id);
         }
+
         return id.toString();
     }
+
+    private static class IndexGenerator implements ProcessUnfetchedConceptDataBI, 
+            ProcessComponentChronicleBI {
+        NativeIdSetBI nids;
+        List<IndexerBI> indexers;
+
+        public IndexGenerator() throws IOException {
+            this.nids = P.s.getAllConceptNids();
+            indexers = Hk2Looker.get().getAllServices(IndexerBI.class);        
+            for (IndexerBI i: indexers) {
+                i.clearIndex();
+            }
+        }
+        
+        @Override
+        public boolean allowCancel() {
+            return false;
+        }
+
+        @Override
+        public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fetcher) throws Exception {
+            ConceptChronicle cc = (ConceptChronicle) fetcher.fetch();
+            cc.processComponentChronicles(this);
+        }
+
+        @Override
+        public NativeIdSetBI getNidSet() throws IOException {
+            return nids;
+        }
+
+        @Override
+        public String getTitle() {
+            return "Index generator";
+        }
+
+        @Override
+        public boolean continueWork() {
+            return true; 
+        }
+
+        @Override
+        public void process(ComponentChronicleBI cc) throws Exception {
+            for (IndexerBI i: indexers) {
+                i.index(cc);
+            }
+        }
+        
+        public void commit() {
+            for (IndexerBI i: indexers) {
+                i.commitWriter();
+            }
+        }
+    }
+    @Override
+    public void index() throws IOException {
+        try {
+            IndexGenerator ig = new IndexGenerator();
+            P.s.iterateConceptDataInParallel(ig);
+            ig.commit();
+        } catch (Exception ex) {
+            throw new IOException(ex);
+        }
+        
+    }
+    
+    
 }

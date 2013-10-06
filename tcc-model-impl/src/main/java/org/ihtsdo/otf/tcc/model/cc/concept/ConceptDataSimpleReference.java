@@ -73,14 +73,12 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
    private AtomicReference<ConcurrentSkipListSet<Integer>> descNids      =
       new AtomicReference<>();
    ReentrantLock       attrLock = new ReentrantLock();
-   private Boolean annotationIndex;
    private Boolean annotationStyleRefset;
 
    //~--- constructors --------------------------------------------------------
 
    public ConceptDataSimpleReference(ConceptChronicle enclosingConcept) throws IOException {
       super(P.s.getConceptDataFetcher(enclosingConcept.getNid()));
-      assert enclosingConcept != null : "enclosing concept cannot be null.";
       this.enclosingConcept = enclosingConcept;
    }
 
@@ -139,7 +137,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
                RefexChronicleBI r = (RefexChronicleBI) cc;
 
                affectedConceptNids.add(P.s.getConceptNidForNid(r.getReferencedComponentNid()));
-               affectedConceptNids.add(r.getRefexExtensionNid());
+               affectedConceptNids.add(r.getAssemblageNid());
             } else {
                affectedConceptNids.add(getNid());
             }
@@ -406,7 +404,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
 
    private void removeRefsetReferences(ConceptComponent<?, ?> cc) throws IOException {
       for (RefexChronicleBI<?> rc : cc.getRefsetMembers()) {
-         ConceptChronicle      refsetCon = ConceptChronicle.get(rc.getRefexExtensionNid());
+         ConceptChronicle      refsetCon = ConceptChronicle.get(rc.getAssemblageNid());
          RefexMember rm        = (RefexMember) rc;
 
          rm.primordialStamp = -1;
@@ -897,19 +895,6 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
 
    @Override
    public AddMemberSet getRefsetMembers() throws IOException {
-      if (isAnnotationStyleRefex() && isAnnotationIndex()) {
-         ArrayList<RefexMember<?, ?>> members = new ArrayList<>(getMemberNids().size());
-
-         for (int memberNid : getMemberNids()) {
-            RefexMember<?, ?> member = (RefexMember<?, ?>) P.s.getComponent(memberNid);
-
-            if (member != null) {
-               members.add(member);
-            }
-         }
-
-         return new AddMemberSet(members);
-      }
 
       if (refsetMembers.get() == null) {
          refsetMembersLock.lock();
@@ -1104,26 +1089,12 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
    }
 
    @Override
-   public boolean isAnnotationIndex() throws IOException {
-      if (annotationIndex == null) {
-         annotationIndex = getIsAnnotationStyleIndex();
-      }
-
-      return annotationIndex;
-   }
-
-   @Override
    public boolean isAnnotationStyleRefex() throws IOException {
       if (annotationStyleRefset == null) {
          annotationStyleRefset = getIsAnnotationStyleRefset();
       }
 
       return annotationStyleRefset;
-   }
-
-   @Override
-   public boolean isAnnotationStyleSet() throws IOException {
-      return isAnnotationStyleRefex();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -1141,11 +1112,6 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       enclosingConcept.modified();
    }
 
-   @Override
-   public void setAnnotationIndex(boolean annotationIndex) throws IOException {
-      modified();
-      this.annotationIndex = annotationIndex;
-   }
 
    @Override
    public void setAnnotationStyleRefset(boolean annotationStyleRefset) {

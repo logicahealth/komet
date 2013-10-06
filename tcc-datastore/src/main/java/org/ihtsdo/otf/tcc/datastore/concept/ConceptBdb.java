@@ -19,7 +19,7 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
 import org.ihtsdo.otf.tcc.datastore.ComponentBdb;
-import org.ihtsdo.otf.tcc.datastore.id.NidCNidMapBdb;
+import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
 import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
 import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
@@ -46,8 +46,9 @@ import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSetReadOnly;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 /**
  * Class description
@@ -67,6 +68,12 @@ public class ConceptBdb extends ComponentBdb {
    /** Field description */
    private static final ExecutorService iteratorService =
       Executors.newCachedThreadPool(new NamedThreadFactory(conDbThreadGroup, "parallel iterator service"));
+   
+   protected static List<IndexerBI> indexers;
+   
+   static {   
+       indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
+   }
 
    /** Field description */
    private NativeIdSetBI conceptIdSet;
@@ -285,7 +292,7 @@ public class ConceptBdb extends ComponentBdb {
       }
 
       Collection<Integer> nids      = concept.getAllNids();
-      NidCNidMapBdb       nidCidMap = Bdb.getNidCNidMap();
+      MemoryCacheBdb       nidCidMap = Bdb.getNidCNidMap();
 
       for (int nid : nids) {
          assert nid != 0 : "nid is 0: " + nids;
@@ -405,6 +412,13 @@ public class ConceptBdb extends ComponentBdb {
       return ConceptChronicle.get(cNid);
    }
 
+    public NativeIdSetBI getAllComponents() throws IOException {
+        int currentMaxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
+        ConcurrentBitSet componentSet = new ConcurrentBitSet(currentMaxNid - Integer.MIN_VALUE);
+        componentSet.setAll(currentMaxNid);
+        return componentSet;
+    }
+
    /**
     * Class description
     *
@@ -468,6 +482,10 @@ public class ConceptBdb extends ComponentBdb {
     @Override
     public void sync() throws IOException {
         super.sync(); 
-        LuceneManager.commit();
+        if (indexers != null) {
+            for (IndexerBI i: indexers) {
+                i.commitWriter();
+            }
+        }
     }
 }

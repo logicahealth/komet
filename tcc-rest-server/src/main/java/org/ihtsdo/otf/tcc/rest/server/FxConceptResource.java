@@ -31,17 +31,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
+import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 
 /**
  *
  * @author kec
  */
-@Path("/fx-concept")
+@Path("chronicle/fx-concept")
 public class FxConceptResource {
-    static {
-        BdbSingleton.get();
-    }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -55,12 +53,12 @@ public class FxConceptResource {
       if (id.length() == 36) {
          UUID uuid = UUID.fromString(id);
 
-         cnid = BdbSingleton.get().getNidForUuids(uuid);
+         cnid = P.s.getNidForUuids(uuid);
       } else {
          cnid = Integer.parseInt(id);
       }
 
-      final ConceptDataFetcherI fetcher = BdbSingleton.get().getConceptDataFetcher(cnid);
+      final ConceptDataFetcherI fetcher = P.s.getConceptDataFetcher(cnid);
 
       return new StreamingOutput() {
          @Override
@@ -90,9 +88,9 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = BdbSingleton.get().getConcept(UUID.fromString(id));
+         c = P.s.getConcept(UUID.fromString(id));
       } else {
-         c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+         c = P.s.getConcept(Integer.parseInt(id));
       }
 
       return "Concept html: " + id + " " + c.toLongString();
@@ -106,9 +104,9 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = BdbSingleton.get().getConcept(UUID.fromString(id));
+         c = P.s.getConcept(UUID.fromString(id));
       } else {
-         c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+         c = P.s.getConcept(Integer.parseInt(id));
       }
 
       return "Concept plain: " + id + " " + c.toLongString();
@@ -122,13 +120,13 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = BdbSingleton.get().getConcept(UUID.fromString(id));
+         c = P.s.getConcept(UUID.fromString(id));
       } else {
-         c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+         c = P.s.getConcept(Integer.parseInt(id));
       }
 
-      ViewCoordinate        vc   = BdbSingleton.get().getViewCoordinate(UUID.fromString(vcUuid));
-      TerminologySnapshotDI snap = BdbSingleton.get().getSnapshot(vc);
+      ViewCoordinate        vc   = P.s.getViewCoordinate(UUID.fromString(vcUuid));
+      TerminologySnapshotDI snap = P.s.getSnapshot(vc);
 
       return new ConceptChronicleDdo(snap, c, VersionPolicy.ALL_VERSIONS, RefexPolicy.REFEX_MEMBERS,
                            RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
@@ -145,13 +143,13 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = BdbSingleton.get().getConcept(UUID.fromString(id));
+         c = P.s.getConcept(UUID.fromString(id));
       } else {
-         c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+         c = P.s.getConcept(Integer.parseInt(id));
       }
 
-      ViewCoordinate        vc   = BdbSingleton.get().getViewCoordinate(UUID.fromString(vcUuid));
-      TerminologySnapshotDI snap = BdbSingleton.get().getSnapshot(vc);
+      ViewCoordinate        vc   = P.s.getViewCoordinate(UUID.fromString(vcUuid));
+      TerminologySnapshotDI snap = P.s.getSnapshot(vc);
 
       return new ConceptChronicleDdo(snap, c, versionPolicy, refexPolicy, relationshipPolicy);
    }
@@ -164,9 +162,9 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = BdbSingleton.get().getConcept(UUID.fromString(id));
+         c = P.s.getConcept(UUID.fromString(id));
       } else {
-         c = BdbSingleton.get().getConcept(Integer.parseInt(id));
+         c = P.s.getConcept(Integer.parseInt(id));
       }
 
       final TtkConceptChronicle econ = new TtkConceptChronicle(c);

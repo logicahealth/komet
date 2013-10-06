@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 International Health Terminology Standards Development Organisation.
+ * Copyright 2013 International Health Terminology Standards Development Organisation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.lucene;
+package org.ihtsdo.otf.tcc.lookup;
+
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+
 /**
- * @TODO move lucene to it's own module with a implementation free interface. 
+ *
+ * @author aimeefurber
  */
+public class Hk2Looker {
+    private static ServiceLocator looker = null;
+    public static ServiceLocator get() {
+        if (looker == null) {
+            looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
+        }
+        return looker;
+    }
+}

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +31,6 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 
 /**
@@ -82,7 +80,7 @@ public class AnnotationWriter {
 
          if (refsetMember == null) {
             try {
-               refsetMember = factory.create(nid, typeNid, enclosingConceptNid, input);
+               refsetMember = RefexMemberFactory.create(nid, typeNid, enclosingConceptNid, input);
 
                if (refsetMember.getTime() != Long.MIN_VALUE) {
                   RefexMember<?, ?> oldMember = (RefexMember<?,
@@ -97,8 +95,7 @@ public class AnnotationWriter {
             }
          } else {
             try {
-               refsetMember.merge(factory.create(nid, typeNid, enclosingConceptNid, input),
-                                  new HashSet<ConceptChronicleBI>());
+               refsetMember.merge(RefexMemberFactory.create(nid, typeNid, enclosingConceptNid, input));
             } catch (IOException ex) {
                throw new RuntimeException(ex);
             }

@@ -19,19 +19,17 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.ihtsdo.otf.tcc.datastore.concept.ConceptBdb;
 import org.ihtsdo.otf.tcc.datastore.BdbMemoryMonitor.LowMemoryListener;
-import org.ihtsdo.otf.tcc.datastore.id.NidCNidMapBdb;
+import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
 import org.ihtsdo.otf.tcc.datastore.stamp.StampBdb;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -55,17 +53,18 @@ import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 import org.ihtsdo.otf.tcc.model.cc.concept.TtkConceptChronicleConverter;
-import org.ihtsdo.otf.tcc.model.cc.lucene.LuceneManager;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.ddo.progress.AggregateProgressItem;
 import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
 import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
 import org.ihtsdo.otf.tcc.lookup.TtkEnvironment;
 import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class Bdb {
 
@@ -74,7 +73,7 @@ public class Bdb {
     private static Bdb readOnly;
     private static Bdb mutable;
     private static UuidToNidMapBdb uuidsToNidMapDb;
-    public static NidCNidMapBdb nidCidMapDb;
+    public static MemoryCacheBdb memoryCacheBdb;
     private static StampBdb stampDb;
     private static ConceptBdb conceptDb;
     private static PropertiesBdb propDb;
@@ -89,6 +88,12 @@ public class Bdb {
     private static File viewCoordinateMapFile;
     private static CountDownLatch setupLatch = new CountDownLatch(5);
     private static BdbTerminologyStore ts;
+    
+    protected static List<IndexerBI> indexers;
+
+    static {
+        indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
+    }
 
     public static boolean removeMemoryMonitorListener(LowMemoryListener listener) {
         return memoryMonitor.removeListener(listener);
@@ -148,16 +153,6 @@ public class Bdb {
     public static int getCachePercent() {
         return Bdb.mutable.bdbEnv.getMutableConfig().getCachePercent();
     }
-    static ConcurrentSkipListSet<ConceptChronicle> annotationConcepts = new ConcurrentSkipListSet<>();
-
-    public static void xrefAnnotation(RefexChronicleBI annotation) throws IOException {
-        ConceptChronicle refexConcept = ConceptChronicle.get(annotation.getRefexExtensionNid());
-        if (refexConcept.isAnnotationIndex()) {
-            if (refexConcept.addMemberNid(annotation.getNid())) {
-                annotationConcepts.add(refexConcept);
-            }
-        }
-    }
 
     static int getAuthorNidForSapNid(int sapNid) {
         return stampDb.getAuthorNid(sapNid);
@@ -192,7 +187,7 @@ public class Bdb {
     }
 
     static void addRelOrigin(int destinationCNid, int originCNid) throws IOException {
-        nidCidMapDb.addRelOrigin(destinationCNid, originCNid);
+        memoryCacheBdb.addRelOrigin(destinationCNid, originCNid);
     }
 
     private static void startupWithFx() throws InterruptedException, ExecutionException {
@@ -262,7 +257,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                nidCidMapDb = new NidCNidMapBdb(readOnly, mutable);
+                memoryCacheBdb = new MemoryCacheBdb(readOnly, mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -377,7 +372,7 @@ public class Bdb {
         FutureTask<Void> setupComponentNidToConceptNidDb = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                nidCidMapDb = new NidCNidMapBdb(readOnly, mutable);
+                memoryCacheBdb = new MemoryCacheBdb(readOnly, mutable);
                 finishSetup();
                 return null;
             }
@@ -532,8 +527,8 @@ public class Bdb {
             System.out.println("absolute dbRoot: " + bdbDirectory.getAbsolutePath());
             viewCoordinateMapFile = new File(bdbDirectory, "viewCoordinates.oos");
             bdbDirectory.mkdirs();
-            LuceneManager.setLuceneRootDir(bdbDirectory);
-            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
+//            LuceneManager.setLuceneRootDir(bdbDirectory);
+//            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
 
             mutable = new Bdb(false, new File(bdbDirectory, "mutable"));
             File readOnlyDir = new File(bdbDirectory, "read-only");
@@ -711,10 +706,10 @@ public class Bdb {
     }
 
     public static int getConceptNid(int componentNid) {
-        if (nidCidMapDb == null) {
+        if (memoryCacheBdb == null) {
             return Integer.MAX_VALUE;
         }
-        return nidCidMapDb.getCNid(componentNid);
+        return memoryCacheBdb.getCNid(componentNid);
     }
 
     public static ConceptChronicle getConceptForComponent(int componentNid) throws IOException {
@@ -768,7 +763,7 @@ public class Bdb {
                 activity.setProgressInfoLower("Writing uuidsToNidMapDb... ");
                 uuidsToNidMapDb.sync();
                 activity.setValue(2);
-                nidCidMapDb.sync();
+                memoryCacheBdb.sync();
                 activity.setValue(3);
                 activity.setProgressInfoLower("Writing statusAtPositionDb... ");
                 stampDb.sync();
@@ -850,16 +845,22 @@ public class Bdb {
                 BdbCommitManager.cancel();
                 activity.setProgressInfoLower("7/11: Starting BdbCommitManager shutdown.");
                 BdbCommitManager.shutdown();
-                activity.setProgressInfoLower("8/11: Starting LuceneManager close.");
-                LuceneManager.close();
-                LuceneManager.closeRefset();
+                activity.setProgressInfoLower("8/11: Starting Indexers close.");
+                
+                if (indexers != null) {
+                    for (IndexerBI i: indexers) {
+                        i.closeWriter();
+                    }
+                }
+                
+//                LuceneManager.closeRefset();
 
                 NidDataFromBdb.close();
                 activity.setProgressInfoLower("9/11: Starting mutable.bdbEnv.sync().");
                 mutable.bdbEnv.sync();
                 activity.setProgressInfoLower("10/11: mutable.bdbEnv.sync() finished.");
                 uuidsToNidMapDb.close();
-                nidCidMapDb.close();
+                memoryCacheBdb.close();
                 stampDb.close();
                 conceptDb.close();
                 propDb.close();
@@ -867,19 +868,28 @@ public class Bdb {
                 mutable.bdbEnv.close();
                 stampCache.clear();
                 activity.setProgressInfoLower("11/11: Shutdown complete");
-            } catch (DatabaseException e) {
+            } catch(IllegalStateException e){
+                //TODO can ignore for now, but need to fix the cause
+            }
+            catch (DatabaseException e) {
                 AceLog.getAppLog().alertAndLogException(e);
             } catch (Exception e) {
                 AceLog.getAppLog().alertAndLogException(e);
             }
+        } else {
+            AceLog.getAppLog().info("Already closed somehow: closed: " + 
+                    closed + "\n mutable: " + mutable);
         }
         if (readOnly != null && readOnly.bdbEnv != null) {
+            try{
             readOnly.bdbEnv.close();
+            }catch (IllegalStateException e){
+                //TODO can ignore for now, but need to fix the cause
+            }
         }
-        annotationConcepts = null;
         conceptDb = null;
         mutable = null;
-        nidCidMapDb = null;
+        memoryCacheBdb = null;
         pathManager = null;
         propDb = null;
         readOnly = null;
@@ -891,8 +901,8 @@ public class Bdb {
         AceLog.getAppLog().info("bdb close finished.");
     }
 
-    public static NidCNidMapBdb getNidCNidMap() {
-        return nidCidMapDb;
+    public static MemoryCacheBdb getNidCNidMap() {
+        return memoryCacheBdb;
     }
 
     public static int uuidsToNid(Collection<UUID> uuids) {
@@ -1033,4 +1043,14 @@ public class Bdb {
     public static List<NidPairForRefex> getRefsetPairs(int nid) {
         return Arrays.asList(Bdb.getNidCNidMap().getRefsetPairs(nid));
     }
+    
+    
+    public static void setIndexed(int nid, boolean indexed) {
+        memoryCacheBdb.setIndexed(nid, indexed);
+    }
+
+    public static boolean isIndexed(int nid) {
+        return memoryCacheBdb.isIndexed(nid);
+    }
+
 }

@@ -227,7 +227,7 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void setString1(String str) throws PropertyVetoException {
+   public void setString1(String str) {
       this.stringValue = str;
       modified();
    }

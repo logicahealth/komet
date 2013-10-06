@@ -96,7 +96,7 @@ public abstract class RefexChronicleDdo<V extends ComponentVersionDdo, T extends
       this.referencedComponentReference      = new ComponentReference(ss,
           another.getReferencedComponentNid());
       this.refexExtensionIdentifierReference =
-         new ComponentReference(ss.getConceptVersion(another.getRefexExtensionNid()));
+         new ComponentReference(ss.getConceptVersion(another.getAssemblageNid()));
    }
 
    /**
