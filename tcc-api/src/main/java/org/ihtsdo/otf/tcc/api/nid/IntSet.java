@@ -29,6 +29,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 public class IntSet implements NativeIdSetBI {
 
     OpenIntHashSet hashSet;
+    int maxPossibleId = Integer.MAX_VALUE;
 
     public IntSet() {
         this.hashSet = new OpenIntHashSet();
@@ -43,7 +44,7 @@ public class IntSet implements NativeIdSetBI {
 
     public IntSet(ConcurrentBitSet other) throws IOException {
         this.hashSet = new OpenIntHashSet();
-        NativeIdSetItrBI iter = other.getIterator();
+        NativeIdSetItrBI iter = other.getSetBitIterator();
         while (iter.next()) {
             this.hashSet.add(iter.nid());
         }
@@ -73,7 +74,7 @@ public class IntSet implements NativeIdSetBI {
         if (other.isEmpty()) {
             this.clear();
         } else {
-            NativeIdSetItrBI iter = this.getIterator();
+            NativeIdSetItrBI iter = this.getSetBitIterator();
             try {
                 while (iter.next()) {
                     if (!other.isMember(iter.nid())) {
@@ -93,7 +94,7 @@ public class IntSet implements NativeIdSetBI {
 
     @Override
     public void xor(NativeIdSetBI other) {
-        NativeIdSetItrBI iter = other.getIterator();
+        NativeIdSetItrBI iter = other.getSetBitIterator();
         try {
             while (iter.next()) {
                 if (!this.isMember(iter.nid())) {
@@ -180,7 +181,7 @@ public class IntSet implements NativeIdSetBI {
             return true;
         }
 
-        NativeIdSetItrBI iter = this.getIterator();
+        NativeIdSetItrBI iter = this.getSetBitIterator();
         int temp = Integer.MIN_VALUE;
         try {
             while (iter.next()) {
@@ -198,7 +199,7 @@ public class IntSet implements NativeIdSetBI {
 
     @Override
     public void union(NativeIdSetBI other) {
-        NativeIdSetItrBI iter = other.getIterator();
+        NativeIdSetItrBI iter = other.getSetBitIterator();
         try {
             while (iter.next()) {
                 if (!this.isMember(iter.nid())) {
@@ -217,7 +218,7 @@ public class IntSet implements NativeIdSetBI {
 
     @Override
     public void andNot(NativeIdSetBI other) {
-        NativeIdSetItrBI iter = this.getIterator();
+        NativeIdSetItrBI iter = this.getSetBitIterator();
         try {
             while (iter.next()) {
                 if (other.isMember(iter.nid())) {
@@ -235,8 +236,13 @@ public class IntSet implements NativeIdSetBI {
     }
 
     @Override
-    public NativeIdSetItrBI getIterator() {
+    public NativeIdSetItrBI getSetBitIterator() {
         return new Iterator();
+    }
+
+    @Override
+    public NativeIdSetItrBI getAllBitIterator() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -247,6 +253,21 @@ public class IntSet implements NativeIdSetBI {
     @Override
     public void setAll(int max) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getMaxPossibleId() {
+        return this.maxPossibleId;
+    }
+
+    @Override
+    public int getMinPossibleId() {
+        return Integer.MIN_VALUE;
+    }
+
+    @Override
+    public void setMaxPossibleId(int nid) {
+        this.maxPossibleId = nid;
     }
 
     private class Iterator implements NativeIdSetItrBI {

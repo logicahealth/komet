@@ -200,7 +200,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             Bdb.gVersion.incrementAndGet();
             r.enclosingConceptNid = c.getNid();
             r.nid = Bdb.uuidToNid(blueprint.getComponentUuid());
-            Bdb.getNidCNidMap().setCNidForNid(c.getNid(), r.nid);
+            Bdb.getMemoryCache().setCNidForNid(c.getNid(), r.nid);
             r.setPrimordialUuid(blueprint.getComponentUuid());
             try {
                 r.setDestinationNid(blueprint.getTargetNid());
@@ -320,7 +320,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             Bdb.gVersion.incrementAndGet();
             d.enclosingConceptNid = c.getNid();
             d.nid = Bdb.uuidToNid(blueprint.getComponentUuid());
-            Bdb.getNidCNidMap().setCNidForNid(c.getNid(), d.nid);
+            Bdb.getMemoryCache().setCNidForNid(c.getNid(), d.nid);
             d.setPrimordialUuid(blueprint.getComponentUuid());
             d.setTypeNid(blueprint.getTypeNid());
             d.primordialStamp = Integer.MIN_VALUE;
@@ -415,7 +415,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             Bdb.gVersion.incrementAndGet();
             img.enclosingConceptNid = c.getNid();
             img.nid = Bdb.uuidToNid(blueprint.getComponentUuid());
-            Bdb.getNidCNidMap().setCNidForNid(c.getNid(), img.nid);
+            Bdb.getMemoryCache().setCNidForNid(c.getNid(), img.nid);
             img.setPrimordialUuid(blueprint.getComponentUuid());
             img.setTypeNid(blueprint.getTypeNid());
             img.setFormat(blueprint.getFormat());
@@ -506,7 +506,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     public ConceptChronicleBI construct(ConceptCB blueprint) throws IOException, InvalidCAB, ContradictionException {
 
         int cNid = Bdb.uuidToNid(blueprint.getComponentUuid());
-        Bdb.getNidCNidMap().setCNidForNid(cNid, cNid);
+        Bdb.getMemoryCache().setCNidForNid(cNid, cNid);
         ConceptChronicle newC = ConceptChronicle.get(cNid);
         newC.setAnnotationStyleRefex(blueprint.isAnnotationRefexExtensionIdentity());
 

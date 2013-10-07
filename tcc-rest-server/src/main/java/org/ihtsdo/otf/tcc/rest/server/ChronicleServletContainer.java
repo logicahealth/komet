@@ -77,7 +77,8 @@ public class ChronicleServletContainer extends ServletContainer {
         Thread bdbStartupThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                System.out.println("Starting BdbTerminologyStore for ChronicleServletContainer in background thread. ");
+                System.out.println("Starting BdbTerminologyStore for "
+                        + "ChronicleServletContainer in background thread. ");
 
                 try {
                     storeSemaphore.acquireUninterruptibly();

@@ -16,11 +16,6 @@
 package org.ihtsdo.otf.tcc.test.integration;
 
 import java.io.IOException;
-import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
@@ -28,6 +23,7 @@ import org.ihtsdo.otf.tcc.junit.BdbTestRunner;
 import org.ihtsdo.otf.tcc.junit.BdbTestRunnerConfig;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,10 +36,9 @@ import org.junit.runner.RunWith;
  */
 @RunWith(BdbTestRunner.class)
 @BdbTestRunnerConfig()
-
-public class DescendentOfTest {
+public class ConceptBitSetTest {
     
-    public DescendentOfTest() {
+    public ConceptBitSetTest() {
     }
     
     @BeforeClass
@@ -61,23 +56,14 @@ public class DescendentOfTest {
     @After
     public void tearDown() {
     }
-    @Test
-    public void hello() throws IOException, ContradictionException {
-         ConceptChronicleBI motion = Ts.get().getConcept(UUID.fromString("45a8fde8-535d-3d2a-b76b-95ab67718b41"));
-         
-         
-         ConceptVersionBI centrifugalForceVersion = Ts.get().getConceptVersion(
-                  StandardViewCoordinates.getSnomedInferredLatest(), UUID.fromString("2b684fe1-8baf-34ef-9d2a-df03142c915a"));
-
-          ConceptVersionBI motionVersion = Ts.get().getConceptVersion(
-                  StandardViewCoordinates.getSnomedInferredLatest(), 
-                  UUID.fromString("45a8fde8-535d-3d2a-b76b-95ab67718b41"));
-          
-          boolean kindOf = centrifugalForceVersion.isKindOf(motionVersion);
-          assertTrue(kindOf);
-          
-          NativeIdSetBI kindOfNids = Bdb.getMemoryCache().getKindOfNids(motion.getNid(), 
-                  StandardViewCoordinates.getSnomedInferredLatest());
-          assertTrue(kindOfNids.contains(centrifugalForceVersion.getNid()));
-    }
+    // TODO add test methods here.
+    // The methods must be annotated with annotation @Test. For example:
+    //
+     @Test
+     public void testSizeAndContiguous() throws IOException {
+        NativeIdSetBI forSet = Ts.get().getAllComponentNids();
+        System.out.println(forSet.size());
+        assertTrue(forSet.contiguous());
+        assertEquals(Bdb.getUuidsToNidMap().getCurrentMaxNid() - Integer.MIN_VALUE, forSet.size());
+     }
 }

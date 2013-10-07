@@ -146,8 +146,8 @@ public class BdbCommitManager {
         synchronized (uncommittedCNids) {
             synchronized (uncommittedCNidsNoChecks) {
                     try {
-                        NativeIdSetItrBI uncommittedCNidsItr = uncommittedCNids.getIterator();
-                        NativeIdSetItrBI uncommittedCNidsNoChecksItr = uncommittedCNidsNoChecks.getIterator();
+                        NativeIdSetItrBI uncommittedCNidsItr = uncommittedCNids.getSetBitIterator();
+                        NativeIdSetItrBI uncommittedCNidsNoChecksItr = uncommittedCNidsNoChecks.getSetBitIterator();
                         Set<Integer> cNidSet = new HashSet<>();
 
                         while (uncommittedCNidsItr.next()) {
@@ -207,7 +207,7 @@ public class BdbCommitManager {
                         }
 
                         if (performCreationTests) {
-                            NativeIdSetItrBI uncommittedCNidItr = uncommittedCNids.getIterator();
+                            NativeIdSetItrBI uncommittedCNidItr = uncommittedCNids.getSetBitIterator();
 
                         if (performCommit) {
                             lastCommit = Bdb.gVersion.incrementAndGet();
@@ -223,7 +223,7 @@ public class BdbCommitManager {
                                 
                             }
 
-                            NativeIdSetItrBI uncommittedCNidItrNoChecks = uncommittedCNidsNoChecks.getIterator();
+                            NativeIdSetItrBI uncommittedCNidItrNoChecks = uncommittedCNidsNoChecks.getSetBitIterator();
 
                             long commitTime = System.currentTimeMillis();
                             NidSetBI sapNidsFromCommit = Bdb.getStampDb().commit(commitTime);
@@ -563,7 +563,7 @@ public class BdbCommitManager {
     }
 
     private static void handleCanceledConcepts(NativeIdSetBI uncommittedCNids2) throws IOException {
-        NativeIdSetItrBI idItr = uncommittedCNids2.getIterator();
+        NativeIdSetItrBI idItr = uncommittedCNids2.getSetBitIterator();
 
         while (idItr.next()) {
             try {
@@ -684,13 +684,13 @@ public class BdbCommitManager {
     public static Set<ConceptChronicle> getUncommitted() {
         try {
             Set<ConceptChronicle> returnSet = new HashSet<>();
-            NativeIdSetItrBI cNidItr = uncommittedCNids.getIterator();
+            NativeIdSetItrBI cNidItr = uncommittedCNids.getSetBitIterator();
 
             while (cNidItr.next()) {
                 returnSet.add(ConceptChronicle.get(cNidItr.nid()));
             }
 
-            cNidItr = uncommittedCNidsNoChecks.getIterator();
+            cNidItr = uncommittedCNidsNoChecks.getSetBitIterator();
 
             while (cNidItr.next()) {
                 returnSet.add(ConceptChronicle.get(cNidItr.nid()));
@@ -781,7 +781,7 @@ public class BdbCommitManager {
         public void run() {
             try {
                 Collection<Integer> nids = concept.getAllNids();
-                MemoryCacheBdb nidCidMap = Bdb.getNidCNidMap();
+                MemoryCacheBdb nidCidMap = Bdb.getMemoryCache();
 
                 for (int nid : nids) {
                     nidCidMap.setCNidForNid(concept.getNid(), nid);

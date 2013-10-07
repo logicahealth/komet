@@ -15,8 +15,6 @@
  */
 package org.ihtsdo.otf.tcc.api.nid;
 
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
@@ -24,22 +22,12 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * @author kec
  */
 public class ConcurrentBitSetReadOnly extends ConcurrentBitSet {
-
-    public ConcurrentBitSetReadOnly(BitSet bitSet) {
-        super(bitSet);
-    }
-
     public ConcurrentBitSetReadOnly(NativeIdSetBI nativeIdSet) {
         super(nativeIdSet);
     }
 
     public ConcurrentBitSetReadOnly(String bitString) {
         super(bitString);
-    }
-
-    @Override
-    public AtomicLongArray getUnits() {
-        throw new UnsupportedOperationException("Read-only set");
     }
 
     @Override

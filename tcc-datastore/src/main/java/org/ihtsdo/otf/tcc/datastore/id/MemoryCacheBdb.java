@@ -478,7 +478,7 @@ public class MemoryCacheBdb extends ComponentBdb {
             return Integer.MAX_VALUE;
         }
         int cNid = nidCNidMaps.get()[mapIndex][nidIndexInMap];
-        if (cNid > 0) {
+        if (nid > 0 && nid != Integer.MAX_VALUE) {
             return cNid * -1;
         }
         return cNid;
@@ -553,16 +553,54 @@ public class MemoryCacheBdb extends ComponentBdb {
      * components nids will be retrieved
      */
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNids) throws IOException {
+        int maxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
+        NativeIdSetBI componentNids = new ConcurrentBitSet(maxNid);
+        componentNids.setMaxPossibleId(maxNid);
+        for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
+            int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
+            int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
+            int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
+            if (nid > 0 && nid != Integer.MAX_VALUE) {
+                nid = nid * -1;
+            }
+            if (conceptNids.contains(nid)) {
+                componentNids.add(i);
+            }
+        }
+        return componentNids;
+    }
+    
+    
+    public NativeIdSetBI getAllConceptNidsFromCache() {
+        int maxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
+        NativeIdSetBI conceptNids = new ConcurrentBitSet(maxNid);
+        conceptNids.setMaxPossibleId(maxNid);
+        for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
+            int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
+            int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
+            int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
+            if (nid > 0 && nid != Integer.MAX_VALUE) {
+                nid = nid * -1;
+            }
+            if (i == nid) {
+                conceptNids.setMember(nid);
+            }
+        }
+        return conceptNids;
+    }
+
+    
+    public NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNids) throws IOException {
         NativeIdSetBI componentNids = new ConcurrentBitSet();
         int maxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
         for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
             int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
             int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
             int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
-            if (nid > 0) {
+            if (nid > 0 && nid != Integer.MAX_VALUE) {
                 nid = nid * -1;
             }
-            if (conceptNids.contains(nid)) {
+            if (!conceptNids.contains(nid)) {
                 componentNids.add(i);
             }
         }

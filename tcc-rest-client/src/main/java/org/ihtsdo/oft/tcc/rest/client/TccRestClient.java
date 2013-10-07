@@ -743,4 +743,14 @@ public class TccRestClient extends Termstore {
     public boolean isIndexed(int nid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNativeIds) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public NativeIdSetBI getAllConceptNidsFromCache() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
