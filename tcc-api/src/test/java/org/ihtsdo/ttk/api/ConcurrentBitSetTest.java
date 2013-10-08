@@ -167,7 +167,25 @@ public class ConcurrentBitSetTest {
         first.or(second);
         assertArrayEquals(new int[]{Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 3, Integer.MIN_VALUE + 5}, first.getSetValues());
     }
-
+    
+    @Test
+    public void testOr(){
+        System.out.println("or test");
+        ConcurrentBitSet first = new ConcurrentBitSet();
+        ConcurrentBitSet second = new ConcurrentBitSet();
+        //first.addAll(new int[]{Integer.MIN_VALUE + 63882});
+        
+        first.add(-2146844766);
+        second.add(-2139228960);
+        
+        //second.addAll(new int[]{Integer.MIN_VALUE + 8254687});
+        first.or(second);
+        for(int i: first.getSetValues()){
+            System.out.println(i);
+        }
+        assertEquals(2, first.size());
+    }
+    
     /**
      * Test of xor method, of class ConcurrentBitSet.
      * TODO fix me

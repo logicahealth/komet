@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package org.ihtsdo.otf.tcc.api.nid;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,20 +30,21 @@ import java.util.logging.Logger;
  * @author dylangrald
  */
 public class ConcurrentBitSet implements NativeIdSetBI {
-    private static final int                            BITS_PER_UNIT     = 64;
-    private static final int                            UNITS_PER_SET     = 10240;
-    private static final int                            BITS_PER_SET      = BITS_PER_UNIT * UNITS_PER_SET;
-    private static final int                            MAX_STRING_LENGTH = 512;
-    private static final OrProcessUnits                 orProcessor       = new OrProcessUnits();
-    private static final XorProcessUnits                xorProcessor      = new XorProcessUnits();
-    private static final AndProcessUnits                andProcessor      = new AndProcessUnits();
-    private static final AndNotProcessUnits             andNotProcessor   = new AndNotProcessUnits();
-    private final int                                   offset            = Integer.MIN_VALUE;
-    private final ReentrantLock                         expansionLock     = new ReentrantLock();
-    private AtomicInteger                               usedBits          = new AtomicInteger(0);
-    private int                                         maxPossibleId     = Integer.MAX_VALUE;
+
+    private static final int BITS_PER_UNIT = 64;
+    private static final int UNITS_PER_SET = 10240;
+    private static final int BITS_PER_SET = BITS_PER_UNIT * UNITS_PER_SET;
+    private static final int MAX_STRING_LENGTH = 512;
+    private static final OrProcessUnits orProcessor = new OrProcessUnits();
+    private static final XorProcessUnits xorProcessor = new XorProcessUnits();
+    private static final AndProcessUnits andProcessor = new AndProcessUnits();
+    private static final AndNotProcessUnits andNotProcessor = new AndNotProcessUnits();
+    private final int offset = Integer.MIN_VALUE;
+    private final ReentrantLock expansionLock = new ReentrantLock();
+    private AtomicInteger usedBits = new AtomicInteger(0);
+    private int maxPossibleId = Integer.MIN_VALUE + BITS_PER_SET;
     private final CopyOnWriteArrayList<AtomicLongArray> bitSetList;
-    private int                                         bitCapacity;
+    private int bitCapacity;
 
     public ConcurrentBitSet() {
         this(BITS_PER_SET);
@@ -55,14 +52,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     public ConcurrentBitSet(int bitCapacity) {
         if (bitCapacity < 0) {
-            this.maxPossibleId = bitCapacity;
-            bitCapacity        = bitCapacity - Integer.MIN_VALUE;
-        } else {
-            this.maxPossibleId = bitCapacity + Integer.MIN_VALUE;
+            bitCapacity = bitCapacity - Integer.MIN_VALUE;
         }
 
-        int               numberOfSets = (bitCapacity / BITS_PER_SET) + 1;
-        AtomicLongArray[] initialSets  = new AtomicLongArray[numberOfSets];
+        int numberOfSets = (bitCapacity / BITS_PER_SET) + 1;
+        this.maxPossibleId = offset + numberOfSets * BITS_PER_SET;
+        AtomicLongArray[] initialSets = new AtomicLongArray[numberOfSets];
 
         this.bitCapacity = numberOfSets * BITS_PER_SET;
 
@@ -158,6 +153,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
                 if (bitCapacity <= bits) {
                     bitSetList.add(new AtomicLongArray(UNITS_PER_SET));
                     bitCapacity = bitSetList.size() * BITS_PER_SET;
+                    maxPossibleId = bitCapacity + Integer.MIN_VALUE - 1;
                 } else {
                     return;
                 }
@@ -210,10 +206,10 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
         ensureCapacity(bit);
 
-        final int  set   = bit / BITS_PER_SET;
-        final int  unit  = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
-        final int  unitIndex = bit % BITS_PER_UNIT;
-        final long mask  = 1L << unitIndex;
+        final int set = bit / BITS_PER_SET;
+        final int unit = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int unitIndex = bit % BITS_PER_UNIT;
+        final long mask = 1L << unitIndex;
 
         try {
             long old = bitSetList.get(set).get(unit);
@@ -239,12 +235,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
         ensureCapacity(bit);
 
-        final int  set   = bit / BITS_PER_SET;
-        final int  unit  = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
-        final int  index = bit % BITS_PER_UNIT;
-        final long mask  = 1L << index;
-        long       old   = bitSetList.get(set).get(unit);
-        long       upd   = old & (~mask);
+        final int set = bit / BITS_PER_SET;
+        final int unit = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int index = bit % BITS_PER_UNIT;
+        final long mask = 1L << index;
+        long old = bitSetList.get(set).get(unit);
+        long upd = old & (~mask); 
 
         while (!bitSetList.get(set).compareAndSet(unit, old, upd)) {
             old = bitSetList.get(set).get(unit);
@@ -282,12 +278,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             from = from + offset;
         }
 
-        final int sets       = bitSetList.size();
-        final int fromSet    = from / BITS_PER_SET;
-        final int fromUnit   = (from - 1 - (fromSet * BITS_PER_SET)) / BITS_PER_UNIT;
-        final int fromIndex  = from % BITS_PER_UNIT;
-        int       unitStart  = fromUnit;
-        int       indexStart = fromIndex;
+        final int sets = bitSetList.size();
+        final int fromSet = from / BITS_PER_SET;
+        final int fromUnit = (from - 1 - (fromSet * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int fromIndex = from % BITS_PER_UNIT;
+        int unitStart = fromUnit;
+        int indexStart = fromIndex;
 
         for (int setIndex = fromSet; setIndex < sets; setIndex++) {
             AtomicLongArray set = bitSetList.get(setIndex);
@@ -302,7 +298,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
                     if (nextBit != 0L) {
                         int trailingZeros = Long.numberOfTrailingZeros(nextBit);
-                        int nextSetBit    = (i * BITS_PER_UNIT) + (setIndex * BITS_PER_SET) + trailingZeros;
+                        int nextSetBit = (i * BITS_PER_UNIT) + (setIndex * BITS_PER_SET) + trailingZeros;
 
                         return nextSetBit + offset;
                     }
@@ -310,7 +306,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             }
 
             indexStart = 0;
-            unitStart  = 0;
+            unitStart = 0;
         }
 
         return -1;
@@ -353,9 +349,9 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public int[] toIntArray() {
-        int   lengthOfBitSet = this.cardinality();
-        int[] intArray       = new int[this.cardinality()];
-        int   bit            = this.nextSetBit(0);
+        int lengthOfBitSet = this.cardinality();
+        int[] intArray = new int[this.cardinality()];
+        int bit = this.nextSetBit(0);
 
         intArray[0] = bit;
 
@@ -367,7 +363,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public int cardinality() {
-        int       card = 0;
+        int card = 0;
         final int sets = bitSetList.size();
 
         for (int i = 0; i < sets; i++) {
@@ -397,8 +393,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
                     int usedBitCount = usedBits.get();
 
                     if (length < usedBitCount + 63) {
-                        final long unitValue     = units.get(ii);
-                        int        bitsToProcess = Math.min(64, usedBitCount + 63 - length);
+                        final long unitValue = units.get(ii);
+                        int bitsToProcess = Math.min(64, usedBitCount + 63 - length);
 
                         if (unitValue != 0) {
                             long bit = 1L;
@@ -412,7 +408,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
                             }
                         } else {
                             sb.append("0000000000000000000000000000000000000000000000000000000000000000", 0,
-                                      bitsToProcess);
+                                    bitsToProcess);
                         }
                     } else {
                         break;
@@ -627,17 +623,21 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             or((ConcurrentBitSet) other);
         } else {
             NativeIdSetItrBI iter = other.getSetBitIterator();
-
+            int max = Integer.MIN_VALUE;
             try {
                 while (iter.next()) {
                     if (!this.contains(iter.nid())) {
                         this.add(iter.nid());
+                        max = iter.nid();
                     }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
+
+            this.maxPossibleId = max + BITS_PER_SET - (max % BITS_PER_SET);
         }
+
     }
 
     @Override
@@ -715,7 +715,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         this.usedBits.set(maxUsedBits);
         other.usedBits.set(maxUsedBits);
 
-        final int len    = other.getMaxPossibleId() - offset + 1;
+//        final int len    = other.getMaxPossibleId() - offset + 1;
+        final int len = maxUsedBits;
         final int maxSet = len / BITS_PER_SET + 1;
 
         for (int set = 0; set < maxSet; set++) {
@@ -742,11 +743,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     private interface ProcessUnits {
+
         long process(long long1, long long2);
     }
 
-
     private class AllBitsIterator implements NativeIdSetItrBI {
+
         int currentBit = Integer.MIN_VALUE;
 
         @Override
@@ -766,32 +768,32 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
     }
 
-
     private static class AndNotProcessUnits implements ProcessUnits {
+
         @Override
         public long process(long long1, long long2) {
             return long1 & ~long2;
         }
     }
 
-
     private static class AndProcessUnits implements ProcessUnits {
+
         @Override
         public long process(long long1, long long2) {
             return long1 & long2;
         }
     }
 
-
     private static class OrProcessUnits implements ProcessUnits {
+
         @Override
         public long process(long long1, long long2) {
             return long1 | long2;
         }
     }
 
-
     private class SetBitsIterator implements NativeIdSetItrBI {
+
         int currentBit = Integer.MIN_VALUE;
 
         @Override
@@ -809,8 +811,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
     }
 
-
     private static class XorProcessUnits implements ProcessUnits {
+
         @Override
         public long process(long long1, long long2) {
             return long1 ^ long2;
