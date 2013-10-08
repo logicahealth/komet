@@ -396,12 +396,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                     buf.append("]");
                 } else {
                     ComponentBI component = P.s.getComponent(nidToConvert);
-                    buf.append(component.getClass().getSimpleName());
-                    buf.append(" from concept: \"");
-                    buf.append(P.s.getConceptForNid(nidToConvert).toString());
-                    buf.append("\" [");
-                    buf.append(Integer.toString(nidToConvert));
-                    buf.append("]");
+                    if (component != null) {
+                        buf.append(component.getClass().getSimpleName());
+                        buf.append(" from concept: \"");
+                        buf.append(P.s.getConceptForNid(nidToConvert).toString());
+                        buf.append("\" [");
+                        buf.append(Integer.toString(nidToConvert));
+                        buf.append("]");  
+                    } else {
+                        buf.append("[" + Integer.toString(nidToConvert)
+                                + "null]");
+                    }
 
                 }
             } else {

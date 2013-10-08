@@ -42,12 +42,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     private final int offset = Integer.MIN_VALUE;
     private final ReentrantLock expansionLock = new ReentrantLock();
     private AtomicInteger usedBits = new AtomicInteger(0);
-    private int maxPossibleId = Integer.MIN_VALUE + BITS_PER_SET;
+    private int maxPossibleId = Integer.MIN_VALUE + BITS_PER_SET - 1;
     private final CopyOnWriteArrayList<AtomicLongArray> bitSetList;
     private int bitCapacity;
 
     public ConcurrentBitSet() {
-        this(BITS_PER_SET);
+        this(BITS_PER_SET - 1);
     }
 
     public ConcurrentBitSet(int bitCapacity) {
@@ -56,10 +56,12 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
 
         int numberOfSets = (bitCapacity / BITS_PER_SET) + 1;
-        this.maxPossibleId = offset + numberOfSets * BITS_PER_SET;
+
         AtomicLongArray[] initialSets = new AtomicLongArray[numberOfSets];
 
         this.bitCapacity = numberOfSets * BITS_PER_SET;
+
+        maxPossibleId = this.bitCapacity + Integer.MIN_VALUE - 1;
 
         for (int i = 0; i < numberOfSets; i++) {
             initialSets[i] = new AtomicLongArray(UNITS_PER_SET);
@@ -116,9 +118,9 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             return false;
         }
 
-        final ConcurrentBitSet other         = (ConcurrentBitSet) obj;
-        NativeIdSetItrBI       thisIterator  = this.getSetBitIterator();
-        NativeIdSetItrBI       otherIterator = other.getSetBitIterator();
+        final ConcurrentBitSet other = (ConcurrentBitSet) obj;
+        NativeIdSetItrBI thisIterator = this.getSetBitIterator();
+        NativeIdSetItrBI otherIterator = other.getSetBitIterator();
 
         try {
             while (thisIterator.next() && otherIterator.next()) {
@@ -172,13 +174,13 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             return false;
         }
 
-        final int  set   = bit / BITS_PER_SET;
+        final int set = bit / BITS_PER_SET;
         if (set >= bitSetList.size()) {
             return false;
         }
-        final int  unit  = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
-        final int  index = bit % BITS_PER_UNIT;
-        final long mask  = 1L << index;
+        final int unit = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int index = bit % BITS_PER_UNIT;
+        final long mask = 1L << index;
 
         return 0 != (bitSetList.get(set).get(unit) & mask);
     }
@@ -240,7 +242,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         final int index = bit % BITS_PER_UNIT;
         final long mask = 1L << index;
         long old = bitSetList.get(set).get(unit);
-        long upd = old & (~mask); 
+        long upd = old & (~mask);
 
         while (!bitSetList.get(set).compareAndSet(unit, old, upd)) {
             old = bitSetList.get(set).get(unit);
@@ -568,7 +570,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             return offset;
         } else {
             NativeIdSetItrBI iter = this.getSetBitIterator();
-            int              max  = 0;
+            int max = 0;
 
             try {
                 while (iter.next()) {
@@ -599,7 +601,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             return true;
         } else {
             NativeIdSetItrBI iter = this.getSetBitIterator();
-            int              temp = this.getMin();
+            int temp = this.getMin();
 
             try {
                 while (iter.next()) {
@@ -704,25 +706,29 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public void setMaxPossibleId(int maxPossibleId) {
         this.maxPossibleId = maxPossibleId;
-        this.usedBits.set(maxPossibleId - offset);
+        this.usedBits.set(maxPossibleId - offset + 1);
     }
 
     private void logicallyProcessUnits(ConcurrentBitSet other, ProcessUnits processor) {
-        ensureCapacity(other.getMaxPossibleId());
+        int maxId = Math.max(this.maxPossibleId, other.maxPossibleId);
+
+        ensureCapacity(maxId);
+
+        other.ensureCapacity(maxId);
 
         int maxUsedBits = Math.max(this.usedBits.get(), other.usedBits.get());
 
         this.usedBits.set(maxUsedBits);
         other.usedBits.set(maxUsedBits);
 
-//        final int len    = other.getMaxPossibleId() - offset + 1;
         final int len = maxUsedBits;
-        final int maxSet = len / BITS_PER_SET + 1;
+        final int maxSet = bitSetList.size();
+
 
         for (int set = 0; set < maxSet; set++) {
-            final AtomicLongArray units      = bitSetList.get(set);
+            final AtomicLongArray units = bitSetList.get(set);
             final AtomicLongArray otherUnits = other.bitSetList.get(set);
-            int                   maxUnit    = UNITS_PER_SET;
+            int maxUnit = UNITS_PER_SET;
 
             if ((set + 1) * BITS_PER_SET > len) {
                 maxUnit = ((len - (set * BITS_PER_SET)) / BITS_PER_UNIT) + 1;

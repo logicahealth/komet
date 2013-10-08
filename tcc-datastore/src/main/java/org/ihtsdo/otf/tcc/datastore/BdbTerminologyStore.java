@@ -832,7 +832,11 @@ public class BdbTerminologyStore extends Termstore {
         NativeIdSetBI    cNidSet = new ConcurrentBitSet();
 
         while (iter.next()) {
-            cNidSet.add(Bdb.getMemoryCache().getCNid(iter.nid()));
+            int nid = Bdb.getMemoryCache().getCNid(iter.nid());
+            if(nid > 0){
+                nid = -1 * nid;
+            }
+            cNidSet.add(nid);
         }
 
         return cNidSet;

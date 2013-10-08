@@ -92,8 +92,12 @@ public class ComponentReference implements Externalizable {
             } else if (component instanceof DescriptionVersionBI) {
                 text = ((DescriptionVersionBI) component).getText();
             } else {
+                if(ss.getConceptForNid(nid).getFullySpecifiedDescription() != null){
                 text = component.getChronicle().getClass().getSimpleName() + " for: "
                         + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
+                } else{
+                    text = component.getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
+                }
             }
         } else {
             text = "null component";
