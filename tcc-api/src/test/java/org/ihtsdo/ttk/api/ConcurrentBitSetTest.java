@@ -15,6 +15,9 @@
  */
 package org.ihtsdo.ttk.api;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.HybridNidSet;
@@ -97,7 +100,7 @@ public class ConcurrentBitSetTest {
         ConcurrentBitSet instance = new ConcurrentBitSet(5);
         instance.addAll(new int[]{Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 5, Integer.MIN_VALUE + 4});
         instance.clear(5);
-        assertTrue(!instance.contains(Integer.MIN_VALUE + 5 ));
+        assertTrue(!instance.contains(Integer.MIN_VALUE + 5));
     }
 
     /**
@@ -167,28 +170,27 @@ public class ConcurrentBitSetTest {
         first.or(second);
         assertArrayEquals(new int[]{Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 3, Integer.MIN_VALUE + 5}, first.getSetValues());
     }
-    
+
     @Test
-    public void testOr(){
+    public void testOr() {
         System.out.println("or test");
         ConcurrentBitSet first = new ConcurrentBitSet();
         ConcurrentBitSet second = new ConcurrentBitSet();
         //first.addAll(new int[]{Integer.MIN_VALUE + 63882});
-        
+
         first.add(-2146844766);
         second.add(-2139228960);
-        
+
         //second.addAll(new int[]{Integer.MIN_VALUE + 8254687});
         first.or(second);
-        for(int i: first.getSetValues()){
+        for (int i : first.getSetValues()) {
             System.out.println(i);
         }
         assertEquals(2, first.size());
     }
-    
+
     /**
-     * Test of xor method, of class ConcurrentBitSet.
-     * TODO fix me
+     * Test of xor method, of class ConcurrentBitSet. TODO fix me
      */
     @Test
     public void testXor_ConcurrentBitSet() {
@@ -225,7 +227,6 @@ public class ConcurrentBitSetTest {
         instance.addAll(new int[]{Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 5});
         assertArrayEquals(new int[]{Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 5}, instance.toIntArray());
     }
-
 
     /**
      * Test of cardinality method, of class ConcurrentBitSet.
@@ -320,8 +321,7 @@ public class ConcurrentBitSetTest {
     }
 
     /**
-     * Test of xor method, of class ConcurrentBitSet.
-     * TODO fix to work properly. 
+     * Test of xor method, of class ConcurrentBitSet. TODO fix to work properly.
      */
     @Test
     @Ignore
@@ -422,7 +422,7 @@ public class ConcurrentBitSetTest {
         instance.addAll(new int[]{Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 5, Integer.MIN_VALUE + 4});
         instance.clear();
         assertTrue(instance.isEmpty());
-        
+
     }
 
     /**
@@ -444,7 +444,7 @@ public class ConcurrentBitSetTest {
         System.out.println("getMin");
         ConcurrentBitSet first = new ConcurrentBitSet(5);
         first.addAll(new int[]{Integer.MIN_VALUE + 2, Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 5});
-        assertEquals(1, first.getMin());
+        assertEquals(Integer.MIN_VALUE + 1, first.getMin());
 
     }
 
@@ -517,22 +517,48 @@ public class ConcurrentBitSetTest {
         instance.remove(Integer.MIN_VALUE + 1);
         assertTrue(instance.isEmpty());
     }
-    
+
     @Test
-    public void testSetAll(){
+    public void testSetAll() {
         System.out.println("not");
         ConcurrentBitSet instance = new ConcurrentBitSet(10);
         instance.setAll(Integer.MIN_VALUE + 8);
         assertEquals(8, instance.size());
     }
-    
+
     @Test
-    public void testConstructor(){
+    public void testConstructor() {
         System.out.println("constructor");
         NativeIdSetBI other = new HybridNidSet();
         other.add(Integer.MIN_VALUE + 1);
         other.add(Integer.MIN_VALUE + 5);
         ConcurrentBitSet instance = new ConcurrentBitSet(other);
         assertEquals(2, instance.size());
+    }
+
+    @Test
+    public void testIterator() {
+        System.out.println("iterator");
+        ConcurrentBitSet first = new ConcurrentBitSet();
+        
+        int end = 64*10240 + 500;
+        
+        for(int i = 1; i < end; i++){
+            first.add(Integer.MIN_VALUE + i);
+        }
+        
+        NativeIdSetItrBI iter = first.getSetBitIterator();
+        int[] setValues = new int[first.size()];
+        int i = 0;
+        try {
+            while (iter.next()) {
+                setValues[i] = iter.nid();
+                i++;
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ConcurrentBitSetTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        assertArrayEquals(first.getSetValues(), setValues);
     }
 }

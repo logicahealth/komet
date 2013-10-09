@@ -45,6 +45,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     private int maxPossibleId = Integer.MIN_VALUE + BITS_PER_SET - 1;
     private final CopyOnWriteArrayList<AtomicLongArray> bitSetList;
     private int bitCapacity;
+    Boolean moveToNextUnit = false;
+    Boolean iterate = false;
 
     public ConcurrentBitSet() {
         this(BITS_PER_SET - 1);
@@ -257,27 +259,19 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public int nextSetBit(int from) {
-        if (from >= 0) {
-            from = from - offset;
-        }
 
-        int last = Integer.MIN_VALUE + usedBits.get();
-
-        for (int next = from + 1; next <= last; next++) {
-            if (isMember(next)) {
-                return next;
-            }
-        }
-
-        return -1;
-    }
-
-    // TODO get the faster next set bit working... Pattern after ProcessUnits...
-    public int nextSetBitFastButHasBugs(int from) {
-
-        // TODO fix problems here for faster implementation.
         if (from < 0) {
             from = from + offset;
+        }
+
+        if (from != 0 || iterate) {
+            from++;
+        } else {
+            iterate = true;
+        }
+
+        if (from > this.usedBits.get()) {
+            return -1;
         }
 
         final int sets = bitSetList.size();
@@ -289,29 +283,35 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
         for (int setIndex = fromSet; setIndex < sets; setIndex++) {
             AtomicLongArray set = bitSetList.get(setIndex);
-
             for (int i = unitStart; i < UNITS_PER_SET; i++) {
+                if (moveToNextUnit) {
+                    i++;
+                    moveToNextUnit = false;
+                    if (i > UNITS_PER_SET) {
+                        break;
+                    }
+                }
                 long nextBit = set.get(i);
-
                 if (nextBit != 0L) {
                     if (i == fromUnit) {
                         nextBit &= (0xffffffffffffffffL << indexStart);
                     }
-
                     if (nextBit != 0L) {
                         int trailingZeros = Long.numberOfTrailingZeros(nextBit);
                         int nextSetBit = (i * BITS_PER_UNIT) + (setIndex * BITS_PER_SET) + trailingZeros;
-
+                        if (nextSetBit % BITS_PER_UNIT + 1 == BITS_PER_UNIT && i != UNITS_PER_SET - 1) {
+                            moveToNextUnit = true;
+                        }
                         return nextSetBit + offset;
                     }
                 }
+                indexStart = 0;
+                unitStart = 0;
             }
-
-            indexStart = 0;
-            unitStart = 0;
         }
 
         return -1;
+
     }
 
     public int length() {
@@ -591,7 +591,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         } else {
             int min = 0;
 
-            return this.nextSetBit(min) + offset;
+            return this.nextSetBit(min);
         }
     }
 
@@ -800,7 +800,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     private class SetBitsIterator implements NativeIdSetItrBI {
 
-        int currentBit = Integer.MIN_VALUE;
+        int currentBit = 0;
 
         @Override
         public int nid() {
