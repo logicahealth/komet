@@ -26,7 +26,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * TODO with Java 8 lambdas, or even without lambda, many of the operations 
+ * such as and, or, xor, can be done in parallel. Need to do some performance
+ * testing and consider making many operations parallel. 
  * @author dylangrald
  */
 public class ConcurrentBitSet implements NativeIdSetBI {
