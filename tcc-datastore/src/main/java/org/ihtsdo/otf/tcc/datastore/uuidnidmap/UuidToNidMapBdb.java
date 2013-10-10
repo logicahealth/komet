@@ -63,9 +63,7 @@ public class UuidToNidMapBdb extends ComponentBdb {
             if (nid == Integer.MIN_VALUE) {
                 nid = idSequence.getAndIncrement();
 
-                if (nid == 0) {
-                    nid = idSequence.getAndIncrement();
-                }
+                assert nid != 0: " max id value reached.";
 
                 addToDb(key, nid);
             }
