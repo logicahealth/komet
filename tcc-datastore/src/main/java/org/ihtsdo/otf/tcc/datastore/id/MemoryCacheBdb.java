@@ -478,7 +478,7 @@ public class MemoryCacheBdb extends ComponentBdb {
             return Integer.MAX_VALUE;
         }
         int cNid = nidCNidMaps.get()[mapIndex][nidIndexInMap];
-        if (nid > 0 && nid != Integer.MAX_VALUE) {
+        if (cNid > 0 && cNid != Integer.MAX_VALUE) {
             return cNid * -1;
         }
         return cNid;
