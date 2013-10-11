@@ -58,7 +58,7 @@ public class ComponentReference implements Externalizable {
         uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
         DescriptionVersionBI description = concept.getPreferredDescription();
         if (description == null) {
-            System.out.println("Concept with no preferred descripton: " + concept);
+            System.out.println("Concept with no preferred description: " + concept);
         } else {
             text = concept.getPreferredDescription().getText();
             if (concept.getConceptAttributesActive() != null

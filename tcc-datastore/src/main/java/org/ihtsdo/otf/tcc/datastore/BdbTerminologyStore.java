@@ -276,7 +276,7 @@ public class BdbTerminologyStore extends Termstore {
             LinkedBlockingQueue<ConceptConverter>     converters                = new LinkedBlockingQueue<>();
             int                                       runtimeConverterSize      =
                 Runtime.getRuntime().availableProcessors() * 2;
-            int                                       converterSize             = 1;    // TODO figure out race condition so multithreading can work again.
+            int                                       converterSize             = runtimeConverterSize; 
             AtomicInteger                             conceptsRead              = new AtomicInteger();
             AtomicInteger                             conceptsProcessed         = new AtomicInteger();
 
@@ -365,7 +365,6 @@ public class BdbTerminologyStore extends Termstore {
         Bdb.sync();
         System.out.println("Finished db sync.");
         Bdb.commit();
-        System.out.println("Finished create lucene index.");
     }
 
     @Override

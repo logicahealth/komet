@@ -87,9 +87,6 @@ public class ChronicleServletContainer extends ServletContainer {
                     BdbTerminologyStore temp = new BdbTerminologyStore();
 
                     termStore = temp;
-                    termStore.index();
-                } catch (IOException ex) {
-                    Logger.getLogger(ChronicleServletContainer.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
                     storeSemaphore.release();
                     System.out.println("Released storeSemaphore for init. ");

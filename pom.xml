@@ -52,6 +52,7 @@ the specific language governing permissions and limitations under the License. -
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <netbeans-platform-version>RELEASE73</netbeans-platform-version>
         <yDoc.path>/Applications/yworks-uml-doclet-3.0_02-jdk1.5</yDoc.path>
+        <maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -105,6 +106,11 @@ the specific language governing permissions and limitations under the License. -
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>${maven-plugin-plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>com.agilejava.docbkx</groupId>
                     <artifactId>docbkx-maven-plugin</artifactId>
@@ -214,6 +220,7 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-datastore</module>
         <module>tcc-junit-ext</module>
         <module>tcc-integration-test</module>
+        <module>tcc-mojo</module>
     </modules>
     <profiles>
         <profile>
