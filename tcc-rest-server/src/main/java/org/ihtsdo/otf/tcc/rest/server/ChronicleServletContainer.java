@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletContext;
 
 import javax.servlet.ServletException;
 
@@ -45,6 +46,11 @@ import javax.servlet.ServletException;
 public class ChronicleServletContainer extends ServletContainer {
     private static final Semaphore     storeSemaphore = new Semaphore(1);
     private static BdbTerminologyStore termStore;
+
+    @Override
+    public ServletContext getServletContext() {
+        return super.getServletContext(); //To change body of generated methods, choose Tools | Templates.
+    }
 
     public ChronicleServletContainer() {}
 
@@ -80,6 +86,12 @@ public class ChronicleServletContainer extends ServletContainer {
                 System.out.println("Starting BdbTerminologyStore for "
                         + "ChronicleServletContainer in background thread. ");
 
+                //Get the updated resources
+                
+                SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
+                
+                setup.run(new String[]{"install"});
+                
                 try {
                     storeSemaphore.acquireUninterruptibly();
                     System.out.println("Aquired storeSemaphore for init. ");
