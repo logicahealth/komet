@@ -90,7 +90,7 @@ public class ChronicleServletContainer extends ServletContainer {
                 
                 SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
                 
-                setup.run(new String[]{"install"});
+                setup.run(null);
                 
                 try {
                     storeSemaphore.acquireUninterruptibly();
