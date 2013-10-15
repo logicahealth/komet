@@ -26,9 +26,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * TODO with Java 8 lambdas, or even without lambda, many of the operations 
- * such as and, or, xor, can be done in parallel. Need to do some performance
- * testing and consider making many operations parallel. 
+ * TODO with Java 8 lambdas, or even without lambda, many of the operations such
+ * as and, or, xor, can be done in parallel. Need to do some performance testing
+ * and consider making many operations parallel.
+ *
  * @author dylangrald
  */
 public class ConcurrentBitSet implements NativeIdSetBI {
@@ -428,9 +429,54 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     @Override
     public void setAll(int max) {
-        for (int i = Integer.MIN_VALUE; i < max; i++) {
-            add(i);
+
+        if (max < 0) {
+            max = max + offset;
         }
+
+        max++;
+
+        ensureCapacity(max);
+
+        if (this.usedBits.get() < max) {
+            this.usedBits.set(max);
+        }
+
+        int len = max;
+        final int maxSet = bitSetList.size();
+
+        for (int set = 0; set < maxSet; set++) {
+            final AtomicLongArray units = bitSetList.get(set);
+            int maxUnit = UNITS_PER_SET;
+
+            if ((set + 1) * BITS_PER_SET > len) {
+                maxUnit = ((len - (set * BITS_PER_SET)) / BITS_PER_UNIT) + 1;
+            }
+
+            for (int unit = 0; unit < maxUnit; unit++) {
+                long old = units.get(unit);
+                long mask = 0L;
+                mask = mask | ~mask;
+                if (unit + 1 == maxUnit && set + 1 == maxSet) {
+                    int remainder = max % BITS_PER_UNIT;
+                    long andNot = mask << remainder;
+                    mask = mask & ~andNot;
+                }
+
+                long upd = orProcessor.process(old, mask);
+
+                if (old != upd) {
+                    while (!units.compareAndSet(unit, old, upd)) {
+                        old = units.get(unit);
+                        upd = orProcessor.process(old, mask);
+                    }
+                }
+            }
+        }
+        
+        this.remove(Integer.MIN_VALUE);
+
+
     }
 
     @Override

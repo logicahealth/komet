@@ -520,10 +520,24 @@ public class ConcurrentBitSetTest {
 
     @Test
     public void testSetAll() {
-        System.out.println("not");
-        ConcurrentBitSet instance = new ConcurrentBitSet(10);
-        instance.setAll(Integer.MIN_VALUE + 8);
-        assertEquals(8, instance.size());
+        System.out.println("setAll");
+        ConcurrentBitSet instance = new ConcurrentBitSet();
+        int max = 1024*64;
+        instance.setAll(Integer.MIN_VALUE + max);
+        assertTrue(instance.contiguous());
+        assertTrue(instance.contains(max));
+        assertEquals(Integer.MIN_VALUE + max, instance.getMax());
+        assertEquals(max , instance.size());
+    }
+
+    @Test
+    public void testSet() {
+        System.out.println("set");
+        ConcurrentBitSet instance = new ConcurrentBitSet();
+        instance.set(Integer.MIN_VALUE + 1);
+        instance.set(Integer.MIN_VALUE);
+        assertEquals(2, instance.size());
+        
     }
 
     @Test
@@ -540,13 +554,13 @@ public class ConcurrentBitSetTest {
     public void testIterator() {
         System.out.println("iterator");
         ConcurrentBitSet first = new ConcurrentBitSet();
-        
-        int end = 64*10240 + 500;
-        
-        for(int i = 1; i < end; i++){
+
+        int end = 64 * 10240 + 500;
+
+        for (int i = 1; i < end; i++) {
             first.add(Integer.MIN_VALUE + i);
         }
-        
+
         NativeIdSetItrBI iter = first.getSetBitIterator();
         int[] setValues = new int[first.size()];
         int i = 0;
@@ -558,7 +572,7 @@ public class ConcurrentBitSetTest {
         } catch (IOException ex) {
             Logger.getLogger(ConcurrentBitSetTest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         assertArrayEquals(first.getSetValues(), setValues);
     }
 }
