@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package org.ihtsdo.otf.tcc.rest.server;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
 
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 
 import javax.servlet.ServletException;
@@ -46,16 +38,14 @@ import javax.servlet.ServletException;
 public class ChronicleServletContainer extends ServletContainer {
     private static final Semaphore     storeSemaphore = new Semaphore(1);
     private static BdbTerminologyStore termStore;
+    public static SetupStatus status;
 
     @Override
     public ServletContext getServletContext() {
         return super.getServletContext(); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public ChronicleServletContainer() {}
-
-    public ChronicleServletContainer(ResourceConfig resourceConfig) {
-        super(resourceConfig);
+    public ChronicleServletContainer() {
     }
 
     @Override
@@ -75,6 +65,9 @@ public class ChronicleServletContainer extends ServletContainer {
             System.out.println("Released storeSemaphore for destroy. ");
         }
 
+        status = SetupStatus.CLOSING_DB;
+        getServletContext().setAttribute("status", status);
+
         super.destroy();
     }
 
@@ -87,14 +80,19 @@ public class ChronicleServletContainer extends ServletContainer {
                         + "ChronicleServletContainer in background thread. ");
 
                 //Get the updated resources
-                
+                status = SetupStatus.BUILDING;
+                getServletContext().setAttribute("status", status);
+
                 SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
-                
+
                 setup.run(null);
-                
+
                 try {
                     storeSemaphore.acquireUninterruptibly();
                     System.out.println("Aquired storeSemaphore for init. ");
+
+                    status = SetupStatus.OPENING_DB;
+                    getServletContext().setAttribute("status", status);
 
                     BdbTerminologyStore temp = new BdbTerminologyStore();
 
@@ -102,6 +100,8 @@ public class ChronicleServletContainer extends ServletContainer {
                 } finally {
                     storeSemaphore.release();
                     System.out.println("Released storeSemaphore for init. ");
+                    status = null;
+                    getServletContext().setAttribute("status", status);
                 }
             }
         }, "Bdb ChronicleServletContainer startup thread");
