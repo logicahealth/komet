@@ -20,10 +20,11 @@ package org.ihtsdo.otf.tcc.rest.server;
  * @author dylangrald
  */
 public enum SetupStatus {
-    BUILDING("The project is building."),
-    OPENING_DB("Opening the database."),
+    BUILDING("The server application is downloading and/or processing dependencies."),
+    OPENING_DB("The server application is opening the database."),
     DB_OPEN("The database is open."),
-    CLOSING_DB("Closing the database.");
+    CLOSING_DB("Closing the database."),
+    DB_OPEN_FAILED("Setting up or opening the database failed.");
     
       private final String text;
 

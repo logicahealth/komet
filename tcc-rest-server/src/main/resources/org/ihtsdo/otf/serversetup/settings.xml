@@ -9,6 +9,7 @@ mvn deploy:deploy-file -DgroupId=org.ihtsdo.otf -DartifactId=tcc-test-data \
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <offline>false</offline>
+    <localRepository>mvn-repo</localRepository>
     <servers>
         <server>
             <id>maestro</id>

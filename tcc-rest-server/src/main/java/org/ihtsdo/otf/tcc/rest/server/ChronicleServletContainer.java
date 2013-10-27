@@ -13,20 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+
 package org.ihtsdo.otf.tcc.rest.server;
 
 //~--- non-JDK imports --------------------------------------------------------
+
+import org.glassfish.jersey.internal.util.collection.Value;
+import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.IOException;
 
+import java.net.URI;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
-import javax.servlet.ServletContext;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Overriding ServletContainer to enable access to
@@ -36,25 +52,31 @@ import javax.servlet.ServletException;
  * @author kec
  */
 public class ChronicleServletContainer extends ServletContainer {
-    private static final Semaphore     storeSemaphore = new Semaphore(1);
+    private static final Semaphore       storeSemaphore            = new Semaphore(1);
+    private static final ThreadGroup     chroncileServletContainer =
+        new ThreadGroup("ChronicleServletContainer threads");
+    private static final ExecutorService setupExecutor             =
+        Executors.newCachedThreadPool(new NamedThreadFactory(chroncileServletContainer, "parallel iterator service"));
     private static BdbTerminologyStore termStore;
-    public static SetupStatus status;
+    public static SetupStatus          status;
+    public static Future<Void>         setupFuture;
 
     @Override
     public ServletContext getServletContext() {
-        return super.getServletContext(); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public ChronicleServletContainer() {
+        return super.getServletContext();
     }
 
     @Override
     public void destroy() {
-        System.out.println("Destroy ChronicleServletContainer");
+        getServletContext().log("Destroy ChronicleServletContainer");
+
+        if (setupFuture != null) {
+            setupFuture.cancel(true);
+        }
 
         try {
             storeSemaphore.acquireUninterruptibly();
-            System.out.println("Aquired storeSemaphore for destroy. ");
+            getServletContext().log("Aquired storeSemaphore for destroy. ");
 
             if (termStore != null) {
                 termStore.shutdown();
@@ -62,35 +84,71 @@ public class ChronicleServletContainer extends ServletContainer {
             }
         } finally {
             storeSemaphore.release();
-            System.out.println("Released storeSemaphore for destroy. ");
+            getServletContext().log("Released storeSemaphore for destroy. ");
         }
 
         status = SetupStatus.CLOSING_DB;
         getServletContext().setAttribute("status", status);
-
         super.destroy();
     }
 
     @Override
     public void init() throws ServletException {
-        Thread bdbStartupThread = new Thread(new Runnable() {
+        SetupDatabase setup = new SetupDatabase();
+
+        setupFuture = setupExecutor.submit(setup);
+        super.init();
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        SetupStatus localStatus = status;
+
+        if (localStatus == SetupStatus.DB_OPEN) {
+            super.service(request, response);
+        }
+
+        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, localStatus.toString());
+    }
+
+    @Override
+    public Value<Integer> service(URI baseUri, URI requestUri, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        SetupStatus localStatus = status;
+
+        if (status == SetupStatus.DB_OPEN) {
+            return super.service(baseUri, requestUri, request, response);
+        }
+
+        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, localStatus.toString());
+
+        return Values.lazy(new Value<Integer>() {
             @Override
-            public void run() {
-                System.out.println("Starting BdbTerminologyStore for "
-                        + "ChronicleServletContainer in background thread. ");
+            public Integer get() {
+                return HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+            }
+        });
+    }
 
-                //Get the updated resources
-                status = SetupStatus.BUILDING;
-                getServletContext().setAttribute("status", status);
-
-                SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
-
-                setup.run(null);
-
+    private class SetupDatabase implements Callable<Void> {
+        @Override
+        public Void call() throws Exception {
+            try {
+                storeSemaphore.acquireUninterruptibly();
+                getServletContext().log("Aquired storeSemaphore for init. ");
                 try {
-                    storeSemaphore.acquireUninterruptibly();
-                    System.out.println("Aquired storeSemaphore for init. ");
+                    
+                    getServletContext().log("Starting BdbTerminologyStore for "
+                                            + "ChronicleServletContainer in background thread. ");
 
+                    // Get the updated resources
+                    status = SetupStatus.BUILDING;
+                    getServletContext().setAttribute("status", status);
+
+                    SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
+
+                    setup.run(null);
                     status = SetupStatus.OPENING_DB;
                     getServletContext().setAttribute("status", status);
 
@@ -99,14 +157,15 @@ public class ChronicleServletContainer extends ServletContainer {
                     termStore = temp;
                 } finally {
                     storeSemaphore.release();
-                    System.out.println("Released storeSemaphore for init. ");
-                    status = null;
+                    getServletContext().log("Released storeSemaphore for init. ");
                     getServletContext().setAttribute("status", status);
                 }
-            }
-        }, "Bdb ChronicleServletContainer startup thread");
 
-        bdbStartupThread.start();
-        super.init();
+                return null;
+            } catch (IOException ex) {
+                status = SetupStatus.DB_OPEN_FAILED;
+                throw ex;
+            }
+        }
     }
 }

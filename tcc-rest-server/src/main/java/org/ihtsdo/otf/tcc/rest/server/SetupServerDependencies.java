@@ -13,125 +13,126 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+
 package org.ihtsdo.otf.tcc.rest.server;
+
+//~--- non-JDK imports --------------------------------------------------------
+
+import org.apache.maven.cli.MavenCli;
+
+//~--- JDK imports ------------------------------------------------------------
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.PrintStream;
+
 import javax.servlet.ServletContext;
-import org.apache.maven.cli.MavenCli;
 
 /**
  *
  * @author kec
  */
 public class SetupServerDependencies {
-
     ServletContext context;
 
     public SetupServerDependencies(ServletContext context) {
         this.context = context;
     }
 
-    public void run(String args[]) {
-        String appHome = System.getProperty("user.home") + "/app-server";
-        System.out.println("App home: " + appHome);
+    public void run(String args[]) throws IOException {
+        String appHome = System.getProperty("user.home");
+
+        context.log("App home: " + appHome);
+
         File app = new File(appHome);
-        if(!app.exists()){
+
+        if (!app.exists()) {
             app.mkdir();
         }
-        System.out.println("The default user settings file " + MavenCli.DEFAULT_USER_SETTINGS_FILE.getAbsolutePath());
+
+        context.log("The default user settings file " + MavenCli.DEFAULT_USER_SETTINGS_FILE.getAbsolutePath());
         System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
         System.setProperty("org.slf4j.simpleLogger.showThreadName", "false");
         System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
         System.setProperty("org.ihtsdo.otf.tcc.datastore.working-dir", appHome);
         System.setProperty("org.ihtsdo.otf.tcc.datastore.bdb-location", appHome + "/berkeley-db");
-        System.setProperty(MavenCli.LOCAL_REPO_PROPERTY, appHome + "/.m2");
 
         MavenCli cli = new MavenCli();
 
-        //Write to the pom.xml
-        File pomDir = new File(appHome + "/src/main/resources/org/ihtsdo/otf/server-setup");
+        // Write to the pom.xml
+        File pomDir = new File(appHome);
+
         if (!pomDir.exists()) {
             pomDir.mkdirs();
         }
 
-        BufferedReader pomReader = null;
-        BufferedWriter pomWriter = null;
+        String username         = System.getProperty("org.ihtsdo.otf.tcc.repository.username");
+        String password         = System.getProperty("org.ihtsdo.otf.tcc.repository.password");
+        String pomResource      = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/pom.xml";
+        String settingsResource = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/settings.xml";
 
-        InputStream pom = null;
-        String settingsLine = "";
-        try {
-            pom = context.getResourceAsStream("/WEB-INF/classes/org/ihtsdo/otf/serversetup/pom.xml");
-            pomReader = new BufferedReader(new InputStreamReader(pom, "UTF-8"));
-            pomWriter = new BufferedWriter(
-                    new OutputStreamWriter(
-                    new FileOutputStream(pomDir + "/pom.xml"),
-                    "UTF-8"));
+        context.log("pom: " + context.getResource(pomResource));
+
+        try (BufferedReader pomReader =
+                new BufferedReader(new InputStreamReader(context.getResourceAsStream(pomResource), "UTF-8"));
+            BufferedWriter pomWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pomDir
+                    + "/pom.xml"), "UTF-8"));) {
+            String settingsLine;
+
             while ((settingsLine = pomReader.readLine()) != null) {
                 pomWriter.write(settingsLine);
             }
-
-            pomReader.close();
-            pomWriter.close();
-        } catch (MalformedURLException | UnsupportedEncodingException ex) {
-            Logger.getLogger(SetupServerDependencies.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SetupServerDependencies.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(SetupServerDependencies.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        //Write the settings.xml file
-        File m2Home = new File(appHome + "/.m2");
-        if (!m2Home.exists()) {
-            m2Home.mkdir();
-        }
+        // Write the settings.xml file
 
-        BufferedReader settingsReader = null;
-        BufferedWriter settingsWriter = null;
+        context.log("settings: " + context.getResource(settingsResource));
+        File settingsFile = new File(appHome, "settings.xml");
+        context.log("settings path: " + settingsFile.getAbsolutePath());
+        
 
-        String s = "";
-        try {
-            settingsReader = new BufferedReader(new InputStreamReader(new FileInputStream(MavenCli.DEFAULT_USER_SETTINGS_FILE.getAbsolutePath()), "UTF-8"));
-            settingsWriter = new BufferedWriter(
+        try (BufferedReader settingsReader =
+                new BufferedReader(new InputStreamReader(context.getResourceAsStream(settingsResource), "UTF-8"));
+            BufferedWriter settingsWriter = new BufferedWriter(
                     new OutputStreamWriter(
-                    new FileOutputStream(m2Home + "/settings.xml"),
-                    "UTF-8"));
+                        new FileOutputStream(settingsFile), "UTF-8"));) {
+            String s;
+
             while ((s = settingsReader.readLine()) != null) {
+                s = s.replace("<username>user</username>", "<username>" + username + "</username>");
+                s = s.replace("<password>password</password>", "<password>" + password + "</password>");
+                s = s.replace("<localRepository>mvn-repo</localRepository>", "<localRepository>" + appHome + "/mvn-repo</localRepository>");
                 settingsWriter.write(s);
             }
-
-            settingsReader.close();
-            settingsWriter.close();
-        } catch (MalformedURLException | UnsupportedEncodingException ex) {
-            Logger.getLogger(SetupServerDependencies.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SetupServerDependencies.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(SetupServerDependencies.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         if ((args == null) || (args.length == 0)) {
-            args = new String[]{"install"};
+            args = new String[] { "-settings", 
+                                  settingsFile.getAbsolutePath(),
+                                  "--update-snapshots",
+                                  "install" };
         }
 
-        int result = cli.doMain(args, pomDir.getAbsolutePath(), System.out, System.out);
+        ByteArrayOutputStream stringStream      = new ByteArrayOutputStream();
+        PrintStream           mavenOutputStream = new PrintStream(stringStream);
+        int                   result            = cli.doMain(args, pomDir.getAbsolutePath(), mavenOutputStream,
+                                                      mavenOutputStream);
+
+        context.log(stringStream.toString());
+
         if (result == 0) {
-            System.out.println("Embedded maven build succeeded: " + result);
+            context.log("Embedded maven build succeeded: " + result);
         } else {
-            System.out.println("Embedded maven build failed: " + result);
+            context.log("Embedded maven build failed: " + result);
+            throw new IOException("Embedded maven build failed");
         }
     }
 }
