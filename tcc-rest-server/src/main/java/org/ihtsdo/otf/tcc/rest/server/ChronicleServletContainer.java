@@ -25,6 +25,7 @@ import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -107,9 +108,10 @@ public class ChronicleServletContainer extends ServletContainer {
 
         if (localStatus == SetupStatus.DB_OPEN) {
             super.service(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, localStatus.toString());  
         }
 
-        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, localStatus.toString());
     }
 
     @Override
@@ -134,11 +136,15 @@ public class ChronicleServletContainer extends ServletContainer {
     private class SetupDatabase implements Callable<Void> {
         @Override
         public Void call() throws Exception {
+            long startTime = System.currentTimeMillis();
+
+            getServletContext().log("Starting database setup at: " + TimeHelper.formatDate(startTime));
+
             try {
                 storeSemaphore.acquireUninterruptibly();
                 getServletContext().log("Aquired storeSemaphore for init. ");
+
                 try {
-                    
                     getServletContext().log("Starting BdbTerminologyStore for "
                                             + "ChronicleServletContainer in background thread. ");
 
@@ -149,21 +155,32 @@ public class ChronicleServletContainer extends ServletContainer {
                     SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
 
                     setup.run(null);
+
+                    long elapsedTime = System.currentTimeMillis() - startTime;
+
+                    getServletContext().log("Finised database dependency setup: "
+                                            + TimeHelper.getElapsedTimeString(elapsedTime));
                     status = SetupStatus.OPENING_DB;
                     getServletContext().setAttribute("status", status);
 
                     BdbTerminologyStore temp = new BdbTerminologyStore();
 
                     termStore = temp;
+                    status = SetupStatus.DB_OPEN;
                 } finally {
                     storeSemaphore.release();
                     getServletContext().log("Released storeSemaphore for init. ");
                     getServletContext().setAttribute("status", status);
                 }
 
+                long elapsedTime = System.currentTimeMillis() - startTime;
+
+                getServletContext().log("Finised database startup: " + TimeHelper.getElapsedTimeString(elapsedTime));
+
                 return null;
             } catch (IOException ex) {
                 status = SetupStatus.DB_OPEN_FAILED;
+
                 throw ex;
             }
         }
