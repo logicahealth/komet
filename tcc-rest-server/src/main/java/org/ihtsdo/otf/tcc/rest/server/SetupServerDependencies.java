@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package org.ihtsdo.otf.tcc.rest.server;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.maven.cli.MavenCli;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -41,6 +37,7 @@ import javax.servlet.ServletContext;
  * @author kec
  */
 public class SetupServerDependencies {
+
     ServletContext context;
 
     public SetupServerDependencies(ServletContext context) {
@@ -48,7 +45,7 @@ public class SetupServerDependencies {
     }
 
     public void run(String args[]) throws IOException {
-        String appHome = System.getProperty("user.home");
+        String appHome = System.getProperty("user.home") + "/app-server";
 
         context.log("App home: " + appHome);
 
@@ -74,22 +71,27 @@ public class SetupServerDependencies {
             pomDir.mkdirs();
         }
 
-        String username         = System.getProperty("org.ihtsdo.otf.tcc.repository.username");
-        String password         = System.getProperty("org.ihtsdo.otf.tcc.repository.password");
-        String pomResource      = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/pom.xml";
+        String username = System.getProperty("org.ihtsdo.otf.tcc.repository.username");
+        String password = System.getProperty("org.ihtsdo.otf.tcc.repository.password");
+        String pomResource = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/pom.xml";
         String settingsResource = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/settings.xml";
 
         context.log("pom: " + context.getResource(pomResource));
 
-        try (BufferedReader pomReader =
+        BufferedReader pomReader =
                 new BufferedReader(new InputStreamReader(context.getResourceAsStream(pomResource), "UTF-8"));
-            BufferedWriter pomWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pomDir
-                    + "/pom.xml"), "UTF-8"));) {
+        BufferedWriter pomWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pomDir
+                + "/pom.xml"), "UTF-8"));
+
+        try {
             String settingsLine;
 
             while ((settingsLine = pomReader.readLine()) != null) {
                 pomWriter.write(settingsLine);
             }
+        } finally {
+            pomReader.close();
+            pomWriter.close();
         }
 
         // Write the settings.xml file
@@ -97,13 +99,14 @@ public class SetupServerDependencies {
         context.log("settings: " + context.getResource(settingsResource));
         File settingsFile = new File(appHome, "settings.xml");
         context.log("settings path: " + settingsFile.getAbsolutePath());
-        
 
-        try (BufferedReader settingsReader =
+        BufferedReader settingsReader =
                 new BufferedReader(new InputStreamReader(context.getResourceAsStream(settingsResource), "UTF-8"));
-            BufferedWriter settingsWriter = new BufferedWriter(
-                    new OutputStreamWriter(
-                        new FileOutputStream(settingsFile), "UTF-8"));) {
+        BufferedWriter settingsWriter = new BufferedWriter(
+                new OutputStreamWriter(
+                new FileOutputStream(settingsFile), "UTF-8"));
+        
+        try {
             String s;
 
             while ((s = settingsReader.readLine()) != null) {
@@ -112,19 +115,22 @@ public class SetupServerDependencies {
                 s = s.replace("<localRepository>mvn-repo</localRepository>", "<localRepository>" + appHome + "/mvn-repo</localRepository>");
                 settingsWriter.write(s);
             }
+        } finally{
+            settingsReader.close();
+            settingsWriter.close();
         }
 
         if ((args == null) || (args.length == 0)) {
-            args = new String[] { "-settings", 
-                                  settingsFile.getAbsolutePath(),
-                                  "--update-snapshots",
-                                  "install" };
+            args = new String[]{"-settings",
+                settingsFile.getAbsolutePath(),
+                "--update-snapshots",
+                "install"};
         }
 
-        ByteArrayOutputStream stringStream      = new ByteArrayOutputStream();
-        PrintStream           mavenOutputStream = new PrintStream(stringStream);
-        int                   result            = cli.doMain(args, pomDir.getAbsolutePath(), mavenOutputStream,
-                                                      mavenOutputStream);
+        ByteArrayOutputStream stringStream = new ByteArrayOutputStream();
+        PrintStream mavenOutputStream = new PrintStream(stringStream);
+        int result = cli.doMain(args, pomDir.getAbsolutePath(), mavenOutputStream,
+                mavenOutputStream);
 
         context.log(stringStream.toString());
 

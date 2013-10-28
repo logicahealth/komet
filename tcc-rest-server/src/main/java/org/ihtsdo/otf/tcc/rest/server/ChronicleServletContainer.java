@@ -61,6 +61,7 @@ public class ChronicleServletContainer extends ServletContainer {
     private static BdbTerminologyStore termStore;
     public static SetupStatus          status;
     public static Future<Void>         setupFuture;
+    public static Integer maxHeaderSize;
 
     @Override
     public ServletContext getServletContext() {
@@ -95,6 +96,12 @@ public class ChronicleServletContainer extends ServletContainer {
 
     @Override
     public void init() throws ServletException {
+        if(this.getServletConfig().getInitParameter("httpMaxHeaderSize") != null){
+            maxHeaderSize = Integer.parseInt(this.getServletConfig().getInitParameter("httpMaxHeaderSize"));
+        } else{
+            maxHeaderSize = 900;
+        }
+        
         SetupDatabase setup = new SetupDatabase();
 
         setupFuture = setupExecutor.submit(setup);
@@ -120,6 +127,9 @@ public class ChronicleServletContainer extends ServletContainer {
         SetupStatus localStatus = status;
 
         if (status == SetupStatus.DB_OPEN) {
+            if(requestUri.toURL().toString().length() > maxHeaderSize){
+                response.sendError(HttpServletResponse.SC_REQUEST_URI_TOO_LONG, "Query is too long.");
+            }
             return super.service(baseUri, requestUri, request, response);
         }
 
