@@ -40,6 +40,9 @@ public class Snomed {
     public static ConceptSpec FINDING_SITE =
             new ConceptSpec("Finding site (attribute)",
             UUID.fromString("3a6d919d-6c25-3aae-9bc3-983ead83a928"));
+    public static ConceptSpec PART_OF =
+            new ConceptSpec("Part of (attribute)",
+            UUID.fromString("b4c3f6f9-6937-30fd-8412-d0c77f8a7f73"));
     public static ConceptSpec CLINICAL_FINDING =
             new ConceptSpec("Clinical finding (finding)",
             UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
@@ -61,12 +64,21 @@ public class Snomed {
     public static ConceptSpec SNOMED_RELEASE_PATH =
             new ConceptSpec("SNOMED Core",
             UUID.fromString("8c230474-9f11-30ce-9cad-185a96fd03a2"));
+    public static ConceptSpec ENTIRE_HEMATOPOIETIC_SYSTEM =
+            new ConceptSpec("Entire hematopoietic system (body structure)",
+            UUID.fromString("ec1d9f88-5de1-3891-b67f-e50f262cf63f"));
     public static ConceptSpec EXTENSION_0 =
             new ConceptSpec("Extension Namespace 1000000",
             UUID.fromString("18388bfd-9fab-3581-9e22-cbae53725ef2"));
     public static ConceptSpec EXTENSION_13 =
             new ConceptSpec("Extension Namespace 1000013",
             UUID.fromString("bb57db0f-def7-3fb7-b7f2-89fa7710bffa"));
+    public static ConceptSpec LASER_SURGERY =
+            new ConceptSpec("Laser surgery (procedure)",
+            UUID.fromString("c8419d14-07f1-3c85-b320-47d91dd08181"));
+    public static ConceptSpec LASER_SURGERY_TECHNIQUE =
+            new ConceptSpec("Laser surgery technique",
+            UUID.fromString("f23cff34-c2c8-32dd-865a-e08762018ded"));
     public static ConceptSpec CONCEPT_HISTORY_ATTRIB =
             new ConceptSpec("Concept history attribute",
             UUID.fromString("f323b5dd-1f97-3873-bcbc-3563663dda14"));
