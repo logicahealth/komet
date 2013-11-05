@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 
@@ -149,7 +150,7 @@ public class SetupServerDependencies {
                 "clean", "install"};
         }
 
-        ByteArrayOutputStream stringStream = new ByteArrayOutputStream();
+        OutputStream stringStream = new ContextLoggerStream();
         PrintStream mavenOutputStream = new PrintStream(stringStream);
         
         
@@ -165,5 +166,21 @@ public class SetupServerDependencies {
             return false;
         }
         return true;
+    }
+    
+    private class ContextLoggerStream extends OutputStream {
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        
+        @Override
+        public void write(int b) throws IOException {
+            if (b == '\n' || b == '\r') {
+                context.log(bytes.toString());
+                bytes.reset();
+            } else {
+                bytes.write(b);
+            }
+        }
+        
     }
 }

@@ -79,6 +79,7 @@ public class ChronicleServletContainer extends ServletContainer {
         if (termStore != null) {
             getServletContext().log("termStore is not null, shutting down. ");
             termStore.shutdown();
+            getServletContext().log("termStore shutdown. ");
             termStore = null;
         } else {
             getServletContext().log("termStore is null. ");
@@ -172,7 +173,11 @@ public class ChronicleServletContainer extends ServletContainer {
 
                 while ((success == false) && (tryCount < MAX_TRIES_BEFORE_FAILURE)) {
                     tryCount++;
+                    getServletContext().log("Setup try: " + tryCount);
                     success = setup.execute();
+                    if (!success) {
+                        getServletContext().log("Setup try  " + tryCount + " failed.");
+                    }
                 }
 
                 if (success) {
