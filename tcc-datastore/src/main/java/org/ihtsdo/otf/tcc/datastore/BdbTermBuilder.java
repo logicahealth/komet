@@ -156,11 +156,10 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
         
         ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexCollectionNid());
         
-//        if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
-//            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
-//                    P.s.getNidForUuids(blueprint.getComponentUuid()));
-//        } else 
-        if (refexColCon.isAnnotationStyleRefex()) {
+        if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
+            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
+                    P.s.getNidForUuids(blueprint.getComponentUuid()));
+        } else if (refexColCon.isAnnotationStyleRefex()) {
             int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
 
             int enclosingConceptNid = P.s.getConceptNidForNid(rcNid);

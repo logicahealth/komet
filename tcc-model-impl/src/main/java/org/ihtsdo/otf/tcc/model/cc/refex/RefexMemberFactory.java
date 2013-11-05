@@ -62,6 +62,7 @@ import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_STRING;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 
 /**
  * Class description
@@ -341,32 +342,43 @@ public class RefexMemberFactory {
 
       member.assemblageNid = refexColCon.getNid();
       member.nid               = P.s.getNidForUuids(blueprint.getMemberUUID());
-//
-//      if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
-//            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
-//                    P.s.getNidForUuids(blueprint.getComponentUuid()));
-//        }
-      if (refexColCon.isAnnotationStyleRefex()) {
-         int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
 
-         member.enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
-         P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
+       if (refexColCon.isAnnotationStyleRefex()) {
+           int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
 
-         ComponentChronicleBI<?> component = blueprint.getReferencedComponent();
-         if (component == null) {
-             component = P.s.getComponent(blueprint.getReferencedComponentUuid());
-         }
+           if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
+               int setCnid = blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID);
+               if(setCnid != P.s.getConceptNidForNid(rcNid)){
+                   throw new InvalidCAB("Set enclosing concept nid does not match computed. Set: " + setCnid
+                                        + " Computed: " + P.s.getConceptNidForNid(rcNid));
+               }
+           }
+           
+           member.enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
+           P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
 
-         if (component == null) {
-            throw new InvalidCAB("Component for annotation is null. Blueprint: " + blueprint);
-         }
+           ComponentChronicleBI<?> component = blueprint.getReferencedComponent();
+           if (component == null) {
+               component = P.s.getComponent(blueprint.getReferencedComponentUuid());
+           }
 
-         component.addAnnotation(member);
-      } else {
-         member.enclosingConceptNid = refexColCon.getNid();
-         P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
-         refexColCon.getData().add(member);
-      }
+           if (component == null) {
+               throw new InvalidCAB("Component for annotation is null. Blueprint: " + blueprint);
+           }
+
+           component.addAnnotation(member);
+       } else {
+           if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
+               int setCnid = blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID);
+               if(setCnid != refexColCon.getNid()){
+                   throw new InvalidCAB("Set enclosing concept nid does not match computed. Set: " + setCnid
+                                        + " Computed: " + refexColCon.getNid());
+               }
+           }
+           member.enclosingConceptNid = refexColCon.getNid();
+           P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
+           refexColCon.getData().add(member);
+       }
 
       for (int i = 0; i < ec.getEditPaths().size(); i++) {
          if (i == 0) {
