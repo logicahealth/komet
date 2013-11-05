@@ -341,7 +341,11 @@ public class RefexMemberFactory {
 
       member.assemblageNid = refexColCon.getNid();
       member.nid               = P.s.getNidForUuids(blueprint.getMemberUUID());
-
+//
+//      if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
+//            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
+//                    P.s.getNidForUuids(blueprint.getComponentUuid()));
+//        }
       if (refexColCon.isAnnotationStyleRefex()) {
          int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
 

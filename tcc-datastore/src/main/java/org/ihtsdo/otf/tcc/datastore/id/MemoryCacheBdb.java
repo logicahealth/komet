@@ -37,6 +37,7 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.concurrency.ConcurrentReentrantLocks;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
@@ -677,14 +678,19 @@ public class MemoryCacheBdb extends ComponentBdb {
 
         int[][] nidCNidMapArrays = nidCNidMaps.get();
 
+        int mapNid = nidCNidMapArrays[mapIndex][nidIndexInMap];
+        if(mapNid > 0){
+            mapNid = -1 * mapNid;
+        }
+        
         assert (nidCNidMapArrays[mapIndex][nidIndexInMap] == Integer.MAX_VALUE)
                 || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid
                 || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid * -1)) :
-                "processing cNid: " + cNid + " " + Bdb.getUuidsToNidMap().getUuidsForNid(cNid) + " nid: " + nid
-                + " found existing cNid: " + ((int) nidCNidMapArrays[mapIndex][nidIndexInMap]) + " "
-                + Bdb.getUuidsToNidMap().getUuidsForNid((int) nidCNidMapArrays[mapIndex][nidIndexInMap]) + "\n    "
-                + cNid + " maps to: " + getCNid(cNid) + "\n    " + ((int) nidCNidMapArrays[mapIndex][nidIndexInMap])
-                + " maps to: " + getCNid((int) nidCNidMapArrays[mapIndex][nidIndexInMap]);
+                "processing cNid: " + cNid + " " + Ts.get().getUuidPrimordialForNid(cNid) + " nid: " + nid
+                + " found existing cNid: " + (mapNid) + " "
+                + Ts.get().getUuidPrimordialForNid(mapNid) + "\n    "
+                + cNid + " maps to: " + getCNid(cNid) + "\n    " + (mapNid)
+                + " maps to: " + getCNid(mapNid);
 
         if ((nidCNidMapArrays != null) && (nidCNidMapArrays[mapIndex] != null)) {
             if (nidCNidMapArrays[mapIndex][nidIndexInMap] != cNid) {
