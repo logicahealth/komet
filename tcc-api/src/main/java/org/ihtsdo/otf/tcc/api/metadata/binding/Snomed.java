@@ -263,6 +263,9 @@ public class Snomed {
     public static ConceptSpec SCALE_TYPE =
             new ConceptSpec("Scale type (attribute)",
             UUID.fromString("087afdd2-23cd-34c3-93a4-09088dfd480c"));
+    public static ConceptSpec SEVERITIES =
+            new ConceptSpec("Severities (qualifier value)",
+            UUID.fromString("ee50a583-4172-30f4-84dd-c61f83f0130e"));
     public static ConceptSpec SITUATION_WITH_EXPLICIT_CONTEXT =
             new ConceptSpec("Situation with explicit context (situation)",
             UUID.fromString("27d03723-07c3-3de9-828b-76aa05a23438"));
