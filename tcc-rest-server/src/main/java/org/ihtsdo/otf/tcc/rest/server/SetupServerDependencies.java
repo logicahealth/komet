@@ -43,24 +43,28 @@ public class SetupServerDependencies {
     public SetupServerDependencies(ServletContext context) {
         this.context = context;
     }
+    
+    public boolean execute() throws IOException {
+        return execute(null);
+    }
 
-    public void run(String args[]) throws IOException {
-        String appHome = System.getProperty("user.home") + "/app-server";
+    public boolean execute(String args[]) throws IOException {
+        String appHome = System.getenv("CATALINA_HOME") + "/temp/bdb";
 
         context.log("App home: " + appHome);
 
         File app = new File(appHome);
 
         if (!app.exists()) {
-            app.mkdir();
+            app.mkdirs();
         }
 
         context.log("The default user settings file " + MavenCli.DEFAULT_USER_SETTINGS_FILE.getAbsolutePath());
         System.setProperty("org.slf4j.simpleLogger.showLogName", "false");
         System.setProperty("org.slf4j.simpleLogger.showThreadName", "false");
         System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
-        System.setProperty("org.ihtsdo.otf.tcc.datastore.working-dir", appHome);
-        System.setProperty("org.ihtsdo.otf.tcc.datastore.bdb-location", appHome + "/berkeley-db");
+        System.setProperty("org.ihtsdo.otf.tcc.datastore.working-dir", appHome + "/target");
+        System.setProperty("org.ihtsdo.otf.tcc.datastore.bdb-location", appHome + "/target/berkeley-db");
 
         MavenCli cli = new MavenCli();
 
@@ -72,22 +76,36 @@ public class SetupServerDependencies {
         }
 
         String username = System.getProperty("org.ihtsdo.otf.tcc.repository.username");
+        if (username == null || username.isEmpty()) {
+            context.log("WARNING: Username is null. Please set "
+                    + "'org.ihtsdo.otf.tcc.repository.username'  to a proper "
+                    + "value in the CATALINA_OPTS environmental variable");
+        }
         String password = System.getProperty("org.ihtsdo.otf.tcc.repository.password");
+        if (password == null || password.isEmpty()) {
+            context.log("WARNING: Password is null. Please set "
+                    + "'org.ihtsdo.otf.tcc.repository.password' to a proper "
+                    + "value in the CATALINA_OPTS environmental variable");
+        }
         String pomResource = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/pom.xml";
         String settingsResource = "/WEB-INF/classes/org/ihtsdo/otf/serversetup/settings.xml";
 
         context.log("pom: " + context.getResource(pomResource));
 
+        File pomFile = new File(pomDir + "/pom.xml");
+        if (pomFile.exists()) {
+            context.log("Pom file exists. Now deleting.");
+            pomFile.delete();
+        }
         BufferedReader pomReader =
                 new BufferedReader(new InputStreamReader(context.getResourceAsStream(pomResource), "UTF-8"));
-        BufferedWriter pomWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pomDir
-                + "/pom.xml"), "UTF-8"));
+        BufferedWriter pomWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pomFile), "UTF-8"));
 
         try {
             String settingsLine;
 
             while ((settingsLine = pomReader.readLine()) != null) {
-                pomWriter.write(settingsLine);
+                pomWriter.write(settingsLine + "\n");
             }
         } finally {
             pomReader.close();
@@ -98,6 +116,10 @@ public class SetupServerDependencies {
 
         context.log("settings: " + context.getResource(settingsResource));
         File settingsFile = new File(appHome, "settings.xml");
+        if (settingsFile.exists()) {
+            context.log("Settings file exists. Now deleting.");
+            settingsFile.delete();
+        }
         context.log("settings path: " + settingsFile.getAbsolutePath());
 
         BufferedReader settingsReader =
@@ -113,7 +135,7 @@ public class SetupServerDependencies {
                 s = s.replace("<username>user</username>", "<username>" + username + "</username>");
                 s = s.replace("<password>password</password>", "<password>" + password + "</password>");
                 s = s.replace("<localRepository>mvn-repo</localRepository>", "<localRepository>" + appHome + "/mvn-repo</localRepository>");
-                settingsWriter.write(s);
+                settingsWriter.write(s + "\n");
             }
         } finally{
             settingsReader.close();
@@ -121,14 +143,16 @@ public class SetupServerDependencies {
         }
 
         if ((args == null) || (args.length == 0)) {
-            args = new String[]{"-settings",
-                settingsFile.getAbsolutePath(),
-                "--update-snapshots",
-                "install"};
+            args = new String[]{"-e", 
+                "-settings", settingsFile.getAbsolutePath(),
+                "-U",
+                "clean", "install"};
         }
 
         ByteArrayOutputStream stringStream = new ByteArrayOutputStream();
         PrintStream mavenOutputStream = new PrintStream(stringStream);
+        
+        
         int result = cli.doMain(args, pomDir.getAbsolutePath(), mavenOutputStream,
                 mavenOutputStream);
 
@@ -138,7 +162,8 @@ public class SetupServerDependencies {
             context.log("Embedded maven build succeeded: " + result);
         } else {
             context.log("Embedded maven build failed: " + result);
-            throw new IOException("Embedded maven build failed");
+            return false;
         }
+        return true;
     }
 }
