@@ -88,6 +88,9 @@ public class Snomed {
     public static ConceptSpec INACTIVE_CONCEPT =
             new ConceptSpec("Inactive concept (inactive concept)",
             UUID.fromString("f267fc6f-7c4d-3a79-9f17-88b82b42709a"));
+    public static ConceptSpec OBSTRUCTION_OF_AORTIC_ARCH =
+            new ConceptSpec("Obstruction of aortic arch (disorder)",
+            UUID.fromString("47385d27-151c-3ab7-a0e6-9bcd22a84806"));
     public static ConceptSpec STRUCTURE_OF_ENDOCRINE_SYSTEM =
             new ConceptSpec("Structure of endocrine system (body structure)",
             UUID.fromString("9d902867-4e0e-39e0-b6dd-e4be495b6ab1"));
