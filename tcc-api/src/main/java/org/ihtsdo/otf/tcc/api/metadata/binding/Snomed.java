@@ -13,6 +13,9 @@ public class Snomed {
     public static ConceptSpec ABDOMINAL_WALL_STRUCTURE =
             new ConceptSpec("Abdominal wall structure (body structure)",
             UUID.fromString("c258b290-fabc-3e9d-86f4-9cf4dc0d6978"));
+    public static ConceptSpec ASTHMA =
+            new ConceptSpec("Asthma (disorder)",
+            UUID.fromString("c265cf22-2a11-3488-b71e-296ec0317f96"));
     public static ConceptSpec NEUROLOGICAL_SYMPTOM =
             new ConceptSpec("Neurological symptom (finding)",
             UUID.fromString("f40bbc47-9f5a-34d9-b3c8-3f58a08874fe"));
@@ -82,6 +85,9 @@ public class Snomed {
     public static ConceptSpec CONCEPT_HISTORY_ATTRIB =
             new ConceptSpec("Concept history attribute",
             UUID.fromString("f323b5dd-1f97-3873-bcbc-3563663dda14"));
+    public static ConceptSpec MILD_ASTHMA =
+            new ConceptSpec("Mild asthma (disorder)",
+            UUID.fromString("51971ecc-9a54-3584-9c36-d647ab00b47f"));
     public static ConceptSpec PRODUCT =
             new ConceptSpec("Pharmaceutical / biologic product (product)",
             UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449"));
