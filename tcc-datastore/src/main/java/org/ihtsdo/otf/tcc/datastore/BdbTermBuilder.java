@@ -369,6 +369,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 dr.setTypeNid(blueprint.getTypeNid());
                 dr.setText(blueprint.getText());
                 dr.setLang(blueprint.getLang());
+                dr.setStatus(blueprint.getStatus());
                 dr.setInitialCaseSignificant(blueprint.isInitialCaseSignificant());
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
                     construct(annotBp);

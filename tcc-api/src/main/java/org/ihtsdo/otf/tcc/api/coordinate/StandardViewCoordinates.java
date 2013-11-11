@@ -19,6 +19,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
@@ -38,6 +39,7 @@ public class StandardViewCoordinates {
 
       snomedVc.setViewPosition(snomedPosition);
       snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED);
+      snomedVc.setAllowedStatus(EnumSet.of(Status.ACTIVE, Status.INACTIVE));
 
       return snomedVc;
    }
