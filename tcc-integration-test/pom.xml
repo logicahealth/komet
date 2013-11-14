@@ -79,13 +79,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <forkMode>never</forkMode>
                     <includes>
                         <!-- Let JUnit annotations decide -->
                         <include>**/*.class</include>
                     </includes>
                 </configuration>
             </plugin>      
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <destFile>${project.basedir}/../target/jacoco-it.exec</destFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

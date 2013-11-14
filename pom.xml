@@ -53,6 +53,8 @@ the specific language governing permissions and limitations under the License. -
         <netbeans-platform-version>RELEASE73</netbeans-platform-version>
         <yDoc.path>/Applications/yworks-uml-doclet-3.0_02-jdk1.5</yDoc.path>
         <maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
+        <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -171,9 +173,27 @@ the specific language governing permissions and limitations under the License. -
                         </dependency>
                     </dependencies>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.6.3.201306030806</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>ch.syabru.maven.plugins</groupId>
                 <artifactId>maven-timemachine-plugin</artifactId>
