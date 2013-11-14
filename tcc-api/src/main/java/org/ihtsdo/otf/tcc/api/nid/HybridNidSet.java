@@ -81,15 +81,21 @@ public class HybridNidSet implements NativeIdSetBI {
         return HybridNidSet.threshold;
     }
 
-    public NativeIdSetItrBI getIterator() {
-        return this.nidSet.getIterator();
+    @Override
+    public NativeIdSetItrBI getSetBitIterator() {
+        return this.nidSet.getSetBitIterator();
+    }
+
+    @Override
+    public NativeIdSetItrBI getAllBitIterator() {
+        return this.nidSet.getAllBitIterator();
     }
 
     @Override
     public void and(NativeIdSetBI other) {
         nidSet.and(other);
         if (this.nidSet.size() < threshold && nidSet.getClass().isAssignableFrom(ConcurrentBitSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new IntSet();
             try {
                 while (iter.next()) {
@@ -105,7 +111,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void andNot(NativeIdSetBI other) {
         nidSet.andNot(other);
         if (this.nidSet.size() < threshold && nidSet.getClass().isAssignableFrom(ConcurrentBitSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new IntSet();
             try {
                 while (iter.next()) {
@@ -131,7 +137,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void add(int nid) {
         nidSet.add(nid);
         if (this.nidSet.size() > threshold && nidSet.getClass().isAssignableFrom(IntSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new ConcurrentBitSet();
             try {
                 while (iter.next()) {
@@ -148,7 +154,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void remove(int nid) {
         nidSet.remove(nid);
         if (this.nidSet.size() < threshold && nidSet.getClass().isAssignableFrom(ConcurrentBitSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new IntSet();
             try {
                 while (iter.next()) {
@@ -164,7 +170,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void addAll(int[] nids) {
         this.nidSet.addAll(nids);
         if (this.nidSet.size() > threshold && nidSet.getClass().isAssignableFrom(IntSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new ConcurrentBitSet();
             try {
                 while (iter.next()) {
@@ -180,7 +186,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void removeAll(int[] nids) {
         nidSet.removeAll(nids);
         if (this.nidSet.size() < threshold && nidSet.getClass().isAssignableFrom(ConcurrentBitSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new IntSet();
             try {
                 while (iter.next()) {
@@ -222,7 +228,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void union(NativeIdSetBI other) {
         nidSet.union(other);
         if (this.nidSet.size() > threshold && nidSet.getClass().isAssignableFrom(IntSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new ConcurrentBitSet();
             try {
                 while (iter.next()) {
@@ -238,7 +244,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void xor(NativeIdSetBI other) {
         nidSet.xor(other);
         if (this.nidSet.size() > threshold && nidSet.getClass().isAssignableFrom(IntSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getAllBitIterator();
             nidSet = new ConcurrentBitSet();
             try {
                 while (iter.next()) {
@@ -248,7 +254,7 @@ public class HybridNidSet implements NativeIdSetBI {
                 Logger.getLogger(HybridNidSet.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else if (this.nidSet.size() < threshold && nidSet.getClass().isAssignableFrom(ConcurrentBitSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getAllBitIterator();
             nidSet = new IntSet();
             try {
                 while (iter.next()) {
@@ -269,7 +275,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void setMember(int nid) {
         nidSet.setMember(nid);
         if (this.nidSet.size() > threshold && nidSet.getClass().isAssignableFrom(IntSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new ConcurrentBitSet();
             try {
                 while (iter.next()) {
@@ -285,7 +291,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void setNotMember(int nid) {
         nidSet.setNotMember(nid);
         if (this.nidSet.size() < threshold && nidSet.getClass().isAssignableFrom(ConcurrentBitSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new IntSet();
             try {
                 while (iter.next()) {
@@ -301,7 +307,7 @@ public class HybridNidSet implements NativeIdSetBI {
     public void or(NativeIdSetBI other) {
         nidSet.union(other);
         if (this.nidSet.size() > threshold && nidSet.getClass().isAssignableFrom(IntSet.class)) {
-            NativeIdSetItrBI iter = nidSet.getIterator();
+            NativeIdSetItrBI iter = nidSet.getSetBitIterator();
             nidSet = new ConcurrentBitSet();
             try {
                 while (iter.next()) {
@@ -321,5 +327,20 @@ public class HybridNidSet implements NativeIdSetBI {
     @Override
     public void setAll(int max) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getMaxPossibleId() {
+        return this.nidSet.getMaxPossibleId();
+    }
+
+    @Override
+    public int getMinPossibleId() {
+        return this.nidSet.getMinPossibleId();
+    }
+
+    @Override
+    public void setMaxPossibleId(int nid) {
+        this.nidSet.setMaxPossibleId(nid);
     }
 }

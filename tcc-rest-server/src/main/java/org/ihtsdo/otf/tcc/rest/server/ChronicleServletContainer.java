@@ -20,20 +20,28 @@ package org.ihtsdo.otf.tcc.rest.server;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.internal.util.collection.Value;
+import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
 
-import java.util.concurrent.Semaphore;
+import java.net.URI;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Overriding ServletContainer to enable access to
@@ -43,60 +51,165 @@ import javax.servlet.ServletException;
  * @author kec
  */
 public class ChronicleServletContainer extends ServletContainer {
-    private static final Semaphore     storeSemaphore = new Semaphore(1);
+    private static final AtomicInteger threadCount = new AtomicInteger(1);
     private static BdbTerminologyStore termStore;
+    public static SetupStatus          status;
+    public static Integer              maxHeaderSize;
+    boolean                            success  = false;
+    int                                tryCount = 0;
+    private Thread                     setupThread;
 
-    public ChronicleServletContainer() {}
-
-    public ChronicleServletContainer(ResourceConfig resourceConfig) {
-        super(resourceConfig);
+    @Override
+    public ServletContext getServletContext() {
+        return super.getServletContext();
     }
 
     @Override
     public void destroy() {
-        System.out.println("Destroy ChronicleServletContainer");
+        getServletContext().log("Destroy ChronicleServletContainer");
 
-        try {
-            storeSemaphore.acquireUninterruptibly();
-            System.out.println("Aquired storeSemaphore for destroy. ");
-
-            if (termStore != null) {
-                termStore.shutdown();
-                termStore = null;
-            }
-        } finally {
-            storeSemaphore.release();
-            System.out.println("Released storeSemaphore for destroy. ");
+        if (setupThread != null) {
+            setupThread.interrupt();
+            // I know this is bad form, but the maven CLI does not provide a 
+            // stop method, and without a stop method, a download could last for
+            // a very long time. 
+            setupThread.stop();
         }
 
+        if (termStore != null) {
+            getServletContext().log("termStore is not null, shutting down. ");
+            termStore.shutdown();
+            getServletContext().log("termStore shutdown. ");
+            termStore = null;
+        } else {
+            getServletContext().log("termStore is null. ");
+        }
+
+        status = SetupStatus.CLOSING_DB;
         super.destroy();
     }
 
     @Override
     public void init() throws ServletException {
-        Thread bdbStartupThread = new Thread(new Runnable() {
+        if (this.getServletConfig().getInitParameter("httpMaxHeaderSize") != null) {
+            maxHeaderSize = Integer.parseInt(this.getServletConfig().getInitParameter("httpMaxHeaderSize"));
+        } else {
+            maxHeaderSize = 900;
+        }
+
+        setupThread = new Thread("ChronicleServletContainer Setup thread" + threadCount.getAndIncrement()) {
             @Override
             public void run() {
-                System.out.println("Starting BdbTerminologyStore for ChronicleServletContainer in background thread. ");
+                SetupDatabase setup = new SetupDatabase();
 
                 try {
-                    storeSemaphore.acquireUninterruptibly();
-                    System.out.println("Aquired storeSemaphore for init. ");
+                    setup.call();
+                } catch (Exception ex) {
+                    Logger.getLogger(ChronicleServletContainer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                super.run();
+            }
+        };
+        setupThread.setDaemon(true);
+        setupThread.start();
+        super.init();
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        SetupStatus localStatus = status;
+
+        if (localStatus == SetupStatus.DB_OPEN) {
+            super.service(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                               "Try: " + tryCount + " " + localStatus.toString());
+        }
+    }
+
+    @Override
+    public Value<Integer> service(URI baseUri, URI requestUri, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        SetupStatus localStatus = status;
+
+        if (status == SetupStatus.DB_OPEN) {
+            if (requestUri.toURL().toString().length() > maxHeaderSize) {
+                response.sendError(HttpServletResponse.SC_REQUEST_URI_TOO_LONG, "Query is too long.");
+            }
+
+            return super.service(baseUri, requestUri, request, response);
+        }
+
+        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                           "Try: " + tryCount + " " + localStatus.toString());
+
+        return Values.lazy(new Value<Integer>() {
+            @Override
+            public Integer get() {
+                return HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+            }
+        });
+    }
+
+    private class SetupDatabase implements Callable<Void> {
+        private static final int MAX_TRIES_BEFORE_FAILURE = 10;
+
+        @Override
+        public Void call() throws Exception {
+            long startTime = System.currentTimeMillis();
+
+            getServletContext().log("Starting database setup at: " + TimeHelper.formatDate(startTime));
+
+            try {
+                getServletContext().log("Starting BdbTerminologyStore for "
+                                        + "ChronicleServletContainer in background thread. ");
+
+                // Get the updated resources
+                status = SetupStatus.BUILDING;
+
+                SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
+
+                while ((success == false) && (tryCount < MAX_TRIES_BEFORE_FAILURE)) {
+                    tryCount++;
+                    getServletContext().log("Setup try: " + tryCount);
+                    success = setup.execute();
+                    if (!success) {
+                        getServletContext().log("Setup try  " + tryCount + " failed.");
+                    }
+                }
+
+                if (success) {
+                    long elapsedTime = System.currentTimeMillis() - startTime;
+
+                    getServletContext().log("Finised database dependency setup: "
+                                            + TimeHelper.getElapsedTimeString(elapsedTime));
+                    status = SetupStatus.OPENING_DB;
 
                     BdbTerminologyStore temp = new BdbTerminologyStore();
 
                     termStore = temp;
-                    termStore.index();
-                } catch (IOException ex) {
-                    Logger.getLogger(ChronicleServletContainer.class.getName()).log(Level.SEVERE, null, ex);
-                } finally {
-                    storeSemaphore.release();
-                    System.out.println("Released storeSemaphore for init. ");
+                    status    = SetupStatus.DB_OPEN;
+                } else {
+                    status = SetupStatus.DB_OPEN_FAILED;
                 }
-            }
-        }, "Bdb ChronicleServletContainer startup thread");
 
-        bdbStartupThread.start();
-        super.init();
+                long elapsedTime = System.currentTimeMillis() - startTime;
+
+                if (success) {
+                    getServletContext().log("Finised database startup: "
+                                            + TimeHelper.getElapsedTimeString(elapsedTime));
+                } else {
+                    getServletContext().log("FAILED database startup: " + TimeHelper.getElapsedTimeString(elapsedTime));
+                }
+
+                return null;
+            } catch (IOException ex) {
+                status = SetupStatus.DB_OPEN_FAILED;
+
+                throw ex;
+            }
+        }
     }
 }

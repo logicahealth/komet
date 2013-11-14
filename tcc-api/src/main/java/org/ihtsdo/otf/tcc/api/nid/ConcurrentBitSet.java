@@ -15,48 +15,77 @@
  */
 package org.ihtsdo.otf.tcc.api.nid;
 
+//~--- JDK imports ------------------------------------------------------------
 import java.io.IOException;
-import java.util.BitSet;
-import java.util.NoSuchElementException;
+
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * TODO with Java 8 lambdas, or even without lambda, many of the operations such
+ * as and, or, xor, can be done in parallel. Need to do some performance testing
+ * and consider making many operations parallel.
  *
  * @author dylangrald
  */
 public class ConcurrentBitSet implements NativeIdSetBI {
 
-    private final int offset = Integer.MIN_VALUE;
     private static final int BITS_PER_UNIT = 64;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private volatile AtomicLongArray units;
+    private static final int UNITS_PER_SET = 10240;
+    private static final int BITS_PER_SET = BITS_PER_UNIT * UNITS_PER_SET;
+    private static final int MAX_STRING_LENGTH = 512;
+    private static final OrProcessUnits orProcessor = new OrProcessUnits();
+    private static final XorProcessUnits xorProcessor = new XorProcessUnits();
+    private static final AndProcessUnits andProcessor = new AndProcessUnits();
+    private static final AndNotProcessUnits andNotProcessor = new AndNotProcessUnits();
+    private final int offset = Integer.MIN_VALUE;
+    private final ReentrantLock expansionLock = new ReentrantLock();
+    private AtomicInteger usedBits = new AtomicInteger(0);
+    private int maxPossibleId = Integer.MIN_VALUE + BITS_PER_SET - 1;
+    private final CopyOnWriteArrayList<AtomicLongArray> bitSetList;
+    private int bitCapacity;
+    Boolean moveToNextUnit = false;
+    Boolean iterate = false;
 
     public ConcurrentBitSet() {
-        this(BITS_PER_UNIT);
+        this(BITS_PER_SET - 1);
     }
 
     public ConcurrentBitSet(int bitCapacity) {
-        units = new AtomicLongArray(1 + (bitCapacity - 1) / BITS_PER_UNIT);
-    }
-
-    public ConcurrentBitSet(BitSet bitSet) {
-        this(bitSet.length());
-        for (int bit = bitSet.nextSetBit(0); bit >= 0; bit = bitSet.nextSetBit(bit + 1)) {
-            set(bit);
+        if (bitCapacity < 0) {
+            bitCapacity = bitCapacity - Integer.MIN_VALUE;
         }
+
+        int numberOfSets = (bitCapacity / BITS_PER_SET) + 1;
+
+        AtomicLongArray[] initialSets = new AtomicLongArray[numberOfSets];
+
+        this.bitCapacity = numberOfSets * BITS_PER_SET;
+
+        maxPossibleId = this.bitCapacity + Integer.MIN_VALUE - 1;
+
+        for (int i = 0; i < numberOfSets; i++) {
+            initialSets[i] = new AtomicLongArray(UNITS_PER_SET);
+        }
+
+        bitSetList = new CopyOnWriteArrayList<>(initialSets);
     }
 
     public ConcurrentBitSet(NativeIdSetBI nativeIdSet) {
-        this(nativeIdSet.size());
+        this(nativeIdSet.getMaxPossibleId());
+
         if (nativeIdSet instanceof ConcurrentBitSet) {
             ConcurrentBitSet other = (ConcurrentBitSet) nativeIdSet;
+
+            this.usedBits.set(other.usedBits.get());
             privateOr(other);
         } else {
-            NativeIdSetItrBI iter = nativeIdSet.getIterator();
+            NativeIdSetItrBI iter = nativeIdSet.getSetBitIterator();
+
             try {
                 while (iter.next()) {
                     set(iter.nid());
@@ -69,6 +98,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     public ConcurrentBitSet(String bitString) {
         this(bitString.length());
+
         for (int ii = 0; ii < bitString.length(); ii++) {
             if (bitString.charAt(ii) == '1') {
                 set(ii);
@@ -76,17 +106,10 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
     }
 
-    private ConcurrentBitSet(AtomicLongArray array) {
-        units = array;
-    }
-
-    public AtomicLongArray getUnits() {
-        return units;
-    }
-
     @Override
     public int hashCode() {
-        // collection values may change. 
+
+        // collection values may change.
         throw new UnsupportedOperationException();
     }
 
@@ -95,69 +118,83 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         final ConcurrentBitSet other = (ConcurrentBitSet) obj;
-        NativeIdSetItrBI thisIterator = this.getIterator();
-        NativeIdSetItrBI otherIterator = other.getIterator();
+        NativeIdSetItrBI thisIterator = this.getSetBitIterator();
+        NativeIdSetItrBI otherIterator = other.getSetBitIterator();
+
         try {
             while (thisIterator.next() && otherIterator.next()) {
                 if (thisIterator.nid() != otherIterator.nid()) {
                     return false;
                 }
             }
+
             if (thisIterator.next() != otherIterator.next()) {
                 return false;
             }
+
             return true;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    //CONDITION: no lock held
-    private void ensureCapacityAndAquireReadLock(int unitLen) {
-        while (true) {
-            lock.readLock().lock();
-            if (units.length() >= unitLen) {
-                return;//yes, we keep the read lock
-            }
-            lock.readLock().unlock();
-            lock.writeLock().lock();
-            try {
-                if (units.length() <= unitLen) {
-                    final AtomicLongArray newUnits = new AtomicLongArray(unitLen);
-                    for (int i = 0; i < units.length(); i++) {
-                        newUnits.set(i, units.get(i));
-                    }
-                    units = newUnits;
+    private void ensureCapacity(int bits) {
+        if (bits < 0) {
+            bits = bits + offset;
+        }
+
+        if (bitCapacity > bits) {
+            return;
+        }
+
+        expansionLock.lock();
+
+        try {
+            while (true) {
+                if (bitCapacity <= bits) {
+                    bitSetList.add(new AtomicLongArray(UNITS_PER_SET));
+                    bitCapacity = bitSetList.size() * BITS_PER_SET;
+                    maxPossibleId = bitCapacity + Integer.MIN_VALUE - 1;
+                } else {
+                    return;
                 }
-            } finally {
-                lock.writeLock().unlock();
             }
+        } finally {
+            expansionLock.unlock();
         }
     }
 
     public boolean get(int bit) {
-        bit = bit + offset;
-        final int unit = bit / BITS_PER_UNIT;
+        if (bit < 0) {
+            bit = bit + offset;
+        }
+
+        if (bit > usedBits.get()) {
+            return false;
+        }
+
+        final int set = bit / BITS_PER_SET;
+        if (set >= bitSetList.size()) {
+            return false;
+        }
+        final int unit = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
         final int index = bit % BITS_PER_UNIT;
         final long mask = 1L << index;
 
-        lock.readLock().lock();
-        try {
-            if (unit >= units.length()) {
-                return false;
-            }
-            return 0 != (units.get(unit) & mask);
-        } finally {
-            lock.readLock().unlock();
-        }
+        return 0 != (bitSetList.get(set).get(unit) & mask);
     }
 
     public void set(int bit, boolean value) {
-        bit = bit + offset;
+        if (bit < 0) {
+            bit = bit + offset;
+        }
+
         if (value) {
             set(bit);
         } else {
@@ -166,115 +203,122 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     public final void set(int bit) {
-        bit = bit + offset;
-        final int unit = bit / BITS_PER_UNIT;
-        final int index = bit % BITS_PER_UNIT;
-        final long mask = 1L << index;
-        ensureCapacityAndAquireReadLock(unit + 1);
+        if (bit < 0) {
+            bit = bit + offset;
+        }
+
+        if (bit > usedBits.get()) {
+            usedBits.set(bit);
+        }
+
+        ensureCapacity(bit);
+
+        final int set = bit / BITS_PER_SET;
+        final int unit = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int unitIndex = bit % BITS_PER_UNIT;
+        final long mask = 1L << unitIndex;
+
         try {
-            long old = units.get(unit);
+            long old = bitSetList.get(set).get(unit);
             long upd = old | mask;
-            while (!units.compareAndSet(unit, old, upd)) {
-                old = units.get(unit);
+
+            while (!bitSetList.get(set).compareAndSet(unit, old, upd)) {
+                old = bitSetList.get(set).get(unit);
                 upd = old | mask;
             }
-        } finally {
-            lock.readLock().unlock();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw e;
         }
     }
 
     public void clear(int bit) {
-        //bit = bit + offset;
-        int unit = bit / BITS_PER_UNIT;
-        int index = bit % BITS_PER_UNIT;
-        long mask = 1L << index;
+        if (bit < 0) {
+            bit = bit + offset;
+        }
 
-        lock.readLock().lock();
-        try {
-            long old = units.get(unit);
-            long upd = old & (~mask);
-            while (!units.compareAndSet(unit, old, upd)) {
-                old = units.get(unit);
-                upd = old & ~mask;
-            }
-        } finally {
-            lock.readLock().unlock();
+        if (bit > usedBits.get()) {
+            usedBits.set(bit + 1);
+        }
+
+        ensureCapacity(bit);
+
+        final int set = bit / BITS_PER_SET;
+        final int unit = (bit - (set * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int index = bit % BITS_PER_UNIT;
+        final long mask = 1L << index;
+        long old = bitSetList.get(set).get(unit);
+        long upd = old & (~mask);
+
+        while (!bitSetList.get(set).compareAndSet(unit, old, upd)) {
+            old = bitSetList.get(set).get(unit);
+            upd = old & ~mask;
         }
     }
 
     public void clearAll() {
-        lock.readLock().lock();
-        try {
-            for (int i = 0; i < units.length(); i++) {
-                units.set(i, 0);
-            }
-        } finally {
-            lock.readLock().unlock();
+        for (int i = 0; i < bitSetList.size(); i++) {
+            bitSetList.set(i, new AtomicLongArray(UNITS_PER_SET));
         }
     }
 
     public int nextSetBit(int from) {
-        from = from + offset;
-        final int fromBit = from % BITS_PER_UNIT;
-        final int fromUnit = from / BITS_PER_UNIT;
-        lock.readLock().lock();
-        try {
-            final int len = units.length();
-            for (int i = Math.max(0, fromUnit); i < len; i++) {
-                long nextBit = units.get(i);
-                if (nextBit != 0L) {
-                    if (i == fromUnit) {
-                        nextBit &= (0xffffffffffffffffL << fromBit);
-                    }
-                    if (nextBit != 0L) {
-                        return i * BITS_PER_UNIT + Long.numberOfTrailingZeros(nextBit) + offset;
+
+        if (from < 0) {
+            from = from + offset;
+        }
+
+        if (from != 0 || iterate) {
+            from++;
+        } else {
+            iterate = true;
+        }
+
+        if (from > this.usedBits.get()) {
+            return -1;
+        }
+
+        final int sets = bitSetList.size();
+        final int fromSet = from / BITS_PER_SET;
+        final int fromUnit = (from - 1 - (fromSet * BITS_PER_SET)) / BITS_PER_UNIT;
+        final int fromIndex = from % BITS_PER_UNIT;
+        int unitStart = fromUnit;
+        int indexStart = fromIndex;
+
+        for (int setIndex = fromSet; setIndex < sets; setIndex++) {
+            AtomicLongArray set = bitSetList.get(setIndex);
+            for (int i = unitStart; i < UNITS_PER_SET; i++) {
+                if (moveToNextUnit) {
+                    i++;
+                    moveToNextUnit = false;
+                    if (i > UNITS_PER_SET) {
+                        break;
                     }
                 }
+                long nextBit = set.get(i);
+                if (nextBit != 0L) {
+                    if (i == fromUnit) {
+                        nextBit &= (0xffffffffffffffffL << indexStart);
+                    }
+                    if (nextBit != 0L) {
+                        int trailingZeros = Long.numberOfTrailingZeros(nextBit);
+                        int nextSetBit = (i * BITS_PER_UNIT) + (setIndex * BITS_PER_SET) + trailingZeros;
+                        if (nextSetBit % BITS_PER_UNIT + 1 == BITS_PER_UNIT && i != UNITS_PER_SET - 1) {
+                            moveToNextUnit = true;
+                        }
+                        return nextSetBit + offset;
+                    }
+                }
+                indexStart = 0;
+                unitStart = 0;
             }
-            return -1;
-        } finally {
-            lock.readLock().unlock();
         }
+
+        return -1;
+
     }
 
     public int length() {
-        int index;
-        long last = 0;
-        lock.readLock().lock();
-        try {
-            index = units.length();
-            do {
-                index--;
-            } while (index >= 0 && 0 == (last = units.get(index)));
-        } finally {
-            lock.readLock().unlock();
-        }
-        return index < 0 ? 0 : index * BITS_PER_UNIT + bitLenL(last);
-    }
-
-    private static int bitLenL(long l) {
-        int high = (int) (l >>> 32);
-        int low = (int) l;
-        return high == 0 ? bitLenI(low) : 32 + bitLenI(high);
-    }
-
-    private static int bitLenI(int w) {
-        // Binary search - decision tree (5 tests, rarely 6)
-        return (w < 1 << 15
-                ? (w < 1 << 7
-                ? (w < 1 << 3
-                ? (w < 1 << 1 ? (w < 1 << 0 ? (w < 0 ? 32 : 0) : 1) : (w < 1 << 2 ? 2 : 3))
-                : (w < 1 << 5 ? (w < 1 << 4 ? 4 : 5) : (w < 1 << 6 ? 6 : 7)))
-                : (w < 1 << 11
-                ? (w < 1 << 9 ? (w < 1 << 8 ? 8 : 9) : (w < 1 << 10 ? 10 : 11))
-                : (w < 1 << 13 ? (w < 1 << 12 ? 12 : 13) : (w < 1 << 14 ? 14 : 15))))
-                : (w < 1 << 23
-                ? (w < 1 << 19
-                ? (w < 1 << 17 ? (w < 1 << 16 ? 16 : 17) : (w < 1 << 18 ? 18 : 19))
-                : (w < 1 << 21 ? (w < 1 << 20 ? 20 : 21) : (w < 1 << 22 ? 22 : 23)))
-                : (w < 1 << 27
-                ? (w < 1 << 25 ? (w < 1 << 24 ? 24 : 25) : (w < 1 << 26 ? 26 : 27))
-                : (w < 1 << 29 ? (w < 1 << 28 ? 28 : 29) : (w < 1 << 30 ? 30 : 31)))));
+        return usedBits.get() + 1;
     }
 
     public void and(ConcurrentBitSet with) {
@@ -282,33 +326,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             return;
         }
 
-        while (true) {
-            lock.readLock().lock();
-            try {
-                if (with.lock.readLock().tryLock()) {
-                    final int len;
-                    try {
-                        len = Math.min(units.length(), with.units.length());
-                        for (int ii = 0; ii < len; ii++) {
-                            long old = units.get(ii);
-                            long upd = old & with.units.get(ii);
-                            while (!units.compareAndSet(ii, old, upd)) {
-                                old = units.get(ii);
-                                upd = old & with.units.get(ii);
-                            }
-                        }
-                    } finally {
-                        with.lock.readLock().unlock();
-                    }
-                    for (int ii = len; ii < units.length(); ii++) {
-                        units.set(ii, 0);
-                    }
-                    return;
-                }
-            } finally {
-                lock.readLock().unlock();
-            }
-        }
+        logicallyProcessUnits(with, andProcessor);
     }
 
     public void or(ConcurrentBitSet with) {
@@ -316,192 +334,159 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     }
 
     /**
-     * 347 * This set becomes this ^ with 348
+     *
      */
-    public void xor(ConcurrentBitSet with) {
-        while (true) {
-            final int withLength;
-            with.lock.readLock().lock();
-            try {
-                withLength = with.units.length();
-            } finally {
-                with.lock.readLock().lock();
-            }
-            //(i) see comment below
-            ensureCapacityAndAquireReadLock(withLength);
-            try {
-                if (with.lock.readLock().tryLock()) {
-                    try {
-                        final int len = with.units.length();
-                        if (units.length() >= len) {//else could happen if changed at (i)
-                            for (int i = 0; i < len; i++) {
-                                long old = units.get(i);
-                                long upd = old ^ with.units.get(i);
-                                while (!units.compareAndSet(i, old, upd)) {
-                                    old = units.get(i);
-                                    upd = old ^ with.units.get(i);
-                                }
-                            }
-                            return;
-                        }
-                    } finally {
-                        with.lock.readLock().unlock();
-                    }
-                }
-            } finally {
-                lock.readLock().unlock();
-            }
+    public void xor(ConcurrentBitSet other) {
+        if (this == other) {
+            this.clear();
+
+            return;
         }
+
+        logicallyProcessUnits(other, xorProcessor);
     }
 
     /**
-     * This set becomes this & not with
+     * This setIndex becomes this & not with
      */
     public void andNot(ConcurrentBitSet with) {
-        //with is always true in the large parts, and thus always larger
-        //thus, this is always directing the new length
-        while (true) {
-            lock.readLock().lock();
-            try {
-                if (with.lock.readLock().tryLock()) {
-                    try {
-                        final int len = Math.min(units.length(), with.units.length());
-                        for (int ii = 0; ii < len; ii++) {
-                            long old = units.get(ii);
-                            long upd = old & ~with.units.get(ii);
-                            while (!units.compareAndSet(ii, old, upd)) {
-                                old = units.get(ii);
-                                upd = old & ~with.units.get(ii);
-                            }
-                        }
-                        return;
-                    } finally {
-                        with.lock.readLock().unlock();
-                    }
-                }
-            } finally {
-                lock.readLock().unlock();
-            }
-        }
+        logicallyProcessUnits(with, andNotProcessor);
     }
 
     public int[] toIntArray() {
         int lengthOfBitSet = this.cardinality();
         int[] intArray = new int[this.cardinality()];
         int bit = this.nextSetBit(0);
-        int count = 0;
-        while (count < lengthOfBitSet) {
-            intArray[count] = this.nextSetBit(bit);
-            bit = this.nextSetBit(bit + 1);
-            count++;
-        }
-        return intArray;
 
+        intArray[0] = bit;
+
+        for (int i = 1; i < lengthOfBitSet; i++) {
+            intArray[i] = nextSetBit(intArray[i - 1]);
+        }
+
+        return intArray;
     }
 
     public int cardinality() {
-        lock.readLock().lock();
-        try {
-            int card = 0;
-            final int len = units.length();
-            for (int i = 0; i < len; i++) {
-                card += Long.bitCount(units.get(i));
+        int card = 0;
+        final int sets = bitSetList.size();
+
+        for (int i = 0; i < sets; i++) {
+            AtomicLongArray units = bitSetList.get(i);
+
+            for (int j = 0; j < UNITS_PER_SET; j++) {
+                card += Long.bitCount(units.get(j));
             }
-            return card;
-        } finally {
-            lock.readLock().unlock();
         }
+
+        return card;
     }
 
-    /**
-     * public I_IterateIds iterator() { return new
-     * NidIterator(bitSet.iterator()); }
-     *
-     * private class NidIterator implements I_IterateIds {
-     *
-     * private DocIdSetIterator docIterator;
-     *
-     * //~--- constructors
-     * ----------------------------------------------------- private
-     * NidIterator(DocIdSetIterator docIterator) { super(); this.docIterator =
-     * docIterator; }
-     *
-     * //~--- methods
-     * ----------------------------------------------------------
-     *
-     * @Override public boolean next() throws IOException { return
-     * docIterator.nextDoc() != DocIdSetIterator.NO_MORE_DOCS; }
-     *
-     * @Override public int nid() { return docIterator.docID(); }
-     *
-     * @Override public boolean skipTo(int target) throws IOException { return
-     * docIterator.advance(target) != DocIdSetIterator.NO_MORE_DOCS; }
-     *
-     * @Override public String toString() { StringBuilder buff = new
-     * StringBuilder();
-     *
-     * buff.append("NidIterator: nid: "); buff.append(nid()); return
-     * buff.toString(); } }
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
         sb.append('{');
 
-        lock.readLock().lock();
-        try {
-            final int unitLen = units.length();
-            for (int ii = 0; ii < unitLen; ii++) {
-                final int len = ii == unitLen - 1 ? 1 + (length() - 1) % BITS_PER_UNIT : BITS_PER_UNIT;
-                final long unit = units.get(ii);
-                if (unit != 0) {
-                    long bit = 1L;
-                    for (int jj = 0; jj < len; jj++, bit <<= 1) {
-                        if ((unit & bit) != 0) {
-                            sb.append('1');
+        for (int i = 0; i < bitSetList.size(); i++) {
+            AtomicLongArray units = bitSetList.get(i);
+
+            for (int ii = 0; ii < UNITS_PER_SET; ii++) {
+                int length = (i * BITS_PER_SET) + (ii * BITS_PER_UNIT);
+
+                if (length < MAX_STRING_LENGTH) {
+                    int usedBitCount = usedBits.get();
+
+                    if (length < usedBitCount + 63) {
+                        final long unitValue = units.get(ii);
+                        int bitsToProcess = Math.min(64, usedBitCount + 63 - length);
+
+                        if (unitValue != 0) {
+                            long bit = 1L;
+
+                            for (int jj = 0; jj < bitsToProcess; jj++, bit <<= 1) {
+                                if ((unitValue & bit) != 0) {
+                                    sb.append('1');
+                                } else {
+                                    sb.append('0');
+                                }
+                            }
                         } else {
-                            sb.append('0');
+                            sb.append("0000000000000000000000000000000000000000000000000000000000000000", 0,
+                                    bitsToProcess);
                         }
+                    } else {
+                        break;
                     }
-                } else {
-                    sb.append("0000000000000000000000000000000000000000000000000000000000000000", 0, len);
                 }
             }
-        } finally {
-            lock.readLock().unlock();
         }
+
         sb.append('}');
+
         return sb.toString();
     }
 
     @Override
     public void setAll(int max) {
-        for (int i = Integer.MIN_VALUE; i < max; i++) {
-            add(i);
-        }
-    }
 
-    private class Iterator implements NativeIdSetItrBI {
-
-        int currentBit = 0;
-
-        @Override
-        public int nid() {
-            return currentBit;
+        if (max < 0) {
+            max = max + offset;
         }
 
-        @Override
-        public boolean next() throws IOException {
-            if (currentBit != -1) {
-                currentBit = nextSetBit(currentBit + 1);
+        max++;
+
+        ensureCapacity(max);
+
+        if (this.usedBits.get() < max) {
+            this.usedBits.set(max);
+        }
+
+        int len = max;
+        final int maxSet = bitSetList.size();
+
+        for (int set = 0; set < maxSet; set++) {
+            final AtomicLongArray units = bitSetList.get(set);
+            int maxUnit = UNITS_PER_SET;
+
+            if ((set + 1) * BITS_PER_SET > len) {
+                maxUnit = ((len - (set * BITS_PER_SET)) / BITS_PER_UNIT) + 1;
             }
-            return currentBit != -1;
+
+            for (int unit = 0; unit < maxUnit; unit++) {
+                long old = units.get(unit);
+                long mask = 0L;
+                mask = mask | ~mask;
+                if (unit + 1 == maxUnit && set + 1 == maxSet) {
+                    int remainder = max % BITS_PER_UNIT;
+                    long andNot = mask << remainder;
+                    mask = mask & ~andNot;
+                }
+
+                long upd = orProcessor.process(old, mask);
+
+                if (old != upd) {
+                    while (!units.compareAndSet(unit, old, upd)) {
+                        old = units.get(unit);
+                        upd = orProcessor.process(old, mask);
+                    }
+                }
+            }
         }
+        
+        this.remove(Integer.MIN_VALUE);
+
+
     }
 
     @Override
-    public NativeIdSetItrBI getIterator() {
-        return new Iterator();
+    public NativeIdSetItrBI getSetBitIterator() {
+        return new SetBitsIterator();
+    }
+
+    @Override
+    public NativeIdSetItrBI getAllBitIterator() {
+        return new AllBitsIterator();
     }
 
     @Override
@@ -524,7 +509,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (other instanceof ConcurrentBitSet) {
             and((ConcurrentBitSet) other);
         } else {
-            NativeIdSetItrBI iter = this.getIterator();
+            NativeIdSetItrBI iter = this.getSetBitIterator();
+
             try {
                 while (iter.next()) {
                     if (!other.isMember(iter.nid())) {
@@ -535,7 +521,6 @@ public class ConcurrentBitSet implements NativeIdSetBI {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
     }
 
     @Override
@@ -543,7 +528,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (other instanceof ConcurrentBitSet) {
             or((ConcurrentBitSet) other);
         } else {
-            NativeIdSetItrBI iter = other.getIterator();
+            NativeIdSetItrBI iter = other.getSetBitIterator();
+
             try {
                 while (iter.next()) {
                     if (!this.contains(iter.nid())) {
@@ -561,7 +547,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (other instanceof ConcurrentBitSet) {
             xor((ConcurrentBitSet) other);
         } else {
-            NativeIdSetItrBI iter = other.getIterator();
+            NativeIdSetItrBI iter = other.getAllBitIterator();
+
             try {
                 while (iter.next()) {
                     if (!this.isMember(iter.nid())) {
@@ -573,7 +560,6 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         }
     }
 
@@ -589,7 +575,6 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     @Override
     public int[] getSetValues() {
         return this.toIntArray();
-
     }
 
     @Override
@@ -606,7 +591,10 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     @Override
     public void remove(int nid) {
-        nid = nid + offset;
+        if (nid < 0) {
+            nid = nid + offset;
+        }
+
         this.clear(nid);
     }
 
@@ -614,6 +602,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     public void removeAll(int[] nids) {
         for (int i : nids) {
             int index = i + offset;
+
             this.clear(index);
         }
     }
@@ -628,8 +617,9 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (this.cardinality() == 0) {
             return offset;
         } else {
-            NativeIdSetItrBI iter = this.getIterator();
+            NativeIdSetItrBI iter = this.getSetBitIterator();
             int max = 0;
+
             try {
                 while (iter.next()) {
                     max = iter.nid();
@@ -637,8 +627,8 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return max;
 
+            return max;
         }
     }
 
@@ -648,27 +638,31 @@ public class ConcurrentBitSet implements NativeIdSetBI {
             return offset;
         } else {
             int min = 0;
-            return this.nextSetBit(min) + offset;
+
+            return this.nextSetBit(min);
         }
     }
 
     @Override
     public boolean contiguous() {
-        if (this.cardinality() == 0 || this.cardinality() == 1) {
+        if ((this.cardinality() == 0) || (this.cardinality() == 1)) {
             return true;
         } else {
-            NativeIdSetItrBI iter = this.getIterator();
+            NativeIdSetItrBI iter = this.getSetBitIterator();
             int temp = this.getMin();
+
             try {
                 while (iter.next()) {
                     if (iter.nid() - temp > 1) {
                         return false;
                     }
+
                     temp = iter.nid();
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
+
             return true;
         }
     }
@@ -678,22 +672,30 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (other instanceof ConcurrentBitSet) {
             or((ConcurrentBitSet) other);
         } else {
-            NativeIdSetItrBI iter = other.getIterator();
+            NativeIdSetItrBI iter = other.getSetBitIterator();
+            int max = Integer.MIN_VALUE;
             try {
                 while (iter.next()) {
                     if (!this.contains(iter.nid())) {
                         this.add(iter.nid());
+                        max = iter.nid();
                     }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
             }
+
+            this.maxPossibleId = max + BITS_PER_SET - (max % BITS_PER_SET);
         }
+
     }
 
     @Override
     public void setNotMember(int nid) {
-        nid = nid + offset;
+        if (nid < 0) {
+            nid = nid + offset;
+        }
+
         this.clear(nid);
     }
 
@@ -702,13 +704,13 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         if (other instanceof ConcurrentBitSet) {
             andNot((ConcurrentBitSet) other);
         } else {
-            NativeIdSetItrBI iter = other.getIterator();
+            NativeIdSetItrBI iter = other.getSetBitIterator();
+
             try {
                 while (iter.next()) {
                     if (this.contains(iter.nid())) {
                         this.remove(iter.nid());
                     }
-
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);
@@ -718,90 +720,156 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     @Override
     public boolean isEmpty() {
-        int index;
-        lock.readLock().lock();
-        try {
-            index = units.length();
-            do {
-                index--;
-            } while (index >= 0 && 0 == units.get(index));
-        } finally {
-            lock.readLock().unlock();
+        for (AtomicLongArray units : bitSetList) {
+            for (int i = 0; i < UNITS_PER_SET; i++) {
+                long unit = units.get(i);
+
+                if (unit != 0) {
+                    return false;
+                }
+            }
         }
-        return index < 0;
+
+        return true;
     }
 
-    private void privateOr(ConcurrentBitSet with) {
-        if (this == with) {
+    private void privateOr(ConcurrentBitSet other) {
+        if (this == other) {
             return;
         }
-        while (true) {
-            final int withLength;
-            with.lock.readLock().lock();
-            try {
-                withLength = with.units.length();
-            } finally {
-                with.lock.readLock().unlock();
+
+        logicallyProcessUnits(other, orProcessor);
+    }
+
+    @Override
+    public int getMaxPossibleId() {
+        return maxPossibleId;
+    }
+
+    @Override
+    public int getMinPossibleId() {
+        return Integer.MIN_VALUE;
+    }
+
+    @Override
+    public void setMaxPossibleId(int maxPossibleId) {
+        this.maxPossibleId = maxPossibleId;
+        this.usedBits.set(maxPossibleId - offset + 1);
+    }
+
+    private void logicallyProcessUnits(ConcurrentBitSet other, ProcessUnits processor) {
+        int maxId = Math.max(this.maxPossibleId, other.maxPossibleId);
+
+        ensureCapacity(maxId);
+
+        other.ensureCapacity(maxId);
+
+        int maxUsedBits = Math.max(this.usedBits.get(), other.usedBits.get());
+
+        this.usedBits.set(maxUsedBits);
+        other.usedBits.set(maxUsedBits);
+
+        final int len = maxUsedBits;
+        final int maxSet = bitSetList.size();
+
+
+        for (int set = 0; set < maxSet; set++) {
+            final AtomicLongArray units = bitSetList.get(set);
+            final AtomicLongArray otherUnits = other.bitSetList.get(set);
+            int maxUnit = UNITS_PER_SET;
+
+            if ((set + 1) * BITS_PER_SET > len) {
+                maxUnit = ((len - (set * BITS_PER_SET)) / BITS_PER_UNIT) + 1;
             }
-            //(i) see comment below
-            ensureCapacityAndAquireReadLock(withLength);
-            try {
-                if (with.lock.readLock().tryLock()) {
-                    try {
-                        final int len = with.units.length();
-                        if (units.length() >= len) {
-                            for (int i = 0; i < len; i++) {//else could happen if changed at (i)                                                    for (int i = 0; i < len; i++) {
-                                long old = units.get(i);
-                                long upd = old | with.units.get(i);
-                                while (!units.compareAndSet(i, old, upd)) {
-                                    old = units.get(i);
-                                    upd = old | with.units.get(i);
-                                }
-                            }
-                            return;
-                        }
-                    } finally {
-                        with.lock.readLock().unlock();
+
+            for (int unit = 0; unit < maxUnit; unit++) {
+                long old = units.get(unit);
+                long upd = processor.process(old, otherUnits.get(unit));
+
+                if (old != upd) {
+                    while (!units.compareAndSet(unit, old, upd)) {
+                        old = units.get(unit);
+                        upd = processor.process(old, otherUnits.get(unit));
                     }
                 }
-            } finally {
-                lock.readLock().unlock();
             }
         }
     }
 
-    private class ConcurrentBitSetItr implements NativeIdSetItrBI {
+    private interface ProcessUnits {
 
-        private final ConcurrentBitSet bitset;
-        private int index = 0;
+        long process(long long1, long long2);
+    }
 
-        public ConcurrentBitSetItr(ConcurrentBitSet bitset) {
-            this.bitset = bitset;
+    private class AllBitsIterator implements NativeIdSetItrBI {
 
-        }
-
-        public boolean hasNext() {
-            return index < bitset.length();
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
+        int currentBit = Integer.MIN_VALUE;
 
         @Override
         public int nid() {
-            if (index >= bitset.length()) {
-                throw new NoSuchElementException();
-            }
-            return bitset.nextSetBit(index++);
+            return currentBit;
         }
 
         @Override
         public boolean next() throws IOException {
-            if (index >= bitset.length()) {
-                throw new NoSuchElementException();
+            currentBit++;
+
+            if (currentBit < offset + usedBits.get()) {
+                return true;
             }
-            return bitset.get(index++);
+
+            return false;
+        }
+    }
+
+    private static class AndNotProcessUnits implements ProcessUnits {
+
+        @Override
+        public long process(long long1, long long2) {
+            return long1 & ~long2;
+        }
+    }
+
+    private static class AndProcessUnits implements ProcessUnits {
+
+        @Override
+        public long process(long long1, long long2) {
+            return long1 & long2;
+        }
+    }
+
+    private static class OrProcessUnits implements ProcessUnits {
+
+        @Override
+        public long process(long long1, long long2) {
+            return long1 | long2;
+        }
+    }
+
+    private class SetBitsIterator implements NativeIdSetItrBI {
+
+        int currentBit = 0;
+
+        @Override
+        public int nid() {
+            return currentBit;
+        }
+
+        @Override
+        public boolean next() throws IOException {
+            if (currentBit != -1) {
+                currentBit = nextSetBit(currentBit);
+            }
+
+            return currentBit != -1;
+        }
+    }
+
+    private static class XorProcessUnits implements ProcessUnits {
+
+        @Override
+        public long process(long long1, long long2) {
+            return long1 ^ long2;
         }
     }
 }

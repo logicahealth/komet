@@ -13,9 +13,15 @@ public class Snomed {
     public static ConceptSpec ABDOMINAL_WALL_STRUCTURE =
             new ConceptSpec("Abdominal wall structure (body structure)",
             UUID.fromString("c258b290-fabc-3e9d-86f4-9cf4dc0d6978"));
+    public static ConceptSpec ASTHMA =
+            new ConceptSpec("Asthma (disorder)",
+            UUID.fromString("c265cf22-2a11-3488-b71e-296ec0317f96"));
     public static ConceptSpec NEUROLOGICAL_SYMPTOM =
             new ConceptSpec("Neurological symptom (finding)",
             UUID.fromString("f40bbc47-9f5a-34d9-b3c8-3f58a08874fe"));
+    public static ConceptSpec NEUROLOGICAL_FINDING =
+            new ConceptSpec("Neurological finding (finding)",
+            UUID.fromString("1e83c008-4be0-32e9-9224-a8af0237c5bb"));
     public static ConceptSpec BODY_STRUCTURE_REFSET =
             new ConceptSpec("Body structure (domain) refset",
             UUID.fromString("0acd09e5-a5f1-4880-82b2-2a5c273dca29"));
@@ -40,6 +46,9 @@ public class Snomed {
     public static ConceptSpec FINDING_SITE =
             new ConceptSpec("Finding site (attribute)",
             UUID.fromString("3a6d919d-6c25-3aae-9bc3-983ead83a928"));
+    public static ConceptSpec PART_OF =
+            new ConceptSpec("Part of (attribute)",
+            UUID.fromString("b4c3f6f9-6937-30fd-8412-d0c77f8a7f73"));
     public static ConceptSpec CLINICAL_FINDING =
             new ConceptSpec("Clinical finding (finding)",
             UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
@@ -61,21 +70,36 @@ public class Snomed {
     public static ConceptSpec SNOMED_RELEASE_PATH =
             new ConceptSpec("SNOMED Core",
             UUID.fromString("8c230474-9f11-30ce-9cad-185a96fd03a2"));
+    public static ConceptSpec ENTIRE_HEMATOPOIETIC_SYSTEM =
+            new ConceptSpec("Entire hematopoietic system (body structure)",
+            UUID.fromString("ec1d9f88-5de1-3891-b67f-e50f262cf63f"));
     public static ConceptSpec EXTENSION_0 =
             new ConceptSpec("Extension Namespace 1000000",
             UUID.fromString("18388bfd-9fab-3581-9e22-cbae53725ef2"));
     public static ConceptSpec EXTENSION_13 =
             new ConceptSpec("Extension Namespace 1000013",
             UUID.fromString("bb57db0f-def7-3fb7-b7f2-89fa7710bffa"));
+    public static ConceptSpec LASER_SURGERY =
+            new ConceptSpec("Laser surgery (procedure)",
+            UUID.fromString("c8419d14-07f1-3c85-b320-47d91dd08181"));
+    public static ConceptSpec LASER_SURGERY_TECHNIQUE =
+            new ConceptSpec("Laser surgery technique",
+            UUID.fromString("f23cff34-c2c8-32dd-865a-e08762018ded"));
     public static ConceptSpec CONCEPT_HISTORY_ATTRIB =
             new ConceptSpec("Concept history attribute",
             UUID.fromString("f323b5dd-1f97-3873-bcbc-3563663dda14"));
+    public static ConceptSpec MILD_ASTHMA =
+            new ConceptSpec("Mild asthma (disorder)",
+            UUID.fromString("51971ecc-9a54-3584-9c36-d647ab00b47f"));
     public static ConceptSpec PRODUCT =
             new ConceptSpec("Pharmaceutical / biologic product (product)",
             UUID.fromString("5032532f-6b58-31f9-84c1-4a365dde4449"));
     public static ConceptSpec INACTIVE_CONCEPT =
             new ConceptSpec("Inactive concept (inactive concept)",
             UUID.fromString("f267fc6f-7c4d-3a79-9f17-88b82b42709a"));
+    public static ConceptSpec OBSTRUCTION_OF_AORTIC_ARCH =
+            new ConceptSpec("Obstruction of aortic arch (disorder)",
+            UUID.fromString("47385d27-151c-3ab7-a0e6-9bcd22a84806"));
     public static ConceptSpec STRUCTURE_OF_ENDOCRINE_SYSTEM =
             new ConceptSpec("Structure of endocrine system (body structure)",
             UUID.fromString("9d902867-4e0e-39e0-b6dd-e4be495b6ab1"));
@@ -251,6 +275,9 @@ public class Snomed {
     public static ConceptSpec SCALE_TYPE =
             new ConceptSpec("Scale type (attribute)",
             UUID.fromString("087afdd2-23cd-34c3-93a4-09088dfd480c"));
+    public static ConceptSpec SEVERITIES =
+            new ConceptSpec("Severities (qualifier value)",
+            UUID.fromString("ee50a583-4172-30f4-84dd-c61f83f0130e"));
     public static ConceptSpec SITUATION_WITH_EXPLICIT_CONTEXT =
             new ConceptSpec("Situation with explicit context (situation)",
             UUID.fromString("27d03723-07c3-3de9-828b-76aa05a23438"));

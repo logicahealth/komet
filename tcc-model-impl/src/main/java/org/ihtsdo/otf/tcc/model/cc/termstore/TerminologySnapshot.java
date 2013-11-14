@@ -1063,4 +1063,14 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     public void index() throws IOException {
         store.index();
     }
+
+    @Override
+    public NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNativeIds) throws IOException {
+        return store.getOrphanNids(conceptNativeIds);
+    }
+
+    @Override
+    public NativeIdSetBI getAllConceptNidsFromCache() throws IOException {
+        return store.getAllConceptNidsFromCache();
+    }
 }

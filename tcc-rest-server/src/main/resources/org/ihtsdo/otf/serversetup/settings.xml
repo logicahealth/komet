@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+mvn deploy:deploy-file -DgroupId=org.ihtsdo.otf -DartifactId=tcc-test-data \
+    -Dversion=2.0 -Dpackaging=zip -DrepositoryId=maestro \
+    -Durl=https://mgr.servers.aceworkspace.net/apps/ihtsdo-archiva/repository/ihtsdo-private-releases/ \
+    -Dfile=tcc-test-data-2.0.zip
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <offline>false</offline>
+    <localRepository>mvn-repo</localRepository>
+    <servers>
+        <server>
+            <id>maestro</id>
+            <username>user</username>
+            <password>password</password>
+        </server>
+    </servers>
+    
+    <mirrors>
+        <mirror>
+            <id>maestro</id>
+            <mirrorOf>external:*</mirrorOf>
+            <name>IHTSDO Maestro</name>
+            <url>https://mgr.servers.aceworkspace.net/apps/ihtsdo-archiva/repository/all/</url>
+        </mirror>
+    </mirrors>
+</settings>

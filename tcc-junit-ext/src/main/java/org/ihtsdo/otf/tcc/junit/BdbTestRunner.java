@@ -53,6 +53,7 @@ public class BdbTestRunner extends BlockJUnit4ClassRunner {
         }
 
         File dbDir = new File(buildDirFile, annotation.bdbLocation());
+        System.setProperty(BdbTerminologyStore.BDB_LOCATION_PROPERTY, dbDir.getAbsolutePath());
 
         if ((bdbLocation != null) &&!bdbLocation.equals(dbDir.getAbsolutePath())) {
             try {
@@ -70,7 +71,6 @@ public class BdbTestRunner extends BlockJUnit4ClassRunner {
                 throw new InitializationError(ex);
             }
 
-            System.setProperty(BdbTerminologyStore.BDB_LOCATION_PROPERTY, dbDir.getAbsolutePath());
 
             BdbTerminologyStore store = new BdbTerminologyStore();
 

@@ -334,11 +334,11 @@ public class Bdb {
                     startupService.submit(setupComponentNidToConceptNidDb);
 
                     setupComponentNidToConceptNidDb.get(); // prerequisite for setupConceptDb
+                    setupUuidsToNidMapDb.get();
 
                     startupService.submit(setupConceptDb);
                     startupService.shutdown();
                     setupPropDbTask.get();
-                    setupUuidsToNidMapDb.get();
                     setupStampDb.get();
                     setupConceptDb.get();
                 } catch (InterruptedException | ExecutionException ex) {
@@ -405,10 +405,10 @@ public class Bdb {
         startupService.submit(setupComponentNidToConceptNidDb);
 
         setupComponentNidToConceptNidDb.get(); // prerequisite for setupConceptDb
+        setupUuidsToNidMapDb.get();
         startupService.submit(setupConceptDb);
         startupService.shutdown();
         setupPropDbTask.get();
-        setupUuidsToNidMapDb.get();
         setupStampDb.get();
         setupConceptDb.get();
     }
@@ -901,7 +901,7 @@ public class Bdb {
         AceLog.getAppLog().info("bdb close finished.");
     }
 
-    public static MemoryCacheBdb getNidCNidMap() {
+    public static MemoryCacheBdb getMemoryCache() {
         return memoryCacheBdb;
     }
 
@@ -1033,15 +1033,15 @@ public class Bdb {
     }
 
     public static void addXrefPair(int nid, NidPairForRefex pair) throws IOException {
-        Bdb.getNidCNidMap().addNidPairForRefex(nid, pair);
+        Bdb.getMemoryCache().addNidPairForRefex(nid, pair);
     }
 
     public static void forgetXrefPair(int nid, NidPairForRefex pair) {
-        Bdb.getNidCNidMap().forgetNidPairForRefex(nid, pair);
+        Bdb.getMemoryCache().forgetNidPairForRefex(nid, pair);
     }
 
     public static List<NidPairForRefex> getRefsetPairs(int nid) {
-        return Arrays.asList(Bdb.getNidCNidMap().getRefsetPairs(nid));
+        return Arrays.asList(Bdb.getMemoryCache().getRefsetPairs(nid));
     }
     
     

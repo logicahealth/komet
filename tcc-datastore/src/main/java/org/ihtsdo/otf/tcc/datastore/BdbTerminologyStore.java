@@ -276,7 +276,7 @@ public class BdbTerminologyStore extends Termstore {
             LinkedBlockingQueue<ConceptConverter>     converters                = new LinkedBlockingQueue<>();
             int                                       runtimeConverterSize      =
                 Runtime.getRuntime().availableProcessors() * 2;
-            int                                       converterSize             = 1;    // TODO figure out race condition so multithreading can work again.
+            int                                       converterSize             = runtimeConverterSize; 
             AtomicInteger                             conceptsRead              = new AtomicInteger();
             AtomicInteger                             conceptsProcessed         = new AtomicInteger();
 
@@ -365,7 +365,6 @@ public class BdbTerminologyStore extends Termstore {
         Bdb.sync();
         System.out.println("Finished db sync.");
         Bdb.commit();
-        System.out.println("Finished create lucene index.");
     }
 
     @Override
@@ -380,7 +379,7 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public void resetConceptNidForNid(int cNid, int nid) throws IOException {
-        Bdb.getNidCNidMap().resetCNidForNid(cNid, nid);
+        Bdb.getMemoryCache().resetCNidForNid(cNid, nid);
     }
 
     @Override
@@ -433,6 +432,11 @@ public class BdbTerminologyStore extends Termstore {
     }
 
     @Override
+    public NativeIdSetBI getAllConceptNidsFromCache() throws IOException {
+        return Bdb.getMemoryCache().getAllConceptNidsFromCache();
+    }
+
+    @Override
     public int getAuthorNidForStamp(int sapNid) {
         return Bdb.getAuthorNidForSapNid(sapNid);
     }
@@ -454,17 +458,17 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public int[] getDestRelOriginNids(int cNid) throws IOException {
-        return Bdb.getNidCNidMap().getDestRelNids(cNid);
+        return Bdb.getMemoryCache().getDestRelNids(cNid);
     }
 
     @Override
     public int[] getDestRelOriginNids(int cNid, NidSetBI relTypes) throws IOException {
-        return Bdb.getNidCNidMap().getDestRelNids(cNid, relTypes);
+        return Bdb.getMemoryCache().getDestRelNids(cNid, relTypes);
     }
 
     @Override
     public Collection<Relationship> getDestRels(int cNid) throws IOException {
-        return Bdb.getNidCNidMap().getDestRels(cNid);
+        return Bdb.getMemoryCache().getDestRels(cNid);
     }
 
     @Override
@@ -653,7 +657,7 @@ public class BdbTerminologyStore extends Termstore {
     public int[] getPossibleChildren(int parentNid, ViewCoordinate vc) throws IOException {
         throw new UnsupportedOperationException("needs to get concept nids, not rel nids");
 
-        // return Bdb.getNidCNidMap().getDestRelNids(parentNid, vc);
+        // return Bdb.getMemoryCache().getDestRelNids(parentNid, vc);
     }
 
     @Override
@@ -780,13 +784,13 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public boolean isKindOf(int childNid, int parentNid, ViewCoordinate vc) throws IOException, ContradictionException {
-        return Bdb.getNidCNidMap().isKindOf(childNid, parentNid, vc);
+        return Bdb.getMemoryCache().isKindOf(childNid, parentNid, vc);
     }
 
     @Override
     public NativeIdSetBI isChildOfSet(int parentNid, ViewCoordinate vc) {
         try {
-            return Bdb.getNidCNidMap().isChildOfSet(parentNid, vc);
+            return Bdb.getMemoryCache().isChildOfSet(parentNid, vc);
         } catch (IOException | ContradictionException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -797,7 +801,7 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc) {
         try {
-            return Bdb.getNidCNidMap().isKindOfSet(parentNid, vc);
+            return Bdb.getMemoryCache().isKindOfSet(parentNid, vc);
         } catch (IOException | ContradictionException ex) {
             Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -807,7 +811,7 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public void setConceptNidForNid(int cNid, int nid) throws IOException {
-        Bdb.getNidCNidMap().setCNidForNid(cNid, nid);
+        Bdb.getMemoryCache().setCNidForNid(cNid, nid);
     }
 
     @Override
@@ -818,16 +822,20 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public boolean isChildOf(int childNid, int parentNid, ViewCoordinate vc)
             throws IOException, ContradictionException {
-        return Bdb.getNidCNidMap().isChildOf(childNid, parentNid, vc);
+        return Bdb.getMemoryCache().isChildOf(childNid, parentNid, vc);
     }
 
     @Override
     public NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException {
-        NativeIdSetItrBI iter    = componentNativeIds.getIterator();
+        NativeIdSetItrBI iter    = componentNativeIds.getSetBitIterator();
         NativeIdSetBI    cNidSet = new ConcurrentBitSet();
 
         while (iter.next()) {
-            cNidSet.add(Bdb.getNidCNidMap().getCNid(iter.nid()));
+            int nid = Bdb.getMemoryCache().getCNid(iter.nid());
+            if(nid > 0){
+                nid = -1 * nid;
+            }
+            cNidSet.add(nid);
         }
 
         return cNidSet;
@@ -835,20 +843,25 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException {
-        return Bdb.getNidCNidMap().getComponentNidsForConceptNids(conceptNativeIds);
+        return Bdb.getMemoryCache().getComponentNidsForConceptNids(conceptNativeIds);
+    }
+
+    @Override
+    public NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNativeIds) throws IOException {
+        return Bdb.getMemoryCache().getOrphanNids(conceptNativeIds);
     }
 
     @Override
     public NativeIdSetBI relationshipSet(int parentNid, ViewCoordinate viewCoordinate) {
 
-        // Bdb.getNidCNidMap().getDestRels(parentNid);
-        // åBdb.getNidCNidMap().getDestRelNids(parentNid, null)
+        // Bdb.getMemoryCache().getDestRels(parentNid);
+        // åBdb.getMemoryCache().getDestRelNids(parentNid, null)
         throw new UnsupportedOperationException("Not supported yet");
     }
 
     @Override
     public NativeIdSetBI getAllComponentNids() throws IOException {
-        return Bdb.getConceptDb().getAllComponents();
+        return Bdb.getConceptDb().getAllComponentNids();
     }
 
     @Override
@@ -883,7 +896,7 @@ public class BdbTerminologyStore extends Termstore {
         @Override
         public void run() {
             if (nidCnidMap == null) {
-                nidCnidMap = Bdb.getNidCNidMap();
+                nidCnidMap = Bdb.getMemoryCache();
             }
 
             try {

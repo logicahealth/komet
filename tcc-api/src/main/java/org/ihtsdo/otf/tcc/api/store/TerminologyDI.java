@@ -113,6 +113,8 @@ public interface TerminologyDI {
     //~--- get methods ---------------------------------------------------------
     NativeIdSetBI getAllConceptNids() throws IOException;
     
+    NativeIdSetBI getAllConceptNidsFromCache() throws IOException;
+    
     NativeIdSetBI getAllComponentNids() throws IOException;
 
     NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException;
@@ -123,7 +125,14 @@ public interface TerminologyDI {
      * @param conceptNativeIds the <code>NativeIdSetBI<code> for which the components nids will be retrieved
      */
     NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException;
-
+   /**
+    * Nids that are not claimed by one of the provided concept nids. 
+    * @param conceptNativeIds the set of native concept nids. 
+    * @return the orphan set. 
+    * @throws IOException 
+    */
+    NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNativeIds) throws IOException;
+    
     int getAuthorNidForStamp(int sapNid);
 
     NativeIdSetBI getEmptyNidSet() throws IOException;

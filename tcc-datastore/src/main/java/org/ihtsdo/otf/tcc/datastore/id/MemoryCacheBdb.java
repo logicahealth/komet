@@ -37,6 +37,7 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.concurrency.ConcurrentReentrantLocks;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
@@ -478,7 +479,7 @@ public class MemoryCacheBdb extends ComponentBdb {
             return Integer.MAX_VALUE;
         }
         int cNid = nidCNidMaps.get()[mapIndex][nidIndexInMap];
-        if (cNid > 0) {
+        if (cNid > 0 && cNid != Integer.MAX_VALUE) {
             return cNid * -1;
         }
         return cNid;
@@ -553,16 +554,54 @@ public class MemoryCacheBdb extends ComponentBdb {
      * components nids will be retrieved
      */
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNids) throws IOException {
+        int maxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
+        NativeIdSetBI componentNids = new ConcurrentBitSet(maxNid);
+        componentNids.setMaxPossibleId(maxNid);
+        for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
+            int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
+            int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
+            int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
+            if (nid > 0 && nid != Integer.MAX_VALUE) {
+                nid = nid * -1;
+            }
+            if (conceptNids.contains(nid)) {
+                componentNids.add(i);
+            }
+        }
+        return componentNids;
+    }
+    
+    
+    public NativeIdSetBI getAllConceptNidsFromCache() {
+        int maxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
+        NativeIdSetBI conceptNids = new ConcurrentBitSet(maxNid);
+        conceptNids.setMaxPossibleId(maxNid);
+        for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
+            int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
+            int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
+            int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
+            if (nid > 0 && nid != Integer.MAX_VALUE) {
+                nid = nid * -1;
+            }
+            if (i == nid) {
+                conceptNids.setMember(nid);
+            }
+        }
+        return conceptNids;
+    }
+
+    
+    public NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNids) throws IOException {
         NativeIdSetBI componentNids = new ConcurrentBitSet();
         int maxNid = Bdb.getUuidsToNidMap().getCurrentMaxNid();
         for (int i = Integer.MIN_VALUE; i <= maxNid; i++) {
             int mapIndex = (i - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE;
             int cNidIndexInMap = ((i - Integer.MIN_VALUE) % NID_CNID_MAP_SIZE);
             int nid = nidCNidMaps.get()[mapIndex][cNidIndexInMap];
-            if (nid > 0) {
+            if (nid > 0 && nid != Integer.MAX_VALUE) {
                 nid = nid * -1;
             }
-            if (conceptNids.contains(nid)) {
+            if (!conceptNids.contains(nid)) {
                 componentNids.add(i);
             }
         }
@@ -639,14 +678,19 @@ public class MemoryCacheBdb extends ComponentBdb {
 
         int[][] nidCNidMapArrays = nidCNidMaps.get();
 
+        int mapNid = nidCNidMapArrays[mapIndex][nidIndexInMap];
+        if(mapNid > 0){
+            mapNid = -1 * mapNid;
+        }
+        
         assert (nidCNidMapArrays[mapIndex][nidIndexInMap] == Integer.MAX_VALUE)
                 || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid
                 || ((int) (nidCNidMapArrays[mapIndex][nidIndexInMap]) == cNid * -1)) :
-                "processing cNid: " + cNid + " " + Bdb.getUuidsToNidMap().getUuidsForNid(cNid) + " nid: " + nid
-                + " found existing cNid: " + ((int) nidCNidMapArrays[mapIndex][nidIndexInMap]) + " "
-                + Bdb.getUuidsToNidMap().getUuidsForNid((int) nidCNidMapArrays[mapIndex][nidIndexInMap]) + "\n    "
-                + cNid + " maps to: " + getCNid(cNid) + "\n    " + ((int) nidCNidMapArrays[mapIndex][nidIndexInMap])
-                + " maps to: " + getCNid((int) nidCNidMapArrays[mapIndex][nidIndexInMap]);
+                "processing cNid: " + cNid + " " + Ts.get().getUuidPrimordialForNid(cNid) + " nid: " + nid
+                + " found existing cNid: " + (mapNid) + " "
+                + Ts.get().getUuidPrimordialForNid(mapNid) + "\n    "
+                + cNid + " maps to: " + getCNid(cNid) + "\n    " + (mapNid)
+                + " maps to: " + getCNid(mapNid);
 
         if ((nidCNidMapArrays != null) && (nidCNidMapArrays[mapIndex] != null)) {
             if (nidCNidMapArrays[mapIndex][nidIndexInMap] != cNid) {

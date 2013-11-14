@@ -16,7 +16,6 @@
 package org.ihtsdo.otf.tcc.test.integration;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
@@ -77,7 +76,7 @@ public class DescendentOfTest {
           boolean kindOf = centrifugalForceVersion.isKindOf(motionVersion);
           assertTrue(kindOf);
           
-          NativeIdSetBI kindOfNids = Bdb.getNidCNidMap().getKindOfNids(motion.getNid(), 
+          NativeIdSetBI kindOfNids = Bdb.getMemoryCache().getKindOfNids(motion.getNid(), 
                   StandardViewCoordinates.getSnomedInferredLatest());
           assertTrue(kindOfNids.contains(centrifugalForceVersion.getNid()));
     }

@@ -56,12 +56,17 @@ public class ComponentReference implements Externalizable {
         nid = concept.getNid();
         uuidMsb = concept.getPrimordialUuid().getMostSignificantBits();
         uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
-        text = concept.getPreferredDescription().getText();
-        if (concept.getConceptAttributesActive() != null
-                && concept.getConceptAttributesActive().isDefined()) {
-            definitionalState = DefinitionalState.NECESSARY_AND_SUFFICIENT;
+        DescriptionVersionBI description = concept.getPreferredDescription();
+        if (description == null) {
+            System.out.println("Concept with no preferred description: " + concept);
         } else {
-            definitionalState = DefinitionalState.NECESSARY;
+            text = concept.getPreferredDescription().getText();
+            if (concept.getConceptAttributesActive() != null
+                    && concept.getConceptAttributesActive().isDefined()) {
+                definitionalState = DefinitionalState.NECESSARY_AND_SUFFICIENT;
+            } else {
+                definitionalState = DefinitionalState.NECESSARY;
+            }
         }
     }
 
@@ -92,8 +97,12 @@ public class ComponentReference implements Externalizable {
             } else if (component instanceof DescriptionVersionBI) {
                 text = ((DescriptionVersionBI) component).getText();
             } else {
-                text = component.getChronicle().getClass().getSimpleName() + " for: "
-                        + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
+                if (ss.getConceptForNid(nid).getFullySpecifiedDescription() != null) {
+                    text = component.getChronicle().getClass().getSimpleName() + " for: "
+                            + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
+                } else {
+                    text = component.getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
+                }
             }
         } else {
             text = "null component";

@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
@@ -85,7 +80,6 @@ public abstract class Termstore implements PersistentStoreI {
      * Field description
      */
     ConcurrentHashMap<UUID, TerminologySnapshotDI> persistentSnapshots = new ConcurrentHashMap<>();
-
     /**
      * Field description
      */
@@ -326,16 +320,16 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     protected ViewCoordinate makeMetaVc() throws IOException {
-        Path                   viewPath             = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
-        Position               viewPosition         = new Position(Long.MAX_VALUE, viewPath);
-        EnumSet<Status>        allowedStatusNids    = EnumSet.of(Status.ACTIVE);
+        Path viewPath = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
+        Position viewPosition = new Position(Long.MAX_VALUE, viewPath);
+        EnumSet<Status> allowedStatusNids = EnumSet.of(Status.ACTIVE);
         ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
-        int                    languageNid          = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
-        int                    classifierNid        = ReferenceConcepts.SNOROCKET.getNid();
+        int languageNid = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
+        int classifierNid = ReferenceConcepts.SNOROCKET.getNid();
 
         return new ViewCoordinate(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"), "meta-vc", Precedence.PATH,
-                                  viewPosition, allowedStatusNids, contradictionManager, languageNid, classifierNid,
-                                  RelAssertionType.INFERRED_THEN_STATED, null, LanguageSort.RF2_LANG_REFEX);
+                viewPosition, allowedStatusNids, contradictionManager, languageNid, classifierNid,
+                RelAssertionType.INFERRED_THEN_STATED, null, LanguageSort.RF2_LANG_REFEX);
     }
 
     /**
@@ -376,7 +370,6 @@ public abstract class Termstore implements PersistentStoreI {
         LastChange.removeTermChangeListener(cl);
     }
 
-    
     /**
      * Method description
      *
@@ -515,12 +508,14 @@ public abstract class Termstore implements PersistentStoreI {
     public ComponentVersionBI getComponentVersion(ViewCoordinate coordinate, int nid)
             throws IOException, ContradictionException {
         ComponentBI component = getComponent(nid);
+        if (component != null) {
+            if (ConceptChronicle.class.isAssignableFrom(component.getClass())) {
+                return new ConceptVersion((ConceptChronicle) component, coordinate);
+            }
 
-        if (ConceptChronicle.class.isAssignableFrom(component.getClass())) {
-            return new ConceptVersion((ConceptChronicle) component, coordinate);
-        }
-
-        return ((ComponentChronicleBI<?>) component).getVersion(coordinate);
+            return ((ComponentChronicleBI<?>) component).getVersion(coordinate);
+        } 
+        return null;
     }
 
     /**
@@ -559,7 +554,7 @@ public abstract class Termstore implements PersistentStoreI {
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(
-                vc, P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+                    vc, P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -678,7 +673,7 @@ public abstract class Termstore implements PersistentStoreI {
     public ConceptChronicle getConceptFromAlternateId(int authorityNid, String altId) throws IOException {
         try {
             return ConceptChronicle.get(
-                P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+                    P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -917,7 +912,7 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public int getStamp(ExternalStampBI version) throws IOException {
         return getStamp(version.getStatus(), version.getTime(), getNidForUuids(version.getAuthorUuid()),
-                        getNidForUuids(version.getModuleUuid()), getNidForUuids(version.getPathUuid()));
+                getNidForUuids(version.getModuleUuid()), getNidForUuids(version.getPathUuid()));
     }
 
     /**
@@ -963,19 +958,20 @@ public abstract class Termstore implements PersistentStoreI {
         return id.toString();
     }
 
-    private static class IndexGenerator implements ProcessUnfetchedConceptDataBI, 
+    private static class IndexGenerator implements ProcessUnfetchedConceptDataBI,
             ProcessComponentChronicleBI {
+
         NativeIdSetBI nids;
         List<IndexerBI> indexers;
 
         public IndexGenerator() throws IOException {
             this.nids = P.s.getAllConceptNids();
-            indexers = Hk2Looker.get().getAllServices(IndexerBI.class);        
-            for (IndexerBI i: indexers) {
+            indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
+            for (IndexerBI i : indexers) {
                 i.clearIndex();
             }
         }
-        
+
         @Override
         public boolean allowCancel() {
             return false;
@@ -999,22 +995,23 @@ public abstract class Termstore implements PersistentStoreI {
 
         @Override
         public boolean continueWork() {
-            return true; 
+            return true;
         }
 
         @Override
         public void process(ComponentChronicleBI cc) throws Exception {
-            for (IndexerBI i: indexers) {
+            for (IndexerBI i : indexers) {
                 i.index(cc);
             }
         }
-        
+
         public void commit() {
-            for (IndexerBI i: indexers) {
+            for (IndexerBI i : indexers) {
                 i.commitWriter();
             }
         }
     }
+
     @Override
     public void index() throws IOException {
         try {
@@ -1024,8 +1021,6 @@ public abstract class Termstore implements PersistentStoreI {
         } catch (Exception ex) {
             throw new IOException(ex);
         }
-        
+
     }
-    
-    
 }

@@ -29,6 +29,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
@@ -77,12 +78,12 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private RefexChronicleBI<?> updateRefex(RefexMember<?, ?> member,
             RefexCAB blueprint) throws InvalidCAB, IOException, ContradictionException {
         for (int pathNid : ec.getEditPaths().getSetValues()) {
-            RefexRevision refexRevision =
-                    member.makeAnalog(blueprint.getStatus(),
-                    Long.MAX_VALUE,
-                    ec.getAuthorNid(),
-                    ec.getModuleNid(),
-                    pathNid);
+            RefexRevision refexRevision
+                    = member.makeAnalog(blueprint.getStatus(),
+                            Long.MAX_VALUE,
+                            ec.getAuthorNid(),
+                            ec.getModuleNid(),
+                            pathNid);
             try {
                 blueprint.setPropertiesExceptStamp(refexRevision);
             } catch (PropertyVetoException ex) {
@@ -98,10 +99,10 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
     private RefexMember<?, ?> getRefex(RefexCAB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE !=
-                P.s.getConceptNidForNid(P.s.getNidForUuids(blueprint.getMemberUUID()))) {
-            ComponentChronicleBI<?> component =
-                    P.s.getComponent(blueprint.getMemberUUID());
+        if (P.s.hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE
+                != P.s.getConceptNidForNid(P.s.getNidForUuids(blueprint.getMemberUUID()))) {
+            ComponentChronicleBI<?> component
+                    = P.s.getComponent(blueprint.getMemberUUID());
             if (component == null) {
                 return null;
             }
@@ -111,7 +112,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             } else {
                 throw new InvalidCAB(
                         "Component exists of different type. Class to type:  "
-                        + RefexType.classToType(component.getClass()) 
+                        + RefexType.classToType(component.getClass())
                         + "\ncomponent: "
                         + component + "\n\nRefexCAB: " + blueprint);
             }
@@ -153,17 +154,24 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private RefexMember<?, ?> createRefex(RefexCAB blueprint)
             throws IOException, InvalidCAB, ContradictionException {
         
+        ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexCollectionNid());
+        
         if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
-            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID), 
+            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
                     P.s.getNidForUuids(blueprint.getComponentUuid()));
+        } else if (refexColCon.isAnnotationStyleRefex()) {
+            int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
+
+            int enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
+            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
         } else {
-            P.s.setConceptNidForNid(P.s.getConceptNidForNid(
-                    blueprint.getInt(ComponentProperty.REFERENCED_COMPONENT_ID)), 
-                    blueprint.getComponentNid());
+            int enclosingConceptNid = refexColCon.getNid();
+            int blueprintNid = Ts.get().getConceptNidForNid(blueprint.getComponentNid());
+            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
         }
-        
+
         RefexMember<?, ?> newRefex = RefexMemberFactory.create(blueprint, ec);
-        
+
         for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
             annotBp.setReferencedComponent(newRefex);
             construct(annotBp);
@@ -174,8 +182,8 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private RelationshipChronicleBI getRel(RelationshipCAB blueprint)
             throws InvalidCAB, IOException {
         if (P.s.hasUuid(blueprint.getComponentUuid())) {
-            ComponentChronicleBI<?> component =
-                    P.s.getComponent(blueprint.getComponentUuid());
+            ComponentChronicleBI<?> component
+                    = P.s.getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -200,7 +208,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             Bdb.gVersion.incrementAndGet();
             r.enclosingConceptNid = c.getNid();
             r.nid = Bdb.uuidToNid(blueprint.getComponentUuid());
-            Bdb.getNidCNidMap().setCNidForNid(c.getNid(), r.nid);
+            Bdb.getMemoryCache().setCNidForNid(c.getNid(), r.nid);
             r.setPrimordialUuid(blueprint.getComponentUuid());
             try {
                 r.setDestinationNid(blueprint.getTargetNid());
@@ -214,9 +222,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             r.setGroup(blueprint.getGroup());
             for (int p : ec.getEditPaths().getSetValues()) {
                 if (r.primordialStamp == Integer.MIN_VALUE) {
-                    r.primordialStamp =
-                            Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE,
-                            ec.getAuthorNid(), ec.getModuleNid(), p);
+                    r.primordialStamp
+                            = Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE,
+                                    ec.getAuthorNid(), ec.getModuleNid(), p);
                 } else {
                     if (r.revisions == null) {
                         r.revisions = new RevisionSet(r.primordialStamp);
@@ -277,8 +285,8 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private DescriptionChronicleBI getDesc(DescriptionCAB blueprint)
             throws InvalidCAB, IOException {
         if (P.s.hasUuid(blueprint.getComponentUuid())) {
-            ComponentChronicleBI<?> component =
-                    P.s.getComponent(blueprint.getComponentUuid());
+            ComponentChronicleBI<?> component
+                    = P.s.getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -320,7 +328,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             Bdb.gVersion.incrementAndGet();
             d.enclosingConceptNid = c.getNid();
             d.nid = Bdb.uuidToNid(blueprint.getComponentUuid());
-            Bdb.getNidCNidMap().setCNidForNid(c.getNid(), d.nid);
+            Bdb.getMemoryCache().setCNidForNid(c.getNid(), d.nid);
             d.setPrimordialUuid(blueprint.getComponentUuid());
             d.setTypeNid(blueprint.getTypeNid());
             d.primordialStamp = Integer.MIN_VALUE;
@@ -329,9 +337,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             d.setInitialCaseSignificant(blueprint.isInitialCaseSignificant());
             for (int p : ec.getEditPaths().getSetValues()) {
                 if (d.primordialStamp == Integer.MIN_VALUE) {
-                    d.primordialStamp =
-                            Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(),
-                            ec.getModuleNid(), p);
+                    d.primordialStamp
+                            = Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(),
+                                    ec.getModuleNid(), p);
                 } else {
                     if (d.revisions == null) {
                         d.revisions = new RevisionSet(d.primordialStamp);
@@ -361,6 +369,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 dr.setTypeNid(blueprint.getTypeNid());
                 dr.setText(blueprint.getText());
                 dr.setLang(blueprint.getLang());
+                dr.setStatus(blueprint.getStatus());
                 dr.setInitialCaseSignificant(blueprint.isInitialCaseSignificant());
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
                     construct(annotBp);
@@ -373,8 +382,8 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private MediaChronicleBI getMedia(MediaCAB blueprint)
             throws InvalidCAB, IOException {
         if (P.s.hasUuid(blueprint.getComponentUuid())) {
-            ComponentChronicleBI<?> component =
-                    P.s.getComponent(blueprint.getComponentUuid());
+            ComponentChronicleBI<?> component
+                    = P.s.getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -415,7 +424,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             Bdb.gVersion.incrementAndGet();
             img.enclosingConceptNid = c.getNid();
             img.nid = Bdb.uuidToNid(blueprint.getComponentUuid());
-            Bdb.getNidCNidMap().setCNidForNid(c.getNid(), img.nid);
+            Bdb.getMemoryCache().setCNidForNid(c.getNid(), img.nid);
             img.setPrimordialUuid(blueprint.getComponentUuid());
             img.setTypeNid(blueprint.getTypeNid());
             img.setFormat(blueprint.getFormat());
@@ -424,9 +433,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             img.primordialStamp = Integer.MIN_VALUE;
             for (int p : ec.getEditPaths().getSetValues()) {
                 if (img.primordialStamp == Integer.MIN_VALUE) {
-                    img.primordialStamp =
-                            Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(),
-                            ec.getModuleNid(), p);
+                    img.primordialStamp
+                            = Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(),
+                                    ec.getModuleNid(), p);
                 } else {
                     if (img.revisions == null) {
                         img.revisions = new RevisionSet(img.primordialStamp);
@@ -467,8 +476,8 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private ConceptChronicleBI getConcept(ConceptCB blueprint)
             throws InvalidCAB, IOException {
         if (P.s.hasUuid(blueprint.getComponentUuid())) {
-            ComponentChronicleBI<?> component =
-                    P.s.getComponent(blueprint.getComponentUuid());
+            ComponentChronicleBI<?> component
+                    = P.s.getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -506,7 +515,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     public ConceptChronicleBI construct(ConceptCB blueprint) throws IOException, InvalidCAB, ContradictionException {
 
         int cNid = Bdb.uuidToNid(blueprint.getComponentUuid());
-        Bdb.getNidCNidMap().setCNidForNid(cNid, cNid);
+        Bdb.getMemoryCache().setCNidForNid(cNid, cNid);
         ConceptChronicle newC = ConceptChronicle.get(cNid);
         newC.setAnnotationStyleRefex(blueprint.isAnnotationRefexExtensionIdentity());
 
@@ -534,9 +543,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
         for (int p : ec.getEditPaths().getSetValues()) {
             if (primoridal) {
                 primoridal = false;
-                a.primordialStamp =
-                        Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(),
-                            ec.getModuleNid(), p);
+                a.primordialStamp
+                        = Bdb.getStampDb().getStamp(blueprint.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(),
+                                ec.getModuleNid(), p);
             } else {
                 if (a.revisions == null) {
                     a.revisions = new RevisionSet(a.primordialStamp);
@@ -590,8 +599,8 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             for (int p : ec.getEditPaths().getSetValues()) {
 
                 if (cac.revisions == null) {
-                    cac.revisions =
-                            new RevisionSet(cac.primordialStamp);
+                    cac.revisions
+                            = new RevisionSet(cac.primordialStamp);
                 }
                 ConceptAttributesRevision r = (ConceptAttributesRevision) cac.makeAnalog(blueprint.getStatus(),
                         Long.MAX_VALUE,
@@ -620,8 +629,8 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             for (int p : ec.getEditPaths().getSetValues()) {
 
                 if (cac.revisions == null) {
-                    cac.revisions =
-                            new RevisionSet(cac.primordialStamp);
+                    cac.revisions
+                            = new RevisionSet(cac.primordialStamp);
                 }
                 ConceptAttributesRevision r = (ConceptAttributesRevision) cac.makeAnalog(blueprint.getStatus(),
                         Long.MAX_VALUE,

@@ -242,7 +242,7 @@ public class IndexCacheRecord {
 
         for (int originCNid : originCNids) {
             ConceptVersionBI c = Ts.get().getConceptVersion(vc, originCNid);
-            NativeIdSetItrBI iter = relTypes.getIterator();
+            NativeIdSetItrBI iter = relTypes.getSetBitIterator();
             while (iter.next()) {
                 for (ConceptVersionBI concept : c.getRelationshipsOutgoingDestinationsActive(iter.nid())) {
                     if (cNid == concept.getNid()) {
@@ -416,7 +416,7 @@ public class IndexCacheRecord {
                             return true;
                         } else {
                             IndexCacheRecord possibleParentRecord =
-                                    Bdb.getNidCNidMap().getIndexCacheRecord(record.getDestinationNid());
+                                    Bdb.getMemoryCache().getIndexCacheRecord(record.getDestinationNid());
 
                             if (possibleParentRecord.isKindOfWithVisitedSet(parentNid, vc, computer, visitedSet)) {
                                 return true;

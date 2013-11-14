@@ -128,4 +128,18 @@ public interface IndexerBI {
      * a search where the chronicle's results must be included.
      */
     public Future<Long> index(ComponentChronicleBI chronicle);
+    
+    /**
+     * Enables or disables an indexer. A disabled indexer will take
+     * no action when the index method is called. 
+     * @param enabled true if the indexer is enabled, otherwise false.
+     */
+    public void setEnabled(boolean enabled);
+    
+    /**
+     * 
+     * @return true if this indexer is enabled.
+     */
+    public boolean isEnabled();
+    
 }
