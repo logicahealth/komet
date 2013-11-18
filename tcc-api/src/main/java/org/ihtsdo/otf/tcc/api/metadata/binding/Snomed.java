@@ -13,6 +13,9 @@ public class Snomed {
     public static ConceptSpec ABDOMINAL_WALL_STRUCTURE =
             new ConceptSpec("Abdominal wall structure (body structure)",
             UUID.fromString("c258b290-fabc-3e9d-86f4-9cf4dc0d6978"));
+    public static ConceptSpec ADMINISTRATIVE_STATUSES =
+            new ConceptSpec("Administrative statuses (finding)",
+            UUID.fromString("d851e4c9-2c1f-32ab-8648-0a8bcd086ce1"));
     public static ConceptSpec ASTHMA =
             new ConceptSpec("Asthma (disorder)",
             UUID.fromString("c265cf22-2a11-3488-b71e-296ec0317f96"));
