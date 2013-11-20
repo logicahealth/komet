@@ -55,9 +55,6 @@ public class Snomed {
     public static ConceptSpec CLINICAL_FINDING =
             new ConceptSpec("Clinical finding (finding)",
             UUID.fromString("bd83b1dd-5a82-34fa-bb52-06f666420a1c"));
-    public static ConceptSpec FULLY_SPECIFIED_DESCRIPTION_TYPE =
-            new ConceptSpec("fully specified name (description type)",
-            UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66"));
     public static ConceptSpec CORE_NAMESPACE =
             new ConceptSpec("Core Namespace",
             UUID.fromString("d6bbe207-7b5c-3e32-a2a1-f9259a7260c1"));
@@ -106,6 +103,25 @@ public class Snomed {
     public static ConceptSpec STRUCTURE_OF_ENDOCRINE_SYSTEM =
             new ConceptSpec("Structure of endocrine system (body structure)",
             UUID.fromString("9d902867-4e0e-39e0-b6dd-e4be495b6ab1"));
+    //ConceptSpecs for Description types
+    public static ConceptSpec SYNONYM_DESCRIPTION_TYPE =
+            new ConceptSpec("Synonym (core metadata concept)",
+            UUID.fromString("8bfba944-3965-3946-9bcb-1e80a5da63a2"));
+    public static ConceptSpec FULLY_SPECIFIED_DESCRIPTION_TYPE =
+            new ConceptSpec("Fully specified name (core metadata concept)",
+            UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"));
+    public static ConceptSpec DEFINITION_DESCRIPTION_TYPE =
+            new ConceptSpec("Definition (core metadata concept)",
+            UUID.fromString("700546a3-09c7-3fc2-9eb9-53d318659a09")); 
+    //ConceptSpecs for language refsets
+    public static ConceptSpec US_LANGUAGE_REFEX =
+            new ConceptSpec("United States of America English language reference set (foundation metadata concept)",
+            UUID.fromString("bca0a686-3516-3daf-8fcf-fe396d13cfad"));
+    public static ConceptSpec GB_LANGUAGE_REFEX =
+            new ConceptSpec("Great Britain English language reference set (foundation metadata concept)",
+            UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
+    
+    
     //Concept Specs for context sensitive role relationships
     public static ConceptSpec ACCESS =
             new ConceptSpec("Access (attribute)",
