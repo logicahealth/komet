@@ -4,6 +4,7 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.description;
 import java.io.IOException;
 import java.util.Collection;
 import javafx.beans.property.SimpleStringProperty;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -74,22 +75,22 @@ public class SimpleDescriptionVersionDdo extends SimpleVersionDdo {
 
     }
 
-    @XmlElement
+    @XmlAttribute(name = "text")
     public String getTextProperty() {
         return textProperty.get();
     }
 
-    @XmlElement
+    @XmlElement(name = "language")
     public String getLanguageProperty() {
         return languageProperty.get();
     }
 
-    @XmlElement
+    @XmlElement(name = "dateCreated")
     public String getTimeProperty() {
         return timeProperty.get();
     }
 
-    @XmlElement
+    @XmlElement(name = "descriptionType")
     public String getTypeProperty() {
         return this.typeProperty.get();
     }
