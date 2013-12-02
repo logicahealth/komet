@@ -19,7 +19,6 @@ package org.ihtsdo.otf.tcc.rest.server;
 import org.apache.maven.cli.MavenCli;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -44,7 +43,7 @@ public class SetupServerDependencies {
     public SetupServerDependencies(ServletContext context) {
         this.context = context;
     }
-    
+
     public boolean execute() throws IOException {
         return execute(null);
     }
@@ -98,8 +97,8 @@ public class SetupServerDependencies {
             context.log("Pom file exists. Now deleting.");
             pomFile.delete();
         }
-        BufferedReader pomReader =
-                new BufferedReader(new InputStreamReader(context.getResourceAsStream(pomResource), "UTF-8"));
+        BufferedReader pomReader
+                = new BufferedReader(new InputStreamReader(context.getResourceAsStream(pomResource), "UTF-8"));
         BufferedWriter pomWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pomFile), "UTF-8"));
 
         try {
@@ -114,7 +113,6 @@ public class SetupServerDependencies {
         }
 
         // Write the settings.xml file
-
         context.log("settings: " + context.getResource(settingsResource));
         File settingsFile = new File(appHome, "settings.xml");
         if (settingsFile.exists()) {
@@ -123,12 +121,12 @@ public class SetupServerDependencies {
         }
         context.log("settings path: " + settingsFile.getAbsolutePath());
 
-        BufferedReader settingsReader =
-                new BufferedReader(new InputStreamReader(context.getResourceAsStream(settingsResource), "UTF-8"));
+        BufferedReader settingsReader
+                = new BufferedReader(new InputStreamReader(context.getResourceAsStream(settingsResource), "UTF-8"));
         BufferedWriter settingsWriter = new BufferedWriter(
                 new OutputStreamWriter(
-                new FileOutputStream(settingsFile), "UTF-8"));
-        
+                        new FileOutputStream(settingsFile), "UTF-8"));
+
         try {
             String s;
 
@@ -138,13 +136,13 @@ public class SetupServerDependencies {
                 s = s.replace("<localRepository>mvn-repo</localRepository>", "<localRepository>" + appHome + "/mvn-repo</localRepository>");
                 settingsWriter.write(s + "\n");
             }
-        } finally{
+        } finally {
             settingsReader.close();
             settingsWriter.close();
         }
 
         if ((args == null) || (args.length == 0)) {
-            args = new String[]{"-e", 
+            args = new String[]{"-e",
                 "-settings", settingsFile.getAbsolutePath(),
                 "-U",
                 "clean", "install"};
@@ -152,8 +150,7 @@ public class SetupServerDependencies {
 
         OutputStream stringStream = new ContextLoggerStream();
         PrintStream mavenOutputStream = new PrintStream(stringStream);
-        
-        
+
         int result = cli.doMain(args, pomDir.getAbsolutePath(), mavenOutputStream,
                 mavenOutputStream);
 
@@ -167,11 +164,58 @@ public class SetupServerDependencies {
         }
         return true;
     }
-    
+
+    public void deleteAppDir() throws IOException {
+        String appHome = System.getenv("CATALINA_HOME") + "/temp/bdb";
+
+        context.log("App home: " + appHome);
+
+        File app = new File(appHome);
+
+        if (app.exists()) {
+            delete(app);
+        }
+
+    }
+
+    public static void delete(File file)
+            throws IOException {
+
+        if (file.isDirectory()) {
+
+            if (file.list().length == 0) {
+
+                file.delete();
+                System.out.println("Directory is deleted : "
+                        + file.getAbsolutePath());
+
+            } else {
+
+                String files[] = file.list();
+
+                for (String temp : files) {
+                    File fileDelete = new File(file, temp);
+
+                    delete(fileDelete);
+                }
+
+                if (file.list().length == 0) {
+                    file.delete();
+                    System.out.println("Directory is deleted : "
+                            + file.getAbsolutePath());
+                }
+            }
+
+        } else {
+            file.delete();
+            System.out.println("File is deleted : " + file.getAbsolutePath());
+        }
+    }
+
     private class ContextLoggerStream extends OutputStream {
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        
+
         @Override
         public void write(int b) throws IOException {
             if (b == '\n' || b == '\r') {
@@ -181,6 +225,6 @@ public class SetupServerDependencies {
                 bytes.write(b);
             }
         }
-        
+
     }
 }
