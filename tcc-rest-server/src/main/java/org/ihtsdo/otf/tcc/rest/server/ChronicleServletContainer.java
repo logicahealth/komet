@@ -128,6 +128,7 @@ public class ChronicleServletContainer extends ServletContainer {
             // If there's an error in db setup, then repeat as necessary
             while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
                 getServletContext().log("Termstore is null");
+                getServletContext().log("Database status: " + status.toString());
                 status = SetupStatus.DB_OPEN_FAILED;
                 init();
                 dbSetupCount++;
@@ -142,6 +143,10 @@ public class ChronicleServletContainer extends ServletContainer {
             try {
                 super.service(request, response);
             } catch (NullPointerException e) {
+                getServletContext().log("Database status: " + status.toString());
+                if(termStore == null){
+                    getServletContext().log("Termstore is null and query was unsuccessful.");
+                }
                 getServletContext().log("Database load error.", e);
             }
         } else {
