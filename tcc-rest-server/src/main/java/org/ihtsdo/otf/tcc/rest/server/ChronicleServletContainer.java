@@ -16,6 +16,7 @@
 package org.ihtsdo.otf.tcc.rest.server;
 
 //~--- non-JDK imports --------------------------------------------------------
+import java.io.File;
 import org.glassfish.jersey.internal.util.collection.Value;
 import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -27,6 +28,9 @@ import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 import java.io.IOException;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -144,10 +148,42 @@ public class ChronicleServletContainer extends ServletContainer {
                 super.service(request, response);
             } catch (NullPointerException e) {
                 getServletContext().log("Database status: " + status.toString());
-                if(termStore == null){
-                    getServletContext().log("Termstore is null and query was unsuccessful.");
-                }
                 getServletContext().log("Database load error.", e);
+                if (termStore == null) {
+                    getServletContext().log("Termstore is null and query was unsuccessful.");
+                } else {
+                    getServletContext().log("DB status: " + localStatus.toString());
+
+                    String s = this.getServletContext().getRealPath("mvn-repo");
+
+                    getServletContext().log("The dir to maven repo: " + s);
+
+                    File bdb = new File(termStore.getBdbLocation());
+
+                    getServletContext().log("The bdb path is: " + bdb.getAbsolutePath());
+
+                    if (bdb.exists()) {
+                        long i = getFolderSize(bdb);
+                        getServletContext().log("The bdb size is : " + i + " bytes.");
+                    } else {
+                        System.out.println("File does not exist!");
+                    }
+
+                    File m2 = new File(bdb.getAbsolutePath() + "/../../mvn-repo");
+
+                    getServletContext().log("Maven repo path: " + m2.getAbsolutePath());
+
+                    if (m2.exists()) {
+                        long j = getFolderSize(m2);
+                        getServletContext().log("Maven repo size: " + j + " bytes.");
+                        for (File f : listFiles(m2.getAbsolutePath())) {
+                            getServletContext().log("File: " + f.getName() + " Size: " + f.length());
+                        }
+                    } else {
+                        getServletContext().log("Maven repo doesn't exist");
+                    }
+                }
+
             }
         } else {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
@@ -159,6 +195,8 @@ public class ChronicleServletContainer extends ServletContainer {
     public Value<Integer> service(URI baseUri, URI requestUri, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         SetupStatus localStatus = status;
+
+        getServletContext().log("Reached this line, and the DB status is: " + localStatus);
 
         if (status == SetupStatus.DB_OPEN) {
             if (requestUri.toURL().toString().length() > maxHeaderSize) {
@@ -177,6 +215,39 @@ public class ChronicleServletContainer extends ServletContainer {
                 return HttpServletResponse.SC_SERVICE_UNAVAILABLE;
             }
         });
+    }
+
+    public static long getFolderSize(final File... selectedDirectories) {
+        long foldersize = 0;
+        for (final File item : selectedDirectories) {
+            for (final File subItem : item.listFiles()) {
+                if (subItem.isDirectory()) {
+                    foldersize += getFolderSize(subItem);
+                } else {
+                    foldersize += subItem.length();
+                }
+            }
+        }
+        return foldersize;
+    }
+
+    public static List<File> listFiles(String directoryName) {
+        File directory = new File(directoryName);
+
+        List<File> resultList = new ArrayList<File>();
+
+        // get all the files from a directory
+        File[] fList = directory.listFiles();
+        resultList.addAll(Arrays.asList(fList));
+        for (File file : fList) {
+            if (file.isFile()) {
+                System.out.println(file.getAbsolutePath());
+            } else if (file.isDirectory()) {
+                resultList.addAll(listFiles(file.getAbsolutePath()));
+            }
+        }
+        //System.out.println(fList);
+        return resultList;
     }
 
     private class SetupDatabase implements Callable<Void> {

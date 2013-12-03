@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.datastore;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
@@ -50,7 +49,6 @@ import org.ihtsdo.otf.tcc.model.cs.CsProperty;
 import org.jvnet.hk2.annotations.Service;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 
@@ -65,13 +63,14 @@ import java.util.logging.Logger;
 
 @Service(name = "Bdb Terminology Service")
 public class BdbTerminologyStore extends Termstore {
-    private static final Logger   LOG                   = Logger.getLogger(BdbTerminologyStore.class.getName());
-    public static final String    BDB_LOCATION_PROPERTY = "org.ihtsdo.otf.tcc.datastore.bdb-location";
-    public static final String    DEFAULT_BDB_LOCATION  = "berkeley-db";
-    private static ViewCoordinate metadataVC            = null;
-    private static AtomicBoolean  databaseSetup         = new AtomicBoolean(false);
-    private static CountDownLatch setupComplete         = new CountDownLatch(1);
-    String                        bdbLocation;
+
+    private static final Logger LOG = Logger.getLogger(BdbTerminologyStore.class.getName());
+    public static final String BDB_LOCATION_PROPERTY = "org.ihtsdo.otf.tcc.datastore.bdb-location";
+    public static final String DEFAULT_BDB_LOCATION = "berkeley-db";
+    private static ViewCoordinate metadataVC = null;
+    private static AtomicBoolean databaseSetup = new AtomicBoolean(false);
+    private static CountDownLatch setupComplete = new CountDownLatch(1);
+    String bdbLocation;
 
     public BdbTerminologyStore() {
         if (databaseSetup.compareAndSet(false, true)) {
@@ -187,7 +186,7 @@ public class BdbTerminologyStore extends Termstore {
     @Override
     public void commit(ConceptChronicleBI cc) throws IOException {
         BdbCommitManager.commit((ConceptChronicle) cc, ChangeSetPolicy.MUTABLE_ONLY,
-                                ChangeSetWriterThreading.SINGLE_THREAD);
+                ChangeSetWriterThreading.SINGLE_THREAD);
     }
 
     @Override
@@ -197,7 +196,7 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public boolean commit(ConceptChronicleBI cc, ChangeSetPolicy changeSetPolicy,
-                          ChangeSetWriterThreading changeSetWriterThreading)
+            ChangeSetWriterThreading changeSetWriterThreading)
             throws IOException {
         return BdbCommitManager.commit((ConceptChronicle) cc, changeSetPolicy, changeSetWriterThreading);
     }
@@ -266,19 +265,19 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public void loadEconFiles(File[] econFiles) throws Exception {
-        boolean     consoleFeedback           = true;
+        boolean consoleFeedback = true;
         ThreadGroup loadBdbMultiDbThreadGroup = new ThreadGroup(this.getClass().getSimpleName()
-                                                    + ".loadEconFiles threads");
+                + ".loadEconFiles threads");
         ExecutorService executors = Executors.newCachedThreadPool(new NamedThreadFactory(loadBdbMultiDbThreadGroup,
-                                        "converter "));
+                "converter "));
 
         try {
-            LinkedBlockingQueue<ConceptConverter>     converters                = new LinkedBlockingQueue<>();
-            int                                       runtimeConverterSize      =
-                Runtime.getRuntime().availableProcessors() * 2;
-            int                                       converterSize             = runtimeConverterSize; 
-            AtomicInteger                             conceptsRead              = new AtomicInteger();
-            AtomicInteger                             conceptsProcessed         = new AtomicInteger();
+            LinkedBlockingQueue<ConceptConverter> converters = new LinkedBlockingQueue<>();
+            int runtimeConverterSize
+                    = Runtime.getRuntime().availableProcessors() * 2;
+            int converterSize = runtimeConverterSize;
+            AtomicInteger conceptsRead = new AtomicInteger();
+            AtomicInteger conceptsProcessed = new AtomicInteger();
 
             for (File conceptsFile : econFiles) {
                 System.out.println("Starting load from: " + conceptsFile.getAbsolutePath());
@@ -288,16 +287,16 @@ public class BdbTerminologyStore extends Termstore {
                     converters.add(new ConceptConverter(converters, conceptsProcessed));
                 }
 
-                FileInputStream     fis = new FileInputStream(conceptsFile);
+                FileInputStream fis = new FileInputStream(conceptsFile);
                 BufferedInputStream bis = new BufferedInputStream(fis);
-                DataInputStream     in  = new DataInputStream(bis);
+                DataInputStream in = new DataInputStream(bis);
 
                 try {
                     System.out.print(conceptsRead + "-");
 
                     while (true) {
                         TtkConceptChronicle eConcept = new TtkConceptChronicle(in);
-                        int                 read     = conceptsRead.incrementAndGet();
+                        int read = conceptsRead.incrementAndGet();
 
                         if (consoleFeedback && (read % 100 == 0)) {
                             if (read % 8000 == 0) {
@@ -338,7 +337,7 @@ public class BdbTerminologyStore extends Termstore {
                 }
 
                 System.out.println("\nFinished load of " + conceptsRead + " concepts from: "
-                                   + conceptsFile.getAbsolutePath());
+                        + conceptsFile.getAbsolutePath());
             }
         } finally {
             executors.shutdown();
@@ -360,7 +359,6 @@ public class BdbTerminologyStore extends Termstore {
 //      Ts.get().commit();
 //      System.out.println("Conversion time: "
 //                         + TimeHelper.getElapsedTimeString(System.currentTimeMillis() - time));
-
         System.out.println("Starting db sync.");
         Bdb.sync();
         System.out.println("Finished db sync.");
@@ -480,10 +478,10 @@ public class BdbTerminologyStore extends Termstore {
     public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(vc);
-        ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
+        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
 
         return new ConceptChronicleDdo(ts, c, VersionPolicy.ALL_VERSIONS, RefexPolicy.REFEX_MEMBERS,
-                                       RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
+                RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
     }
 
     @Override
@@ -491,7 +489,7 @@ public class BdbTerminologyStore extends Termstore {
             VersionPolicy versionPolicy, RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
-        ConceptVersionBI      c;
+        ConceptVersionBI c;
 
         if (ref.getNid() != Integer.MAX_VALUE) {
             c = ts.getConceptVersion(ref.getNid());
@@ -507,7 +505,7 @@ public class BdbTerminologyStore extends Termstore {
             RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(vc);
-        ConceptVersionBI      c;
+        ConceptVersionBI c;
 
         if (ref.getNid() != Integer.MAX_VALUE) {
             c = ts.getConceptVersion(ref.getNid());
@@ -523,7 +521,7 @@ public class BdbTerminologyStore extends Termstore {
             RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(getViewCoordinate(viewCoordinateUuid));
-        ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
+        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
 
         return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
     }
@@ -533,7 +531,7 @@ public class BdbTerminologyStore extends Termstore {
             RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
             throws IOException, ContradictionException {
         TerminologySnapshotDI ts = getSnapshot(vc);
-        ConceptVersionBI      c  = ts.getConceptVersion(conceptUUID);
+        ConceptVersionBI c = ts.getConceptVersion(conceptUUID);
 
         return new ConceptChronicleDdo(ts, c, versionPolicy, refexPolicy, relationshipPolicy);
     }
@@ -550,8 +548,8 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public Collection<DbDependency> getLatestChangeSetDependencies() throws IOException {
-        CsProperty[] keysToCheck = new CsProperty[] { CsProperty.LAST_CHANGE_SET_WRITTEN,
-                CsProperty.LAST_CHANGE_SET_READ };
+        CsProperty[] keysToCheck = new CsProperty[]{CsProperty.LAST_CHANGE_SET_WRITTEN,
+            CsProperty.LAST_CHANGE_SET_READ};
         List<DbDependency> latestDependencies = new ArrayList<>(2);
 
         for (CsProperty prop : keysToCheck) {
@@ -827,12 +825,12 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException {
-        NativeIdSetItrBI iter    = componentNativeIds.getSetBitIterator();
-        NativeIdSetBI    cNidSet = new ConcurrentBitSet();
+        NativeIdSetItrBI iter = componentNativeIds.getSetBitIterator();
+        NativeIdSetBI cNidSet = new ConcurrentBitSet();
 
         while (iter.next()) {
             int nid = Bdb.getMemoryCache().getCNid(iter.nid());
-            if(nid > 0){
+            if (nid > 0) {
                 nid = -1 * nid;
             }
             cNidSet.add(nid);
@@ -874,6 +872,10 @@ public class BdbTerminologyStore extends Termstore {
         return Bdb.isIndexed(nid);
     }
 
+    public String getBdbLocation() {
+        return bdbLocation;
+    }
+
     /*
      * @Override
      * public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {
@@ -881,16 +883,17 @@ public class BdbTerminologyStore extends Termstore {
      * }
      */
     private static class ConceptConverter implements Runnable {
-        TtkConceptChronicle                       eConcept   = null;
-        Throwable                                 exception  = null;
-        ConceptChronicle                          newConcept = null;
-        AtomicInteger                             conceptsProcessed;
-        LinkedBlockingQueue<ConceptConverter>     converters;
-        MemoryCacheBdb                            nidCnidMap;
+
+        TtkConceptChronicle eConcept = null;
+        Throwable exception = null;
+        ConceptChronicle newConcept = null;
+        AtomicInteger conceptsProcessed;
+        LinkedBlockingQueue<ConceptConverter> converters;
+        MemoryCacheBdb nidCnidMap;
 
         public ConceptConverter(LinkedBlockingQueue<ConceptConverter> converters, AtomicInteger conceptsRead) {
-            this.converters                = converters;
-            this.conceptsProcessed         = conceptsRead;
+            this.converters = converters;
+            this.conceptsProcessed = conceptsRead;
         }
 
         @Override
