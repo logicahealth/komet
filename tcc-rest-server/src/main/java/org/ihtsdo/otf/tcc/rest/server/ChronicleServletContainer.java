@@ -52,8 +52,10 @@ public class ChronicleServletContainer extends ServletContainer {
     public static Integer maxHeaderSize;
     boolean success = false;
     int tryCount = 0;
+    int dbSetupCount = 0;
+    private static final int DB_SETUP_TRIES = 10;
     private Thread setupThread;
-    boolean deleteDependencies = false;
+    boolean deleteBdb = false;
 
     @Override
     public ServletContext getServletContext() {
@@ -124,16 +126,23 @@ public class ChronicleServletContainer extends ServletContainer {
 
         if (localStatus == SetupStatus.DB_OPEN) {
             // Check to see if Termstore is null
-            if (termStore == null) {
+            while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
                 getServletContext().log("Termstore is null");
                 status = SetupStatus.DB_OPEN_FAILED;
                 init();
+                dbSetupCount++;
             }
+
+            // If the repitition is unsuccessful, then delete the database and try again
+            if ((termStore == null) && (dbSetupCount >= DB_SETUP_TRIES)) {
+                deleteBdb = true;
+                init();
+            }
+
             try {
                 super.service(request, response);
             } catch (NullPointerException e) {
                 getServletContext().log("Database load error.", e);
-                //deleteDependencies = true;
             }
         } else {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
@@ -184,10 +193,10 @@ public class ChronicleServletContainer extends ServletContainer {
 
                 SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
 
-                //See if dependencies need to be refreshed
-                if (deleteDependencies) {
+                //See if the dependencies need to be refreshed
+                if (deleteBdb) {
                     setup.deleteAppDir();
-                    deleteDependencies = false;
+                    deleteBdb = false;
                 }
 
                 while ((success == false) && (tryCount < MAX_TRIES_BEFORE_FAILURE)) {

@@ -178,6 +178,18 @@ public class SetupServerDependencies {
 
     }
 
+    public void deleteBdb() throws IOException {
+        String bdbDir = System.getenv("CATALINA_HOME") + "/temp/bdb/target/berkeley-db";
+
+        context.log("Bdb home: " + bdbDir);
+
+        File bdb = new File(bdbDir);
+
+        if (bdb.exists()) {
+            delete(bdb);
+        }
+    }
+
     public static void delete(File file)
             throws IOException {
 
