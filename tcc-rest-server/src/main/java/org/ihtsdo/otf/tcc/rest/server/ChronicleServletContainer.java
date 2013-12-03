@@ -125,7 +125,7 @@ public class ChronicleServletContainer extends ServletContainer {
         SetupStatus localStatus = status;
 
         if (localStatus == SetupStatus.DB_OPEN) {
-            // Check to see if Termstore is null
+            // If there's an error in db setup, then repeat as necessary
             while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
                 getServletContext().log("Termstore is null");
                 status = SetupStatus.DB_OPEN_FAILED;
@@ -133,7 +133,7 @@ public class ChronicleServletContainer extends ServletContainer {
                 dbSetupCount++;
             }
 
-            // If the repitition is unsuccessful, then delete the database and try again
+            // If the repetition is unsuccessful, then delete the database and try again
             if ((termStore == null) && (dbSetupCount >= DB_SETUP_TRIES)) {
                 deleteBdb = true;
                 init();
@@ -188,12 +188,11 @@ public class ChronicleServletContainer extends ServletContainer {
                 getServletContext().log("Starting BdbTerminologyStore for "
                         + "ChronicleServletContainer in background thread. ");
 
-                // Get the updated resources
                 status = SetupStatus.BUILDING;
 
                 SetupServerDependencies setup = new SetupServerDependencies(getServletContext());
 
-                //See if the dependencies need to be refreshed
+                // If needed, update resources
                 if (deleteBdb) {
                     setup.deleteAppDir();
                     deleteBdb = false;
