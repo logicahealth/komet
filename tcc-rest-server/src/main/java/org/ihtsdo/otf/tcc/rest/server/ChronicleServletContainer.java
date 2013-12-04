@@ -129,6 +129,10 @@ public class ChronicleServletContainer extends ServletContainer {
             throws ServletException, IOException {
         SetupStatus localStatus = status;
 
+        getServletContext().log("Testing to ensure this line is reached.");
+
+        outputFileSizes();
+
         if (localStatus == SetupStatus.DB_OPEN) {
             // If there's an error in db setup, then repeat as necessary
             while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
@@ -168,8 +172,6 @@ public class ChronicleServletContainer extends ServletContainer {
             throws ServletException, IOException {
         SetupStatus localStatus = status;
 
-        getServletContext().log("Reached this line, and the DB status is: " + localStatus);
-
         if (status == SetupStatus.DB_OPEN) {
             if (requestUri.toURL().toString().length() > maxHeaderSize) {
                 response.sendError(HttpServletResponse.SC_REQUEST_URI_TOO_LONG, "Query is too long.");
@@ -194,30 +196,34 @@ public class ChronicleServletContainer extends ServletContainer {
         String s = this.getServletContext().getRealPath("mvn-repo");
 
         getServletContext().log("The dir to maven repo: " + s);
+        if (termStore != null) {
 
-        File bdb = new File(termStore.getBdbLocation());
+            File bdb = new File(termStore.getBdbLocation());
 
-        getServletContext().log("The bdb path is: " + bdb.getAbsolutePath());
+            getServletContext().log("The bdb path is: " + bdb.getAbsolutePath());
 
-        if (bdb.exists()) {
-            long i = getFolderSize(bdb);
-            getServletContext().log("The bdb size is : " + i + " bytes.");
-        } else {
-            System.out.println("File does not exist!");
-        }
+            if (bdb.exists()) {
+                long i = getFolderSize(bdb);
+                getServletContext().log("The bdb size is : " + i + " bytes.");
+            } else {
+                getServletContext().log("File does not exist!");
+            }
 
-        File m2 = new File(bdb.getAbsolutePath() + "/../../mvn-repo");
+            File m2 = new File(bdb.getAbsolutePath() + "/../../mvn-repo");
 
-        getServletContext().log("Maven repo path: " + m2.getAbsolutePath());
+            getServletContext().log("Maven repo path: " + m2.getAbsolutePath());
 
-        if (m2.exists()) {
-            long j = getFolderSize(m2);
-            getServletContext().log("Maven repo size: " + j + " bytes.");
-            for (File f : listFiles(m2.getAbsolutePath())) {
-                getServletContext().log("File: " + f.getName() + " Size: " + f.length());
+            if (m2.exists()) {
+                long j = getFolderSize(m2);
+                getServletContext().log("Maven repo size: " + j + " bytes.");
+                for (File f : listFiles(m2.getAbsolutePath())) {
+                    getServletContext().log("File: " + f.getName() + " Size: " + f.length());
+                }
+            } else {
+                getServletContext().log("Maven repo doesn't exist.");
             }
         } else {
-            getServletContext().log("Maven repo doesn't exist");
+            getServletContext().log("Termstore is null.");
         }
     }
 
@@ -250,7 +256,6 @@ public class ChronicleServletContainer extends ServletContainer {
                 resultList.addAll(listFiles(file.getAbsolutePath()));
             }
         }
-        //System.out.println(fList);
         return resultList;
     }
 
