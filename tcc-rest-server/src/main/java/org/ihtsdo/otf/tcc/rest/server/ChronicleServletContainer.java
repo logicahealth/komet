@@ -129,7 +129,7 @@ public class ChronicleServletContainer extends ServletContainer {
             throws ServletException, IOException {
         SetupStatus localStatus = status;
 
-        getServletContext().log("Line added to ensure resources are updated properly - V1.");
+        getServletContext().log("Line added to ensure resources are updated properly - V2.");
 
         outputFileSizes();
 

@@ -142,7 +142,7 @@ public class SetupServerDependencies {
         }
 
         if ((args == null) || (args.length == 0)) {
-            args = new String[]{"-e",
+            args = new String[]{"-e", "-C",
                 "-settings", settingsFile.getAbsolutePath(),
                 "-U",
                 "clean", "install"};
