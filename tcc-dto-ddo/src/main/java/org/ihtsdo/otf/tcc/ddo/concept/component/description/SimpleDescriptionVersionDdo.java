@@ -44,10 +44,6 @@ public class SimpleDescriptionVersionDdo extends SimpleVersionDdo {
         super();
     }
 
-/*AKF: Is there way to get only certain parts of a DDO back? 
-I'm not sure how many times we will see a use case like this, 
-but it seems better to not have make new DDO classes each time.
-*/
     public SimpleDescriptionVersionDdo(DescriptionChronicleDdo chronicle, TerminologySnapshotDI ss,
             DescriptionVersionBI dv, ConceptVersionBI cv) throws IOException, ContradictionException {
         super(ss, dv);
@@ -55,11 +51,9 @@ but it seems better to not have make new DDO classes each time.
         this.languageProperty.set(dv.getLang());
         this.typeNid = dv.getTypeNid();
         this.dv = dv;
-//AKF: changed from cv.getPreferredDescription().equals(dv) to account for more than one preferred term (e.g. US and GB)        
         if (cv.getDescriptionsPreferredActive().contains(dv)) {
             Collection<? extends RefexVersionBI<?>> usRefexMembers = dv.getRefexMembersActive(cv.getViewCoordinate(), Snomed.US_LANGUAGE_REFEX.getNid());
             Collection<? extends RefexVersionBI<?>> gbRefexMembers = dv.getRefexMembersActive(cv.getViewCoordinate(), Snomed.GB_LANGUAGE_REFEX.getNid());
-//AKF: forgot that most of the time the PT is for both US and GB
             if (!usRefexMembers.isEmpty() && gbRefexMembers.isEmpty()) {
                 this.typeProperty.set("Synonym pt:EN-US");
             } else if (!gbRefexMembers.isEmpty() && usRefexMembers.isEmpty()) {
@@ -90,7 +84,6 @@ but it seems better to not have make new DDO classes each time.
         return languageProperty.get();
     }
 
-//AKF: I would say "effectiveTime" to keep with the standard naming
     @XmlElement(name = "dateCreated")
     public String getTimeProperty() {
         return timeProperty.get();
