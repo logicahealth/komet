@@ -131,8 +131,6 @@ public class ChronicleServletContainer extends ServletContainer {
 
         getServletContext().log("Line added to ensure resources are updated properly - V2.");
 
-        outputFileSizes();
-
         if (localStatus == SetupStatus.DB_OPEN) {
             // If there's an error in db setup, then repeat as necessary
             while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
@@ -193,9 +191,11 @@ public class ChronicleServletContainer extends ServletContainer {
 
     public void outputFileSizes() {
 
+        StringBuilder bi = new StringBuilder("");
+        
         String s = this.getServletContext().getRealPath("mvn-repo");
 
-        getServletContext().log("The dir to maven repo: " + s);
+        bi.append("The dir to maven repo: ").append(s).append("\n");
         if (termStore != null) {
 
             File bdb = new File(termStore.getBdbLocation());
@@ -204,27 +204,29 @@ public class ChronicleServletContainer extends ServletContainer {
 
             if (bdb.exists()) {
                 long i = getFolderSize(bdb);
-                getServletContext().log("The bdb size is : " + i + " bytes.");
+                bi.append("The bdb size is : ").append(i).append(" bytes.\n");
             } else {
-                getServletContext().log("File does not exist!");
+                bi.append("File does not exist!\n");
             }
 
             File m2 = new File(bdb.getAbsolutePath() + "/../../mvn-repo");
 
-            getServletContext().log("Maven repo path: " + m2.getAbsolutePath());
+            bi.append("Maven repo path: ").append(m2.getAbsolutePath()).append("\n");
 
             if (m2.exists()) {
                 long j = getFolderSize(m2);
-                getServletContext().log("Maven repo size: " + j + " bytes.");
+                bi.append("Maven repo size: ").append(j).append(" bytes.\n");
                 for (File f : listFiles(m2.getAbsolutePath())) {
-                    getServletContext().log("File: " + f.getName() + " Size: " + f.length());
+                    bi.append("File: ").append(f.getAbsolutePath()).append(" Size: ").append(f.length()).append("\n");
                 }
             } else {
-                getServletContext().log("Maven repo doesn't exist.");
+                bi.append("Maven repo doesn't exist.");
             }
         } else {
-            getServletContext().log("Termstore is null.");
+            bi.append("Termstore is null.");
         }
+        
+        getServletContext().log(bi.toString());
     }
 
     public static long getFolderSize(final File... selectedDirectories) {
