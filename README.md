@@ -24,7 +24,7 @@ If you do not already have this repository in your `settings.xml`, you will need
 <repository>
   <id>netbeans</id>
   <name>NetBeans</name>
-  <url>http://bits.netbeans.org/maven2/<;/url>
+  <url>http://bits.netbeans.org/maven2/</url>
   <snapshots>
     <enabled>false</enabled>
   </snapshots>
