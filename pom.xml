@@ -24,15 +24,15 @@ the specific language governing permissions and limitations under the License. -
         of all changes.
     </description>
     <scm>
-        <connection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</connection>
-        <developerConnection>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</developerConnection>
-        <url>https://github.com/IHTSDO/OTF-Versioning-Service</url>
-        <tag>sprint2</tag>
+        <connection>scm:git:https://github.com/Apelon-VA/OTF-Versioning-Service.git</connection>
+        <developerConnection>scm:git:git@github.com:Apelon-VA/OTF-Versioning-Service.git</developerConnection>
+        <url>https://github.com/Apelon-VA/OTF-Versioning-Service</url>
+        <tag>va-branch</tag>
     </scm>
     <distributionManagement>
         <site>
             <id>site</id>
-            <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
+            <url>scm:git:git@github.com:Apelon-VA/OTF-Versioning-Service.git</url>
         </site>
     </distributionManagement>
    	
