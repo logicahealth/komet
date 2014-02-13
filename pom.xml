@@ -35,7 +35,7 @@ the specific language governing permissions and limitations under the License. -
             <url>scm:git:git@github.com:Apelon-VA/OTF-Versioning-Service.git</url>
         </site>
     </distributionManagement>
-   	
+
     <properties>
         <branch>TCC ${project.scm.tag}</branch>
         <hk2.version>2.2.0-b14</hk2.version>
