@@ -45,12 +45,6 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-test-data</artifactId>   
-            <version>2.0</version>     
-            <type>zip</type>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -66,11 +60,19 @@
                         <id>extract-berkeley-db</id>
                         <phase>generate-test-resources</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>tcc-test-data</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/test-resources/</outputDirectory>
+                           <skip>${skipTests}</skip>
+                           <artifactItems>
+                                <artifact>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>tcc-test-data</artifactId>
+                                    <version>2.0</version>
+                                    <type>zip</type>
+                                </artifact>
+                           </artifactItems>
+                           <outputDirectory>${project.build.directory}/test-resources/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
