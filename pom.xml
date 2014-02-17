@@ -16,7 +16,7 @@ the specific language governing permissions and limitations under the License. -
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
-    <version>1.1-va-1.1-SNAPSHOT</version>
+    <version>1.1-va-1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) Component chronicle service</name>
     <description>The Terminology Component Chronicle project provides the ability to
@@ -30,6 +30,17 @@ the specific language governing permissions and limitations under the License. -
         <tag>va-branch</tag>
     </scm>
     <distributionManagement>
+        <!-- I don't normally define these here, but the override doesn't seem to work when it is configured in a parent.  Sigh.  Maven. -->
+        <repository>
+          <id>maestro-deploy</id>
+          <name>VA Public Releases Repository</name>
+          <url>http://va-archiva-host:8082/archiva/repository/sim-releases/</url>
+        </repository>
+        <snapshotRepository>
+          <id>maestro-deploy</id>
+          <name>VA Public Snapshots Repository</name>
+          <url>http://va-archiva-host:8082/archiva/repository/sim-snapshots/</url>
+        </snapshotRepository>
         <site>
             <id>site</id>
             <url>scm:git:git@github.com:Apelon-VA/OTF-Versioning-Service.git</url>
