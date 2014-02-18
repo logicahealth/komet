@@ -217,8 +217,7 @@ the specific language governing permissions and limitations under the License. -
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
-            <!-- Disable the default run of the site plugin - do not want this to run from a branch!  Bug filed https://jira.ihtsdotools.org/browse/OTFISSUE-6 -->
-            <!--plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${maven-release-plugin.version}</version>
@@ -228,9 +227,11 @@ the specific language governing permissions and limitations under the License. -
                     <remoteTagging>true</remoteTagging>
                     <arguments>-Pintegration-test</arguments>
                     <tagNameFormat>tcc-@{project.version}</tagNameFormat>
-                    <goals>deploy site site:stage scm-publish:publish-scm</goals>
+                    <!-- Disable the site deploy - do not want this to run from a branch!  Bug filed https://jira.ihtsdotools.org/browse/OTFISSUE-6 -->
+                    <!--goals>deploy site site:stage scm-publish:publish-scm</goals-->
+                    <goals>deploy</goals>
                 </configuration>
-            </plugin-->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
