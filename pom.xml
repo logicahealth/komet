@@ -318,10 +318,11 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <inherited>false</inherited>
                 <configuration>
-                    <doclet>ydoc.doclets.YStandard</doclet>
+                    <!-- Disabled - not installed on CI server -->
+                    <!--doclet>ydoc.doclets.YStandard</doclet>
                     <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
                     <additionalparam>-umlautogen</additionalparam>
-                    <docfilessubdirs>true</docfilessubdirs>
+                    <docfilessubdirs>true</docfilessubdirs-->
                 </configuration>
                 <reportSets>
                     <reportSet>
