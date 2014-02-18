@@ -16,7 +16,7 @@ the specific language governing permissions and limitations under the License. -
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
-    <version>1.1-va-1.1-SNAPSHOT</version>
+    <version>1.1-va-1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) Component chronicle service</name>
     <description>The Terminology Component Chronicle project provides the ability to
@@ -34,12 +34,12 @@ the specific language governing permissions and limitations under the License. -
         <repository>
           <id>maestro-deploy</id>
           <name>VA Public Releases Repository</name>
-          <url>http://va-archiva-host:8082/archiva/repository/sim-releases/</url>
+          <url>http://va-archiva-host:8082/archiva/repository/va-releases/</url>
         </repository>
         <snapshotRepository>
           <id>maestro-deploy</id>
           <name>VA Public Snapshots Repository</name>
-          <url>http://va-archiva-host:8082/archiva/repository/sim-snapshots/</url>
+          <url>http://va-archiva-host:8082/archiva/repository/va-snapshots/</url>
         </snapshotRepository>
         <site>
             <id>site</id>
