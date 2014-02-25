@@ -140,6 +140,12 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
                 .getNid()) || (getCharacteristicNid()
                 == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid())) {
             relType = RelationshipType.STATED_HIERARCHY;
+        } else if (getCharacteristicNid() == SnomedMetadataRf1.QUALIFIER_CHARACTERISTICS_TYPE_RF1.getNid() ||
+        		   getCharacteristicNid() == SnomedMetadataRf2.QUALIFYING_RELATIONSSHIP_RF2.getLenient().getNid()) {
+        	relType = RelationshipType.QUALIFIER;
+        } else if (getCharacteristicNid() == SnomedMetadataRf1.HISTORICAL_CHARACTERISTIC_TYPE_RF1.getNid() ||
+     		   getCharacteristicNid() == SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getLenient().getNid()) {
+        	relType = RelationshipType.HISTORIC;
         }
 
         RelationshipCAB relBp = new RelationshipCAB(getOriginNid(), getTypeNid(), getDestinationNid(), getGroup(), relType,
