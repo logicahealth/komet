@@ -306,8 +306,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        this(memberType, referencedComponentUuid, collectionNid, null, refexVersion, viewCoordinate, idDirective, refexDirective);
-        recomputeUuid();
+         this(memberType, referencedComponentUuid, collectionNid, refexVersion.getPrimordialUuid(), refexVersion, viewCoordinate, idDirective, refexDirective);
+		recomputeUuid();
         this.properties.put(ComponentProperty.COMPONENT_ID,
                 getComponentUuid());
     }
