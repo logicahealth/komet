@@ -259,6 +259,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 rv.setTypeNid(blueprint.getTypeNid());
                 rv.setRefinabilityNid(blueprint.getRefinabilityNid());
                 rv.setCharacteristicNid(blueprint.getCharacteristicNid());
+                rv.setGroup(blueprint.getGroup());
             }
             for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
                 construct(annotBp);
@@ -607,6 +608,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                         ec.getAuthorNid(),
                         ec.getModuleNid(),
                         p);
+                r.setDefined(blueprint.defined);
                 cac.revisions.add(r);
             }
         }
@@ -637,6 +639,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                         ec.getAuthorNid(),
                         ec.getModuleNid(),
                         p);
+                r.setDefined(blueprint.defined);
                 cac.revisions.add(r);
 
             }

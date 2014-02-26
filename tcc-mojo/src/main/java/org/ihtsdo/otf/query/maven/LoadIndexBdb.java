@@ -1,4 +1,4 @@
-package org.ihtsdo.ttk.mojo;
+package org.ihtsdo.otf.query.maven;
 
 //~--- non-JDK imports --------------------------------------------------------
 
