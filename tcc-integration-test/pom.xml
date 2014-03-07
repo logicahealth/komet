@@ -10,6 +10,8 @@
     <name>${branch}: Integration tests</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Memory requirement for tests to stay above HEAP_1400 configuration. Must pass existing argLine for jacoco to function correctly -->
+        <argLine>-Xmx3g</argLine>
     </properties>
     <dependencies>
         <dependency>
