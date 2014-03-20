@@ -134,6 +134,7 @@ public class RefexAnalog extends RefexVersion implements RefexAnalogBI
 
 	/**
 	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setRefexUsageDescriptorNid(int)
+	 * @see RefexUsageDescription#createRefexUsageDescriptionConcept(String, String, String, org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI[])
 	 */
 	@Override
 	public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid)
