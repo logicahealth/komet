@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
-import org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
  * 
- * {@link RefexByteArray}
+ * {@link RefexUUID}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexByteArray extends RefexData
+public class RefexUUID extends RefexData
 {
-	public RefexByteArray()
+	public RefexUUID()
 	{
-		super(RefexDataType.BYTEARRAY);
+		super(RefexDataType.UUID);
 	}
 	
-	public void setDataByteArray(Byte[] bytes) throws PropertyVetoException
+	public void setDataUUID(UUID uuid) throws PropertyVetoException
 	{
-		data_ = bytes;
+		data_ = uuid;
 	}
-	
-	public Byte[] getDataByteArray()
+
+	public UUID getDataUUID()
 	{
-		return (Byte[])data_;
+		return (UUID)data_;
 	}
 }

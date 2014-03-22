@@ -14,37 +14,32 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
-import org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
  * 
- * {@link RefexString}
+ * {@link RefexBoolean}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexString extends RefexData
+public class RefexBoolean extends RefexData
 {
-	public RefexString()
+	public RefexBoolean()
 	{
-		super(RefexDataType.STRING);
-	}
-	
-	protected RefexString(RefexDataType type)
-	{
-		super(type);
-	}
-	
-	public void setDataString(String string) throws PropertyVetoException
-	{
-		data_ = string;
+		super(RefexDataType.BOOLEAN);
 	}
 
-	public String getDataString()
+	public void setDataBoolean(Boolean b) throws PropertyVetoException
 	{
-		return (String) data_;
+		data_ = b;
+	}
+	
+	public Boolean getDataBoolean()
+	{
+		return (Boolean) data_;
 	}
 }

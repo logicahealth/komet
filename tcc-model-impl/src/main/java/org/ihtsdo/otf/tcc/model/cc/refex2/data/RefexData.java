@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.refex2.types;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data;
 
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;

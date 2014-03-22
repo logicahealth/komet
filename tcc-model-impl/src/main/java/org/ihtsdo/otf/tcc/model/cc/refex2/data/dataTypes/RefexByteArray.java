@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
-import org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
  * 
- * {@link RefexDouble}
+ * {@link RefexByteArray}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexDouble extends RefexData
+public class RefexByteArray extends RefexData
 {
-	public RefexDouble()
+	public RefexByteArray()
 	{
-		super(RefexDataType.DOUBLE);
+		super(RefexDataType.BYTEARRAY);
 	}
 	
-	public void setDataDouble(Double d) throws PropertyVetoException
+	public void setDataByteArray(Byte[] bytes) throws PropertyVetoException
 	{
-		data_ = d;
+		data_ = bytes;
 	}
 	
-	public Double getDataDouble()
+	public Byte[] getDataByteArray()
 	{
-		return (Double)data_;
+		return (Byte[])data_;
 	}
 }

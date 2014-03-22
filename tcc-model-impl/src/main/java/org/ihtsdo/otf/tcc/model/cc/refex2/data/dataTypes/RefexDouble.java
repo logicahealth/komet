@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
-import org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
  * 
- * {@link RefexLong}
+ * {@link RefexDouble}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexLong extends RefexData
+public class RefexDouble extends RefexData
 {
-	public RefexLong()
+	public RefexDouble()
 	{
-		super(RefexDataType.LONG);
+		super(RefexDataType.DOUBLE);
 	}
 	
-	public void setDataLong(Long l) throws PropertyVetoException
+	public void setDataDouble(Double d) throws PropertyVetoException
 	{
-		data_ = l;
+		data_ = d;
 	}
 	
-	public Long getDataLong()
+	public Double getDataDouble()
 	{
-		return (Long)data_;
+		return (Double)data_;
 	}
 }

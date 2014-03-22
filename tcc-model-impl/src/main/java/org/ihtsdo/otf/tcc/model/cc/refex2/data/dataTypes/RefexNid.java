@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
-import org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
  * 
- * {@link RefexFloat}
+ * {@link RefexNid}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexFloat extends RefexData
+public class RefexNid extends RefexData
 {
-	public RefexFloat()
+	public RefexNid()
 	{
-		super(RefexDataType.FLOAT);
+		super(RefexDataType.NID);
 	}
 	
-	public void setDataFloat(Float f) throws PropertyVetoException
+	public void setDataNid(Integer integer) throws PropertyVetoException
 	{
-		data_ = f;
+		data_ = integer;
 	}
 	
-	public Float getDataFloat()
+	public Integer getDataNid()
 	{
-		return (Float)data_;
+		return (Integer)data_;
 	}
 }

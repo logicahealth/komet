@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
+package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.io.ByteArrayInputStream;
@@ -47,7 +47,7 @@ public class RefexCompressedString extends RefexString
 	}
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.types.data.RefexString#setDataString(java.lang.String)
+	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes.RefexString#setDataString(java.lang.String)
 	 */
 	@Override
 	public void setDataString(String string) throws PropertyVetoException
@@ -56,7 +56,7 @@ public class RefexCompressedString extends RefexString
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.types.data.RefexString#getDataString()
+	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes.RefexString#getDataString()
 	 */
 	@Override
 	public String getDataString()
@@ -65,7 +65,7 @@ public class RefexCompressedString extends RefexString
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData#getData()
+	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData#getData()
 	 */
 	@Override
 	public Object getData()
