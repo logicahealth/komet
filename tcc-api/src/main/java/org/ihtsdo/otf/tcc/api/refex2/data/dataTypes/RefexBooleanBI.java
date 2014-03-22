@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.api.refex2.types.data;
+package org.ihtsdo.otf.tcc.api.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
 
 /**
  * 
- * {@link RefexByteArrayBI}
+ * {@link RefexBooleanBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexByteArrayBI extends RefexDataBI
+public interface RefexBooleanBI extends RefexDataBI
 {
-	public void setDataByteArray(Byte[] bytes) throws PropertyVetoException;
+	public void setDataBoolean(Boolean b) throws PropertyVetoException;
 	
-	public Byte[] getDataByteArray();
+	public Boolean getDataBoolean();
 }

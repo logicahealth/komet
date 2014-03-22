@@ -19,14 +19,13 @@ package org.ihtsdo.otf.tcc.api.refex2;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataBI;
 
 /**
  *
  * @author kec
  */
 @SuppressWarnings("deprecation")
-public interface RefexAnalogBI extends RefexVersionBI, AnalogBI
+public interface RefexAnalogBI<A extends RefexAnalogBI<A>> extends RefexVersionBI<A>, AnalogBI
 {
 
 	/**
@@ -39,44 +38,15 @@ public interface RefexAnalogBI extends RefexVersionBI, AnalogBI
 	 */
 	void setAssemblageNid(int assemblageNid) throws IOException, PropertyVetoException;
 
-
 	/**
-	 * The component that is a member of the Refex specified by {@link #setAssemblageNid(int)}
-	 * @param componentNid
+	 * 
+	 * @param refexNid
 	 * @throws IOException
 	 * @throws PropertyVetoException
+	 * @deprecated use setAssemblageNid instead.
 	 */
+	@Deprecated
+	void setRefexExtensionNid(int refexNid) throws IOException, PropertyVetoException;
+
 	void setReferencedComponentNid(int componentNid) throws IOException, PropertyVetoException;
-
-	/**
-	 * Set the required link to the concept that defines the combination of data columns being used 
-	 * within this Refex.  The referenced concept must be a child of //TODO <determine> RefexDataColumn  
-	 * and that Concept must have a Refex extension of RefexDataColumn where the attached data is [int, String, String]
-	 * where the int value is used to align the order with the data here, and the two string columns are used for the 
-	 * name and description values of the column.
-	 * @param componentNid
-	 */
-	void setRefexUsageDescriptorNid(int refexUsageDescriptorNid);
-
-	/**
-	 * Set all of the data columns that are part of this Refex.  See {@link #setData(int, RefexMemberBI)}
-	 * @param data
-	 * @throws PropertyVetoException
-	 */
-	void setData(RefexDataBI[] data) throws PropertyVetoException;
-
-	/**
-	 * Set the data (if any) in the specified column of the Refex.
-	 * 
-	 * For a Refex that is only establishing membership, there will be no data columns.
-	 * 
-	 * If there is one or more data columns associated with a Refex membership, then the type of each of data columns
-	 * would be an extension of {@link RefexDataBI}
-	 * 
-	 * @param columnNumber
-	 * @param data
-	 * @throws IndexOutOfBoundsException
-	 * @throws PropertyVetoException
-	 */
-	void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException;
 }

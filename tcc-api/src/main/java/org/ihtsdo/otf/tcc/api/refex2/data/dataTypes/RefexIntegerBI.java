@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.api.refex2.types.data;
+package org.ihtsdo.otf.tcc.api.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
 
 /**
  * 
- * {@link RefexFloatBI}
+ * {@link RefexIntegerBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexFloatBI extends RefexDataBI
+public interface RefexIntegerBI extends RefexDataBI
 {
-	public void setDataFloat(Float f) throws PropertyVetoException;
+	public void setDataInteger(Integer integer) throws PropertyVetoException;
 	
-	public Float getDataFloat();
+	public Integer getDataInteger();
 }

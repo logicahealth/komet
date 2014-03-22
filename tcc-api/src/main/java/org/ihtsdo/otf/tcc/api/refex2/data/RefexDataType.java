@@ -1,18 +1,18 @@
-package org.ihtsdo.otf.tcc.api.refex2.types;
+package org.ihtsdo.otf.tcc.api.refex2.data;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexBooleanBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexByteArrayBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexCompressedStringBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexDoubleBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexFloatBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexIntegerBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexLongBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexNidBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexStringBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.data.RefexUUIDBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexBooleanBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexByteArrayBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexCompressedStringBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexDoubleBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexFloatBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexIntegerBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexLongBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexNidBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexStringBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexUUIDBI;
 
 
 public enum RefexDataType {

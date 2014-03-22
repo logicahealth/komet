@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.api.refex2;
 
 import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -15,7 +16,8 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexVersionBI extends ComponentVersionBI, RefexChronicleBI
+@SuppressWarnings("deprecation")
+public interface RefexVersionBI<A extends RefexAnalogBI<A>> extends ComponentVersionBI, RefexChronicleBI<A>, AnalogGeneratorBI<A>
 {
 	/**
 	 * @param viewCoordinate the view coordinate specifying which version of the

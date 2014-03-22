@@ -18,8 +18,8 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex2.types;
 
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
 
 /**
  * {@link RefexData}
@@ -37,7 +37,7 @@ public abstract class RefexData implements RefexDataBI
 	}
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.types.RefexDataBI#getRefexDataType()
+	 * @see org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI#getRefexDataType()
 	 */
 	@Override
 	public RefexDataType getRefexDataType()
@@ -46,7 +46,7 @@ public abstract class RefexData implements RefexDataBI
 	}
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.types.RefexDataBI#getData()
+	 * @see org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI#getData()
 	 */
 	@Override
 	public Object getData()

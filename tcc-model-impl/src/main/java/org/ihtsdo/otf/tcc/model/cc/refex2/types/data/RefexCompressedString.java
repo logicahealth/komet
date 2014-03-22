@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
 
 /**
  * An extension of String which utilizes compression and stores the compressed data as a byte[], 

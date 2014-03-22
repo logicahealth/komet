@@ -18,7 +18,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex2.types.data;
 
 import java.beans.PropertyVetoException;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.refex2.types.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
 import org.ihtsdo.otf.tcc.model.cc.refex2.types.RefexData;
 
 /**
