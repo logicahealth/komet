@@ -1,3 +1,21 @@
+/**
+ * Copyright Notice
+ *
+ * This is a work of the U.S. Government and is not subject to copyright
+ * protection in the United States. Foreign copyrights may apply.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ihtsdo.otf.tcc.model.cc.refex2;
 
 import java.beans.PropertyVetoException;
@@ -6,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -13,11 +32,10 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
 import org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex2.RefexUsageDescriptionBI;
@@ -33,9 +51,16 @@ import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
+/**
+ * {@link RefexMember}
+ *
+ * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
 public class RefexMember
 	extends ConceptComponent<RefexRevision, RefexMember> implements RefexChronicleBI<RefexRevision>, RefexAnalogBI<RefexRevision>
 {
@@ -62,6 +87,7 @@ public class RefexMember
         assert primordialStamp != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;
         assert assemblageNid != Integer.MAX_VALUE;
+        //TODO this probably needs work
     }
 
     //~--- methods -------------------------------------------------------------
@@ -98,9 +124,7 @@ public class RefexMember
         if (ConceptAttributes.class.isAssignableFrom(obj.getClass())) {
             RefexMember another = (RefexMember) obj;
 
-            if (this.getTypeNid() != another.getTypeNid()) {
-                return false;
-            }
+            //TODO add more on new data
 
             if (refexFieldsEqual(obj)) {
                 return conceptComponentFieldsEqual(another);
@@ -166,14 +190,15 @@ public class RefexMember
 
         buf.append(" refset:");
         addNidToBuffer(buf, assemblageNid);
-        buf.append(" type:");
-        buf.append(getTkRefsetType());
+//        buf.append(" type:");
+//        buf.append(getTkRefsetType());  //TODO redo
         buf.append(" rcNid:");
         addNidToBuffer(buf, referencedComponentNid);
         buf.append(" ");
         buf.append(super.toString());
 
         return buf.toString();
+        //TODO enhance
     }
 
     @Override
@@ -254,12 +279,6 @@ public class RefexMember
     }
 
     @Override
-    @Deprecated
-    public int getRefexExtensionNid() {
-        return getAssemblageNid();
-    }
-
-    @Override
     public RefexMember getPrimordialVersion() {
         return RefexMember.this;
     }
@@ -279,7 +298,7 @@ public class RefexMember
 //                getVersion(vc), vc, idDirective, refexDirective);
 //
 //        addSpecProperties(rcs);
-
+//TODO fix CAB stuff
         return null;//rcs;
     }
 
@@ -317,7 +336,9 @@ public class RefexMember
 
             ArrayList<Version> list = new ArrayList<>(count);
 
-            list.add(new Version(this));
+            if (getTime() != Long.MIN_VALUE) {
+                list.add(new Version(this));
+            }
 
             if (revisions != null) {
                 for (RefexRevision rv : revisions) {
@@ -397,11 +418,6 @@ public class RefexMember
         }
     }
 
-    @Override
-    public RefexType getRefexType() {
-        return getTkRefsetType();
-    }
-
     //~--- inner classes -------------------------------------------------------
     public class Version extends ConceptComponent<RefexRevision, RefexMember>.Version
             implements RefexAnalogBI<RefexRevision> {
@@ -411,11 +427,6 @@ public class RefexMember
         }
 
         //~--- methods ----------------------------------------------------------
-        @Override
-        public RefexType getRefexType() {
-            return RefexMember.this.getRefexType();
-        }
-
         public RefexRevision makeAnalog() {
             if (RefexMember.this != cv) {
             }
@@ -431,9 +442,10 @@ public class RefexMember
         @Override
         public boolean fieldsEqual(ConceptComponent.Version another) {
             RefexMember.Version anotherVersion = (RefexMember.Version) another;
-            if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-                return false;
-            }
+//            if (this.getTypeNid() != anotherVersion.getTypeNid()) {
+//                return false;
+//            }
+            //TODO account for new data
 
             if (this.getAssemblageNid() != anotherVersion.getAssemblageNid()) {
                 return false;
@@ -460,22 +472,18 @@ public class RefexMember
             return assemblageNid;
         }
 
-        @Override
-        @Deprecated
-        public int getRefexExtensionNid() {
-            return getAssemblageNid();
-        }
-
         RefexAnalogBI<RefexRevision> getCv() {
             return (RefexAnalogBI<RefexRevision>) cv;
         }
 
         public TtkRefexAbstractMemberChronicle<?> getERefsetMember() throws IOException {
             throw new UnsupportedOperationException("subclass must override");
+            //TODO implement
         }
 
         public TtkRevision getERefsetRevision() throws IOException {
             throw new UnsupportedOperationException("subclass must override");
+            //TODO implement
         }
 
         @Override
@@ -492,10 +500,6 @@ public class RefexMember
         public RefexCAB makeBlueprint(ViewCoordinate vc,
                 IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
             return getCv().makeBlueprint(vc, idDirective, refexDirective);
-        }
-
-        public int getTypeNid() {
-            return RefexMember.this.getTypeNid();
         }
 
         @Override
@@ -539,247 +543,213 @@ public class RefexMember
             RefexMember.this.setReferencedComponentNid(componentNid);
         }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescriptorNid()
-		 */
-		@Override
-		public int getRefexUsageDescriptorNid()
-		{
-			// TODO Auto-generated method stub
-			return 0;
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescriptorNid()
+         */
+        @Override
+        public int getRefexUsageDescriptorNid() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescription()
-		 */
-		@Override
-		public RefexUsageDescriptionBI getRefexUsageDescription()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescription()
+         */
+        @Override
+        public RefexUsageDescriptionBI getRefexUsageDescription() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData()
-		 */
-		@Override
-		public RefexDataBI[] getData()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData()
+         */
+        @Override
+        public RefexDataBI[] getData() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData(int)
-		 */
-		@Override
-		public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData(int)
+         */
+        @Override
+        public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setRefexUsageDescriptorNid(int)
-		 */
-		@Override
-		public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid)
-		{
-			// TODO Auto-generated method stub
-			
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setRefexUsageDescriptorNid(int)
+         */
+        @Override
+        public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid) {
+            // TODO Auto-generated method stub
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI[])
-		 */
-		@Override
-		public void setData(RefexDataBI[] data) throws PropertyVetoException
-		{
-			// TODO Auto-generated method stub
-			
-		}
+        }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(int, org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI)
-		 */
-		@Override
-		public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
-		{
-			// TODO Auto-generated method stub
-			
-		}
-    }    
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexVersionBI#refexFieldsEqual(org.ihtsdo.otf.tcc.api.refex2.RefexVersionBI)
-	 */
-	@Override
-	public boolean refexFieldsEqual(RefexVersionBI another)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI[])
+         */
+        @Override
+        public void setData(RefexDataBI[] data) throws PropertyVetoException {
+            // TODO Auto-generated method stub
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.AnalogGeneratorBI#makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status, long, int, int, int)
-	 */
-	@Override
-	public RefexRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+        }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getRefexUsageDescriptorNid()
-	 */
-	@Override
-	public int getRefexUsageDescriptorNid()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(int,
+         *      org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI)
+         */
+        @Override
+        public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException {
+            // TODO Auto-generated method stub
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getRefexUsageDescription()
-	 */
-	@Override
-	public RefexUsageDescriptionBI getRefexUsageDescription()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+        }
+    }
+    
+    /**
+     * From MembershipMember below here
+     */
+    
+    private static VersionComputer<RefexMember.Version> computer =
+            new VersionComputer<>();
+    
+    protected void addRefsetTypeNids(Set<Integer> allNids) {
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getData()
-	 */
-	@Override
-	public RefexDataBI[] getData()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+       //
+    }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getData(int)
-	 */
-	@Override
-	public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    protected void addSpecProperties(RefexCAB rcs) {
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberAnalogBI#setRefexUsageDescriptorNid(int)
-	 */
-	@Override
-	public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+       // no fields to add...
+    }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberAnalogBI#setData(org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI[])
-	 */
-	@Override
-	public void setData(RefexDataBI[] data) throws PropertyVetoException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    public RefexRevision makeAnalog() {
+       RefexRevision newR = new RefexRevision(getStatus(), getTime(), getAuthorNid(), getModuleNid(), getPathNid(), this);
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberAnalogBI#setData(int, org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI)
-	 */
-	@Override
-	public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+       return newR;
+    }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.RefexMember#addRefsetTypeNids(java.util.Set)
-	 */
-	protected void addRefsetTypeNids(Set<Integer> allNids)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public RefexRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
+       RefexRevision newR = new RefexRevision(status, time, authorNid, moduleNid, pathNid, this);
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.RefexMember#addSpecProperties(org.ihtsdo.otf.tcc.api.blueprint.RefexCAB)
-	 */
-	protected void addSpecProperties(RefexCAB rcs)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+       addRevision(newR);
 
-	public int getTypeNid()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+       return newR;
+    }
 
+    protected boolean refexFieldsEqual(ConceptComponent<RefexRevision, RefexMember> obj) {
+       if (RefexMember.class.isAssignableFrom(obj.getClass())) {
+          return true;
+       }
+//TODO add impl for new data
+       return false;
+    }
+    
+    
+    @Override
+     public boolean refexFieldsEqual(RefexVersionBI<?> another) {
+         if(RefexMemberVersionBI.class.isAssignableFrom(another.getClass())){
+             return true;
+         }
+         return false;
+     }
 
-	public RefexRevision makeAnalog()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    protected void readMemberFields(TupleInput input) {
 
+       // nothing to read...
+        //TODO now there is
+    }
 
-	protected boolean refexFieldsEqual(ConceptComponent<RefexRevision, RefexMember> obj)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+    protected final RefexRevision readMemberRevision(TupleInput input) {
+       return new RefexRevision(input, this);
+    }
 
+    public boolean readyToWriteRefsetMember() {
+       return true;
+    }
 
-	protected void readMemberFields(TupleInput input)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    protected void writeMember(TupleOutput output) {
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.RefexMember#readMemberRevision(com.sleepycat.bind.tuple.TupleInput)
-	 */
-	protected RefexRevision readMemberRevision(TupleInput input)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+       // nothing to write
+        //TODO now there is
+    }
 
-	public boolean readyToWriteRefsetMember()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    protected IntArrayList getVariableVersionNids() {
+       return new IntArrayList(2);
+    }
 
-	protected void writeMember(TupleOutput output)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    protected VersionComputer<RefexMember.Version> getVersionComputer() {
+       return computer;
+    }
 
-	protected RefexType getTkRefsetType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * New methods here down
+     */
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setRefexUsageDescriptorNid(int)
+     */
+    @Override
+    public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid) {
+        // TODO Auto-generated method stub
+        
+    }
 
-	protected VersionComputer<RefexMember.Version> getVersionComputer()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI[])
+     */
+    @Override
+    public void setData(RefexDataBI[] data) throws PropertyVetoException {
+        // TODO Auto-generated method stub
+        
+    }
 
-	protected IntArrayList getVariableVersionNids()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(int, org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI)
+     */
+    @Override
+    public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescriptorNid()
+     */
+    @Override
+    public int getRefexUsageDescriptorNid() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescription()
+     */
+    @Override
+    public RefexUsageDescriptionBI getRefexUsageDescription() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData()
+     */
+    @Override
+    public RefexDataBI[] getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData(int)
+     */
+    @Override
+    public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
