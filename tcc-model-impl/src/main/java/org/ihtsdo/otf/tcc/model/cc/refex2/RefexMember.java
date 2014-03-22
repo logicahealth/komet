@@ -13,13 +13,16 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refex2.RefexUsageDescriptionBI;
 import org.ihtsdo.otf.tcc.api.refex2.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
@@ -33,8 +36,8 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
-public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>> 
-	extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R>
+public class RefexMember
+	extends ConceptComponent<RefexRevision, RefexMember> implements RefexChronicleBI<RefexRevision>, RefexAnalogBI<RefexRevision>
 {
     public int referencedComponentNid;
     public int assemblageNid;
@@ -69,10 +72,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         addRefsetTypeNids(allNids);
     }
 
-    protected abstract void addRefsetTypeNids(Set<Integer> allNids);
-
-    protected abstract void addSpecProperties(RefexCAB rcs);
-
     @Override
     public void clearVersions() {
         versions = null;
@@ -86,7 +85,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
 
         if (RefexMember.class.isAssignableFrom(obj.getClass())) {
-            RefexMember<?, ?> another = (RefexMember<?, ?>) obj;
+            RefexMember another = (RefexMember) obj;
 
             return this.referencedComponentNid == another.referencedComponentNid;
         }
@@ -94,13 +93,10 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return false;
     }
 
-    @Deprecated
-    public abstract int getTypeNid();
-
     @Override
-    public boolean fieldsEqual(ConceptComponent<R, C> obj) {
+    public boolean fieldsEqual(ConceptComponent<RefexRevision, RefexMember> obj) {
         if (ConceptAttributes.class.isAssignableFrom(obj.getClass())) {
-            RefexMember<R, C> another = (RefexMember<R, C>) obj;
+            RefexMember another = (RefexMember) obj;
 
             if (this.getTypeNid() != another.getTypeNid()) {
                 return false;
@@ -119,13 +115,9 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return Hashcode.compute(new int[]{referencedComponentNid});
     }
 
-    public abstract R makeAnalog();
-
-    protected abstract boolean refexFieldsEqual(ConceptComponent<R, C> obj);
-
     @SuppressWarnings("unchecked")
-    public RefexMember<R, C> merge(RefexMember<R, C> component) throws IOException {
-        return (RefexMember<R, C>) super.merge((C) component);
+    public RefexMember merge(RefexMember component) throws IOException {
+        return (RefexMember) super.merge(component);
     }
 
     @Override
@@ -144,7 +136,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             }
 
             for (int i = 0; i < additionalVersionCount; i++) {
-                R r = readMemberRevision(input);
+                RefexRevision r = readMemberRevision(input);
 
                 if ((r.stamp != -1) && (r.getTime() != Long.MIN_VALUE)) {
                     revisions.add(r);
@@ -152,10 +144,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             }
         }
     }
-
-    protected abstract void readMemberFields(TupleInput input);
-
-    protected abstract R readMemberRevision(TupleInput input);
 
     @Override
     public final boolean readyToWriteComponent() {
@@ -167,8 +155,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
         return true;
     }
-
-    public abstract boolean readyToWriteRefsetMember();
 
     /*
      *  (non-Javadoc)
@@ -210,7 +196,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
      * of the validation failures.
      * @throws IOException
      */
-    public String validate(RefexMember<?, ?> another) throws IOException {
+    public String validate(RefexMember another) throws IOException {
         assert another != null;
 
         StringBuilder buf = new StringBuilder();
@@ -229,14 +215,12 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return buf.toString();
     }
 
-    protected abstract void writeMember(TupleOutput output);
-
     @Override
     public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
-        List<RefexRevision<R, C>> additionalVersionsToWrite = new ArrayList<>();
+        List<RefexRevision> additionalVersionsToWrite = new ArrayList<>();
 
         if (revisions != null) {
-            for (RefexRevision<R, C> p : revisions) {
+            for (RefexRevision p : revisions) {
                 if ((p.getStamp() > maxReadOnlyStatusAtPositionNid)
                         && (p.getTime() != Long.MIN_VALUE)) {
                     additionalVersionsToWrite.add(p);
@@ -258,7 +242,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             throw new RuntimeException(ex);
         }
 
-        for (RefexRevision<R, C> p : additionalVersionsToWrite) {
+        for (RefexRevision p : additionalVersionsToWrite) {
             p.writeRevisionBdb(output);
         }
     }
@@ -299,11 +283,9 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return null;//rcs;
     }
 
-    protected abstract RefexType getTkRefsetType();
-
     @Override
-    public RefexMember<R, C>.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        List<RefexMember<R, C>.Version> vForC = getVersions(c);
+    public RefexMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
+        List<RefexMember.Version> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
             return null;
@@ -322,8 +304,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
         return null;
     }
-
-    protected abstract VersionComputer<RefexMember<R, C>.Version> getVersionComputer();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -352,8 +332,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     @Override
-    public List<RefexMember<R, C>.Version> getVersions(ViewCoordinate c) {
-        List<RefexMember<R, C>.Version> returnTuples = new ArrayList<>(2);
+    public List<RefexMember.Version> getVersions(ViewCoordinate c) {
+        List<RefexMember.Version> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
                 c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
@@ -362,8 +342,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return returnTuples;
     }
 
-    public List<RefexMember<R, C>.Version> getVersions(ViewCoordinate c, long time) {
-        List<RefexMember<R, C>.Version> returnTuples = new ArrayList<>(2);
+    public List<RefexMember.Version> getVersions(ViewCoordinate c, long time) {
+        List<RefexMember.Version> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
                 c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
@@ -423,10 +403,10 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     //~--- inner classes -------------------------------------------------------
-    public class Version extends ConceptComponent<R, C>.Version
-            implements RefexAnalogBI<R> {
+    public class Version extends ConceptComponent<RefexRevision, RefexMember>.Version
+            implements RefexAnalogBI<RefexRevision> {
 
-        public Version(RefexAnalogBI<R> cv) {
+        public Version(RefexAnalogBI<RefexRevision> cv) {
             super(cv);
         }
 
@@ -436,15 +416,15 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             return RefexMember.this.getRefexType();
         }
 
-        public R makeAnalog() {
+        public RefexRevision makeAnalog() {
             if (RefexMember.this != cv) {
             }
 
-            return (R) RefexMember.this.makeAnalog();
+            return (RefexRevision) RefexMember.this.makeAnalog();
         }
 
         @Override
-        public R makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        public RefexRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
             return getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
         }
 
@@ -486,8 +466,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             return getAssemblageNid();
         }
 
-        RefexAnalogBI<R> getCv() {
-            return (RefexAnalogBI<R>) cv;
+        RefexAnalogBI<RefexRevision> getCv() {
+            return (RefexAnalogBI<RefexRevision>) cv;
         }
 
         public TtkRefexAbstractMemberChronicle<?> getERefsetMember() throws IOException {
@@ -528,7 +508,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
 
         @Override
-        public RefexMember<R, C>.Version getVersion(ViewCoordinate c) throws ContradictionException {
+        public RefexMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
             return RefexMember.this.getVersion(c);
         }
 
@@ -538,7 +518,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
 
         @Override
-        public Collection<RefexMember<R, C>.Version> getVersions(ViewCoordinate c) {
+        public Collection<RefexMember.Version> getVersions(ViewCoordinate c) {
             return RefexMember.this.getVersions(c);
         }
 
@@ -558,5 +538,248 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
             RefexMember.this.setReferencedComponentNid(componentNid);
         }
-    }
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescriptorNid()
+		 */
+		@Override
+		public int getRefexUsageDescriptorNid()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getRefexUsageDescription()
+		 */
+		@Override
+		public RefexUsageDescriptionBI getRefexUsageDescription()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData()
+		 */
+		@Override
+		public RefexDataBI[] getData()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexChronicleBI#getData(int)
+		 */
+		@Override
+		public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setRefexUsageDescriptorNid(int)
+		 */
+		@Override
+		public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI[])
+		 */
+		@Override
+		public void setData(RefexDataBI[] data) throws PropertyVetoException
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refex2.RefexAnalogBI#setData(int, org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI)
+		 */
+		@Override
+		public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+		{
+			// TODO Auto-generated method stub
+			
+		}
+    }    
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexVersionBI#refexFieldsEqual(org.ihtsdo.otf.tcc.api.refex2.RefexVersionBI)
+	 */
+	@Override
+	public boolean refexFieldsEqual(RefexVersionBI another)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.AnalogGeneratorBI#makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status, long, int, int, int)
+	 */
+	@Override
+	public RefexRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getRefexUsageDescriptorNid()
+	 */
+	@Override
+	public int getRefexUsageDescriptorNid()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getRefexUsageDescription()
+	 */
+	@Override
+	public RefexUsageDescriptionBI getRefexUsageDescription()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getData()
+	 */
+	@Override
+	public RefexDataBI[] getData()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberVersionBI#getData(int)
+	 */
+	@Override
+	public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberAnalogBI#setRefexUsageDescriptorNid(int)
+	 */
+	@Override
+	public void setRefexUsageDescriptorNid(int refexUsageDescriptorNid)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberAnalogBI#setData(org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI[])
+	 */
+	@Override
+	public void setData(RefexDataBI[] data) throws PropertyVetoException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexMemberAnalogBI#setData(int, org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI)
+	 */
+	@Override
+	public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.RefexMember#addRefsetTypeNids(java.util.Set)
+	 */
+	protected void addRefsetTypeNids(Set<Integer> allNids)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.RefexMember#addSpecProperties(org.ihtsdo.otf.tcc.api.blueprint.RefexCAB)
+	 */
+	protected void addSpecProperties(RefexCAB rcs)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public int getTypeNid()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	public RefexRevision makeAnalog()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	protected boolean refexFieldsEqual(ConceptComponent<RefexRevision, RefexMember> obj)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	protected void readMemberFields(TupleInput input)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.model.cc.refex2.RefexMember#readMemberRevision(com.sleepycat.bind.tuple.TupleInput)
+	 */
+	protected RefexRevision readMemberRevision(TupleInput input)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean readyToWriteRefsetMember()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	protected void writeMember(TupleOutput output)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	protected RefexType getTkRefsetType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected VersionComputer<RefexMember.Version> getVersionComputer()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected IntArrayList getVariableVersionNids()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

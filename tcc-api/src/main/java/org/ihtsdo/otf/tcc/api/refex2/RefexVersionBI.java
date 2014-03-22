@@ -9,6 +9,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
 
 /**
  * 
@@ -44,4 +45,5 @@ public interface RefexVersionBI<A extends RefexAnalogBI<A>> extends ComponentVer
 	 * @return
 	 */
 	boolean refexFieldsEqual(RefexVersionBI another);
+
 }
