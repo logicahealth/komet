@@ -23,34 +23,39 @@ import org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI;
 /**
  * {@link RefexColumnInfo}
  *
- * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexColumnInfo implements RefexColumnInfoBI
-{
-	private String columnName_;
-	private String columnDescription_;
-	
-	public RefexColumnInfo(String columnName, String columnDescription)
-	{
-		columnName_ = columnName;
-		columnDescription_ = columnDescription;
-	}
-	
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI#getColumnName()
-	 */
-	@Override
-	public String getColumnName()
-	{
-		return columnName_;
-	}
+public class RefexColumnInfo implements RefexColumnInfoBI {
+    private String columnName_;
+    private String columnDescription_;
+    private int columnOrder_;
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI#getColumnDescription()
-	 */
-	@Override
-	public String getColumnDescription()
-	{
-		return columnDescription_;
-	}
+    public RefexColumnInfo(String columnName, String columnDescription) {
+        columnName_ = columnName;
+        columnDescription_ = columnDescription;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI#getColumnName()
+     */
+    @Override
+    public String getColumnName() {
+        return columnName_;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI#getColumnDescription()
+     */
+    @Override
+    public String getColumnDescription() {
+        return columnDescription_;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.RefexColumnInfoBI#getColumnOrder()
+     */
+    @Override
+    public int getColumnOrder() {
+        return columnOrder_;
+    }
 }

@@ -1,0 +1,47 @@
+If you compare the refex package with the refex2 package, you will see the following changes:
+
+1) all of the "type_*" packages go away
+
+2) the data package is new - implements the data interfaces from API.
+
+3) RefexMember is no longer abstract.  We only have one type of RefexMember now (with different data) - this class is now a merger of 
+    RefexMember and "type_membership.MembershipMember".  This is the only implementation of a RefexMember that we need.
+    
+    The new data storage methods from the API definitions are added (get dataColumns, getRefexDescription, etc).
+    
+4) RefexRevision is no longer abstract.  We only have one type of RefexRevision now (with different data) - this class is now a merger of 
+    RefexRevision and "type_membership.MembershipRevision".  This is the only implementation of a RefexRevision that we need.
+    
+    The new data storage methods from the API definitions are added (get/set dataColumns, get/set RefexDescription, etc)
+    
+5) RefexColumnInfo / RefexUsageDescription implementations of these new APIs defined in API
+     RefexUsageDescription should know how to construct itself from a concept nid - it hides all of the details of how we actually store the 
+     refex description information, so it doesn't ever have to be done by a user.  It also has a convenience method:
+       public static RefexUsageDescription createRefexUsageDescriptionConcept(String conceptFSN, String conceptPreferredName, String refexUsageDescription,
+        RefexColumnInfoBI[] refexColumnInfo)
+        
+     Which is used to create a new RefexDescription concept - and handles the storage of the necessary data.  
+     
+     As touched on in the summary.txt in the API code, how exactly this data is stored is not yet determined - could be a refex itself, (which might cause
+     a chicken-or-the-egg style problem with defining this initial refex - or perhaps the SCT TIG already has a mechanism that we can use.  More work needs 
+     to be done to ensure that this refactoring doesn't conflict with what is specified in the SCT TIG.  I suspect that our needs will be more extensive than 
+     what the TIG specifies - but for common use cases - our reference set descriptor should be translatable to the TIG reference set descriptor.
+     
+     Question - how is this handled now for refex's defined within the WB, that don't come from SCT - if someone wants to export them?  Did someone just hardcode
+     the column names into an RF2 exporter somewhere?  Because obviously, the WB refex creation model is not enforcing (at all) the requirements of the TIG currently.
+
+
+Notes:
+
+RefexDataBI / RefexData (abstract class) define a getter of type:
+  public Object getData()
+  
+This is storing the data for one column within the refex.  If you want to know the actual type of the Object, you need to cast the returned object.
+
+You can either cast directly from getData() (and the method getRefexDataType()) will give you information on what it should be cast to, 
+or you can cast the RefexDataBI object itself into its concrete implementation - RefexBoolean, RefexString, etc - and then those concrete classes 
+contain a getBooleanData() or getStringData()  method (as appropriate) which will return the data as the correct type.
+
+Note - no casting is required at all for basic use where you just want to call toString() on the data.
+
+Perhaps there is a more clever way we could handle this to remove casting entirely... but not sure how yet.  Need to look into Lambdas more.

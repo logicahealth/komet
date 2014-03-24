@@ -38,4 +38,11 @@ public interface RefexColumnInfoBI
 	 * @return the column description
 	 */
 	public String getColumnDescription();
+	
+	/**
+	 * Defined the order in which the data columns will be stored, so that the column name / description can be aligned 
+	 * with the RefexDataBI columns in the {@link RefexAnalogBI} / {@link RefexChronicleBI}.
+	 * @return
+	 */
+	public int getColumnOrder();
 }
