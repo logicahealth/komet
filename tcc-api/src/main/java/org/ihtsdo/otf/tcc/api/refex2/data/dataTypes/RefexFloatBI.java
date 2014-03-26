@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
  */
 public interface RefexFloatBI extends RefexDataBI
 {
-	public void setDataFloat(Float f) throws PropertyVetoException;
+	public void setDataFloat(float f) throws PropertyVetoException;
 	
-	public Float getDataFloat();
+	public float getDataFloat();
 }

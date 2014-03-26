@@ -78,12 +78,12 @@ public class Sample {
             //cast method one:
             if (data.getRefexDataType() == RefexDataType.STRING)
             {
-                String s = (String)data.getData();
+                String s = (String)data.getDataObject();
                 System.out.println(s);
             }
             if (data.getRefexDataType() == RefexDataType.BOOLEAN)
             {
-                Boolean b = (Boolean)data.getData();
+                Boolean b = (Boolean)data.getDataObject();
                 System.out.println(b);
             }
             

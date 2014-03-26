@@ -18,22 +18,30 @@
  */
 package org.ihtsdo.otf.tcc.api.refex2.data;
 
-
 /**
  * {@link RefexDataBI}
  *
- * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexDataBI
-{
-	/**
-	 * @return The data object itself.  For a getData() method that doesn't require casting
-	 * of the output, see the getDataXXX() method available within extensions of the {@link RefexDataBI} interface.
-	 */
-	public Object getData();
-	
-	/**
-	 * @return The type information of the data
-	 */
-	public RefexDataType getRefexDataType();
+public interface RefexDataBI {
+    /**
+     * @return The data object itself, in its most compact, serialized form. You
+     *         probably don't want this method unless you are doing something clever.... 
+     *         For a getData() method that doesn't require deserialization, see the {@link #getDataObject()} method. 
+     *         For a method that doesn't require casting the output, see the getDataXXX() method available within 
+     *         extensions of the {@link RefexDataBI} interface.
+     */
+    public byte[] getData();
+
+    /**
+     * @return The data object itself. 
+     *         For a getData() method that doesn't  require casting of the output, see the getDataXXX() method
+     *         available within extensions of the {@link RefexDataBI} interface.
+     */
+    public Object getDataObject();
+
+    /**
+     * @return The type information of the data
+     */
+    public RefexDataType getRefexDataType();
 }

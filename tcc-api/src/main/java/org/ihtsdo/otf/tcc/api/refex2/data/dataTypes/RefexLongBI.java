@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
  */
 public interface RefexLongBI extends RefexDataBI
 {
-	public void setDataLong(Long l) throws PropertyVetoException;
+	public void setDataLong(long l) throws PropertyVetoException;
 	
-	public Long getDataLong();
+	public long getDataLong();
 }

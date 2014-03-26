@@ -28,7 +28,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
  */
 public abstract class RefexData implements RefexDataBI
 {
-	protected Object data_;
+	protected byte[] data_;
 	protected RefexDataType type_;
 	
 	protected RefexData(RefexDataType type)
@@ -49,7 +49,7 @@ public abstract class RefexData implements RefexDataBI
 	 * @see org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI#getData()
 	 */
 	@Override
-	public Object getData()
+	public byte[] getData()
 	{
 		return data_;
 	}

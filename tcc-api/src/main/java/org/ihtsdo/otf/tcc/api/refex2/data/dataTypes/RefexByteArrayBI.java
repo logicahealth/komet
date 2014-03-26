@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
  */
 public interface RefexByteArrayBI extends RefexDataBI
 {
-	public void setDataByteArray(Byte[] bytes) throws PropertyVetoException;
+	public void setDataByteArray(byte[] bytes) throws PropertyVetoException;
 	
-	public Byte[] getDataByteArray();
+	public byte[] getDataByteArray();
 }

@@ -17,7 +17,9 @@
 package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.nio.ByteBuffer;
 import java.util.UUID;
+
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
@@ -27,20 +29,40 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexUUID extends RefexData
-{
-	public RefexUUID()
-	{
-		super(RefexDataType.UUID);
-	}
-	
-	public void setDataUUID(UUID uuid) throws PropertyVetoException
-	{
-		data_ = uuid;
-	}
+public class RefexUUID extends RefexData {
+    public RefexUUID(UUID uuid) throws PropertyVetoException {
+        super(RefexDataType.UUID);
+        setDataUUID(uuid);
+    }
 
-	public UUID getDataUUID()
-	{
-		return (UUID)data_;
-	}
+    public void setDataUUID(UUID uuid) throws PropertyVetoException {
+        ByteBuffer b = ByteBuffer.allocate(16);
+        b.putLong(uuid.getMostSignificantBits());
+        b.putLong(uuid.getLeastSignificantBits());
+        data_ = b.array();
+    }
+
+    public UUID getDataUUID() {
+        ByteBuffer b = ByteBuffer.wrap(data_);
+        long most = b.getLong();
+        long least = b.getLong();
+        return new UUID(most, least);
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI#getDataObject()
+     */
+    @Override
+    public Object getDataObject() {
+        return getDataUUID();
+    }
+    
+    public static void main(String[] args) throws PropertyVetoException
+    {
+        //TODO make this into a JUnit test
+        UUID u = UUID.randomUUID();
+        System.out.println(u);
+        RefexUUID ru = new RefexUUID(u);
+        System.out.println(ru.getDataUUID());
+    }
 }

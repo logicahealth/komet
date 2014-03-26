@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
  */
 public interface RefexBooleanBI extends RefexDataBI
 {
-	public void setDataBoolean(Boolean b) throws PropertyVetoException;
+	public void setDataBoolean(boolean b) throws PropertyVetoException;
 	
-	public Boolean getDataBoolean();
+	public boolean getDataBoolean();
 }

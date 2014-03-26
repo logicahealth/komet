@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
  */
 public interface RefexDoubleBI extends RefexDataBI
 {
-	public void setDataDouble(Double d) throws PropertyVetoException;
+	public void setDataDouble(double d) throws PropertyVetoException;
 	
-	public Double getDataDouble();
+	public double getDataDouble();
 }

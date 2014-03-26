@@ -17,6 +17,8 @@
 package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.nio.ByteBuffer;
+
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
@@ -26,20 +28,42 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexLong extends RefexData
-{
-	public RefexLong()
-	{
-		super(RefexDataType.LONG);
-	}
-	
-	public void setDataLong(Long l) throws PropertyVetoException
-	{
-		data_ = l;
-	}
-	
-	public Long getDataLong()
-	{
-		return (Long)data_;
-	}
+public class RefexLong extends RefexData {
+    public RefexLong(long l) throws PropertyVetoException {
+        super(RefexDataType.LONG);
+        setDataLong(l);
+    }
+
+    public void setDataLong(Long l) throws PropertyVetoException {
+        data_ = ByteBuffer.allocate(8).putLong(l).array();
+    }
+
+    public Long getDataLong() {
+        return ByteBuffer.wrap(data_).getLong();
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI#getDataObject()
+     */
+    @Override
+    public Object getDataObject() {
+        return getDataLong();
+    }
+    
+    public static void main(String[] args) throws PropertyVetoException
+    {
+        //TODO turn this into a JUNit test
+        RefexLong l = new RefexLong(5);
+        
+        System.out.println(l.getDataLong());
+        System.out.println(l.getDataObject());
+        System.out.println(Long.MAX_VALUE);
+        l.setDataLong(Long.MAX_VALUE);
+        System.out.println(l.getDataLong());
+        System.out.println(l.getDataObject());
+        l.setDataLong(Long.MIN_VALUE);
+        System.out.println(Long.MIN_VALUE);
+        System.out.println(l.getDataLong());
+        System.out.println(l.getDataObject());
+    }
 }

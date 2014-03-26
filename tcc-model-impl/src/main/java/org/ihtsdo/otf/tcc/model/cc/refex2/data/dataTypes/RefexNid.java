@@ -17,6 +17,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
@@ -26,20 +27,25 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexNid extends RefexData
-{
-	public RefexNid()
-	{
-		super(RefexDataType.NID);
-	}
-	
-	public void setDataNid(Integer integer) throws PropertyVetoException
-	{
-		data_ = integer;
-	}
-	
-	public Integer getDataNid()
-	{
-		return (Integer)data_;
-	}
+public class RefexNid extends RefexData {
+    public RefexNid(int nid) throws PropertyVetoException {
+        super(RefexDataType.NID);
+        setDataNid(nid);
+    }
+
+    public void setDataNid(Integer integer) throws PropertyVetoException {
+        data_ = RefexInteger.intToByteArray(integer);
+    }
+
+    public Integer getDataNid() {
+        return RefexInteger.getIntFromByteArray(data_);
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI#getDataObject()
+     */
+    @Override
+    public Object getDataObject() {
+        return getDataNid();
+    }
 }

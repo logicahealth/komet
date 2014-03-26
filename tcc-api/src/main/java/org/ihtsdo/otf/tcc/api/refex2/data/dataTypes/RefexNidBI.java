@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataBI;
  */
 public interface RefexNidBI extends RefexDataBI
 {
-	public void setDataNid(Integer integer) throws PropertyVetoException;
+	public void setDataNid(int integer) throws PropertyVetoException;
 	
-	public Integer getDataNid();
+	public int getDataNid();
 }
