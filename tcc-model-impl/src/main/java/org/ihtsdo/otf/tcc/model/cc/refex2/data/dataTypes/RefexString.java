@@ -19,6 +19,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 import java.beans.PropertyVetoException;
 
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexStringBI;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
@@ -27,20 +28,24 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexString extends RefexData {
+public class RefexString extends RefexData implements RefexStringBI {
     public RefexString(String string) throws PropertyVetoException {
         super(RefexDataType.STRING);
         setDataString(string);
     }
 
-    protected RefexString(RefexDataType type, String string) {
-        super(type);
-    }
-
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexStringBI#setDataString(java.lang.String)
+     */
+    @Override
     public void setDataString(String string) throws PropertyVetoException {
         data_ = string.getBytes();
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexStringBI#getDataString()
+     */
+    @Override
     public String getDataString() {
         return new String(data_);
     }

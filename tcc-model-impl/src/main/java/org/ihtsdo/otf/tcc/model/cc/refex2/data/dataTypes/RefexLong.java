@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexLongBI;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
@@ -28,17 +29,25 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexLong extends RefexData {
+public class RefexLong extends RefexData implements RefexLongBI {
     public RefexLong(long l) throws PropertyVetoException {
         super(RefexDataType.LONG);
         setDataLong(l);
     }
 
-    public void setDataLong(Long l) throws PropertyVetoException {
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexLongBI#setDataLong(long)
+     */
+    @Override
+    public void setDataLong(long l) throws PropertyVetoException {
         data_ = ByteBuffer.allocate(8).putLong(l).array();
     }
 
-    public Long getDataLong() {
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexLongBI#getDataLong()
+     */
+    @Override
+    public long getDataLong() {
         return ByteBuffer.wrap(data_).getLong();
     }
 

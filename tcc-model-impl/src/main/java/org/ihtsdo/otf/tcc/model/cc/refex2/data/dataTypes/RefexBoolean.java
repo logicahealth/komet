@@ -19,6 +19,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex2.data.dataTypes;
 import java.beans.PropertyVetoException;
 
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexBooleanBI;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
@@ -27,16 +28,24 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexBoolean extends RefexData {
+public class RefexBoolean extends RefexData implements RefexBooleanBI {
     public RefexBoolean(boolean b) throws PropertyVetoException {
         super(RefexDataType.BOOLEAN);
         setDataBoolean(b);
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexBooleanBI#setDataBoolean(boolean)
+     */
+    @Override
     public void setDataBoolean(boolean b) throws PropertyVetoException {
         data_ = (b ? new byte[] { 1 } : new byte[] { 0 });
     }
-
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexBooleanBI#getDataBoolean()
+     */
+    @Override
     public boolean getDataBoolean() {
         return data_[0] == 1 ? true : false;
     }

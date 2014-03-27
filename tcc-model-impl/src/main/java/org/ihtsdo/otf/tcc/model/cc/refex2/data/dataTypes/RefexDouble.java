@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexDoubleBI;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
@@ -28,16 +29,24 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexDouble extends RefexData {
+public class RefexDouble extends RefexData implements RefexDoubleBI {
     public RefexDouble(double d) throws PropertyVetoException {
         super(RefexDataType.DOUBLE);
         setDataDouble(d);
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexDoubleBI#setDataDouble(double)
+     */
+    @Override
     public void setDataDouble(double d) throws PropertyVetoException {
         data_ = ByteBuffer.allocate(8).putDouble(d).array();
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexDoubleBI#getDataDouble()
+     */
+    @Override
     public double getDataDouble() {
         return ByteBuffer.wrap(data_).getDouble();
     }

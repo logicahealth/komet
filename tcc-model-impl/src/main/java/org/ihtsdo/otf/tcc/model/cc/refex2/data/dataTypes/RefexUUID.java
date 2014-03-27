@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 
 import org.ihtsdo.otf.tcc.api.refex2.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexUUIDBI;
 import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
 
 /**
@@ -29,12 +30,16 @@ import org.ihtsdo.otf.tcc.model.cc.refex2.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexUUID extends RefexData {
+public class RefexUUID extends RefexData implements RefexUUIDBI{
     public RefexUUID(UUID uuid) throws PropertyVetoException {
         super(RefexDataType.UUID);
         setDataUUID(uuid);
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexUUIDBI#setDataUUID(java.util.UUID)
+     */
+    @Override
     public void setDataUUID(UUID uuid) throws PropertyVetoException {
         ByteBuffer b = ByteBuffer.allocate(16);
         b.putLong(uuid.getMostSignificantBits());
@@ -42,6 +47,10 @@ public class RefexUUID extends RefexData {
         data_ = b.array();
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex2.data.dataTypes.RefexUUIDBI#getDataUUID()
+     */
+    @Override
     public UUID getDataUUID() {
         ByteBuffer b = ByteBuffer.wrap(data_);
         long most = b.getLong();
