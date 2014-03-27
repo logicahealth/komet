@@ -72,8 +72,11 @@ public class Sample {
         
         for (RefexDataBI data : refex.getData())
         {
-            //object access
+            //serialized object access (most shouldn't need this)
             System.out.println(data.getData());
+            
+            // object access
+            System.out.println(data.getDataObject());
             
             //cast method one:
             if (data.getRefexDataType() == RefexDataType.STRING)
