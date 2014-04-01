@@ -40,16 +40,6 @@ public interface RefexAnalogBI<A extends RefexAnalogBI<A>> extends RefexVersionB
      */
     void setAssemblageNid(int assemblageNid) throws IOException, PropertyVetoException;
 
-    /**
-     * 
-     * @param refexNid
-     * @throws IOException
-     * @throws PropertyVetoException
-     * @deprecated use setAssemblageNid instead.
-     */
-    @Deprecated
-    void setRefexExtensionNid(int refexNid) throws IOException, PropertyVetoException;
-
     void setReferencedComponentNid(int componentNid) throws IOException, PropertyVetoException;
 
     /**
