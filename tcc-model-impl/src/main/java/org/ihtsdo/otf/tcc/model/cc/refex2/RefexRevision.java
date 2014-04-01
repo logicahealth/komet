@@ -174,12 +174,6 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     @Override
-    @Deprecated
-    public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-        setAssemblageNid(collectionNid);
-    }
-
-    @Override
     public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
         primordialComponent.setReferencedComponentNid(componentNid);
     }

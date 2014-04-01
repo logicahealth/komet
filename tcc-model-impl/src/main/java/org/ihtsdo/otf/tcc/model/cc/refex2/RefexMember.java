@@ -395,12 +395,6 @@ public class RefexMember
     }
 
     @Override
-    @Deprecated
-    public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-        setAssemblageNid(collectionNid);
-    }
-
-    @Override
     public void setReferencedComponentNid(int referencedComponentNid) throws IOException {
         assert referencedComponentNid != Integer.MAX_VALUE : "referencedComponentNid is Integer.MAX_VALUE";
         assert assemblageNid != Integer.MAX_VALUE : "assemblageNid is Integer.MAX_VALUE";
@@ -530,12 +524,6 @@ public class RefexMember
         @Override
         public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
             RefexMember.this.setAssemblageNid(collectionNid);
-        }
-
-        @Override
-        @Deprecated
-        public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-            setAssemblageNid(collectionNid);
         }
 
         @Override
