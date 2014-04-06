@@ -44,7 +44,7 @@ public interface RefexDataBI {
     
     /**
      * @return The data object itself. 
-     *         For a getData() method that doesn't  require casting of the output, see the getDataXXX() method
+     *         For a getData() method that doesn't  require casting of the output, see the getDataXXXProperty() method
      *         available within extensions of the {@link RefexDataBI} interface.
      */
     public ReadOnlyObjectProperty<?> getDataObjectProperty();
