@@ -32,11 +32,11 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 /**
- * {@link Refex4CAB}
+ * {@link DynamicRefexCAB}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
-public class Refex4CAB extends CreateOrAmendBlueprint {
+public class DynamicRefexCAB extends CreateOrAmendBlueprint {
 
     
     /**
@@ -57,7 +57,7 @@ public class Refex4CAB extends CreateOrAmendBlueprint {
      * @throws InvalidCAB
      * @throws ContradictionException
      */
-    public Refex4CAB(UUID componentUuid, ComponentVersionBI componentVersion, ViewCoordinate viewCoordinate,
+    public DynamicRefexCAB(UUID componentUuid, ComponentVersionBI componentVersion, ViewCoordinate viewCoordinate,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB,
             ContradictionException {
         super(componentUuid, componentVersion, viewCoordinate, idDirective, refexDirective);

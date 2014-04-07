@@ -3,6 +3,7 @@ package org.ihtsdo.otf.tcc.api.refex4.data;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexBooleanBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexByteArrayBI;
@@ -73,6 +74,13 @@ public enum RefexDataType {
 	public Class<? extends RefexDataBI> getRefexMemberClass()
 	{
 		return dataClass_;
+	}
+	
+	public UUID getDataTypeConcept()
+	{
+		//TODO find and/or define the necessary concept UUIDs for each for each of the datatypes - FLOAT, DOUBLE, etc.  Set them as part of the 
+		//enum init.
+		return null;
 	}
 
 	public void writeType(DataOutput output) throws IOException

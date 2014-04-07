@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.api.refex4;
 
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI;
 
 /**
@@ -47,21 +46,5 @@ public interface RefexChronicleBI<A extends RefexVersionBI<A>> extends Component
      * @return
      */
     RefexUsageDescriptionBI getRefexUsageDescription();
-
-    /**
-     * @return All of the data columns that are part of this Refex. See
-     *         {@link #getData(int)}. May be empty, will not be null.
-     */
-    RefexDataBI[] getData();
-
-    /**
-     * The type and data (if any) in the specified column of the Refex.
-     * 
-     * @param columnNumber
-     * @return The RefexMemberBI which contains the type and data (if any) for
-     *         the specified column
-     * @throws IndexOutOfBoundsException
-     */
-    RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException;
 
 }

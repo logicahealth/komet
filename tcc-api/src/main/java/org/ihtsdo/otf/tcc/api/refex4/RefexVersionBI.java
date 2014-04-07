@@ -8,7 +8,8 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex4.blueprint.Refex4CAB;
+import org.ihtsdo.otf.tcc.api.refex4.blueprint.DynamicRefexCAB;
+import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
 
 /**
  * 
@@ -35,7 +36,7 @@ public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVe
      * @see org.ihtsdo.tk.api.blueprint.CreateOrAmendBlueprint
      */
     @Override
-    Refex4CAB makeBlueprint(ViewCoordinate viewCoordinate, IdDirective idDirective, RefexDirective refexDirective)
+    DynamicRefexCAB makeBlueprint(ViewCoordinate viewCoordinate, IdDirective idDirective, RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException;
 
     /**
@@ -47,5 +48,31 @@ public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVe
      * @return
      */
     boolean refexFieldsEqual(RefexVersionBI<?> another);
+    
+    /**
+     * @return All of the data columns that are part of this Refex. See
+     *         {@link #getData(int)}. May be empty, will not be null.
+     */
+    RefexDataBI[] getData();
+
+    /**
+     * The type and data (if any) in the specified column of the Refex.
+     * 
+     * @param columnNumber
+     * @return The RefexMemberBI which contains the type and data (if any) for
+     *         the specified column
+     * @throws IndexOutOfBoundsException
+     */
+    RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException;
+    
+    /**
+     * The type and data (if any) in the specified column of the Refex.
+     * 
+     * @param columnName
+     * @return The RefexMemberBI which contains the type and data (if any) for
+     *         the specified column
+     * @throws IndexOutOfBoundsException
+     */
+    RefexDataBI getData(String columnName) throws IndexOutOfBoundsException;
 
 }
