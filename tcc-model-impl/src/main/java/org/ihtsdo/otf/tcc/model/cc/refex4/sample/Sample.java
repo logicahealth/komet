@@ -20,7 +20,9 @@ package org.ihtsdo.otf.tcc.model.cc.refex4.sample;
 
 import java.io.IOException;
 
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataType;
@@ -35,7 +37,7 @@ import org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes.RefexString;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
 public class Sample {
-    public Sample() throws IOException
+    public Sample() throws IOException, ContradictionException
     {
         
         //An example showing what a Refex would look like when it is attached to a description in another concept.
@@ -43,7 +45,7 @@ public class Sample {
         
         //Cast is to pretend we get back a refex4 rather than a refex (other code hasn't yet been updated - there would have to be a new 'getRefexes' method)
         @SuppressWarnings({ "rawtypes", "unchecked", "null" })
-        RefexChronicleBI<? extends RefexChronicleBI<?>> refex = (RefexChronicleBI) c.getDescriptions().iterator().next().getRefexes().iterator().next();
+        RefexVersionBI<? extends RefexChronicleBI<?>> refex = (RefexVersionBI)((RefexChronicleBI) c.getDescriptions().iterator().next().getRefexes().iterator().next()).getVersion(null);
         
         RefexUsageDescriptionBI refexDescription= refex.getRefexUsageDescription();
         

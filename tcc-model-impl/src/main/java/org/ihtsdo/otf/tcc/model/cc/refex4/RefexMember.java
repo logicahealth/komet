@@ -18,7 +18,6 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex4;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,10 +35,9 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
-import org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI;
 import org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex4.blueprint.Refex4CAB;
+import org.ihtsdo.otf.tcc.api.refex4.blueprint.DynamicRefexCAB;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
@@ -52,7 +50,6 @@ import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.model.cc.refex4.RefexRevision;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
@@ -64,8 +61,7 @@ import com.sleepycat.bind.tuple.TupleOutput;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @SuppressWarnings("deprecation")
-public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> implements RefexChronicleBI<RefexRevision>, RefexVersionBI<RefexRevision>,
-    RefexBuilderBI
+public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> implements RefexChronicleBI<RefexRevision>, RefexVersionBI<RefexRevision>
 {
     public int referencedComponentNid;
     public int assemblageNid;
@@ -82,7 +78,7 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         super(enclosingConceptNid, input);
     }
 
-	public RefexMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
+    public RefexMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
         assemblageNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
         referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
@@ -243,7 +239,7 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         return buf.toString();
     }
 
-	@Override
+    @Override
     public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
         List<RefexRevision> additionalVersionsToWrite = new ArrayList<>();
 
@@ -292,7 +288,7 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
     }
 
     @Override
-    public Refex4CAB makeBlueprint(ViewCoordinate vc,
+    public DynamicRefexCAB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
 //        RefexCAB rcs = new RefexCAB(getTkRefsetType(),
@@ -470,7 +466,7 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         }
 
         @SuppressWarnings("unchecked")
-		RefexVersionBI<RefexRevision> getCv() {
+        RefexVersionBI<RefexRevision> getCv() {
             return (RefexVersionBI<RefexRevision>) cv;
         }
 
@@ -495,7 +491,7 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         }
 
         @Override
-        public Refex4CAB makeBlueprint(ViewCoordinate vc,
+        public DynamicRefexCAB makeBlueprint(ViewCoordinate vc,
                 IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
             return getCv().makeBlueprint(vc, idDirective, refexDirective);
         }
@@ -558,6 +554,15 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
          */
         @Override
         public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+        
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(java.lang.String)
+         */
+        @Override
+        public RefexDataBI getData(String columnName) throws IndexOutOfBoundsException {
             // TODO Auto-generated method stub
             return null;
         }
@@ -653,9 +658,9 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         // TODO Auto-generated method stub
         return null;
     }
-
+    
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI#getData()
+     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData()
      */
     @Override
     public RefexDataBI[] getData() {
@@ -664,47 +669,37 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI#getData(int)
+     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(int)
      */
     @Override
     public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
         // TODO Auto-generated method stub
         return null;
     }
-
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setAssemblageNid(int)
-	 */
-	@Override
-	public void setAssemblageNid(int assemblageNid) throws IOException, PropertyVetoException {
-		// TODO Auto-generated method stub
-	}
-
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setReferencedComponentNid(int)
-	 */
-	@Override
-	public void setReferencedComponentNid(int componentNid) throws IOException, PropertyVetoException {
-		// TODO Auto-generated method stub
-		
-	}
-	
+    
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setData(org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI[])
+     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(java.lang.String)
      */
     @Override
-    public void setData(RefexDataBI[] data) throws PropertyVetoException {
+    public RefexDataBI getData(String columnName) throws IndexOutOfBoundsException {
         // TODO Auto-generated method stub
-        
+        return null;
     }
-
-    /**
-     * 
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI)
-     */
-    @Override
-    public void setData(int columnNumber, RefexDataBI data) throws IndexOutOfBoundsException, PropertyVetoException {
-        // TODO Auto-generated method stub
-        
-    }
+    //TODO figure out what I'm doing with the RefexBuilderBI interface
+//    /**
+//     * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setAssemblageNid(int)
+//     */
+//    @Override
+//    public void setAssemblageNid(int assemblageNid) throws IOException, PropertyVetoException {
+//        // TODO Auto-generated method stub
+//    }
+//
+//    /**
+//     * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setReferencedComponentNid(int)
+//     */
+//    @Override
+//    public void setReferencedComponentNid(int componentNid) throws IOException, PropertyVetoException {
+//        // TODO Auto-generated method stub
+//        
+//    }
 }

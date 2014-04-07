@@ -31,7 +31,7 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex4.blueprint.Refex4CAB;
+import org.ihtsdo.otf.tcc.api.refex4.blueprint.DynamicRefexCAB;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
 import org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
@@ -48,7 +48,8 @@ import com.sleepycat.bind.tuple.TupleOutput;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @SuppressWarnings("deprecation")
-public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexVersionBI<RefexRevision>
+//TODO figure out what to do with BuilderBI
+public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexVersionBI<RefexRevision> //, RefexBuilderBI
 {
 
     public RefexRevision() {
@@ -150,7 +151,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     @Override
-    public Refex4CAB makeBlueprint(ViewCoordinate vc, 
+    public DynamicRefexCAB makeBlueprint(ViewCoordinate vc, 
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
 //        RefexCAB rcs = new RefexCAB(
@@ -237,7 +238,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI#getData()
+     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData()
      */
     @Override
     public RefexDataBI[] getData() {
@@ -246,10 +247,19 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI#getData(int)
+     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(int)
      */
     @Override
     public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(java.lang.String)
+     */
+    @Override
+    public RefexDataBI getData(String columnName) throws IndexOutOfBoundsException {
         // TODO Auto-generated method stub
         return null;
     }
