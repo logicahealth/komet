@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.api.refex4;
 
 import java.io.IOException;
 
+import javax.naming.InvalidNameException;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -73,6 +75,6 @@ public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVe
      *         the specified column
      * @throws IndexOutOfBoundsException
      */
-    RefexDataBI getData(String columnName) throws IndexOutOfBoundsException;
+    RefexDataBI getData(String columnName) throws InvalidNameException;
 
 }
