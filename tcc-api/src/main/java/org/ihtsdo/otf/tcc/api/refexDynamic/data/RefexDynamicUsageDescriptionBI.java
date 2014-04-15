@@ -18,15 +18,15 @@
  */
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 
 
 /**
- * {@link RefexUsageDescriptionBI}
+ * {@link RefexDynamicUsageDescriptionBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexUsageDescriptionBI
+public interface RefexDynamicUsageDescriptionBI
 {
 	/**
 	 * @return The nid of the concept that the rest of the attributes of this type were read from.
@@ -40,9 +40,9 @@ public interface RefexUsageDescriptionBI
 	
 	
 	/**
-	 * The ordered column information which will correspond with the data returned by {@link RefexChronicleBI#getData()}
+	 * The ordered column information which will correspond with the data returned by {@link RefexDynamicChronicleBI#getData()}
 	 * These arrays will be the same size, and in the same order.
 	 * @return the column information
 	 */
-	public RefexColumnInfoBI[] getColumnInfo();
+	public RefexDynamicColumnInfoBI[] getColumnInfo();
 }

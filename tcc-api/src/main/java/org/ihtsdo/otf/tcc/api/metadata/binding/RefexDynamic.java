@@ -29,11 +29,15 @@ public class RefexDynamic
 	public static ConceptSpec UNKNOWN_CONCEPT = new ConceptSpec("unknown (null) concept", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 	
 	//TODO define all of these concepts... figure out where they need to be created in the DB
-	public static ConceptSpec REFEX_NID_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
-	public static ConceptSpec REFEX_BOOLEAN_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
-	public static ConceptSpec REFEX_LONG_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
-	public static ConceptSpec REFEX_BYTE_ARRAY_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
-	public static ConceptSpec REFEX_FLOAT_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
-	public static ConceptSpec REFEX_DOUBLE_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
-	public static ConceptSpec REFEX_POLYMORPHIC_DT = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_NID = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_BOOLEAN = new ConceptSpec("boolean", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_LONG = new ConceptSpec("long", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_BYTE_ARRAY = new ConceptSpec("byte array", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_FLOAT = new ConceptSpec("float", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_DOUBLE = new ConceptSpec("double", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DT_POLYMORPHIC = new ConceptSpec("polymorphic", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	
+	public static ConceptSpec REFEX_DYNAMIC_DEFINITION = new ConceptSpec("dynamic refex definition", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DYNAMIC_DEFINITION_DESCRIPTION = new ConceptSpec("dynamic refex definition description", 
+			UUID.fromString("00000000-0000-0000-C000-000000000046"));
 }

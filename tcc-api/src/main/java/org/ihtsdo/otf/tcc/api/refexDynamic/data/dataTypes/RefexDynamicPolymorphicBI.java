@@ -16,19 +16,16 @@
 
 package org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes;
 
-import java.util.UUID;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
  * 
- * {@link RefexUUIDBI}
+ * {@link RefexDynamicPolymorphicBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexUUIDBI extends RefexDataBI
+public interface RefexDynamicPolymorphicBI extends RefexDynamicDataBI
 {
-	public UUID getDataUUID();
-	
-	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty();
+	//Polymorphic is a noop, which should never actually exist for data storage.  It is only used in the definition of 
+	//Refex types when the actual data type is not known ahead of time.
 }

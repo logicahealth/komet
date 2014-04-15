@@ -18,19 +18,19 @@
  */
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 
 
 /**
- * {@link RefexColumnInfoBI}
+ * {@link RefexDynamicColumnInfoBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexColumnInfoBI
+public interface RefexDynamicColumnInfoBI
 {
 	/**
 	 * Defined the order in which the data columns will be stored, so that the column name / description can be aligned 
-	 * with the {@link RefexDataBI} columns in the {@link RefexVersionBI#getData(int)}.
+	 * with the {@link RefexDynamicDataBI} columns in the {@link RefexDynamicVersionBI#getData(int)}.
 	 * @return
 	 */
 	public int getColumnOrder();
@@ -49,10 +49,10 @@ public interface RefexColumnInfoBI
 	public String getColumnDescription();
 	
 	/**
-	 * The defined data type for this column of the Refex.  Note that this value will be identical to the {@link RefexDataType} 
-	 * returned by {@link RefexDataBI} EXCEPT for cases where this returns {@link RefexDataType#POLYMORPHIC}.  In those cases, the 
-	 * data type can only be determined by examining the actual member data in {@link RefexDataBI}
+	 * The defined data type for this column of the Refex.  Note that this value will be identical to the {@link RefexDynamicDataType} 
+	 * returned by {@link RefexDynamicDataBI} EXCEPT for cases where this returns {@link RefexDynamicDataType#POLYMORPHIC}.  In those cases, the 
+	 * data type can only be determined by examining the actual member data in {@link RefexDynamicDataBI}
 	 * @return
 	 */
-	public RefexDataType getColumnDataType();
+	public RefexDynamicDataType getColumnDataType();
 }

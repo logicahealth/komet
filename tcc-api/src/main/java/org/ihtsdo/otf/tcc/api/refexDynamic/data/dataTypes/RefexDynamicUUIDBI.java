@@ -16,18 +16,19 @@
 
 package org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes;
 
+import java.util.UUID;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
  * 
- * {@link RefexNidBI}
+ * {@link RefexDynamicUUIDBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexNidBI extends RefexDataBI
+public interface RefexDynamicUUIDBI extends RefexDynamicDataBI
 {
-	public int getDataNid();
+	public UUID getDataUUID();
 	
-	public ReadOnlyObjectProperty<Integer> getDataNidProperty();
+	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty();
 }

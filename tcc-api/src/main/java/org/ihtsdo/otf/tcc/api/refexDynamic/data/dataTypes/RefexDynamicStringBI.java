@@ -17,17 +17,17 @@
 package org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
  * 
- * {@link RefexByteArrayBI}
+ * {@link RefexDynamicStringBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexByteArrayBI extends RefexDataBI
+public interface RefexDynamicStringBI extends RefexDynamicDataBI
 {
-	public byte[] getDataByteArray();
+	public String getDataString();
 	
-	public ReadOnlyObjectProperty<Byte[]> getDataByteArrayProperty();
+	public ReadOnlyObjectProperty<String> getDataStringProperty();
 }

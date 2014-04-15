@@ -16,16 +16,18 @@
 
 package org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
  * 
- * {@link RefexPolymorphicBI}
+ * {@link RefexDynamicFloatBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexPolymorphicBI extends RefexDataBI
+public interface RefexDynamicFloatBI extends RefexDynamicDataBI
 {
-	//Polymorphic is a noop, which should never actually exist for data storage.  It is only used in the definition of 
-	//Refex types when the actual data type is not known ahead of time.
+	public float getDataFloat();
+	
+	public ReadOnlyObjectProperty<Float> getDataFloatProperty();
 }

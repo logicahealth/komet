@@ -9,15 +9,15 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
  * 
- * {@link RefexVersionBI}
+ * {@link RefexDynamicVersionBI}
  *
  * @author kec
  */
-public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVersionBI, RefexChronicleBI<A> {
+public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> extends ComponentVersionBI, RefexDynamicChronicleBI<A> {
     /**
      * @param viewCoordinate
      *            the view coordinate specifying which version of the
@@ -47,13 +47,13 @@ public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVe
      *
      * @return
      */
-    boolean refexFieldsEqual(RefexVersionBI<?> another);
+    boolean refexFieldsEqual(RefexDynamicVersionBI<?> another);
     
     /**
      * @return All of the data columns that are part of this Refex. See
      *         {@link #getData(int)}. May be empty, will not be null.
      */
-    RefexDataBI[] getData();
+    RefexDynamicDataBI[] getData();
 
     /**
      * The type and data (if any) in the specified column of the Refex.
@@ -63,7 +63,7 @@ public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVe
      *         the specified column
      * @throws IndexOutOfBoundsException
      */
-    RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException;
+    RefexDynamicDataBI getData(int columnNumber) throws IndexOutOfBoundsException;
     
     /**
      * The type and data (if any) in the specified column of the Refex.
@@ -73,6 +73,6 @@ public interface RefexVersionBI<A extends RefexVersionBI<A>> extends ComponentVe
      *         the specified column
      * @throws IndexOutOfBoundsException
      */
-    RefexDataBI getData(String columnName) throws InvalidNameException;
+    RefexDynamicDataBI getData(String columnName) throws InvalidNameException;
 
 }
