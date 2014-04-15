@@ -18,7 +18,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex4.data;
 
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI;
 
 /**
  * {@link RefexColumnInfo}
@@ -36,7 +36,7 @@ public class RefexColumnInfo implements RefexColumnInfoBI {
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI#getColumnName()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI#getColumnName()
      */
     @Override
     public String getColumnName() {
@@ -44,7 +44,7 @@ public class RefexColumnInfo implements RefexColumnInfoBI {
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI#getColumnDescription()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI#getColumnDescription()
      */
     @Override
     public String getColumnDescription() {
@@ -52,7 +52,7 @@ public class RefexColumnInfo implements RefexColumnInfoBI {
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI#getColumnOrder()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI#getColumnOrder()
      */
     @Override
     public int getColumnOrder() {

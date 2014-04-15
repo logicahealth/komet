@@ -19,14 +19,13 @@
 package org.ihtsdo.otf.tcc.model.cc.refex4.sample;
 
 import java.io.IOException;
-
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes.RefexBoolean;
 import org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes.RefexString;

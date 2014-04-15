@@ -17,13 +17,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
 
 import java.beans.PropertyVetoException;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexBooleanBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexBooleanBI;
 import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
 
 /**
@@ -42,7 +40,7 @@ public class RefexBoolean extends RefexData implements RefexBooleanBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexBooleanBI#getDataBooleanProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexBooleanBI#getDataBooleanProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
@@ -53,7 +51,7 @@ public class RefexBoolean extends RefexData implements RefexBooleanBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -61,7 +59,7 @@ public class RefexBoolean extends RefexData implements RefexBooleanBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexBooleanBI#getDataBoolean()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexBooleanBI#getDataBoolean()
 	 */
 	@Override
 	public boolean getDataBoolean() {
@@ -69,7 +67,7 @@ public class RefexBoolean extends RefexData implements RefexBooleanBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {

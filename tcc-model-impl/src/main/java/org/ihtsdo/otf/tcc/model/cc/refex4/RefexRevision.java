@@ -21,8 +21,8 @@ package org.ihtsdo.otf.tcc.model.cc.refex4;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -30,14 +30,12 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex4.blueprint.DynamicRefexCAB;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
@@ -151,7 +149,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     @Override
-    public DynamicRefexCAB makeBlueprint(ViewCoordinate vc, 
+    public RefexDynamicCAB makeBlueprint(ViewCoordinate vc, 
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
 //        RefexCAB rcs = new RefexCAB(
@@ -229,7 +227,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
      */
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexChronicleBI#getRefexUsageDescription()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexChronicleBI#getRefexUsageDescription()
      */
     @Override
     public RefexUsageDescriptionBI getRefexUsageDescription() {
@@ -238,7 +236,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI#getData()
      */
     @Override
     public RefexDataBI[] getData() {
@@ -247,7 +245,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(int)
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI#getData(int)
      */
     @Override
     public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
@@ -256,7 +254,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
     
     /**
-     * @see org.ihtsdo.otf.tcc.api.refex4.RefexVersionBI#getData(java.lang.String)
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI#getData(java.lang.String)
      */
     @Override
     public RefexDataBI getData(String columnName) throws IndexOutOfBoundsException {

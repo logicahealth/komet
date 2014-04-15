@@ -17,13 +17,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
 
 import java.beans.PropertyVetoException;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexStringBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexStringBI;
 import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
 
 /**
@@ -42,7 +40,7 @@ public class RefexString extends RefexData implements RefexStringBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexStringBI#getDataString()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexStringBI#getDataString()
 	 */
 	@Override
 	public String getDataString() {
@@ -50,7 +48,7 @@ public class RefexString extends RefexData implements RefexStringBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {
@@ -58,7 +56,7 @@ public class RefexString extends RefexData implements RefexStringBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getDataObjectProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObjectProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -66,7 +64,7 @@ public class RefexString extends RefexData implements RefexStringBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexStringBI#getDataStringProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexStringBI#getDataStringProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<String> getDataStringProperty() {

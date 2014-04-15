@@ -18,8 +18,8 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex4.data;
 
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
 
 /**
  * {@link RefexData}
@@ -51,7 +51,7 @@ public abstract class RefexData implements RefexDataBI
 	//to the description nid and column here, then, if getName() is called, we go look at it, and fetch the name
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getRefexDataType()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getRefexDataType()
 	 */
 	@Override
 	public RefexDataType getRefexDataType()
@@ -60,7 +60,7 @@ public abstract class RefexData implements RefexDataBI
 	}
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getData()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getData()
 	 */
 	@Override
 	public byte[] getData()

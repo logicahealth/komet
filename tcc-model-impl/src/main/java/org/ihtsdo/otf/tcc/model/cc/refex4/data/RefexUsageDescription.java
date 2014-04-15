@@ -18,8 +18,8 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex4.data;
 
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexColumnInfoBI;
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI;
 
 /**
  * 
@@ -44,7 +44,7 @@ public class RefexUsageDescription implements RefexUsageDescriptionBI
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI#getRefexUsageDescriptorNid()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI#getRefexUsageDescriptorNid()
 	 */
 	@Override
 	public int getRefexUsageDescriptorNid()
@@ -53,7 +53,7 @@ public class RefexUsageDescription implements RefexUsageDescriptionBI
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI#getRefexUsageDescription()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI#getRefexUsageDescription()
 	 */
 	@Override
 	public String getRefexUsageDescription()
@@ -62,7 +62,7 @@ public class RefexUsageDescription implements RefexUsageDescriptionBI
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexUsageDescriptionBI#getColumnInfo()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI#getColumnInfo()
 	 */
 	@Override
 	public RefexColumnInfoBI[] getColumnInfo()

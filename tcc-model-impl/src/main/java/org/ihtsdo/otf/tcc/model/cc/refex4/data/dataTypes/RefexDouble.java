@@ -18,13 +18,11 @@ package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
-import org.ihtsdo.otf.tcc.api.refex4.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexDoubleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDoubleBI;
 import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
 
 /**
@@ -43,7 +41,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexDoubleBI#getDataDouble()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDoubleBI#getDataDouble()
 	 */
 	@Override
 	public double getDataDouble() {
@@ -51,7 +49,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {
@@ -59,7 +57,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.RefexDataBI#getDataObjectProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObjectProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -67,7 +65,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refex4.data.dataTypes.RefexDoubleBI#getDataDoubleProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDoubleBI#getDataDoubleProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
