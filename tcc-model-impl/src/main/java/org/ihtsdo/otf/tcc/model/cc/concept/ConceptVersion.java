@@ -40,6 +40,8 @@ import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
@@ -53,7 +55,6 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -646,6 +647,27 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    @Override
    public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
       return concept.getRefexes();
+   }
+   
+   //TODO [REFEX] implement these
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+   {
+       // TODO Auto-generated method stub
+       return null;
+   }
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+    */
+   @Override
+   public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+   {
+       // TODO Auto-generated method stub
+       return null;
    }
 
    @Override

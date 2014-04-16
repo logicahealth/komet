@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDoubleBI;
-import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
 
 /**
  * 
@@ -31,17 +31,17 @@ import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexDouble extends RefexData implements RefexDoubleBI {
+public class RefexDouble extends RefexData implements RefexDynamicDoubleBI {
 
 	private ObjectProperty<Double> property_;
 
 	public RefexDouble(double d, String name) throws PropertyVetoException {
-		super(RefexDataType.DOUBLE, name);
+		super(RefexDynamicDataType.DOUBLE, name);
 		data_ = ByteBuffer.allocate(8).putDouble(d).array();
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDoubleBI#getDataDouble()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDouble()
 	 */
 	@Override
 	public double getDataDouble() {
@@ -49,7 +49,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {
@@ -57,7 +57,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObjectProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -65,7 +65,7 @@ public class RefexDouble extends RefexData implements RefexDoubleBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDoubleBI#getDataDoubleProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {

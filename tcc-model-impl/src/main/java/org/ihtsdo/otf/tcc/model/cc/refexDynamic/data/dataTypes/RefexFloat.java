@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexFloatBI;
-import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
 
 /**
  * 
@@ -30,17 +30,17 @@ import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexFloat extends RefexData implements RefexFloatBI {
+public class RefexFloat extends RefexData implements RefexDynamicFloatBI {
 
 	private ObjectProperty<Float> property_;
 
 	public RefexFloat(float f, String name) throws PropertyVetoException {
-		super(RefexDataType.FLOAT, name);
+		super(RefexDynamicDataType.FLOAT, name);
 		data_ = RefexInteger.intToByteArray(Float.floatToIntBits(f));
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexFloatBI#getDataFloat()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloat()
 	 */
 	@Override
 	public float getDataFloat() {
@@ -48,7 +48,7 @@ public class RefexFloat extends RefexData implements RefexFloatBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {
@@ -56,7 +56,7 @@ public class RefexFloat extends RefexData implements RefexFloatBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObjectProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -64,7 +64,7 @@ public class RefexFloat extends RefexData implements RefexFloatBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexFloatBI#getDataFloatProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloatProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Float> getDataFloatProperty() {

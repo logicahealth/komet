@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexLongBI;
-import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
 
 /**
  * 
@@ -31,17 +31,17 @@ import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexLong extends RefexData implements RefexLongBI {
+public class RefexLong extends RefexData implements RefexDynamicLongBI {
 
 	private ObjectProperty<Long> property_;
 
 	public RefexLong(long l, String name) throws PropertyVetoException {
-		super(RefexDataType.LONG, name);
+		super(RefexDynamicDataType.LONG, name);
 		data_ = ByteBuffer.allocate(8).putLong(l).array();
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexLongBI#getDataLong()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLong()
 	 */
 	@Override
 	public long getDataLong() {
@@ -49,7 +49,7 @@ public class RefexLong extends RefexData implements RefexLongBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {
@@ -57,7 +57,7 @@ public class RefexLong extends RefexData implements RefexLongBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObjectProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -65,7 +65,7 @@ public class RefexLong extends RefexData implements RefexLongBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexLongBI#getDataLongProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLongProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Long> getDataLongProperty() {

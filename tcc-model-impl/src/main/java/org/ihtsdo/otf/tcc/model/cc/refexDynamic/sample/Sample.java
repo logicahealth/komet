@@ -16,19 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.refex4.sample;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic.sample;
 
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexColumnInfoBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes.RefexBoolean;
-import org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes.RefexString;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexBoolean;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexString;
 
 /**
  * {@link Sample}
@@ -44,9 +44,9 @@ public class Sample {
         
         //Cast is to pretend we get back a refex4 rather than a refex (other code hasn't yet been updated - there would have to be a new 'getRefexes' method)
         @SuppressWarnings({ "rawtypes", "unchecked", "null" })
-        RefexVersionBI<? extends RefexChronicleBI<?>> refex = (RefexVersionBI)((RefexChronicleBI) c.getDescriptions().iterator().next().getRefexes().iterator().next()).getVersion(null);
+        RefexDynamicVersionBI<? extends RefexDynamicChronicleBI<?>> refex = (RefexDynamicVersionBI)((RefexDynamicChronicleBI) c.getDescriptions().iterator().next().getRefexes().iterator().next()).getVersion(null);
         
-        RefexUsageDescriptionBI refexDescription= refex.getRefexUsageDescription();
+        RefexDynamicUsageDescription refexDescription= refex.getRefexUsageDescription();
         
         //This would print something like:
         /*
@@ -61,7 +61,7 @@ public class Sample {
          * 0 - UCUM unit - Contains the UCUM unit code - such as "mL" or "cm"
          * 1 - UCUM value - Contains the value from the description that was identified as having an attached UCUM unit - such as "5.3". 
          */
-        for (RefexColumnInfoBI ci : refexDescription.getColumnInfo())
+        for (RefexDynamicColumnInfo ci : refexDescription.getColumnInfo())
         {
             System.out.println(ci.getColumnOrder() + " - " + ci.getColumnName() + " - " + ci.getColumnDescription());
         }
@@ -71,7 +71,7 @@ public class Sample {
         //Or, the output of ci.getColumnOrder() can be used as input to refex.getData(columnNumber)
         
         
-        for (RefexDataBI data : refex.getData())
+        for (RefexDynamicDataBI data : refex.getData())
         {
             //serialized object access (most shouldn't need this)
             System.out.println(data.getData());
@@ -80,12 +80,12 @@ public class Sample {
             System.out.println(data.getDataObject());
             
             //cast method one:
-            if (data.getRefexDataType() == RefexDataType.STRING)
+            if (data.getRefexDataType() == RefexDynamicDataType.STRING)
             {
                 String s = (String)data.getDataObject();
                 System.out.println(s);
             }
-            if (data.getRefexDataType() == RefexDataType.BOOLEAN)
+            if (data.getRefexDataType() == RefexDynamicDataType.BOOLEAN)
             {
                 Boolean b = (Boolean)data.getDataObject();
                 System.out.println(b);
@@ -93,7 +93,7 @@ public class Sample {
             
             //cast method two:
             
-            if (data.getRefexDataType() == RefexDataType.STRING)
+            if (data.getRefexDataType() == RefexDynamicDataType.STRING)
             {
                 RefexString rs = (RefexString) data;
                 System.out.println(rs.getDataString());

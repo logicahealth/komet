@@ -3,7 +3,6 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 //~--- non-JDK imports --------------------------------------------------------
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
@@ -38,12 +37,9 @@ import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.security.NoSuchAlgorithmException;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,6 +49,8 @@ import org.apache.mahout.math.list.IntArrayList;
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
@@ -2113,6 +2111,27 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         return returnValues;
     }
+    
+    //TODO [REFEX] implement these
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     /**
      * Method description
@@ -3346,6 +3365,27 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          */
         public void setTime(long time) throws PropertyVetoException {
             ((AnalogBI) cv).setTime(time);
+        }
+        
+        //TODO [REFEX] implement these
+        /**
+         * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+         */
+        @Override
+        public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        /**
+         * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+         */
+        @Override
+        public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 }

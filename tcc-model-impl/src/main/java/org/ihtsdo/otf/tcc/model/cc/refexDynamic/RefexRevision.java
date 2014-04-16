@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.refex4;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -30,9 +30,9 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexUsageDescriptionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
@@ -47,7 +47,7 @@ import com.sleepycat.bind.tuple.TupleOutput;
  */
 @SuppressWarnings("deprecation")
 //TODO figure out what to do with BuilderBI
-public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexVersionBI<RefexRevision> //, RefexBuilderBI
+public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexDynamicVersionBI<RefexRevision> //, RefexBuilderBI
 {
 
     public RefexRevision() {
@@ -102,8 +102,8 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
     
     @Override
-    public boolean refexFieldsEqual(@SuppressWarnings("rawtypes") RefexVersionBI another) {
-        return primordialComponent.refexFieldsEqual(another);
+    public boolean refexDataFieldsEqual(RefexDynamicDataBI[] another) {
+        return primordialComponent.refexDataFieldsEqual(another);
     }
 
     @Override
@@ -218,7 +218,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     @Override
-    public Collection<? extends RefexVersionBI<RefexRevision>> getVersions(ViewCoordinate c) {
+    public Collection<? extends RefexDynamicVersionBI<RefexRevision>> getVersions(ViewCoordinate c) {
        return ((RefexMember) primordialComponent).getVersions(c);
     }
     
@@ -227,37 +227,37 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
      */
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexChronicleBI#getRefexUsageDescription()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexUsageDescription()
      */
     @Override
-    public RefexUsageDescriptionBI getRefexUsageDescription() {
+    public RefexDynamicUsageDescription getRefexUsageDescription() {
         // TODO Auto-generated method stub
         return null;
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI#getData()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData()
      */
     @Override
-    public RefexDataBI[] getData() {
+    public RefexDynamicDataBI[] getData() {
         // TODO Auto-generated method stub
         return null;
     }
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI#getData(int)
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData(int)
      */
     @Override
-    public RefexDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
+    public RefexDynamicDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
         // TODO Auto-generated method stub
         return null;
     }
     
     /**
-     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexVersionBI#getData(java.lang.String)
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData(java.lang.String)
      */
     @Override
-    public RefexDataBI getData(String columnName) throws IndexOutOfBoundsException {
+    public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException {
         // TODO Auto-generated method stub
         return null;
     }

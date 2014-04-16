@@ -16,24 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.refex4.data;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 
 /**
  * {@link RefexData}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
-public abstract class RefexData implements RefexDataBI
+public abstract class RefexData implements RefexDynamicDataBI
 {
 	private transient String name_;
-	private transient RefexDataType type_;
+	private transient RefexDynamicDataType type_;
 	
 	protected byte[] data_;
 	
-	protected RefexData(RefexDataType type, String name)
+	protected RefexData(RefexDynamicDataType type, String name)
 	{
 		type_ = type;
 		name_ = name;
@@ -45,26 +45,36 @@ public abstract class RefexData implements RefexDataBI
 	}
 	
 	//TODO define a *magic* method that can be called after this RefexData object is read from the DB, 
-	//because name and type do not need to be stored - they can be determined from the array position of 
-	//this data object in combination with reading the metadata about this refex.  The method would be called 
+	//because name and type do not need to be stored - the name can be determined from the array position of 
+	//this data object in combination with reading the metadata about this refex.  (on second thought, due to polymorphic,
+	//we may now have to write out the type)
 	//after the data is read from the DB, but before it is handed back to the user.  Ideally, we just store a ref 
 	//to the description nid and column here, then, if getName() is called, we go look at it, and fetch the name
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getRefexDataType()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getRefexDataType()
 	 */
 	@Override
-	public RefexDataType getRefexDataType()
+	public RefexDynamicDataType getRefexDataType()
 	{
 		return type_;
 	}
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getData()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getData()
 	 */
 	@Override
 	public byte[] getData()
 	{
 		return data_;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return getRefexDataType().name() + " -" + getName() + " - " + getDataObject();
 	}
 }

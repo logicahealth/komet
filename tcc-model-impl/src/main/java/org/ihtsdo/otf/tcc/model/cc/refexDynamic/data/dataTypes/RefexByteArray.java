@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.ihtsdo.otf.tcc.model.cc.refex4.data.dataTypes;
+package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexByteArrayBI;
-import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
 
 /**
  * 
@@ -30,17 +30,17 @@ import org.ihtsdo.otf.tcc.model.cc.refex4.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexByteArray extends RefexData implements RefexByteArrayBI {
+public class RefexByteArray extends RefexData implements RefexDynamicByteArrayBI {
 
 	private ObjectProperty<Byte[]> property_;
 
 	public RefexByteArray(byte[] bytes, String name) throws PropertyVetoException {
-		super(RefexDataType.BYTEARRAY, name);
+		super(RefexDynamicDataType.BYTEARRAY, name);
 		data_ = bytes;
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexByteArrayBI#getDataByteArray()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArray()
 	 */
 	@Override
 	public byte[] getDataByteArray() {
@@ -48,7 +48,7 @@ public class RefexByteArray extends RefexData implements RefexByteArrayBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObject()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
 	public Object getDataObject() {
@@ -56,7 +56,7 @@ public class RefexByteArray extends RefexData implements RefexByteArrayBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDataBI#getDataObjectProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
@@ -64,7 +64,7 @@ public class RefexByteArray extends RefexData implements RefexByteArrayBI {
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexByteArrayBI#getDataByteArrayProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArrayProperty()
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Byte[]> getDataByteArrayProperty() {
