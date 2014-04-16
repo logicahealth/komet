@@ -44,7 +44,7 @@ public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> exten
      * This is a 'deep' check - all aspects of each element of the RefexDynamicDataBI must be 
      * equal for this to return true.
      */
-    boolean dataFieldsEqual(RefexDynamicDataBI[] otherData);
+    boolean refexDataFieldsEqual(RefexDynamicDataBI[] otherData);
     
     /**
      * @return All of the data columns that are part of this Refex. See

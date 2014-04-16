@@ -432,7 +432,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 				}
 				case DYNAMIC_REFEX_DATA:
 				{
-					if (!refexVersion.dataFieldsEqual((RefexDynamicDataBI[])properties.get(ComponentProperty.DYNAMIC_REFEX_DATA)))
+					if (!refexVersion.refexDataFieldsEqual((RefexDynamicDataBI[])properties.get(ComponentProperty.DYNAMIC_REFEX_DATA)))
 					{
 						return false;
 					}
