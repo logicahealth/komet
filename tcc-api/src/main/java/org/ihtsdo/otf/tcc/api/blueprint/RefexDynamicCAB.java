@@ -27,27 +27,20 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
-
 /**
  * {@link RefexDynamicCAB} 
  * 
@@ -55,27 +48,8 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
  * <br>
  * <br>
  * Note that in the new RefexDynanamicAPI - there are strict requirements on the structure of the 
- * assemblage concept - and these will be validated by this code.
- * <br>
- * <br>
- * The assemblage concept must define the combination of data columns being used within this Refex. 
- * To do this, the assemblage concept must itself contain 0 or more {@link RefexDynamicVersionBI} annotation(s) with
- * an assemblage concept that is {@link RefexDynamic#REFEX_DYNAMIC_DEFINITION} and the attached data is<br>
- * [{@link RefexDynamicIntegerBI}, {@link RefexDynamicUUIDBI}, {@link RefexDynamicStringBI}] 
- * 
- * <ul>
- * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
- * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FSN that is
- * suitable for describing its usage as a DynamicRefex data column.
- * <li>A string column which can be parsed as a member of the {@link RefexDynamicDataType} class, which represents
- * the type of the column.
- * </ul>
- * 
- * Note that while 0 is allowed, this would not allow the attachment of any data.
- * 
- * The assemblage concept must also contain a description of type {@link SnomedMetadataRf2#SYNONYM_RF2} which 
- * itself has a refex extension of type {@link RefexDynamic#REFEX_DYNAMIC_DEFINITION_DESCRIPTION} - the value of 
- * this description should explain the the overall purpose of this Refex.
+ * assemblage concept - and these will be validated by this code.  See {@link RefexDynamicUsageDescription} for more 
+ * details.
  * 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -533,8 +507,9 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * otherwise 
 	 * throws @InvalidCAB
 	 * @throws IOException 
+	 * @throws ContradictionException 
 	 */
-	public void validate() throws InvalidCAB, IOException
+	public void validate() throws InvalidCAB, IOException, ContradictionException
 	{
 		if (getMemberUUID() == null)
 		{
@@ -558,8 +533,9 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * @param data
 	 * @throws IOException 
 	 * @throws InvalidCAB 
+	 * @throws ContradictionException 
 	 */
-	public void setData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB
+	public void setData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB, ContradictionException
 	{
 		validateData(data);
 		properties.put(ComponentProperty.DYNAMIC_REFEX_DATA, data);
@@ -568,49 +544,11 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	/**
 	 * Validate the supplied data against the Refex Definition.  Throws in InvalidCAB exception
 	 * if the data is invalid.
+	 * @throws ContradictionException 
 	 */
-	private void validateData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB
+	private void validateData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB, ContradictionException
 	{
-		TreeMap<Integer, RefexDynamicDataType> allowedColumnInfo = new TreeMap<>();
-		@SuppressWarnings("deprecation")
-		ConceptVersionBI assemblageConcept = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), getRefexAssemblageNid());
-		for (RefexDynamicVersionBI<?> rd : assemblageConcept.getRefexesDynamicActive(StandardViewCoordinates.getSnomedInferredThenStatedLatest()))
-		{
-			if (rd.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_DEFINITION.getNid())
-			{
-				RefexDynamicDataBI[] refexDefinitionData = rd.getData();
-				if (refexDefinitionData == null || refexDefinitionData.length != 3)
-				{
-					throw new InvalidCAB("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
-							+ "a RefexDynamicData Refex Type.  It must contain a 3 column RefexDynamicDataBI attachment.");
-				}
-				
-				//col 0 is the column number, 
-				//col 1 is the concept with col name 
-				//col 2 is the column data type, stored as a string.
-				try
-				{
-					int column = (Integer)refexDefinitionData[0].getDataObject();
-					allowedColumnInfo.put(column, RefexDynamicDataType.valueOf((String)refexDefinitionData[2].getDataObject()));
-				}
-				catch (Exception e)
-				{
-					throw new InvalidCAB("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
-							+ "a RefexDynamicData Refex Type.  The first column must have a data type of integer, and the third column must be a string "
-							+ "that is parseable as a RefexDynamicDataType");
-				}
-			}
-		}
-		
-		int i = 0;
-		for (int key : allowedColumnInfo.keySet())
-		{
-			if (key !=  i++)
-			{
-				throw new InvalidCAB("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
-						+ "a RefexDynamicData Refex Type.  It must contain sequential column numbers, with no gaps, which start at 0.");
-			}
-		}
+		RefexDynamicUsageDescription rdud = new RefexDynamicUsageDescription(getRefexAssemblageNid());
 		
 		//Note, this could be done before the code above, but I'd rather ensure that the Assemblage concept is properly configured, 
 		//even if they are not providing data.
@@ -619,17 +557,17 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 			return;
 		}
 		
-		if (data.length != allowedColumnInfo.size())
+		if (data.length != rdud.getColumnInfo().length)
 		{
-			throw new InvalidCAB("The Assemblage concept: " + assemblageConcept + " specifies " + allowedColumnInfo.size() + 
+			throw new InvalidCAB("The Assemblage concept: " + getRefexAssemblageNid() + " specifies " + rdud.getColumnInfo().length + 
 					" columns of data, while the provided data contains " + data.length + " columns.  The data size array must match (but null values are allowed"
 					+ " within the array)");
 		}
 		
-		for (int dataColumn = 0; i < data.length; i++)
+		for (int dataColumn = 0; dataColumn < data.length; dataColumn++)
 		{
-			RefexDynamicDataType allowedDT = allowedColumnInfo.get(dataColumn);
-			if (data[dataColumn] != null && data[dataColumn].getRefexDataType() != allowedDT)
+			RefexDynamicDataType allowedDT = rdud.getColumnInfo()[dataColumn].getColumnDataType();
+			if (data[dataColumn] != null && allowedDT != RefexDynamicDataType.POLYMORPHIC && data[dataColumn].getRefexDataType() != allowedDT)
 			{
 				throw new InvalidCAB("The supplied data for column " + dataColumn + " is of type " + data[dataColumn].getRefexDataType() + 
 						" but the assemblage concept declares that it must be " + allowedDT);

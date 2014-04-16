@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.api.refexDynamic;
 
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescriptionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 
 /**
  * 
@@ -18,7 +18,7 @@ public interface RefexDynamicChronicleBI<A extends RefexDynamicVersionBI<A>> ext
      * Refex Extends, or the ReferencedComponentId.
      * 
      * Note that in the new RefexDynanamicAPI - this linked concept must contain the column definitions 
-     * for using this concept as a Refex container.  See the class description of {@link RefexDynamicCAB}
+     * for using this concept as a Refex container.  See the class description of {@link RefexDynamicUsageDescription}
      * for more details on the requirements.
      * 
      * @return the nid that identifies the Refex that this component is a member of.
@@ -36,6 +36,6 @@ public interface RefexDynamicChronicleBI<A extends RefexDynamicVersionBI<A>> ext
      * {@link #getAssemblageNid()} and returns the actual column
      * information that is contained within that concept.
      */
-    public RefexDynamicUsageDescriptionBI getRefexUsageDescription();
+    public RefexDynamicUsageDescription getRefexUsageDescription();
 
 }

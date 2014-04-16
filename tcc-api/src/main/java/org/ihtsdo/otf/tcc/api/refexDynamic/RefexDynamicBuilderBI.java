@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 
 
 public interface RefexDynamicBuilderBI {
@@ -31,7 +32,7 @@ public interface RefexDynamicBuilderBI {
      * Refex Extends, or the ReferencedComponentId.
      * 
      * Note that in the new RefexDynanamicAPI - this linked concept must contain the column definitions 
-     * for using this concept as a Refex container.  See the class description of {@link RefexDynamicCAB}
+     * for using this concept as a Refex container.  See the class description of {@link RefexDynamicUsageDescription}
      * for more details on the requirements.
      * 
      * @param assemblageNid
