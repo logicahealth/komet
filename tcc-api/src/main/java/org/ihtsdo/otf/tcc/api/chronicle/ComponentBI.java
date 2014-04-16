@@ -70,7 +70,7 @@ public interface ComponentBI {
 
    boolean hasCurrentRefexMember(ViewCoordinate xyz, int refsetNid) throws IOException;
    
-   //TODO RefexDynamicAPI
+   //TODO [REFEX] RefexDynamicAPI getter definitions
    Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException;
    Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException;
 }
