@@ -6,6 +6,8 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -67,4 +69,8 @@ public interface ComponentBI {
    boolean hasCurrentAnnotationMember(ViewCoordinate xyz, int refsetNid) throws IOException;
 
    boolean hasCurrentRefexMember(ViewCoordinate xyz, int refsetNid) throws IOException;
+   
+   //TODO RefexDynamicAPI
+   Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException;
+   Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException;
 }

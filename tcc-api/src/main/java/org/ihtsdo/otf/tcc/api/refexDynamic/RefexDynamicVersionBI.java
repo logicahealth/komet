@@ -15,7 +15,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
  * 
  * {@link RefexDynamicVersionBI}
  *
- * @author kec
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
 public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> extends ComponentVersionBI, RefexDynamicChronicleBI<A> {
     /**
@@ -40,14 +40,11 @@ public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> exten
             throws IOException, InvalidCAB, ContradictionException;
 
     /**
-     * Method description
-     *
-     *
-     * @param another
-     *
-     * @return
+     * Check to see if the data field of another object are equal to this one.
+     * This is a 'deep' check - all aspects of each element of the RefexDynamicDataBI must be 
+     * equal for this to return true.
      */
-    boolean refexFieldsEqual(RefexDynamicVersionBI<?> another);
+    boolean dataFieldsEqual(RefexDynamicDataBI[] otherData);
     
     /**
      * @return All of the data columns that are part of this Refex. See

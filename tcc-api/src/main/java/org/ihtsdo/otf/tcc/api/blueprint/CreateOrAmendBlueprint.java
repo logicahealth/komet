@@ -135,6 +135,10 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         setStatus(Status.ACTIVE);
         setComponentUuidNoRecompute(componentUuid);
 
+      //TODO Dan notes, this is wrong - should be calling recomputeUuid(), as far as I can tell... for every case but the preserve ones...
+        //tis also wrong, because there is no way to use the API to actually pass in the desired componentUuid.  It is set above, and then overwritten
+        //in almost every case.  One would expect that if the directive is a type of PRESERVE, then you should not default to overwriting with the component
+        //version UUID.  PRESERVE is ill defined.  PRESERVE what?  What the user said in the API?  Or what the componentVersion has?
         if (idDirective == IdDirective.PRESERVE && componentVersion != null) {
             setComponentUuidNoRecompute(componentVersion.getPrimordialUuid());
         } else if (idDirective == IdDirective.GENERATE_RANDOM) {

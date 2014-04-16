@@ -86,11 +86,8 @@ public interface RefexDynamicBuilderBI {
      */
     void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException;
     
-    
-    //TODO see if we need these
     /**
      * Stuff from deprecated AnalogBI - not sure what the replacement for this is supposed to be now
-     *
      */
     void setNid(int nid) throws PropertyVetoException;
     void setStatus(Status nid) throws PropertyVetoException;

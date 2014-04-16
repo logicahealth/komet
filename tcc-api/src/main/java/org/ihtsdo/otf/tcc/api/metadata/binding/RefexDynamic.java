@@ -28,6 +28,8 @@ public class RefexDynamic
 {
 	public static ConceptSpec UNKNOWN_CONCEPT = new ConceptSpec("unknown (null) concept", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 	
+	public static ConceptSpec REFEX_DYNAMIC_NAMESPACE = new ConceptSpec("Refex Dynamic Namespace", UUID.fromString("9c76af37-671c-59a3-93bf-dfe0c5c58bfa"));
+	
 	//TODO define all of these concepts... figure out where they need to be created in the DB
 	public static ConceptSpec REFEX_DT_NID = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 	public static ConceptSpec REFEX_DT_BOOLEAN = new ConceptSpec("boolean", UUID.fromString("00000000-0000-0000-C000-000000000046"));
