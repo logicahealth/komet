@@ -19,7 +19,6 @@
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 
 
@@ -33,22 +32,36 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
  */
 public class RefexDynamicColumnInfo
 {
-	private UUID columnDescriptionConceptNid_;
+	private UUID columnDescriptionConceptUUID_;
 	private transient String columnName_;
 	private transient String columnDescription_;
 	private int columnOrder_;
 	private RefexDynamicDataType columnDataType_;
-
-	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConceptNid, RefexDynamicDataType columnDataType)
-	{
-		columnOrder_ = columnOrder;
-		columnDescriptionConceptNid_ = columnDescriptionConceptNid;
-		columnDataType_ = columnDataType;
-	}
+	private RefexDynamicDataBI defaultData_;
 
 	/**
-	 * The user-friendly name of this column of data.  To be used by GUIs to label the data in this column.
-	 * @return the column name
+	 * Create this object by reading the columnName and columnDescription from the provided columnDescriptionConcept.
+	 * 
+	 * If a suitable concept to use for the column Name/Description does not yet exist, see 
+	 * {@link RefexDynamicColumnInfo#createNewRefexDynamicColumnInfoConcept(String, String)}
+	 * 
+	 * and pass the result in here.
+	 * 
+	 * @param columnOrder
+	 * @param columnDescriptionConceptNid
+	 * @param columnDataType
+	 * @param defaultData
+	 */
+	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, RefexDynamicDataBI defaultData)
+	{
+		columnOrder_ = columnOrder;
+		columnDescriptionConceptUUID_ = columnDescriptionConcept;
+		columnDataType_ = columnDataType;
+		defaultData_ = defaultData;
+	}
+	
+	/**
+	 * @return The user-friendly name of this column of data.  To be used by GUIs to label the data in this column.
 	 */
 	public String getColumnName()
 	{
@@ -60,9 +73,8 @@ public class RefexDynamicColumnInfo
 	}
 
 	/**
-	 * The user-friendly description of this column of data.  To be used by GUIs to provide a more detailed explanation of 
+	 * @return The user-friendly description of this column of data.  To be used by GUIs to provide a more detailed explanation of 
 	 * the type of data found in this column. 
-	 * @return the column description
 	 */
 	public String getColumnDescription()
 	{
@@ -74,9 +86,8 @@ public class RefexDynamicColumnInfo
 	}
 
 	/**
-	 * Defined the order in which the data columns will be stored, so that the column name / description can be aligned 
+	 * @return Defined the order in which the data columns will be stored, so that the column name / description can be aligned 
 	 * with the {@link RefexDynamicDataBI} columns in the {@link RefexDynamicVersionBI#getData(int)}.
-	 * @return
 	 */
 	public int getColumnOrder()
 	{
@@ -84,18 +95,65 @@ public class RefexDynamicColumnInfo
 	}
 
 	/**
-	 * The defined data type for this column of the Refex.  Note that this value will be identical to the {@link RefexDynamicDataType} 
+	 * @return The defined data type for this column of the Refex.  Note that this value will be identical to the {@link RefexDynamicDataType} 
 	 * returned by {@link RefexDynamicDataBI} EXCEPT for cases where this returns {@link RefexDynamicDataType#POLYMORPHIC}.  In those cases, the 
 	 * data type can only be determined by examining the actual member data in {@link RefexDynamicDataBI}
-	 * @return
 	 */
 	public RefexDynamicDataType getColumnDataType()
 	{
 		return columnDataType_;
 	}
 	
+	/**
+	 * @return the default value to use for this column, if no value is specified in a refex that is created using this column info
+	 */
+	public RefexDynamicDataBI getDefaultColumnValue()
+	{
+		return defaultData_;
+	}
+	
+	/**
+	 * @return The UUID of the concept where the columnName and columnDescription were read from.
+	 */
+	public UUID getColumnDescriptionConcept()
+	{
+		return columnDescriptionConceptUUID_;
+	}
+	
 	private void read()
 	{
-		//TODO implement
+		//TODO [REFEX] implement
 	}
+	
+	/**
+	 * Create a new concept using the provided columnName and columnDescription values which is suitable 
+	 * for use as a column descriptor within {@link RefexDynamicUsageDescription}.
+	 * 
+	 * The new concept will be created under the hierarchy //TODO determine concept
+	 * 
+	 * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
+	 * to be created) would look roughly like this:
+	 * 
+	 * RefexDynamicUsageDescription.createNewRefexDynamicUsageDescriptionConcept(
+	 *     "The name of the Refex", 
+	 *     "The description of the Refex",
+	 *     new RefexDynamicColumnInfo[]{new RefexDynamicColumnInfo(
+	 *         0,
+	 *         RefexDynamicColumnInfo.createNewRefexDynamicColumnInfoConcept(
+	 *             "column name",
+	 *             "column description"
+	 *             )
+	 *         RefexDynamicDataType.STRING,
+	 *         new RefexString("default value")
+	 *         )}
+	 *     )
+	 * 
+	 * //TODO figure out language details (how we know what language to put on the name/description
+	 */
+	public static UUID createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription)
+	{
+		//TODO [REFEX] implement
+		return UUID.randomUUID();
+	}
+
 }

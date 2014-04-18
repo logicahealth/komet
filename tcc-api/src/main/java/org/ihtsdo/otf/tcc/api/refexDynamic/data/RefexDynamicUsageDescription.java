@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.TreeMap;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
-import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
@@ -32,6 +31,7 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicPolymorphicBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -47,18 +47,21 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  * The assemblage concept must define the combination of data columns being used within this Refex. 
  * To do this, the assemblage concept must itself contain 0 or more {@link RefexDynamicVersionBI} annotation(s) with
  * an assemblage concept that is {@link RefexDynamic#REFEX_DYNAMIC_DEFINITION} and the attached data is<br>
- * [{@link RefexDynamicIntegerBI}, {@link RefexDynamicUUIDBI}, {@link RefexDynamicStringBI}] 
+ * [{@link RefexDynamicIntegerBI}, {@link RefexDynamicUUIDBI}, {@link RefexDynamicStringBI}, {@link RefexDynamicPolymorphicBI}] 
  * 
  * <ul>
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
  * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FSN that is
- * suitable for describing its usage as a DynamicRefex data column.
+ *       suitable for the name of the DynamicRefex data column, and a description suitable for use as the description of the 
+ *       Dynamic Refex data column.
  * <li>A string column which can be parsed as a member of the {@link RefexDynamicDataType} class, which represents
- * the type of the column.
+ *       the type of the column.
+ * <li>An (optional) polymorphic column (any supported data type, but MUST match the data type specified in column 2) which contains 
+ *       the default value (if any) for this column.  
  * </ul>
- * 
- * Note that while 0 is allowed, this would not allow the attachment of any data.
- * 
+ * <br>
+ * Note that while 0 rows of attached data is allowed, this would not allow the attachment of any data on the refex.
+ * <br>
  * The assemblage concept must also contain a description of type {@link SnomedMetadataRf2#SYNONYM_RF2} which 
  * itself has a refex extension of type {@link RefexDynamic#REFEX_DYNAMIC_DEFINITION_DESCRIPTION} - the value of 
  * this description should explain the the overall purpose of this Refex.
@@ -73,7 +76,7 @@ public class RefexDynamicUsageDescription
 	int refexUsageDescriptorNid_;
 	String refexUsageDescription_;
 	RefexDynamicColumnInfo[] refexColumnInfo_;
-
+	
 	/**
 	 * Read the RefexUsageDescription data from the database for a given nid.
 	 * 
@@ -125,21 +128,30 @@ public class RefexDynamicUsageDescription
 			if (rd.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_DEFINITION.getNid())
 			{
 				RefexDynamicDataBI[] refexDefinitionData = rd.getData();
-				if (refexDefinitionData == null || refexDefinitionData.length != 3)
+				if (refexDefinitionData == null || refexDefinitionData.length < 3 || refexDefinitionData.length > 4)
 				{
 					throw new IOException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
-							+ "a RefexDynamicData Refex Type.  It must contain a 3 column RefexDynamicDataBI attachment.");
+							+ "a RefexDynamicData Refex Type.  It must contain a 3 (or 4) column RefexDynamicDataBI attachment.");
 				}
 				
 				//col 0 is the column number, 
 				//col 1 is the concept with col name 
 				//col 2 is the column data type, stored as a string.
+				//col 3 (if present) is the default column data, stored as a subtype of RefexDynamicDataBI
 				try
 				{
 					int column = (Integer)refexDefinitionData[0].getDataObject();
 					UUID descriptionUUID = (UUID)refexDefinitionData[1].getDataObject();
 					RefexDynamicDataType type = RefexDynamicDataType.valueOf((String)refexDefinitionData[2].getDataObject());
-					allowedColumnInfo.put(column, new RefexDynamicColumnInfo(column, descriptionUUID, type));
+					RefexDynamicDataBI defaultData = refexDefinitionData[3];
+					
+					if (defaultData != null && type.getRefexMemberClass() != defaultData.getClass())
+					{
+						throw new IOException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
+							+ "a RefexDynamicData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");
+					}
+					
+					allowedColumnInfo.put(column, new RefexDynamicColumnInfo(column, descriptionUUID, type, defaultData));
 				}
 				catch (Exception e)
 				{
@@ -188,5 +200,21 @@ public class RefexDynamicUsageDescription
 	public RefexDynamicColumnInfo[] getColumnInfo()
 	{
 		return refexColumnInfo_;
+	}
+	
+	/**
+	 * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Refex.
+	 * 
+	 * The concept will be created under the concept //TODO determine concept.
+	 * 
+	 * //TODO figure out language details (how we know what language to put on the name/description
+	 */
+	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexDescription, RefexDynamicColumnInfo[] columns) throws IOException, ContradictionException
+	{
+		//TODO [REFEX] Implement
+		int refexUsageDescriptorNid = 0;
+		
+		
+		return new RefexDynamicUsageDescription(refexUsageDescriptorNid);
 	}
 }
