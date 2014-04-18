@@ -346,15 +346,13 @@ public class RelGroupVersion implements RelGroupVersionBI {
       return rg.getRefexes();
    }
    
-   //TODO [REFEX] implement these
    /**
     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
     */
    @Override
    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
    {
-       // TODO Auto-generated method stub
-       return null;
+       return rg.getRefexesDynamic();
    }
 
    /**
@@ -363,8 +361,7 @@ public class RelGroupVersion implements RelGroupVersionBI {
    @Override
    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
    {
-       // TODO Auto-generated method stub
-       return null;
+       return rg.getRefexesDynamicActive(viewCoordinate);
    }
 
    @Override

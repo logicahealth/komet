@@ -203,15 +203,13 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       throw new UnsupportedOperationException("Not supported.");
    }
    
-   //TODO [REFEX] implement these
    /**
     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
     */
    @Override
    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
    {
-       // TODO Auto-generated method stub
-       return null;
+	   throw new UnsupportedOperationException("Not supported.");
    }
 
    /**
@@ -220,8 +218,7 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    @Override
    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
    {
-       // TODO Auto-generated method stub
-       return null;
+	   throw new UnsupportedOperationException("Not supported.");
    }
 
    @Override
