@@ -44,7 +44,7 @@ public abstract class RefexData implements RefexDynamicDataBI
 		return name_;
 	}
 	
-	//TODO define a *magic* method that can be called after this RefexData object is read from the DB, 
+	//TODO [REFEX] define a *magic* method that can be called after this RefexData object is read from the DB, 
 	//because name and type do not need to be stored - the name can be determined from the array position of 
 	//this data object in combination with reading the metadata about this refex.  (on second thought, due to polymorphic,
 	//we may now have to write out the type)

@@ -2112,14 +2112,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return returnValues;
     }
     
-    //TODO [REFEX] implement these
     /**
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
      */
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
     {
-        // TODO Auto-generated method stub
+    	//TODO [REFEX] implement these
         return null;
     }
 
@@ -2129,7 +2128,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @Override
     public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
     {
-        // TODO Auto-generated method stub
+    	//TODO [REFEX] implement these
         return null;
     }
 
@@ -3367,14 +3366,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             ((AnalogBI) cv).setTime(time);
         }
         
-        //TODO [REFEX] implement these
         /**
          * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
          */
         @Override
         public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
         {
-            // TODO Auto-generated method stub
+        	//TODO [REFEX] implement these
             return null;
         }
 
@@ -3384,7 +3382,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         @Override
         public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
         {
-            // TODO Auto-generated method stub
+        	//TODO [REFEX] implement these
             return null;
         }
     }
