@@ -36,14 +36,14 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 public enum RefexDynamicDataType {
 	
 	NID(101, RefexDynamicNidBI.class, RefexDynamic.REFEX_DT_NID.getUuids()[0]),
-	STRING(102, RefexDynamicStringBI.class, java.util.UUID.fromString("a46aaf11-b37a-32d6-abdc-707f084ec8f5")),  //String (foundation metadata concept)
-	INTEGER(103, RefexDynamicIntegerBI.class, java.util.UUID.fromString("1d1c2073-d98b-3dd3-8aad-a19c65aa5a0c")),  //Signed integer (foundation metadata concept)
+	STRING(102, RefexDynamicStringBI.class, RefexDynamic.REFEX_DT_STRING.getUuids()[0]),
+	INTEGER(103, RefexDynamicIntegerBI.class, RefexDynamic.REFEX_DT_INTEGER.getUuids()[0]),
 	BOOLEAN(104, RefexDynamicBooleanBI.class, RefexDynamic.REFEX_DT_BOOLEAN.getUuids()[0]),
 	LONG(105, RefexDynamicLongBI.class, RefexDynamic.REFEX_DT_LONG.getUuids()[0]),
 	BYTEARRAY(106, RefexDynamicByteArrayBI.class, RefexDynamic.REFEX_DT_BYTE_ARRAY.getUuids()[0]),
 	FLOAT(107, RefexDynamicFloatBI.class, RefexDynamic.REFEX_DT_FLOAT.getUuids()[0]),
 	DOUBLE(108, RefexDynamicDoubleBI.class, RefexDynamic.REFEX_DT_DOUBLE.getUuids()[0]),
-	UUID(109, RefexDynamicUUIDBI.class, java.util.UUID.fromString("845274b5-9644-3799-94c6-e0ea37e7d1a4")),  //Universally Unique Identifier (foundation metadata concept)
+	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0]),
 	POLYMORPHIC(110, RefexDynamicPolymorphicBI.class, RefexDynamic.REFEX_DT_POLYMORPHIC.getUuids()[0]),
 	UNKNOWN(Byte.MAX_VALUE, null, RefexDynamic.UNKNOWN_CONCEPT.getUuids()[0]);
 

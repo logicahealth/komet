@@ -19,6 +19,7 @@
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 
 
@@ -129,7 +130,7 @@ public class RefexDynamicColumnInfo
 	 * Create a new concept using the provided columnName and columnDescription values which is suitable 
 	 * for use as a column descriptor within {@link RefexDynamicUsageDescription}.
 	 * 
-	 * The new concept will be created under the hierarchy //TODO determine concept
+	 * The new concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_COLUMNS}
 	 * 
 	 * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
 	 * to be created) would look roughly like this:
@@ -148,7 +149,7 @@ public class RefexDynamicColumnInfo
 	 *         )}
 	 *     )
 	 * 
-	 * //TODO figure out language details (how we know what language to put on the name/description
+	 * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
 	 */
 	public static UUID createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription)
 	{

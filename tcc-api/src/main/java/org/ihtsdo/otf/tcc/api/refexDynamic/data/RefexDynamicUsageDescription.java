@@ -205,9 +205,9 @@ public class RefexDynamicUsageDescription
 	/**
 	 * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Refex.
 	 * 
-	 * The concept will be created under the concept //TODO determine concept.
+	 * The concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_TYPES}
 	 * 
-	 * //TODO figure out language details (how we know what language to put on the name/description
+	 * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
 	 */
 	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexDescription, RefexDynamicColumnInfo[] columns) throws IOException, ContradictionException
 	{

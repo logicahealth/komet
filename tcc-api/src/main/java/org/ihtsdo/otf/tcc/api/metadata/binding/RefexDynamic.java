@@ -30,6 +30,13 @@ public class RefexDynamic
 	
 	public static ConceptSpec REFEX_DYNAMIC_NAMESPACE = new ConceptSpec("Refex Dynamic Namespace", UUID.fromString("9c76af37-671c-59a3-93bf-dfe0c5c58bfa"));
 	
+	public static ConceptSpec REFEX_DT_STRING = new ConceptSpec("String (foundation metadata concept)", 
+			UUID.fromString("a46aaf11-b37a-32d6-abdc-707f084ec8f5"));
+	public static ConceptSpec REFEX_DT_INTEGER = new ConceptSpec("Signed integer (foundation metadata concept)", 
+			UUID.fromString("1d1c2073-d98b-3dd3-8aad-a19c65aa5a0c"));
+	public static ConceptSpec REFEX_DT_UUID = new ConceptSpec("Universally Unique Identifier (foundation metadata concept)", 
+			UUID.fromString("845274b5-9644-3799-94c6-e0ea37e7d1a4"));
+	
 	//TODO [REFEX] define all of these concepts... figure out where they need to be created in the DB
 	public static ConceptSpec REFEX_DT_NID = new ConceptSpec("nid", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 	public static ConceptSpec REFEX_DT_BOOLEAN = new ConceptSpec("boolean", UUID.fromString("00000000-0000-0000-C000-000000000046"));
@@ -42,4 +49,7 @@ public class RefexDynamic
 	public static ConceptSpec REFEX_DYNAMIC_DEFINITION = new ConceptSpec("dynamic refex definition", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 	public static ConceptSpec REFEX_DYNAMIC_DEFINITION_DESCRIPTION = new ConceptSpec("dynamic refex definition description", 
 			UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	
+	public static ConceptSpec REFEX_DYNAMIC_TYPES = new ConceptSpec("dynamic refex types", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_DYNAMIC_COLUMNS = new ConceptSpec("dynamic refex columns", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 }
