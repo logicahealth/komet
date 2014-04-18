@@ -70,24 +70,8 @@ public class RefexLong extends RefexData implements RefexDynamicLongBI {
 	@Override
 	public ReadOnlyObjectProperty<Long> getDataLongProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataLong(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
 		}
 		return property_;
-	}
-
-	public static void main(String[] args) throws PropertyVetoException {
-		// TODO turn this into a JUNit test
-		RefexLong l = new RefexLong(5, "foo");
-
-		System.out.println(l.getDataLong());
-		System.out.println(l.getDataObject());
-		System.out.println(Long.MAX_VALUE);
-		l = new RefexLong(Long.MAX_VALUE, "foo");
-		System.out.println(l.getDataLong());
-		System.out.println(l.getDataObject());
-		l = new RefexLong(Long.MIN_VALUE, "foo");
-		System.out.println(Long.MIN_VALUE);
-		System.out.println(l.getDataLong());
-		System.out.println(l.getDataObject());
 	}
 }

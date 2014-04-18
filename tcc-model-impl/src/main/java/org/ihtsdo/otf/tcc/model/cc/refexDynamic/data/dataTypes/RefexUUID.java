@@ -77,16 +77,8 @@ public class RefexUUID extends RefexData implements RefexDynamicUUIDBI {
 	@Override
 	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataUUID(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
 		}
 		return property_;
-	}
-
-	public static void main(String[] args) throws PropertyVetoException {
-		// TODO make this into a JUnit test
-		UUID u = UUID.randomUUID();
-		System.out.println(u);
-		RefexUUID ru = new RefexUUID(u, "fo");
-		System.out.println(ru.getDataUUID());
 	}
 }

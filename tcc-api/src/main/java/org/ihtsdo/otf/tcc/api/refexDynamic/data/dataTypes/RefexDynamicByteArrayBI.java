@@ -29,5 +29,5 @@ public interface RefexDynamicByteArrayBI extends RefexDynamicDataBI
 {
 	public byte[] getDataByteArray();
 	
-	public ReadOnlyObjectProperty<Byte[]> getDataByteArrayProperty();
+	public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty();
 }

@@ -32,7 +32,7 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
  */
 public class RefexByteArray extends RefexData implements RefexDynamicByteArrayBI {
 
-	private ObjectProperty<Byte[]> property_;
+	private ObjectProperty<byte[]> property_;
 
 	public RefexByteArray(byte[] bytes, String name) throws PropertyVetoException {
 		super(RefexDynamicDataType.BYTEARRAY, name);
@@ -67,9 +67,9 @@ public class RefexByteArray extends RefexData implements RefexDynamicByteArrayBI
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArrayProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Byte[]> getDataByteArrayProperty() {
+	public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<Byte[]>(data_, getName());
+			property_ = new SimpleObjectProperty<byte[]>(null, getName(), data_);
 		}
 		return property_;
 	}

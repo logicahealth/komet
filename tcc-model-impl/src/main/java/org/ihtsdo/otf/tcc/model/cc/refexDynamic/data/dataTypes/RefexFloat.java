@@ -69,7 +69,7 @@ public class RefexFloat extends RefexData implements RefexDynamicFloatBI {
 	@Override
 	public ReadOnlyObjectProperty<Float> getDataFloatProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataFloat(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataFloat());
 		}
 		return property_;
 	}

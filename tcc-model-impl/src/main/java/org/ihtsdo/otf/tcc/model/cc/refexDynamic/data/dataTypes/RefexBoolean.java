@@ -45,7 +45,7 @@ public class RefexBoolean extends RefexData implements RefexDynamicBooleanBI {
 	@Override
 	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<Boolean>(getDataBoolean(), getName());
+			property_ = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
 		}
 		return property_;
 	}

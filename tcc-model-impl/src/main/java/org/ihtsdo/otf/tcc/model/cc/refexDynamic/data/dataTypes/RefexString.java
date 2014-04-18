@@ -52,7 +52,7 @@ public class RefexString extends RefexData implements RefexDynamicStringBI {
 	 */
 	@Override
 	public Object getDataObject() {
-		return getDataObject();
+		return getDataString();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class RefexString extends RefexData implements RefexDynamicStringBI {
 	@Override
 	public ReadOnlyObjectProperty<String> getDataStringProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataString(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
 		}
 		return property_;
 	}

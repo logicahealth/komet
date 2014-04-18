@@ -69,7 +69,7 @@ public class RefexNid extends RefexData implements RefexDynamicNidBI {
 	@Override
 	public ReadOnlyObjectProperty<Integer> getDataNidProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataNid(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataNid());
 		}
 		return property_;
 	}

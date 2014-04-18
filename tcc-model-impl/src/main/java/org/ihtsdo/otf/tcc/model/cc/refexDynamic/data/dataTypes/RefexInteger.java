@@ -69,7 +69,7 @@ public class RefexInteger extends RefexData implements RefexDynamicIntegerBI {
 	@Override
 	public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataInteger(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
 		}
 		return property_;
 	}
@@ -85,21 +85,5 @@ public class RefexInteger extends RefexData implements RefexDynamicIntegerBI {
 
 	protected static int getIntFromByteArray(byte[] bytes) {
 		return ((bytes[0] << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8) | ((bytes[3] & 0xFF) << 0));
-	}
-
-	public static void main(String[] args) throws PropertyVetoException {
-		// TODO turn this into a JUNit test
-		RefexInteger i = new RefexInteger(5, "foo");
-
-		System.out.println(i.getDataInteger());
-		System.out.println(i.getDataObject());
-		System.out.println(Integer.MAX_VALUE);
-		i = new RefexInteger(Integer.MAX_VALUE, "foo");
-		System.out.println(i.getDataInteger());
-		System.out.println(i.getDataObject());
-		i = new RefexInteger(Integer.MIN_VALUE, "foo");
-		System.out.println(Integer.MIN_VALUE);
-		System.out.println(i.getDataInteger());
-		System.out.println(i.getDataObject());
 	}
 }

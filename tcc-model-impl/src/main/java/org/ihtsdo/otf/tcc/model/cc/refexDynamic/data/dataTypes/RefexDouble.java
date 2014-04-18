@@ -70,7 +70,7 @@ public class RefexDouble extends RefexData implements RefexDynamicDoubleBI {
 	@Override
 	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(getDataDouble(), getName());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
 		}
 		return property_;
 	}
