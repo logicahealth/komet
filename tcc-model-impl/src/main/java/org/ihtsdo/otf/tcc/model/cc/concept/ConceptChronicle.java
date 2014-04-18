@@ -1902,15 +1902,17 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
     
-    //TODO [REFEX] implement these
     /**
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
      */
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexesDynamic();
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -1919,7 +1921,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexesDynamicActive(viewCoordinate);
+        }
+        return new ArrayList<>();
     }
 }

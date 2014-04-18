@@ -649,15 +649,13 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       return concept.getRefexes();
    }
    
-   //TODO [REFEX] implement these
    /**
     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
     */
    @Override
    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
    {
-       // TODO Auto-generated method stub
-       return null;
+       return concept.getRefexesDynamic();
    }
 
    /**
@@ -666,8 +664,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    @Override
    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
    {
-       // TODO Auto-generated method stub
-       return null;
+       return concept.getRefexesDynamicActive(viewCoordinate);
    }
 
    @Override
