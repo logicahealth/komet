@@ -18,6 +18,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +36,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
@@ -59,7 +61,8 @@ import com.sleepycat.bind.tuple.TupleOutput;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @SuppressWarnings("deprecation")
-public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> implements RefexDynamicChronicleBI<RefexRevision>, RefexDynamicVersionBI<RefexRevision>
+public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> implements RefexDynamicChronicleBI<RefexRevision>, 
+	RefexDynamicVersionBI<RefexRevision>, RefexDynamicBuilderBI
 {
     public int referencedComponentNid;
     public int assemblageNid;
@@ -371,47 +374,47 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
     }
 
     //~--- set methods ---------------------------------------------------------
-//    @Override
-//    public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-//        if ((this.assemblageNid == Integer.MAX_VALUE) || (this.assemblageNid == collectionNid)
-//                || (getTime() == Long.MAX_VALUE)) {
-//            if (this.assemblageNid != collectionNid) {
-//                if ((this.assemblageNid != 0) && (this.nid != 0)) {
-//                    NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
-//
-//                    P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
-//                }
-//
-//                // new xref is added on the dbWrite.
-//                this.assemblageNid = collectionNid;
-//                modified();
-//            }
-//        } else {
-//            throw new PropertyVetoException("Cannot change refset unless member is uncommitted...", null);
-//        }
-//    }
-//
-//    @Override
-//    public void setReferencedComponentNid(int referencedComponentNid) throws IOException {
-//        assert referencedComponentNid != Integer.MAX_VALUE : "referencedComponentNid is Integer.MAX_VALUE";
-//        assert assemblageNid != Integer.MAX_VALUE : "assemblageNid is Integer.MAX_VALUE";
-//        assert nid != Integer.MAX_VALUE : "nid is Integer.MAX_VALUE";
-//        if (this.referencedComponentNid != referencedComponentNid) {
-//            if ((this.referencedComponentNid != Integer.MAX_VALUE) && (this.assemblageNid != 0) && (this.nid != 0)) {
-//                NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
-//
-//                P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
-//            }
-//
-//            // new xref is added on the dbWrite.
-//            this.referencedComponentNid = referencedComponentNid;
-//            modified();
-//        }
-//    }
+    @Override
+    public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
+        if ((this.assemblageNid == Integer.MAX_VALUE) || (this.assemblageNid == collectionNid)
+                || (getTime() == Long.MAX_VALUE)) {
+            if (this.assemblageNid != collectionNid) {
+                if ((this.assemblageNid != 0) && (this.nid != 0)) {
+                    NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
+
+                    P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
+                }
+
+                // new xref is added on the dbWrite.
+                this.assemblageNid = collectionNid;
+                modified();
+            }
+        } else {
+            throw new PropertyVetoException("Cannot change refset unless member is uncommitted...", null);
+        }
+    }
+
+    @Override
+    public void setReferencedComponentNid(int referencedComponentNid) throws IOException {
+        assert referencedComponentNid != Integer.MAX_VALUE : "referencedComponentNid is Integer.MAX_VALUE";
+        assert assemblageNid != Integer.MAX_VALUE : "assemblageNid is Integer.MAX_VALUE";
+        assert nid != Integer.MAX_VALUE : "nid is Integer.MAX_VALUE";
+        if (this.referencedComponentNid != referencedComponentNid) {
+            if ((this.referencedComponentNid != Integer.MAX_VALUE) && (this.assemblageNid != 0) && (this.nid != 0)) {
+                NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
+
+                P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
+            }
+
+            // new xref is added on the dbWrite.
+            this.referencedComponentNid = referencedComponentNid;
+            modified();
+        }
+    }
 
     //~--- inner classes -------------------------------------------------------
     public class Version extends ConceptComponent<RefexRevision, RefexMember>.Version
-            implements RefexDynamicVersionBI<RefexRevision> {
+            implements RefexDynamicVersionBI<RefexRevision>, RefexDynamicBuilderBI {
 
         public Version(RefexDynamicVersionBI<RefexRevision> cv) {
             super(cv);
@@ -519,15 +522,15 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         }
 
         //~--- set methods ------------------------------------------------------
-//        @Override
-//        public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-//            RefexMember.this.setAssemblageNid(collectionNid);
-//        }
-//
-//        @Override
-//        public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
-//            RefexMember.this.setReferencedComponentNid(componentNid);
-//        }
+        @Override
+        public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
+            RefexMember.this.setAssemblageNid(collectionNid);
+        }
+
+        @Override
+        public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
+            RefexMember.this.setReferencedComponentNid(componentNid);
+        }
 
         /**
          * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexUsageDescription()
@@ -564,6 +567,26 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
             // TODO Auto-generated method stub
             return null;
         }
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
+		 */
+		@Override
+		public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/**
+		 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
+		 */
+		@Override
+		public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+		{
+			// TODO Auto-generated method stub
+			
+		}
     }
     
     /**
@@ -683,21 +706,24 @@ public class RefexMember extends ConceptComponent<RefexRevision, RefexMember> im
         // TODO Auto-generated method stub
         return null;
     }
-    //TODO figure out what I'm doing with the RefexBuilderBI interface
-//    /**
-//     * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setAssemblageNid(int)
-//     */
-//    @Override
-//    public void setAssemblageNid(int assemblageNid) throws IOException, PropertyVetoException {
-//        // TODO Auto-generated method stub
-//    }
-//
-//    /**
-//     * @see org.ihtsdo.otf.tcc.api.refex4.RefexBuilderBI#setReferencedComponentNid(int)
-//     */
-//    @Override
-//    public void setReferencedComponentNid(int componentNid) throws IOException, PropertyVetoException {
-//        // TODO Auto-generated method stub
-//        
-//    }
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
+	 */
+	@Override
+	public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
+	 */
+	@Override
+	public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

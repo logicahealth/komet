@@ -18,18 +18,20 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
@@ -46,8 +48,8 @@ import com.sleepycat.bind.tuple.TupleOutput;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @SuppressWarnings("deprecation")
-//TODO figure out what to do with BuilderBI
-public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexDynamicVersionBI<RefexRevision> //, RefexBuilderBI
+
+public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexDynamicVersionBI<RefexRevision>, RefexDynamicBuilderBI
 {
 
     public RefexRevision() {
@@ -167,15 +169,15 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     //~--- set methods ---------------------------------------------------------
-//    @Override
-//    public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-//        primordialComponent.setAssemblageNid(collectionNid);
-//    }
-//
-//    @Override
-//    public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
-//        primordialComponent.setReferencedComponentNid(componentNid);
-//    }
+    @Override
+    public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
+        primordialComponent.setAssemblageNid(collectionNid);
+    }
+
+    @Override
+    public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
+        primordialComponent.setReferencedComponentNid(componentNid);
+    }
 
     /**
      * From MembershipRevision below here
@@ -268,5 +270,25 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
 	@Override
 	public RefexRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
+	 */
+	@Override
+	public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
+	 */
+	@Override
+	public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
