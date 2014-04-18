@@ -369,15 +369,13 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.getRefexes();
     }
     
-    //TODO [REFEX] implement these
     /**
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
      */
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return primordialComponent.getRefexesDynamic();
     }
 
     /**
@@ -386,8 +384,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     @Override
     public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return primordialComponent.getRefexesDynamicActive(viewCoordinate);
     }
 
     @Override
