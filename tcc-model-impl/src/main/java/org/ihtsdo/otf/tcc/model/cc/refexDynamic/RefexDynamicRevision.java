@@ -42,39 +42,39 @@ import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
 /**
- * {@link RefexRevision}
+ * {@link RefexDynamicRevision}
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @SuppressWarnings("deprecation")
 
-public class RefexRevision extends Revision<RefexRevision, RefexMember> implements RefexDynamicVersionBI<RefexRevision>, RefexDynamicBuilderBI
+public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
 
-    public RefexRevision() {
+    public RefexDynamicRevision() {
         super();
     }
 
-    public RefexRevision(int statusAtPositionNid, RefexMember primordialComponent) {
+    public RefexDynamicRevision(int statusAtPositionNid, RefexDynamicMember primordialComponent) {
         super(statusAtPositionNid, primordialComponent);
     }
 
-    public RefexRevision(TtkRevision eVersion, RefexMember member)  throws IOException{
+    public RefexDynamicRevision(TtkRevision eVersion, RefexDynamicMember member)  throws IOException{
         super(eVersion.getStatus(), eVersion.getTime(), P.s.getNidForUuids(eVersion.getAuthorUuid()),
                  P.s.getNidForUuids(eVersion.getModuleUuid()), P.s.getNidForUuids(eVersion.getPathUuid()),  member);
     }
 
-    public RefexRevision(TupleInput input, RefexMember primordialComponent) {
+    public RefexDynamicRevision(TupleInput input, RefexDynamicMember primordialComponent) {
         super(input, primordialComponent);
     }
 
-    public RefexRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, RefexMember primordialComponent) {
+    public RefexDynamicRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, RefexDynamicMember primordialComponent) {
         super(status, time, authorNid, moduleNid, pathNid, primordialComponent);
     }
     
-    protected RefexRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
-            RefexRevision another) {
+    protected RefexDynamicRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
+            RefexDynamicRevision another) {
         super(status, time, authorNid, moduleNid, pathNid, another.primordialComponent);
     }
 
@@ -92,8 +92,8 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
             return false;
         }
 //TODO enhance for new data fields
-        if (RefexRevision.class.isAssignableFrom(obj.getClass())) {
-            RefexRevision another = (RefexRevision) obj;
+        if (RefexDynamicRevision.class.isAssignableFrom(obj.getClass())) {
+            RefexDynamicRevision another = (RefexDynamicRevision) obj;
 
             if (this.stamp == another.stamp) {
                 return true;
@@ -141,7 +141,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     @Override
-    public RefexMember getPrimordialVersion() {
+    public RefexDynamicMember getPrimordialVersion() {
         return primordialComponent;
     }
 
@@ -210,18 +210,18 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
     }
 
     @Override
-    public RefexMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-       return (RefexMember.Version) ((RefexMember) primordialComponent).getVersion(c);
+    public RefexDynamicMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
+       return (RefexDynamicMember.Version) ((RefexDynamicMember) primordialComponent).getVersion(c);
     }
 
     @Override
-    public Collection<? extends RefexMember.Version> getVersions() {
-       return ((RefexMember) primordialComponent).getVersions();
+    public Collection<? extends RefexDynamicMember.Version> getVersions() {
+       return ((RefexDynamicMember) primordialComponent).getVersions();
     }
 
     @Override
-    public Collection<? extends RefexDynamicVersionBI<RefexRevision>> getVersions(ViewCoordinate c) {
-       return ((RefexMember) primordialComponent).getVersions(c);
+    public Collection<? extends RefexDynamicVersionBI<RefexDynamicRevision>> getVersions(ViewCoordinate c) {
+       return ((RefexDynamicMember) primordialComponent).getVersions(c);
     }
     
     /**
@@ -268,7 +268,7 @@ public class RefexRevision extends Revision<RefexRevision, RefexMember> implemen
 	 * @see org.ihtsdo.otf.tcc.model.cc.component.Revision#makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status, long, int, int, int)
 	 */
 	@Override
-	public RefexRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
+	public RefexDynamicRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
 		throw new UnsupportedOperationException();
 	}
 
