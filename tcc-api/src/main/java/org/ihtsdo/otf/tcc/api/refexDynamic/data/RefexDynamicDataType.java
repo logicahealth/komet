@@ -35,21 +35,22 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
  */
 public enum RefexDynamicDataType {
 	
-	NID(101, RefexDynamicNidBI.class, RefexDynamic.REFEX_DT_NID.getUuids()[0]),
-	STRING(102, RefexDynamicStringBI.class, RefexDynamic.REFEX_DT_STRING.getUuids()[0]),
-	INTEGER(103, RefexDynamicIntegerBI.class, RefexDynamic.REFEX_DT_INTEGER.getUuids()[0]),
-	BOOLEAN(104, RefexDynamicBooleanBI.class, RefexDynamic.REFEX_DT_BOOLEAN.getUuids()[0]),
-	LONG(105, RefexDynamicLongBI.class, RefexDynamic.REFEX_DT_LONG.getUuids()[0]),
-	BYTEARRAY(106, RefexDynamicByteArrayBI.class, RefexDynamic.REFEX_DT_BYTE_ARRAY.getUuids()[0]),
-	FLOAT(107, RefexDynamicFloatBI.class, RefexDynamic.REFEX_DT_FLOAT.getUuids()[0]),
-	DOUBLE(108, RefexDynamicDoubleBI.class, RefexDynamic.REFEX_DT_DOUBLE.getUuids()[0]),
-	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0]),
-	POLYMORPHIC(110, RefexDynamicPolymorphicBI.class, RefexDynamic.REFEX_DT_POLYMORPHIC.getUuids()[0]),
-	UNKNOWN(Byte.MAX_VALUE, null, RefexDynamic.UNKNOWN_CONCEPT.getUuids()[0]);
+	NID(101, RefexDynamicNidBI.class, RefexDynamic.REFEX_DT_NID.getUuids()[0], "Concept"),
+	STRING(102, RefexDynamicStringBI.class, RefexDynamic.REFEX_DT_STRING.getUuids()[0], "String"),
+	INTEGER(103, RefexDynamicIntegerBI.class, RefexDynamic.REFEX_DT_INTEGER.getUuids()[0], "Integer"),
+	BOOLEAN(104, RefexDynamicBooleanBI.class, RefexDynamic.REFEX_DT_BOOLEAN.getUuids()[0], "Boolean"),
+	LONG(105, RefexDynamicLongBI.class, RefexDynamic.REFEX_DT_LONG.getUuids()[0], "Long"),
+	BYTEARRAY(106, RefexDynamicByteArrayBI.class, RefexDynamic.REFEX_DT_BYTE_ARRAY.getUuids()[0], "Arbitrary Data"),
+	FLOAT(107, RefexDynamicFloatBI.class, RefexDynamic.REFEX_DT_FLOAT.getUuids()[0], "Float"),
+	DOUBLE(108, RefexDynamicDoubleBI.class, RefexDynamic.REFEX_DT_DOUBLE.getUuids()[0], "Double"),
+	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0], "UUID"),
+	POLYMORPHIC(110, RefexDynamicPolymorphicBI.class, RefexDynamic.REFEX_DT_POLYMORPHIC.getUuids()[0], "Unspecified"),
+	UNKNOWN(Byte.MAX_VALUE, null, RefexDynamic.UNKNOWN_CONCEPT.getUuids()[0], "Unknown");
 
 	private int externalizedToken_;
 	private Class<? extends RefexDynamicDataBI> dataClass_;
 	private UUID typeConcept_;
+	private String displayName_;
 
 	public static RefexDynamicDataType getFromToken(int type) throws UnsupportedOperationException {
 		switch (type) {
@@ -78,11 +79,12 @@ public enum RefexDynamicDataType {
 		}
 	}
 	
-	RefexDynamicDataType(int externalizedToken, Class<? extends RefexDynamicDataBI> dataClass, UUID typeConcept)
+	private RefexDynamicDataType(int externalizedToken, Class<? extends RefexDynamicDataBI> dataClass, UUID typeConcept, String displayName)
 	{
 		externalizedToken_ = externalizedToken;
 		dataClass_ = dataClass;
 		typeConcept_ = typeConcept;
+		displayName_ = displayName;
 	}
 
 	public int getTypeToken()
@@ -98,6 +100,11 @@ public enum RefexDynamicDataType {
 	public UUID getDataTypeConcept()
 	{
 		return typeConcept_;
+	}
+	
+	public String getDisplayName()
+	{
+		return displayName_;
 	}
 
 	public void writeType(DataOutput output) throws IOException
