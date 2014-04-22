@@ -264,12 +264,16 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * Sets the refex member uuid associated with this refex blueprint.
 	 * 
 	 * This also changes the {@link IdDirective} to {@link IdDirective#PRESERVE} 
+	 * 
+	 * Note, this is the same as calling {@link #setComponentUuid(UUID))}, followed by 
+	 * setting the IdDirective to PRESERVE
 	 *
 	 * @param memberUuid the refex member uuid
 	 */
 	public void setMemberUuid(UUID memberUuid)
 	{
 		setComponentUuid(memberUuid);
+		idDirective = IdDirective.PRESERVE;
 	}
 	
 	/**
@@ -494,12 +498,12 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	
 	/**
 	 * Gets the refex member uuid of this refex blueprint.
-	 *
+	 * Note, this is the same as calling {@link #getComponentUuid()}
 	 * @return the refex member uuid
 	 */
 	public UUID getMemberUUID()
 	{
-		return getUuid(ComponentProperty.COMPONENT_ID);
+		return getComponentUuid();
 	}
 	
 	/**
@@ -548,7 +552,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 */
 	private void validateData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB, ContradictionException
 	{
-		RefexDynamicUsageDescription rdud = new RefexDynamicUsageDescription(getRefexAssemblageNid());
+		RefexDynamicUsageDescription rdud = RefexDynamicUsageDescription.read(getRefexAssemblageNid());
 		
 		//Note, this could be done before the code above, but I'd rather ensure that the Assemblage concept is properly configured, 
 		//even if they are not providing data.

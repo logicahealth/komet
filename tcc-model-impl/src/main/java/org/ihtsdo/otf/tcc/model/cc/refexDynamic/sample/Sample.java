@@ -46,7 +46,7 @@ public class Sample {
         @SuppressWarnings({ "rawtypes", "unchecked", "null" })
         RefexDynamicVersionBI<? extends RefexDynamicChronicleBI<?>> refex = (RefexDynamicVersionBI)((RefexDynamicChronicleBI) c.getDescriptions().iterator().next().getRefexes().iterator().next()).getVersion(null);
         
-        RefexDynamicUsageDescription refexDescription= refex.getRefexUsageDescription();
+        RefexDynamicUsageDescription refexDescription= refex.getRefexDynamicUsageDescription();
         
         //This would print something like:
         /*

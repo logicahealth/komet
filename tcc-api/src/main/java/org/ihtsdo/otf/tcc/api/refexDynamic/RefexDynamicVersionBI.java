@@ -68,8 +68,10 @@ public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> exten
      * @param columnName
      * @return The RefexMemberBI which contains the type and data (if any) for
      *         the specified column
+     * @throws ContradictionException 
+     * @throws IOException 
      * @throws IndexOutOfBoundsException
      */
-    RefexDynamicDataBI getData(String columnName) throws InvalidNameException;
+    RefexDynamicDataBI getData(String columnName) throws InvalidNameException, IndexOutOfBoundsException, IOException, ContradictionException;
 
 }

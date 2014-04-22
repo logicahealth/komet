@@ -24,7 +24,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
@@ -32,7 +32,7 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexUUID extends RefexData implements RefexDynamicUUIDBI {
+public class RefexUUID extends RefexDynamicData implements RefexDynamicUUIDBI {
 
 	private ObjectProperty<UUID> property_;
 

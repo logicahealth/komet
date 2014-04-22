@@ -533,10 +533,10 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         }
 
         /**
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexUsageDescription()
+         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()
          */
         @Override
-        public RefexDynamicUsageDescription getRefexUsageDescription() {
+        public RefexDynamicUsageDescription getRefexDynamicUsageDescription() {
             // TODO Auto-generated method stub
             return null;
         }
@@ -672,10 +672,10 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
      */
     
     /**
-     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexUsageDescription()
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()
      */
     @Override
-    public RefexDynamicUsageDescription getRefexUsageDescription() {
+    public RefexDynamicUsageDescription getRefexDynamicUsageDescription() {
         // TODO Auto-generated method stub
         return null;
     }

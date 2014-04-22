@@ -22,7 +22,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
@@ -30,7 +30,7 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexData;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexString extends RefexData implements RefexDynamicStringBI {
+public class RefexString extends RefexDynamicData implements RefexDynamicStringBI {
 
 	private ObjectProperty<String> property_;
 

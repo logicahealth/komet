@@ -20,12 +20,12 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -33,11 +33,14 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
@@ -51,7 +54,8 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
-
+    private RefexDynamicDataBI[] data_;
+    
     public RefexDynamicRevision() {
         super();
     }
@@ -91,11 +95,11 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         if (obj == null) {
             return false;
         }
-//TODO enhance for new data fields
         if (RefexDynamicRevision.class.isAssignableFrom(obj.getClass())) {
             RefexDynamicRevision another = (RefexDynamicRevision) obj;
 
-            if (this.stamp == another.stamp) {
+            if (this.stamp == another.stamp && this.getAssemblageNid() == another.getAssemblageNid() 
+                    && Arrays.deepEquals(this.getData(), another.getData())) {
                 return true;
             }
         }
@@ -124,7 +128,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         StringBuilder buf = new StringBuilder();
 
         buf.append(super.toString());
-        //TODO enhance
+        buf.append(Arrays.toString(getData()));
 
         return buf.toString();
     }
@@ -154,18 +158,16 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     public RefexDynamicCAB makeBlueprint(ViewCoordinate vc, 
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
-//        RefexCAB rcs = new RefexCAB(
-//                getTkRefsetType(),
-//                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
-//                getAssemblageNid(),
-//                getVersion(vc), 
-//                vc, 
-//                idDirective, 
-//                refexDirective);
+        RefexDynamicCAB rdc = new RefexDynamicCAB(
+                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
+                getAssemblageNid(),
+                getVersion(vc), 
+                vc, 
+                idDirective, 
+                refexDirective);
 
-//        addSpecProperties(rcs);
-//TODO fix CAB stuff
-        return null;//rcs;
+        rdc.setData(getData());
+        return rdc;
     }
 
     //~--- set methods ---------------------------------------------------------
@@ -184,29 +186,39 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
      */
     
     protected void addRefsetTypeNids(Set<Integer> allNids) {
-
-       //
-    }
-
-    protected void addSpecProperties(RefexCAB rcs) {
-
-       // no fields to add...
+        for (RefexDynamicDataBI data : getData())
+        {
+            if (data.getRefexDataType() == RefexDynamicDataType.NID)
+            {
+                allNids.add((int)data.getDataObject());
+            }
+        }
     }
 
     public boolean readyToWriteRefsetRevision() {
+        //I don't think we need to do anything here - with construction via Blueprint only, it should be impossible to create one that 
+        //isn't ready to write
        return true;
     }
 
     @Override
     protected void writeFieldsToBdb(TupleOutput output) {
-        //TODO enhance
-       // nothing to write
+        //Write with the following format - 
+        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+        output.writeInt(getData().length);
+        for (RefexDynamicDataBI column : getData())
+        {
+            output.writeInt(column.getRefexDataType().ordinal());
+            output.writeInt(column.getData().length);
+            output.write(column.getData());
+        }
     }
-
 
     @Override
     public IntArrayList getVariableVersionNids() {
-       return new IntArrayList(2);
+        //No idea what this is for.  It doesn't seem to be used...
+       //return new IntArrayList(0);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -229,21 +241,27 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
      */
 
     /**
-     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexUsageDescription()
+     * @throws ContradictionException 
+     * @throws IOException 
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()
      */
     @Override
-    public RefexDynamicUsageDescription getRefexUsageDescription() {
-        // TODO Auto-generated method stub
-        return null;
+    public RefexDynamicUsageDescription getRefexDynamicUsageDescription() throws IOException, ContradictionException {
+        return RefexDynamicUsageDescription.read(getAssemblageNid());
     }
 
     /**
      * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData()
+     * 
+     * Will not return null
      */
     @Override
     public RefexDynamicDataBI[] getData() {
-        // TODO Auto-generated method stub
-        return null;
+        if (data_ == null)
+        {
+            data_ = new RefexDynamicData[] {};
+        }
+        return data_;
     }
 
     /**
@@ -251,44 +269,68 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
      */
     @Override
     public RefexDynamicDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
-        // TODO Auto-generated method stub
-        return null;
+        RefexDynamicDataBI[] temp = getData();
+        if (columnNumber >= temp.length)
+        {
+            throw new IndexOutOfBoundsException("Data contains " + temp.length + " columns.  Can't ask for column " + columnNumber);
+        }
+        return temp[columnNumber];
     }
     
     /**
+     * @throws ContradictionException 
+     * @throws IOException 
      * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData(java.lang.String)
+     * 
+     * Note that this incurs a performance penalty over using {@link #getData(int)}
      */
     @Override
-    public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException {
-        // TODO Auto-generated method stub
-        return null;
+    public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException, IOException, ContradictionException {
+        for (RefexDynamicColumnInfo ci : getRefexDynamicUsageDescription().getColumnInfo())
+        {
+            if (ci.getColumnName().equals(columnName))
+            {
+                return getData(ci.getColumnOrder());
+            }
+        }
+        throw new IndexOutOfBoundsException("Could not find a column with name '" + columnName + "'");
     }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.model.cc.component.Revision#makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status, long, int, int, int)
-	 */
-	@Override
-	public RefexDynamicRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.model.cc.component.Revision#makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status, long, int, int, int)
+     */
+    @Override
+    public RefexDynamicRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
-	 */
-	@Override
-	public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
+     */
+    @Override
+    public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
+    {
+        if (data == null)
+        {
+            data_ = new RefexDynamicData[] {};
+        }
+        else
+        {
+            data_ = data;
+        }
+    }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
-	 */
-	@Override
-	public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
+     */
+    @Override
+    public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+    {
+        RefexDynamicDataBI[] temp = getData();
+        if (columnNumber >= temp.length)
+        {
+            throw new IndexOutOfBoundsException("Data size is " + temp.length + " columns.  Can't set column " + columnNumber);
+        }
+        temp[columnNumber] = data;
+    }
 }

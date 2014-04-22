@@ -89,6 +89,8 @@ public class RefexDynamicColumnInfo
 	/**
 	 * @return Defined the order in which the data columns will be stored, so that the column name / description can be aligned 
 	 * with the {@link RefexDynamicDataBI} columns in the {@link RefexDynamicVersionBI#getData(int)}.
+	 * 
+	 * Note, this value is 0 indexed (It doesn't start at 1)
 	 */
 	public int getColumnOrder()
 	{

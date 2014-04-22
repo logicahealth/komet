@@ -76,6 +76,20 @@ public class RefexDynamicUsageDescription
 	int refexUsageDescriptorNid_;
 	String refexUsageDescription_;
 	RefexDynamicColumnInfo[] refexColumnInfo_;
+	private static LRURefexDynamicDescriptorCache<Integer, RefexDynamicUsageDescription> cache_ = 
+			new LRURefexDynamicDescriptorCache<Integer, RefexDynamicUsageDescription>(25);
+
+	public static RefexDynamicUsageDescription read(int assemblageNid) throws IOException, ContradictionException
+	{
+		RefexDynamicUsageDescription temp = cache_.get(assemblageNid);
+		if (temp == null)
+		{
+			temp = new RefexDynamicUsageDescription(assemblageNid);
+			cache_.put(assemblageNid, temp);
+		}
+		//TODO validate up to date... check stamp??
+		return temp;
+	}
 	
 	/**
 	 * Read the RefexUsageDescription data from the database for a given nid.
@@ -84,7 +98,7 @@ public class RefexDynamicUsageDescription
 	 * @throws IOException 
 	 * @throws ContradictionException 
 	 */
-	public RefexDynamicUsageDescription(int refexUsageDescriptorNid) throws IOException, ContradictionException
+	private RefexDynamicUsageDescription(int refexUsageDescriptorNid) throws IOException, ContradictionException
 	{
 		refexUsageDescriptorNid_ = refexUsageDescriptorNid;
 		
@@ -216,5 +230,35 @@ public class RefexDynamicUsageDescription
 		
 		
 		return new RefexDynamicUsageDescription(refexUsageDescriptorNid);
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + refexUsageDescriptorNid_;
+		return result;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RefexDynamicUsageDescription other = (RefexDynamicUsageDescription) obj;
+		if (refexUsageDescriptorNid_ != other.refexUsageDescriptorNid_)
+			return false;
+		return true;
 	}
 }

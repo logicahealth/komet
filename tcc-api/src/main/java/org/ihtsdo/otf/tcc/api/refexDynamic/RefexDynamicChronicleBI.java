@@ -1,7 +1,9 @@
 package org.ihtsdo.otf.tcc.api.refexDynamic;
 
+import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 
 /**
@@ -35,7 +37,9 @@ public interface RefexDynamicChronicleBI<A extends RefexDynamicVersionBI<A>> ext
      * A convenience method that reads the concept referenced in
      * {@link #getAssemblageNid()} and returns the actual column
      * information that is contained within that concept.
+     * @throws ContradictionException 
+     * @throws IOException 
      */
-    public RefexDynamicUsageDescription getRefexUsageDescription();
+    public RefexDynamicUsageDescription getRefexDynamicUsageDescription() throws IOException, ContradictionException;
 
 }

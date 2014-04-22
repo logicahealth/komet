@@ -18,22 +18,23 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data;
 
+import java.util.Arrays;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 
 /**
- * {@link RefexData}
+ * {@link RefexDynamicData}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
-public abstract class RefexData implements RefexDynamicDataBI
+public abstract class RefexDynamicData implements RefexDynamicDataBI
 {
 	private transient String name_;
 	private transient RefexDynamicDataType type_;
 	
 	protected byte[] data_;
 	
-	protected RefexData(RefexDynamicDataType type, String name)
+	protected RefexDynamicData(RefexDynamicDataType type, String name)
 	{
 		type_ = type;
 		name_ = name;
@@ -75,6 +76,36 @@ public abstract class RefexData implements RefexDynamicDataBI
 	@Override
 	public String toString()
 	{
-		return getRefexDataType().name() + " -" + getName() + " - " + getDataObject();
+		return "(" + getRefexDataType().name() + " -" + getName() + " - " + getDataObject() +")";
+	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(data_);
+		return result;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RefexDynamicData other = (RefexDynamicData) obj;
+		if (!Arrays.equals(data_, other.data_))
+			return false;
+		return true;
 	}
 }
