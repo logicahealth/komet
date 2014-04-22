@@ -18,6 +18,8 @@
  */
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
+import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
 /**
@@ -46,8 +48,10 @@ public interface RefexDynamicDataBI {
      * @return The data object itself. 
      *         For a getDataProperty() method that doesn't  require casting of the output, see the getDataXXXProperty() methods
      *         available within implementations of the {@link RefexDynamicDataBI} interface.
+     * @throws ContradictionException 
+     * @throws IOException 
      */
-    public ReadOnlyObjectProperty<?> getDataObjectProperty();
+    public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException;
 
     /**
      * @return The type information of the data

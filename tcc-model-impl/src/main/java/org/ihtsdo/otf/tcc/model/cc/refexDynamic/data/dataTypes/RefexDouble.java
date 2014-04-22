@@ -17,11 +17,12 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
@@ -35,8 +36,13 @@ public class RefexDouble extends RefexDynamicData implements RefexDynamicDoubleB
 
 	private ObjectProperty<Double> property_;
 
+	public RefexDouble(byte[] data, int assemblageNid, int columnNumber)
+	{
+		super(data, assemblageNid, columnNumber);
+	}
+	
 	public RefexDouble(double d, String name) throws PropertyVetoException {
-		super(RefexDynamicDataType.DOUBLE, name);
+		super(name);
 		data_ = ByteBuffer.allocate(8).putDouble(d).array();
 	}
 
@@ -57,18 +63,22 @@ public class RefexDouble extends RefexDynamicData implements RefexDynamicDoubleB
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
 		return getDataDoubleProperty();
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
+	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
 		}

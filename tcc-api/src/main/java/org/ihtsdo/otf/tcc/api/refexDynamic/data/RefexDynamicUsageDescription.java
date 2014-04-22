@@ -208,11 +208,15 @@ public class RefexDynamicUsageDescription
 
 	/**
 	 * The ordered column information which will correspond with the data returned by {@link RefexDynamicChronicleBI#getData()}
-	 * These arrays will be the same size, and in the same order.
+	 * These arrays will be the same size, and in the same order.  Will not return null.
 	 * @return the column information
 	 */
 	public RefexDynamicColumnInfo[] getColumnInfo()
 	{
+		if (refexColumnInfo_ == null)
+		{
+			refexColumnInfo_ = new RefexDynamicColumnInfo[] {};
+		}
 		return refexColumnInfo_;
 	}
 	

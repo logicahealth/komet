@@ -17,10 +17,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
@@ -34,8 +35,13 @@ public class RefexNid extends RefexDynamicData implements RefexDynamicNidBI {
 	
 	private ObjectProperty<Integer> property_;
 
+	public RefexNid(byte[] data, int assemblageNid, int columnNumber)
+	{
+		super(data, assemblageNid, columnNumber);
+	}
+	
 	public RefexNid(int nid, String name) throws PropertyVetoException {
-		super(RefexDynamicDataType.NID, name);
+		super(name);
 		data_ = RefexInteger.intToByteArray(nid);
 	}
 
@@ -56,18 +62,22 @@ public class RefexNid extends RefexDynamicData implements RefexDynamicNidBI {
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
 		return getDataNidProperty();
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNidProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Integer> getDataNidProperty() {
+	public ReadOnlyObjectProperty<Integer> getDataNidProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataNid());
 		}

@@ -17,10 +17,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
@@ -34,16 +35,23 @@ public class RefexBoolean extends RefexDynamicData implements RefexDynamicBoolea
 
 	private ObjectProperty<Boolean> property_;
 
+	public RefexBoolean(byte[] data, int assemblageNid, int columnNumber)
+	{
+		super(data, assemblageNid, columnNumber);
+	}
+	
 	public RefexBoolean(boolean b, String name) throws PropertyVetoException {
-		super(RefexDynamicDataType.BOOLEAN, name);
+		super(name);
 		data_ = (b ? new byte[] { 1 } : new byte[] { 0 });
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBooleanProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
+	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
 		}
@@ -51,10 +59,12 @@ public class RefexBoolean extends RefexDynamicData implements RefexDynamicBoolea
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
 		return getDataBooleanProperty();
 	}
 

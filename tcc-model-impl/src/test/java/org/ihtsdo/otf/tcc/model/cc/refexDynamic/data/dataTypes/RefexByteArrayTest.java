@@ -20,6 +20,8 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import static org.junit.Assert.assertEquals;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexByteArray;
 import org.junit.Test;
@@ -32,7 +34,7 @@ import org.junit.Test;
 public class RefexByteArrayTest
 {
 	@Test
-	public void testSerialization() throws PropertyVetoException
+	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
 		byte[][] testValues = new byte[][] { "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes() };
@@ -43,7 +45,7 @@ public class RefexByteArrayTest
 		}
 	}
 
-	private void test(byte[] value) throws PropertyVetoException
+	private void test(byte[] value) throws PropertyVetoException, IOException, ContradictionException
 	{
 		RefexByteArray i = new RefexByteArray(value, "foo");
 

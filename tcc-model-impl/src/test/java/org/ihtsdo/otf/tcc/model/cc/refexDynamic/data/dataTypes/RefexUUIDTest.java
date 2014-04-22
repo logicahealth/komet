@@ -20,7 +20,9 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import static org.junit.Assert.assertEquals;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexUUID;
 import org.junit.Test;
@@ -33,7 +35,7 @@ import org.junit.Test;
 public class RefexUUIDTest
 {
 	@Test
-	public void testSerialization() throws PropertyVetoException
+	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
 		UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
@@ -44,7 +46,7 @@ public class RefexUUIDTest
 		}
 	}
 
-	private void test(UUID value) throws PropertyVetoException
+	private void test(UUID value) throws PropertyVetoException, IOException, ContradictionException
 	{
 		RefexUUID uuid = new RefexUUID(value, "foo");
 
