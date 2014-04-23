@@ -52,4 +52,5 @@ public class RefexDynamic
 	
 	public static ConceptSpec REFEX_DYNAMIC_TYPES = new ConceptSpec("dynamic refex types", UUID.fromString("00000000-0000-0000-C000-000000000046"));
 	public static ConceptSpec REFEX_DYNAMIC_COLUMNS = new ConceptSpec("dynamic refex columns", UUID.fromString("00000000-0000-0000-C000-000000000046"));
+	public static ConceptSpec REFEX_IDENTITY = new ConceptSpec("refset identity", UUID.fromString("3e0cd740-2cc6-3d68-ace7-bad2eb2621da"));
 }
