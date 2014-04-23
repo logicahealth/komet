@@ -99,7 +99,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
             RefexDynamicRevision another = (RefexDynamicRevision) obj;
 
             if (this.stamp == another.stamp && this.getAssemblageNid() == another.getAssemblageNid() 
-                    && Arrays.deepEquals(this.getData(), another.getData())) {
+                    && this.getReferencedComponentNid() == another.getReferencedComponentNid() && Arrays.deepEquals(this.getData(), another.getData())) {
                 return true;
             }
         }
@@ -208,7 +208,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         output.writeInt(getData().length);
         for (RefexDynamicDataBI column : getData())
         {
-            output.writeInt(column.getRefexDataType().ordinal());
+            output.writeInt(column.getRefexDataType().getTypeToken());
             output.writeInt(column.getData().length);
             output.write(column.getData());
         }

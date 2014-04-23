@@ -20,6 +20,8 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import static org.junit.Assert.assertEquals;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexLong;
 import org.junit.Test;
 
@@ -31,7 +33,7 @@ import org.junit.Test;
 public class RefexLongTest
 {
 	@Test
-	public void testSerialization() throws PropertyVetoException
+	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
 		long[] testValues = new long[] { Long.MIN_VALUE, Long.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532, 3289402830942309l, -9128934721874891l };
@@ -42,7 +44,7 @@ public class RefexLongTest
 		}
 	}
 
-	private void test(long value) throws PropertyVetoException
+	private void test(long value) throws PropertyVetoException, IOException, ContradictionException
 	{
 		RefexLong l = new RefexLong(value, "foo");
 

@@ -16,8 +16,10 @@
 
 package org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes;
 
+import java.io.IOException;
 import java.util.UUID;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
@@ -30,5 +32,5 @@ public interface RefexDynamicUUIDBI extends RefexDynamicDataBI
 {
 	public UUID getDataUUID();
 	
-	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty();
+	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() throws IOException, ContradictionException;
 }

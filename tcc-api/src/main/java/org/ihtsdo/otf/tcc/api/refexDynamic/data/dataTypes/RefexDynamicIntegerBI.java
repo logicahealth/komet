@@ -16,7 +16,9 @@
 
 package org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes;
 
+import java.io.IOException;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 
 /**
@@ -29,5 +31,5 @@ public interface RefexDynamicIntegerBI extends RefexDynamicDataBI
 {
 	public int getDataInteger();
 	
-	public ReadOnlyObjectProperty<Integer> getDataIntegerProperty();
+	public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() throws IOException, ContradictionException;
 }

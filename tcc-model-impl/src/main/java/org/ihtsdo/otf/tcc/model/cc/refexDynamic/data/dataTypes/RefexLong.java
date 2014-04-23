@@ -17,11 +17,12 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
@@ -35,8 +36,13 @@ public class RefexLong extends RefexDynamicData implements RefexDynamicLongBI {
 
 	private ObjectProperty<Long> property_;
 
+	public RefexLong(byte[] data, int assemblageNid, int columnNumber)
+	{
+		super(data, assemblageNid, columnNumber);
+	}
+	
 	public RefexLong(long l, String name) throws PropertyVetoException {
-		super(RefexDynamicDataType.LONG, name);
+		super(name);
 		data_ = ByteBuffer.allocate(8).putLong(l).array();
 	}
 
@@ -57,18 +63,22 @@ public class RefexLong extends RefexDynamicData implements RefexDynamicLongBI {
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
 		return getDataLongProperty();
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLongProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Long> getDataLongProperty() {
+	public ReadOnlyObjectProperty<Long> getDataLongProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
 		}

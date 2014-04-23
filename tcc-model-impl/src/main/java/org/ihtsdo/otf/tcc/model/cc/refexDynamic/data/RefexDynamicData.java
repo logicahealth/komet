@@ -18,9 +18,21 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data;
 
+import java.io.IOException;
 import java.util.Arrays;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexBoolean;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexByteArray;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDouble;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexFloat;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexInteger;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexLong;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexNid;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexString;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexUUID;
 
 /**
  * {@link RefexDynamicData}
@@ -29,28 +41,35 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
  */
 public abstract class RefexDynamicData implements RefexDynamicDataBI
 {
+	//assemblageNid_,columnNumber and name_ are an either-or deal.  If we have the name, we 
+	//don't need the assemblageNid/columnNumber.  If we don't have the name, we use the assemblage
+	//nid to get it (on demand).  which one is populated will depend on how it was constructed.
+	private transient int assemblageNid_, columnNumber_;
 	private transient String name_;
-	private transient RefexDynamicDataType type_;
 	
 	protected byte[] data_;
 	
-	protected RefexDynamicData(RefexDynamicDataType type, String name)
+	protected RefexDynamicData(byte[] data, int assemblageNid, int columnNumber)
 	{
-		type_ = type;
+		data_ = data;
+		assemblageNid_ = assemblageNid;
+		columnNumber_ = columnNumber;
+		name_ = null;
+	}
+	
+	protected RefexDynamicData(String name)
+	{
 		name_ = name;
 	}
 	
-	protected String getName()
+	protected String getName() throws IOException, ContradictionException
 	{
+		if (name_ == null)
+		{
+			name_ = RefexDynamicUsageDescription.read(assemblageNid_).getColumnInfo()[columnNumber_].getColumnName();
+		}
 		return name_;
 	}
-	
-	//TODO [REFEX] define a *magic* method that can be called after this RefexData object is read from the DB, 
-	//because name and type do not need to be stored - the name can be determined from the array position of 
-	//this data object in combination with reading the metadata about this refex.  (on second thought, due to polymorphic,
-	//we may now have to write out the type)
-	//after the data is read from the DB, but before it is handed back to the user.  Ideally, we just store a ref 
-	//to the description nid and column here, then, if getName() is called, we go look at it, and fetch the name
 	
 	/**
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getRefexDataType()
@@ -58,7 +77,7 @@ public abstract class RefexDynamicData implements RefexDynamicDataBI
 	@Override
 	public RefexDynamicDataType getRefexDataType()
 	{
-		return type_;
+		return RefexDynamicDataType.classToType(this.getClass());
 	}
 	
 	/**
@@ -76,7 +95,17 @@ public abstract class RefexDynamicData implements RefexDynamicDataBI
 	@Override
 	public String toString()
 	{
-		return "(" + getRefexDataType().name() + " -" + getName() + " - " + getDataObject() +")";
+		String name;
+		try
+		{
+			name = getName();
+		}
+		catch (IOException | ContradictionException e)
+		{
+			name = "Error getting column name from assemblageNid " + assemblageNid_;
+		}
+		
+		return "(" + getRefexDataType().name() + " -" + name + " - " + getDataObject() +")";
 	}
 
 	/**
@@ -107,5 +136,40 @@ public abstract class RefexDynamicData implements RefexDynamicDataBI
 		if (!Arrays.equals(data_, other.data_))
 			return false;
 		return true;
+	}
+	
+	public static RefexDynamicData typeToClass(RefexDynamicDataType type, byte[] data, int assemblageNid, int columnNumber) 
+	{
+		if (RefexDynamicDataType.NID == type) {
+			return new RefexNid(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.STRING == type) {
+			return new RefexString(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.INTEGER == type) {
+			return new RefexInteger(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.BOOLEAN == type) {
+			return new RefexBoolean(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.LONG == type) {
+			return new RefexLong(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.BYTEARRAY == type) {
+			return new RefexByteArray(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.FLOAT == type) {
+			return new RefexFloat(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.DOUBLE == type) {
+			return new RefexDouble(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.UUID == type) {
+			return new RefexUUID(data, assemblageNid, columnNumber);
+		}
+		if (RefexDynamicDataType.POLYMORPHIC == type || RefexDynamicDataType.UNKNOWN == type) {
+			throw new RuntimeException("No implementation exists for type unknown");
+		}
+		throw new RuntimeException("Implementation error");
 	}
 }

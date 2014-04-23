@@ -40,7 +40,7 @@ public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> exten
             throws IOException, InvalidCAB, ContradictionException;
 
     /**
-     * Check to see if the data field of another object are equal to this one.
+     * Check to see if the data field(s) of another object are equal to this one.
      * This is a 'deep' check - all aspects of each element of the RefexDynamicDataBI must be 
      * equal for this to return true.
      */

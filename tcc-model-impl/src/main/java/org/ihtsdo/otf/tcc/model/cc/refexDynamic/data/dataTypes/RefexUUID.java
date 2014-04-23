@@ -17,12 +17,13 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
@@ -36,8 +37,13 @@ public class RefexUUID extends RefexDynamicData implements RefexDynamicUUIDBI {
 
 	private ObjectProperty<UUID> property_;
 
+	public RefexUUID(byte[] data, int assemblageNid, int columnNumber)
+	{
+		super(data, assemblageNid, columnNumber);
+	}
+	
 	public RefexUUID(UUID uuid, String name) throws PropertyVetoException {
-		super(RefexDynamicDataType.UUID, name);
+		super(name);
 		ByteBuffer b = ByteBuffer.allocate(16);
 		b.putLong(uuid.getMostSignificantBits());
 		b.putLong(uuid.getLeastSignificantBits());
@@ -64,18 +70,22 @@ public class RefexUUID extends RefexDynamicData implements RefexDynamicUUIDBI {
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
 		return getDataUUIDProperty();
 	}
 
 	/**
+	 * @throws ContradictionException 
+	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUIDProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() {
+	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
 		}

@@ -21,29 +21,29 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import javax.naming.InvalidNameException;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.P;
@@ -51,6 +51,7 @@ import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
@@ -62,10 +63,11 @@ import com.sleepycat.bind.tuple.TupleOutput;
  */
 @SuppressWarnings("deprecation")
 public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicChronicleBI<RefexDynamicRevision>, 
-	RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
+    RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
     public int referencedComponentNid;
     public int assemblageNid;
+    private RefexDynamicDataBI[] data_;
     protected List<? extends Version> versions;
 
     //~--- constructors --------------------------------------------------------
@@ -79,16 +81,29 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         super(enclosingConceptNid, input);
     }
 
-    public RefexDynamicMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
-        super(refsetMember, enclosingConceptNid);
-        assemblageNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
-        referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
-        primordialStamp = P.s.getStamp(refsetMember);
-        assert primordialStamp != Integer.MAX_VALUE;
-        assert referencedComponentNid != Integer.MAX_VALUE;
-        assert assemblageNid != Integer.MAX_VALUE;
-        //TODO this probably needs work
-    }
+    //TODO [REFEX] do I need this?  before I can implement this, I'd need to create TtkRefexDynamicMemberChronicle....
+//    public RefexDynamicMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
+//        super(refsetMember, enclosingConceptNid);
+//        assemblageNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
+//        referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
+//        primordialStamp = P.s.getStamp(refsetMember);
+//        assert primordialStamp != Integer.MAX_VALUE;
+//        assert referencedComponentNid != Integer.MAX_VALUE;
+//        assert assemblageNid != Integer.MAX_VALUE;
+//        
+//        
+////        c1Nid      = P.s.getNidForUuids(refsetMember.getUuid1());
+////        floatValue = refsetMember.getDa
+////
+////        if (refsetMember.getRevisionList() != null) {
+////           revisions = new RevisionSet<>(primordialStamp);
+////
+////           for (TtkRefexUuidFloatRevision eVersion : refsetMember.getRevisionList()) {
+////              revisions.add(new NidFloatRevision(eVersion, this));
+////           }
+////        }
+//        
+//    }
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -112,8 +127,10 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
         if (RefexDynamicMember.class.isAssignableFrom(obj.getClass())) {
             RefexDynamicMember another = (RefexDynamicMember) obj;
-
-            return this.referencedComponentNid == another.referencedComponentNid;
+            if (this.getAssemblageNid() == another.getAssemblageNid() && this.getReferencedComponentNid() == another.getReferencedComponentNid() 
+                    && Arrays.deepEquals(this.getData(), another.getData())) {
+                return true;
+            }
         }
 
         return false;
@@ -124,7 +141,9 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         if (ConceptAttributes.class.isAssignableFrom(obj.getClass())) {
             RefexDynamicMember another = (RefexDynamicMember) obj;
 
-            //TODO add more on new data
+            if (this.getAssemblageNid() != another.getAssemblageNid()) {
+                return false;
+            }
 
             if (refexFieldsEqual(obj)) {
                 return conceptComponentFieldsEqual(another);
@@ -136,7 +155,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
     @Override
     public int hashCode() {
-        return Hashcode.compute(new int[]{referencedComponentNid});
+        return Hashcode.compute(new int[]{referencedComponentNid, assemblageNid, Arrays.deepHashCode(getData())});
     }
 
     @Override
@@ -190,15 +209,13 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
         buf.append(" refset:");
         addNidToBuffer(buf, assemblageNid);
-//        buf.append(" type:");
-//        buf.append(getTkRefsetType());  //TODO redo
         buf.append(" rcNid:");
         addNidToBuffer(buf, referencedComponentNid);
         buf.append(" ");
+        buf.append(Arrays.toString(getData()));
         buf.append(super.toString());
 
         return buf.toString();
-        //TODO enhance
     }
 
     @Override
@@ -213,32 +230,33 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return "refex: " + c1Component.toUserString(snapshot);
     }
 
-    /**
-     * Test method to check to see if two objects are equal in all respects.
-     *
-     * @param another
-     * @return either a zero length String, or a String containing a description
-     * of the validation failures.
-     * @throws IOException
-     */
-    public String validate(RefexDynamicMember another) throws IOException {
-        assert another != null;
-
-        StringBuilder buf = new StringBuilder();
-
-        if (this.referencedComponentNid != another.referencedComponentNid) {
-            buf.append(
-                    "\tRefsetMember.referencedComponentNid not equal: \n"
-                    + "\t\tthis.referencedComponentNid = ").append(this.referencedComponentNid).append(
-                    "\n" + "\t\tanother.referencedComponentNid = ").append(
-                    another.referencedComponentNid).append("\n");
-        }
-
-        // Compare the parents
-        buf.append(super.validate(another));
-
-        return buf.toString();
-    }
+    //TODO [REFEX] no idea what this is for, or if we need it
+//    /**
+//     * Test method to check to see if two objects are equal in all respects.
+//     *
+//     * @param another
+//     * @return either a zero length String, or a String containing a description
+//     * of the validation failures.
+//     * @throws IOException
+//     */
+//    public String validate(RefexDynamicMember another) throws IOException {
+//        assert another != null;
+//
+//        StringBuilder buf = new StringBuilder();
+//
+//        if (this.referencedComponentNid != another.referencedComponentNid) {
+//            buf.append(
+//                    "\tRefsetMember.referencedComponentNid not equal: \n"
+//                    + "\t\tthis.referencedComponentNid = ").append(this.referencedComponentNid).append(
+//                    "\n" + "\t\tanother.referencedComponentNid = ").append(
+//                    another.referencedComponentNid).append("\n");
+//        }
+//
+//        // Compare the parents
+//        buf.append(super.validate(another));
+//
+//        return buf.toString();
+//    }
 
     @Override
     public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
@@ -292,14 +310,17 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     public RefexDynamicCAB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
-//        RefexCAB rcs = new RefexCAB(getTkRefsetType(),
-//                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
-//                getAssemblageNid(),
-//                getVersion(vc), vc, idDirective, refexDirective);
-//
-//        addSpecProperties(rcs);
-//TODO fix CAB stuff
-        return null;//rcs;
+
+        RefexDynamicCAB rdc = new RefexDynamicCAB(
+                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
+                getAssemblageNid(),
+                getVersion(vc), 
+                vc, 
+                idDirective, 
+                refexDirective);
+
+        rdc.setData(getData());
+        return rdc;
     }
 
     @Override
@@ -422,24 +443,17 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
         //~--- methods ----------------------------------------------------------
         public RefexDynamicRevision makeAnalog() {
-            if (RefexDynamicMember.this != cv) {
-            }
-
-            return (RefexDynamicRevision) RefexDynamicMember.this.makeAnalog();
+            throw new UnsupportedOperationException("Must use Blueprints");
         }
 
         @Override
         public RefexDynamicRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Must use Blueprints");
         }
 
         @Override
         public boolean fieldsEqual(@SuppressWarnings("rawtypes") ConceptComponent.Version another) {
             RefexDynamicMember.Version anotherVersion = (RefexDynamicMember.Version) another;
-//            if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-//                return false;
-//            }
-            //TODO account for new data
 
             if (this.getAssemblageNid() != anotherVersion.getAssemblageNid()) {
                 return false;
@@ -471,15 +485,14 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             return (RefexDynamicVersionBI<RefexDynamicRevision>) cv;
         }
 
-        public TtkRefexAbstractMemberChronicle<?> getERefsetMember() throws IOException {
-            throw new UnsupportedOperationException("subclass must override");
-            //TODO implement
-        }
-
-        public TtkRevision getERefsetRevision() throws IOException {
-            throw new UnsupportedOperationException("subclass must override");
-            //TODO implement
-        }
+      //TODO [REFEX] not sure if I need these - don't have the types yet
+//        public TtkRefexAbstractMemberChronicle<?> getERefsetMember() throws IOException {
+//            throw new UnsupportedOperationException("subclass must override");
+//        }
+//
+//        public TtkRevision getERefsetRevision() throws IOException {
+//            throw new UnsupportedOperationException("subclass must override");
+//        }
 
         @Override
         public RefexDynamicMember getPrimordialVersion() {
@@ -533,12 +546,13 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         }
 
         /**
+         * @throws ContradictionException 
+         * @throws IOException 
          * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()
          */
         @Override
-        public RefexDynamicUsageDescription getRefexDynamicUsageDescription() {
-            // TODO Auto-generated method stub
-            return null;
+        public RefexDynamicUsageDescription getRefexDynamicUsageDescription() throws IOException, ContradictionException {
+            return getCv().getRefexDynamicUsageDescription();
         }
 
         /**
@@ -546,8 +560,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
          */
         @Override
         public RefexDynamicDataBI[] getData() {
-            // TODO Auto-generated method stub
-            return null;
+            return getCv().getData();
         }
 
         /**
@@ -555,93 +568,89 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
          */
         @Override
         public RefexDynamicDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
-            // TODO Auto-generated method stub
-            return null;
+            return getCv().getData(columnNumber);
         }
         
         /**
+         * @throws ContradictionException 
+         * @throws IOException 
+         * @throws InvalidNameException 
          * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData(java.lang.String)
          */
         @Override
-        public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException {
-            // TODO Auto-generated method stub
-            return null;
+        public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException, InvalidNameException, IOException, ContradictionException {
+            return getCv().getData(columnName);
         }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
-		 */
-		@Override
-		public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
-		{
-			// TODO Auto-generated method stub
-			
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
+         */
+        @Override
+        public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
+        {
+            ((RefexDynamicRevision)getCv()).setData(data);
+            
+        }
 
-		/**
-		 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
-		 */
-		@Override
-		public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
-		{
-			// TODO Auto-generated method stub
-			
-		}
+        /**
+         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
+         */
+        @Override
+        public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+        {
+            ((RefexDynamicRevision)getCv()).setData(columnNumber, data);
+        }
     }
     
     /**
      * From MembershipMember below here
      */
     
-    private static VersionComputer<RefexDynamicMember.Version> computer =
-            new VersionComputer<>();
-    
+    private static VersionComputer<RefexDynamicMember.Version> computer = new VersionComputer<>();
+
     protected void addRefsetTypeNids(Set<Integer> allNids) {
-
-       //
-    }
-
-    protected void addSpecProperties(RefexCAB rcs) {
-
-       // no fields to add...
-    }
-
-    public RefexDynamicRevision makeAnalog() {
-       RefexDynamicRevision newR = new RefexDynamicRevision(getStatus(), getTime(), getAuthorNid(), getModuleNid(), getPathNid(), this);
-
-       return newR;
+        for (RefexDynamicDataBI data : getData())
+        {
+            if (data.getRefexDataType() == RefexDynamicDataType.NID)
+            {
+                allNids.add((int)data.getDataObject());
+            }
+        }
     }
 
     @Override
     public RefexDynamicRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-       RefexDynamicRevision newR = new RefexDynamicRevision(status, time, authorNid, moduleNid, pathNid, this);
-
-       addRevision(newR);
-
-       return newR;
+       throw new UnsupportedOperationException("Must use Blueprints");
     }
 
     protected boolean refexFieldsEqual(ConceptComponent<RefexDynamicRevision, RefexDynamicMember> obj) {
        if (RefexDynamicMember.class.isAssignableFrom(obj.getClass())) {
-          return true;
+          RefexDynamicMember another = (RefexDynamicMember) obj;
+          return refexDataFieldsEqual(another.getData());
        }
-//TODO add impl for new data
        return false;
     }
     
     @Override
     public boolean refexDataFieldsEqual(RefexDynamicDataBI[] another) {
-        if(RefexMemberVersionBI.class.isAssignableFrom(another.getClass())){
-            return true;
-        }
-        return false;  //TODO impl from new data
+        return Arrays.deepEquals(getData(), another);
     }
-    
 
     protected void readMemberFields(TupleInput input) {
 
-       // nothing to read...
-        //TODO now there is
+        //read the following format - 
+        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+        int colCount = input.readInt();
+        data_ = new RefexDynamicDataBI[colCount];
+        for (int i = 0; i < colCount; i++)
+        {
+            RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());
+            int dataLength = input.readInt();
+            byte[] data = new byte[dataLength];
+            input.read(data);
+            
+            data_[i] = RefexDynamicData.typeToClass(dt, data, getAssemblageNid(), i);
+        }
     }
 
     protected final RefexDynamicRevision readMemberRevision(TupleInput input) {
@@ -649,13 +658,21 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     }
 
     public boolean readyToWriteRefsetMember() {
+        //I don't think I need to do any validation here, as the blueprint process shouldn't allow the creation of data that isn't ready
        return true;
     }
 
     protected void writeMember(TupleOutput output) {
 
-       // nothing to write
-        //TODO now there is
+        //Write with the following format - 
+        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+        output.writeInt(getData().length);
+        for (RefexDynamicDataBI column : getData())
+        {
+            output.writeInt(column.getRefexDataType().getTypeToken());
+            output.writeInt(column.getData().length);
+            output.write(column.getData());
+        }
     }
 
     @Override
@@ -672,12 +689,13 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
      */
     
     /**
+     * @throws ContradictionException 
+     * @throws IOException 
      * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()
      */
     @Override
-    public RefexDynamicUsageDescription getRefexDynamicUsageDescription() {
-        // TODO Auto-generated method stub
-        return null;
+    public RefexDynamicUsageDescription getRefexDynamicUsageDescription() throws IOException, ContradictionException {
+        return RefexDynamicUsageDescription.read(getAssemblageNid());
     }
     
     /**
@@ -685,8 +703,11 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
      */
     @Override
     public RefexDynamicDataBI[] getData() {
-        // TODO Auto-generated method stub
-        return null;
+        if (data_ == null)
+        {
+            data_ = new RefexDynamicData[] {};
+        }
+        return data_;
     }
 
     /**
@@ -694,36 +715,58 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
      */
     @Override
     public RefexDynamicDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
-        // TODO Auto-generated method stub
-        return null;
+        RefexDynamicDataBI[] temp = getData();
+        if (columnNumber >= temp.length)
+        {
+            throw new IndexOutOfBoundsException("Data contains " + temp.length + " columns.  Can't ask for column " + columnNumber);
+        }
+        return temp[columnNumber];
     }
     
     /**
+     * @throws ContradictionException 
+     * @throws IOException 
      * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData(java.lang.String)
      */
     @Override
-    public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException {
-        // TODO Auto-generated method stub
-        return null;
+    public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException, IOException, ContradictionException {
+        for (RefexDynamicColumnInfo ci : getRefexDynamicUsageDescription().getColumnInfo())
+        {
+            if (ci.getColumnName().equals(columnName))
+            {
+                return getData(ci.getColumnOrder());
+            }
+        }
+        throw new IndexOutOfBoundsException("Could not find a column with name '" + columnName + "'");
     }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
-	 */
-	@Override
-	public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
+     */
+    @Override
+    public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
+    {
+        if (data == null)
+        {
+            data_ = new RefexDynamicData[] {};
+        }
+        else
+        {
+            data_ = data;
+        }
+    }
 
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
-	 */
-	@Override
-	public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
-	{
-		// TODO Auto-generated method stub
-		
-	}
+    /**
+     * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
+     */
+    @Override
+    public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
+    {
+        RefexDynamicDataBI[] temp = getData();
+        if (columnNumber >= temp.length)
+        {
+            throw new IndexOutOfBoundsException("Data size is " + temp.length + " columns.  Can't set column " + columnNumber);
+        }
+        temp[columnNumber] = data;
+    }
 }
