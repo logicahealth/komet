@@ -35,7 +35,7 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
  */
 public enum RefexDynamicDataType {
 	
-	NID(101, RefexDynamicNidBI.class, RefexDynamic.REFEX_DT_NID.getUuids()[0], "Concept"),
+	NID(101, RefexDynamicNidBI.class, RefexDynamic.REFEX_DT_NID.getUuids()[0], "Component Nid"),
 	STRING(102, RefexDynamicStringBI.class, RefexDynamic.REFEX_DT_STRING.getUuids()[0], "String"),
 	INTEGER(103, RefexDynamicIntegerBI.class, RefexDynamic.REFEX_DT_INTEGER.getUuids()[0], "Integer"),
 	BOOLEAN(104, RefexDynamicBooleanBI.class, RefexDynamic.REFEX_DT_BOOLEAN.getUuids()[0], "Boolean"),
@@ -43,7 +43,7 @@ public enum RefexDynamicDataType {
 	BYTEARRAY(106, RefexDynamicByteArrayBI.class, RefexDynamic.REFEX_DT_BYTE_ARRAY.getUuids()[0], "Arbitrary Data"),
 	FLOAT(107, RefexDynamicFloatBI.class, RefexDynamic.REFEX_DT_FLOAT.getUuids()[0], "Float"),
 	DOUBLE(108, RefexDynamicDoubleBI.class, RefexDynamic.REFEX_DT_DOUBLE.getUuids()[0], "Double"),
-	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0], "UUID"),
+	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0], "Component UUID"),
 	POLYMORPHIC(110, RefexDynamicPolymorphicBI.class, RefexDynamic.REFEX_DT_POLYMORPHIC.getUuids()[0], "Unspecified"),
 	UNKNOWN(Byte.MAX_VALUE, null, RefexDynamic.UNKNOWN_CONCEPT.getUuids()[0], "Unknown");
 
