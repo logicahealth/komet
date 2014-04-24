@@ -101,7 +101,16 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       return concept.addAnnotation(annotation);
    }
 
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
    @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+      return concept.addDynamicAnnotation(annotation);
+   }
+
+@Override
    public void cancel() throws IOException {
       concept.cancel();
    }
@@ -659,8 +668,26 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    }
 
    /**
-    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
     */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      return concept.getRefexDynamicAnnotations();
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      return concept.getRefexDynamicMembers();
+   }
+
+   /**
+   * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+   */
    @Override
    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
    {
@@ -675,6 +702,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    @Override
    public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
       return concept.getRefsetMembers();
+   }
+   
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException {
+      return concept.getRefsetDynamicMembers();
    }
 
    @Override

@@ -33,6 +33,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -51,6 +52,7 @@ import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray.ArrayOfByteArrayRevision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
@@ -80,7 +82,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     public RefexDynamicMember(int enclosingConceptNid, TupleInput input) throws IOException {
         super(enclosingConceptNid, input);
     }
-
+    
     //TODO [REFEX] do I need this?  before I can implement this, I'd need to create TtkRefexDynamicMemberChronicle....
 //    public RefexDynamicMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
 //        super(refsetMember, enclosingConceptNid);
@@ -447,7 +449,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         }
 
         @Override
-        public RefexDynamicRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        public RefexDynamicRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
             throw new UnsupportedOperationException("Must use Blueprints");
         }
 
@@ -619,8 +621,13 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     }
 
     @Override
-    public RefexDynamicRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-       throw new UnsupportedOperationException("Must use Blueprints");
+    public RefexDynamicRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
+        //This should be unsupported, but the blueprint code uses it.  It needs a new name, in the non-blueprint world
+        RefexDynamicRevision newR = new RefexDynamicRevision(status, time, authorNid, moduleNid, pathNid, this);
+
+        addRevision(newR);
+
+        return newR;
     }
 
     protected boolean refexFieldsEqual(ConceptComponent<RefexDynamicRevision, RefexDynamicMember> obj) {

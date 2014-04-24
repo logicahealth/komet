@@ -313,6 +313,17 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	}
 	
 	/**
+	 * Checks if the refex properties contain the specified property.
+	 *
+	 * @param key the refex property in question
+	 * @return <code>true</code>, if the refex properties contain the specified property
+	 */
+	public boolean hasProperty(ComponentProperty key)
+	{
+		return properties.containsKey(key);
+	}
+	
+	/**
 	 * Writes this refex member blueprint to the given <code>refex</code>.
 	 *
 	 * @param refex the refex analog to write this refex blueprint to

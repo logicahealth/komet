@@ -60,6 +60,16 @@ public class RelGroupVersion implements RelGroupVersionBI {
       return rg.addAnnotation(annotation);
    }
 
+
+    /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
+   @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+      return rg.addDynamicAnnotation(annotation);
+   }
+
    @Override
    public boolean makeAdjudicationAnalogs(EditCoordinate ec, ViewCoordinate vc) throws Exception {
       return rg.makeAdjudicationAnalogs(ec, vc);
@@ -354,8 +364,28 @@ public class RelGroupVersion implements RelGroupVersionBI {
    {
        return rg.getRefexesDynamic();
    }
+   
+   
 
    /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      return rg.getRefexDynamicAnnotations();
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      return rg.getRefexDynamicMembers();
+   }
+
+/**
     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
     */
    @Override

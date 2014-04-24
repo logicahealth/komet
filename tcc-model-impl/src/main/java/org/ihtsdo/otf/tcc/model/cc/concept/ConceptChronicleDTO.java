@@ -290,7 +290,16 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
+    /**
+	 * @see org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI#getRefsetDynamicMembers()
+	 */
+	@Override
+	public Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException
+	{
+		throw new UnsupportedOperationException("Not supported yet."); 
+	}
+
+	@Override
     public Collection<? extends RelationshipChronicleBI> getRelationshipsOutgoing() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -331,7 +340,16 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
+    /**
+	 * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+	 */
+	@Override
+	public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+	{
+		throw new UnsupportedOperationException("Not supported yet."); 
+	}
+
+	@Override
     public UUID getPrimordialUuid() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -501,6 +519,24 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     }
 
     /**
+	 * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+	 */
+	@Override
+	public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+	{
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	/**
+	 * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+	 */
+	@Override
+	public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+	{
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	/**
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
      */
     @Override

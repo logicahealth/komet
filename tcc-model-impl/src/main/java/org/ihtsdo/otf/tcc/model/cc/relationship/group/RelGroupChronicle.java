@@ -62,8 +62,19 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public boolean addAnnotation(RefexChronicleBI<?> annotation) {
       throw new UnsupportedOperationException("Not supported.");
    }
+   
+   
 
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
    @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+       throw new UnsupportedOperationException("Not supported.");
+   }
+
+@Override
    public boolean makeAdjudicationAnalogs(EditCoordinate ec, ViewCoordinate vc) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }
@@ -209,7 +220,27 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    @Override
    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
    {
-	   throw new UnsupportedOperationException("Not supported.");
+      throw new UnsupportedOperationException("Not supported.");
+   }
+   
+   
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      throw new UnsupportedOperationException("Not supported.");
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      throw new UnsupportedOperationException("Not supported.");
    }
 
    /**
@@ -218,7 +249,7 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    @Override
    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
    {
-	   throw new UnsupportedOperationException("Not supported.");
+      throw new UnsupportedOperationException("Not supported.");
    }
 
    @Override

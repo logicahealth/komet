@@ -3,11 +3,10 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 //~--- non-JDK imports --------------------------------------------------------
 
 import com.sleepycat.bind.tuple.TupleInput;
-
-
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
@@ -16,13 +15,13 @@ import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddDescriptionSet;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMediaSet;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberDynamicSet;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberSet;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddSrcRelSet;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
@@ -33,6 +32,8 @@ public interface I_ManageConceptData {
    void add(Media img) throws IOException;
 
    void add(RefexMember<?, ?> refsetMember) throws IOException;
+   
+   void add(RefexDynamicMember refsetDynamicMember) throws IOException;
 
    void add(Relationship rel) throws IOException;
 
@@ -106,8 +107,12 @@ public interface I_ManageConceptData {
    RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException;
 
    AddMemberSet getRefsetMembers() throws IOException;
+   
+   AddMemberDynamicSet getRefsetDynamicMembers() throws IOException;
 
    Collection<RefexMember<?, ?>> getRefsetMembersIfChanged() throws IOException;
+   
+   Collection<RefexDynamicMember> getRefsetDynamicMembersIfChanged() throws IOException;
 
    AddSrcRelSet getSourceRels() throws IOException;
 

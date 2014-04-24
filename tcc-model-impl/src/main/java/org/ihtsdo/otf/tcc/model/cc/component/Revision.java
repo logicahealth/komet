@@ -81,6 +81,12 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
             throws IOException {
         return primordialComponent.addAnnotation(annotation);
     }
+    
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation)
+            throws IOException {
+        return primordialComponent.addDynamicAnnotation(annotation);
+    }
 
     abstract protected void addComponentNids(Set<Integer> allNids);
 
@@ -376,6 +382,25 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
     {
         return primordialComponent.getRefexesDynamic();
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        return primordialComponent.getRefexDynamicMembers();
+    }
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        return primordialComponent.getRefexDynamicAnnotations();
     }
 
     /**

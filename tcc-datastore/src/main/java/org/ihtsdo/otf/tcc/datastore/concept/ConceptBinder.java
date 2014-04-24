@@ -19,6 +19,7 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.DescriptionBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.RefexDynamicMemberBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
@@ -27,6 +28,7 @@ import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
 import org.ihtsdo.otf.tcc.model.cc.concept.IntSetBinder;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 
 public class ConceptBinder extends TupleBinding<ConceptChronicle> {
 
@@ -71,8 +73,9 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
             byte[] refsetOutput = getRefsetBytes(conceptData, primordial,
                     OFFSETS.REFSET_MEMBERS, conceptData.getRefsetMembersIfChanged(),
                     new RefexMemberBinder(concept));
-
-
+            byte[] refsetDynamicOutput = getRefsetDynamicBytes(conceptData, primordial,
+                    OFFSETS.REFSET_DYNAMIC_MEMBERS, conceptData.getRefsetDynamicMembersIfChanged(),
+                    new RefexDynamicMemberBinder(concept));
             byte[] descNidOutput = getNidSetBytes(conceptData, primordial,
                     conceptData.getDescNidsReadOnly(),
                     conceptData.getDescNids());
@@ -206,6 +209,29 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
             OFFSETS offset,
             Collection<RefexMember<?, ?>> members,
             RefexMemberBinder binder) throws InterruptedException,
+            ExecutionException, IOException {
+        byte[] componentBytes;
+        if (!primordial && members == null) {
+            componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
+        } else {
+            TupleOutput output = new TupleOutput();
+            if (members != null) {
+                binder.objectToEntry(members, output);
+                componentBytes = output.toByteArray();
+            } else {
+                componentBytes = zeroOutputArray;
+            }
+        }
+        if (componentBytes.length == 0) {
+            componentBytes = zeroOutputArray;
+        }
+        return componentBytes;
+    }
+    
+    private byte[] getRefsetDynamicBytes(I_ManageConceptData conceptData, boolean primordial,
+            OFFSETS offset,
+            Collection<RefexDynamicMember> members,
+            RefexDynamicMemberBinder binder) throws InterruptedException,
             ExecutionException, IOException {
         byte[] componentBytes;
         if (!primordial && members == null) {
