@@ -19,6 +19,8 @@ import java.util.UUID;
 
 public interface ComponentBI {
    boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException;
+   
+   boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException;
 
    String toUserString();
 
@@ -71,6 +73,23 @@ public interface ComponentBI {
    boolean hasCurrentRefexMember(ViewCoordinate xyz, int refsetNid) throws IOException;
    
    //TODO [REFEX] RefexDynamicAPI getter definitions
+   /**
+    * Get the annotation style refexes and the member style refexes
+    */
    Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException;
+   /**
+    * get the annotation style refexes
+    */
+   Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException;
+   
+   /**
+    * get the member style refexes
+    */
+   Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException;
+   
+   /**
+    * Get the annotation style refexes and the member style refexes, filter by active only
+    */
    Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException;
+
 }

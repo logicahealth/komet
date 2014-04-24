@@ -54,6 +54,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 
 /**
  * Class description
@@ -92,6 +93,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Field description
      */
     public ConcurrentSkipListSet<RefexMember<?, ?>> annotations;
+    public ConcurrentSkipListSet<RefexDynamicMember> annotationsDynamic;
     /**
      * Field description
      */
@@ -333,6 +335,20 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         modified();
         return annotations.add((RefexMember<?, ?>) annotation);
+    }
+    
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI annotation) throws IOException {
+        if (annotationsDynamic == null) {
+            annotationsDynamic = new ConcurrentSkipListSet<>(new Comparator<RefexDynamicChronicleBI>() {
+                @Override
+                public int compare(RefexDynamicChronicleBI t, RefexDynamicChronicleBI t1) {
+                    return t.getNid() - t1.getNid();
+                }
+            });
+        }
+
+        modified();
+        return annotationsDynamic.add((RefexDynamicMember) annotation);
     }
 
     /**
@@ -2118,8 +2134,44 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
     {
-    	//TODO [REFEX] implement these
-        return null;
+        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
+        HashSet<Integer> addedMembers = new HashSet<>();
+
+        if ((pairs != null) && !pairs.isEmpty()) {
+            for (NidPairForRefex pair : pairs) {
+                ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+                if (component instanceof RefexDynamicChronicleBI<?>)
+                {
+                    RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) component;
+    
+                    if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                        addedMembers.add(ext.getNid());
+                        returnValues.add(ext);
+                    }
+                }
+            }
+        }
+
+        ComponentBI component = this;
+
+        if (component instanceof ConceptChronicle) {
+            component = ((ConceptChronicle) component).getConceptAttributes();
+        }
+
+        ComponentChronicleBI<?> cc = (ComponentChronicleBI<?>) component;
+        Collection<? extends RefexDynamicChronicleBI<?>> fetchedAnnotations = cc.getRefexDynamicAnnotations();
+
+        if (fetchedAnnotations != null) {
+            for (RefexDynamicChronicleBI<?> annotation : fetchedAnnotations) {
+                if (addedMembers.contains(annotation.getNid()) == false) {
+                    returnValues.add(annotation);
+                    addedMembers.add(annotation.getNid());
+                }
+            }
+        }
+
+        return Collections.unmodifiableCollection(returnValues);
     }
 
     /**
@@ -2128,8 +2180,59 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @Override
     public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
     {
-    	//TODO [REFEX] implement these
-        return null;
+        Collection<? extends RefexDynamicChronicleBI<?>> refexes = getRefexesDynamic();
+        List<RefexDynamicVersionBI<?>> returnValues = new ArrayList<>(refexes.size());
+
+        for (RefexDynamicChronicleBI<?> refex : refexes) {
+            for (RefexDynamicVersionBI<?> version : refex.getVersions(viewCoordinate)) {
+                returnValues.add(version);
+            }
+        }
+
+        return Collections.unmodifiableCollection(returnValues);
+    }
+    
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        if (annotationsDynamic == null) {
+            return Collections.unmodifiableCollection(new ArrayList<RefexDynamicChronicleBI<?>>());
+        }
+
+        return Collections.unmodifiableCollection(annotationsDynamic);
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
+        HashSet<Integer> addedMembers = new HashSet<>();
+
+        if ((pairs != null) && !pairs.isEmpty()) {
+            for (NidPairForRefex pair : pairs) {
+                ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+                if (component instanceof RefexDynamicChronicleBI<?>)
+                {
+                    RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
+    
+                    if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                        addedMembers.add(ext.getNid());
+                        returnValues.add(ext);
+                    }
+                }
+            }
+        }
+        
+        return Collections.unmodifiableCollection(returnValues);
     }
 
     /**
@@ -2148,11 +2251,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         if ((pairs != null) && !pairs.isEmpty()) {
             for (NidPairForRefex pair : pairs) {
-                RefexChronicleBI<?> ext = (RefexChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
-
-                if ((ext != null) && !addedMembers.contains(ext.getNid())) {
-                    addedMembers.add(ext.getNid());
-                    returnValues.add(ext);
+                ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+                if (component instanceof RefexChronicleBI<?>)
+                {
+                    RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
+    
+                    if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                        addedMembers.add(ext.getNid());
+                        returnValues.add(ext);
+                    }
                 }
             }
         }
@@ -2196,14 +2303,18 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         HashSet<Integer> returnValues = new HashSet<>(pairs.size());
 
         for (NidPairForRefex pair : pairs) {
-            RefexChronicleBI<?> ext = (RefexChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
-
-            if (ext != null) {
-                for (RefexVersionBI<?> refexV : ext.getVersions()) {
-                    returnValues.add(refexV.getStamp());
+            ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+            if (component instanceof RefexChronicleBI<?>)
+            {
+                RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
+    
+                if (ext != null) {
+                    for (RefexVersionBI<?> refexV : ext.getVersions()) {
+                        returnValues.add(refexV.getStamp());
+                    }
+    
+                    returnValues.addAll(((ConceptComponent) ext).getRefsetMemberSapNids());
                 }
-
-                returnValues.addAll(((ConceptComponent) ext).getRefsetMemberSapNids());
             }
         }
 
@@ -2229,11 +2340,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         HashSet<Integer> addedMembers = new HashSet<>();
 
         for (NidPairForRefex pair : pairs) {
-            RefexChronicleBI<?> ext = (RefexChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
-
-            if ((ext != null) && !addedMembers.contains(ext.getNid())) {
-                addedMembers.add(ext.getNid());
-                returnValues.add(ext);
+            ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+            if (component instanceof RefexChronicleBI<?>)
+            {
+                RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
+    
+                if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                    addedMembers.add(ext.getNid());
+                    returnValues.add(ext);
+                }
             }
         }
 
@@ -2701,6 +2816,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         @Override
         public boolean addAnnotation(RefexChronicleBI annotation) throws IOException {
             return ConceptComponent.this.addAnnotation(annotation);
+        }
+        
+        @Override
+        public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
+            return ConceptComponent.this.addDynamicAnnotation(annotation);
         }
 
         /**
@@ -3372,8 +3492,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         @Override
         public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
         {
-        	//TODO [REFEX] implement these
-            return null;
+            return ConceptComponent.this.getRefexesDynamic();
         }
 
         /**
@@ -3382,8 +3501,23 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         @Override
         public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
         {
-        	//TODO [REFEX] implement these
-            return null;
+            return ConceptComponent.this.getRefexesDynamicActive(viewCoordinate);
+        }
+        /**
+         * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+         */
+        @Override
+        public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+        {
+            return ConceptComponent.this.getRefexDynamicAnnotations();
+        }
+        /**
+         * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+         */
+        @Override
+        public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+        {
+            return ConceptComponent.this.getRefexDynamicMembers();
         }
     }
 }

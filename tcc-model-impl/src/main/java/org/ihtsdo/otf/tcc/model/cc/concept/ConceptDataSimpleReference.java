@@ -4,10 +4,9 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
 import com.sleepycat.bind.tuple.TupleInput;
-
-
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.RefexDynamicMemberBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
@@ -17,6 +16,7 @@ import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -27,9 +27,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -44,36 +42,29 @@ import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 
 public class ConceptDataSimpleReference extends ConceptDataManager {
-   private AtomicReference<ConceptAttributes>              attributes =
-      new AtomicReference<>();
-   private AtomicReference<AddSrcRelSet>                   srcRels    = new AtomicReference<>();
-   private AtomicReference<ConcurrentSkipListSet<Integer>> srcRelNids =
-      new AtomicReference<>();
-   ReentrantLock                                                               sourceRelLock     =
-      new ReentrantLock();
-   ReentrantLock                                                               refsetMembersLock =
-      new ReentrantLock();
-   private AtomicReference<ConcurrentHashMap<Integer, RefexMember<?, ?>>> refsetMembersMap       =
-      new AtomicReference<>();
-   private AtomicReference<AddMemberSet>                                   refsetMembers      =
-      new AtomicReference<>();
-   private AtomicReference<ConcurrentHashMap<Integer, RefexMember<?, ?>>> refsetComponentMap =
-      new AtomicReference<>();
-   private AtomicReference<ConcurrentSkipListSet<Integer>> memberNids =
-      new AtomicReference<>();
-   private ReentrantLock                                   memberMapLock  = new ReentrantLock();
-   private AtomicReference<AddMediaSet>                    images         =
-      new AtomicReference<>();
-   ReentrantLock                                               imageLock = new ReentrantLock();
-   private AtomicReference<ConcurrentSkipListSet<Integer>> imageNids      =
-      new AtomicReference<>();
-   private AtomicReference<AddDescriptionSet>              descriptions  =
-      new AtomicReference<>();
-   ReentrantLock                                               descLock = new ReentrantLock();
-   private AtomicReference<ConcurrentSkipListSet<Integer>> descNids      =
-      new AtomicReference<>();
-   ReentrantLock       attrLock = new ReentrantLock();
-   private Boolean annotationStyleRefset;
+    private AtomicReference<ConceptAttributes> attributes = new AtomicReference<>();
+    private AtomicReference<AddSrcRelSet> srcRels = new AtomicReference<>();
+    private AtomicReference<ConcurrentSkipListSet<Integer>> srcRelNids = new AtomicReference<>();
+    ReentrantLock sourceRelLock = new ReentrantLock();
+    ReentrantLock refsetMembersLock = new ReentrantLock();
+    ReentrantLock refsetMembersDynamicLock = new ReentrantLock();
+    private AtomicReference<ConcurrentHashMap<Integer, RefexMember<?, ?>>> refsetMembersMap = new AtomicReference<>();
+    private AtomicReference<ConcurrentHashMap<Integer, RefexDynamicMember>> refsetDynamicMembersMap = new AtomicReference<>();
+    private AtomicReference<AddMemberSet> refsetMembers = new AtomicReference<>();
+    private AtomicReference<AddMemberDynamicSet> refsetDynamicMembers = new AtomicReference<>();
+    private AtomicReference<ConcurrentHashMap<Integer, RefexMember<?, ?>>> refsetComponentMap = new AtomicReference<>();
+    private AtomicReference<ConcurrentHashMap<Integer, RefexDynamicMember>> refsetDynamicComponentMap = new AtomicReference<>();
+    private AtomicReference<ConcurrentSkipListSet<Integer>> memberNids = new AtomicReference<>();
+    private ReentrantLock memberMapLock = new ReentrantLock();
+    private ReentrantLock memberDynamicMapLock = new ReentrantLock();
+    private AtomicReference<AddMediaSet> images = new AtomicReference<>();
+    ReentrantLock imageLock = new ReentrantLock();
+    private AtomicReference<ConcurrentSkipListSet<Integer>> imageNids = new AtomicReference<>();
+    private AtomicReference<AddDescriptionSet> descriptions = new AtomicReference<>();
+    ReentrantLock descLock = new ReentrantLock();
+    private AtomicReference<ConcurrentSkipListSet<Integer>> descNids = new AtomicReference<>();
+    ReentrantLock attrLock = new ReentrantLock();
+    private Boolean annotationStyleRefset;
 
    //~--- constructors --------------------------------------------------------
 
@@ -108,6 +99,14 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
    @Override
    public void add(RefexMember<?, ?> refsetMember) throws IOException {
       getRefsetMembers().addDirect(refsetMember);
+      getMemberNids().add(refsetMember.nid);
+      addToMemberMap(refsetMember);
+      modified();
+   }
+   
+   @Override
+   public void add(RefexDynamicMember refsetMember) throws IOException {
+      getRefsetDynamicMembers().addDirect(refsetMember);
       getMemberNids().add(refsetMember.nid);
       addToMemberMap(refsetMember);
       modified();
@@ -159,6 +158,23 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
          }
       } finally {
          memberMapLock.unlock();
+      }
+   }
+   
+   @Override
+   protected void addToMemberMap(RefexDynamicMember refsetDynamicMember) {
+      memberDynamicMapLock.lock();
+
+      try {
+         if (refsetDynamicMembersMap.get() != null) {
+             refsetDynamicMembersMap.get().put(refsetDynamicMember.nid, refsetDynamicMember);
+         }
+
+         if (refsetDynamicComponentMap.get() != null) {
+             refsetDynamicComponentMap.get().put(refsetDynamicMember.getReferencedComponentNid(), refsetDynamicMember);
+         }
+      } finally {
+          memberDynamicMapLock.unlock();
       }
    }
 
@@ -220,6 +236,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       cancel(descriptions.get());
       cancel(images.get());
       cancel(refsetMembers.get());
+      cancel(refsetDynamicMembers.get());
    }
 
    private void cancel(Collection<? extends ConceptComponent<?, ?>> componentList) throws IOException {
@@ -259,8 +276,11 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
    public void diet() {
       if (!isUnwritten()) {
          refsetMembersMap.set(null);
+         refsetDynamicMembersMap.set(null);
          refsetComponentMap.set(null);
+         refsetDynamicComponentMap.set(null);
          refsetMembers.set(null);
+         refsetDynamicMembers.set(null);
       }
    }
 
@@ -285,6 +305,24 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
                   }
                }
             }
+         }
+         
+         if ((refsetDynamicMembers != null) && (refsetDynamicMembers.get() != null) && (refsetDynamicMembers.get().size() > 0)) {
+             List<RefexDynamicMember> removed = (List<RefexDynamicMember>) removeCanceledFromList(refsetDynamicMembers.get());
+             if ((refsetDynamicMembersMap.get() != null) || (refsetDynamicComponentMap.get() != null)) {
+                 Map<Integer, ?> memberMap    = refsetDynamicMembersMap.get();
+                 Map<Integer, ?> componentMap = refsetDynamicComponentMap.get();
+    
+                 for (RefexDynamicMember cc : removed) {
+                    if (memberMap != null) {
+                       memberMap.remove(cc.getNid());
+                    }
+    
+                    if (componentMap != null) {
+                       componentMap.remove(cc.getReferencedComponentNid());
+                    }
+                 }
+              }
          }
 
          if ((descriptions != null) && (descriptions.get() != null) && (descriptions.get().size() > 0)) {
@@ -334,6 +372,12 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
             assert component.readyToWriteComponent();
          }
       }
+      
+      if (refsetDynamicMembers.get() != null) {
+          for (RefexDynamicMember component : refsetDynamicMembers.get()) {
+             assert component.readyToWriteComponent();
+          }
+       }
 
       if (descNids.get() != null) {
          for (Integer component : descNids.get()) {
@@ -598,6 +642,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       addConceptNidsAffectedByCommit(descriptions.get(), uncommittedNids);
       addConceptNidsAffectedByCommit(images.get(), uncommittedNids);
       addConceptNidsAffectedByCommit(refsetMembers.get(), uncommittedNids);
+      addConceptNidsAffectedByCommit(refsetDynamicMembers.get(), uncommittedNids);
 
       return uncommittedNids;
    }
@@ -737,6 +782,49 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       binder.setupBinder(enclosingConcept);
 
       Collection<RefexMember<?, ?>> componentList;
+      TupleInput                     readOnlyInput = nidData.getReadOnlyTupleInput();
+
+      if (readOnlyInput.available() > 0) {
+         checkFormatAndVersion(readOnlyInput);
+         readOnlyInput.mark(128);
+         readOnlyInput.skipFast(offset.offset);
+
+         int listStart = readOnlyInput.readInt();
+
+         readOnlyInput.reset();
+         readOnlyInput.skipFast(listStart);
+         componentList = binder.entryToObject(readOnlyInput);
+      } else {
+         componentList = new ArrayList<>();
+      }
+
+      assert componentList != null;
+      binder.setTermComponentList(componentList);
+
+      TupleInput readWriteInput = nidData.getMutableTupleInput();
+
+      if (readWriteInput.available() > 0) {
+         readWriteInput.mark(128);
+         checkFormatAndVersion(readWriteInput);
+         readWriteInput.reset();
+         readWriteInput.skipFast(offset.offset);
+
+         int listStart = readWriteInput.readInt();
+
+         readWriteInput.reset();
+         readWriteInput.skipFast(listStart);
+         componentList = binder.entryToObject(readWriteInput);
+      }
+
+      return componentList;
+   }
+   
+   private Collection<RefexDynamicMember> getList(RefexDynamicMemberBinder binder, OFFSETS offset,
+           ConceptChronicle enclosingConcept)
+           throws IOException {
+      binder.setupBinder(enclosingConcept);
+
+      Collection<RefexDynamicMember> componentList;
       TupleInput                     readOnlyInput = nidData.getReadOnlyTupleInput();
 
       if (readOnlyInput.available() > 0) {
@@ -914,10 +1002,37 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
 
       return refsetMembers.get();
    }
+   
+   @Override
+   public AddMemberDynamicSet getRefsetDynamicMembers() throws IOException {
+
+      if (refsetDynamicMembers.get() == null) {
+         refsetMembersDynamicLock.lock();
+
+         try {
+            if (refsetDynamicMembers.get() == null) {
+                refsetDynamicMembers.compareAndSet(null,
+                                           new AddMemberDynamicSet(getList(new RefexDynamicMemberBinder(enclosingConcept),
+                                              OFFSETS.REFSET_MEMBERS, enclosingConcept)));
+            }
+         } finally {
+             refsetMembersDynamicLock.unlock();
+         }
+      }
+
+      handleCanceledComponents();
+
+      return refsetDynamicMembers.get();
+   }
 
    @Override
    public Collection<RefexMember<?, ?>> getRefsetMembersIfChanged() throws IOException {
       return refsetMembers.get();
+   }
+   
+   @Override
+   public Collection<RefexDynamicMember> getRefsetDynamicMembersIfChanged() throws IOException {
+      return refsetDynamicMembers.get();
    }
 
    @Override
@@ -972,6 +1087,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       addUncommittedNids(descriptions.get(), uncommittedNids);
       addUncommittedNids(images.get(), uncommittedNids);
       addUncommittedNids(refsetMembers.get(), uncommittedNids);
+      addUncommittedNids(refsetDynamicMembers.get(), uncommittedNids);
 
       return uncommittedNids;
    }
@@ -1034,6 +1150,10 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       if (hasUncommittedVersion(refsetMembers.get())) {
          return true;
       }
+      
+      if (hasUncommittedVersion(refsetDynamicMembers.get())) {
+          return true;
+       }
 
       return false;
    }
@@ -1128,6 +1248,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       setCommitTime(descriptions.get(), time, sapNids);
       setCommitTime(images.get(), time, sapNids);
       setCommitTime(refsetMembers.get(), time, sapNids);
+      setCommitTime(refsetDynamicMembers.get(), time, sapNids);
 
       return sapNids;
    }

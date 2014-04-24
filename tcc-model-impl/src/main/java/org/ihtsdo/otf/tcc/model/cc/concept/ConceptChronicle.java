@@ -37,6 +37,7 @@ import org.ihtsdo.otf.tcc.model.cc.description.Description.Version;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
@@ -175,6 +176,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addAnnotation(annotation);
+    }
+    
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
+        return getConceptAttributes().addDynamicAnnotation(annotation);
     }
 
     public boolean addMemberNid(int nid) throws IOException {
@@ -728,8 +734,15 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
+    //TODO [REFEX] why are there no calls to this method anywhere?
     public void updateXrefs() throws IOException {
         for (RefexMember<?, ?> m : getRefsetMembers()) {
+            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
+
+            P.s.addXrefPair(m.referencedComponentNid, npr);
+        }
+        
+        for (RefexDynamicMember m : getRefsetDynamicMembers()) {
             NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
 
             P.s.addXrefPair(m.referencedComponentNid, npr);
@@ -1395,6 +1408,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public ConcurrentSkipListSet<RefexMember<?, ?>> getRefsetMembers() throws IOException {
         return data.getRefsetMembers();
     }
+    
+    @Override
+    public ConcurrentSkipListSet<RefexDynamicMember> getRefsetDynamicMembers() throws IOException {
+        return data.getRefsetDynamicMembers();
+    }
 
     @Override
     public Collection<? extends RelGroupVersionBI> getRelationshipGroupsActive(ViewCoordinate vc) throws IOException {
@@ -1911,6 +1929,34 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         if (getConceptAttributes() != null)
         {
             return getConceptAttributes().getRefexesDynamic();
+        }
+        return new ArrayList<>();
+    }
+    
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexDynamicAnnotations();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexDynamicMembers();
         }
         return new ArrayList<>();
     }
