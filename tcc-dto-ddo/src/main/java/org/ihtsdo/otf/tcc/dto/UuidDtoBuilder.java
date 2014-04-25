@@ -28,6 +28,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
@@ -173,6 +174,9 @@ public class UuidDtoBuilder {
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, ca);
       }
+      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+          construct(annotBp, ca);
+       }
 
       c.conceptAttributes = ca;
    }
@@ -206,6 +210,10 @@ public class UuidDtoBuilder {
 
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, d);
+      }
+      
+      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+          construct(annotBp, d);
       }
 
       c.getDescriptions().add(d);
@@ -241,6 +249,9 @@ public class UuidDtoBuilder {
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, img);
       }
+      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+          construct(annotBp, img);
+      }
 
       c.getMedia().add(img);
    }
@@ -265,6 +276,21 @@ public class UuidDtoBuilder {
       for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
          construct(childBp, annot);
       }
+      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+          construct(annotBp, annot);
+      }
+   }
+   
+   private void construct(RefexDynamicCAB blueprint, TtkComponentChronicle component)
+           throws IOException, InvalidCAB, ContradictionException {
+//TODO [REFEX] implement when API here
+	   //      TtkRefexAbstractMemberChronicle annot = createRefex(blueprint);
+//
+//      component.getAnnotations().add(annot);
+//
+//      for (RefexDynamicCAB childBp : blueprint.getAnnotationDynamicBlueprints()) {
+//         construct(childBp, annot);
+//      }
    }
 
    /**
@@ -297,6 +323,9 @@ public class UuidDtoBuilder {
 
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, r);
+      }
+      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+          construct(annotBp, r);
       }
 
       c.getRelationships().add(r);
