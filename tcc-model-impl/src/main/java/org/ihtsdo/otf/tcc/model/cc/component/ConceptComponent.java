@@ -1251,6 +1251,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         buf.append(additionalIdVersions);
         buf.append(" annotations:");
         buf.append(annotations);
+        buf.append(" annotations Dynamic:");
+        buf.append(annotationsDynamic);
         buf.append("};");
 
         return buf.toString();
