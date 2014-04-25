@@ -65,6 +65,8 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * Field description
      */
     private List<RefexCAB> annotations = new ArrayList<>();
+    private List<RefexDynamicCAB> annotationsDynamic = new ArrayList<>();  //TODO [REFEX] implement other methods for this
+    
     /**
      * Field description
      */
@@ -164,6 +166,15 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         annotations.add(annotationBlueprint);
     }
 
+    /**
+     * Adds an annotation blueprint to be associated with this component blueprint.
+     *
+     * @param annotationBlueprint the annotation blueprint to associate with this component blueprint
+     */
+    public void addAnnotationBlueprint(RefexDynamicCAB annotationBlueprint) {
+        annotationsDynamic.add(annotationBlueprint);
+    }
+    
     /**
      * Adds an additional
      * <code>UUID</code> ID to the component specified by this component blueprint. This is a UUID in addition
@@ -292,6 +303,18 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      */
     public List<RefexCAB> getAnnotationBlueprints() throws IOException, InvalidCAB, ContradictionException {
         return annotations;
+    }
+    
+    /**
+     * Returns list of annotation blueprints associated with this component blueprint.
+     *
+     * @return a list of annotation blueprints associated with this component
+     * @throws IOException signals that an I/O exception has occurred
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more then one version is found for a particular view coordinate
+     */
+    public List<RefexDynamicCAB> getAnnotationDynamicBlueprints() throws IOException, InvalidCAB, ContradictionException {
+        return annotationsDynamic;
     }
 
     /**

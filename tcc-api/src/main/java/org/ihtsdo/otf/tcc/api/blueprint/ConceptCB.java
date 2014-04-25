@@ -475,6 +475,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         fsns.add(newFullySpecifiedName);
         this.recomputeUuid();
         fullySpecifiedNameBlueprint.setText(newFullySpecifiedName);
+        //TODO [REFEX] add handling for new Refex here, but only when we move how the languages are specified
         if (dialect != null) {
             List<RefexCAB> annotationBlueprints = fullySpecifiedNameBlueprint.getAnnotationBlueprints();
             for (RefexCAB annot : annotationBlueprints) {
@@ -649,6 +650,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         this.recomputeUuid();
         preferredNameBlueprint.setText(newPreferredName);
         if (dialect != null) {
+        	//TODO [REFEX] add handling for new Refex here
             List<RefexCAB> annotationBlueprints = preferredNameBlueprint.getAnnotationBlueprints();
             for (RefexCAB annot : annotationBlueprints) {
                 if (annot.getRefexCollectionUuid().equals(usRefexUuid) || annot.getRefexCollectionUuid().equals(gbRefexUuid)) {
