@@ -24,6 +24,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -45,7 +46,7 @@ public class RefexDynamicMemberFactory {
 
 
    public static RefexDynamicMember create(RefexDynamicCAB res, EditCoordinate ec)
-           throws IOException, InvalidCAB {
+           throws IOException, InvalidCAB, ContradictionException {
       RefexDynamicMember member = createBlank(res);
 
       return reCreate(res, member, ec);
@@ -132,7 +133,8 @@ public class RefexDynamicMemberFactory {
 
 
    public static RefexDynamicMember reCreate(RefexDynamicCAB blueprint, RefexDynamicMember member, EditCoordinate ec)
-           throws IOException, InvalidCAB {
+           throws IOException, InvalidCAB, ContradictionException {
+      blueprint.validate();
       ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexAssemblageNid());
 
       member.assemblageNid = refexColCon.getNid();
