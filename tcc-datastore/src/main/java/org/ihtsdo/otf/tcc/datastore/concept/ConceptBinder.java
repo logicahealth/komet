@@ -109,6 +109,9 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
 
             finalOutput.writeInt(nextDataLocation); // REFSET_MEMBERS
             nextDataLocation = nextDataLocation + refsetOutput.length;
+            
+            finalOutput.writeInt(nextDataLocation); // REFSET_DYNAMIC_MEMBERS
+            nextDataLocation = nextDataLocation + refsetDynamicOutput.length;
 
             finalOutput.writeInt(nextDataLocation); // DESC_NIDS
             nextDataLocation = nextDataLocation
@@ -136,6 +139,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
             finalOutput.writeFast(descOutput);   // DESCRIPTIONS
             finalOutput.writeFast(relOutput);    // SOURCE_RELS
             finalOutput.writeFast(refsetOutput); // REFSET_MEMBERS
+            finalOutput.writeFast(refsetDynamicOutput); // REFSET_DYNAMIC_MEMBERS
             finalOutput.writeFast(descNidOutput);  // DESC_NIDS
             finalOutput.writeFast(srcRelNidOutput);// SRC_REL_NIDS
             finalOutput.writeFast(imageNidOutput); // IMAGE_NIDS
