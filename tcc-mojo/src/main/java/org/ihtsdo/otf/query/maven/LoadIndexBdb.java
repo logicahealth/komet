@@ -34,6 +34,17 @@ import java.util.List;
 
 /**
  * Goal which loads a database from an eConcept file, and generates the indexes.
+ * 
+ * Dan Notes:  This class doesn't really belong in this package, and yet it does...
+ * this needs to depend on OTF-Query-Service - otherwise, it won't generate any indexes.
+ * Yet, OTF-Query-Service depends on OTF-Versioning-Service - and we would have a confusing
+ * circular dependency.  So, while it makes sense that the BDB builder mojo should be with the 
+ * BDB impl... it can't be complete with out the indexing tooling.
+ * 
+ * The only way this loader will properly build indexes is if you run it with a classpath 
+ * configured in such a way that the OTF-Query-Service jar files are on the classpath, so 
+ * HK2 can find them.
+ * 
  *
  * @goal load-index-bdb
  *
