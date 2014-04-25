@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.junit;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
 import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
 
@@ -85,8 +86,9 @@ public class BdbTestRunner extends BlockJUnit4ClassRunner {
                 @Override
                 public void run() {
                     try {
+                        Ts.get().cancel();
                         Bdb.close();
-                    } catch (InterruptedException | ExecutionException ex) {
+                    } catch (InterruptedException | ExecutionException | IOException ex) {
                         Logger.getLogger(BdbTestRunner.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
