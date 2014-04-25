@@ -686,6 +686,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             if (!isAnnotationStyleRefex()) {
                 buff.append("\n refset members: ");
                 formatCollection(buff, getExtensions());
+                buff.append("\n refset dynamic members: ");
+                formatCollection(buff, getExtensionsDynamic());
             }
 
             buff.append("\n desc nids: ");
@@ -1212,6 +1214,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         return data.getRefsetMembers();
+    }
+    
+    public Collection<RefexDynamicMember> getExtensionsDynamic() throws IOException {
+        if (isCanceled()) {
+            return new ArrayList<>();
+        }
+
+        return data.getRefsetDynamicMembers();
     }
 
     public static ConceptChronicle getIfInMap(int nid) {
