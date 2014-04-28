@@ -92,14 +92,14 @@ public class LoadIndexBdb extends AbstractMojo {
                 for (IndexerBI indexer : indexers) {
                     indexer.setEnabled(false);
                 }
-
+                //Dan notes: pretty sure this needs to be outside the if statement...
                 store.loadEconFiles(econFileStrings);
             }
 
             for (IndexerBI indexer : indexers) {
                 indexer.setEnabled(true);
             }
-
+            //Dan notes: and wouldn't we _not_ want to do this, if we already indexed above, during the load?
             store.index();
 
             Ts.close();
