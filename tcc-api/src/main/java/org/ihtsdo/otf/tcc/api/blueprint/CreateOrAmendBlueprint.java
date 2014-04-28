@@ -28,6 +28,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -65,7 +66,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * Field description
      */
     private List<RefexCAB> annotations = new ArrayList<>();
-    private List<RefexDynamicCAB> annotationsDynamic = new ArrayList<>();  //TODO [REFEX] implement other methods for this
+    private List<RefexDynamicCAB> annotationsDynamic = new ArrayList<>();
     
     /**
      * Field description
@@ -154,6 +155,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         }
 
         getAnnotationBlueprintsFromOriginal();
+        getAnnotationDynamicBlueprintsFromOriginal();
         pcs.addPropertyChangeListener(this);
     }
 
@@ -292,6 +294,16 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     public void replaceAnnotationBlueprints(List<RefexCAB> annotationBlueprints) {
         this.annotations = annotationBlueprints;
     }
+    
+    /**
+     * Replace the annotation blueprints associated with this blueprint with the given list of
+     * <code>annoationBlueprints</code>.
+     *
+     * @param annotationBlueprints the annotation blueprints to associate with this component blueprint
+     */
+    public void replaceAnnotationDynamicBlueprints(List<RefexDynamicCAB> annotationDynamicBlueprints) {
+        this.annotationsDynamic = annotationDynamicBlueprints;
+    }
 
     /**
      * Returns list of annotation blueprints associated with this component blueprint.
@@ -369,6 +381,60 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         }
 
         return annotations;
+    }
+    
+    /**
+     * Returns list of annotation blueprints associated with this component blueprint. Gets a list from the
+     * original component if null.
+     *
+     * @return a list of annotation blueprints associated with this component
+     * @throws IOException signals that an I/O exception has occurred
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more then one version is found for a particular view coordinate
+     */
+    private List<RefexDynamicCAB> getAnnotationDynamicBlueprintsFromOriginal()
+            throws IOException, InvalidCAB, ContradictionException {
+        if (annotationsDynamic.isEmpty() && (cv != null)) {
+            if (refexDirective == RefexDirective.INCLUDE) {
+                if (cv.getRefexesDynamicActive(vc) != null) {
+                    Collection<? extends RefexDynamicVersionBI<?>> originalRefexes = cv.getRefexesDynamicActive(vc);
+
+                    if (!originalRefexes.isEmpty()) {
+                        IdDirective refexIdDirective = idDirective;
+
+                        switch (idDirective) {
+                            case GENERATE_RANDOM:
+                            case GENERATE_HASH:
+                            case GENERATE_RANDOM_CONCEPT_REST_HASH:
+                            case PRESERVE_CONCEPT_REST_HASH:
+                                idDirective = IdDirective.GENERATE_HASH;
+
+                                break;
+
+                            case GENERATE_REFEX_CONTENT_HASH:
+                                idDirective = IdDirective.GENERATE_REFEX_CONTENT_HASH;
+
+                                break;
+
+                            case PRESERVE:
+                                idDirective = IdDirective.PRESERVE;
+
+                                break;
+                        }
+
+                        for (RefexDynamicVersionBI<?> refex : originalRefexes) {
+                            RefexDynamicCAB refexCab = refex.makeBlueprint(vc, refexIdDirective, refexDirective);
+
+                            refexCab.setReferencedComponentUuid(getComponentUuid());
+                            refexCab.recomputeUuid();
+                            annotationsDynamic.add(refexCab);
+                        }
+                    }
+                }
+            }
+        }
+
+        return annotationsDynamic;
     }
 
     /**
