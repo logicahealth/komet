@@ -54,7 +54,7 @@ public class RefexDynamicColumnInfo
 	private transient String columnDescription_;
 	private int columnOrder_;
 	private RefexDynamicDataType columnDataType_;
-	private RefexDynamicDataBI defaultData_;
+	private Object defaultData_;
 
 	/**
 	 * Create this object by reading the columnName and columnDescription from the provided columnDescriptionConcept.
@@ -67,9 +67,10 @@ public class RefexDynamicColumnInfo
 	 * @param columnOrder
 	 * @param columnDescriptionConceptNid
 	 * @param columnDataType
-	 * @param defaultData
+	 * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example, 
+	 * if columnDataType is set to {@link RefexDynamicDataType#FLOAT} then this field must be a Float.
 	 */
-	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, RefexDynamicDataBI defaultData)
+	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, Object defaultData)
 	{
 		columnOrder_ = columnOrder;
 		columnDescriptionConceptUUID_ = columnDescriptionConcept;
@@ -126,7 +127,7 @@ public class RefexDynamicColumnInfo
 	/**
 	 * @return the default value to use for this column, if no value is specified in a refex that is created using this column info
 	 */
-	public RefexDynamicDataBI getDefaultColumnValue()
+	public Object getDefaultColumnValue()
 	{
 		return defaultData_;
 	}
@@ -184,7 +185,7 @@ public class RefexDynamicColumnInfo
 	 * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
 	 * to be created) would look roughly like this:
 	 * 
-	 * RefexDynamicUsageDescription.createNewRefexDynamicUsageDescriptionConcept(
+	 * RefexDynamicUsageDescriptionBuilder.createNewRefexDynamicUsageDescriptionConcept(
 	 *     "The name of the Refex", 
 	 *     "The description of the Refex",
 	 *     new RefexDynamicColumnInfo[]{new RefexDynamicColumnInfo(

@@ -53,7 +53,10 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
  * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FSN that is
  *       suitable for the name of the DynamicRefex data column, and a description suitable for use as the description of the 
- *       Dynamic Refex data column.
+ *       Dynamic Refex data column.  Note, while any concept can be used here, and there are no specific requirements for this 
+ *       concept - there is a convenience method for creating one of these concepts in 
+ *       {@link RefexDynamicColumnInfo#createNewRefexDynamicColumnInfoConcept(String, String, 
+ *           org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate, org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
  * <li>A string column which can be parsed as a member of the {@link RefexDynamicDataType} class, which represents
  *       the type of the column.
  * <li>An (optional) polymorphic column (any supported data type, but MUST match the data type specified in column 2) which contains 
@@ -68,6 +71,9 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  * <br>
  * <br>
  * This class provides an implementation for parsing the interesting bits out of an assemblage concept.
+ * 
+ * For an implementation on creating them, 
+ * See {@link org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicUsageDescriptionBuilder#createNewRefexDynamicUsageDescriptionConcept} 
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -87,18 +93,21 @@ public class RefexDynamicUsageDescription
 			temp = new RefexDynamicUsageDescription(assemblageNid);
 			cache_.put(assemblageNid, temp);
 		}
-		//TODO validate up to date... check stamp??
+		//TODO [REFEX] validate up to date... check stamp??
 		return temp;
 	}
 	
 	/**
 	 * Read the RefexUsageDescription data from the database for a given nid.
 	 * 
+	 * Note that most users should call {@link #read(int)} instead, as that utilizes a cache.
+	 * This always reads directly from the DB.
+	 * 
 	 * @param refexUsageDescriptorNid
 	 * @throws IOException 
 	 * @throws ContradictionException 
 	 */
-	private RefexDynamicUsageDescription(int refexUsageDescriptorNid) throws IOException, ContradictionException
+	public RefexDynamicUsageDescription(int refexUsageDescriptorNid) throws IOException, ContradictionException
 	{
 		refexUsageDescriptorNid_ = refexUsageDescriptorNid;
 		
@@ -157,7 +166,7 @@ public class RefexDynamicUsageDescription
 					int column = (Integer)refexDefinitionData[0].getDataObject();
 					UUID descriptionUUID = (UUID)refexDefinitionData[1].getDataObject();
 					RefexDynamicDataType type = RefexDynamicDataType.valueOf((String)refexDefinitionData[2].getDataObject());
-					RefexDynamicDataBI defaultData = refexDefinitionData[3];
+					Object defaultData = refexDefinitionData[3].getDataObject();
 					
 					if (defaultData != null && type.getRefexMemberClass() != defaultData.getClass())
 					{
@@ -220,22 +229,6 @@ public class RefexDynamicUsageDescription
 		return refexColumnInfo_;
 	}
 	
-	/**
-	 * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Refex.
-	 * 
-	 * The concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_TYPES}
-	 * 
-	 * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
-	 */
-	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexDescription, RefexDynamicColumnInfo[] columns) throws IOException, ContradictionException
-	{
-		//TODO [REFEX] Implement
-		int refexUsageDescriptorNid = 0;
-		
-		
-		return new RefexDynamicUsageDescription(refexUsageDescriptorNid);
-	}
-
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */

@@ -37,6 +37,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
@@ -196,6 +197,14 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 			for (ConceptSpec cs : conceptSpecsToProcess)
 			{
 				TtkConceptChronicle converted = convert(cs);
+				if (RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0].equals(cs.getUuids()[0]))
+				{
+					//TODO need to add 4 refexes, which define how other refexes are defined (col 1-4)
+				}
+				else if (RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0].equals(cs.getUuids()[0]))
+				{
+					//TODO Need to add a Refex (to itself) which indicates this is valid for use as an assemblage concept
+				}
 				if (writeAsChangeSetFormat)
 				{
 					dos.writeLong(System.currentTimeMillis());
