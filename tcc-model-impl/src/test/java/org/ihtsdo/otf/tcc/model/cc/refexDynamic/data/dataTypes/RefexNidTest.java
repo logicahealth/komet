@@ -50,8 +50,8 @@ public class RefexNidTest
 		RefexNid i = new RefexNid(value, "foo");
 
 		assertEquals(value, i.getDataNid());
-		assertEquals(value, (int) i.getDataObject());
-		assertEquals(value, (int) i.getDataObjectProperty().get());
+		assertEquals(value, ((Integer) i.getDataObject()).intValue());
+		assertEquals(value, ((Integer) i.getDataObjectProperty().get()).intValue());
 		assertEquals(i.getRefexDataType(), RefexDynamicDataType.NID);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}

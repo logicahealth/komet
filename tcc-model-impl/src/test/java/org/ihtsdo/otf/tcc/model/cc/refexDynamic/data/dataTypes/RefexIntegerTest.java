@@ -50,8 +50,8 @@ public class RefexIntegerTest
 		RefexInteger i = new RefexInteger(value, "foo");
 
 		assertEquals(value, i.getDataInteger());
-		assertEquals(value, (int) i.getDataObject());
-		assertEquals(value, (int) i.getDataObjectProperty().get());
+		assertEquals(value, ((Integer) i.getDataObject()).intValue());
+		assertEquals(value, ((Integer) i.getDataObjectProperty().get()).intValue());
 		assertEquals(i.getRefexDataType(), RefexDynamicDataType.INTEGER);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}

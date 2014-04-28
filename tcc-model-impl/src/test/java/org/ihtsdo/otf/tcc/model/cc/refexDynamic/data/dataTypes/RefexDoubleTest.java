@@ -50,8 +50,8 @@ public class RefexDoubleTest
 		RefexDouble l = new RefexDouble(value, "foo");
 
 		assertEquals(value, l.getDataDouble(), 0);
-		assertEquals(value, (double) l.getDataObject(), 0);
-		assertEquals(value, (double) l.getDataObjectProperty().get(), 0);
+		assertEquals(value, (Double) l.getDataObject(), 0);
+		assertEquals(value, (Double) l.getDataObjectProperty().get(), 0);
 		assertEquals(l.getRefexDataType(), RefexDynamicDataType.DOUBLE);
 	}
 }

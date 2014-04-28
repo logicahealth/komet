@@ -49,7 +49,7 @@ public class RefexLongTest
 		RefexLong l = new RefexLong(value, "foo");
 
 		assertEquals(value, l.getDataLong());
-		assertEquals(value, (long) l.getDataObject());
-		assertEquals(value, (long) l.getDataObjectProperty().get());
+		assertEquals(value, ((Long) l.getDataObject()).longValue());
+		assertEquals(value, ((Long) l.getDataObjectProperty().get()).longValue());
 	}
 }

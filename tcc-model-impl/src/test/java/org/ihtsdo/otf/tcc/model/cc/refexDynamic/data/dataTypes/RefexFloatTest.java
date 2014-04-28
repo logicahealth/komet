@@ -50,8 +50,8 @@ public class RefexFloatTest
 		RefexFloat l = new RefexFloat(value, "foo");
 
 		assertEquals(value, l.getDataFloat(), 0);
-		assertEquals(value, (float) l.getDataObject(), 0);
-		assertEquals(value, (float) l.getDataObjectProperty().get(), 0);
+		assertEquals(value, (Float) l.getDataObject(), 0);
+		assertEquals(value, (Float) l.getDataObjectProperty().get(), 0);
 		assertEquals(l.getRefexDataType(), RefexDynamicDataType.FLOAT);
 	}
 }

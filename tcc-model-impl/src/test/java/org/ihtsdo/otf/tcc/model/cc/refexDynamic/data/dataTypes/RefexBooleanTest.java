@@ -50,8 +50,8 @@ public class RefexBooleanTest
 		RefexBoolean i = new RefexBoolean(value, "foo");
 
 		assertEquals(value, i.getDataBoolean());
-		assertEquals(value, (boolean) i.getDataObject());
-		assertEquals(value, (boolean) i.getDataObjectProperty().get());
+		assertEquals(value, (Boolean) i.getDataObject());
+		assertEquals(value, (Boolean) i.getDataObjectProperty().get());
 		assertEquals(i.getRefexDataType(), RefexDynamicDataType.BOOLEAN);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
