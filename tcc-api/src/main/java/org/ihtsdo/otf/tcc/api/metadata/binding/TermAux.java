@@ -66,4 +66,7 @@ public class TermAux {
     public static ConceptSpec SNOMED_CORE =
             new ConceptSpec("SNOMED Core",
             UUID.fromString("8c230474-9f11-30ce-9cad-185a96fd03a2"));
+    public static ConceptSpec REFSET_IDENTITY = 
+            new ConceptSpec("refset identity",
+            UUID.fromString("3e0cd740-2cc6-3d68-ace7-bad2eb2621da"));
 }
