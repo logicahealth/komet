@@ -16,11 +16,15 @@
 package org.ihtsdo.otf.tcc.api.metadata.binding;
 
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 
 /**
  * 
  * {@link RefexDynamic}
+ * 
+ * If you want to understand how these various concepts work together, see  the class description for
+ * {@link RefexDynamicUsageDescription}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -36,7 +40,7 @@ public class RefexDynamic
 	public static ConceptSpec REFEX_DYNAMIC_NAMESPACE = new ConceptSpec("Refex Dynamic Namespace", 
 			UUID.fromString("9c76af37-671c-59a3-93bf-dfe0c5c58bfa"));
 	
-	//an organizational concept for all of the new concepts being added to the Refeset Auziliary Concept tree
+	//an organizational concept for all of the new concepts being added to the Refset Auxiliary Concept tree
 	public static ConceptSpec REFEX_DYNAMIC_TYPES = new ConceptSpec("dynamic refex types", 
 			UUID.fromString("647b6283-7c5f-53ff-a5f7-a40c865b1ef0"), 
 			Taxonomies.REFSET_AUX);
