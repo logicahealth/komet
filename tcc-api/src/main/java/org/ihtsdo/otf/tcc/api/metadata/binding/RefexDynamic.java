@@ -66,6 +66,12 @@ public class RefexDynamic
 			UUID.fromString("0cb295ea-71c9-5137-8662-66373eecd0dc"),
 			REFEX_DYNAMIC_TYPES);
 	
+	//An organizational concept which serves as a parent concept for dynamic refsets defined in the system
+	//(unless they choose to put them some where else, this isn't required, is only for convenience)
+	public static ConceptSpec REFEX_DYNAMIC_IDENTITY = new ConceptSpec("Dynamic Refsets", 
+			UUID.fromString("297a9eb3-ab27-5d33-8a95-61e9c741be73"),
+			TermAux.REFSET_IDENTITY);
+
 	//New data types
 	
 	public static ConceptSpec REFEX_DT_NID = new ConceptSpec("nid", 
