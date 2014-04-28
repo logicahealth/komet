@@ -18,9 +18,25 @@
  */
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
+import java.io.IOException;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
+import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 
 /**
@@ -125,7 +141,38 @@ public class RefexDynamicColumnInfo
 	
 	private void read()
 	{
-		//TODO [REFEX] implement
+		//TODO [REFEX] figure out language details, filter for preferred
+		try
+		{
+			ConceptVersionBI cv = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), columnDescriptionConceptUUID_);
+			if (cv.getDescriptionsActive() != null)
+			{
+				for (DescriptionVersionBI<?> d : cv.getDescriptionsActive())
+				{
+					if (d.getTypeNid() == Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getNid())
+					{
+						columnName_ = d.getText();
+					}
+					else if (d.getTypeNid() == Snomed.SYNONYM_DESCRIPTION_TYPE.getNid())
+					{
+						columnDescription_ = d.getText();
+					}
+				}
+			}
+		}
+		catch (IOException | ContradictionException e)
+		{
+			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failure reading RefexDynamicColumnInfo", e);
+		}
+		if (columnName_ == null)
+		{
+			columnName_ = "ERROR - see Logs!";
+		}
+		
+		if (columnDescription_ == null)
+		{
+			columnDescription_ = "There was an error reading the column info from the concept " + columnDescriptionConceptUUID_;
+		}
 	}
 	
 	/**
@@ -152,11 +199,29 @@ public class RefexDynamicColumnInfo
 	 *     )
 	 * 
 	 * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
+	 * @throws ContradictionException 
+	 * @throws InvalidCAB 
+	 * @throws IOException 
 	 */
-	public static UUID createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription)
+	@SuppressWarnings("deprecation")
+	public static ConceptChronicleBI createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription, EditCoordinate ec, ViewCoordinate vc) 
+			throws IOException, InvalidCAB, ContradictionException
 	{
-		//TODO [REFEX] implement
-		return UUID.randomUUID();
+		//Yea, bad bad form.  This impl stuff doesn't not belong in API.  But, will save moving that to a bigger
+		//task of getting all of the impl stuff in blueprint out of API.
+		LanguageCode lc = LanguageCode.EN_US;
+		UUID isA = Snomed.IS_A.getUuids()[0];
+		IdDirective idDir = IdDirective.GENERATE_HASH;
+		UUID module = Snomed.CORE_MODULE.getUuids()[0];
+		UUID parents[] = new UUID[] { RefexDynamic.REFEX_DYNAMIC_COLUMNS.getUuids()[0] };
+
+		ConceptCB cab = new ConceptCB(columnName, columnDescription, lc, isA, idDir, module, parents);
+		
+		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(ec, vc).construct(cab);
+		Ts.get().addUncommitted(newCon);
+		Ts.get().commit(newCon);
+		
+		return newCon;
 	}
 
 }
