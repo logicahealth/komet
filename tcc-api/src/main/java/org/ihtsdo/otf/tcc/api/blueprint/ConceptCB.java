@@ -650,7 +650,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         this.recomputeUuid();
         preferredNameBlueprint.setText(newPreferredName);
         if (dialect != null) {
-        	//TODO [REFEX] add handling for new Refex here
+        	//TODO [REFEX] add handling for new Refex here, but only when we move how the languages are specified
             List<RefexCAB> annotationBlueprints = preferredNameBlueprint.getAnnotationBlueprints();
             for (RefexCAB annot : annotationBlueprints) {
                 if (annot.getRefexCollectionUuid().equals(usRefexUuid) || annot.getRefexCollectionUuid().equals(gbRefexUuid)) {
