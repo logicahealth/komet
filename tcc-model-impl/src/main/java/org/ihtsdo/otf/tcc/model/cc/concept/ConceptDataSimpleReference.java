@@ -25,6 +25,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import java.io.IOException;
@@ -478,6 +479,29 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
          memberMapLock.unlock();
       }
    }
+   
+   private void setupMemberDynamicMap(Collection<RefexDynamicMember> refsetMemberDynamicList) {
+      memberDynamicMapLock.lock();
+
+      try {
+         if ((refsetDynamicMembers.get() == null) || (refsetDynamicComponentMap.get() == null)) {
+            ConcurrentHashMap<Integer, RefexDynamicMember> memberMap = new ConcurrentHashMap<>(refsetMemberDynamicList.size(),
+                                                                                0.75f, 2);
+            ConcurrentHashMap<Integer, RefexDynamicMember> componentMap = new ConcurrentHashMap<>(refsetMemberDynamicList.size(),
+                                                                                   0.75f, 2);
+
+            for (RefexDynamicMember m : refsetMemberDynamicList) {
+               memberMap.put(m.nid, m);
+               componentMap.put(m.getReferencedComponentNid(), m);
+            }
+
+            refsetDynamicMembersMap.set(memberMap);
+            refsetDynamicComponentMap.set(componentMap);
+         }
+      } finally {
+         memberDynamicMapLock.unlock();
+      }
+   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -532,6 +556,81 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
             }
          }
       }
+      
+      if (getRefsetDynamicMembers() != null) {
+          for (RefexDynamicMember r : getRefsetDynamicMembers()) {
+             cc = getAnnotation(r.annotations, nid);
+
+             if (cc != null) {
+                return cc;
+             }
+          }
+       }
+
+      return null;
+   }
+   
+   private RefexDynamicChronicleBI<?> getAnnotationDynamic(int nid) throws IOException {
+      RefexDynamicChronicleBI<?> cc;
+
+      // recursive search through all annotations...
+      if (getConceptAttributes() != null) {
+         cc = getAnnotationDynamic(getConceptAttributes().annotationsDynamic, nid);
+
+         if (cc != null) {
+            return cc;
+         }
+      }
+
+      if (getDescriptions() != null) {
+         for (Description d : getDescriptions()) {
+            cc = getAnnotationDynamic(d.annotationsDynamic, nid);
+
+            if (cc != null) {
+               return cc;
+            }
+         }
+      }
+
+      if (getSourceRels() != null) {
+         for (Relationship r : getSourceRels()) {
+            cc = getAnnotationDynamic(r.annotationsDynamic, nid);
+
+            if (cc != null) {
+               return cc;
+            }
+         }
+      }
+
+      if (getImages() != null) {
+         for (Media i : getImages()) {
+            cc = getAnnotationDynamic(i.annotationsDynamic, nid);
+
+            if (cc != null) {
+               return cc;
+            }
+         }
+      }
+
+      if (getRefsetMembers() != null) {
+         for (RefexMember<?, ?> r : getRefsetMembers()) {
+            cc = getAnnotationDynamic(r.annotationsDynamic, nid);
+
+            if (cc != null) {
+               return cc;
+            }
+         }
+      }
+      
+      if (getRefsetDynamicMembers() != null) {
+          for (RefexDynamicMember r : getRefsetDynamicMembers()) {
+             cc = getAnnotationDynamic(r.annotationsDynamic, nid);
+
+             if (cc != null) {
+                return cc;
+             }
+          }
+       }
 
       return null;
    }
@@ -548,6 +647,27 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
          }
 
          RefexChronicleBI<?> cc = getAnnotation(annotation.getAnnotations(), nid);
+
+         if (cc != null) {
+            return cc;
+         }
+      }
+
+      return null;
+   }
+   
+   private RefexDynamicChronicleBI<?> getAnnotationDynamic(Collection<? extends RefexDynamicChronicleBI<?>> annotations, int nid)
+           throws IOException {
+      if (annotations == null) {
+         return null;
+      }
+
+      for (RefexDynamicChronicleBI<?> annotation : annotations) {
+         if (annotation.getNid() == nid) {
+            return annotation;
+         }
+
+         RefexDynamicChronicleBI<?> cc = getAnnotationDynamic(annotation.getRefexDynamicAnnotations(), nid);
 
          if (cc != null) {
             return cc;
@@ -958,6 +1078,43 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       }
 
       return refsetMembersMap.get().get(memberNid);
+   }
+   
+   @Override
+   public RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException {
+      if (isAnnotationStyleRefex()) {
+         if (getMemberNids().contains(memberNid)) {
+            if (P.s.getConceptNidForNid(memberNid) == getNid()) {
+               return (RefexDynamicMember) getAnnotationDynamic(memberNid);
+            } else {
+               return (RefexDynamicMember) P.s.getComponent(memberNid);
+            }
+         }
+
+         return null;
+      }
+
+      Collection<RefexDynamicMember> refsetMemberList = getRefsetDynamicMembers();
+
+      if (refsetDynamicMembersMap.get() != null) {
+         return refsetDynamicMembersMap.get().get(memberNid);
+      }
+
+      if (refsetMemberList.size() < useMemberMapThreshold) {
+         for (RefexDynamicMember member : refsetMemberList) {
+            if (member.nid == memberNid) {
+               return member;
+            }
+         }
+
+         return null;
+      }
+
+      if (refsetDynamicMembersMap.get() == null) {
+         setupMemberDynamicMap(refsetMemberList);
+      }
+
+      return refsetDynamicMembersMap.get().get(memberNid);
    }
 
    @Override

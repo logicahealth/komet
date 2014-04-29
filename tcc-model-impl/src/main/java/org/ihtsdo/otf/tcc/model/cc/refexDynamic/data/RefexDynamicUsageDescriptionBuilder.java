@@ -20,6 +20,8 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.TreeSet;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
@@ -81,37 +83,35 @@ public class RefexDynamicUsageDescriptionBuilder
 			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, EditCoordinate ec, ViewCoordinate vc) throws 
 			IOException, ContradictionException, InvalidCAB, PropertyVetoException
 	{
-		//Yea, bad bad form.  This impl stuff doesn't not belong in API.  But, will save moving that to a bigger
-		//task of getting all of the impl stuff in blueprint out of API.
 		LanguageCode lc = LanguageCode.EN_US;
 		UUID isA = Snomed.IS_A.getUuids()[0];
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = TermAux.TERM_AUX_MODULE.getUuids()[0];
-		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.REFEX_DYNAMIC_TYPES.getUuids()[0] : parentConcept };
+		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.REFEX_DYNAMIC_IDENTITY.getUuids()[0] : parentConcept };
 
 		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, parents);
+		cab.setAnnotationRefexExtensionIdentity(true);
 		
 		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(), Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], lc, refexDescription, false,
 				IdDirective.GENERATE_HASH);
 		
 		//TODO [REFEX] question - does this need a refex lang with isPref = false?
-		//TODO [REFEX] REFEX_DYNAMIC_DEFINITION_DESCRIPTION needs to be created with a refex itself...
 		RefexDynamicCAB descriptionMarker = new RefexDynamicCAB(dCab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0]);
-		descriptionMarker.addAnnotationBlueprint(descriptionMarker);
+		dCab.addAnnotationBlueprint(descriptionMarker);
 		
 		cab.addDescriptionCAB(dCab);
 		
-		
 		if (columns != null)
 		{
+			//Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right order.
+			TreeSet<RefexDynamicColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
 			RefexDynamicUsageDescription descriptorForADescriptor = RefexDynamicUsageDescription.read(RefexDynamic.REFEX_DYNAMIC_DEFINITION.getNid());
 			
-			for (RefexDynamicColumnInfo ci : columns)
+			for (RefexDynamicColumnInfo ci : sortedColumns)
 			{
-				//TODO [REFEX] REFEX_DYNAMIC_DEFINITION needs to be created with a refex itself...
 				RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0]);
 				
-				RefexDynamicDataBI[] data = new RefexDynamicDataBI[ci.getDefaultColumnValue() == null ? 3 : 4];
+				RefexDynamicDataBI[] data = new RefexDynamicDataBI[4];
 				
 				data[0] = new RefexInteger(ci.getColumnOrder(), descriptorForADescriptor.getColumnInfo()[0].getColumnName());
 				data[1] = new RefexUUID(ci.getColumnDescriptionConcept(), descriptorForADescriptor.getColumnInfo()[1].getColumnName());
@@ -170,8 +170,13 @@ public class RefexDynamicUsageDescriptionBuilder
 						throw new InvalidCAB("Error in column - if default value is provided, the type must be compatible with the the column descriptor type");
 					}
 				}
+				else
+				{
+					data[3] = null;
+				}
 				rCab.setData(data);
-				cab.addAnnotationBlueprint(rCab);
+				//TODO file a another bug, this API is atrocious.  If you put the annotation on the concept, it gets silently ignored.
+				cab.getConceptAttributeAB().addAnnotationBlueprint(rCab);
 			}
 		}
 		

@@ -188,6 +188,10 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     protected void addRefsetTypeNids(Set<Integer> allNids) {
         for (RefexDynamicDataBI data : getData())
         {
+            if (data == null)
+            {
+                continue;
+            }
             if (data.getRefexDataType() == RefexDynamicDataType.NID)
             {
                 allNids.add((int)data.getDataObject());
@@ -208,9 +212,16 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         output.writeInt(getData().length);
         for (RefexDynamicDataBI column : getData())
         {
-            output.writeInt(column.getRefexDataType().getTypeToken());
-            output.writeInt(column.getData().length);
-            output.write(column.getData());
+            if (column == null)
+            {
+                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+            }
+            else
+            {
+                output.writeInt(column.getRefexDataType().getTypeToken());
+                output.writeInt(column.getData().length);
+                output.write(column.getData());
+            }
         }
     }
 

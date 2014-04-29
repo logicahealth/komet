@@ -103,6 +103,8 @@ public interface I_ManageConceptData {
    TupleInput getReadWriteTupleInput() throws IOException;
 
    RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException;
+   
+   RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException;
 
    RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException;
 

@@ -47,7 +47,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexDynamicColumnInfo
+public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo>
 {
 	private UUID columnDescriptionConceptUUID_;
 	private transient String columnName_;
@@ -129,6 +129,11 @@ public class RefexDynamicColumnInfo
 	 */
 	public Object getDefaultColumnValue()
 	{
+		//Handle folks sending empty strings gracefully
+		if (defaultData_ != null && defaultData_ instanceof String && ((String)defaultData_).length() == 0)
+		{
+			return null;
+		}
 		return defaultData_;
 	}
 	
@@ -225,4 +230,12 @@ public class RefexDynamicColumnInfo
 		return newCon;
 	}
 
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(RefexDynamicColumnInfo o)
+	{
+		return Integer.compare(this.getColumnOrder(), o.getColumnOrder());
+	}
 }

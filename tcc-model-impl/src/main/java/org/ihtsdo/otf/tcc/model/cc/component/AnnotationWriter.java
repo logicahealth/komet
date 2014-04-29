@@ -18,8 +18,6 @@
 
 package org.ihtsdo.otf.tcc.model.cc.component;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,11 +25,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
+import com.sleepycat.bind.tuple.TupleInput;
+import com.sleepycat.bind.tuple.TupleOutput;
 
 /**
  *
@@ -40,10 +44,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 public class AnnotationWriter {
    public static AtomicInteger encountered = new AtomicInteger();
    public static AtomicInteger written     = new AtomicInteger();
-
-   //~--- fields --------------------------------------------------------------
-
-   RefexMemberFactory factory = new RefexMemberFactory();
 
    //~--- constructors --------------------------------------------------------
 
@@ -108,6 +108,61 @@ public class AnnotationWriter {
 
       return newRefsetMemberList;
    }
+   
+   public ConcurrentSkipListSet<RefexDynamicMember> entryDynamicToObject(TupleInput input, int enclosingConceptNid) {
+      int listSize = input.readShort();
+
+      if (listSize == 0) {
+         return null;
+      }
+
+      ConcurrentSkipListSet<RefexDynamicMember> newRefsetMemberList =
+         new ConcurrentSkipListSet<>(new Comparator<RefexDynamicChronicleBI<?>>() {
+         @Override
+         public int compare(RefexDynamicChronicleBI<?> t, RefexDynamicChronicleBI<?> t1) {
+            return t.getNid() - t1.getNid();
+         }
+      });
+
+      for (int index = 0; index < listSize; index++) {
+         input.mark(8);
+
+         int nid = input.readInt();
+
+         input.reset();
+
+         RefexDynamicMember refsetMember = (RefexDynamicMember) ConceptChronicle.componentsCRHM.get(nid);
+
+         if (refsetMember == null) {
+            try {
+               refsetMember = RefexDynamicMemberFactory.create(nid, enclosingConceptNid, input);
+
+               if (refsetMember.getTime() != Long.MIN_VALUE) {
+                  RefexDynamicMember oldMember = (RefexDynamicMember) ConceptChronicle.componentsCRHM.putIfAbsent(nid, refsetMember);
+
+                  if (oldMember != null) {
+                     refsetMember = oldMember;
+                  }
+               }
+            } catch (IOException ex) {
+               throw new RuntimeException(ex);
+            }
+         } else {
+            try {
+               refsetMember.merge(RefexDynamicMemberFactory.create(nid, enclosingConceptNid, input));
+            } catch (IOException ex) {
+               throw new RuntimeException(ex);
+            }
+         }
+
+         if (refsetMember.getTime() != Long.MIN_VALUE) {
+            newRefsetMemberList.add(refsetMember);
+         }
+      }
+
+      return newRefsetMemberList;
+   }
+
 
    public void objectToEntry(Collection<RefexMember<?, ?>> list, TupleOutput output,
                              int maxReadOnlyStatusAtPositionId) {
@@ -146,6 +201,45 @@ public class AnnotationWriter {
       for (RefexMember<?, ?> refsetMember : refsetMembersToWrite) {
          written.incrementAndGet();
          output.writeInt(refsetMember.getTypeNid());
+         refsetMember.writeComponentToBdb(output, maxReadOnlyStatusAtPositionId);
+      }
+   }
+   
+   public void objectDynamicToEntry(Collection<RefexDynamicMember> list, TupleOutput output, int maxReadOnlyStatusAtPositionId) {
+      if (list == null) {
+         output.writeShort(0);    // List size
+
+         return;
+      }
+
+      List<RefexDynamicMember> refsetMembersToWrite = new ArrayList<>(list.size());
+
+      for (RefexDynamicChronicleBI<?> refsetChronicle : list) {
+         RefexDynamicMember refsetMember = (RefexDynamicMember) refsetChronicle;
+
+         encountered.incrementAndGet();
+         assert refsetMember.getStamp() != Integer.MAX_VALUE;
+
+         if ((refsetMember.primordialStamp > maxReadOnlyStatusAtPositionId)
+                 && (refsetMember.getTime() != Long.MIN_VALUE)) {
+            refsetMembersToWrite.add(refsetMember);
+         } else {
+            if (refsetMember.revisions != null) {
+               for (RefexDynamicRevision r : refsetMember.revisions) {
+                  if ((r.getStamp() > maxReadOnlyStatusAtPositionId) && (r.getTime() != Long.MIN_VALUE)) {
+                     refsetMembersToWrite.add(refsetMember);
+
+                     break;
+                  }
+               }
+            }
+         }
+      }
+
+      output.writeShort(refsetMembersToWrite.size());    // List size
+
+      for (RefexDynamicMember refsetMember : refsetMembersToWrite) {
+         written.incrementAndGet();
          refsetMember.writeComponentToBdb(output, maxReadOnlyStatusAtPositionId);
       }
    }

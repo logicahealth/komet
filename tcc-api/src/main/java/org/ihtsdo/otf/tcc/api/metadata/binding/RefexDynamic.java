@@ -52,8 +52,8 @@ public class RefexDynamic
 			UUID.fromString("21d300f2-b2d8-5586-916b-0e7ac88d5bea"),
 			REFEX_DYNAMIC_TYPES);
 	
-	//This is the assemblage type that must be present on a concept for it to be used as an assemblage itself - this is the description
-	//of the refex that carries the data type definition of the refex.
+	//This is the assemblage type that is usually present on a concept when it is used as an assemblage itself - the attached
+	//refex using this for an assemblage will describe a data column that is to be attached with the refex.
 	public static ConceptSpec REFEX_DYNAMIC_DEFINITION = new ConceptSpec("dynamic refex definition", 
 			UUID.fromString("a40fb48c-d755-5eaa-a725-4c4ebc9b9e6e"),
 			REFEX_DYNAMIC_TYPES);
@@ -63,9 +63,22 @@ public class RefexDynamic
 	public static ConceptSpec REFEX_DYNAMIC_COLUMNS = new ConceptSpec("dynamic refex columns", 
 			UUID.fromString("a6767545-14d4-50f7-9522-2ddc37c2f676"),
 			REFEX_DYNAMIC_TYPES);
+
+	//The four column types we need for describing column types
+	public static ConceptSpec REFEX_COLUMN_ORDER = new ConceptSpec("column order", 
+			UUID.fromString("8c501747-846a-5cea-8fd6-c9dd3dfc674f"),
+			REFEX_DYNAMIC_COLUMNS);
+	public static ConceptSpec REFEX_COLUMN_NAME = new ConceptSpec("column name", 
+			UUID.fromString("89c0ded2-fd69-5654-a386-ded850d258a1"),
+			REFEX_DYNAMIC_COLUMNS);
+	public static ConceptSpec REFEX_COLUMN_TYPE = new ConceptSpec("column type", 
+			UUID.fromString("dbfd9bd2-b84f-574a-ab9e-64ba3bb94793"),
+			REFEX_DYNAMIC_COLUMNS);
+	public static ConceptSpec REFEX_COLUMN_DEFAULT_VALUE = new ConceptSpec("column default value", 
+			UUID.fromString("4d3e79aa-ab74-5858-beb3-15e0888986cb"),
+			REFEX_DYNAMIC_COLUMNS);
 	
-	//An organizational concept which serves as a parent concept for any column types that are defined
-	//within the system.
+	//An organizational concept which serves as a parent concept for the allowed types of data columns
 	public static ConceptSpec REFEX_DATA_TYPES = new ConceptSpec("refex dynamic column data types", 
 			UUID.fromString("0cb295ea-71c9-5137-8662-66373eecd0dc"),
 			REFEX_DYNAMIC_TYPES);

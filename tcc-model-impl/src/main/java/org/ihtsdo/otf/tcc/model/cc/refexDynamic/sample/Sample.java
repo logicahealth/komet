@@ -73,6 +73,11 @@ public class Sample {
         
         for (RefexDynamicDataBI data : refex.getData())
         {
+            if (data == null)
+            {
+                System.out.println("null");
+                continue;
+            }
             //serialized object access (most shouldn't need this)
             System.out.println(data.getData());
             

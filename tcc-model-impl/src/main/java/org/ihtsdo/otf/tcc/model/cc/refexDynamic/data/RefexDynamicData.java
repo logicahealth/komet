@@ -105,7 +105,7 @@ public abstract class RefexDynamicData implements RefexDynamicDataBI
 			name = "Error getting column name from assemblageNid " + assemblageNid_;
 		}
 		
-		return "(" + getRefexDataType().name() + " -" + name + " - " + getDataObject() +")";
+		return "(" + getRefexDataType().name() + " - " + name + " - " + getDataObject() +")";
 	}
 
 	/**

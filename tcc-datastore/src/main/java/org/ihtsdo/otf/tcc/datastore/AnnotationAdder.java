@@ -20,23 +20,25 @@ package org.ihtsdo.otf.tcc.datastore;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
-import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
+import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 
 /**
  *
@@ -50,6 +52,9 @@ public class AnnotationAdder implements ProcessUnfetchedConceptDataBI {
    /** Field description */
    ConcurrentHashMap<Integer, ConcurrentSkipListSet<TtkRefexAbstractMemberChronicle<?>>> membersForConcept =
       new ConcurrentHashMap<>();
+   
+   ConcurrentHashMap<Integer, ConcurrentSkipListSet<TtkRefexDynamicMemberChronicle>> dynamicMembersForConcept =
+            new ConcurrentHashMap<>();
 
    /**
     * Constructs ...
@@ -57,8 +62,9 @@ public class AnnotationAdder implements ProcessUnfetchedConceptDataBI {
     *
     * @param members
     */
-   AnnotationAdder(List<TtkRefexAbstractMemberChronicle<?>> members) {
+   AnnotationAdder(List<TtkRefexAbstractMemberChronicle<?>> members, List<TtkRefexDynamicMemberChronicle> dynamicMembers) {
       TkRmComparator comparator = new TkRmComparator();
+      TkDynamicRmComparator dynamicComparator = new TkDynamicRmComparator();
       int            errors     = 0;
       Set<UUID>      errorSet   = new TreeSet<>();
 
@@ -84,6 +90,29 @@ public class AnnotationAdder implements ProcessUnfetchedConceptDataBI {
             AceLog.getAppLog().warning("No concept for: " + member);
          }
       }
+      
+      for (TtkRefexDynamicMemberChronicle member : dynamicMembers) {
+          UUID componentUuid = member.getComponentUuid();
+          int  nid           = Bdb.uuidToNid(componentUuid);
+          int  cNid          = Bdb.getConceptNid(nid);
+
+          if (cNid + Integer.MIN_VALUE >= 0) {
+             conceptNids.setMember(cNid);
+
+             ConcurrentSkipListSet<TtkRefexDynamicMemberChronicle> set = new ConcurrentSkipListSet<>(dynamicComparator);
+
+             dynamicMembersForConcept.putIfAbsent(cNid, set);
+             dynamicMembersForConcept.get(cNid).add(member);
+          } else {
+             errors++;
+             errorSet.add(componentUuid);
+
+             int nid2  = Bdb.uuidToNid(member.getComponentUuid());
+             int cNid2 = Bdb.getConceptNid(nid);
+
+             AceLog.getAppLog().warning("No concept for: " + member);
+          }
+       }
 
       if (errors > 0) {
          AceLog.getAppLog().warning(errors + " processing errors.\n\nError set: " + errorSet.size() + "\n"
@@ -137,8 +166,20 @@ public class AnnotationAdder implements ProcessUnfetchedConceptDataBI {
                AceLog.getAppLog().warning("Cannot import annotation. Component is null for: " + member);
             }
          }
+         
+         ConcurrentSkipListSet<TtkRefexDynamicMemberChronicle> dynamicSet = dynamicMembersForConcept.get(cNid);
+         for (TtkRefexDynamicMemberChronicle member : dynamicSet) {
+             ComponentChronicleBI<?> component = c.getComponent(Bdb.uuidToNid(member.getComponentUuid()));
 
+             if (component != null) {
+                component.addDynamicAnnotation(RefexDynamicMemberFactory.create(member, cNid));
+             } else {
+                AceLog.getAppLog().warning("Cannot import annotation. Component is null for: " + member);
+             }
+          }
+         
          membersForConcept.remove(cNid);
+         dynamicMembersForConcept.remove(cNid);
          BdbCommitManager.addUncommittedNoChecks(c);
       }
    }
@@ -189,5 +230,13 @@ public class AnnotationAdder implements ProcessUnfetchedConceptDataBI {
       public int compare(TtkRefexAbstractMemberChronicle<?> t, TtkRefexAbstractMemberChronicle<?> t1) {
          return t.primordialUuid.compareTo(t1.primordialUuid);
       }
+   }
+      
+      static class TkDynamicRmComparator implements Comparator<TtkRefexDynamicMemberChronicle> {
+
+          @Override
+          public int compare(TtkRefexDynamicMemberChronicle t, TtkRefexDynamicMemberChronicle t1) {
+             return t.primordialUuid.compareTo(t1.primordialUuid);
+          }
    }
 }

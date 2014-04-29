@@ -56,7 +56,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 public class RefexDynamicCAB extends CreateOrAmendBlueprint
 {
 	//TODO [REFEX] QUESTION - Should we require them to specify whether or not a column is optional?  Or treat all columns as optional?
-	private static final UUID refexDynamicNamespace = RefexDynamic.REFEX_DYNAMIC_NAMESPACE.getUuids()[0];
+	public static final UUID refexDynamicNamespace = RefexDynamic.REFEX_DYNAMIC_NAMESPACE.getUuids()[0];
 
 	/**
 	 * Computes the uuid of the refex member and sets the member uuid property.
@@ -89,11 +89,20 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 			StringBuilder sb = new StringBuilder();
 			sb.append(getPrimordialUuidStringForNidProp(ComponentProperty.ASSEMBLAGE_ID));
 			sb.append(getPrimordialUuidStringForNidProp(ComponentProperty.REFERENCED_COMPONENT_ID));
-			if (properties.get(ComponentProperty.DYNAMIC_REFEX_DATA ) != null)
+			if (getData() != null)
 			{
-				RefexDynamicDataBI data = (RefexDynamicDataBI)properties.get(ComponentProperty.DYNAMIC_REFEX_DATA);
-				sb.append(data.getRefexDataType());
-				sb.append(data.getData());
+				for (RefexDynamicDataBI data : getData())
+				{
+					if (data != null)
+					{
+						sb.append(data.getRefexDataType());
+						sb.append(data.getData());
+					}
+					else
+					{
+						sb.append("null");
+					}
+				}
 			}
 			return UuidT5Generator.get(refexDynamicNamespace, sb.toString());
 		}
@@ -559,6 +568,13 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	{
 		validateData(data);
 		properties.put(ComponentProperty.DYNAMIC_REFEX_DATA, data);
+		recomputeUuid();
+	}
+	
+	
+	public RefexDynamicDataBI[] getData()
+	{
+		return (RefexDynamicDataBI[])properties.get(ComponentProperty.DYNAMIC_REFEX_DATA);
 	}
 	
 	/**

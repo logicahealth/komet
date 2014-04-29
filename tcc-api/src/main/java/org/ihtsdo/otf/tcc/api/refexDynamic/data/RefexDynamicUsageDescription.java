@@ -125,7 +125,6 @@ public class RefexDynamicUsageDescription
 					if (descriptionAnnotation.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getNid())
 					{
 						hasCorrectAnnotation = true;
-						break;
 					}
 					if (hasCorrectAnnotation)
 					{
@@ -166,7 +165,11 @@ public class RefexDynamicUsageDescription
 					int column = (Integer)refexDefinitionData[0].getDataObject();
 					UUID descriptionUUID = (UUID)refexDefinitionData[1].getDataObject();
 					RefexDynamicDataType type = RefexDynamicDataType.valueOf((String)refexDefinitionData[2].getDataObject());
-					Object defaultData = refexDefinitionData[3].getDataObject();
+					Object defaultData = null;
+					if (refexDefinitionData.length > 3)
+					{
+						defaultData = (refexDefinitionData[3] == null ? null : refexDefinitionData[3].getDataObject());
+					}
 					
 					if (defaultData != null && type.getRefexMemberClass() != defaultData.getClass())
 					{

@@ -45,6 +45,9 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
+import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.P;
@@ -52,7 +55,6 @@ import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray.ArrayOfByteArrayRevision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
@@ -82,30 +84,35 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     public RefexDynamicMember(int enclosingConceptNid, TupleInput input) throws IOException {
         super(enclosingConceptNid, input);
     }
-    
-    //TODO [REFEX] do I need this?  before I can implement this, I'd need to create TtkRefexDynamicMemberChronicle....
-//    public RefexDynamicMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
-//        super(refsetMember, enclosingConceptNid);
-//        assemblageNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
-//        referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
-//        primordialStamp = P.s.getStamp(refsetMember);
-//        assert primordialStamp != Integer.MAX_VALUE;
-//        assert referencedComponentNid != Integer.MAX_VALUE;
-//        assert assemblageNid != Integer.MAX_VALUE;
-//        
-//        
-////        c1Nid      = P.s.getNidForUuids(refsetMember.getUuid1());
-////        floatValue = refsetMember.getDa
-////
-////        if (refsetMember.getRevisionList() != null) {
-////           revisions = new RevisionSet<>(primordialStamp);
-////
-////           for (TtkRefexUuidFloatRevision eVersion : refsetMember.getRevisionList()) {
-////              revisions.add(new NidFloatRevision(eVersion, this));
-////           }
-////        }
-//        
-//    }
+
+    public RefexDynamicMember(TtkRefexDynamicMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
+        super(refsetMember, enclosingConceptNid);
+        assemblageNid = P.s.getNidForUuids(refsetMember.refexAssemblageUuid);
+        referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
+        primordialStamp = P.s.getStamp(refsetMember);
+        assert primordialStamp != Integer.MAX_VALUE;
+        assert referencedComponentNid != Integer.MAX_VALUE;
+        assert assemblageNid != Integer.MAX_VALUE;
+        
+        if (refsetMember.getData() != null)
+        {
+            data_= new RefexDynamicDataBI[refsetMember.getData().length];
+            for (int i = 0; i < data_.length; i++)
+            {
+                data_[i] = RefexDynamicData.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
+                        assemblageNid, i);
+            }
+        }
+
+        if (refsetMember.getRevisionList() != null) {
+            revisions = new RevisionSet<>(primordialStamp);
+
+            for (TtkRefexDynamicRevision eVersion : refsetMember.getRevisionList()) {
+                revisions.add(new RefexDynamicRevision(eVersion, this));
+            }
+        }
+        
+    }
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -487,14 +494,13 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             return (RefexDynamicVersionBI<RefexDynamicRevision>) cv;
         }
 
-      //TODO [REFEX] not sure if I need these - don't have the types yet
-//        public TtkRefexAbstractMemberChronicle<?> getERefsetMember() throws IOException {
-//            throw new UnsupportedOperationException("subclass must override");
-//        }
-//
-//        public TtkRevision getERefsetRevision() throws IOException {
-//            throw new UnsupportedOperationException("subclass must override");
-//        }
+        public TtkRefexDynamicMemberChronicle getERefsetMember() throws IOException {
+            return new TtkRefexDynamicMemberChronicle(this);
+        }
+
+        public TtkRevision getERefsetRevision() throws IOException {
+            return new TtkRefexDynamicRevision(this);
+        }
 
         @Override
         public RefexDynamicMember getPrimordialVersion() {
@@ -613,6 +619,10 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     protected void addRefsetTypeNids(Set<Integer> allNids) {
         for (RefexDynamicDataBI data : getData())
         {
+            if (data == null)
+            {
+                continue;
+            }
             if (data.getRefexDataType() == RefexDynamicDataType.NID)
             {
                 allNids.add((int)data.getDataObject());
@@ -652,11 +662,18 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         for (int i = 0; i < colCount; i++)
         {
             RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());
-            int dataLength = input.readInt();
-            byte[] data = new byte[dataLength];
-            input.read(data);
-            
-            data_[i] = RefexDynamicData.typeToClass(dt, data, getAssemblageNid(), i);
+            if (dt == RefexDynamicDataType.UNKNOWN)
+            {
+                data_[i] = null;
+            }
+            else
+            {
+                int dataLength = input.readInt();
+                byte[] data = new byte[dataLength];
+                input.read(data);
+                
+                data_[i] = RefexDynamicData.typeToClass(dt, data, getAssemblageNid(), i);
+            }
         }
     }
 
@@ -676,9 +693,16 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         output.writeInt(getData().length);
         for (RefexDynamicDataBI column : getData())
         {
-            output.writeInt(column.getRefexDataType().getTypeToken());
-            output.writeInt(column.getData().length);
-            output.write(column.getData());
+            if (column == null)
+            {
+                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+            }
+            else
+            {
+                output.writeInt(column.getRefexDataType().getTypeToken());
+                output.writeInt(column.getData().length);
+                output.write(column.getData());
+            }
         }
     }
 

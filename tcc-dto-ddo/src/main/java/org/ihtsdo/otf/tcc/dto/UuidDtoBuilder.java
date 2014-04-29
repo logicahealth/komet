@@ -54,12 +54,13 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float.TtkRefex
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -283,14 +284,16 @@ public class UuidDtoBuilder {
    
    private void construct(RefexDynamicCAB blueprint, TtkComponentChronicle component)
            throws IOException, InvalidCAB, ContradictionException {
-//TODO [REFEX] implement when API here
-	   //      TtkRefexAbstractMemberChronicle annot = createRefex(blueprint);
-//
-//      component.getAnnotations().add(annot);
-//
-//      for (RefexDynamicCAB childBp : blueprint.getAnnotationDynamicBlueprints()) {
-//         construct(childBp, annot);
-//      }
+	      TtkRefexDynamicMemberChronicle annot = createRefex(blueprint);
+
+	      component.getAnnotations().add(annot);
+
+	      for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
+	         construct(childBp, annot);
+	      }
+	      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+	          construct(annotBp, annot);
+	      }
    }
 
    /**
@@ -542,4 +545,28 @@ public class UuidDtoBuilder {
       rm1.authorUuid         = authorUuid;
       rm1.moduleUuid         = moduleUuid;
    }
+   
+	private TtkRefexDynamicMemberChronicle createRefex(RefexDynamicCAB blueprint) throws IOException, InvalidCAB, ContradictionException
+	{
+		TtkRefexDynamicMemberChronicle rm1 = new TtkRefexDynamicMemberChronicle();
+
+		if (blueprint.getData() != null)
+		{
+			TtkRefexDynamicData[] data = new TtkRefexDynamicData[blueprint.getData().length];
+			for (int i = 0; i < data.length; i++)
+			{
+				data[i] = TtkRefexDynamicData.typeToClass(blueprint.getData()[i].getRefexDataType(), blueprint.getData()[i].getData());
+			}
+			rm1.setData(data);
+		}
+
+		rm1.primordialUuid = blueprint.getMemberUUID();
+		rm1.componentUuid = blueprint.getComponentUuid();
+		rm1.refexAssemblageUuid = blueprint.getRefexAssemblageUuid();
+		rm1.status = blueprint.getStatus();
+		rm1.time = time;
+		rm1.authorUuid = authorUuid;
+		rm1.moduleUuid = moduleUuid;
+		return rm1;
+	}
 }

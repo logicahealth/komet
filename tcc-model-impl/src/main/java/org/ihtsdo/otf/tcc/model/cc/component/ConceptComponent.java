@@ -32,6 +32,7 @@ import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -55,6 +56,8 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 
 /**
  * Class description
@@ -222,6 +225,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 this.annotations.add(annot);
             }
         }
+        if (eComponent.getAnnotationsDynamic() != null) {
+            this.annotationsDynamic = new ConcurrentSkipListSet<>();
+
+            for (TtkRefexDynamicMemberChronicle eAnnot : eComponent.getAnnotationsDynamic()) {
+                RefexDynamicMember annot = RefexDynamicMemberFactory.create(eAnnot, enclosingConceptNid);
+
+                this.annotationsDynamic.add(annot);
+            }
+        }
     }
     
     public boolean isIndexed() {
@@ -337,6 +349,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return annotations.add((RefexMember<?, ?>) annotation);
     }
     
+    @Override
     public boolean addDynamicAnnotation(RefexDynamicChronicleBI annotation) throws IOException {
         if (annotationsDynamic == null) {
             annotationsDynamic = new ConcurrentSkipListSet<>(new Comparator<RefexDynamicChronicleBI>() {
@@ -612,6 +625,34 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 }
             }
         }
+        
+        if (annotationsDynamic != null) {
+            List<Object> toRemove = new ArrayList<>();
+
+            for (RefexDynamicMember a : annotationsDynamic) {
+                a.clearVersions();
+
+                if (a.getTime() == Long.MAX_VALUE) {
+                    toRemove.add(a);
+                } else if (a.revisions != null) {
+                    for (RefexDynamicRevision rv : a.revisions) {
+                        List<RefexDynamicRevision> revToRemove = new ArrayList<>();
+
+                        if (rv.getTime() == Long.MAX_VALUE) {
+                            revToRemove.add(rv);
+                        }
+
+                        a.revisions.removeAll(revToRemove);
+                    }
+                }
+            }
+
+            if (toRemove.size() > 0) {
+                for (Object r : toRemove) {
+                    annotationsDynamic.remove((RefexMember<?, ?>) r);
+                }
+            }
+        }
     }
 
     /**
@@ -621,6 +662,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     protected void clearAnnotationVersions() {
         if (annotations != null) {
             for (RefexMember<?, ?> rm : annotations) {
+                rm.clearVersions();
+            }
+        }
+        if (annotationsDynamic != null) {
+            for (RefexDynamicMember rm : annotationsDynamic) {
                 rm.clearVersions();
             }
         }
@@ -916,6 +962,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 changed = changed || annotationChanged;
             }
         }
+        if (annotationsDynamic != null) {
+            for (RefexDynamicMember a : annotationsDynamic) {
+                boolean annotationChanged = a.makeAdjudicationAnalogs(ec, vc);
+
+                changed = changed || annotationChanged;
+            }
+        }
 
         return changed;
     }
@@ -986,6 +1039,33 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 this.annotations.addAll(anotherAnnotationMap.values());
             }
         }
+        
+        if (another.annotationsDynamic != null) {
+            if (this.annotationsDynamic == null) {
+                this.annotationsDynamic = another.annotationsDynamic;
+            } else {
+                HashMap<Integer, RefexDynamicMember> anotherAnnotationMap = new HashMap<>();
+
+                for (RefexDynamicChronicleBI annotation : another.annotationsDynamic) {
+                    anotherAnnotationMap.put(annotation.getNid(), (RefexDynamicMember) annotation);
+                }
+
+                for (RefexDynamicMember annotation : this.annotationsDynamic) {
+                    RefexDynamicMember anotherAnnotation = anotherAnnotationMap.remove(annotation.getNid());
+
+                    if (anotherAnnotation != null) {
+                        for (RefexDynamicMember.Version annotationVersion : anotherAnnotation.getVersions()) {
+                            if ((annotationVersion.getStamp() != -1)
+                                    && !annotationStamps.contains(annotationVersion.getStamp())) {
+                                annotation.addRevision(annotationVersion.getRevision());
+                            }
+                        }
+                    }
+                }
+
+                this.annotationsDynamic.addAll(anotherAnnotationMap.values());
+            }
+        }
 
         return this;
     }
@@ -1021,6 +1101,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     private void readAnnotationsFromBdb(TupleInput input) {
         annotations = annotationWriter.entryToObject(input, enclosingConceptNid);
+        annotationsDynamic = annotationWriter.entryDynamicToObject(input, enclosingConceptNid);
     }
 
     /**
@@ -1108,6 +1189,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 assert m.readyToWrite();
             }
         }
+        
+        if (annotationsDynamic != null) {
+            for (RefexDynamicMember m : annotationsDynamic) {
+                assert m.readyToWrite();
+            }
+        }
 
         if (additionalIdVersions != null) {
             for (IdentifierVersion idv : additionalIdVersions) {
@@ -1183,6 +1270,16 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (annotations != null) {
             for (RefexChronicleBI<?> a : annotations) {
                 for (RefexVersionBI<?> av : a.getVersions()) {
+                    if (av.stampIsInRange(min, max)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        if (annotationsDynamic != null) {
+            for (RefexDynamicChronicleBI<?> a : annotationsDynamic) {
+                for (RefexDynamicVersionBI<?> av : a.getVersions()) {
                     if (av.stampIsInRange(min, max)) {
                         return true;
                     }
@@ -1463,6 +1560,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     private void writeAnnotationsToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
         annotationWriter.objectToEntry(annotations, output, maxReadOnlyStatusAtPositionNid);
+        annotationWriter.objectDynamicToEntry(annotationsDynamic, output, maxReadOnlyStatusAtPositionNid);
     }
 
     /**
@@ -1616,12 +1714,22 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (annotations != null) {
             size = size + annotations.size();
         }
+        if (annotationsDynamic != null) {
+            size = size + annotationsDynamic.size();
+        }
 
         HashSet<Integer> sapNids = new HashSet<>(size);
 
         if (annotations != null) {
             for (RefexChronicleBI<?> annotation : annotations) {
                 for (RefexVersionBI<?> av : annotation.getVersions()) {
+                    sapNids.add(av.getStamp());
+                }
+            }
+        }
+        if (annotationsDynamic != null) {
+            for (RefexDynamicChronicleBI<?> annotation : annotationsDynamic) {
+                for (RefexDynamicVersionBI<?> av : annotation.getVersions()) {
                     sapNids.add(av.getStamp());
                 }
             }
@@ -1641,7 +1749,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (annotations == null) {
             return Collections.unmodifiableCollection(new ArrayList<RefexChronicleBI<?>>());
         }
-
         return Collections.unmodifiableCollection(annotations);
     }
 
@@ -1713,6 +1820,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         if (annotations != null) {
             size = size + annotations.size();
+        }
+        if (annotationsDynamic != null) {
+            size = size + annotationsDynamic.size();
         }
 
         HashSet<Integer> stamps = new HashSet<>(size);
@@ -2613,6 +2723,14 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         if (annotations != null) {
             for (RefexChronicleBI<?> r : annotations) {
+                if (r.isUncommitted()) {
+                    return true;
+                }
+            }
+        }
+        
+        if (annotationsDynamic != null) {
+            for (RefexDynamicChronicleBI<?> r : annotationsDynamic) {
                 if (r.isUncommitted()) {
                     return true;
                 }

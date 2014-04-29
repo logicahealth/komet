@@ -59,6 +59,7 @@ import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
 import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.ddo.store.FxTs;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.lookup.Looker;
 import org.ihtsdo.otf.tcc.lookup.TermstoreLatch;
@@ -701,8 +702,9 @@ public class Bdb {
         return conceptDb;
     }
 
-    public static void addAsAnnotations(List<TtkRefexAbstractMemberChronicle<?>> members) throws Exception {
-        conceptDb.iterateConceptDataInParallel(new AnnotationAdder(members));
+    public static void addAsAnnotations(List<TtkRefexAbstractMemberChronicle<?>> members, List<TtkRefexDynamicMemberChronicle> dynamicMembers) 
+            throws Exception {
+        conceptDb.iterateConceptDataInParallel(new AnnotationAdder(members, dynamicMembers));
     }
 
     public static int getConceptNid(int componentNid) {

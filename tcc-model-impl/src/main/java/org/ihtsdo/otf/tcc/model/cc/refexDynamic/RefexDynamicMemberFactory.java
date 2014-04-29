@@ -19,22 +19,18 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 
-import com.sleepycat.bind.tuple.TupleInput;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import com.sleepycat.bind.tuple.TupleInput;
 
 /**
  * 
@@ -52,72 +48,10 @@ public class RefexDynamicMemberFactory {
       return reCreate(res, member, ec);
    }
 
-//TODO [REFEX] implement the eConcept side of the API
-//   public static RefexDynamicMember create(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid)
-//           throws IOException {
-//      switch (refsetMember.getType()) {
-//      case BOOLEAN :
-//         return new BooleanMember((TtkRefexBooleanMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID :
-//         return new NidMember((TtkRefexUuidMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID :
-//         return new NidNidMember((TtkRefexUuidUuidMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID_CID :
-//         return new NidNidNidMember((TtkRefexUuidUuidUuidMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID_STR :
-//         return new NidNidStringMember((TtkRefexUuidUuidStringMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_INT :
-//         return new NidIntMember((TtkRefexUuidIntMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_STR :
-//         return new NidStringMember((TtkRefexUuidStringMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case INT :
-//         return new IntMember((TtkRefexIntMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_FLOAT :
-//         return new NidFloatMember((TtkRefexUuidFloatMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case MEMBER :
-//         return new MembershipMember((TtkRefexDynamicMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case STR :
-//         return new StringMember((TtkRefexStringMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_LONG :
-//         return new NidLongMember((TtkRefexUuidLongMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case LONG :
-//         return new LongMember((TtkRefexLongMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case ARRAY_BYTEARRAY :
-//         return new ArrayOfByteArrayMember((TtkRefexArrayOfByteArrayMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID_CID_FLOAT :
-//         return new NidNidNidFloatMember((TtkRefexUuidUuidUuidFloatMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID_CID_INT :
-//         return new NidNidNidIntMember((TtkRefexUuidUuidUuidIntMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID_CID_LONG :
-//         return new NidNidNidLongMember((TtkRefexUuidUuidUuidLongMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      case CID_CID_CID_STRING :
-//         return new NidNidNidStringMember((TtkRefexUuidUuidUuidStringMemberChronicle) refsetMember,
-//                                          enclosingConceptNid);
-//
-//      case CID_BOOLEAN :
-//         return new NidBooleanMember((TtkRefexUuidBooleanMemberChronicle) refsetMember, enclosingConceptNid);
-//
-//      default :
-//         throw new UnsupportedOperationException("Can't handle member type: " + refsetMember.getType());
-//      }
-//   }
+   public static RefexDynamicMember create(TtkRefexDynamicMemberChronicle refsetMember, int enclosingConceptNid)
+           throws IOException {
+       return new RefexDynamicMember(refsetMember, enclosingConceptNid);
+   }
 
 
    public static RefexDynamicMember create(int nid, int enclosingConceptNid, TupleInput input)
