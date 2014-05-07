@@ -56,6 +56,8 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 public class RefexDynamicCAB extends CreateOrAmendBlueprint
 {
 	//TODO [REFEX] QUESTION - Should we require them to specify whether or not a column is optional?  Or treat all columns as optional?
+	//TODO [REFEX] QUESTION - Jesse had  desire to further specify what sort of item a refex can be used on (Concept/desc/rels)
+	//But that doesn't really cover all the cases, as you can also nest annotations... 
 	public static final UUID refexDynamicNamespace = RefexDynamic.REFEX_DYNAMIC_NAMESPACE.getUuids()[0];
 
 	/**
