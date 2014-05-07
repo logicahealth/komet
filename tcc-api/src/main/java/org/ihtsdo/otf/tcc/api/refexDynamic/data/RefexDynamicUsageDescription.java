@@ -21,6 +21,8 @@ package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 import java.io.IOException;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -80,20 +82,24 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 public class RefexDynamicUsageDescription
 {
 	int refexUsageDescriptorNid_;
+	private transient int stampNid_;
 	String refexUsageDescription_;
 	RefexDynamicColumnInfo[] refexColumnInfo_;
 	private static LRURefexDynamicDescriptorCache<Integer, RefexDynamicUsageDescription> cache_ = 
 			new LRURefexDynamicDescriptorCache<Integer, RefexDynamicUsageDescription>(25);
+	
+	protected static final Logger logger = Logger.getLogger(RefexDynamicUsageDescription.class.getName());
 
 	public static RefexDynamicUsageDescription read(int assemblageNid) throws IOException, ContradictionException
 	{
 		RefexDynamicUsageDescription temp = cache_.get(assemblageNid);
-		if (temp == null)
+		if (temp == null || 
+				Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), assemblageNid).getStamp() != temp.stampNid_)
 		{
+			logger.log(Level.FINEST, "Cache miss on RefexDynamicUsageDescription Cache");
 			temp = new RefexDynamicUsageDescription(assemblageNid);
 			cache_.put(assemblageNid, temp);
 		}
-		//TODO [REFEX] validate up to date... check stamp??
 		return temp;
 	}
 	
@@ -114,6 +120,7 @@ public class RefexDynamicUsageDescription
 		TreeMap<Integer, RefexDynamicColumnInfo> allowedColumnInfo = new TreeMap<>();
 		@SuppressWarnings("deprecation")
 		ConceptVersionBI assemblageConcept = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), refexUsageDescriptorNid);
+		stampNid_ = assemblageConcept.getStamp();
 		
 		for (DescriptionVersionBI<?> d : assemblageConcept.getDescriptionsActive())
 		{
