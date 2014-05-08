@@ -80,7 +80,7 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * @throws PropertyVetoException 
 	 */
 	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexPreferredTerm, 
-			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, EditCoordinate ec, ViewCoordinate vc) throws 
+			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, boolean annotationStyle, EditCoordinate ec, ViewCoordinate vc) throws 
 			IOException, ContradictionException, InvalidCAB, PropertyVetoException
 	{
 		LanguageCode lc = LanguageCode.EN_US;
@@ -90,7 +90,7 @@ public class RefexDynamicUsageDescriptionBuilder
 		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.REFEX_DYNAMIC_IDENTITY.getUuids()[0] : parentConcept };
 
 		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, parents);
-		cab.setAnnotationRefexExtensionIdentity(true);
+		cab.setAnnotationRefexExtensionIdentity(annotationStyle);
 		
 		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(), Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], lc, refexDescription, false,
 				IdDirective.GENERATE_HASH);
