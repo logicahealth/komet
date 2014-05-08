@@ -92,9 +92,10 @@ public class RefexDynamicUsageDescription
 
 	public static RefexDynamicUsageDescription read(int assemblageNid) throws IOException, ContradictionException
 	{
+		//TODO [REFEX] test and see if my cache mechanism is working right (especially stamp check)
 		RefexDynamicUsageDescription temp = cache_.get(assemblageNid);
 		if (temp == null || 
-				Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), assemblageNid).getStamp() != temp.stampNid_)
+				Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), assemblageNid).getConceptAttributesActive().getStamp() != temp.stampNid_)
 		{
 			logger.log(Level.FINEST, "Cache miss on RefexDynamicUsageDescription Cache");
 			temp = new RefexDynamicUsageDescription(assemblageNid);
@@ -120,7 +121,7 @@ public class RefexDynamicUsageDescription
 		TreeMap<Integer, RefexDynamicColumnInfo> allowedColumnInfo = new TreeMap<>();
 		@SuppressWarnings("deprecation")
 		ConceptVersionBI assemblageConcept = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), refexUsageDescriptorNid);
-		stampNid_ = assemblageConcept.getStamp();
+		stampNid_ = assemblageConcept.getConceptAttributesActive().getStamp();
 		
 		for (DescriptionVersionBI<?> d : assemblageConcept.getDescriptionsActive())
 		{
