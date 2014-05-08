@@ -708,7 +708,14 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       }
 
       if (getMemberNids().contains(nid)) {
-         return getRefsetMember(nid);
+          //This is a bit odd now - getMemberNids() contains both oldstyle refex, and dynamic style refex.
+         //But, I have two different calls to get them - so try both.
+          ComponentChronicleBI<?> temp = getRefsetMember(nid);
+          if (temp == null)
+          {
+              temp = getRefsetDynamicMember(nid);
+          }
+          return temp;
       }
       
       ComponentChronicleBI<?> component = getAnnotation(nid);
