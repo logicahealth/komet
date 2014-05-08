@@ -68,9 +68,9 @@
                            <skip>${skipTests}</skip>
                            <artifactItems>
                                 <artifact>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>tcc-test-data</artifactId>
-                                    <version>2.0</version>
+                                    <groupId>gov.va.isaac.db</groupId>
+                                    <artifactId>isaac-sct</artifactId>
+                                    <version>2014.01.31-build-1</version>
                                     <type>zip</type>
                                 </artifact>
                            </artifactItems>
