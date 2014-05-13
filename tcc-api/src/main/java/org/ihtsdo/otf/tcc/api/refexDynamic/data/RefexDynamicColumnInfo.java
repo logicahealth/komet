@@ -148,6 +148,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	private void read()
 	{
 		//TODO [REFEX] figure out language details, filter for preferred
+		//TODO [REFEX] change this to ignore FSN, read preferred synonym, and non-preferred synonym instead.  Also change the creation code to match.
 		try
 		{
 			ConceptVersionBI cv = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), columnDescriptionConceptUUID_);

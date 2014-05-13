@@ -58,7 +58,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  *       Dynamic Refex data column.  Note, while any concept can be used here, and there are no specific requirements for this 
  *       concept - there is a convenience method for creating one of these concepts in 
  *       {@link RefexDynamicColumnInfo#createNewRefexDynamicColumnInfoConcept(String, String, 
- *           org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate, org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+ *           org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate, org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)}
  * <li>A string column which can be parsed as a member of the {@link RefexDynamicDataType} class, which represents
  *       the type of the column.
  * <li>An (optional) polymorphic column (any supported data type, but MUST match the data type specified in column 2) which contains 

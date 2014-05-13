@@ -204,6 +204,7 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 			int count = 0;
 			for (ConceptSpec cs : conceptSpecsToProcess)
 			{
+				//TODO add proper 'long name' definitions to the 4 columns I have defined in RefexDynamicColumnInfo
 				TtkConceptChronicle converted = convert(cs);
 				if (RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0].equals(cs.getUuids()[0]))
 				{
