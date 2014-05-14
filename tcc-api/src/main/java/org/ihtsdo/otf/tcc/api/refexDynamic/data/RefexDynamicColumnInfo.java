@@ -22,9 +22,13 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
+import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -35,6 +39,10 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
@@ -147,10 +155,12 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	
 	private void read()
 	{
-		//TODO [REFEX] figure out language details, filter for preferred
-		//TODO [REFEX] change this to ignore FSN, read preferred synonym, and non-preferred synonym instead.  Also change the creation code to match.
+		//TODO [REFEX] figure out language details
+		String fsn = null;
+		String unknownSynonym = null;
 		try
 		{
+			
 			ConceptVersionBI cv = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), columnDescriptionConceptUUID_);
 			if (cv.getDescriptionsActive() != null)
 			{
@@ -158,11 +168,40 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 				{
 					if (d.getTypeNid() == Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getNid())
 					{
-						columnName_ = d.getText();
+						fsn = d.getText();
 					}
 					else if (d.getTypeNid() == Snomed.SYNONYM_DESCRIPTION_TYPE.getNid())
 					{
-						columnDescription_ = d.getText();
+						Boolean isPreferred = null;
+						for (RefexChronicleBI<?> refex : d.getRefexes())
+						{
+							if (refex instanceof RefexNidVersionBI)
+							{
+								if (((RefexNidVersionBI<?>)refex).getNid1() == SnomedMetadataRf2.PREFERRED_RF2.getNid())
+								{
+									isPreferred = true;
+								}
+								else if (((RefexNidVersionBI<?>)refex).getNid1() == SnomedMetadataRf2.ACCEPTABLE_RF2.getNid())
+								{
+									isPreferred = false;
+								}
+							}
+						}
+						if (isPreferred != null)
+						{
+							if (isPreferred)
+							{
+								columnName_ = d.getText();
+							}
+							else
+							{
+								columnDescription_ = d.getText();
+							}
+						}
+						else
+						{
+							unknownSynonym = d.getText();
+						}
 					}
 				}
 			}
@@ -173,12 +212,17 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		}
 		if (columnName_ == null)
 		{
-			columnName_ = "ERROR - see Logs!";
+			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "No preferred synonym found on '" + columnDescriptionConceptUUID_ + "' to use "
+					+ "for the column name - using FSN");
+			columnName_ = (fsn == null ? "ERROR - see log" : fsn);
 		}
 		
 		if (columnDescription_ == null)
 		{
-			columnDescription_ = "There was an error reading the column info from the concept " + columnDescriptionConceptUUID_;
+			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "No acceptable synonym found on '" + columnDescriptionConceptUUID_ + "' to use "
+					+ "for the column description- using arbitrary synonym, if one was found");
+			columnDescription_ = (unknownSynonym == null ? "There was an error reading the column info from the concept '" + columnDescriptionConceptUUID_ + "'."
+					: unknownSynonym);
 		}
 	}
 	
@@ -222,7 +266,18 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		UUID module = Snomed.CORE_MODULE.getUuids()[0];
 		UUID parents[] = new UUID[] { RefexDynamic.REFEX_DYNAMIC_COLUMNS.getUuids()[0] };
 
-		ConceptCB cab = new ConceptCB(columnName, columnDescription, lc, isA, idDir, module, parents);
+		ConceptCB cab = new ConceptCB(columnName, columnName, lc, isA, idDir, module, parents);
+		
+		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(),  Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], LanguageCode.EN, 
+				columnDescription, false, IdDirective.GENERATE_HASH);
+		
+		RefexCAB rCab = new RefexCAB(RefexType.CID, dCab.getComponentUuid(), 
+				Snomed.US_LANGUAGE_REFEX.getUuids()[0], IdDirective.GENERATE_HASH, RefexDirective.EXCLUDE);
+		rCab.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0]);
+		
+		dCab.addAnnotationBlueprint(rCab);
+		
+		cab.addDescriptionCAB(dCab);
 		
 		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(ec, vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
