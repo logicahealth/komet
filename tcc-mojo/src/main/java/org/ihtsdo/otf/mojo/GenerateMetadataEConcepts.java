@@ -204,7 +204,6 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 			int count = 0;
 			for (ConceptSpec cs : conceptSpecsToProcess)
 			{
-				//TODO add proper 'long name' definitions to the 4 columns I have defined in RefexDynamicColumnInfo
 				TtkConceptChronicle converted = convert(cs);
 				if (RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0].equals(cs.getUuids()[0]))
 				{
@@ -261,6 +260,27 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 					//Yes, assemblage is itself in this case, and there is no data.
 					addDynamicAnnotation(description, RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0], new TtkRefexDynamicData[0]);
 				}
+				else if (RefexDynamic.REFEX_COLUMN_ORDER.getUuids()[0].equals(cs.getUuids()[0]))
+				{
+					addDescription(converted, "Stores the column order of this column within a Dynamic Refex Definition",
+							DescriptionType.SYNONYM, false);
+				}
+				else if (RefexDynamic.REFEX_COLUMN_NAME.getUuids()[0].equals(cs.getUuids()[0]))
+				{
+					addDescription(converted, "Stores the concept reference to the concept that defines the name of this column within a Dynamic Refex Definition",
+							DescriptionType.SYNONYM, false);
+				}
+				else if (RefexDynamic.REFEX_COLUMN_TYPE.getUuids()[0].equals(cs.getUuids()[0]))
+				{
+					addDescription(converted, "Stores the data type of this column within a Dynamic Refex Definition",
+							DescriptionType.SYNONYM, false);
+				}
+				else if (RefexDynamic.REFEX_COLUMN_DEFAULT_VALUE.getUuids()[0].equals(cs.getUuids()[0]))
+				{
+					addDescription(converted, "Stores the (optional) default value of this column within a Dynamic Refex Definition",
+							DescriptionType.SYNONYM, false);
+				}
+				
 				if (writeAsChangeSetFormat)
 				{
 					dos.writeLong(System.currentTimeMillis());
