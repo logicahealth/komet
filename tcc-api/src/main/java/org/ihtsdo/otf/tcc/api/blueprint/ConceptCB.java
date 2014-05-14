@@ -711,6 +711,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     public DescriptionCAB makeFullySpecifiedNameCAB(IdDirective idDirective)
             throws IOException, InvalidCAB, ContradictionException {
         //get rf1/rf2 concepts
+        // TODO Dan notes pretty sure this is wrong too - it forgets to actually set it as preferred...
         UUID fsnUuid = SnomedMetadataRf2.FULLY_SPECIFIED_NAME_RF2.getUuids()[0];
         DescriptionCAB blueprint = new DescriptionCAB(
                 getComponentUuid(),
@@ -738,6 +739,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     public DescriptionCAB makePreferredCAB(IdDirective idDirective)
             throws IOException, InvalidCAB, ContradictionException {
         //get rf1/rf2 concepts
+        // TODO Dan notes pretty sure this is wrong too - it forgets to actually set it as preferred...
         UUID synUuid = SnomedMetadataRf2.SYNONYM_RF2.getUuids()[0];
         DescriptionCAB blueprint = new DescriptionCAB(
                 getComponentUuid(),
