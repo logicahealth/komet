@@ -23,7 +23,6 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
@@ -68,7 +67,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     private List<String> fsns = new ArrayList<>();
     private List<String> prefNames = new ArrayList<>();
     private boolean initialCaseSensitive = false;
-    private String lang;
+    private LanguageCode lang;
     private UUID isaType;
     private UUID moduleUuid;
     private boolean defined;
@@ -155,9 +154,16 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         this.fullySpecifiedName = fullySpecifiedName; //@akf todo: these should be removed when NewConcept, etc. is upated
         this.prefNames.add(preferredName);
         this.preferredName = preferredName; //@akf todo: these should be removed when NewConcept, etc. is upated
-        this.lang = langCode.getFormatedLanguageCode();
+        this.lang = langCode;
         this.isaType = isaTypeUuid;
         this.moduleUuid = moduleUuid;
+        //TODO Dan notes this was also broken, and the module wasn't being set properly - however, I have to wonder
+        //Why does the blueprint even need the module?  The module is set from the editCoordinate when the blueprint 
+        //is constructed.  Near as I can tell, the module is never ever read from the blueprint.
+        if (moduleUuid != null)
+        {
+            properties.put(ComponentProperty.MODULE_ID, moduleUuid);
+        }
         if (parentUuids != null) {
             this.parents.addAll(Arrays.asList(parentUuids));
         }
@@ -189,7 +195,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         super(null, null, null, idDirective, RefexDirective.EXCLUDE);
         this.fsns = fullySpecifiedNames;
         this.prefNames = preferredNames;
-        this.lang = langCode.getFormatedLanguageCode();
+        this.lang = langCode;
         this.isaType = isaTypeUuid;
         if (parentUuids != null) {
             this.parents.addAll(Arrays.asList(parentUuids));
@@ -509,12 +515,14 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     }
 
     /**
-     * Gets a two character abbreviation of the language of the descriptions associated with this concept
-     * blueprint.
+     * Gets the language of the preferred descriptions associated with this concept
+     * blueprint which will be used when no language is other wise specified in the 
+     * description - when the user creates this with a constructor such as 
+     * {@link #ConceptCB(String, String, LanguageCode, UUID, IdDirective, UUID, UUID...)}
      *
      * @return a two character abbreviation of the language of the descriptions
      */
-    public String getLang() {
+    public LanguageCode getLang() {
         return lang;
     }
 
@@ -523,8 +531,10 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      *
      * @param lang a two character abbreviation of the language of the descriptions
      */
-    public void setLang(String lang) {
+    public void setLang(LanguageCode lang) {
         this.lang = lang;
+        //Dan notes that the compute algorithm doesn't actually use the lang code... so this is unnecessary.
+        //Though perhaps that is a bug....
         setComponentUuid(computeComponentUuid());
     }
 
@@ -575,14 +585,13 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      *
      * @param preferredBlueprint the preferred name description blueprint
      * @param dialect the dialect of the preferred name, only supports en-gb and en-us
-     * @throws NoSuchAlgorithmException indicates a no such algorithm exception has occurred
      * @throws UnsupportedEncodingException indicates an unsupported encoding exception has occurred
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is found for a given position or view
      * coordinate
      */
-    private void addPreferredNameDialectRefexes(DescriptionCAB preferredBlueprint, LanguageCode dialect) throws NoSuchAlgorithmException,
+    private void addPreferredNameDialectRefexes(DescriptionCAB preferredBlueprint, LanguageCode dialect) throws 
             UnsupportedEncodingException, IOException, InvalidCAB, ContradictionException {
         RefexCAB usAnnot;
         RefexCAB gbAnnot;
@@ -650,7 +659,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         this.recomputeUuid();
         preferredNameBlueprint.setText(newPreferredName);
         if (dialect != null) {
-        	//TODO [REFEX] add handling for new Refex here, but only when we move how the languages are specified
+            //TODO [REFEX] add handling for new Refex here, but only when we move how the languages are specified
             List<RefexCAB> annotationBlueprints = preferredNameBlueprint.getAnnotationBlueprints();
             for (RefexCAB annot : annotationBlueprints) {
                 if (annot.getRefexCollectionUuid().equals(usRefexUuid) || annot.getRefexCollectionUuid().equals(gbRefexUuid)) {
@@ -711,18 +720,18 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     public DescriptionCAB makeFullySpecifiedNameCAB(IdDirective idDirective)
             throws IOException, InvalidCAB, ContradictionException {
         //get rf1/rf2 concepts
-        // TODO Dan notes pretty sure this is wrong too - it forgets to actually set it as preferred...
         UUID fsnUuid = SnomedMetadataRf2.FULLY_SPECIFIED_NAME_RF2.getUuids()[0];
         DescriptionCAB blueprint = new DescriptionCAB(
                 getComponentUuid(),
                 fsnUuid,
-                LanguageCode.getLangCode(lang),
+                lang,
                 getFullySpecifiedName(),
                 isInitialCaseSensitive(),
                 idDirective);
         if (moduleUuid != null) {
             blueprint.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
         }
+        addPreferredNameDialectRefexes(blueprint, lang);
         return blueprint;
     }
 
@@ -739,18 +748,18 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     public DescriptionCAB makePreferredCAB(IdDirective idDirective)
             throws IOException, InvalidCAB, ContradictionException {
         //get rf1/rf2 concepts
-        // TODO Dan notes pretty sure this is wrong too - it forgets to actually set it as preferred...
         UUID synUuid = SnomedMetadataRf2.SYNONYM_RF2.getUuids()[0];
         DescriptionCAB blueprint = new DescriptionCAB(
                 getComponentUuid(),
                 synUuid,
-                LanguageCode.getLangCode(lang),
+                lang,
                 getPreferredName(),
                 isInitialCaseSensitive(),
                 idDirective);
         if (moduleUuid != null) {
             blueprint.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
         }
+        addPreferredNameDialectRefexes(blueprint, lang);
         return blueprint;
     }
 

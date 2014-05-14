@@ -270,10 +270,12 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		
 		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(),  Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], LanguageCode.EN, 
 				columnDescription, false, IdDirective.GENERATE_HASH);
+		dCab.getProperties().put(ComponentProperty.MODULE_ID, module);
 		
 		RefexCAB rCab = new RefexCAB(RefexType.CID, dCab.getComponentUuid(), 
 				Snomed.US_LANGUAGE_REFEX.getUuids()[0], IdDirective.GENERATE_HASH, RefexDirective.EXCLUDE);
 		rCab.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0]);
+		rCab.getProperties().put(ComponentProperty.MODULE_ID, module);
 		
 		dCab.addAnnotationBlueprint(rCab);
 		
