@@ -179,7 +179,7 @@ public class RefexDynamicUsageDescription
 						defaultData = (refexDefinitionData[3] == null ? null : refexDefinitionData[3].getDataObject());
 					}
 					
-					if (defaultData != null && type.getRefexMemberClass() != defaultData.getClass())
+					if (defaultData != null && type.getRefexMemberClass() != refexDefinitionData[3].getRefexDataType().getRefexMemberClass())
 					{
 						throw new IOException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
 							+ "a RefexDynamicData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");

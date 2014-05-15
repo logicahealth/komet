@@ -138,39 +138,39 @@ public class RefexDynamicUsageDescriptionBuilder
 					{
 						if (RefexDynamicDataType.BOOLEAN == ci.getColumnDataType())
 						{
-							data[3] = (RefexBoolean)ci.getDefaultColumnValue();
+							data[3] = new RefexBoolean((Boolean)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.BYTEARRAY == ci.getColumnDataType())
 						{
-							data[3] = (RefexByteArray)ci.getDefaultColumnValue();
+							data[3] = new RefexByteArray((byte[])ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.DOUBLE == ci.getColumnDataType())
 						{
-							data[3] = (RefexDouble)ci.getDefaultColumnValue();
+							data[3] = new RefexDouble((Double)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.FLOAT == ci.getColumnDataType())
 						{
-							data[3] = (RefexFloat)ci.getDefaultColumnValue();
+							data[3] = new RefexFloat((Float)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.INTEGER == ci.getColumnDataType())
 						{
-							data[3] = (RefexInteger)ci.getDefaultColumnValue();
+							data[3] = new RefexInteger((Integer)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.LONG == ci.getColumnDataType())
 						{
-							data[3] = (RefexLong)ci.getDefaultColumnValue();
+							data[3] = new RefexLong((Long)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.NID == ci.getColumnDataType())
 						{
-							data[3] = (RefexNid)ci.getDefaultColumnValue();
+							data[3] = new RefexNid((Integer)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.STRING == ci.getColumnDataType())
 						{
-							data[3] = (RefexString)ci.getDefaultColumnValue();
+							data[3] = new RefexString((String)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.UUID == ci.getColumnDataType())
 						{
-							data[3] = (RefexUUID)ci.getDefaultColumnValue();
+							data[3] = new RefexUUID((UUID)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
 						}
 						else if (RefexDynamicDataType.POLYMORPHIC == ci.getColumnDataType())
 						{
