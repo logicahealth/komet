@@ -61,9 +61,18 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	private transient String columnName_;
 	private transient String columnDescription_;
 	private int columnOrder_;
+	private UUID assemblageConcept_;
 	private RefexDynamicDataType columnDataType_;
 	private Object defaultData_;
 
+	/**
+	 * calls {@link #RefexDynamicColumnInfo(UUID, int, UUID, RefexDynamicDataType, Object) with a null assemblage concept
+	 */
+	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, Object defaultData)
+	{
+		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData);
+	}
+	
 	/**
 	 * Create this object by reading the columnName and columnDescription from the provided columnDescriptionConcept.
 	 * 
@@ -72,14 +81,16 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	 * 
 	 * and pass the result in here.
 	 * 
-	 * @param columnOrder
-	 * @param columnDescriptionConceptNid
-	 * @param columnDataType
+	 * @param assemblageConcept - the assemblage concept that this was read from (or null, if not yet part of an assemblage)
+	 * @param columnOrder - the column order as defined in the assemblage concept
+	 * @param columnDescriptionConceptNid - The concept where columnName and columnDescription should be read from
+	 * @param columnDataType - the data type as defined in the assemblage concept
 	 * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example, 
 	 * if columnDataType is set to {@link RefexDynamicDataType#FLOAT} then this field must be a Float.
 	 */
-	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, Object defaultData)
+	public RefexDynamicColumnInfo(UUID assemblageConcept, int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, Object defaultData)
 	{
+		assemblageConcept_ = assemblageConcept;
 		columnOrder_ = columnOrder;
 		columnDescriptionConceptUUID_ = columnDescriptionConcept;
 		columnDataType_ = columnDataType;
@@ -109,6 +120,15 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 			read();
 		}
 		return columnDescription_;
+	}
+	
+	/**
+	 * @return the UUID of the assemblage concept that this column data was read from
+	 * or null in the case where this column is not yet associated with an assemblage.
+	 */
+	public UUID getAssemblageConcept()
+	{
+		return assemblageConcept_;
 	}
 
 	/**

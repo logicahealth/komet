@@ -29,8 +29,8 @@ public class TtkRefexPolymorphic extends TtkRefexDynamicData
 {
 	public TtkRefexPolymorphic(byte[] data)
 	{
-		super(data);
-		if (data.length > 0)
+		super();
+		if (data != null && data.length > 0)
 		{
 			throw new RuntimeException("Instances of polymorphic cannot have data");
 		}

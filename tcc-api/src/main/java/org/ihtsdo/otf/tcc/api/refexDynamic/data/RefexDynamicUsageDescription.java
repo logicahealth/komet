@@ -185,7 +185,7 @@ public class RefexDynamicUsageDescription
 							+ "a RefexDynamicData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");
 					}
 					
-					allowedColumnInfo.put(column, new RefexDynamicColumnInfo(column, descriptionUUID, type, defaultData));
+					allowedColumnInfo.put(column, new RefexDynamicColumnInfo(assemblageConcept.getPrimordialUuid(), column, descriptionUUID, type, defaultData));
 				}
 				catch (Exception e)
 				{

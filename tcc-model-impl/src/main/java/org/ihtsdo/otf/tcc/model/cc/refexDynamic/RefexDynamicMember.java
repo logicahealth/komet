@@ -99,8 +99,15 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             data_= new RefexDynamicDataBI[refsetMember.getData().length];
             for (int i = 0; i < data_.length; i++)
             {
-                data_[i] = RefexDynamicData.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
+                if (refsetMember.getData()[i] == null)
+                {
+                    data_[i] = null;
+                }
+                else
+                {
+                    data_[i] = RefexDynamicData.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
                         assemblageNid, i);
+                }
             }
         }
 

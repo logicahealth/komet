@@ -58,6 +58,7 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChroni
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexInteger;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexPolymorphic;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexUUID;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
@@ -218,34 +219,38 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 					
 					//Define the 4 columns that may be used when creating other refex attachment data
 					//col 1 - column order
-					TtkRefexDynamicData[] data = new TtkRefexDynamicData[3];
+					TtkRefexDynamicData[] data = new TtkRefexDynamicData[4];
 					data[0] = new TtkRefexInteger(0);
 					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_ORDER.getUuids()[0]);
 					data[2] = new TtkRefexString(RefexDynamicDataType.INTEGER.name());
+					data[3] = null;
 					//Yes, describing itself
 					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
 					
 					//col 2 - column name
-					data = new TtkRefexDynamicData[3];
+					data = new TtkRefexDynamicData[4];
 					data[0] = new TtkRefexInteger(1);
 					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_NAME.getUuids()[0]);
 					data[2] = new TtkRefexString(RefexDynamicDataType.UUID.name());
+					data[3] = null;
 					//Yes, describing itself
 					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
 					
 					//col 3 - column type
-					data = new TtkRefexDynamicData[3];
+					data = new TtkRefexDynamicData[4];
 					data[0] = new TtkRefexInteger(2);
 					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_TYPE.getUuids()[0]);
 					data[2] = new TtkRefexString(RefexDynamicDataType.STRING.name());
+					data[3] = null;
 					//Yes, describing itself
 					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
 					
 					//col 4 - column default value
-					data = new TtkRefexDynamicData[3];
+					data = new TtkRefexDynamicData[4];
 					data[0] = new TtkRefexInteger(3);
 					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_DEFAULT_VALUE.getUuids()[0]);
 					data[2] = new TtkRefexString(RefexDynamicDataType.POLYMORPHIC.name());
+					data[3] = null;
 					//Yes, describing itself
 					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
 					
@@ -312,8 +317,15 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 		{
 			for (TtkRefexDynamicData d : data)
 			{
-				sb.append(d.getRefexDataType());
-				sb.append(d.getData());
+				if (d == null)
+				{
+					sb.append("null");
+				}
+				else
+				{
+					sb.append(d.getRefexDataType());
+					sb.append(d.getData());
+				}
 			}
 		}
 		annotation.setPrimordialComponentUuid(UuidT5Generator.get(RefexDynamicCAB.refexDynamicNamespace, sb.toString()));
