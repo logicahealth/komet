@@ -278,6 +278,10 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	public static ConceptChronicleBI createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription, EditCoordinate ec, ViewCoordinate vc) 
 			throws IOException, InvalidCAB, ContradictionException
 	{
+		if (columnName == null || columnName.length() == 0 || columnDescription == null || columnDescription.length() == 0)
+		{
+			throw new InvalidCAB("Both the column name and column description are required");
+		}
 		//Yea, bad bad form.  This impl stuff doesn't not belong in API.  But, will save moving that to a bigger
 		//task of getting all of the impl stuff in blueprint out of API.
 		LanguageCode lc = LanguageCode.EN_US;
