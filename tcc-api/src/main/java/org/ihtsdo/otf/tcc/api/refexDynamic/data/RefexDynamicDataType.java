@@ -43,7 +43,7 @@ public enum RefexDynamicDataType {
 	BYTEARRAY(106, RefexDynamicByteArrayBI.class, RefexDynamic.REFEX_DT_BYTE_ARRAY.getUuids()[0], "Arbitrary Data"),
 	FLOAT(107, RefexDynamicFloatBI.class, RefexDynamic.REFEX_DT_FLOAT.getUuids()[0], "Float"),
 	DOUBLE(108, RefexDynamicDoubleBI.class, RefexDynamic.REFEX_DT_DOUBLE.getUuids()[0], "Double"),
-	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0], "Component UUID"),
+	UUID(109, RefexDynamicUUIDBI.class, RefexDynamic.REFEX_DT_UUID.getUuids()[0], "UUID"),
 	POLYMORPHIC(110, RefexDynamicPolymorphicBI.class, RefexDynamic.REFEX_DT_POLYMORPHIC.getUuids()[0], "Unspecified"),
 	UNKNOWN(Byte.MAX_VALUE, null, RefexDynamic.UNKNOWN_CONCEPT.getUuids()[0], "Unknown");
 
