@@ -135,44 +135,45 @@ public class ChangeSetReader implements ChangeSetReaderI {
 
     private ConceptChronicle commitEConcept(TtkConceptChronicle eConcept, long time) throws IOException,
             ClassNotFoundException {
-        if (noCommit) {
-            return null;
-        }
-        try {
-            assert time != Long.MAX_VALUE;
-            if (ChangeSetWriter.writeDebugFiles) {
-                csrcOut.append("\n*******************************\n");
-                csrcOut.append(TimeHelper.formatDateForFile(time));
-                csrcOut.append("\n********** before ***********\n");
-
-                ConceptChronicle before = ConceptChronicle.get(P.s.getNidForUuids(eConcept.getPrimordialUuid()));
-                csrcOut.append(before.toLongString());
-                csrcOut.flush();
-                ConceptChronicle after = ConceptChronicle.mergeAndWrite(eConcept);
-                csrcOut.append("\n----------- after  -----------\n");
-                csrcOut.append(after.toLongString());
-                return after;
-            } else {
-                if (!fileContentMerged) {
-                    int conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
-                    long lastChange = ConceptChronicle.get(conceptNid).getData().getLastChange();
-
-                    ConceptChronicle mergedConcept = ConceptChronicle.mergeAndWrite(eConcept);
-
-                    if (mergedConcept.getData().getLastChange() != lastChange) {
-                        fileContentMerged = true;
-                    }
-
-                    return mergedConcept;
-                } else {
-                    return ConceptChronicle.mergeAndWrite(eConcept);
-                }
-            }
-        } catch (Exception e) {
-            ChangeSetLogger.logger.log(
-                    Level.SEVERE, "Error committing bean in change set: {0}\nUniversalAceBean:  \n{1}", new Object[]{changeSetFile, eConcept});
-            throw new IOException(e);
-        }
+        throw new UnsupportedOperationException("Not supported yet.");
+//        if (noCommit) {
+//            return null;
+//        }
+//        try {
+//            assert time != Long.MAX_VALUE;
+//            if (ChangeSetWriter.writeDebugFiles) {
+//                csrcOut.append("\n*******************************\n");
+//                csrcOut.append(TimeHelper.formatDateForFile(time));
+//                csrcOut.append("\n********** before ***********\n");
+//
+//                ConceptChronicle before = ConceptChronicle.get(P.s.getNidForUuids(eConcept.getPrimordialUuid()));
+//                csrcOut.append(before.toLongString());
+//                csrcOut.flush();
+//                ConceptChronicle after = ConceptChronicle.mergeAndWrite(eConcept);
+//                csrcOut.append("\n----------- after  -----------\n");
+//                csrcOut.append(after.toLongString());
+//                return after;
+//            } else {
+//                if (!fileContentMerged) {
+//                    int conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
+//                    long lastChange = ConceptChronicle.get(conceptNid).getData().getLastChange();
+//
+//                    ConceptChronicle mergedConcept = ConceptChronicle.mergeAndWrite(eConcept);
+//
+//                    if (mergedConcept.getData().getLastChange() != lastChange) {
+//                        fileContentMerged = true;
+//                    }
+//
+//                    return mergedConcept;
+//                } else {
+//                    return ConceptChronicle.mergeAndWrite(eConcept);
+//                }
+//            }
+//        } catch (Exception e) {
+//            ChangeSetLogger.logger.log(
+//                    Level.SEVERE, "Error committing bean in change set: {0}\nUniversalAceBean:  \n{1}", new Object[]{changeSetFile, eConcept});
+//            throw new IOException(e);
+//        }
     }
 
     private void lazyInit() throws FileNotFoundException, IOException, ClassNotFoundException {

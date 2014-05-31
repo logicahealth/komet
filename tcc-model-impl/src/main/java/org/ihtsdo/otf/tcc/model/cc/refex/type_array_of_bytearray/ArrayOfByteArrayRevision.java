@@ -193,12 +193,12 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
    }
 
    @Override
-   public ArrayOfByteArrayMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (ArrayOfByteArrayMember.Version) ((ArrayOfByteArrayMember) primordialComponent).getVersion(c);
+   public ArrayOfByteArrayMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (ArrayOfByteArrayMemberVersion) ((ArrayOfByteArrayMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<ArrayOfByteArrayMember.Version> getVersions() {
+   public Collection<ArrayOfByteArrayMemberVersion> getVersions() {
       return ((ArrayOfByteArrayMember) primordialComponent).getVersions();
    }
 

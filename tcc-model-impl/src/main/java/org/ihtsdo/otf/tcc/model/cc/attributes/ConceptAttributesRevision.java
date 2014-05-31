@@ -4,33 +4,30 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
 import java.io.IOException;
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
-import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 public class ConceptAttributesRevision extends Revision<ConceptAttributesRevision, ConceptAttributes>
         implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {  
    private boolean defined = false;
 
    //~--- constructors --------------------------------------------------------
+   public ConceptAttributesRevision() {
+      super();
+   }
    public ConceptAttributesRevision(ConceptAttributeAnalogBI another, ConceptAttributes primoridalMember) {
       super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
               another.getPathNid(), primoridalMember);
@@ -162,17 +159,17 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    }
 
    @Override
-   public ConceptAttributes.Version getVersion(ViewCoordinate c) throws ContradictionException {
+   public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }
 
    @Override
-   public Collection<ConceptAttributes.Version> getVersions() {
+   public Collection<ConceptAttributesVersion> getVersions() {
       return ((ConceptAttributes) primordialComponent).getVersions();
    }
 
    @Override
-   public Collection<ConceptAttributes.Version> getVersions(ViewCoordinate c) {
+   public Collection<ConceptAttributesVersion> getVersions(ViewCoordinate c) {
       return primordialComponent.getVersions(c);
    }
 

@@ -4,40 +4,35 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_int;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int.RefexNidNidNidIntAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int.RefexNidNidNidIntVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int
+   .RefexNidNidNidIntVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
+   .TtkRefexUuidUuidUuidIntMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
-   .TtkRefexUuidUuidUuidIntMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
-   .TtkRefexUuidUuidUuidIntRevision;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class NidNidNidIntMember
         extends RefexMember<NidNidNidIntRevision, NidNidNidIntMember>
         implements RefexNidNidNidIntVersionBI<NidNidNidIntRevision>,
                    RefexNidNidNidIntAnalogBI<NidNidNidIntRevision> {
-   private static VersionComputer<RefexMember<NidNidNidIntRevision, NidNidNidIntMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<NidNidNidIntRevision, NidNidNidIntMember>> computer =
       new VersionComputer<>();
    private int nid1;
    private int nid2;
@@ -63,7 +58,7 @@ public class NidNidNidIntMember
       int1 = refsetMember.int1;
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<NidNidNidIntRevision, NidNidNidIntMember>(primordialStamp);
 
          for (TtkRefexUuidUuidUuidIntRevision eVersion :
                  refsetMember.getRevisionList()) {
@@ -247,14 +242,14 @@ public class NidNidNidIntMember
    }
 
    @Override
-   protected VersionComputer<RefexMember<NidNidNidIntRevision,
-           NidNidNidIntMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<NidNidNidIntRevision,
+           NidNidNidIntMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<NidNidNidIntMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -262,16 +257,16 @@ public class NidNidNidIntMember
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<NidNidNidIntMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new NidNidNidIntMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (NidNidNidIntRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new NidNidNidIntMemberVersion(r, this));
                }
             }
          }
@@ -279,7 +274,7 @@ public class NidNidNidIntMember
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<NidNidNidIntMemberVersion>) versions;
    }
 
    @Override
@@ -306,48 +301,4 @@ public class NidNidNidIntMember
       modified();
    }
 
-   public class Version
-           extends RefexMember<NidNidNidIntRevision,
-                               NidNidNidIntMember>.Version
-           implements RefexNidNidNidIntVersionBI<NidNidNidIntRevision> {
-      private Version(RefexNidNidNidIntAnalogBI cv) {
-         super(cv);
-      }
-
-      RefexNidNidNidIntAnalogBI getCv() {
-         return (RefexNidNidNidIntAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexUuidUuidUuidIntMemberChronicle getERefsetMember()
-              throws IOException {
-         return new TtkRefexUuidUuidUuidIntMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexUuidUuidUuidIntRevision getERefsetRevision()
-              throws IOException {
-         return new TtkRefexUuidUuidUuidIntRevision(this);
-      }
-
-      @Override
-      public int getInt1() {
-         return getCv().getInt1();
-      }
-
-      @Override
-      public int getNid1() {
-         return getCv().getNid1();
-      }
-
-      @Override
-      public int getNid2() {
-         return getCv().getNid2();
-      }
-
-      @Override
-      public int getNid3() {
-         return getCv().getNid3();
-      }
-   }
 }

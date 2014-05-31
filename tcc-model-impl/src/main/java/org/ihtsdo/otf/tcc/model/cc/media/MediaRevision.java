@@ -224,7 +224,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
 
    @Override
-   public Media.Version getVersion(ViewCoordinate c) throws ContradictionException {
+   public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }
 
@@ -234,7 +234,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
 
    @Override
-   public Collection<Media.Version> getVersions(ViewCoordinate c) {
+   public Collection<MediaVersion> getVersions(ViewCoordinate c) {
       return primordialComponent.getVersions(c);
    }
 

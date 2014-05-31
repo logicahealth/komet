@@ -12,17 +12,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.component.AnnotationStyleBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.DataVersionBinder;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 
 /**
  * File format:<br>
@@ -40,21 +37,26 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
 
    //~--- fields --------------------------------------------------------------
 
-   protected long                lastChange         = Long.MIN_VALUE;
-   protected long                lastWrite          = Long.MIN_VALUE;
-   protected long                lastExtinctRemoval = Long.MIN_VALUE;
+
    protected ConceptChronicle             enclosingConcept;
-   protected ConceptDataFetcherI nidData;
+//   protected ConceptDataFetcherI nidData;
    
    //~--- constructors --------------------------------------------------------
 
-   public ConceptDataManager(ConceptDataFetcherI nidData) throws IOException {
+   public ConceptDataManager(ConceptChronicle enclosingConcept) throws IOException {
       super();
-      this.nidData            = nidData;
-      this.lastChange         = getDataVersion();
-      this.lastWrite          = this.lastChange;
-      this.lastExtinctRemoval = P.s.getSequence();
+      assert enclosingConcept != null : "enclosing concept cannot be null.";
+      this.enclosingConcept = enclosingConcept;
    }
+   
+   public ConceptDataManager(){
+       
+   }
+   
+   protected abstract void setEnlosingConcept(ConceptChronicle enclosingConcept);
+   
+   @Override
+   public abstract void setIsAnnotationStyleRefex(boolean annotationStyleRefex);
 
    //~--- methods -------------------------------------------------------------
 
@@ -67,7 +69,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
     */
    @Override
    public void add(Description desc) throws IOException {
-      getDescriptions().addDirect(desc);
+      getDescriptions().add(desc); //TODO-AKF: changed from being addDirect, using same patter as other add methods
       getDescNids().add(desc.nid);
       modified();
    }
@@ -118,17 +120,11 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    }
 
    @Override
-   public void modified() {
-       P.s.setIndexed(getNid(), false);
-      lastChange = P.s.incrementAndGetSequence();
-   }
-
-   @Override
-   public void modified(long sequence) {
-       P.s.setIndexed(getNid(), false);
-      lastChange = sequence;
-   }
+   public abstract void modified();
    
+   @Override
+   public abstract void modified(long sequence);
+
    void processNewDesc(Description e) throws IOException {
       assert e.nid != 0 : "descNid is 0: " + this;
       getDescNids().add(e.nid);
@@ -169,10 +165,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       modified();
    }
 
-   @Override
-   public void resetNidData() {
-      this.nidData.reset();
-   }
+   
 
    @Override
    public String toString() {
@@ -214,29 +207,12 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       return allContainedNids;
    }
 
-   private long getDataVersion() throws IOException {
-      TupleInput readOnlyInput = nidData.getReadOnlyTupleInput();
-      long       dataVersion   = Long.MIN_VALUE;
-
-      if (readOnlyInput.available() > 0) {
-         dataVersion = checkFormatAndVersion(readOnlyInput);
-      }
-
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
-
-      if (readWriteInput.available() > 0) {
-         dataVersion = checkFormatAndVersion(readWriteInput);
-      }
-
-      return dataVersion;
-   }
-
    /*
     * (non-Javadoc)
     *
     * @see org.ihtsdo.db.bdb.concept.I_ManageConceptData#getDestRels()
     */
-   @Override
+   @Override//TODO-AKF: need to implement?
    public List<Relationship> getDestRels() throws IOException {
 
       // Need to make sure there are no pending db writes prior calling this method.
@@ -282,33 +258,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       return destRels;
    }
 
-   public boolean getIsAnnotationStyleRefset() throws IOException {
-      AnnotationStyleBinder binder            = AnnotationStyleBinder.getBinder();
-      TupleInput            readOnlyInput     = nidData.getReadOnlyTupleInput();
-      boolean               isAnnotationStyle = false;
-
-      if (readOnlyInput.available() > 0) {
-         isAnnotationStyle = binder.entryToObject(readOnlyInput);
-      }
-
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
-
-      if (readWriteInput.available() > 0) {
-         isAnnotationStyle = binder.entryToObject(readWriteInput);
-      }
-
-      return isAnnotationStyle;
-   }
-
-   @Override
-   public long getLastChange() {
-      return lastChange;
-   }
-
-   @Override
-   public long getLastWrite() {
-      return lastWrite;
-   }
+   public abstract boolean getIsAnnotationStyleRefex() throws IOException;
 
    /*
     * (non-Javadoc)
@@ -319,64 +269,23 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    public int getNid() {
       return enclosingConcept.getNid();
    }
-
-   @Override
-   public byte[] getReadOnlyBytes() throws IOException {
-      return nidData.getReadOnlyBytes();
-   }
-
-   @Override
-   public byte[] getReadWriteBytes() throws IOException {
-      return nidData.getReadWriteBytes();
-   }
-
-   /*
-    * (non-Javadoc)
-    *
-    * @see
-    * org.ihtsdo.db.bdb.concept.I_ManageConceptData#getReadWriteDataVersion()
-    */
-   @Override
-   public int getReadWriteDataVersion() throws InterruptedException, ExecutionException, IOException {
-      DataVersionBinder binder = DataVersionBinder.getBinder();
-
-      return binder.entryToObject(nidData.getMutableTupleInput());
-   }
-
-   @Override
-   public TupleInput getReadWriteTupleInput() throws IOException {
-      return nidData.getMutableTupleInput();
-   }
-
+   
    public abstract boolean hasComponent(int nid) throws IOException;
 
    public abstract boolean hasUncommittedComponents();
 
    @Override
-   public boolean isPrimordial() throws IOException {
-      return nidData.isPrimordial();
-   }
+   public abstract boolean isPrimordial() throws IOException;
 
-   @Override
-   public final boolean isUncommitted() {
-      if (lastChange > P.s.getLastCommit()) {
-         return hasUncommittedComponents();
-      }
+   @Override//TODO-AKF: need to implement?
+   public abstract boolean isUncommitted();
 
-      return false;
-   }
-
-   @Override
-   public final boolean isUnwritten() {
-      return lastChange > lastWrite;
-   }
+   @Override//TODO-AKF: need to implement?
+   public abstract boolean isUnwritten();
 
    //~--- set methods ---------------------------------------------------------
 
-   @Override
-   public void setLastWrite(long lastWrite) {
-      this.lastWrite = Math.max(this.lastWrite, lastWrite);
-   }
+
 
    //~--- inner classes -------------------------------------------------------
 

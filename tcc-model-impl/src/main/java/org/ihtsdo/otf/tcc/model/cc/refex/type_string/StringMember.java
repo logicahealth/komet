@@ -5,20 +5,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_string;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
 //~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyVetoException;
@@ -27,12 +13,24 @@ import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class StringMember extends RefexMember<StringRevision, StringMember>
         implements RefexStringAnalogBI<StringRevision> {
-   private static VersionComputer<RefexMember<StringRevision, StringMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<StringRevision, StringMember>> computer =
       new VersionComputer<>();
 
    //~--- fields --------------------------------------------------------------
@@ -54,7 +52,7 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
       stringValue = refsetMember.getString1();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<StringRevision, StringMember>(primordialStamp);
 
          for (TtkRefexStringRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new StringRevision(eVersion, this));
@@ -185,18 +183,18 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
    }
 
    @Override
-   protected IntArrayList getVariableVersionNids() {
+   public IntArrayList getVariableVersionNids() {
       return new IntArrayList(2);
    }
 
    @Override
-   protected VersionComputer<RefexMember<StringRevision, StringMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<StringRevision, StringMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<StringMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -204,16 +202,16 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<StringMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new StringMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (StringRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new StringMemberVersion(r, this));
                }
             }
          }
@@ -221,7 +219,7 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<StringMemberVersion>) versions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -232,42 +230,4 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
       modified();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<StringRevision, StringMember>.Version
-           implements RefexStringAnalogBI<StringRevision> {
-      private Version(RefexStringAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-      //~--- get methods ------------------------------------------------------
-
-      RefexStringAnalogBI getCv() {
-         return (RefexStringAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexStringMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexStringMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexStringRevision getERefsetRevision() throws IOException {
-         return new TtkRefexStringRevision(this);
-      }
-
-      @Override
-      public String getString1() {
-         return getCv().getString1();
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setString1(String str) throws PropertyVetoException {
-         getCv().setString1(str);
-      }
-   }
 }

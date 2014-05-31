@@ -1,50 +1,40 @@
 package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
-import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
-import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 public class Description extends ConceptComponent<DescriptionRevision, Description>
         implements DescriptionAnalogBI<DescriptionRevision> {
-
-    private static VersionComputer<Description.Version> computer = new VersionComputer<>();
+    private static VersionComputer<DescriptionVersion> computer = new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     private boolean initialCaseSignificant;
     private String lang;
@@ -54,7 +44,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     /*
      * Consider depreciating the below methods...
      */
-    List<Version> versions;
+    List<DescriptionVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public Description() {
@@ -74,7 +64,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         primordialStamp = P.s.getStamp(eDesc);
 
         if (eDesc.getRevisionList() != null) {
-            revisions = new RevisionSet<>(primordialStamp);
+            revisions = new RevisionSet<DescriptionRevision, Description>(primordialStamp);
 
             for (TtkDescriptionRevision edv : eDesc.getRevisionList()) {
                 
@@ -148,7 +138,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     @Override
     public DescriptionRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
         DescriptionRevision newR;
-
         newR = new DescriptionRevision(this, status, time, authorNid,
                 moduleNid, pathNid, this);
         addRevision(newR);
@@ -160,7 +149,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     public boolean matches(Pattern p) {
         String lastText = null;
 
-        for (Description.Version desc : getVersions()) {
+        for (DescriptionVersion desc : getVersions()) {
             if (!desc.getText().equals(lastText)) {
                 lastText = desc.getText();
 
@@ -186,7 +175,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         int additionalVersionCount = input.readShort();
 
         if (additionalVersionCount > 0) {
-            revisions = new RevisionSet<>(primordialStamp);
+            revisions = new RevisionSet<DescriptionRevision, Description>(primordialStamp);
 
             for (int i = 0; i < additionalVersionCount; i++) {
                 DescriptionRevision dr = new DescriptionRevision(input, this);
@@ -225,6 +214,16 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         buf.append(" ");
         buf.append(super.toString());
 
+        return buf.toString();
+    }
+    
+    public String toSimpleString(){
+        StringBuilder buf = new StringBuilder();
+        buf.append("-nid: ").append(nid);
+        buf.append("-enclosing concept nid: ").append(enclosingConceptNid);
+        buf.append("-text: ").append(text);
+        buf.append("-cs: ").append(initialCaseSignificant);
+        buf.append("-lang: ").append(lang);
         return buf.toString();
     }
 
@@ -355,8 +354,8 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public Description.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        List<Description.Version> vForC = getVersions(c);
+    public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
+        List<DescriptionVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
             return null;
@@ -377,7 +376,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public List<Version> getVersions() {
+    public List<DescriptionVersion> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -385,16 +384,16 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
                 count = count + revisions.size();
             }
 
-            ArrayList<Version> list = new ArrayList<>(count);
+            ArrayList<DescriptionVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new Version(this));
+                list.add(new DescriptionVersion(this, this));
             }
 
             if (revisions != null) {
                 for (DescriptionRevision rev : revisions) {
                     if (rev.getTime() != Long.MIN_VALUE) {
-                        list.add(new Version(rev));
+                        list.add(new DescriptionVersion(rev, this));
                     }
                 }
             }
@@ -406,8 +405,8 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public List<Description.Version> getVersions(ViewCoordinate c) {
-        List<Version> returnTuples = new ArrayList<>(2);
+    public List<DescriptionVersion> getVersions(ViewCoordinate c) {
+        List<DescriptionVersion> returnTuples = new ArrayList<>(2);
 
         computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getViewPosition(),
                 returnTuples, getVersions(), c.getPrecedence(),
@@ -416,9 +415,9 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         return returnTuples;
     }
 
-    public List<Description.Version> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
+    public List<DescriptionVersion> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
             Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr) {
-        List<Version> returnTuples = new ArrayList<>(2);
+        List<DescriptionVersion> returnTuples = new ArrayList<>(2);
 
         computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPosition, returnTuples, getVersions(),
                 precedence, contradictionMgr);
@@ -456,140 +455,4 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         modified();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends ConceptComponent<DescriptionRevision, Description>.Version
-            implements DescriptionAnalogBI<DescriptionRevision>, TypedComponentVersionBI {
-
-        public Version(DescriptionAnalogBI<DescriptionRevision> cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-
-        public DescriptionRevision makeAnalog() {
-            if (Description.this == cv) {
-                return new DescriptionRevision(Description.this);
-            }
-
-            return new DescriptionRevision((DescriptionRevision) cv, Description.this);
-        }
-
-        @Override
-        public DescriptionRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-            return getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
-        }
-
-        @Override
-        public boolean fieldsEqual(ConceptComponent<DescriptionRevision, Description>.Version another) {
-            Description.Version anotherVersion = (Description.Version) another;
-            if (this.isInitialCaseSignificant() != anotherVersion.isInitialCaseSignificant()) {
-                return false;
-            }
-
-            if (!this.getText().equals(anotherVersion.getText())) {
-                return false;
-            }
-
-            if (!this.getLang().equals(anotherVersion.getLang())) {
-                return false;
-            }
-
-            if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-                return false;
-            }
-
-            return true;
-        }
-
-        //~--- get methods ------------------------------------------------------
-        @Override
-        public int getConceptNid() {
-            return enclosingConceptNid;
-        }
-
-        public DescriptionAnalogBI<DescriptionRevision> getCv() {
-            return (DescriptionAnalogBI<DescriptionRevision>) cv;
-        }
-
-        @Override
-        public DescriptionCAB makeBlueprint(ViewCoordinate vc, 
-            IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
-            return getCv().makeBlueprint(vc, idDirective, refexDirective);
-        }
-
-        @Override
-        public String getLang() {
-            return getCv().getLang();
-        }
-
-        @Override
-        public Description getPrimordialVersion() {
-            return Description.this;
-        }
-
-        @Override
-        public String getText() {
-            return getCv().getText();
-        }
-
-        @Override
-        public int getTypeNid() {
-            return getCv().getTypeNid();
-        }
-
-        @Override
-        public IntArrayList getVariableVersionNids() {
-            if (getCv() == Description.this.getVariableVersionNids()) {
-                return Description.this.getVariableVersionNids();
-            }
-
-            return ((DescriptionRevision) getCv()).getVariableVersionNids();
-        }
-
-        @Override
-        public Description.Version getVersion(ViewCoordinate c) throws ContradictionException {
-            return Description.this.getVersion(c);
-        }
-
-        @Override
-        public List<? extends Version> getVersions() {
-            return Description.this.getVersions();
-        }
-
-        @Override
-        public Collection<Description.Version> getVersions(ViewCoordinate c) {
-            return Description.this.getVersions(c);
-        }
-
-        @Override
-        public boolean isInitialCaseSignificant() {
-            return getCv().isInitialCaseSignificant();
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setInitialCaseSignificant(boolean capStatus) throws PropertyVetoException {
-            getCv().setInitialCaseSignificant(capStatus);
-        }
-
-        @Override
-        public void setLang(String lang) throws PropertyVetoException {
-            getCv().setLang(lang);
-        }
-
-        @Override
-        public void setText(String text) throws PropertyVetoException {
-            getCv().setText(text);
-        }
-
-        @Override
-        public void setTypeNid(int typeNid) throws PropertyVetoException {
-            getCv().setTypeNid(typeNid);
-        }
-
-        @Override
-        public boolean matches(Pattern p) {
-            return getCv().matches(p);
-        }
-    }
 }

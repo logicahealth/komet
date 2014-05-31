@@ -375,11 +375,6 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     }
 
     @Override
-    public long getLastModificationSequence() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public Collection<? extends RelGroupVersionBI> getRelationshipGroupsActive(ViewCoordinate vc) throws IOException, ContradictionException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

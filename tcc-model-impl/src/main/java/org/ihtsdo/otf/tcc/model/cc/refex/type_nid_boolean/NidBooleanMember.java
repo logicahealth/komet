@@ -4,31 +4,27 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
 
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import java.util.*;
+import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatMemberChronicle;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 /**
  * Class description
@@ -41,7 +37,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
         implements RefexNidBooleanAnalogBI<NidBooleanRevision> {
 
    /** Field description */
-   private static VersionComputer<RefexMember<NidBooleanRevision, NidBooleanMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<NidBooleanRevision, NidBooleanMember>> computer =
       new VersionComputer<>();
 
    /** Field description */
@@ -86,7 +82,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
       boolean1 = refsetMember.boolean1;
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<NidBooleanRevision, NidBooleanMember>(primordialStamp);
 
          for (TtkRefexUuidBooleanRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidBooleanRevision(eVersion, this));
@@ -373,7 +369,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * @return
     */
    @Override
-   protected VersionComputer<RefexMember<NidBooleanRevision, NidBooleanMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<NidBooleanRevision, NidBooleanMember>> getVersionComputer() {
       return computer;
    }
 
@@ -385,7 +381,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     */
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<NidBooleanMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -393,16 +389,16 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<NidBooleanMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new NidBooleanMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (NidBooleanRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new NidBooleanMemberVersion(r, this));
                }
             }
          }
@@ -410,7 +406,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<NidBooleanMemberVersion>) versions;
    }
 
    /**
@@ -451,108 +447,4 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
       modified();
    }
 
-   /**
-    * Class description
-    *
-    *
-    * @version        Enter version here..., 13/03/27
-    * @author         Enter your name here...    
-    */
-   public class Version extends RefexMember<NidBooleanRevision, NidBooleanMember>.Version
-           implements RefexNidBooleanAnalogBI<NidBooleanRevision> {
-
-      /**
-       * Constructs ...
-       *
-       *
-       * @param cv
-       */
-      private Version(RefexNidBooleanAnalogBI cv) {
-         super(cv);
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @return
-       */
-      RefexNidBooleanAnalogBI getCv() {
-         return (RefexNidBooleanAnalogBI) cv;
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @return
-       *
-       * @throws IOException
-       */
-      @Override
-      public TtkRefexUuidFloatMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexUuidFloatMemberChronicle(this);
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @return
-       *
-       * @throws IOException
-       */
-      @Override
-      public TtkRefexUuidBooleanRevision getERefsetRevision() throws IOException {
-         return new TtkRefexUuidBooleanRevision(this);
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @return
-       */
-      @Override
-      public boolean getBoolean1() {
-         return getCv().getBoolean1();
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @return
-       */
-      @Override
-      public int getNid1() {
-         return getCv().getNid1();
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @param f
-       *
-       * @throws PropertyVetoException
-       */
-      @Override
-      public void setBoolean1(boolean b) throws PropertyVetoException {
-         getCv().setBoolean1(b);
-      }
-
-      /**
-       * Method description
-       *
-       *
-       * @param cnid1
-       *
-       * @throws PropertyVetoException
-       */
-      @Override
-      public void setNid1(int cnid1) throws PropertyVetoException {
-         getCv().setNid1(cnid1);
-      }
-   }
 }

@@ -7,21 +7,21 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
+import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
-import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
-import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 
 public class RelationshipRevision extends Revision<RelationshipRevision, Relationship>
         implements RelationshipAnalogBI<RelationshipRevision> {
@@ -30,6 +30,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     private int group;
     private int refinabilityNid;
     private int typeNid;
+    private int destinationNid; //TODO-AKF: adding this to be able to support no arg constructor
 
     //~--- constructors --------------------------------------------------------
     public RelationshipRevision() {
@@ -42,6 +43,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = primordialRel.getGroup();
         this.refinabilityNid = primordialRel.getRefinabilityNid();
         this.typeNid = primordialRel.getTypeNid();
+        this.destinationNid = primordialRel.getDestinationNid();
     }
 
     public RelationshipRevision(int statusAtPositionNid, Relationship primordialRel) {
@@ -54,6 +56,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = another.group;
         this.refinabilityNid = another.refinabilityNid;
         this.typeNid = another.typeNid;
+        this.destinationNid = another.getDestinationNid();
     }
 
     public RelationshipRevision(TtkRelationshipRevision erv, Relationship primordialRel) throws IOException {
@@ -64,6 +67,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.refinabilityNid = P.s.getNidForUuids(erv.getRefinabilityUuid());
         this.typeNid = P.s.getNidForUuids(erv.getTypeUuid());
         this.stamp = P.s.getStamp(erv);
+        //TODO-AKF: not supporting destination nid
     }
 
     public RelationshipRevision(TupleInput input, Relationship primordialRel) {
@@ -72,6 +76,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = input.readSortedPackedInt();
         this.refinabilityNid = input.readInt();
         this.typeNid = input.readInt();
+        //TODO-AKF: not supporting destination nid
     }
 
     public RelationshipRevision(RelationshipAnalogBI another, Status status, long time, int authorNid,
@@ -81,6 +86,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = another.getGroup();
         this.refinabilityNid = another.getRefinabilityNid();
         this.typeNid = another.getTypeNid();
+        this.destinationNid = another.getDestinationNid();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -211,7 +217,8 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
 
     @Override
     public int getDestinationNid() {
-        return primordialComponent.getDestinationNid();
+//        return primordialComponent.getDestinationNid(); //TODO-AKF: making this use the field on the revision
+        return destinationNid;
     }
 
     @Override
@@ -251,17 +258,17 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public Relationship.Version getVersion(ViewCoordinate c) throws ContradictionException {
+    public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return primordialComponent.getVersion(c);
     }
 
     @Override
-    public Collection<? extends Relationship.Version> getVersions() {
+    public Collection<? extends RelationshipVersion> getVersions() {
         return ((Relationship) primordialComponent).getVersions();
     }
 
     @Override
-    public Collection<Relationship.Version> getVersions(ViewCoordinate c) {
+    public Collection<RelationshipVersion> getVersions(ViewCoordinate c) {
         return primordialComponent.getVersions(c);
     }
 
@@ -285,7 +292,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
 
     @Override
     public void setDestinationNid(int nid) throws PropertyVetoException {
-        throw new UnsupportedOperationException();
+        this.destinationNid = nid;
     }
 
     @Override

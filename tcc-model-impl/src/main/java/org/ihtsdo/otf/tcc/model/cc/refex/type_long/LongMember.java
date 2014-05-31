@@ -5,20 +5,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongRevision;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
 //~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyVetoException;
@@ -27,12 +13,24 @@ import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class LongMember extends RefexMember<LongRevision, LongMember>
         implements RefexLongAnalogBI<LongRevision> {
-   private static VersionComputer<RefexMember<LongRevision, LongMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<LongRevision, LongMember>> computer =
       new VersionComputer<>();
 
    //~--- fields --------------------------------------------------------------
@@ -54,7 +52,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
       longValue = refsetMember.getLongValue();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<LongRevision, LongMember>(primordialStamp);
 
          for (TtkRefexLongRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new LongRevision(eVersion, this));
@@ -185,18 +183,18 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
    }
 
    @Override
-   protected IntArrayList getVariableVersionNids() {
+   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
       return new IntArrayList(2);
    }
 
    @Override
-   protected VersionComputer<RefexMember<LongRevision, LongMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<LongRevision, LongMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<LongMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -204,16 +202,16 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<LongMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new LongMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (LongRevision lr : revisions) {
                if (lr.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(lr));
+                  list.add(new LongMemberVersion(lr, this));
                }
             }
          }
@@ -221,7 +219,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<LongMemberVersion>) versions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -232,43 +230,4 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
       modified();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<LongRevision, LongMember>.Version
-           implements RefexLongAnalogBI<LongRevision> {
-      private Version(RefexLongAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-      //~--- get methods ------------------------------------------------------
-
-      RefexLongAnalogBI getCv() {
-         return (RefexLongAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexLongMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexLongMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexLongRevision getERefsetRevision() throws IOException {
-         return new TtkRefexLongRevision(this);
-      }
-
-      @Override
-      public long getLong1() {
-         return getCv().getLong1();
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setLong1(long l) throws PropertyVetoException {
-         getCv().setLong1(l);
-      }
-
-   }
 }

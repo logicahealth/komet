@@ -3,47 +3,38 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 //~--- non-JDK imports --------------------------------------------------------
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
-import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
-import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
+import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 
 public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevision, ConceptAttributes>
         implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
 
-    private static VersionComputer<ConceptAttributes.Version> computer =
+    private static VersionComputer<ConceptAttributesVersion> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     private boolean defined;
-    List<Version> versions;
+    List<ConceptAttributesVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public ConceptAttributes() {
@@ -123,7 +114,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         ConceptAttributesRevision newR;
 
         newR = new ConceptAttributesRevision(this, status, time, authorNid, moduleNid, pathNid, this);
-        addRevision(newR);
+        addRevision(newR); //TODO-AKF: then here
 
         return newR;
     }
@@ -188,6 +179,15 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
             buf.append("is primitive");
         }
 
+        return buf.toString();
+    }
+    
+    public String toSimpleString(){
+        StringBuilder buf = new StringBuilder();
+        buf.append(" -nid: ").append(nid);
+        buf.append(" -enclosing concept nid: ").append(enclosingConceptNid);
+        buf.append(" -defined: ").append(defined);
+        buf.append(" -revision count: ").append(revisions.size());
         return buf.toString();
     }
 
@@ -268,8 +268,8 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public ConceptAttributes.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        List<ConceptAttributes.Version> vForC = getVersions(c);
+    public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
+        List<ConceptAttributesVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
             return null;
@@ -290,8 +290,8 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public List<Version> getVersions() {
-        List<Version> list = versions;
+    public List<ConceptAttributesVersion> getVersions() {
+        List<ConceptAttributesVersion> list = versions;
 
         if (list == null) {
             int count = 1;
@@ -303,13 +303,13 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
             list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new Version(this));
+                list.add(new ConceptAttributesVersion(this, this));
             }
 
             if (revisions != null) {
                 for (ConceptAttributesRevision r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
-                        list.add(new Version(r));
+                        list.add(new ConceptAttributesVersion(r, this));
                     }
                 }
             }
@@ -321,8 +321,8 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public List<ConceptAttributes.Version> getVersions(ViewCoordinate c) {
-        List<Version> returnTuples = new ArrayList<>(2);
+    public List<ConceptAttributesVersion> getVersions(ViewCoordinate c) {
+        List<ConceptAttributesVersion> returnTuples = new ArrayList<>(2);
 
         computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getViewPosition(),
                 returnTuples, getVersions(), c.getPrecedence(),
@@ -331,9 +331,9 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         return returnTuples;
     }
 
-    public Collection<Version> getVersions(EnumSet<Status> allowedStatus, Position viewPositions,
+    public Collection<ConceptAttributesVersion> getVersions(EnumSet<Status> allowedStatus, Position viewPositions,
             Precedence precedence, ContradictionManagerBI contradictionMgr) {
-        List<Version> returnTuples = new ArrayList<>(2);
+        List<ConceptAttributesVersion> returnTuples = new ArrayList<>(2);
 
         computer.addSpecifiedVersions(allowedStatus, viewPositions, returnTuples, getVersions(), precedence,
                 contradictionMgr);
@@ -365,91 +365,4 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         modified();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends ConceptComponent<ConceptAttributesRevision, ConceptAttributes>.Version
-            implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
-
-        public Version(ConceptAttributeAnalogBI<ConceptAttributesRevision> cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-        public ConceptAttributesRevision makeAnalog() {
-            if (cv == ConceptAttributes.this) {
-                return new ConceptAttributesRevision(ConceptAttributes.this, ConceptAttributes.this);
-            }
-
-            return new ConceptAttributesRevision((ConceptAttributesRevision) getCv(), ConceptAttributes.this);
-        }
-
-        @Override
-        public ConceptAttributesRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-            return getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
-        }
-
-        @Override
-        public boolean fieldsEqual(ConceptComponent<ConceptAttributesRevision, ConceptAttributes>.Version another) {
-            ConceptAttributes.Version anotherVersion = (ConceptAttributes.Version) another;
-            if (this.isDefined() == anotherVersion.isDefined()) {
-                return true;
-            }
-            return false;
-        }
-
-        public ConceptAttributeAnalogBI<ConceptAttributesRevision> getCv() {
-            return (ConceptAttributeAnalogBI<ConceptAttributesRevision>) cv;
-        }
-
-        @Override
-        public ConceptAttributeAB makeBlueprint(ViewCoordinate vc, 
-            IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
-            return getCv().makeBlueprint(vc, idDirective, refexDirective);
-        }
-
-        @Override
-        public ConceptAttributes getPrimordialVersion() {
-            return ConceptAttributes.this;
-        }
-
-        @Override
-        public Collection<? extends RefexChronicleBI<?>> getRefexMembers(int refsetNid) throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public IntArrayList getVariableVersionNids() {
-            return new IntArrayList(2);
-        }
-
-        @Override
-        public ConceptAttributes.Version getVersion(ViewCoordinate c) throws ContradictionException {
-            return ConceptAttributes.this.getVersion(c);
-        }
-
-        @Override
-        public List<? extends Version> getVersions() {
-            return ConceptAttributes.this.getVersions();
-        }
-
-        @Override
-        public Collection<ConceptAttributes.Version> getVersions(ViewCoordinate c) {
-            return ConceptAttributes.this.getVersions(c);
-        }
-
-        @Override
-        public boolean hasCurrentRefexMember(ViewCoordinate xyz, int refsetNid) throws IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean isDefined() {
-            return getCv().isDefined();
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setDefined(boolean defined) throws PropertyVetoException {
-            getCv().setDefined(defined);
-        }
-    }
 }

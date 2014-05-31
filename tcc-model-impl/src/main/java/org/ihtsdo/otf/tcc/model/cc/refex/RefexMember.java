@@ -39,13 +39,14 @@ import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>>
         extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R> {
 
     public int referencedComponentNid;
     public int assemblageNid;
-    protected List<? extends Version> versions;
+    protected List<? extends RefexMemberVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public RefexMember() {
@@ -147,7 +148,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
         if (additionalVersionCount > 0) {
             if (revisions == null) {
-                revisions = new RevisionSet<>(primordialStamp);
+                revisions = new RevisionSet<R, C>(primordialStamp);
             }
 
             for (int i = 0; i < additionalVersionCount; i++) {
@@ -309,8 +310,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     protected abstract RefexType getTkRefsetType();
 
     @Override
-    public RefexMember<R, C>.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        List<RefexMember<R, C>.Version> vForC = getVersions(c);
+    public RefexMemberVersion<R, C> getVersion(ViewCoordinate c) throws ContradictionException {
+        List<RefexMemberVersion<R, C>> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
             return null;
@@ -330,11 +331,11 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return null;
     }
 
-    protected abstract VersionComputer<RefexMember<R, C>.Version> getVersionComputer();
+    protected abstract VersionComputer<RefexMemberVersion<R, C>> getVersionComputer();
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<? extends Version> getVersions() {
+    public List<? extends RefexMemberVersion<R,C>> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -342,25 +343,25 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
                 count = count + revisions.size();
             }
 
-            ArrayList<Version> list = new ArrayList<>(count);
+            ArrayList<RefexMemberVersion> list = new ArrayList<>(count);
 
-            list.add(new Version(this));
+            list.add(new RefexMemberVersion(this, this));
 
             if (revisions != null) {
                 for (RefexRevision rv : revisions) {
-                    list.add(new Version(rv));
+                    list.add(new RefexMemberVersion(rv, this));
                 }
             }
 
             versions = list;
         }
 
-        return (List<Version>) versions;
+        return (List<RefexMemberVersion<R,C>>) versions;
     }
 
     @Override
-    public List<RefexMember<R, C>.Version> getVersions(ViewCoordinate c) {
-        List<RefexMember<R, C>.Version> returnTuples = new ArrayList<>(2);
+    public List<RefexMemberVersion<R, C>> getVersions(ViewCoordinate c) {
+        List<RefexMemberVersion<R, C>> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
                 c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
@@ -369,8 +370,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return returnTuples;
     }
 
-    public List<RefexMember<R, C>.Version> getVersions(ViewCoordinate c, long time) {
-        List<RefexMember<R, C>.Version> returnTuples = new ArrayList<>(2);
+    public List<RefexMemberVersion<R, C>> getVersions(ViewCoordinate c, long time) {
+        List<RefexMemberVersion<R, C>> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
                 c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
@@ -429,141 +430,4 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return getTkRefsetType();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends ConceptComponent<R, C>.Version
-            implements RefexAnalogBI<R> {
-
-        public Version(RefexAnalogBI<R> cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-        @Override
-        public RefexType getRefexType() {
-            return RefexMember.this.getRefexType();
-        }
-
-        public R makeAnalog() {
-            if (RefexMember.this != cv) {
-            }
-
-            return (R) RefexMember.this.makeAnalog();
-        }
-
-        @Override
-        public R makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-            return getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
-        }
-
-        @Override
-        public boolean fieldsEqual(ConceptComponent.Version another) {
-            RefexMember.Version anotherVersion = (RefexMember.Version) another;
-            if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-                return false;
-            }
-
-            if (this.getAssemblageNid() != anotherVersion.getAssemblageNid()) {
-                return false;
-            }
-
-            if (this.getReferencedComponentNid() != anotherVersion.getReferencedComponentNid()) {
-                return false;
-            }
-
-            if (this.refexFieldsEqual(anotherVersion)) {
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean refexFieldsEqual(RefexVersionBI another) {
-            return getCv().refexFieldsEqual(another);
-        }
-
-        //~--- get methods ------------------------------------------------------
-        @Override
-        public int getAssemblageNid() {
-            return assemblageNid;
-        }
-
-        @Override
-        @Deprecated
-        public int getRefexExtensionNid() {
-            return getAssemblageNid();
-        }
-
-        RefexAnalogBI<R> getCv() {
-            return (RefexAnalogBI<R>) cv;
-        }
-
-        public TtkRefexAbstractMemberChronicle<?> getERefsetMember() throws IOException {
-            throw new UnsupportedOperationException("subclass must override");
-        }
-
-        public TtkRevision getERefsetRevision() throws IOException {
-            throw new UnsupportedOperationException("subclass must override");
-        }
-
-        @Override
-        public RefexMember getPrimordialVersion() {
-            return RefexMember.this;
-        }
-
-        @Override
-        public int getReferencedComponentNid() {
-            return RefexMember.this.getReferencedComponentNid();
-        }
-
-        @Override
-        public RefexCAB makeBlueprint(ViewCoordinate vc,
-                IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
-            return getCv().makeBlueprint(vc, idDirective, refexDirective);
-        }
-
-        public int getTypeNid() {
-            return RefexMember.this.getTypeNid();
-        }
-
-        @Override
-        public IntArrayList getVariableVersionNids() {
-            if (RefexMember.this != getCv()) {
-                return ((RefexRevision) getCv()).getVariableVersionNids();
-            } else {
-                return RefexMember.this.getVariableVersionNids();
-            }
-        }
-
-        @Override
-        public RefexMember<R, C>.Version getVersion(ViewCoordinate c) throws ContradictionException {
-            return RefexMember.this.getVersion(c);
-        }
-
-        @Override
-        public List<? extends Version> getVersions() {
-            return RefexMember.this.getVersions();
-        }
-
-        @Override
-        public Collection<RefexMember<R, C>.Version> getVersions(ViewCoordinate c) {
-            return RefexMember.this.getVersions(c);
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-            RefexMember.this.setAssemblageNid(collectionNid);
-        }
-
-        @Override
-        @Deprecated
-        public void setRefexExtensionNid(int collectionNid) throws PropertyVetoException, IOException {
-            setAssemblageNid(collectionNid);
-        }
-
-        @Override
-        public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
-            RefexMember.this.setReferencedComponentNid(componentNid);
-        }
-    }
 }

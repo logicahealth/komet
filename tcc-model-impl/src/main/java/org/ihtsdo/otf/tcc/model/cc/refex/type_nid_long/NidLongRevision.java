@@ -177,12 +177,12 @@ public class NidLongRevision extends RefexRevision<NidLongRevision, NidLongMembe
    }
 
    @Override
-   public NidLongMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (NidLongMember.Version) ((NidLongMember) primordialComponent).getVersion(c);
+   public NidLongMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (NidLongMemberVersion) ((NidLongMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<NidLongMember.Version> getVersions() {
+   public Collection<NidLongMemberVersion> getVersions() {
       return ((NidLongMember) primordialComponent).getVersions();
    }
 

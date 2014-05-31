@@ -140,12 +140,12 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
    }
 
    @Override
-   public MembershipMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (MembershipMember.Version) ((MembershipMember) primordialComponent).getVersion(c);
+   public MembershipMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (MembershipMemberVersion) ((MembershipMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<MembershipMember.Version> getVersions() {
+   public Collection<MembershipMemberVersion> getVersions() {
       return ((MembershipMember) primordialComponent).getVersions();
    }
 

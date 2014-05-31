@@ -183,12 +183,12 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
    }
 
    @Override
-   public NidBooleanMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (NidBooleanMember.Version) ((NidBooleanMember) primordialComponent).getVersion(c);
+   public NidBooleanMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (NidBooleanMemberVersion) ((NidBooleanMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<NidBooleanMember.Version> getVersions() {
+   public Collection<NidBooleanMemberVersion> getVersions() {
       return ((NidBooleanMember) primordialComponent).getVersions();
    }
 

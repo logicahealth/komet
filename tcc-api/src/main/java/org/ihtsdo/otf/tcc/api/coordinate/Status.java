@@ -20,5 +20,5 @@ package org.ihtsdo.otf.tcc.api.coordinate;
  * @author kec
  */
 public enum Status {
-    ACTIVE, INACTIVE
+    INACTIVE, ACTIVE
 }

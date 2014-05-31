@@ -1,15 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.nid.NidListBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.nid.NidSet;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -19,64 +9,76 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
-import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
-import org.ihtsdo.otf.tcc.model.cc.NidPair;
-import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.concept.processor.AdjudicationAnalogCreator;
-import org.ihtsdo.otf.tcc.model.cc.concept.processor.VersionFlusher;
-import org.ihtsdo.otf.tcc.model.cc.description.Description;
-import org.ihtsdo.otf.tcc.model.cc.description.Description.Version;
-import org.ihtsdo.otf.tcc.model.cc.media.Media;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
-import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupChronicle;
-import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationThreadingPolicy;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.api.nid.NidListBI;
+import org.ihtsdo.otf.tcc.api.nid.NidSet;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.DataMarker;
+import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
+import org.ihtsdo.otf.tcc.model.cc.NidPair;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
+import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.concept.processor.AdjudicationAnalogCreator;
+import org.ihtsdo.otf.tcc.model.cc.concept.processor.VersionFlusher;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.media.MediaVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipVersion;
+import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupChronicle;
+import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
+import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
-    
     protected static final Logger logger = Logger.getLogger(ConceptChronicle.class.getName());
     public static ReferenceType refType = ReferenceType.WEAK;
     private static int fsXmlDescNid = Integer.MIN_VALUE;
@@ -99,7 +101,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     Precedence precedencePolicy;
 
     //~--- constructors --------------------------------------------------------
-    private ConceptChronicle(int nid) throws IOException {
+//    TODO-AKF: can this be private?
+    public ConceptChronicle(){
+    }
+    
+    public ConceptChronicle(int nid) throws IOException {
         super();
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
         this.nid = nid;
@@ -108,7 +114,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         switch (refType) {
             case SOFT:
             case WEAK:
-                data = new ConceptDataSimpleReference(this);
+//                TODO-AKF can do this on a field level
+                ConceptDataFactory factory = Hk2Looker.get().getService(ConceptDataFactory.class);
+                ConceptDataManager dataManager = (ConceptDataManager) factory.getConceptDataManager();
+                dataManager.setEnlosingConcept(this);
+                this.data = dataManager;
 
                 break;
 
@@ -129,7 +139,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         switch (refType) {
             case SOFT:
             case WEAK:
-                this.data = new ConceptDataSimpleReference(this, conceptData);
+                    this.data = new ConceptDataSimpleReference(this, conceptData);
 
                 break;
 
@@ -608,9 +618,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         init();
     }
 
-    public void resetNidData() {
-        data.resetNidData();
-    }
+//    public void resetNidData() {
+//        data.resetNidData();
+//    }
 
     public static void resolveUnresolvedAnnotations(Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException {
         List<TtkRefexAbstractMemberChronicle<?>> cantResolve = new ArrayList<>();
@@ -658,10 +668,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             buff.append(nid);
             buff.append(" annotationRefset: ");
             buff.append(isAnnotationStyleRefex());
-            buff.append("\n  data version: ");
-            buff.append(getDataVersion());
-            buff.append("\n write version: ");
-            buff.append(getWriteVersion());
             buff.append("\n uncommitted: ");
             buff.append(isUncommitted());
             buff.append("\n unwritten: ");
@@ -769,7 +775,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
             if (c == null) {
                 c = newC;
-            }
+    }
         }
 
         conceptsCRHM.put(nid, c);
@@ -932,14 +938,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return null;
     }
 
-    public Collection<ConceptAttributes.Version> getConceptAttrVersions(EnumSet<Status> allowedStatus,
+    public Collection<ConceptAttributesVersion> getConceptAttrVersions(EnumSet<Status> allowedStatus,
             Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
             return new ArrayList<>();
         }
 
-        List<ConceptAttributes.Version> versions = new ArrayList<>(2);
+        List<ConceptAttributesVersion> versions = new ArrayList<>(2);
 
         versions.addAll(getConceptAttributes().getVersions(allowedStatus, viewPosition, precedence,
                 contradictionMgr));
@@ -1066,16 +1072,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data;
     }
 
-    public long getDataVersion() {
-        return data.getLastChange();
-    }
-
-    public Description.Version getDesc(NidListBI typePrefOrder, NidListBI langPrefOrder,
+    public DescriptionVersion getDesc(NidListBI typePrefOrder, NidListBI langPrefOrder,
             EnumSet<Status> allowedStatus, Position viewPosition,
             LANGUAGE_SORT_PREF sortPref, Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager)
             throws IOException {
-        Description.Version result;
+        DescriptionVersion result;
 
         switch (sortPref) {
             case TYPE_B4_LANG:
@@ -1088,7 +1090,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 }
 
                 if ((getDescriptions() != null) && (getDescriptions().size() > 0)) {
-                    return (Version) getDescriptions().iterator().next().getVersions().iterator().next();
+                    return (DescriptionVersion) getDescriptions().iterator().next().getVersions().iterator().next();
                 }
 
                 return null;
@@ -1141,7 +1143,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.getDescNids();
     }
 
-    public Collection<Description.Version> getDescriptionVersions(EnumSet<Status> allowedStatus,
+    public Collection<DescriptionVersion> getDescriptionVersions(EnumSet<Status> allowedStatus,
             NidSetBI allowedTypes, Position viewPosition, Precedence precedence,
             ContradictionManagerBI contradictionMgr)
             throws IOException {
@@ -1150,7 +1152,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         Collection<Description> descriptions = getDescriptions();
-        List<Description.Version> versions = new ArrayList<>(descriptions.size());
+        List<DescriptionVersion> versions = new ArrayList<>(descriptions.size());
 
         for (Description d : descriptions) {
             versions.addAll(d.getVersions(allowedStatus, allowedTypes, viewPosition, precedence,
@@ -1227,16 +1229,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public long getLastModificationSequence() {
-        return data.getLastChange();
-    }
-
-    @Override
     public Collection<Media> getMedia() throws IOException {
         return getImages();
     }
 
-    public Collection<Media.Version> getMediaVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
+    public Collection<MediaVersion> getMediaVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
             Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
@@ -1244,7 +1241,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         Collection<Media> media = getImages();
-        List<Media.Version> versions = new ArrayList<>(media.size());
+        List<MediaVersion> versions = new ArrayList<>(media.size());
 
         for (Media m : media) {
             versions.addAll(m.getVersions(allowedStatus, allowedTypes, viewPosition, precedence,
@@ -1281,14 +1278,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return possibleKindOfConcepts;
     }
 
-    private Description.Version getPreferredAcceptability(Collection<Description.Version> descriptions,
+    private DescriptionVersion getPreferredAcceptability(Collection<DescriptionVersion> descriptions,
             int typePrefNid, ViewCoordinate vc, int langRefexNid)
             throws IOException {
 
         // get FSN
-        Description.Version descOfType = null;
+        DescriptionVersion descOfType = null;
 
-        for (Description.Version d : descriptions) {
+        for (DescriptionVersion d : descriptions) {
             if (d.getTypeNid() == typePrefNid) {
                 for (RefexVersionBI<?> refex : d.getRefexMembersActive(vc)) {
                     if (refex.getAssemblageNid() == langRefexNid) {
@@ -1330,7 +1327,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return getConceptAttributes().getRefexMembers(refsetNid);
     }
 
-    private Description.Version getRefexSpecifiedDesc(Collection<Description.Version> descriptions,
+    private DescriptionVersion getRefexSpecifiedDesc(Collection<DescriptionVersion> descriptions,
             NidListBI typePrefOrder, NidListBI langRefexOrder, EnumSet<Status> allowedStatus,
             Position viewPosition)
             throws IOException {
@@ -1345,7 +1342,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     if ((langRefexOrder != null) && (langRefexOrder.getListValues() != null)) {
                         for (int langRefexNid : langRefexOrder.getListValues()) {
                             if (typePrefNid == ReferenceConcepts.FULLY_SPECIFIED_RF1.getNid()) {
-                                Description.Version answer = getPreferredAcceptability(descriptions, typePrefNid, vc,
+                                DescriptionVersion answer = getPreferredAcceptability(descriptions, typePrefNid, vc,
                                         langRefexNid);
 
                                 if (answer != null) {
@@ -1354,7 +1351,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                             } else {
 
                                 // get Preferred or other
-                                Description.Version answer = getPreferredAcceptability(descriptions,
+                                DescriptionVersion answer = getPreferredAcceptability(descriptions,
                                         ReferenceConcepts.SYNONYM_RF1.getNid(), vc,
                                         langRefexNid);
 
@@ -1469,7 +1466,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return getNativeSourceRels();
     }
 
-    private Description.Version getRf2RefexSpecifiedDesc(Collection<Description.Version> descriptions,
+    private DescriptionVersion getRf2RefexSpecifiedDesc(Collection<DescriptionVersion> descriptions,
             NidListBI typePrefOrder, NidListBI langRefexOrder, EnumSet<Status> allowedStatus,
             Position viewPosition)
             throws IOException {
@@ -1484,7 +1481,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     for (int langRefexNid : langRefexOrder.getListValues()) {
                         for (int typePrefNid : typePrefOrder.getListArray()) {
                             if (typePrefNid == ReferenceConcepts.FULLY_SPECIFIED_RF2.getNid()) {
-                                Description.Version answer = getPreferredAcceptability(descriptions, typePrefNid, vc,
+                                DescriptionVersion answer = getPreferredAcceptability(descriptions, typePrefNid, vc,
                                         langRefexNid);
 
                                 if (answer != null) {
@@ -1493,7 +1490,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                             } else if (typePrefNid == ReferenceConcepts.SYNONYM_RF2.getNid()) {
 
                                 // get Preferred or other
-                                Description.Version answer = getPreferredAcceptability(descriptions,
+                                DescriptionVersion answer = getPreferredAcceptability(descriptions,
                                         ReferenceConcepts.SYNONYM_RF2.getNid(), vc,
                                         langRefexNid);
 
@@ -1509,7 +1506,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     for (int langRefexNid : langRefexOrder.getListValues()) {
                         for (int typePrefNid : typePrefOrder.getListArray()) {
                             if (typePrefNid == ReferenceConcepts.FULLY_SPECIFIED_RF1.getNid()) {
-                                Description.Version answer = getPreferredAcceptability(descriptions, typePrefNid, vc,
+                                DescriptionVersion answer = getPreferredAcceptability(descriptions, typePrefNid, vc,
                                         langRefexNid);
 
                                 if (answer != null) {
@@ -1518,7 +1515,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                             } else if (typePrefNid == ReferenceConcepts.SYNONYM_RF1.getNid()) {
 
                                 // get Preferred or other
-                                Description.Version answer = getPreferredAcceptability(descriptions,
+                                DescriptionVersion answer = getPreferredAcceptability(descriptions,
                                         ReferenceConcepts.SYNONYM_RF1.getNid(), vc,
                                         langRefexNid);
 
@@ -1535,7 +1532,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return null;
     }
 
-    public Collection<Relationship.Version> getSrcRelVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
+    public Collection<RelationshipVersion> getSrcRelVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
             Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr)
             throws IOException {
         if (isCanceled()) {
@@ -1543,7 +1540,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         Collection<Relationship> rels = getNativeSourceRels();
-        List<Relationship.Version> versions = new ArrayList<>(rels.size());
+        List<RelationshipVersion> versions = new ArrayList<>(rels.size());
 
         for (Relationship r : rels) {
             versions.addAll(r.getVersions(allowedStatus, allowedTypes, viewPosition, precedence,
@@ -1582,7 +1579,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 Description desc = getDescriptions().iterator().next();
 
                 for (Description d : getDescriptions()) {
-                    for (Description.Version part : d.getVersions()) {
+                    for (DescriptionVersion part : d.getVersions()) {
                         if ((part.getTypeNid() == fsDescNid) || (part.getTypeNid() == fsXmlDescNid)) {
                             return part.getText();
                         }
@@ -1608,15 +1605,15 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     /*
      * (non-Javadoc) @see java.lang.Object#toString()
      */
-    private Description.Version getTypePreferredDesc(Collection<Description.Version> descriptions,
+    private DescriptionVersion getTypePreferredDesc(Collection<DescriptionVersion> descriptions,
             NidListBI typePrefOrder)
             throws IOException {
         if (descriptions.size() > 0) {
             if (descriptions.size() > 1) {
-                List<Description.Version> matchedList = new ArrayList<>();
+                List<DescriptionVersion> matchedList = new ArrayList<>();
 
                 for (int typeId : typePrefOrder.getListValues()) {
-                    for (Description.Version d : descriptions) {
+                    for (DescriptionVersion d : descriptions) {
                         if (d.getTypeNid() == typeId) {
                             matchedList.add(d);
 
@@ -1685,10 +1682,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         cvList.add(new ConceptVersion(this, c));
 
         return cvList;
-    }
-
-    private long getWriteVersion() {
-        return data.getLastWrite();
     }
 
     @Override
@@ -1790,7 +1783,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     //~--- set methods ---------------------------------------------------------
     @Override
     public void setAnnotationStyleRefex(boolean annotationStyleRefset) {
-        data.setAnnotationStyleRefset(annotationStyleRefset);
+        data.setIsAnnotationStyleRefex(annotationStyleRefset);
     }
 
     private static void setAttributesFromEConcept(ConceptChronicle c, TtkConceptAttributesChronicle eAttr) throws IOException {
@@ -1798,7 +1791,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         ConceptAttributes attr = new ConceptAttributes(eAttr, c);
 
-        c.data.set(attr);
+        c.data.setConceptAttributes(attr);
     }
 
     public NidSetBI setCommitTime(long time) {
@@ -1808,7 +1801,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public void setConceptAttributes(ConceptAttributes attributes) throws IOException {
         assert attributes.nid != 0;
         nid = attributes.nid;
-        data.set(attributes);
+        data.setConceptAttributes(attributes);
     }
 
     private static void setDescriptionsFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
@@ -1829,10 +1822,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public void setIsCanceled(boolean isCanceled) {
         canceled = isCanceled;
-    }
-
-    public void setLastWrite(long version) {
-        data.setLastWrite(version);
     }
 
     private static void setRefsetMembersFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {

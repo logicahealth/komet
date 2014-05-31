@@ -10,11 +10,20 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javafx.application.Platform;
-
 import javafx.concurrent.Worker;
-
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSet;
 import org.ihtsdo.otf.tcc.api.nid.ConcurrentBitSetReadOnly;
@@ -32,23 +41,8 @@ import org.ihtsdo.otf.tcc.lookup.WorkerPublisher;
 import org.ihtsdo.otf.tcc.lookup.properties.AllowItemCancel;
 import org.ihtsdo.otf.tcc.lookup.properties.ShowGlobalTaskProgress;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageSimpleConceptData;
 import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * Class description
@@ -264,7 +258,8 @@ public class ConceptBdb extends ComponentBdb {
         if (concept.isCanceled()) {
             return;
         }
-
+        I_ManageSimpleConceptData data = (I_ManageSimpleConceptData) concept.getData();
+        
         ConceptBinder binder = new ConceptBinder();
         DatabaseEntry key    = new DatabaseEntry();
         int           cNid   = concept.getNid();
@@ -277,15 +272,16 @@ public class ConceptBdb extends ComponentBdb {
         synchronized (concept) {
             long writeVersion = Bdb.gVersion.incrementAndGet();
 
-            if (writeVersion < concept.getDataVersion()) {
-                Bdb.gVersion.set(concept.getDataVersion() + 1);
+            if (writeVersion < data.getLastChange()) {
+                Bdb.gVersion.set(data.getLastChange() + 1);
                 writeVersion = Bdb.gVersion.incrementAndGet();
             }
 
             binder.objectToEntry(concept, value);
-            concept.resetNidData();
+            
+            data.resetNidData();
             mutable.put(null, key, value);
-            concept.setLastWrite(writeVersion);
+            data.setLastWrite(writeVersion);
             Bdb.getMemoryCache().updateOutgoingRelationshipData(concept);
         }
 

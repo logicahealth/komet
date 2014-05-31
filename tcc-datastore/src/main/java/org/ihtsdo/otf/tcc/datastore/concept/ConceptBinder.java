@@ -1,5 +1,8 @@
 package org.ihtsdo.otf.tcc.datastore.concept;
 
+import com.sleepycat.bind.tuple.TupleBinding;
+import com.sleepycat.bind.tuple.TupleInput;
+import com.sleepycat.bind.tuple.TupleOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,11 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
-
-import com.sleepycat.bind.tuple.TupleBinding;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
@@ -24,6 +22,7 @@ import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageSimpleConceptData;
 import org.ihtsdo.otf.tcc.model.cc.concept.IntSetBinder;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
@@ -51,8 +50,8 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
     public void objectToEntry(ConceptChronicle concept, TupleOutput finalOutput) {
 
         try {
-            long dataVersion = concept.getDataVersion();
-            I_ManageConceptData conceptData = concept.getData();
+            I_ManageSimpleConceptData conceptData = (I_ManageSimpleConceptData) concept.getData();
+            long dataVersion = conceptData.getLastChange();
             boolean primordial = conceptData.getReadOnlyBytes().length == 0
                     && conceptData.getReadWriteBytes().length == 0;
 
@@ -155,7 +154,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
     }
 
     private static byte[] getAttributeBytes(
-            I_ManageConceptData conceptData,
+            I_ManageSimpleConceptData conceptData,
             boolean primordial,
             OFFSETS offset,
             ConceptAttributes attributes,
@@ -180,7 +179,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
     }
 
     private <C extends ConceptComponent<V, C>, V extends Revision<V, C>> byte[] getComponentBytes(
-            I_ManageConceptData conceptData, boolean primordial, OFFSETS offset,
+            I_ManageSimpleConceptData conceptData, boolean primordial, OFFSETS offset,
             Collection<C> componentList,
             ConceptComponentBinder<V, C> binder) throws InterruptedException,
             ExecutionException, IOException {
@@ -202,7 +201,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         return componentBytes;
     }
 
-    private byte[] getRefsetBytes(I_ManageConceptData conceptData, boolean primordial,
+    private byte[] getRefsetBytes(I_ManageSimpleConceptData conceptData, boolean primordial,
             OFFSETS offset,
             Collection<RefexMember<?, ?>> members,
             RefexMemberBinder binder) throws InterruptedException,
@@ -225,12 +224,13 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         return componentBytes;
     }
 
-    private static byte[] getPreviousData(I_ManageConceptData conceptData,
+    private static byte[] getPreviousData(I_ManageSimpleConceptData conceptData,
             OFFSETS start,
             OFFSETS end) throws InterruptedException, ExecutionException, IOException {
         assert start != null : "start is null. end: " + end;
         assert end != null : "end is null. start: " + start;
         byte[] output;
+        
         TupleInput readWriteInput = conceptData.getReadWriteTupleInput();
         byte[] bufferBytes = readWriteInput.getBufferBytes();
         if (bufferBytes.length > OFFSETS.getHeaderSize()) {

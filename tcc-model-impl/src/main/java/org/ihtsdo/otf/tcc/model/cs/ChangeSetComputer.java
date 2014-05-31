@@ -1,32 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cs;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.description.Description;
-import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
-import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
-import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
-import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
-import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
-import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,18 +9,45 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.id.LongIdBI;
 import org.ihtsdo.otf.tcc.api.id.StringIdBI;
 import org.ihtsdo.otf.tcc.api.id.UuidIdBI;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
+import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
+import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
+import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
+import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
+import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
+import org.ihtsdo.otf.tcc.model.cc.component.Version;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion;
+import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
+import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
+import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.media.MediaVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipVersion;
 
 public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
 
@@ -93,7 +95,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
     private TtkConceptAttributesChronicle processConceptAttributes(ConceptChronicle c, AtomicBoolean changed) throws IOException {
         TtkConceptAttributesChronicle eca = null;
 
-        for (ConceptAttributes.Version v : c.getConceptAttributes().getVersions()) {
+        for (ConceptAttributesVersion v : c.getConceptAttributes().getVersions()) {
             if (v.stampIsInRange(minSapNid, maxSapNid) && (v.getTime() != Long.MIN_VALUE)
                     && (v.getTime() != Long.MAX_VALUE)) {
                 changed.set(true);
@@ -122,7 +124,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
         for (Description d : c.getDescriptions()) {
             TtkDescriptionChronicle ecd = null;
 
-            for (Description.Version v : d.getVersions()) {
+            for (DescriptionVersion v : d.getVersions()) {
                 if (v.stampIsInRange(minSapNid, maxSapNid) && (v.getTime() != Long.MIN_VALUE)
                         && (v.getTime() != Long.MAX_VALUE)) {
                     changed.set(true);
@@ -160,7 +162,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
         for (Media img : c.getImages()) {
             TtkMediaChronicle eImg = null;
 
-            for (Media.Version v : img.getVersions()) {
+            for (MediaVersion v : img.getVersions()) {
                 if (v.stampIsInRange(minSapNid, maxSapNid) && (v.getTime() != Long.MIN_VALUE)
                         && (v.getTime() != Long.MAX_VALUE)) {
                     if ((commitSapNids == null) || commitSapNids.contains(v.getStamp())) {
@@ -200,7 +202,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
             ConceptChronicle concept = (ConceptChronicle) P.s.getConceptForNid(member.getReferencedComponentNid());
 
             if ((concept != null) && !concept.isCanceled()) {
-                for (RefexMember<?, ?>.Version v : member.getVersions()) {
+                for (RefexMemberVersion<?, ?> v : member.getVersions()) {
                     if (v.stampIsInRange(minSapNid, maxSapNid) && (v.getTime() != Long.MIN_VALUE)
                             && (v.getTime() != Long.MAX_VALUE)) {
                         if ((commitSapNids == null) || commitSapNids.contains(v.getStamp())) {
@@ -244,7 +246,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
         for (Relationship r : c.getRelationshipsOutgoing()) {
             TtkRelationshipChronicle ecr = null;
 
-            for (Relationship.Version v : r.getVersions()) {
+            for (RelationshipVersion v : r.getVersions()) {
                 if (v.stampIsInRange(minSapNid, maxSapNid) && (v.getTime() != Long.MIN_VALUE)
                         && (v.getTime() != Long.MAX_VALUE) && (v.getAuthorNid() != classifier)) {
                     if ((commitSapNids == null) || commitSapNids.contains(v.getStamp())) {
@@ -285,7 +287,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
     }
 
     @SuppressWarnings("unchecked")
-    private void setupFirstVersion(TtkComponentChronicle ec, ConceptComponent<?, ?>.Version v) throws IOException {
+    private void setupFirstVersion(TtkComponentChronicle ec, Version<?, ?> v) throws IOException {
         ec.primordialUuid = v.getPrimordialUuid();
         ec.setPathUuid(P.s.getUuidPrimordialForNid(v.getPathNid()));
         ec.setStatus(v.getStatus());
@@ -328,7 +330,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                         (ConceptChronicle) P.s.getConceptForNid(member.getReferencedComponentNid());
 
                 if ((concept != null) && !concept.isCanceled()) {
-                    for (RefexMember<?, ?>.Version mv : member.getVersions()) {
+                    for (RefexMemberVersion<?, ?> mv : member.getVersions()) {
                         if (mv.stampIsInRange(minSapNid, maxSapNid) && (mv.getTime() != Long.MIN_VALUE)
                                 && (mv.getTime() != Long.MAX_VALUE)) {
                             if ((commitSapNids == null) || commitSapNids.contains(mv.getStamp())) {
@@ -389,7 +391,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
     }
 
     @SuppressWarnings("unchecked")
-    private void setupRevision(TtkComponentChronicle ec, ConceptComponent.Version v, TtkRevision ev) throws IOException {
+    private void setupRevision(TtkComponentChronicle ec, Version v, TtkRevision ev) throws IOException {
         if (ec.revisions == null) {
             ec.revisions = new ArrayList();
         }

@@ -624,9 +624,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ConceptChronicleBI getConcept(int cNid) throws IOException {
-        return ConceptChronicle.get(cNid);
-    }
+    public abstract ConceptChronicleBI getConcept(int cNid) throws IOException;
 
     /**
      * Method description

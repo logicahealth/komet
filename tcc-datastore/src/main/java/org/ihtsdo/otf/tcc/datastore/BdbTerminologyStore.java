@@ -876,6 +876,11 @@ public class BdbTerminologyStore extends Termstore {
         return bdbLocation;
     }
 
+    @Override
+    public ConceptChronicleBI getConcept(int cNid) throws IOException {
+        return ConceptChronicle.get(cNid);
+    }
+
     /*
      * @Override
      * public Collection<Integer> searchLuceneRefset(String query, SearchType searchType) throws IOException, ParseException {

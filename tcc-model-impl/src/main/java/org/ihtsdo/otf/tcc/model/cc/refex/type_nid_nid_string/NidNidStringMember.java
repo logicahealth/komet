@@ -4,36 +4,30 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_string;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuidUuidStringMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuidUuidStringRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuidUuidStringMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuidUuidStringRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNidStringMember>
         implements RefexNidNidStringAnalogBI<NidNidStringRevision> {
-   private static VersionComputer<RefexMember<NidNidStringRevision, NidNidStringMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<NidNidStringRevision, NidNidStringMember>> computer =
       new VersionComputer<>();
 
    //~--- fields --------------------------------------------------------------
@@ -59,7 +53,7 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
       string1 = refsetMember.getString1();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<NidNidStringRevision, NidNidStringMember>(primordialStamp);
 
          for (TtkRefexUuidUuidStringRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidNidStringRevision(eVersion, this));
@@ -237,13 +231,13 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
    }
 
    @Override
-   protected VersionComputer<RefexMember<NidNidStringRevision, NidNidStringMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<NidNidStringRevision, NidNidStringMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<NidNidStringMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -251,16 +245,16 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<NidNidStringMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new NidNidStringMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (RefexNidNidStringAnalogBI r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new NidNidStringMemberVersion(r, this));
                }
             }
          }
@@ -268,7 +262,7 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<NidNidStringMemberVersion>) versions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -306,63 +300,4 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
       modified();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<NidNidStringRevision, NidNidStringMember>.Version
-           implements RefexNidNidStringAnalogBI<NidNidStringRevision> {
-      private Version(RefexNidNidStringAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-      //~--- get methods ------------------------------------------------------
-
-  
-      @Override
-      public int getNid1() {
-         return getCv().getNid1();
-      }
-
-      @Override
-      public int getNid2() {
-         return getCv().getNid2();
-      }
-
-      RefexNidNidStringAnalogBI getCv() {
-         return (RefexNidNidStringAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexUuidUuidStringMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexUuidUuidStringMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexUuidUuidStringRevision getERefsetRevision() throws IOException {
-         return new TtkRefexUuidUuidStringRevision(this);
-      }
-
-      @Override
-      public String getString1() {
-         return getCv().getString1();
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setNid1(int cnid1) throws PropertyVetoException {
-         getCv().setNid1(cnid1);
-      }
-
-      @Override
-      public void setNid2(int cnid2) throws PropertyVetoException {
-         getCv().setNid2(cnid2);
-      }
-
-      @Override
-      public void setString1(String str) throws PropertyVetoException {
-         getCv().setString1(str);
-      }
-   }
 }

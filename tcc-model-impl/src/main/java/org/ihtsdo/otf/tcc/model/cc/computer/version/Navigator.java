@@ -3,12 +3,12 @@ package org.ihtsdo.otf.tcc.model.cc.computer.version;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.OpenBitSet;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.Version;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 
@@ -22,7 +22,7 @@ import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
  */
 public abstract class Navigator {
 
-    public <V extends ConceptComponent<?, ?>.Version> List<V> locateLatest(List<V> parts,
+    public <V extends Version<?, ?>> List<V> locateLatest(List<V> parts,
             ViewCoordinate vc) throws IOException {
         V latest = null;
         OpenBitSet resultsPartSet = new OpenBitSet(parts.size());

@@ -511,11 +511,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    }
 
    @Override
-   public long getLastModificationSequence() {
-      return concept.getLastModificationSequence();
-   }
-
-   @Override
    public Collection<? extends MediaChronicleBI> getMedia() throws IOException {
       return concept.getImages();
    }

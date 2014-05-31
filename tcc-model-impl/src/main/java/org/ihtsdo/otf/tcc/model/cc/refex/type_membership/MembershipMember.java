@@ -4,35 +4,29 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class MembershipMember extends RefexMember<MembershipRevision, MembershipMember> 
     implements RefexMemberAnalogBI<MembershipRevision> {
    
-    private static VersionComputer<RefexMember<MembershipRevision, MembershipMember>.Version> computer =
+    private static VersionComputer<RefexMemberVersion<MembershipRevision, MembershipMember>> computer =
       new VersionComputer<>();
 
    //~--- constructors --------------------------------------------------------
@@ -49,7 +43,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       super(refsetMember, enclosingConceptNid);
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<MembershipRevision, MembershipMember>(primordialStamp);
 
          for (TtkRefexRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new MembershipRevision(eVersion, this));
@@ -174,19 +168,18 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
    }
 
    @Override
-   protected IntArrayList getVariableVersionNids() {
+   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
       return new IntArrayList(2);
    }
 
    @Override
-   protected VersionComputer<RefexMember<MembershipRevision,
-           MembershipMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion <MembershipRevision, MembershipMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<MembershipMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -194,16 +187,16 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<MembershipMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new MembershipMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (MembershipRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new MembershipMemberVersion(r, this));
                }
             }
          }
@@ -211,33 +204,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<MembershipMemberVersion>) versions;
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<MembershipRevision, MembershipMember>.Version
-           implements RefexAnalogBI<MembershipRevision> {
-      private Version(RefexAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-      //~--- get methods ------------------------------------------------------
-
-      RefexLongAnalogBI getCv() {
-         return (RefexLongAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexRevision getERefsetRevision() throws IOException {
-         return new TtkRefexRevision(this);
-      }
-   }
 }

@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember.Version;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMemberVersion;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -149,12 +149,12 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
    }
 
    @Override
-   public LongMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (Version) ((LongMember) primordialComponent).getVersion(c);
+   public LongMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (LongMemberVersion) ((LongMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<LongMember.Version> getVersions() {
+   public Collection<LongMemberVersion> getVersions() {
       return ((LongMember) primordialComponent).getVersions();
    }
 

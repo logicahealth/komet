@@ -183,12 +183,12 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
    }
 
    @Override
-   public NidStringMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (NidStringMember.Version) ((NidStringMember) primordialComponent).getVersion(c);
+   public NidStringMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (NidStringMemberVersion) ((NidStringMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<NidStringMember.Version> getVersions() {
+   public Collection<NidStringMemberVersion> getVersions() {
       return ((NidStringMember) primordialComponent).getVersions();
    }
 

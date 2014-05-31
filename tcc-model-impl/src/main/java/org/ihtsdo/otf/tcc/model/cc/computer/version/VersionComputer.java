@@ -1,12 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.computer.version;
 
-import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
-import org.ihtsdo.otf.tcc.api.nid.NidSet;
-import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,18 +11,26 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.nid.NidSet;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
+import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.Version;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputer;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI;
 import org.ihtsdo.otf.tcc.model.version.RelativePositionComputerBI.RelativePosition;
 
-public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
+public class VersionComputer<V extends Version<?, ?>> {
 
     protected static final Logger logger = Logger.getLogger(VersionComputer.class.getName());
 
@@ -253,7 +254,7 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
         }
 
         @Override
-        public boolean pass(ConceptComponent<?, ?>.Version part) {
+        public boolean pass(Version<?, ?> part) {
             if (part.getTime() > cutoffTime) {
                 return false;
             } else if (part.getTime() < cutoffTime) {
@@ -270,7 +271,7 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
         }
 
         @Override
-        public boolean pass(ConceptComponent<?, ?>.Version part) {
+        public boolean pass(Version<?, ?> part) {
             return !super.pass(part);
         }
     }
@@ -297,7 +298,7 @@ public class VersionComputer<V extends ConceptComponent<?, ?>.Version> {
             }
         }
 
-        public boolean pass(ConceptComponent<?, ?>.Version part) {
+        public boolean pass(Version<?, ?> part) {
             if (classifierNid.contains(part.getAuthorNid())) {
                 return true;
             }

@@ -1,39 +1,33 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.AnalogBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
-
 import java.text.SimpleDateFormat;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.AnalogBI;
+import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.id.IdBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
+import org.ihtsdo.otf.tcc.api.time.TimeHelper;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 public abstract class Revision<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
         implements ComponentVersionBI, AnalogBI, AnalogGeneratorBI<V> {
@@ -43,6 +37,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     //~--- fields --------------------------------------------------------------
     public C primordialComponent;
     public int stamp;
+    
 
     //~--- constructors --------------------------------------------------------
     public Revision() {
@@ -57,7 +52,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         this.primordialComponent = primordialComponent;
         primordialComponent.clearVersions();
         assert stamp != Integer.MAX_VALUE;
-        this.primordialComponent.getEnclosingConcept().modified();
+//        this.primordialComponent.getEnclosingConcept().modified(); //TODO-AKF: modified
     }
 
     public Revision(TupleInput input, C conceptComponent) {
@@ -74,7 +69,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         assert stamp != Integer.MAX_VALUE;
         this.primordialComponent = primordialComponent;
         primordialComponent.clearVersions();
-        this.primordialComponent.getEnclosingConcept().modified();
+//TODO-AKF        this.primordialComponent.getEnclosingConcept().modified();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -116,6 +111,9 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final int hashCode() {
+        if(primordialComponent == null){
+            System.out.println(primordialComponent.getClass());
+        }
         return Hashcode.compute(primordialComponent.nid);
     }
 
@@ -187,6 +185,14 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
         buf.append(" };");
 
+        return buf.toString();
+    }
+    
+    public String toSimpleString(){
+        StringBuilder buf = new StringBuilder();
+        buf.append("- stamp: ").append(stamp);
+        buf.append("- primordial component nid: ").append(primordialComponent.nid);
+        buf.append("- primordial component stamp: ").append(primordialComponent.primordialStamp);
         return buf.toString();
     }
 
@@ -429,10 +435,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     //~--- set methods ---------------------------------------------------------
     @Override
     public void setAuthorNid(int authorNid) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
-                    + "Use makeAnalog instead.");
-        }
+//        TODO-AKF: do we want to keep this check?
+//        if (getTime() != Long.MAX_VALUE) {
+//            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
+//                    + "Use makeAnalog instead.");
+//        }
 
         if (authorNid != getPathNid()) {
             this.stamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
@@ -443,10 +450,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setModuleNid(int moduleNid) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
-                    + "Use makeAnalog instead.");
-        }
+        //        TODO-AKF: do we want to keep this check?
+//        if (getTime() != Long.MAX_VALUE) {
+//            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
+//                    + "Use makeAnalog instead.");
+//        }
 
         try {
             this.stamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleNid,
@@ -465,10 +473,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setPathNid(int pathId) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
-                    + "Use makeAnalog instead.");
-        }
+        //        TODO-AKF: do we want to keep this check?
+//        if (getTime() != Long.MAX_VALUE) {
+//            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
+//                    + "Use makeAnalog instead.");
+//        }
 
         this.stamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(), pathId);
     }
@@ -480,10 +489,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setStatus(org.ihtsdo.otf.tcc.api.coordinate.Status nid) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
-                    + "Use makeAnalog instead.");
-        }
+//        TODO-AKF: do we want to keep this check?
+//        if (getTime() != Long.MAX_VALUE) {
+//            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
+//                    + "Use makeAnalog instead.");
+//        }
 
         try {
             this.stamp = P.s.getStamp(nid, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
@@ -497,10 +507,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setTime(long time) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
-                    + "Use makeAnalog instead.");
-        }
+//        
+//        if (getTime() != Long.MAX_VALUE) {
+//            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
+//                    + "Use makeAnalog instead.");
+//        }
 
         if (time != getTime()) {
             try {

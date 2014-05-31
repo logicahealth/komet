@@ -157,12 +157,12 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
    }
 
    @Override
-   public StringMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (StringMember.Version) ((StringMember) primordialComponent).getVersion(c);
+   public StringMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (StringMemberVersion) ((StringMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<StringMember.Version> getVersions() {
+   public Collection<StringMemberVersion> getVersions() {
       return ((StringMember) primordialComponent).getVersions();
    }
 

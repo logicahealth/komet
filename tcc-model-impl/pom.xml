@@ -7,7 +7,6 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-model-impl</artifactId>
-    <!--<packaging>hk2-jar</packaging>-->
     <name>${branch}: Model implementation</name>
     <description>Classes that provide state and behaviour to implement the concepts and 
         concept components defined by the API. </description>

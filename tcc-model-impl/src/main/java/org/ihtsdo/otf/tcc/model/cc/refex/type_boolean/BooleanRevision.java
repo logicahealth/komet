@@ -8,7 +8,7 @@ import com.sleepycat.bind.tuple.TupleOutput;
 
 
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanMember.Version;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanMemberVersion;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
@@ -165,12 +165,12 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
    }
 
    @Override
-   public BooleanMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (Version) ((BooleanMember) primordialComponent).getVersion(c);
+   public BooleanMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (BooleanMemberVersion) ((BooleanMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<BooleanMember.Version> getVersions() {
+   public Collection<BooleanMemberVersion> getVersions() {
       return ((BooleanMember) primordialComponent).getVersions();
    }
 

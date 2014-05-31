@@ -17,24 +17,24 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
+import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayMemberChronicle;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 /**
  *
@@ -43,7 +43,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>
         implements RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> {
 
-    private static VersionComputer<RefexMember<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>.Version> computer =
+    private static VersionComputer<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     private byte[][] arrayOfByteArray;
@@ -109,7 +109,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     }
 
    @Override
-   protected IntArrayList getVariableVersionNids() {
+   public IntArrayList getVariableVersionNids() { //TODO-AKF?
       return new IntArrayList(2);
    }
 
@@ -224,12 +224,12 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     }
 
     @Override
-    protected VersionComputer<RefexMember<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>.Version> getVersionComputer() {
+    protected VersionComputer<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> getVersionComputer() {
         return computer;
     }
 
     @Override
-    public List<ArrayOfByteArrayMember.Version> getVersions() {
+    public List<ArrayOfByteArrayMemberVersion> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -237,16 +237,16 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
                 count = count + revisions.size();
             }
 
-            ArrayList<ArrayOfByteArrayMember.Version> list = new ArrayList<>(count);
+            ArrayList<ArrayOfByteArrayMemberVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new ArrayOfByteArrayMember.Version(this));
+                list.add(new ArrayOfByteArrayMemberVersion(this, this));
             }
 
             if (revisions != null) {
                 for (ArrayOfByteArrayRevision br : revisions) {
                     if (br.getTime() != Long.MIN_VALUE) {
-                        list.add(new ArrayOfByteArrayMember.Version(br));
+                        list.add(new ArrayOfByteArrayMemberVersion(br, this));
                     }
                 }
             }
@@ -254,45 +254,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
             versions = list;
         }
 
-        return (List<ArrayOfByteArrayMember.Version>) versions;
+        return (List<ArrayOfByteArrayMemberVersion>) versions;
     }
 
-    //~--- set methods ---------------------------------------------------------
-
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends RefexMember<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>.Version
-            implements RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> {
-
-        private Version(RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-
-        //~--- get methods ------------------------------------------------------
-        @Override
-        public byte[][] getArrayOfByteArray() {
-            return getCv().getArrayOfByteArray();
-        }
-
-        RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> getCv() {
-            return (RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision>) cv;
-        }
-
-        @Override
-        public TtkRefexArrayOfByteArrayMemberChronicle getERefsetMember() throws IOException {
-            return new TtkRefexArrayOfByteArrayMemberChronicle(this);
-        }
-
-        @Override
-        public TtkRefexArrayOfByteArrayRevision getERefsetRevision() throws IOException {
-            return new TtkRefexArrayOfByteArrayRevision(this);
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setArrayOfByteArray(byte[][] arrayOfByteArray) throws PropertyVetoException {
-            getCv().setArrayOfByteArray(arrayOfByteArray);
-        }
-    }
 }

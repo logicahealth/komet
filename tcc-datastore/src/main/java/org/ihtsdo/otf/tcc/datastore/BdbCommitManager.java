@@ -44,6 +44,7 @@ import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import static org.ihtsdo.otf.tcc.datastore.Bdb.indexers;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageSimpleConceptData;
 import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 public class BdbCommitManager {
@@ -575,7 +576,8 @@ public class BdbCommitManager {
 
                 c.flushVersions();
                 c.modified();
-                c.setLastWrite(Bdb.gVersion.incrementAndGet());
+                I_ManageSimpleConceptData data = (I_ManageSimpleConceptData) c.getData();
+                data.setLastWrite(Bdb.gVersion.incrementAndGet());
             } catch (Exception ex) {
                 AceLog.getAppLog().alertAndLogException(ex);
             }

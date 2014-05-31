@@ -35,17 +35,18 @@ import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 public class Media extends ConceptComponent<MediaRevision, Media>
         implements MediaVersionFacade {
 
-    private static VersionComputer<Media.Version> computer = new VersionComputer<>();
+    private static VersionComputer<MediaVersion> computer = new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private String format;
-    private byte[] image;
+    protected String format;
+    protected byte[] image;
     private String textDescription;
     private int typeNid;
-    List<Version> versions;
+    List<MediaVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public Media() {
@@ -65,7 +66,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         primordialStamp = P.s.getStamp(eMedia);
 
         if (eMedia.getRevisionList() != null) {
-            revisions = new RevisionSet<>(primordialStamp);
+            revisions = new RevisionSet<MediaRevision, Media>(primordialStamp);
 
             for (TtkMediaRevision eiv : eMedia.getRevisionList()) {
                 revisions.add(new MediaRevision(eiv, this));
@@ -336,8 +337,8 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public Media.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        List<Media.Version> vForC = getVersions(c);
+    public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
+        List<MediaVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
             return null;
@@ -355,7 +356,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public List<Version> getVersions() {
+    public List<MediaVersion> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -363,16 +364,16 @@ public class Media extends ConceptComponent<MediaRevision, Media>
                 count = count + revisions.size();
             }
 
-            ArrayList<Version> list = new ArrayList<>(count);
+            ArrayList<MediaVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new Version(this));
+                list.add(new MediaVersion(this, this));
             }
 
             if (revisions != null) {
                 for (MediaRevision ir : revisions) {
                     if (ir.getTime() != Long.MIN_VALUE) {
-                        list.add(new Version(ir));
+                        list.add(new MediaVersion(ir, this));
                     }
                 }
             }
@@ -384,8 +385,8 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public List<Media.Version> getVersions(ViewCoordinate c) {
-        List<Version> returnTuples = new ArrayList<>(2);
+    public List<MediaVersion> getVersions(ViewCoordinate c) {
+        List<MediaVersion> returnTuples = new ArrayList<>(2);
 
         computer.addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null, c.getViewPosition(),
                 returnTuples, getVersions(), c.getPrecedence(),
@@ -394,9 +395,9 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         return returnTuples;
     }
 
-    public Collection<Media.Version> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
+    public Collection<MediaVersion> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
             Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr) {
-        List<Version> returnTuples = new ArrayList<>(2);
+        List<MediaVersion> returnTuples = new ArrayList<>(2);
 
         computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPosition, returnTuples, getVersions(),
                 precedence, contradictionMgr);
@@ -427,120 +428,4 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         modified();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends ConceptComponent<MediaRevision, Media>.Version
-            implements MediaVersionFacade {
-
-        public Version(MediaVersionFacade cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-
-        public MediaRevision makeAnalog() {
-            if (getCv() != Media.this) {
-                return new MediaRevision((MediaRevision) getCv(), Media.this);
-            }
-
-            return new MediaRevision(Media.this);
-        }
-
-        @Override
-        public MediaRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-            return (MediaRevision) getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
-        }
-
-        @Override
-        public boolean fieldsEqual(ConceptComponent.Version another) {
-            Media.Version anotherVersion = (Media.Version) another;
-            if (!this.getFormat().equals(anotherVersion.getFormat())) {
-                return false;
-            }
-
-            if (!Arrays.equals(this.getMedia(), anotherVersion.getMedia())) {
-                return false;
-            }
-
-            if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-                return false;
-            }
-
-            return true;
-        }
-
-        //~--- get methods ------------------------------------------------------
-        @Override
-        public int getConceptNid() {
-            return enclosingConceptNid;
-        }
-
-        MediaVersionFacade getCv() {
-            return (MediaVersionFacade) cv;
-        }
-
-        @Override
-        public MediaCAB makeBlueprint(ViewCoordinate vc, 
-            IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
-            return getCv().makeBlueprint(vc, idDirective, refexDirective);
-        }
-
-        @Override
-        public String getFormat() {
-            return format;
-        }
-
-        @Override
-        public byte[] getMedia() {
-            return image;
-        }
-        @Override
-        public Media getPrimordialVersion() {
-            return Media.this;
-        }
-
-        @Override
-        public String getTextDescription() {
-            return getCv().getTextDescription();
-        }
-
-         @Override
-        public int getTypeNid() {
-            return getCv().getTypeNid();
-        }
-
-        @Override
-        public IntArrayList getVariableVersionNids() {
-            if (Media.this != getCv()) {
-                return ((MediaRevision) getCv()).getVariableVersionNids();
-            }
-
-            return Media.this.getVariableVersionNids();
-        }
-
-        @Override
-        public Media.Version getVersion(ViewCoordinate c) throws ContradictionException {
-            return Media.this.getVersion(c);
-        }
-
-        @Override
-        public List<? extends Version> getVersions() {
-            return Media.this.getVersions();
-        }
-
-        @Override
-        public Collection<Media.Version> getVersions(ViewCoordinate c) {
-            return Media.this.getVersions(c);
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setTextDescription(String name) throws PropertyVetoException {
-            getCv().setTextDescription(name);
-        }
-
-        @Override
-        public void setTypeNid(int type) throws PropertyVetoException {
-            getCv().setTypeNid(type);
-        }
-    }
 }

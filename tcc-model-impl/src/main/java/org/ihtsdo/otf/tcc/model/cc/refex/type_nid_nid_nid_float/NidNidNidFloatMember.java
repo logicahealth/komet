@@ -4,42 +4,37 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_float;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.apache.mahout.math.list
+   .IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint
+   .ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_float
-   .RefexNidNidNidFloatAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_float.RefexNidNidNidFloatAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_float
    .RefexNidNidNidFloatVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float
+   .TtkRefexUuidUuidUuidFloatMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float.TtkRefexUuidUuidUuidFloatRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float
-   .TtkRefexUuidUuidUuidFloatMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float
-   .TtkRefexUuidUuidUuidFloatRevision;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class NidNidNidFloatMember
         extends RefexMember<NidNidNidFloatRevision, NidNidNidFloatMember>
         implements RefexNidNidNidFloatVersionBI<NidNidNidFloatRevision>,
                    RefexNidNidNidFloatAnalogBI<NidNidNidFloatRevision> {
-   private static VersionComputer<RefexMember<NidNidNidFloatRevision, NidNidNidFloatMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<NidNidNidFloatRevision, NidNidNidFloatMember>> computer =
       new VersionComputer<>();
    private int   nid1;
    private int   nid2;
@@ -65,7 +60,7 @@ public class NidNidNidFloatMember
       float1 = refsetMember.float1;
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<NidNidNidFloatRevision, NidNidNidFloatMember>(primordialStamp);
 
          for (TtkRefexUuidUuidUuidFloatRevision eVersion :
                  refsetMember.getRevisionList()) {
@@ -248,14 +243,14 @@ public class NidNidNidFloatMember
    }
 
    @Override
-   protected VersionComputer<RefexMember<NidNidNidFloatRevision,
-           NidNidNidFloatMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<NidNidNidFloatRevision,
+           NidNidNidFloatMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<NidNidNidFloatMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -263,16 +258,16 @@ public class NidNidNidFloatMember
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<NidNidNidFloatMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new NidNidNidFloatMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (NidNidNidFloatRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new NidNidNidFloatMemberVersion(r, this));
                }
             }
          }
@@ -280,7 +275,7 @@ public class NidNidNidFloatMember
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<NidNidNidFloatMemberVersion>) versions;
    }
 
    @Override
@@ -307,48 +302,4 @@ public class NidNidNidFloatMember
       modified();
    }
 
-   public class Version
-           extends RefexMember<NidNidNidFloatRevision,
-                               NidNidNidFloatMember>.Version
-           implements RefexNidNidNidFloatVersionBI<NidNidNidFloatRevision> {
-      private Version(RefexNidNidNidFloatAnalogBI cv) {
-         super(cv);
-      }
-
-      RefexNidNidNidFloatAnalogBI getCv() {
-         return (RefexNidNidNidFloatAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexUuidUuidUuidFloatMemberChronicle getERefsetMember()
-              throws IOException {
-         return new TtkRefexUuidUuidUuidFloatMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexUuidUuidUuidFloatRevision getERefsetRevision()
-              throws IOException {
-         return new TtkRefexUuidUuidUuidFloatRevision(this);
-      }
-
-      @Override
-      public float getFloat1() {
-         return getCv().getFloat1();
-      }
-
-      @Override
-      public int getNid1() {
-         return getCv().getNid1();
-      }
-
-      @Override
-      public int getNid2() {
-         return getCv().getNid2();
-      }
-
-      @Override
-      public int getNid3() {
-         return getCv().getNid3();
-      }
-   }
 }

@@ -187,12 +187,12 @@ public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMe
    }
 
    @Override
-   public NidFloatMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (NidFloatMember.Version) ((NidFloatMember) primordialComponent).getVersion(c);
+   public NidFloatMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (NidFloatMemberVersion) ((NidFloatMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<NidFloatMember.Version> getVersions() {
+   public Collection<NidFloatMemberVersion> getVersions() {
       return ((NidFloatMember) primordialComponent).getVersions();
    }
 

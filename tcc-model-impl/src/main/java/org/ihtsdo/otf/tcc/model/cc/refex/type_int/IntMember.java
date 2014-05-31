@@ -4,35 +4,29 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_int;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.type_int.RefexIntAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_int.RefexIntAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_int.RefexIntVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntRevision;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class IntMember extends RefexMember<IntRevision, IntMember>
         implements RefexIntAnalogBI<IntRevision> {
-   private static VersionComputer<RefexMember<IntRevision, IntMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<IntRevision, IntMember>> computer =
       new VersionComputer<>();
 
    //~--- fields --------------------------------------------------------------
@@ -54,7 +48,7 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
       int1 = refsetMember.getIntValue();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<IntRevision, IntMember>(primordialStamp);
 
          for (TtkRefexIntRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new IntRevision(eVersion, this));
@@ -185,18 +179,18 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
    }
 
    @Override
-   protected IntArrayList getVariableVersionNids() {
+   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
       return new IntArrayList(2);
    }
 
    @Override
-   protected VersionComputer<RefexMember<IntRevision, IntMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<IntRevision, IntMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<IntMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -204,16 +198,16 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<IntMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new IntMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (RefexIntAnalogBI r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new IntMemberVersion(r, this));
                }
             }
          }
@@ -221,7 +215,7 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<IntMemberVersion>) versions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -232,44 +226,4 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
       modified();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<IntRevision, IntMember>.Version
-           implements RefexIntAnalogBI<IntRevision> {
-      private Version(RefexIntAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-
-
-      //~--- get methods ------------------------------------------------------
-
-      RefexIntAnalogBI getCv() {
-         return (RefexIntAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexIntMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexIntMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexIntRevision getERefsetRevision() throws IOException {
-         return new TtkRefexIntRevision(this);
-      }
-
-      @Override
-      public int getInt1() {
-         return getCv().getInt1();
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setInt1(int value) throws PropertyVetoException {
-         getCv().setInt1(value);
-      }
-   }
 }

@@ -10,7 +10,7 @@ import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_nid.NidMember.Version;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid.NidMemberVersion;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -153,12 +153,12 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
     }
 
     @Override
-    public NidMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        return (Version) ((NidMember) primordialComponent).getVersion(c);
+    public NidMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+        return (NidMemberVersion) ((NidMember) primordialComponent).getVersion(c);
     }
 
     @Override
-    public Collection<NidMember.Version> getVersions() {
+    public Collection<NidMemberVersion> getVersions() {
         return ((NidMember) primordialComponent).getVersions();
     }
 

@@ -1,58 +1,56 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
-import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
+import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
+import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
+import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
-import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
-import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 public class Relationship extends ConceptComponent<RelationshipRevision, Relationship>
         implements RelationshipAnalogBI<RelationshipRevision> {
    private static int                                   classifierAuthorNid = Integer.MIN_VALUE;
-   private static VersionComputer<Relationship.Version> computer            = new VersionComputer<>();
-   public static final int                              INFERRED_NID_RF1;
-   public static final int                              INFERRED_NID_RF2;
-   public static final int                              STATED_NID_RF1;
-   public static final int                              STATED_NID_RF2;
+   private static VersionComputer<RelationshipVersion> computer            = new VersionComputer<>();
+   public static final int                              INFERRED_NID_RF1 = 0;
+   public static final int                              INFERRED_NID_RF2 = 0;
+   public static final int                              STATED_NID_RF1 = 0;
+   public static final int                              STATED_NID_RF2 = 0;
 
    //~--- static initializers -------------------------------------------------
 
    static {
       try {
-         INFERRED_NID_RF1 =
-            Ts.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-         STATED_NID_RF1 =
-            Ts.get().getNidForUuids(SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-         INFERRED_NID_RF2 = Ts.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
-         STATED_NID_RF2   = Ts.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
+//          TODO-AKF: need data imported first
+//         INFERRED_NID_RF1 =
+//            Ts.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
+//         STATED_NID_RF1 =
+//            Ts.get().getNidForUuids(SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
+//         INFERRED_NID_RF2 = Ts.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
+//         STATED_NID_RF2   = Ts.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
       } catch (Exception ex) {
          throw new RuntimeException(ex);
       }
@@ -65,7 +63,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    private int   group;
    private int   refinabilityNid;
    private int   typeNid;
-   List<Version> versions;
+   List<RelationshipVersion> versions;
 
    //~--- constructors --------------------------------------------------------
 
@@ -87,7 +85,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       primordialStamp = P.s.getStamp(eRel);
 
       if (eRel.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
 
          for (TtkRelationshipRevision erv : eRel.getRevisionList()) {
             revisions.add(new RelationshipRevision(erv, this));
@@ -230,7 +228,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       int additionalVersionCount = input.readSortedPackedInt();
 
       if (additionalVersionCount > 0) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
 
          for (int i = 0; i < additionalVersionCount; i++) {
             revisions.add(new RelationshipRevision(input, this));
@@ -285,6 +283,17 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
 
       return buf.toString();
    }
+   
+   public String toSimpleString(){
+        StringBuilder buf = new StringBuilder();
+        buf.append("-nid: ").append(nid);
+        buf.append("-enclosing concept nid: ").append(enclosingConceptNid);
+        buf.append("-dest: ").append(c2Nid);
+        buf.append("-char: ").append(characteristicNid);
+        buf.append("-type: ").append(typeNid);
+        buf.append("-group: ").append(group);
+        return buf.toString();
+    }
 
    /**
     * Test method to check to see if two objects are equal in all respects.
@@ -423,8 +432,8 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public Relationship.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      List<Relationship.Version> vForC = getVersions(c);
+   public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      List<RelationshipVersion> vForC = getVersions(c);
 
       if (vForC.isEmpty()) {
          return null;
@@ -446,7 +455,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public List<Version> getVersions() {
+   public List<RelationshipVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -454,16 +463,16 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<RelationshipVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new RelationshipVersion(this, this));
          }
 
          if (revisions != null) {
             for (RelationshipRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new RelationshipVersion(r, this));
                }
             }
          }
@@ -475,17 +484,17 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public List<Relationship.Version> getVersions(ViewCoordinate c) {
-      List<Version> returnValues = new ArrayList<>(2);
+   public List<RelationshipVersion> getVersions(ViewCoordinate c) {
+      List<RelationshipVersion> returnValues = new ArrayList<>(2);
 
       computer.addSpecifiedRelVersions(returnValues, getVersions(), c);
 
       return returnValues;
    }
 
-   public Collection<Relationship.Version> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
+   public Collection<RelationshipVersion> getVersions(EnumSet<Status> allowedStatus, NidSetBI allowedTypes,
            Position viewPosition, Precedence precedence, ContradictionManagerBI contradictionMgr) {
-      List<Version> returnTuples = new ArrayList<>(2);
+      List<RelationshipVersion> returnTuples = new ArrayList<>(2);
 
       computer.addSpecifiedVersions(allowedStatus, allowedTypes, viewPosition, returnTuples, getVersions(),
                                     precedence, contradictionMgr);
@@ -545,184 +554,4 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       }
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends ConceptComponent<RelationshipRevision, Relationship>.Version
-           implements RelationshipAnalogBI<RelationshipRevision>, TypedComponentVersionBI {
-      public Version(RelationshipAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-      @Override
-      public boolean fieldsEqual(ConceptComponent<RelationshipRevision, Relationship>.Version another) {
-         Relationship.Version anotherVersion = (Relationship.Version) another;
-
-         if (this.getC2Nid() != anotherVersion.getC2Nid()) {
-            return false;
-         }
-
-         if (this.getCharacteristicNid() != anotherVersion.getCharacteristicNid()) {
-            return false;
-         }
-
-         if (this.getGroup() != anotherVersion.getGroup()) {
-            return false;
-         }
-
-         if (this.getRefinabilityNid() != anotherVersion.getRefinabilityNid()) {
-            return false;
-         }
-
-         if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-            return false;
-         }
-
-         return true;
-      }
-
-      public RelationshipRevision makeAnalog() {
-         if (Relationship.this != getCv()) {
-            RelationshipRevision rev = (RelationshipRevision) getCv();
-
-            return new RelationshipRevision(rev, Relationship.this);
-         }
-
-         return new RelationshipRevision(Relationship.this);
-      }
-
-      @Override
-      public RelationshipRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
-         return (RelationshipRevision) getCv().makeAnalog(status, time, authorNid, moduleNid, pathNid);
-      }
-
-      @Override
-      public RelationshipCAB makeBlueprint(ViewCoordinate vc, 
-            IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
-         return getCv().makeBlueprint(vc, idDirective, refexDirective);
-      }
-
-      //~--- get methods ------------------------------------------------------
-
-      public int getC1Nid() {
-         return getEnclosingConcept().getNid();
-      }
-
-      public int getC2Nid() {
-         return c2Nid;
-      }
-
-      @Override
-      public int getCharacteristicNid() {
-         return getCv().getCharacteristicNid();
-      }
-
-      RelationshipAnalogBI getCv() {
-         return (RelationshipAnalogBI) cv;
-      }
-
-      @Override
-      public int getDestinationNid() {
-         return Relationship.this.c2Nid;
-      }
-
-      @Override
-      public int getGroup() {
-         return getCv().getGroup();
-      }
-
-      @Override
-      public int getOriginNid() {
-         return Relationship.this.enclosingConceptNid;
-      }
-
-      @Override
-      public Relationship getPrimordialVersion() {
-         return Relationship.this;
-      }
-
-      @Override
-      public int getRefinabilityNid() {
-         return getCv().getRefinabilityNid();
-      }
-
-      public ConceptChronicle getType() throws IOException {
-         return (ConceptChronicle) P.s.getConcept(getTypeNid());
-      }
-
-      @Override
-      public int getTypeNid() {
-         return getCv().getTypeNid();
-      }
-
-      @Override
-      public IntArrayList getVariableVersionNids() {
-         if (Relationship.this != getCv()) {
-            IntArrayList resultList = new IntArrayList(7);
-
-            resultList.add(getCharacteristicNid());
-            resultList.add(getRefinabilityNid());
-            resultList.add(getTypeNid());
-            resultList.add(getC1Nid());
-            resultList.add(getC2Nid());
-
-            return resultList;
-         }
-
-         return Relationship.this.getVariableVersionNids();
-      }
-
-      @Override
-      public Relationship.Version getVersion(ViewCoordinate c) throws ContradictionException {
-         return Relationship.this.getVersion(c);
-      }
-
-      @Override
-      public List<? extends Version> getVersions() {
-         return Relationship.this.getVersions();
-      }
-
-      @Override
-      public Collection<Relationship.Version> getVersions(ViewCoordinate c) {
-         return Relationship.this.getVersions(c);
-      }
-
-      @Override
-      public boolean isInferred() {
-         return getCv().isInferred();
-      }
-
-      @Override
-      public boolean isStated() {
-         return getCv().isStated();
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setCharacteristicNid(int characteristicNid) throws PropertyVetoException {
-         getCv().setCharacteristicNid(characteristicNid);
-      }
-
-      @Override
-      public void setDestinationNid(int destNid) throws PropertyVetoException {
-         getCv().setDestinationNid(destNid);
-      }
-
-      @Override
-      public void setGroup(int group) throws PropertyVetoException {
-         getCv().setGroup(group);
-      }
-
-      @Override
-      public void setRefinabilityNid(int refinabilityNid) throws PropertyVetoException {
-         getCv().setRefinabilityNid(refinabilityNid);
-      }
-
-      @Override
-      public void setTypeNid(int typeNid) throws PropertyVetoException {
-         getCv().setTypeNid(typeNid);
-      }
-   }
 }

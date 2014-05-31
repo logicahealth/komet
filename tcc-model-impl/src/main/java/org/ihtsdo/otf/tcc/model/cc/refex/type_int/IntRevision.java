@@ -155,12 +155,12 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
    }
 
    @Override
-   public IntMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-      return (IntMember.Version) ((IntMember) primordialComponent).getVersion(c);
+   public IntMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+      return (IntMemberVersion) ((IntMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<IntMember.Version> getVersions() {
+   public Collection<IntMemberVersion> getVersions() {
       return ((IntMember) primordialComponent).getVersions();
    }
 

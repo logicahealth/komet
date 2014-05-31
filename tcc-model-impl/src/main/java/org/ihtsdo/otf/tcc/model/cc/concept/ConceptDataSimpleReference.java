@@ -2,34 +2,8 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
 import com.sleepycat.bind.tuple.TupleInput;
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
-import org.ihtsdo.otf.tcc.model.cc.description.Description;
-import org.ihtsdo.otf.tcc.model.cc.component.DescriptionBinder;
-import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.nid.NidList;
-import org.ihtsdo.otf.tcc.api.nid.NidListBI;
-import org.ihtsdo.otf.tcc.api.nid.NidSet;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,12 +12,38 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.nid.NidList;
+import org.ihtsdo.otf.tcc.api.nid.NidListBI;
+import org.ihtsdo.otf.tcc.api.nid.NidSet;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
+import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.component.AnnotationStyleBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.DataVersionBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.DescriptionBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 
-public class ConceptDataSimpleReference extends ConceptDataManager {
+public class ConceptDataSimpleReference extends ConceptDataManager 
+                    implements I_ManageSimpleConceptData{
    private AtomicReference<ConceptAttributes>              attributes =
       new AtomicReference<>();
    private AtomicReference<AddSrcRelSet>                   srcRels    = new AtomicReference<>();
@@ -74,27 +74,35 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       new AtomicReference<>();
    ReentrantLock       attrLock = new ReentrantLock();
    private Boolean annotationStyleRefset;
+   private ConceptDataFetcherI nidData;
+//TODO-AKF make these private?
+   protected long                lastChange         = Long.MIN_VALUE;
+   protected long                lastWrite          = Long.MIN_VALUE;
+   protected long                lastExtinctRemoval = Long.MIN_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
    public ConceptDataSimpleReference(ConceptChronicle enclosingConcept) throws IOException {
-      super(P.s.getConceptDataFetcher(enclosingConcept.getNid()));
-      this.enclosingConcept = enclosingConcept;
+      super(enclosingConcept);
+      this.nidData = P.s.getConceptDataFetcher(enclosingConcept.getNid());
+      this.lastChange         = getDataVersion();
+      this.lastWrite          = this.lastChange;
+      this.lastExtinctRemoval = P.s.getSequence();
    }
 
    public ConceptDataSimpleReference(ConceptChronicle enclosingConcept, byte[] roBytes, byte[] mutableBytes)
            throws IOException {
-      super(new NidDataInMemory(roBytes, mutableBytes));
-      assert enclosingConcept != null : "enclosing concept cannot be null.";
-      this.enclosingConcept = enclosingConcept;
+      super(enclosingConcept);
+      this.nidData = new NidDataInMemory(roBytes, mutableBytes);
    }
 
    public ConceptDataSimpleReference(ConceptChronicle enclosingConcept, NidDataInMemory data)
            throws IOException {
-      super(data);
-      assert enclosingConcept != null : "enclosing concept cannot be null.";
-      this.enclosingConcept = enclosingConcept;
+      super(enclosingConcept);
+      this.nidData = data;
    }
+//   TODO-AKF this should be protected once class is moved to BDB specific package
+   public ConceptDataSimpleReference (){}
 
    //~--- methods -------------------------------------------------------------
 
@@ -1091,7 +1099,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
    @Override
    public boolean isAnnotationStyleRefex() throws IOException {
       if (annotationStyleRefset == null) {
-         annotationStyleRefset = getIsAnnotationStyleRefset();
+         annotationStyleRefset = getIsAnnotationStyleRefex();
       }
 
       return annotationStyleRefset;
@@ -1100,7 +1108,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
    //~--- set methods ---------------------------------------------------------
 
    @Override
-   public void set(ConceptAttributes attr) throws IOException {
+   public void setConceptAttributes(ConceptAttributes attr) throws IOException {
       if (attributes.get() != null) {
          throw new IOException("Attributes is already set. Please modify the exisiting attributes object.");
       }
@@ -1112,9 +1120,9 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
       enclosingConcept.modified();
    }
 
-
+//            TODO-AKF: testing
    @Override
-   public void setAnnotationStyleRefset(boolean annotationStyleRefset) {
+   public void setIsAnnotationStyleRefex(boolean annotationStyleRefex) {
       modified();
       this.annotationStyleRefset = annotationStyleRefset;
    }
@@ -1189,4 +1197,137 @@ public class ConceptDataSimpleReference extends ConceptDataManager {
          }
       }
    }
+   
+    @Override
+   public TupleInput getReadWriteTupleInput() throws IOException {
+      return nidData.getMutableTupleInput();
+   }
+   
+      /*
+    * (non-Javadoc)
+    *
+    * @see
+    * org.ihtsdo.db.bdb.concept.I_ManageConceptData#getReadWriteDataVersion()
+    */
+   @Override
+   public int getReadWriteDataVersion() throws InterruptedException, ExecutionException, IOException {
+      DataVersionBinder binder = DataVersionBinder.getBinder();
+
+      return binder.entryToObject(nidData.getMutableTupleInput());
+   }
+   
+      @Override
+   public byte[] getReadOnlyBytes() throws IOException {
+      return nidData.getReadOnlyBytes();
+   }
+
+   @Override
+   public byte[] getReadWriteBytes() throws IOException {
+      return nidData.getReadWriteBytes();
+   }
+   
+   @Override
+   public void resetNidData() {
+      this.nidData.reset();
+   }
+   
+   @Override
+   public long getLastChange() {
+      return lastChange;
+   }
+
+   @Override
+   public long getLastWrite() {
+      return lastWrite;
+   }
+   
+      @Override
+   public void setLastWrite(long lastWrite) {
+      this.lastWrite = Math.max(this.lastWrite, lastWrite);
+   }
+   
+   @Override
+   public void modified() {
+       P.s.setIndexed(getNid(), false);
+      lastChange = P.s.incrementAndGetSequence();
+   }
+
+   @Override
+   public void modified(long sequence) {
+       P.s.setIndexed(getNid(), false);
+      lastChange = sequence;
+   }
+   
+   @Override
+   public boolean getIsAnnotationStyleRefex() throws IOException {
+      AnnotationStyleBinder binder            = AnnotationStyleBinder.getBinder();
+      TupleInput            readOnlyInput     = nidData.getReadOnlyTupleInput();
+      boolean               isAnnotationStyle = false;
+
+      if (readOnlyInput.available() > 0) {
+         isAnnotationStyle = binder.entryToObject(readOnlyInput);
+      }
+
+      return isAnnotationStyle;
+   }
+   
+   @Override
+   public boolean isPrimordial() throws IOException {
+      return nidData.isPrimordial();
+   }
+
+   @Override
+   public final boolean isUncommitted() {
+      if (lastChange > P.s.getLastCommit()) {
+         return hasUncommittedComponents();
+      }
+
+      return false;
+   }
+
+   @Override
+   public final boolean isUnwritten() {
+      return lastChange > lastWrite;
+   }
+   
+   private long getDataVersion() throws IOException {
+      TupleInput readOnlyInput = nidData.getReadOnlyTupleInput();
+      long       dataVersion   = Long.MIN_VALUE;
+
+      if (readOnlyInput.available() > 0) {
+         dataVersion = checkFormatAndVersion(readOnlyInput);
+      }
+
+      TupleInput readWriteInput = nidData.getMutableTupleInput();
+
+      if (readWriteInput.available() > 0) {
+         dataVersion = checkFormatAndVersion(readWriteInput);
+      }
+
+      return dataVersion;
+   }
+
+    @Override
+    protected void setEnlosingConcept(ConceptChronicle enclosingConcept) {
+        assert enclosingConcept != null : "enclosing concept cannot be null.";
+        this.enclosingConcept = enclosingConcept;
+    }
+
+    @Override
+    public void setDescriptions(Set<Description> descriptions) throws IOException {
+//        TODO-AKF: need this for JPA. Leave as unsupported?
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setSourceRels(Set<Relationship> relationships) throws IOException {
+        //        TODO-AKF: need this for JPA. Leave as unsupported?
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setPrimordial(boolean isPrimordial) {
+        //        TODO-AKF: need this for JPA. Leave as unsupported?
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

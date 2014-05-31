@@ -67,8 +67,6 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
 
    Collection<? extends DescriptionChronicleBI> getDescriptions() throws IOException;
 
-   long getLastModificationSequence();
-
    Collection<? extends MediaChronicleBI> getMedia() throws IOException;
 
    RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException;

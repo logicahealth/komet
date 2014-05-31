@@ -7,24 +7,25 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_boolean.RefexBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_boolean.RefexBooleanVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanRevision;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         implements RefexBooleanAnalogBI<BooleanRevision> {
 
-    private static VersionComputer<RefexMember<BooleanRevision, BooleanMember>.Version> computer =
+    private static VersionComputer<RefexMemberVersion<BooleanRevision, BooleanMember>> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     private boolean booleanValue;
@@ -173,20 +174,20 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
     }
 
     @Override
-    protected IntArrayList getVariableVersionNids() {
+    public IntArrayList getVariableVersionNids() { //TODO-AKF
 
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected VersionComputer<RefexMember<BooleanRevision, BooleanMember>.Version> getVersionComputer() {
+    protected VersionComputer<RefexMemberVersion<BooleanRevision, BooleanMember>> getVersionComputer() {
         return computer;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Version> getVersions() {
+    public List<BooleanMemberVersion> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -194,16 +195,16 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
                 count = count + revisions.size();
             }
 
-            ArrayList<Version> list = new ArrayList<>(count);
+            ArrayList<BooleanMemberVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new Version(this));
+                list.add(new BooleanMemberVersion(this, this));
             }
 
             if (revisions != null) {
                 for (BooleanRevision br : revisions) {
                     if (br.getTime() != Long.MIN_VALUE) {
-                        list.add(new Version(br));
+                        list.add(new BooleanMemberVersion(br, this));
                     }
                 }
             }
@@ -211,7 +212,7 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
             versions = list;
         }
 
-        return (List<Version>) versions;
+        return (List<BooleanMemberVersion>) versions;
     }
 
     //~--- set methods ---------------------------------------------------------
@@ -221,45 +222,4 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         modified();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends RefexMember<BooleanRevision, BooleanMember>.Version
-            implements RefexBooleanAnalogBI<BooleanRevision> {
-
-        private Version(RefexBooleanAnalogBI<BooleanRevision> cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-
-        //~--- get methods ------------------------------------------------------
-        @Override
-        public boolean getBoolean1() {
-            return getCv().getBoolean1();
-        }
-
-        RefexBooleanAnalogBI<BooleanRevision> getCv() {
-            return (RefexBooleanAnalogBI<BooleanRevision>) cv;
-        }
-
-        @Override
-        public TtkRefexBooleanMemberChronicle getERefsetMember() throws IOException {
-            return new TtkRefexBooleanMemberChronicle(this);
-        }
-
-        @Override
-        public TtkRefexBooleanRevision getERefsetRevision() throws IOException {
-            return new TtkRefexBooleanRevision(this);
-        }
-
-        @Override
-        public IntArrayList getVariableVersionNids() {
-            return new IntArrayList();
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setBoolean1(boolean value) throws PropertyVetoException {
-            getCv().setBoolean1(value);
-        }
-    }
 }

@@ -753,4 +753,9 @@ public class TccRestClient extends Termstore {
     public NativeIdSetBI getAllConceptNidsFromCache() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public ConceptChronicleBI getConcept(int cNid) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

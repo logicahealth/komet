@@ -4,34 +4,27 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
-import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.nio.charset.Charset;
-
 import java.util.Collection;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 public class DescriptionRevision extends Revision<DescriptionRevision, Description>
         implements DescriptionAnalogBI<DescriptionRevision> {
@@ -115,7 +108,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
     public boolean matches(Pattern p) {
         String lastText = null;
 
-        for (Description.Version desc : getVersions()) {
+        for (DescriptionVersion desc : getVersions()) {
             if (!desc.getText().equals(lastText)) {
                 lastText = desc.getText();
 
@@ -311,17 +304,17 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
    @Override
-   public Description.Version getVersion(ViewCoordinate c) throws ContradictionException {
+   public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }
 
    @Override
-   public Collection<Description.Version> getVersions() {
+   public Collection<DescriptionVersion> getVersions() {
       return ((Description) primordialComponent).getVersions();
    }
 
    @Override
-   public Collection<Description.Version> getVersions(ViewCoordinate c) {
+   public Collection<DescriptionVersion> getVersions(ViewCoordinate c) {
       return primordialComponent.getVersions(c);
    }
 

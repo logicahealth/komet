@@ -4,36 +4,30 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
         implements RefexNidNidAnalogBI<NidNidRevision> {
-   private static VersionComputer<RefexMember<NidNidRevision, NidNidMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<NidNidRevision, NidNidMember>> computer =
       new VersionComputer<>();
 
    //~--- fields --------------------------------------------------------------
@@ -57,7 +51,7 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
       c2Nid = P.s.getNidForUuids(refsetMember.getUuid2());
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<NidNidRevision, NidNidMember>(primordialStamp);
 
          for (TtkRefexUuidUuidRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidNidRevision(eVersion, this));
@@ -218,13 +212,13 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
    }
 
    @Override
-   protected VersionComputer<RefexMember<NidNidRevision, NidNidMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<NidNidRevision, NidNidMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<NidNidMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -232,16 +226,16 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<NidNidMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new NidNidMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (NidNidRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new NidNidMemberVersion(r, this));
                }
             }
          }
@@ -249,7 +243,7 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<NidNidMemberVersion>) versions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -276,54 +270,4 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
       modified();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<NidNidRevision, NidNidMember>.Version
-           implements RefexNidNidAnalogBI<NidNidRevision> {
-      private Version(RefexNidNidAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-
-      //~--- get methods ------------------------------------------------------
-
-
-      @Override
-      public int getNid1() {
-         return getCv().getNid1();
-      }
-
-      @Override
-      public int getNid2() {
-         return getCv().getNid2();
-      }
-
-      RefexNidNidAnalogBI getCv() {
-         return (RefexNidNidAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexUuidUuidMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexUuidUuidMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexUuidUuidRevision getERefsetRevision() throws IOException {
-         return new TtkRefexUuidUuidRevision(this);
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setNid1(int cnid1) throws PropertyVetoException {
-         getCv().setNid1(cnid1);
-      }
-
-      @Override
-      public void setNid2(int cnid2) throws PropertyVetoException {
-         getCv().setNid2(cnid2);
-      }
-   }
 }

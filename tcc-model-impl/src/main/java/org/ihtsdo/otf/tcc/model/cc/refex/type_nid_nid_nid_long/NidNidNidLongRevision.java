@@ -222,14 +222,13 @@ public class NidNidNidLongRevision
    }
 
    @Override
-   public NidNidNidLongMember.Version getVersion(ViewCoordinate c)
+   public NidNidNidLongMemberVersion getVersion(ViewCoordinate c)
            throws ContradictionException {
-      return (NidNidNidLongMember
-         .Version) ((NidNidNidLongMember) primordialComponent).getVersion(c);
+      return (NidNidNidLongMemberVersion) ((NidNidNidLongMember) primordialComponent).getVersion(c);
    }
 
    @Override
-   public Collection<NidNidNidLongMember.Version> getVersions() {
+   public Collection<NidNidNidLongMemberVersion> getVersions() {
       return ((NidNidNidLongMember) primordialComponent).getVersions();
    }
 

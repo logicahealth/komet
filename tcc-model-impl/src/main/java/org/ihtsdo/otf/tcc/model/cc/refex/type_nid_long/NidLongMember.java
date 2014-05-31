@@ -4,36 +4,30 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long;
 
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
 
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongRevision;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
         implements RefexNidLongAnalogBI<NidLongRevision> {
-   private static VersionComputer<RefexMember<NidLongRevision, NidLongMember>.Version> computer =
+   private static VersionComputer<RefexMemberVersion<NidLongRevision, NidLongMember>> computer =
       new VersionComputer<>();
 
    //~--- fields --------------------------------------------------------------
@@ -57,7 +51,7 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
       longValue = refsetMember.getLong1();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<>(primordialStamp);
+         revisions = new RevisionSet<NidLongRevision, NidLongMember>(primordialStamp);
 
          for (TtkRefexUuidLongRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidLongRevision(eVersion, this));
@@ -215,13 +209,13 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
    }
 
    @Override
-   protected VersionComputer<RefexMember<NidLongRevision, NidLongMember>.Version> getVersionComputer() {
+   protected VersionComputer<RefexMemberVersion<NidLongRevision, NidLongMember>> getVersionComputer() {
       return computer;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<Version> getVersions() {
+   public List<NidLongMemberVersion> getVersions() {
       if (versions == null) {
          int count = 1;
 
@@ -229,16 +223,16 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
             count = count + revisions.size();
          }
 
-         ArrayList<Version> list = new ArrayList<>(count);
+         ArrayList<NidLongMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new Version(this));
+            list.add(new NidLongMemberVersion(this, this));
          }
 
          if (revisions != null) {
             for (NidLongRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new Version(r));
+                  list.add(new NidLongMemberVersion(r, this));
                }
             }
          }
@@ -246,7 +240,7 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
          versions = list;
       }
 
-      return (List<Version>) versions;
+      return (List<NidLongMemberVersion>) versions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -273,53 +267,4 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
       modified();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
-   public class Version extends RefexMember<NidLongRevision, NidLongMember>.Version
-           implements RefexNidLongAnalogBI<NidLongRevision> {
-      private Version(RefexNidLongAnalogBI cv) {
-         super(cv);
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-
-      //~--- get methods ------------------------------------------------------
-
-      @Override
-      public int getNid1() {
-         return getCv().getNid1();
-      }
-
-      RefexNidLongAnalogBI getCv() {
-         return (RefexNidLongAnalogBI) cv;
-      }
-
-      @Override
-      public TtkRefexUuidLongMemberChronicle getERefsetMember() throws IOException {
-         return new TtkRefexUuidLongMemberChronicle(this);
-      }
-
-      @Override
-      public TtkRefexUuidLongRevision getERefsetRevision() throws IOException {
-         return new TtkRefexUuidLongRevision(this);
-      }
-
-      @Override
-      public long getLong1() {
-         return getCv().getLong1();
-      }
-
-      //~--- set methods ------------------------------------------------------
-
-      @Override
-      public void setNid1(int cnid1) throws PropertyVetoException {
-         getCv().setNid1(cnid1);
-      }
-
-      @Override
-      public void setLong1(long l) throws PropertyVetoException {
-         getCv().setLong1(l);
-      }
-   }
 }
