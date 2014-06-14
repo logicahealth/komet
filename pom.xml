@@ -256,8 +256,7 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-model-impl</module>
         <module>tcc-rest-client</module>
         <module>tcc-rest-server</module>
-        <!--<module>tcc-datastore</module>-->
-        <!--<module>tcc-jpa-datastore</module>-->
+        <module>tcc-datastore</module>
         <module>tcc-junit-ext</module>
         <!--<module>tcc-integration-test</module>-->
         <module>tcc-mojo</module>

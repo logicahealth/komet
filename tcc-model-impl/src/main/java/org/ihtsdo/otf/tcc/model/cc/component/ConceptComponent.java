@@ -182,7 +182,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         assert this.nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
         this.enclosingConceptNid = enclosingConceptNid;
 
-        int cNid = P.s.getConceptNidForNid(nid);
+        int cNid = P.s.getConceptNidForNid(nid); //TODO-AKF: here!
 
         if (cNid == Integer.MAX_VALUE) {
             P.s.setConceptNidForNid(this.enclosingConceptNid, this.nid);
@@ -193,10 +193,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 logger.log(
                         Level.SEVERE, "b. Datafix warning. See log for details.",
                         new Exception(
-                        String.format(
-                        "b-Datafix: cNid %s %s incorrect for: %s %s should have been: {4}{5}", cNid,
-                        P.s.getUuidsForNid(cNid), this.nid, P.s.getUuidsForNid(this.nid),
-                        this.enclosingConceptNid, P.s.getUuidsForNid(this.enclosingConceptNid))));
+                                String.format(
+                                        "b-Datafix: cNid %s %s incorrect for: %s %s should have been: {4}{5}", cNid,
+                                        P.s.getUuidsForNid(cNid), this.nid, P.s.getUuidsForNid(this.nid),
+                                        this.enclosingConceptNid, P.s.getUuidsForNid(this.enclosingConceptNid))));
             }
         }
 
@@ -429,9 +429,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         assert r != null;
 
         boolean returnValue;
-//        ConceptChronicle c = getEnclosingConcept(); //TODO-AKF: add this back
+        ConceptChronicle c = getEnclosingConcept();
 
-//        assert c != null : "Can't find concept for: " + r; //TODO_AKf: add this back
+        assert c != null : "Can't find concept for: " + r;
 
         if (revisions == null) {
             revisions = new RevisionSet(primordialStamp);
@@ -441,7 +441,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         r.primordialComponent = (C) this;
-//TODO-AKF        c.modified();
+        c.modified();//TODO-AKF ??
         clearVersions();
         return returnValue;
     }

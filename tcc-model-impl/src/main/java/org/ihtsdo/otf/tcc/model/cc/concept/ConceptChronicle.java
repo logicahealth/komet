@@ -425,7 +425,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 }
             }
         }
-
+        
+        try{
         if ((eConcept.getMedia() != null) && !eConcept.getMedia().isEmpty()) {
             if ((c.getImages() == null) || c.getImages().isEmpty()) {
                 setImagesFromEConcept(eConcept, c);
@@ -445,7 +446,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 }
             }
         }
-
+        }catch(NullPointerException e){ //TODO-AKF: fix this
+            System.out.println("Image not supported yet");
+        }
         if ((eConcept.getRefsetMembers() != null) && !eConcept.getRefsetMembers().isEmpty()) {
             if (c.isAnnotationStyleRefex()) {
                 for (TtkRefexAbstractMemberChronicle<?> er : eConcept.getRefsetMembers()) {
@@ -765,11 +768,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public static ConceptChronicle get(int nid) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-
+        if(conceptsCRHM == null){ //TOD-AKF: remove once data is imported, need to call the init method on this class
+            conceptsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
+                ConcurrentReferenceHashMap.ReferenceType.WEAK);
+        }
         ConceptChronicle c = conceptsCRHM.get(nid);
 
         if (c == null) {
-            ConceptChronicle newC = new ConceptChronicle(nid);
+            ConceptChronicle newC = new ConceptChronicle(nid); //TODO-AKF: need to do something here
 
             c = conceptsCRHM.putIfAbsent(nid, newC);
 
@@ -803,8 +809,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         // return populateFromEConcept(eConcept, c);
         try {
             return mergeWithEConcept(eConcept, c);
-        } catch (Throwable t) {
-            System.out.println(t.getLocalizedMessage());
+        } catch (Exception t) {
+            System.out.println(t);
+            System.out.println(t.getLocalizedMessage()); //TODO-AKF: put back
             logger.log(Level.SEVERE, "Cannot merge with eConcept: \n" + eConcept, t);
         }
 

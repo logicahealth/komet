@@ -515,10 +515,14 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
         if (time != getTime()) {
             try {
-                this.stamp = P.s.getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),
-                        getPathNid());
+                Status status = getStatus();
+                int authorNid = getAuthorNid(); //HERE
+                int moduleNid = getModuleNid();
+                int pathNid = getPathNid();
+                this.stamp = P.s.getStamp(status, time, authorNid, moduleNid,
+                        pathNid);
             } catch (Exception e) {
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
 
             modified();

@@ -114,7 +114,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         ConceptAttributesRevision newR;
 
         newR = new ConceptAttributesRevision(this, status, time, authorNid, moduleNid, pathNid, this);
-        addRevision(newR); //TODO-AKF: then here
+        addRevision(newR);
 
         return newR;
     }

@@ -69,7 +69,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
     */
    @Override
    public void add(Description desc) throws IOException {
-      getDescriptions().add(desc); //TODO-AKF: changed from being addDirect, using same patter as other add methods
+      getDescriptions().add(desc);
       getDescNids().add(desc.nid);
       modified();
    }
