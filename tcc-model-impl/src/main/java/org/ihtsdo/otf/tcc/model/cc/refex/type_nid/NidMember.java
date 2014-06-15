@@ -201,7 +201,7 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() { //TODO-AKF: this used to be public. Did I mess something up?
+   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
 
       // TODO Auto-generated method stub
       return null;

@@ -182,7 +182,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         assert this.nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
         this.enclosingConceptNid = enclosingConceptNid;
 
-        int cNid = P.s.getConceptNidForNid(nid); //TODO-AKF: here!
+        int cNid = P.s.getConceptNidForNid(nid);
 
         if (cNid == Integer.MAX_VALUE) {
             P.s.setConceptNidForNid(this.enclosingConceptNid, this.nid);
@@ -441,7 +441,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         r.primordialComponent = (C) this;
-        c.modified();//TODO-AKF ??
+        c.modified();
         clearVersions();
         return returnValue;
     }

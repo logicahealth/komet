@@ -1120,11 +1120,10 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       enclosingConcept.modified();
    }
 
-//            TODO-AKF: testing
    @Override
    public void setIsAnnotationStyleRefex(boolean annotationStyleRefex) {
       modified();
-      this.annotationStyleRefset = annotationStyleRefset;
+      this.annotationStyleRefset = annotationStyleRefex;
    }
 
    @Override
