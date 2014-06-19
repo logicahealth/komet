@@ -79,17 +79,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>glassfish-parent</artifactId>
+            <version>10.0-b28</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.distributions</groupId>
             <artifactId>web-all</artifactId>
             <version>10.0-build-20080430</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--        <dependency>
             <groupId>org.glassfish.embedded</groupId>
             <artifactId>gf-embedded-api</artifactId>
             <version>1.0-alpha-4</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.sun.javafx</groupId>
             <artifactId>jfxrt</artifactId>
@@ -101,20 +107,8 @@
             <name>GlassFish Maven Repository</name>
             <url>http://download.java.net/maven/glassfish</url>
             <layout>default</layout>
-        </repository>
-        <repository>
-            <id>m2.java.net</id>
-            <name>Java.net Maven 2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-            <layout>default</layout>
-        </repository>        
+        </repository>      
     </repositories>
     <pluginRepositories>
-        <pluginRepository>
-            <id>m2.java.net</id>
-            <name>Java.net Maven 2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-            <layout>default</layout>
-        </pluginRepository>  
     </pluginRepositories>
 </project>
