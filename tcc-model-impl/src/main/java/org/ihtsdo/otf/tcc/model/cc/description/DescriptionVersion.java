@@ -30,17 +30,16 @@ import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 
 public class DescriptionVersion extends Version<DescriptionRevision, Description> implements DescriptionAnalogBI<DescriptionRevision>, TypedComponentVersionBI {
-    private Description d = null; //TODO-AKF: this can't be final if using a no arg constructor, will have to set it agian later
+    private Description d = null;
 
     public DescriptionVersion(){}
     
-    public DescriptionVersion(DescriptionAnalogBI<DescriptionRevision> cv, final Description d) {
+    public DescriptionVersion(DescriptionAnalogBI<DescriptionRevision> cv, Description d) {
         super(cv,d);
         this.d = d;
     }

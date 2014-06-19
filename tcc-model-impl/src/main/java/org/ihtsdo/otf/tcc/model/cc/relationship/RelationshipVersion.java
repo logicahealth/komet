@@ -41,8 +41,8 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     
     public RelationshipVersion (){}
 
-    public RelationshipVersion(RelationshipAnalogBI cv, final Relationship r) {
-        super(cv,r); //TODO-AKF: is this correct?
+    public RelationshipVersion(RelationshipAnalogBI cv, Relationship r) {
+        super(cv,r);
         this.r = r;
     }
 
@@ -97,7 +97,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
 
     @Override
     public int getCharacteristicNid() {
-        return getCv().getCharacteristicNid(); //TODO-AKF: Is this correct?
+        return getCv().getCharacteristicNid();
     }
 
     RelationshipAnalogBI getCv() {

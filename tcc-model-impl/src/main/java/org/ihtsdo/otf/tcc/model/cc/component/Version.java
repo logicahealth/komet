@@ -52,11 +52,11 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      * Field description
      */
     protected ComponentVersionBI cv;
-    protected ConceptComponent<R, C> cc = null; //TODO-AKF: this can't be final if using a no arg constructor, will have to set it agian later
+    protected ConceptComponent<R, C> cc = null;
     
     public Version(){}
-//    TODO-AKF: need to look at these constructors
-    public Version(final ConceptComponent<R, C> cc) {
+    
+    public Version(ConceptComponent<R, C> cc) {
         this.cc = cc;
     }
 
@@ -66,7 +66,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      * @param cv
      */
-    public Version(ComponentVersionBI cv, final ConceptComponent<R, C> cc) {
+    public Version(ComponentVersionBI cv, ConceptComponent<R, C> cc) {
         super();
         this.cc = cc;
         this.cv = cv;

@@ -42,7 +42,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     private final RefexMember rm;
 
     public RefexMemberVersion(RefexAnalogBI<R> cv, final RefexMember<R,C> rm) {
-        super(cv,rm); //TODO_AKF: is this correct?
+        super(cv,rm);
         this.rm = rm;
     }
 
@@ -64,7 +64,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
-    public boolean fieldsEqual(Version<R,C> another) { //TODO-AKF: is this okay?
+    public boolean fieldsEqual(Version<R,C> another) {
         RefexMemberVersion anotherVersion = (RefexMemberVersion) another;
         if (this.getTypeNid() != anotherVersion.getTypeNid()) {
             return false;
