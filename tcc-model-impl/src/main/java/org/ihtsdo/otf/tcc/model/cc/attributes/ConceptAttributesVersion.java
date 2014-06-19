@@ -36,16 +36,12 @@ import org.ihtsdo.otf.tcc.model.cc.component.Version;
 //~--- inner classes -------------------------------------------------------
 
 public class ConceptAttributesVersion extends Version<ConceptAttributesRevision, ConceptAttributes> implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
-    private ConceptAttributes ca = null; //TODO-AKF: this can't be final if using a no arg constructor, will have to set it agian later
+    private ConceptAttributes ca = null;
     
-//    TODO-AKF: Is this needed?
-//    public ConceptAttributesVersion(final ConceptAttributes<ConceptAttributesRevision, ConceptAttributes> ca) {
-//        this.ca = ca;
-//    }
     public ConceptAttributesVersion(){}
     
-    public ConceptAttributesVersion(ConceptAttributeAnalogBI<ConceptAttributesRevision> cv, final ConceptAttributes ca) {
-        super(cv, ca); //TODO-AKF: this is correct?
+    public ConceptAttributesVersion(ConceptAttributeAnalogBI<ConceptAttributesRevision> cv, ConceptAttributes ca) {
+        super(cv, ca);
         this.ca = ca;
     }
 
