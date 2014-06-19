@@ -621,7 +621,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         init();
     }
 
-//    public void resetNidData() {
+//    public void resetNidData() {  //TODO-AKF: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
 //        data.resetNidData();
 //    }
 
@@ -768,20 +768,19 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public static ConceptChronicle get(int nid) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-        if(conceptsCRHM == null){ //TOD-AKF: remove once data is imported, need to call the init method on this class
-            conceptsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                ConcurrentReferenceHashMap.ReferenceType.WEAK);
+        if(conceptsCRHM == null){ //TODO-AKF: is this a reasonable check? don't want to overwrite existing maps
+            init();
         }
         ConceptChronicle c = conceptsCRHM.get(nid);
 
         if (c == null) {
-            ConceptChronicle newC = new ConceptChronicle(nid); //TODO-AKF: need to do something here
+            ConceptChronicle newC = new ConceptChronicle(nid);
 
             c = conceptsCRHM.putIfAbsent(nid, newC);
 
             if (c == null) {
                 c = newC;
-    }
+            }
         }
 
         conceptsCRHM.put(nid, c);
@@ -810,8 +809,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         try {
             return mergeWithEConcept(eConcept, c);
         } catch (Exception t) {
-            System.out.println(t);
-            System.out.println(t.getLocalizedMessage()); //TODO-AKF: put back
+            System.out.println(t.getLocalizedMessage());
             logger.log(Level.SEVERE, "Cannot merge with eConcept: \n" + eConcept, t);
         }
 

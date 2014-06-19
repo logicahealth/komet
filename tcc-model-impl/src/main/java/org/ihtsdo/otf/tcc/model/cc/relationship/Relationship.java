@@ -23,6 +23,7 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
@@ -35,22 +36,21 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
         implements RelationshipAnalogBI<RelationshipRevision> {
    private static int                                   classifierAuthorNid = Integer.MIN_VALUE;
    private static VersionComputer<RelationshipVersion> computer            = new VersionComputer<>();
-   public static final int                              INFERRED_NID_RF1 = 0;
-   public static final int                              INFERRED_NID_RF2 = 0;
-   public static final int                              STATED_NID_RF1 = 0;
-   public static final int                              STATED_NID_RF2 = 0;
+   public static int                              INFERRED_NID_RF1 = 0;
+   public static int                              INFERRED_NID_RF2 = 0;
+   public static int                              STATED_NID_RF1 = 0;
+   public static int                              STATED_NID_RF2 = 0;
 
    //~--- static initializers -------------------------------------------------
 
    static {
       try {
-//          TODO-AKF: need data imported first
-//         INFERRED_NID_RF1 =
-//            Ts.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-//         STATED_NID_RF1 =
-//            Ts.get().getNidForUuids(SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-//         INFERRED_NID_RF2 = Ts.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
-//         STATED_NID_RF2   = Ts.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
+         INFERRED_NID_RF1 =
+            Ts.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
+         STATED_NID_RF1 =
+            Ts.get().getNidForUuids(SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
+         INFERRED_NID_RF2 = Ts.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
+         STATED_NID_RF2   = Ts.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
       } catch (Exception ex) {
          throw new RuntimeException(ex);
       }

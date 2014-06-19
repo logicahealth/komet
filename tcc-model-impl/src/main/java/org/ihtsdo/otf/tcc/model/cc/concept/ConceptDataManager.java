@@ -212,7 +212,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
     *
     * @see org.ihtsdo.db.bdb.concept.I_ManageConceptData#getDestRels()
     */
-   @Override//TODO-AKF: need to implement?
+   @Override
    public List<Relationship> getDestRels() throws IOException {
 
       // Need to make sure there are no pending db writes prior calling this method.
@@ -277,10 +277,10 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    @Override
    public abstract boolean isPrimordial() throws IOException;
 
-   @Override//TODO-AKF: need to implement?
+   @Override
    public abstract boolean isUncommitted();
 
-   @Override//TODO-AKF: need to implement?
+   @Override
    public abstract boolean isUnwritten();
 
    //~--- set methods ---------------------------------------------------------

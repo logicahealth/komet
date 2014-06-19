@@ -108,7 +108,7 @@ public interface I_ManageConceptData {
    void setDescriptions(Set<Description> descriptions) throws IOException;
    
    void setSourceRels(Set<Relationship> relationships) throws IOException;
-//            TODO-AKF: testing
+
    void setIsAnnotationStyleRefex(boolean annotationStyleRefex);
    
    void setPrimordial(boolean isPrimordial);

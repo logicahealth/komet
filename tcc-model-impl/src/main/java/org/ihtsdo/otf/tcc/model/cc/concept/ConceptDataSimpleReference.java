@@ -1240,7 +1240,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       return lastWrite;
    }
    
-      @Override
+   @Override
    public void setLastWrite(long lastWrite) {
       this.lastWrite = Math.max(this.lastWrite, lastWrite);
    }
