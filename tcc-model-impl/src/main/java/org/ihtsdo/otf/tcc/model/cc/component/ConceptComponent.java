@@ -2597,10 +2597,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setStatus(Status status) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException(
-                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
-        }
+//        if (getTime() != Long.MAX_VALUE) { //TODO-AKF: why is this an issue now?
+//            throw new UnsupportedOperationException(
+//                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
+//        }
 
         if (status != this.getStatus()) {
             this.primordialStamp = P.s.getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
@@ -2617,10 +2617,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setTime(long time) {
-        if (getTime() != Long.MAX_VALUE) {
-            throw new UnsupportedOperationException(
-                    "Cannot change time != Long.MAX_VALUE; Use makeAnalog instead.");
-        }
+//        if (getTime() != Long.MAX_VALUE) { //TODO-AKF: why is this an issue now?
+//            throw new UnsupportedOperationException(
+//                    "Cannot change time != Long.MAX_VALUE; Use makeAnalog instead.");
+//        }
 
         if (time != getTime()) {
             this.primordialStamp = P.s.getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),
