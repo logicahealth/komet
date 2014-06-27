@@ -30,7 +30,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     private int group;
     private int refinabilityNid;
     private int typeNid;
-    private int destinationNid; //TODO-AKF: adding this to be able to support no arg constructor
 
     //~--- constructors --------------------------------------------------------
     public RelationshipRevision() {
@@ -43,7 +42,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = primordialRel.getGroup();
         this.refinabilityNid = primordialRel.getRefinabilityNid();
         this.typeNid = primordialRel.getTypeNid();
-        this.destinationNid = primordialRel.getDestinationNid();
     }
 
     public RelationshipRevision(int statusAtPositionNid, Relationship primordialRel) {
@@ -56,7 +54,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = another.group;
         this.refinabilityNid = another.refinabilityNid;
         this.typeNid = another.typeNid;
-        this.destinationNid = another.getDestinationNid();
     }
 
     public RelationshipRevision(TtkRelationshipRevision erv, Relationship primordialRel) throws IOException {
@@ -67,7 +64,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.refinabilityNid = P.s.getNidForUuids(erv.getRefinabilityUuid());
         this.typeNid = P.s.getNidForUuids(erv.getTypeUuid());
         this.stamp = P.s.getStamp(erv);
-        //TODO-AKF: not supporting destination nid
     }
 
     public RelationshipRevision(TupleInput input, Relationship primordialRel) {
@@ -75,8 +71,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.characteristicNid = input.readInt();
         this.group = input.readSortedPackedInt();
         this.refinabilityNid = input.readInt();
-        this.typeNid = input.readInt();
-        //TODO-AKF: not supporting destination nid
     }
 
     public RelationshipRevision(RelationshipAnalogBI another, Status status, long time, int authorNid,
@@ -86,7 +80,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.group = another.getGroup();
         this.refinabilityNid = another.getRefinabilityNid();
         this.typeNid = another.getTypeNid();
-        this.destinationNid = another.getDestinationNid();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -217,8 +210,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
 
     @Override
     public int getDestinationNid() {
-//        return primordialComponent.getDestinationNid(); //TODO-AKF: making this use the field on the revision
-        return destinationNid;
+        return primordialComponent.getDestinationNid(); 
     }
 
     @Override
@@ -292,7 +284,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
 
     @Override
     public void setDestinationNid(int nid) throws PropertyVetoException {
-        this.destinationNid = nid;
+        throw new UnsupportedOperationException();
     }
 
     @Override
