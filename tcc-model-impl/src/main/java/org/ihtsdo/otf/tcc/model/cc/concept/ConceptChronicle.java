@@ -768,9 +768,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public static ConceptChronicle get(int nid) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-        if(conceptsCRHM == null){ //TODO-AKF: is this a reasonable check? don't want to overwrite existing maps
-            init();
-        }
         ConceptChronicle c = conceptsCRHM.get(nid);
 
         if (c == null) {
