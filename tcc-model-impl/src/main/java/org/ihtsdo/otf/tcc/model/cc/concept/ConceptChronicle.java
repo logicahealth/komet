@@ -318,6 +318,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     private static void init() {
+        System.out.println("### Starting map initialization.");
         conceptsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                 ConcurrentReferenceHashMap.ReferenceType.WEAK);
         componentsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
@@ -335,6 +336,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         rf2LangRefexNidSet.add(ReferenceConcepts.FULLY_SPECIFIED_RF1.getNid());
         rf2LangRefexNidSet.add(ReferenceConcepts.PREFERRED_RF1.getNid());
         rf2LangRefexNidSet.add(ReferenceConcepts.SYNONYM_RF1.getNid());
+        System.out.println("### Finished map initialization.");
     }
 
     @Override
