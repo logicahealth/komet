@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-TT-SNAPSHOT</version>
+        <version>1.2-TT-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tcc-api</artifactId>
