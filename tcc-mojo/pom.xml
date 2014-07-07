@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-TT-SNAPSHOT</version>
+        <version>1.1-TT</version>
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-mojo</artifactId>
