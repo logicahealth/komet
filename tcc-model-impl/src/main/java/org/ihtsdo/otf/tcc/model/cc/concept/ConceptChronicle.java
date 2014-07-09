@@ -318,6 +318,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     private static void init() {
+        System.out.println("### Starting map initialization.");
         conceptsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                 ConcurrentReferenceHashMap.ReferenceType.WEAK);
         componentsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
@@ -335,6 +336,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         rf2LangRefexNidSet.add(ReferenceConcepts.FULLY_SPECIFIED_RF1.getNid());
         rf2LangRefexNidSet.add(ReferenceConcepts.PREFERRED_RF1.getNid());
         rf2LangRefexNidSet.add(ReferenceConcepts.SYNONYM_RF1.getNid());
+        System.out.println("### Finished map initialization.");
     }
 
     @Override
@@ -768,9 +770,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public static ConceptChronicle get(int nid) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-        if(conceptsCRHM == null){ //TODO-AKF: is this a reasonable check? don't want to overwrite existing maps
-            init();
-        }
         ConceptChronicle c = conceptsCRHM.get(nid);
 
         if (c == null) {

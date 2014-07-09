@@ -144,11 +144,6 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      return new IntArrayList(2);
-   }
-
-   @Override
    public LongMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return (LongMemberVersion) ((LongMember) primordialComponent).getVersion(c);
    }

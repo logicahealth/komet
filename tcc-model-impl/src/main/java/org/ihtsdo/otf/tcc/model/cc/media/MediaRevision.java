@@ -208,21 +208,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    public int getTypeNid() {
       return typeNid;
    }
-
-   /*
-    *  (non-Javadoc)
-    * @see org.dwfa.vodb.types.I_ImagePart#setTypeId(int)
-    */
-
-   @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList partComponentNids = new IntArrayList(3);
-
-      partComponentNids.add(typeNid);
-
-      return partComponentNids;
-   }
-
+   
    @Override
    public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);

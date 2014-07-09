@@ -110,14 +110,6 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        if (m != getCv()) {
-            return ((MediaRevision) getCv()).getVariableVersionNids();
-        }
-        return m.getVariableVersionNids();
-    }
-
-    @Override
     public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return m.getVersion(c);
     }

@@ -183,11 +183,6 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      return new IntArrayList(2);
-   }
-
-   @Override
    protected VersionComputer<RefexMemberVersion<StringRevision, StringMember>> getVersionComputer() {
       return computer;
    }

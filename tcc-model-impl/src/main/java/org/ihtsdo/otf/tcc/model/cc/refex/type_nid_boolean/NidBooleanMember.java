@@ -354,21 +354,6 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * @return
     */
    @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList variableNids = new IntArrayList(3);
-
-      variableNids.add(getC1Nid());
-
-      return variableNids;
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   @Override
    protected VersionComputer<RefexMemberVersion<NidBooleanRevision, NidBooleanMember>> getVersionComputer() {
       return computer;
    }

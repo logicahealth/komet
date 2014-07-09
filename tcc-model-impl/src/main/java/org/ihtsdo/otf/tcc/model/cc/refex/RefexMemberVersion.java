@@ -130,15 +130,6 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        if (rm != getCv()) {
-            return ((RefexRevision) getCv()).getVariableVersionNids();
-        } else {
-            return rm.getVariableVersionNids();
-        }
-    }
-
-    @Override
     public RefexMemberVersion<R,C> getVersion(ViewCoordinate c) throws ContradictionException {
         return rm.getVersion(c);
     }

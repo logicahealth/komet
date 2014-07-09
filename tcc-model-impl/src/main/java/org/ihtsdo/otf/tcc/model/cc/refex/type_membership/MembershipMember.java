@@ -168,11 +168,6 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
-      return new IntArrayList(2);
-   }
-
-   @Override
    protected VersionComputer<RefexMemberVersion <MembershipRevision, MembershipMember>> getVersionComputer() {
       return computer;
    }

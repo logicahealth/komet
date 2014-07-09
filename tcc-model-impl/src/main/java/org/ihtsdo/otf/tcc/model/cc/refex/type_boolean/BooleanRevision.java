@@ -158,13 +158,6 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList variableNids = new IntArrayList(2);
-
-      return variableNids;
-   }
-
-   @Override
    public BooleanMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return (BooleanMemberVersion) ((BooleanMember) primordialComponent).getVersion(c);
    }

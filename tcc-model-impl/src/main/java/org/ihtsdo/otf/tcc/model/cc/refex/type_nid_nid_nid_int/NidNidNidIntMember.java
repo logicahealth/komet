@@ -231,17 +231,6 @@ public class NidNidNidIntMember
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList variableNids = new IntArrayList(5);
-
-      variableNids.add(nid1);
-      variableNids.add(nid2);
-      variableNids.add(nid3);
-
-      return variableNids;
-   }
-
-   @Override
    protected VersionComputer<RefexMemberVersion<NidNidNidIntRevision,
            NidNidNidIntMember>> getVersionComputer() {
       return computer;

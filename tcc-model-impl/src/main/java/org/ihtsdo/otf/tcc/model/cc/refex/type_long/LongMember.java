@@ -183,11 +183,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
-      return new IntArrayList(2);
-   }
-
-   @Override
    protected VersionComputer<RefexMemberVersion<LongRevision, LongMember>> getVersionComputer() {
       return computer;
    }

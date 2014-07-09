@@ -135,11 +135,6 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      return new IntArrayList(2);
-   }
-
-   @Override
    public MembershipMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return (MembershipMemberVersion) ((MembershipMember) primordialComponent).getVersion(c);
    }

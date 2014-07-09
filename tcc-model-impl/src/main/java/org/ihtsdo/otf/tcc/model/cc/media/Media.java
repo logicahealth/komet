@@ -328,15 +328,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        IntArrayList nidList = new IntArrayList(3);
-
-        nidList.add(typeNid);
-
-        return nidList;
-    }
-
-    @Override
     public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
         List<MediaVersion> vForC = getVersions(c);
 

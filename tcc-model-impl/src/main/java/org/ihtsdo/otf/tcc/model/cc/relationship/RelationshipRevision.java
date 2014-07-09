@@ -239,17 +239,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        IntArrayList nids = new IntArrayList(5);
-
-        nids.add(characteristicNid);
-        nids.add(refinabilityNid);
-        nids.add(typeNid);
-
-        return nids;
-    }
-
-    @Override
     public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return primordialComponent.getVersion(c);
     }

@@ -401,8 +401,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.getUUIDs();
     }
 
-    public abstract IntArrayList getVariableVersionNids();
-
     public final C getVersioned() {
         return primordialComponent;
     }
