@@ -55,13 +55,6 @@ public class NidMemberVersion extends RefexMemberVersion<NidRevision, NidMember>
         return new TtkRefexUuidRevision(this);
     }
 
-    @Override
-    public IntArrayList getVariableVersionNids() {
-        IntArrayList variableNids = new IntArrayList(3);
-        variableNids.add(rm.getC1Nid());
-        return variableNids;
-    }
-
     //~--- set methods ------------------------------------------------------
     @Override
     public void setNid1(int c1id) throws PropertyVetoException {

@@ -139,20 +139,6 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        if (r != getCv()) {
-            IntArrayList resultList = new IntArrayList(7);
-            resultList.add(getCharacteristicNid());
-            resultList.add(getRefinabilityNid());
-            resultList.add(getTypeNid());
-            resultList.add(getC1Nid());
-            resultList.add(getC2Nid());
-            return resultList;
-        }
-        return r.getVariableVersionNids();
-    }
-
-    @Override
     public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return r.getVersion(c);
     }

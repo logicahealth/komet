@@ -2274,15 +2274,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         return returnValues;
     }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    public abstract IntArrayList getVariableVersionNids(); //TODO-AKF: changed this from protected for RefexMemberVersion ... did I mess something up with that class? 
-
+    
     /**
      * Method description
      *

@@ -263,11 +263,6 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        return new IntArrayList(2);
-    }
-
-    @Override
     public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
         List<ConceptAttributesVersion> vForC = getVersions(c);
 

@@ -295,15 +295,6 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList list = new IntArrayList(3);
-
-      list.add(typeNid);
-
-      return list;
-   }
-
-   @Override
    public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }

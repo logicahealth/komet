@@ -211,17 +211,6 @@ public class NidNidNidFloatRevision
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList variableNids = new IntArrayList(5);
-
-      variableNids.add(nid1);
-      variableNids.add(nid2);
-      variableNids.add(nid3);
-
-      return variableNids;
-   }
-
-   @Override
    public NidNidNidFloatMemberVersion getVersion(ViewCoordinate c)
            throws ContradictionException {
       return (NidNidNidFloatMemberVersion) ((NidNidNidFloatMember) primordialComponent).getVersion(c);

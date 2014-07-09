@@ -144,15 +144,6 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        IntArrayList variableNids = new IntArrayList(3);
-
-        variableNids.add(getNid1());
-
-        return variableNids;
-    }
-
-    @Override
     public NidMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return (NidMemberVersion) ((NidMember) primordialComponent).getVersion(c);
     }

@@ -206,11 +206,4 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
    public Collection<? extends RefexVersionBI<ArrayOfByteArrayRevision>> getVersions(ViewCoordinate c) {
       return ((ArrayOfByteArrayMember) primordialComponent).getVersions(c);
    }
-
-   //~--- set methods ---------------------------------------------------------
-
-    @Override
-    public IntArrayList getVariableVersionNids() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }

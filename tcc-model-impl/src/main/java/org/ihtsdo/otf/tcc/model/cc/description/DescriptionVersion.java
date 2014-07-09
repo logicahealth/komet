@@ -111,14 +111,6 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        if (getCv() == d.getVariableVersionNids()) {
-            return d.getVariableVersionNids();
-        }
-        return ((DescriptionRevision) getCv()).getVariableVersionNids();
-    }
-
-    @Override
     public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return d.getVersion(c);
     }
