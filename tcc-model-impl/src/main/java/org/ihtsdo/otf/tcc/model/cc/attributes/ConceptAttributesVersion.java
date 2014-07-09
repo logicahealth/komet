@@ -87,11 +87,6 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        return new IntArrayList(2);
-    }
-
-    @Override
     public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
         return ca.getVersion(c);
     }

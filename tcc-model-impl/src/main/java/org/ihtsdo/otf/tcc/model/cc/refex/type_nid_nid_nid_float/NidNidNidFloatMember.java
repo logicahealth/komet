@@ -230,18 +230,7 @@ public class NidNidNidFloatMember
    public int getTypeNid() {
       return RefexType.CID_CID_CID_FLOAT.getTypeToken();
    }
-
-   @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList variableNids = new IntArrayList(5);
-
-      variableNids.add(nid1);
-      variableNids.add(nid2);
-      variableNids.add(nid3);
-
-      return variableNids;
-   }
-
+   
    @Override
    protected VersionComputer<RefexMemberVersion<NidNidNidFloatRevision,
            NidNidNidFloatMember>> getVersionComputer() {

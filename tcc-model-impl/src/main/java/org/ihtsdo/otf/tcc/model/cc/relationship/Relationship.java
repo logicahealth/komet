@@ -419,19 +419,6 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList nidList = new IntArrayList(7);
-
-      nidList.add(enclosingConceptNid);
-      nidList.add(c2Nid);
-      nidList.add(getCharacteristicNid());
-      nidList.add(getRefinabilityNid());
-      nidList.add(getTypeNid());
-
-      return nidList;
-   }
-
-   @Override
    public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
       List<RelationshipVersion> vForC = getVersions(c);
 

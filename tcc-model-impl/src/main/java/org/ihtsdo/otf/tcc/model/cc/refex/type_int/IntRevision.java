@@ -150,11 +150,6 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      return new IntArrayList(2);
-   }
-
-   @Override
    public IntMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return (IntMemberVersion) ((IntMember) primordialComponent).getVersion(c);
    }

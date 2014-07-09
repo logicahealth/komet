@@ -221,17 +221,6 @@ public class NidNidNidMember extends RefexMember<NidNidNidRevision, NidNidNidMem
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        IntArrayList variableNids = new IntArrayList(5);
-
-        variableNids.add(getC1Nid());
-        variableNids.add(getC2Nid());
-        variableNids.add(getC3Nid());
-
-        return variableNids;
-    }
-
-    @Override
     protected VersionComputer<RefexMemberVersion<NidNidNidRevision, NidNidNidMember>> getVersionComputer() {
         return computer;
     }

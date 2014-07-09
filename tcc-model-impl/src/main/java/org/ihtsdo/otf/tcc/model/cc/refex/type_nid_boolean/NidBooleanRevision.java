@@ -172,15 +172,6 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
    protected RefexType getTkRefsetType() {
       return RefexType.CID_FLOAT;
    }
-   
-   @Override
-   public IntArrayList getVariableVersionNids() {
-      IntArrayList variableNids = new IntArrayList(3);
-
-      variableNids.add(getC1Nid());
-
-      return variableNids;
-   }
 
    @Override
    public NidBooleanMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {

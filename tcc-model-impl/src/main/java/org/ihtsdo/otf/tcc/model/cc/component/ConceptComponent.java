@@ -2274,15 +2274,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         return returnValues;
     }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    public abstract IntArrayList getVariableVersionNids(); //TODO-AKF: changed this from protected for RefexMemberVersion ... did I mess something up with that class? 
-
+    
     /**
      * Method description
      *
@@ -2490,11 +2482,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public void setAuthorNid(int authorNid) {
-//        TODO-AKF: Do we want this check?
-//        if (getTime() != Long.MAX_VALUE) {
-//            throw new UnsupportedOperationException(
-//                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
-//        }
+        if (getAuthorNid() != 0 && getTime() != Long.MAX_VALUE) {
+            throw new UnsupportedOperationException(
+                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
+        }
 
         if (authorNid != getAuthorNid()) {
             this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
@@ -2512,11 +2503,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setModuleNid(int moduleId) {
-        //        TODO-AKF: Do we want this check?
-//        if (getTime() != Long.MAX_VALUE) {
-//            throw new UnsupportedOperationException(
-//                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
-//        }
+        if (getModuleNid() != 0 && getTime() != Long.MAX_VALUE) {
+            throw new UnsupportedOperationException(
+                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
+        }
 
         if (moduleId != this.getModuleNid()) {
             this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleId,
@@ -2535,11 +2525,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setNid(int nid) throws PropertyVetoException {
-        //        TODO-AKF: Do we want this check?
-//        if ((this.getStamp() != Integer.MAX_VALUE) && (this.getTime() != Long.MAX_VALUE) && (this.nid != nid)
-//                && (this.nid != Integer.MAX_VALUE)) {
-//            throw new PropertyVetoException("nid", null);
-//        }
+        if (this.nid != 0 && (this.getStamp() != Integer.MAX_VALUE) && (this.getTime() != Long.MAX_VALUE) && (this.nid != nid)
+                && (this.nid != Integer.MAX_VALUE)) {
+            throw new PropertyVetoException("nid", null);
+        }
 
         this.nid = nid;
     }
@@ -2552,11 +2541,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setPathNid(int pathId) {
-        //        TODO-AKF: Do we want this check?
-//        if (getTime() != Long.MAX_VALUE) {
-//            throw new UnsupportedOperationException(
-//                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
-//        }
+        if (getPathNid() != 0 && getTime() != Long.MAX_VALUE) {
+            throw new UnsupportedOperationException(
+                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
+        }
 
         if (pathId != getPathNid()) {
             this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
@@ -2597,10 +2585,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setStatus(Status status) {
-//        if (getTime() != Long.MAX_VALUE) { //TODO-AKF: why is this an issue now?
-//            throw new UnsupportedOperationException(
-//                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
-//        }
+        if (getStatus() != null && getTime() != Long.MAX_VALUE) {
+            throw new UnsupportedOperationException(
+                    "Cannot change status if time != Long.MAX_VALUE; Use makeAnalog instead.");
+        }
 
         if (status != this.getStatus()) {
             this.primordialStamp = P.s.getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
@@ -2617,10 +2605,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final void setTime(long time) {
-//        if (getTime() != Long.MAX_VALUE) { //TODO-AKF: why is this an issue now?
-//            throw new UnsupportedOperationException(
-//                    "Cannot change time != Long.MAX_VALUE; Use makeAnalog instead.");
-//        }
+        if (getTime() != 0 && getTime() != Long.MAX_VALUE) {
+            throw new UnsupportedOperationException(
+                    "Cannot change time != Long.MAX_VALUE; Use makeAnalog instead.");
+        }
 
         if (time != getTime()) {
             this.primordialStamp = P.s.getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),

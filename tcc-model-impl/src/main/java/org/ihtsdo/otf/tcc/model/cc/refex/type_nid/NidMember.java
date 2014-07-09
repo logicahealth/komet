@@ -201,13 +201,6 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() { //TODO-AKF: ?
-
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   @Override
    protected VersionComputer<RefexMemberVersion<NidRevision, NidMember>> getVersionComputer() {
       return computer;
    }

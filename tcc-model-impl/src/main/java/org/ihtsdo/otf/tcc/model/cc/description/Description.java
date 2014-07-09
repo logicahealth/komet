@@ -345,15 +345,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() {
-        IntArrayList nidList = new IntArrayList(3);
-
-        nidList.add(typeNid);
-
-        return nidList;
-    }
-
-    @Override
     public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
         List<DescriptionVersion> vForC = getVersions(c);
 

@@ -54,12 +54,7 @@ public class BooleanMemberVersion extends RefexMemberVersion<BooleanRevision, Bo
     public TtkRefexBooleanRevision getERefsetRevision() throws IOException {
         return new TtkRefexBooleanRevision(this);
     }
-
-    @Override
-    public IntArrayList getVariableVersionNids() {
-        return new IntArrayList();
-    }
-
+    
     //~--- set methods ------------------------------------------------------
     @Override
     public void setBoolean1(boolean value) throws PropertyVetoException {

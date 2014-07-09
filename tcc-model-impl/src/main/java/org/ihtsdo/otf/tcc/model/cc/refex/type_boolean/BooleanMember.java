@@ -174,13 +174,6 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
     }
 
     @Override
-    public IntArrayList getVariableVersionNids() { //TODO-AKF
-
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     protected VersionComputer<RefexMemberVersion<BooleanRevision, BooleanMember>> getVersionComputer() {
         return computer;
     }

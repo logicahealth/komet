@@ -608,14 +608,6 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         return cc.getUUIDs();
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    public abstract IntArrayList getVariableVersionNids();
-
     //    @Override
     //    public List<? extends I_IdPart> getVisibleIds(PositionSet viewpointSet) {
     //        return ConceptComponent.this.getVisibleIds(viewpointSet);

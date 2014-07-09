@@ -108,11 +108,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
         return false;
     }
 
-   @Override
-   public IntArrayList getVariableVersionNids() { //TODO-AKF?
-      return new IntArrayList(2);
-   }
-
     @Override
     public int hashCode() {
         return Hashcode.compute(new int[]{nid});

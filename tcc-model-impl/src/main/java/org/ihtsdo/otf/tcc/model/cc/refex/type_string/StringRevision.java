@@ -152,11 +152,6 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
    }
 
    @Override
-   public IntArrayList getVariableVersionNids() {
-      return new IntArrayList(2);
-   }
-
-   @Override
    public StringMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
       return (StringMemberVersion) ((StringMember) primordialComponent).getVersion(c);
    }

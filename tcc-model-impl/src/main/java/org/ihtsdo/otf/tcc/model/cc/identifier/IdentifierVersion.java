@@ -192,14 +192,6 @@ public abstract class IdentifierVersion implements IdBI {
 
    public abstract ConceptComponent.IDENTIFIER_PART_TYPES getType();
 
-   protected IntArrayList getVariableVersionNids() {
-      IntArrayList nids = new IntArrayList(3);
-
-      nids.add(authorityNid);
-
-      return nids;
-   }
-
    //~--- set methods ---------------------------------------------------------
 
    public void setStamp(int stamp) {
