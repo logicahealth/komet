@@ -17,7 +17,7 @@
         <dependency>
             <groupId>gov.va.isaac.db</groupId>
             <artifactId>isaac-sct</artifactId>
-            <version>2014.01.31-build-1</version>
+            <version>2014.01.31-build-2</version>
             <type>zip</type>
         </dependency>
     </dependencies>
