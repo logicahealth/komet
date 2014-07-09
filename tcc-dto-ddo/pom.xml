@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.2-TT-SNAPSHOT</version>
+        <version>1.3-TT-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-dto-ddo</artifactId>
     <name>${branch}: Data display and transfer objects</name>
