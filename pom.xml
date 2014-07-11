@@ -43,7 +43,6 @@ the specific language governing permissions and limitations under the License. -
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
         <mvel2.version>2.1.3.Final</mvel2.version>
-        <javafx.version>[2.2.21,2.3)</javafx.version>
         <org.apache.lucene.version>4.3.1</org.apache.lucene.version> <!-- TODO-AKF had to change this to be compatible with hibernate -->
         <je.version>5.0.97</je.version>
         <junit.version>4.11</junit.version>
@@ -85,11 +84,6 @@ the specific language governing permissions and limitations under the License. -
                 <groupId>com.sleepycat</groupId>
                 <artifactId>je</artifactId>
                 <version>${je.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.javafx</groupId>
-                <artifactId>jfxrt</artifactId>
-                <version>${javafx.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -176,7 +170,7 @@ the specific language governing permissions and limitations under the License. -
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.6.3.201306030806</version>
+                    <version>0.7.1.201405082137</version>
                 </plugin>
             </plugins>
         </pluginManagement>
