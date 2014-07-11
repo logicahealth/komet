@@ -97,6 +97,14 @@ the specific language governing permissions and limitations under the License. -
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>external.atlassian.jgitflow</groupId>
+                    <artifactId>jgitflow-maven-plugin</artifactId>
+                    <version>1.0-m3</version>
+                    <configuration>
+                        <enableFeatureVersions>true</enableFeatureVersions>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven-plugin-plugin.version}</version>
