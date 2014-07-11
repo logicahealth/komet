@@ -69,15 +69,4 @@
             <version>${org.apache.lucene.version}</version>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>java7</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.sun.javafx</groupId>
-                    <artifactId>jfxrt</artifactId>
-                </dependency>
-            </dependencies>              
-        </profile>
-    </profiles>
 </project>
