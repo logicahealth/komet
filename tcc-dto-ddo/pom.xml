@@ -12,10 +12,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-       <dependency>
-            <groupId>com.sun.javafx</groupId>
-            <artifactId>jfxrt</artifactId>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcc-api</artifactId>
@@ -55,7 +51,7 @@
              -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.6</version>
                 <executions>
                     <execution>
                         <id>schemagen</id>
