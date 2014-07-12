@@ -81,6 +81,15 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.refinabilityNid = another.getRefinabilityNid();
         this.typeNid = another.getTypeNid();
     }
+    
+    public RelationshipRevision(RelationshipAnalogBI another, Relationship primordialMember) {
+        super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
+              another.getPathNid(), primordialMember);
+        this.characteristicNid = another.getCharacteristicNid();
+        this.group = another.getGroup();
+        this.refinabilityNid = another.getRefinabilityNid();
+        this.typeNid = another.getTypeNid();
+    }
 
     //~--- methods -------------------------------------------------------------
     @Override

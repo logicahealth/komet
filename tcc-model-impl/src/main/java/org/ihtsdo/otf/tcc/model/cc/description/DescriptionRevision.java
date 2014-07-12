@@ -101,6 +101,15 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
       this.lang                   = another.getLang();
       this.initialCaseSignificant = another.isInitialCaseSignificant();
    }
+   
+   public DescriptionRevision(DescriptionVersionBI another, Description primoridalMember) {
+      super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
+              another.getPathNid(), primoridalMember);
+      this.text                   = another.getText();
+      this.typeNid                = another.getTypeNid();
+      this.lang                   = another.getLang();
+      this.initialCaseSignificant = another.isInitialCaseSignificant();
+   }
 
    //~--- methods -------------------------------------------------------------
 
