@@ -2,13 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -18,13 +11,21 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Class description
@@ -63,7 +64,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     *
     * @throws IOException
     */
-   public NidBooleanMember(int enclosingConceptNid, TupleInput input) throws IOException {
+   public NidBooleanMember(int enclosingConceptNid, DataInputStream input) throws IOException {
       super(enclosingConceptNid, input);
    }
 
@@ -187,7 +188,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * @param input
     */
    @Override
-   protected void readMemberFields(TupleInput input) {
+   protected void readMemberFields(DataInputStream input) throws IOException {
       c1Nid      = input.readInt();
       boolean1 = input.readBoolean();
    }
@@ -201,7 +202,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * @return
     */
    @Override
-   protected final NidBooleanRevision readMemberRevision(TupleInput input) {
+   protected final NidBooleanRevision readMemberRevision(DataInputStream input) throws IOException {
       return new NidBooleanRevision(input, this);
    }
 
@@ -287,7 +288,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * @param output
     */
    @Override
-   protected void writeMember(TupleOutput output) {
+   protected void writeMember(DataOutput output) throws IOException {
       output.writeInt(c1Nid);
       output.writeBoolean(boolean1);
    }

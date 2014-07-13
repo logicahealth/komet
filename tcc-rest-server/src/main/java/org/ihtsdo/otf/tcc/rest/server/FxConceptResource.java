@@ -72,7 +72,7 @@ public class FxConceptResource {
             dos.writeInt(robs.length);
             dos.write(robs);
 
-            byte[] rwbs = fetcher.getReadWriteBytes();
+            byte[] rwbs = fetcher.getMutableBytes();
 
             dos.writeInt(rwbs.length);
             dos.write(rwbs);

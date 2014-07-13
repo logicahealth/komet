@@ -2,10 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_float;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
 
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
@@ -22,6 +18,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatR
 
 import java.beans.PropertyVetoException;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -52,7 +51,7 @@ public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMe
       floatValue = eVersion.getFloat1();
    }
 
-   public NidFloatRevision(TupleInput input, NidFloatMember primoridalMember) {
+   public NidFloatRevision(DataInputStream input, NidFloatMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       c1Nid      = input.readInt();
       floatValue = input.readFloat();
@@ -147,7 +146,7 @@ public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMe
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeInt(c1Nid);
       output.writeFloat(floatValue);
    }

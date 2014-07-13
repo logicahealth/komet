@@ -2,9 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -23,6 +20,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
 
 import java.beans.PropertyVetoException;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -60,8 +60,8 @@ public class NidNidNidIntRevision
       int1 = eVersion.getInt1();
    }
 
-   public NidNidNidIntRevision(TupleInput input,
-                                 NidNidNidIntMember primoridalMember) {
+   public NidNidNidIntRevision(DataInputStream input,
+                                 NidNidNidIntMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       nid1  = input.readInt();
       nid2  = input.readInt();
@@ -178,7 +178,7 @@ public class NidNidNidIntRevision
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeInt(nid1);
       output.writeInt(nid2);
       output.writeInt(nid3);

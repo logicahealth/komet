@@ -3,7 +3,8 @@ package org.ihtsdo.otf.tcc.datastore.concept;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,11 +22,7 @@ import org.ihtsdo.otf.tcc.model.cc.component.RefexDynamicMemberBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
-import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageSimpleConceptData;
-import org.ihtsdo.otf.tcc.model.cc.concept.IntSetBinder;
-import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
+import org.ihtsdo.otf.tcc.model.cc.concept.*;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 
@@ -152,11 +149,11 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
     private static IntSetBinder intSetBinder = new IntSetBinder();
 
     private byte[] getNidSetBytes(I_ManageConceptData conceptData,
-            boolean primordial, Set<Integer> nidsReadOnly, Set<Integer> nids) {
+            boolean primordial, Set<Integer> nidsReadOnly, Set<Integer> nids) throws IOException {
         HashSet<Integer> nidsToWrite = new HashSet<>(nids);
         nidsToWrite.removeAll(nidsReadOnly);
-        TupleOutput output = new TupleOutput();
-        intSetBinder.objectToEntry(nidsToWrite, output);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        intSetBinder.objectToEntry(nidsToWrite, new DataOutputStream(output));
         return output.toByteArray();
     }
 
@@ -172,11 +169,11 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         if (!primordial && attributes == null) {
             componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
         } else {
-            TupleOutput output = new TupleOutput();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (attributes != null && attributes.getTime() != Long.MIN_VALUE) {
                 List<ConceptAttributes> attrList = new ArrayList<>();
                 attrList.add(attributes);
-                conceptComponentBinder.objectToEntry(attrList, output);
+                conceptComponentBinder.objectToEntry(attrList, new DataOutputStream(output));
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -194,9 +191,9 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         if (!primordial && componentList == null) {
             componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
         } else {
-            TupleOutput output = new TupleOutput();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (componentList != null) {
-                binder.objectToEntry(componentList, output);
+                binder.objectToEntry(componentList, new DataOutputStream(output));
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -217,9 +214,9 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         if (!primordial && members == null) {
             componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
         } else {
-            TupleOutput output = new TupleOutput();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (members != null) {
-                binder.objectToEntry(members, output);
+                binder.objectToEntry(members, new DataOutputStream(output));
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -240,9 +237,9 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         if (!primordial && members == null) {
             componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
         } else {
-            TupleOutput output = new TupleOutput();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (members != null) {
-                binder.objectToEntry(members, output);
+                binder.objectToEntry(members, new DataOutputStream(output));
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -260,19 +257,22 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         assert start != null : "start is null. end: " + end;
         assert end != null : "end is null. start: " + start;
         byte[] output;
-        
-        TupleInput readWriteInput = conceptData.getReadWriteTupleInput();
-        byte[] bufferBytes = readWriteInput.getBufferBytes();
+
+
+        ConceptDataSimpleReference cdsr = (ConceptDataSimpleReference) conceptData;
+        byte[] bufferBytes = cdsr.getMutableBytes();
+        DataInputStream readWriteInput = new DataInputStream(new ByteArrayInputStream(bufferBytes));
+
         if (bufferBytes.length > OFFSETS.getHeaderSize()) {
             int offset = start.getOffset(bufferBytes);
             int endOffset = end.getOffset(bufferBytes);
             int byteCount = endOffset - offset;
-            readWriteInput.skipFast(offset);
+            readWriteInput.skip(offset);
             assert byteCount >= 0 : " neg byteCount: " + byteCount
                     + " start offset: " + offset + " end offset: " + endOffset
                     + " start: " + start + " end: " + end;
             output = new byte[byteCount];
-            System.arraycopy(readWriteInput.getBufferBytes(), offset, output, 0,
+            System.arraycopy(cdsr.getMutableBytes(), offset, output, 0,
                     byteCount);
         } else {
             output = zeroOutputArray;

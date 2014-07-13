@@ -1,11 +1,8 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.*;
@@ -13,7 +10,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
@@ -140,10 +137,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @throws IOException
      */
-    protected ConceptComponent(int enclosingConceptNid, TupleInput input) throws IOException {
+    protected ConceptComponent(int enclosingConceptNid, DataInputStream input) throws IOException {
         super();
         this.enclosingConceptNid = enclosingConceptNid;
-        readComponentFromBdb(input);
+        readComponentFromStream(input);
 
         int cNid = P.s.getConceptNidForNid(nid);
 
@@ -274,7 +271,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          *
          * @return
          */
-        public static IDENTIFIER_PART_TYPES readType(TupleInput input) {
+        public static IDENTIFIER_PART_TYPES readType(DataInputStream input) throws IOException {
             int partTypeId = input.readByte();
 
             switch (partTypeId) {
@@ -297,7 +294,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          *
          * @param output
          */
-        public void writeType(TupleOutput output) {
+        public void writeType(DataOutput output) throws IOException {
             output.writeByte(partTypeId);
         }
 
@@ -1098,7 +1095,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @param input
      */
-    private void readAnnotationsFromBdb(TupleInput input) {
+    private void readAnnotationsFromStream(DataInputStream input) throws IOException {
         annotations = annotationWriter.entryToObject(input, enclosingConceptNid);
         annotationsDynamic = annotationWriter.entryDynamicToObject(input, enclosingConceptNid);
     }
@@ -1109,15 +1106,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @param input
      */
-    public final void readComponentFromBdb(TupleInput input) {
+    public final void readComponentFromStream(DataInputStream input) throws IOException {
         this.nid = input.readInt();
         this.primordialMsb = input.readLong();
         this.primordialLsb = input.readLong();
         this.primordialStamp = input.readInt();
         assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
-        readIdentifierFromBdb(input);
-        readAnnotationsFromBdb(input);
-        readFromBdb(input);
+        readIdentifierFromDataStream(input);
+        readAnnotationsFromStream(input);
+        readFromDataStream(input);
     }
 
     /**
@@ -1126,7 +1123,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @param input
      */
-    public abstract void readFromBdb(TupleInput input);
+    public abstract void readFromDataStream(DataInputStream input) throws IOException;
 
     /**
      * Method description
@@ -1134,7 +1131,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @param input
      */
-    private void readIdentifierFromBdb(TupleInput input) {
+    private void readIdentifierFromDataStream(DataInputStream input) throws IOException {
 
         // nid, list size, and conceptNid are read already by the binder...
         int listSize = input.readShort();
@@ -1557,7 +1554,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @param output
      * @param maxReadOnlyStatusAtPositionNid
      */
-    private void writeAnnotationsToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
+    private void writeAnnotationsToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
         annotationWriter.objectToEntry(annotations, output, maxReadOnlyStatusAtPositionNid);
         annotationWriter.objectDynamicToEntry(annotationsDynamic, output, maxReadOnlyStatusAtPositionNid);
     }
@@ -1569,7 +1566,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @param output
      * @param maxReadOnlyStatusAtPositionNid
      */
-    public final void writeComponentToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
+    public final void writeComponentToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
         assert nid != 0;
         assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         assert primordialStamp != Integer.MAX_VALUE;
@@ -1589,7 +1586,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @param output
      * @param maxStamp
      */
-    private void writeIdentifierToBdb(TupleOutput output, int maxStamp) {
+    private void writeIdentifierToBdb(DataOutput output, int maxStamp) throws IOException {
         List<IdentifierVersion> partsToWrite = new ArrayList<>();
 
         if (additionalIdVersions != null) {
@@ -1616,7 +1613,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @param output
      * @param maxReadOnlyStatusAtPositionNid
      */
-    public abstract void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid);
+    public abstract void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException;
 
     /**
      * Method description
@@ -2673,7 +2670,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @return
      */
-    public static boolean isCanceled(TupleInput input) {
+    public static boolean isCanceled(DataInputStream input) throws IOException {
         int nid = input.readInt();
         int primordialSapNid = input.readInt();
 

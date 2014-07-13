@@ -2,32 +2,28 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_long
-   .RefexNidNidNidLongAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_long.RefexNidNidNidLongAnalogBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long
-   .TtkRefexUuidUuidUuidLongRevision;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyVetoException;
-
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+//~--- JDK imports ------------------------------------------------------------
 
 public class NidNidNidLongRevision
         extends RefexRevision<NidNidNidLongRevision, NidNidNidLongMember>
@@ -60,8 +56,8 @@ public class NidNidNidLongRevision
       long1 = eVersion.getLong1();
    }
 
-   public NidNidNidLongRevision(TupleInput input,
-                                 NidNidNidLongMember primoridalMember) {
+   public NidNidNidLongRevision(DataInputStream input,
+                                 NidNidNidLongMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       nid1  = input.readInt();
       nid2  = input.readInt();
@@ -178,7 +174,7 @@ public class NidNidNidLongRevision
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeInt(nid1);
       output.writeInt(nid2);
       output.writeInt(nid3);

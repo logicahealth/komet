@@ -1,15 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -29,6 +21,16 @@ import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class Revision<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
         implements ComponentVersionBI, AnalogBI, AnalogGeneratorBI<V> {
@@ -56,7 +58,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        this.primordialComponent.getEnclosingConcept().modified(); //TODO-AKF: modified
     }
 
-    public Revision(TupleInput input, C conceptComponent) {
+    public Revision(DataInputStream input, C conceptComponent) throws IOException {
         this(input.readInt(), conceptComponent);
         conceptComponent.clearVersions();
         assert stamp != 0;
@@ -244,9 +246,9 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.versionsEqual(vc1, vc2, compareAuthoring);
     }
 
-    protected abstract void writeFieldsToBdb(TupleOutput output);
+    protected abstract void writeFieldsToBdb(DataOutput output) throws IOException;
 
-    public final void writeRevisionBdb(TupleOutput output) {
+    public final void writeRevisionBdb(DataOutput output) throws IOException {
         output.writeInt(stamp);
         writeFieldsToBdb(output);
     }

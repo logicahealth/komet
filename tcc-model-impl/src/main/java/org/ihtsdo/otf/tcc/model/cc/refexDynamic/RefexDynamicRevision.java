@@ -19,6 +19,9 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,8 +44,6 @@ import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 
 /**
  * {@link RefexDynamicRevision}
@@ -69,7 +70,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
                  P.s.getNidForUuids(eVersion.getModuleUuid()), P.s.getNidForUuids(eVersion.getPathUuid()),  member);
     }
 
-    public RefexDynamicRevision(TupleInput input, RefexDynamicMember primordialComponent) {
+    public RefexDynamicRevision(DataInputStream input, RefexDynamicMember primordialComponent) throws IOException {
         super(input, primordialComponent);
     }
 
@@ -206,7 +207,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     @Override
-    protected void writeFieldsToBdb(TupleOutput output) {
+    protected void writeFieldsToBdb(DataOutput output) throws IOException {
         //Write with the following format - 
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
         output.writeInt(getData().length);

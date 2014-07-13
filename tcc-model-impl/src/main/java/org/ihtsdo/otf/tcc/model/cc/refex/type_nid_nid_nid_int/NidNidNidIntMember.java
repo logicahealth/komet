@@ -2,9 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class NidNidNidIntMember
       super();
    }
 
-   public NidNidNidIntMember(int enclosingConceptNid, TupleInput input)
+   public NidNidNidIntMember(int enclosingConceptNid, DataInputStream input)
            throws IOException {
       super(enclosingConceptNid, input);
    }
@@ -123,7 +124,7 @@ public class NidNidNidIntMember
    }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
+   protected void readMemberFields(DataInputStream input) throws IOException {
       nid1 = input.readInt();
       nid2 = input.readInt();
       nid3 = input.readInt();
@@ -131,7 +132,7 @@ public class NidNidNidIntMember
    }
 
    @Override
-   protected final NidNidNidIntRevision readMemberRevision(TupleInput input) {
+   protected final NidNidNidIntRevision readMemberRevision(DataInputStream input) throws IOException {
       return new NidNidNidIntRevision(input, this);
    }
 
@@ -193,7 +194,7 @@ public class NidNidNidIntMember
    }
 
    @Override
-   protected void writeMember(TupleOutput output) {
+   protected void writeMember(DataOutput output) throws IOException {
       output.writeInt(nid1);
       output.writeInt(nid2);
       output.writeInt(nid3);

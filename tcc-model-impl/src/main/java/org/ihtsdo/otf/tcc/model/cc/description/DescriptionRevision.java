@@ -2,8 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -75,15 +76,15 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
       stamp                 = P.s.getStamp(edv);
    }
 
-   protected DescriptionRevision(TupleInput input, Description primoridalMember) {
+   protected DescriptionRevision(DataInputStream input, Description primoridalMember) throws IOException {
       super(input, primoridalMember);
-      text = input.readString();
+      text = input.readUTF();
 
       if (text == null) {
          text = primoridalMember.getText();
       }
 
-      lang = input.readString();
+      lang = input.readUTF();
 
       if (lang == null) {
          lang = primoridalMember.getLang();
@@ -240,17 +241,17 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       if (text.equals(primordialComponent.getText())) {
-         output.writeString((String) null);
+         output.writeUTF((String) null);
       } else {
-         output.writeString(text);
+         output.writeUTF(text);
       }
 
       if (lang.equals(primordialComponent.getLang())) {
-         output.writeString((String) null);
+         output.writeUTF((String) null);
       } else {
-         output.writeString(lang);
+         output.writeUTF(lang);
       }
 
       output.writeBoolean(initialCaseSignificant);

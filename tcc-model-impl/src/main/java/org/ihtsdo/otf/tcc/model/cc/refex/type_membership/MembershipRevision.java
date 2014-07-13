@@ -2,27 +2,24 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;
 
 public class MembershipRevision extends RefexRevision<MembershipRevision, MembershipMember> 
     implements RefexMemberAnalogBI<MembershipRevision> {
@@ -38,7 +35,7 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
       super(eVersion, member);
    }
 
-   public MembershipRevision(TupleInput input, MembershipMember primoridalMember) {
+   public MembershipRevision(DataInputStream input, MembershipMember primoridalMember) throws IOException {
       super(input, primoridalMember);
    }
 
@@ -122,7 +119,7 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) {
 
       // nothing to write
    }

@@ -1,9 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -44,7 +46,7 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
         intValue = eVersion.getIntValue();
     }
 
-    public NidIntRevision(TupleInput input, NidIntMember primoridalMember) {
+    public NidIntRevision(DataInputStream input, NidIntMember primoridalMember) throws IOException {
         super(input, primoridalMember);
         c1Nid = input.readInt();
         intValue = input.readInt();
@@ -137,7 +139,7 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
     }
 
     @Override
-    protected void writeFieldsToBdb(TupleOutput output) {
+    protected void writeFieldsToBdb(DataOutput output) throws IOException {
         output.writeInt(c1Nid);
         output.writeInt(intValue);
     }

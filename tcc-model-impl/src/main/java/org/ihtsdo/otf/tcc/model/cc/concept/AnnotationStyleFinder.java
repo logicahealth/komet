@@ -13,33 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.cc.component;
-
-import com.sleepycat.bind.tuple.TupleBinding;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+package org.ihtsdo.otf.tcc.model.cc.concept;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
+
+import java.io.DataInputStream;
+import java.io.IOException;
 
 /**
  *
  * @author maestro
  */
-public class AnnotationStyleBinder extends TupleBinding<Boolean> {
+public class AnnotationStyleFinder  {
 
-    private static AnnotationStyleBinder binder = new AnnotationStyleBinder();
-
-    public static AnnotationStyleBinder getBinder() {
-        return binder;
-    }
-
-    @Override
-    public Boolean entryToObject(TupleInput ti) {
-        ti.skipFast(OFFSETS.ANNOTATION_STYLE_REFSET.getOffset());
+    public static Boolean entryToObject(DataInputStream ti) throws IOException {
+        ti.skipBytes(OFFSETS.ANNOTATION_STYLE_REFSET.getOffset());
         return ti.readByte() >= 1;
-    }
-
-    @Override
-    public void objectToEntry(Boolean arg0, TupleOutput to) {
-        throw new UnsupportedOperationException();
     }
 }

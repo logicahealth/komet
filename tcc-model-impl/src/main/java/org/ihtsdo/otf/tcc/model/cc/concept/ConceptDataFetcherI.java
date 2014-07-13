@@ -1,18 +1,19 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.sleepycat.bind.tuple.TupleInput;
 
 public interface ConceptDataFetcherI {
 
     byte[] getReadOnlyBytes() throws IOException;
 
-    byte[] getReadWriteBytes() throws IOException;
+    byte[] getMutableBytes() throws IOException;
 
-    TupleInput getReadOnlyTupleInput() throws IOException;
+    DataInputStream getReadOnlyDataStream() throws IOException;
 
-    TupleInput getMutableTupleInput() throws IOException;
+    DataInputStream getMutableInputStream() throws IOException;
 
     boolean isPrimordial() throws IOException;
 

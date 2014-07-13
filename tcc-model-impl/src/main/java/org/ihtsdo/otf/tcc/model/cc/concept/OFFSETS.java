@@ -3,7 +3,9 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import com.sleepycat.bind.tuple.TupleInput;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public enum OFFSETS {
 	FORMAT_VERSION(4, null),
@@ -39,10 +41,11 @@ public enum OFFSETS {
 		this.prev = prev;
 	}
 	
-	public int getOffset(byte[] data) {
-		TupleInput offsetInput = new TupleInput(data);
-		offsetInput.skipFast(offset);
-		return offsetInput.readInt();
+	public int getOffset(byte[] data) throws IOException {
+        ByteArrayInputStream offsetInput = new ByteArrayInputStream(data);
+        DataInputStream dis = new DataInputStream(offsetInput);
+		offsetInput.skip(offset);
+		return dis.readInt();
 	}
 
 	public int getOffset() {

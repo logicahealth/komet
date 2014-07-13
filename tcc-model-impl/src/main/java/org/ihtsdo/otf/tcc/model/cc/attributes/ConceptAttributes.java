@@ -1,12 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -41,7 +41,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         super();
     }
 
-    public ConceptAttributes(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
+    public ConceptAttributes(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
         super(enclosingConcept.getNid(), input);
         assert this.nid == enclosingConcept.getNid(): "[1] nid and cNid don't match: " + 
                 enclosingConcept + "\n\n" + this;
@@ -120,7 +120,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
+    public void readFromDataStream(DataInputStream input) {
         try {
 
             // nid, list size, and conceptNid are read already by the binder...
@@ -217,7 +217,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStamp) {
+    public void writeToBdb(DataOutput output, int maxReadOnlyStamp) throws IOException {
         List<ConceptAttributesRevision> partsToWrite = new ArrayList<>();
 
         if (revisions != null) {

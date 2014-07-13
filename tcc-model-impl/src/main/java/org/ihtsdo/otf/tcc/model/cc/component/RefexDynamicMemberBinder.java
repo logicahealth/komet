@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,17 +15,14 @@ import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.I_BindConceptComponents;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
-import com.sleepycat.bind.tuple.TupleBinding;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
 //~--- JDK imports ------------------------------------------------------------import java.io.IOException;
 
-public class RefexDynamicMemberBinder extends TupleBinding<Collection<RefexDynamicMember>> implements I_BindConceptComponents {
+public class RefexDynamicMemberBinder implements I_BindConceptComponents {
     public static AtomicInteger      encountered                   = new AtomicInteger();
     public static AtomicInteger      written                       = new AtomicInteger();
     private static int               maxReadOnlyStatusAtPositionId = P.s.getMaxReadOnlyStamp();
@@ -41,8 +40,8 @@ public class RefexDynamicMemberBinder extends TupleBinding<Collection<RefexDynam
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public Collection<RefexDynamicMember> entryToObject(TupleInput input) {
+
+    public Collection<RefexDynamicMember> entryToObject(DataInputStream input) throws IOException {
         assert enclosingConcept != null;
 
         int                                 listSize = input.readInt();
@@ -91,7 +90,7 @@ public class RefexDynamicMemberBinder extends TupleBinding<Collection<RefexDynam
                         }
                     }
 
-                    refsetMember.readComponentFromBdb(input);
+                    refsetMember.readComponentFromStream(input);
                 } else {
                     try {
                         if (refsetMember == null) {
@@ -141,8 +140,8 @@ public class RefexDynamicMemberBinder extends TupleBinding<Collection<RefexDynam
         return newRefsetMemberList;
     }
 
-    @Override
-    public void objectToEntry(Collection<RefexDynamicMember> list, TupleOutput output) {
+
+    public void objectToEntry(Collection<RefexDynamicMember> list, DataOutputStream output) throws IOException {
         List<RefexDynamicMember> refsetMembersToWrite = new ArrayList<>(list.size());
 
         for (RefexDynamicMember refsetMember : list) {

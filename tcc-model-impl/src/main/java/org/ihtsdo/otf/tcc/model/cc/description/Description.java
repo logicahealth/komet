@@ -1,14 +1,14 @@
 package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -51,7 +51,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         super();
     }
 
-    public Description(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
+    public Description(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
         super(enclosingConcept.getNid(), input);
     }
 
@@ -165,10 +165,10 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
+    public void readFromDataStream(DataInputStream input) throws IOException {
         initialCaseSignificant = input.readBoolean();
-        lang = input.readString();
-        text = input.readString();
+        lang = input.readUTF();
+        text = input.readUTF();
         typeNid = input.readInt();
 
         // nid, list size, and conceptNid are read already by the binder...
@@ -281,7 +281,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
+    public void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
         List<DescriptionRevision> partsToWrite = new ArrayList<>();
 
         if (revisions != null) {
@@ -294,8 +294,8 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         }
 
         output.writeBoolean(initialCaseSignificant);
-        output.writeString(lang);
-        output.writeString(text);
+        output.writeUTF(lang);
+        output.writeUTF(text);
         output.writeInt(typeNid);
         output.writeShort(partsToWrite.size());
 

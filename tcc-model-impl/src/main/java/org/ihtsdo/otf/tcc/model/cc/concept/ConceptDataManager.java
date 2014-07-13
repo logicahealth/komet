@@ -4,14 +4,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ConcurrentSkipListSet;
+
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
@@ -21,6 +14,16 @@ import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * File format:<br>
@@ -107,7 +110,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    
    protected abstract void addToMemberMap(RefexDynamicMember refsetDynamicMember);
 
-   protected long checkFormatAndVersion(TupleInput input) throws UnsupportedEncodingException {
+   protected long checkFormatAndVersion(DataInputStream input) throws IOException {
       input.mark(128);
 
       int  formatVersion = input.readInt();

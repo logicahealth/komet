@@ -2,9 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
       this.longValue = eVersion.getLongValue();
    }
 
-   public LongRevision(TupleInput input, LongMember primoridalMember) {
+   public LongRevision(DataInputStream input, LongMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       longValue = input.readLong();
    }
@@ -127,7 +128,7 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeLong(longValue);
    }
 

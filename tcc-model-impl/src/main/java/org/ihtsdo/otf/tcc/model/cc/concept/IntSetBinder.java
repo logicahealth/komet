@@ -1,18 +1,17 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import com.sleepycat.bind.tuple.TupleBinding;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+public class IntSetBinder {
 
-public class IntSetBinder extends TupleBinding<Set<Integer>> {
 
-	@Override
-	public ConcurrentSkipListSet<Integer> entryToObject(TupleInput input) {
+	public ConcurrentSkipListSet<Integer> entryToObject(DataInputStream input) throws IOException {
 		int size = input.readInt();
 		List<Integer> setValues = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
@@ -21,8 +20,8 @@ public class IntSetBinder extends TupleBinding<Set<Integer>> {
 		return new ConcurrentSkipListSet<>(setValues);
 	}
 
-	@Override
-	public void objectToEntry(Set<Integer> set, TupleOutput output) {
+
+	public void objectToEntry(Set<Integer> set, DataOutputStream output) throws IOException {
 		output.writeInt(set.size());
 		for (int nid: set) {
 			output.writeInt(nid);

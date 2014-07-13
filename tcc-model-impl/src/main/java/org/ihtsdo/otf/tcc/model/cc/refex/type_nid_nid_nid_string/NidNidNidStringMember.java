@@ -2,26 +2,14 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.apache.mahout.math.list
-   .IntArrayList;
-import org.ihtsdo.otf.tcc.api.blueprint
-   .ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidStringAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string
-   .RefexNidNidNidStringVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string
-   .TtkRefexUuidUuidUuidStringMemberChronicle;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidStringVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
@@ -29,6 +17,15 @@ import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidNidNidStringMember
         extends RefexMember<NidNidNidStringRevision, NidNidNidStringMember>
@@ -45,7 +42,7 @@ public class NidNidNidStringMember
       super();
    }
 
-   public NidNidNidStringMember(int enclosingConceptNid, TupleInput input)
+   public NidNidNidStringMember(int enclosingConceptNid, DataInputStream input)
            throws IOException {
       super(enclosingConceptNid, input);
    }
@@ -125,15 +122,15 @@ public class NidNidNidStringMember
    }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
+   protected void readMemberFields(DataInputStream input) throws IOException {
       nid1 = input.readInt();
       nid2 = input.readInt();
       nid3 = input.readInt();
-      string1 = input.readString();
+      string1 = input.readUTF();
    }
 
    @Override
-   protected final NidNidNidStringRevision readMemberRevision(TupleInput input) {
+   protected final NidNidNidStringRevision readMemberRevision(DataInputStream input) throws IOException {
       return new NidNidNidStringRevision(input, this);
    }
 
@@ -194,11 +191,11 @@ public class NidNidNidStringMember
    }
 
    @Override
-   protected void writeMember(TupleOutput output) {
+   protected void writeMember(DataOutput output) throws IOException {
       output.writeInt(nid1);
       output.writeInt(nid2);
       output.writeInt(nid3);
-      output.writeString(string1);
+      output.writeUTF(string1);
    }
 
    @Override

@@ -1,5 +1,14 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_BindConceptComponents;
+import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,21 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.concept.I_BindConceptComponents;
-
-import com.sleepycat.bind.tuple.TupleBinding;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import com.sleepycat.je.DatabaseEntry;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
-
 public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
-        extends TupleBinding<Collection<C>>
-        implements I_BindConceptComponents {
+         implements I_BindConceptComponents {
 
     private static final int maxReadOnlyStatusAtPositionId =
             P.s.getMaxReadOnlyStamp();
@@ -46,16 +42,13 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public ArrayList<C> entryToObject(TupleInput input) {
+    public ArrayList<C> entryToObject(DataInputStream input) throws IOException {
         assert enclosingConcept != null : "enclosing concept cannot be null.";
         int listSize = input.readInt();
         assert listSize >= 0 : "Processing nid: " + enclosingConcept.getNid()
-                + " listSize: " + listSize
-                + "\ndata: " + new DatabaseEntry(input.getBufferBytes()).toString();
+                + " listSize: " + listSize;
         assert listSize < 1000000 : "Processing nid: " + enclosingConcept.getNid()
-                + " listSize: " + listSize
-                + "\ndata: " + new DatabaseEntry(input.getBufferBytes()).toString();
+                + " listSize: " + listSize;
         if (readOnlyConceptComponentList != null) {
             readOnlyConceptComponentList.ensureCapacity(listSize
                     + readOnlyConceptComponentList.size());
@@ -126,8 +119,7 @@ public class ConceptComponentBinder<V extends Revision<V, C>, C extends ConceptC
         return newConceptComponentList;
     }
 
-    @Override
-    public void objectToEntry(Collection<C> conceptComponentList, TupleOutput output) {
+    public void objectToEntry(Collection<C> conceptComponentList, DataOutputStream output) throws IOException {
         List<C> componentListToWrite = new ArrayList<>(conceptComponentList.size());
         for (C conceptComponent : conceptComponentList) {
             componentsEncountered.incrementAndGet();

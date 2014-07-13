@@ -19,8 +19,6 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 
-import java.beans.PropertyVetoException;
-import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
@@ -30,7 +28,11 @@ import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import com.sleepycat.bind.tuple.TupleInput;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 /**
  * 
@@ -54,7 +56,7 @@ public class RefexDynamicMemberFactory {
    }
 
 
-   public static RefexDynamicMember create(int nid, int enclosingConceptNid, TupleInput input)
+   public static RefexDynamicMember create(int nid, int enclosingConceptNid, DataInputStream input)
            throws IOException 
    {
        return new RefexDynamicMember(enclosingConceptNid, input);

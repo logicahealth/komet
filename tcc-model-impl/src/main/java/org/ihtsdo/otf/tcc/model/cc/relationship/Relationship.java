@@ -1,11 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
 import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -71,7 +72,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       super();
    }
 
-   public Relationship(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
+   public Relationship(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
       super(enclosingConcept.getNid(), input);
    }
 
@@ -222,16 +223,16 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public void readFromBdb(TupleInput input) {
+   public void readFromDataStream(DataInputStream input) throws IOException {
 
       // nid, list size, and conceptNid are read already by the binder...
       c2Nid             = input.readInt();
       characteristicNid = input.readInt();
-      group             = input.readSortedPackedInt();
+      group             = input.readInt();
       refinabilityNid   = input.readInt();
       typeNid           = input.readInt();
 
-      int additionalVersionCount = input.readSortedPackedInt();
+      int additionalVersionCount = input.readInt();
 
       if (additionalVersionCount > 0) {
          revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
@@ -351,7 +352,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public void writeToBdb(TupleOutput output, int maxReadOnlyStamp) {
+   public void writeToBdb(DataOutput output, int maxReadOnlyStamp) throws IOException {
 
       //
       List<RelationshipRevision> revisionsToWrite = new ArrayList<>();
@@ -368,10 +369,10 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       // c1Nid is the enclosing concept, does not need to be written.
       output.writeInt(c2Nid);
       output.writeInt(getCharacteristicNid());
-      output.writeSortedPackedInt(group);
+      output.writeInt(group);
       output.writeInt(getRefinabilityNid());
       output.writeInt(getTypeNid());
-      output.writeSortedPackedInt(revisionsToWrite.size());
+      output.writeInt(revisionsToWrite.size());
 
       for (RelationshipRevision p : revisionsToWrite) {
          p.writeRevisionBdb(output);

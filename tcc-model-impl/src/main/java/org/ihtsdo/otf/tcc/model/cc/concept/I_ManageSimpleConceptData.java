@@ -15,7 +15,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import com.sleepycat.bind.tuple.TupleInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -29,7 +29,7 @@ public interface I_ManageSimpleConceptData extends I_ManageConceptData{
 
     byte[] getReadWriteBytes() throws IOException;
 
-    TupleInput getReadWriteTupleInput() throws IOException;
+    DataInputStream getMutableDataStream() throws IOException;
 
     void resetNidData();
 

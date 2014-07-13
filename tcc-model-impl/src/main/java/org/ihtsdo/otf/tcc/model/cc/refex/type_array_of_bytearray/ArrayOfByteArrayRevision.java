@@ -15,24 +15,25 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayAnalogBI;
+import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 /**
  *
@@ -71,14 +72,14 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
       this.arrayOfByteArray = eVersion.getArrayOfByteArray1();
    }
 
-   public ArrayOfByteArrayRevision(TupleInput in, ArrayOfByteArrayMember primoridalMember) {
+   public ArrayOfByteArrayRevision(DataInputStream in, ArrayOfByteArrayMember primoridalMember) throws IOException {
       super(in, primoridalMember);
       int arrayLength = in.readShort();
       this.arrayOfByteArray = new byte[arrayLength][];
       for (int i = 0; i < arrayLength; i++) {
           int byteArrayLength = in.readInt();
           this.arrayOfByteArray[i] = new byte[byteArrayLength];
-          in.read(this.arrayOfByteArray[i], 0, byteArrayLength);
+          in.readFully(this.arrayOfByteArray[i], 0, byteArrayLength);
       }
    }
 
@@ -176,7 +177,7 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput out) {
+   protected void writeFieldsToBdb(DataOutput out) throws IOException {
       out.writeShort(arrayOfByteArray.length);
       for (byte[] bytes: arrayOfByteArray) {
         out.writeInt(bytes.length);  

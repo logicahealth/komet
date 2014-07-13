@@ -1,14 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -159,7 +157,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public static final int DATA_VERSION = 0;
     @Override
-    public void writeExternal(DataOutput out) throws IOException {
+    public void writeExternal(DataOutputStream out) throws IOException {
         if (canceled) {
             throw new UnsupportedOperationException();
         }

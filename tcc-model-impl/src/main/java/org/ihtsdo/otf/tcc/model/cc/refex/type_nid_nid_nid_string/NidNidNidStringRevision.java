@@ -2,32 +2,28 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string
-   .RefexNidNidNidStringAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidStringAnalogBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringRevision;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string
-   .TtkRefexUuidUuidUuidStringRevision;
-
-//~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyVetoException;
-
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+//~--- JDK imports ------------------------------------------------------------
 
 public class NidNidNidStringRevision
         extends RefexRevision<NidNidNidStringRevision, NidNidNidStringMember>
@@ -60,13 +56,13 @@ public class NidNidNidStringRevision
       string1 = eVersion.getString1();
    }
 
-   public NidNidNidStringRevision(TupleInput input,
-                                 NidNidNidStringMember primoridalMember) {
+   public NidNidNidStringRevision(DataInputStream input,
+                                 NidNidNidStringMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       nid1  = input.readInt();
       nid2  = input.readInt();
       nid3  = input.readInt();
-      string1 = input.readString();
+      string1 = input.readUTF();
    }
 
    public NidNidNidStringRevision(Status status, long time, int authorNid,
@@ -178,11 +174,11 @@ public class NidNidNidStringRevision
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeInt(nid1);
       output.writeInt(nid2);
       output.writeInt(nid3);
-      output.writeString(string1);
+      output.writeUTF(string1);
    }
 
    @Override

@@ -1,8 +1,9 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -66,10 +67,10 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         this.stamp = P.s.getStamp(erv);
     }
 
-    public RelationshipRevision(TupleInput input, Relationship primordialRel) {
+    public RelationshipRevision(DataInputStream input, Relationship primordialRel) throws IOException {
         super(input.readInt(), primordialRel);
         this.characteristicNid = input.readInt();
-        this.group = input.readSortedPackedInt();
+        this.group = input.readInt();
         this.refinabilityNid = input.readInt();
     }
 
@@ -201,9 +202,9 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public void writeFieldsToBdb(TupleOutput output) {
+    public void writeFieldsToBdb(DataOutput output) throws IOException {
         output.writeInt(characteristicNid);
-        output.writeSortedPackedInt(group);
+        output.writeInt(group);
         output.writeInt(refinabilityNid);
         output.writeInt(typeNid);
     }

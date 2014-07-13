@@ -2,27 +2,24 @@ package org.ihtsdo.otf.tcc.model.cc.identifier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.id.IdBI;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 //import org.ihtsdo.db.bdb.Bdb;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
 //~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.util.*;
-import java.util.Date;
-import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 public abstract class IdentifierVersion implements IdBI {
    protected int authorityNid;
@@ -43,7 +40,7 @@ public abstract class IdentifierVersion implements IdBI {
       this.authorityNid = P.s.getNidForUuids(idv.getAuthorityUuid());
    }
 
-   protected IdentifierVersion(TupleInput input) {
+   protected IdentifierVersion(DataInputStream input) throws IOException {
       super();
       stamp     = input.readInt();
       authorityNid = input.readInt();
@@ -129,13 +126,13 @@ public abstract class IdentifierVersion implements IdBI {
       return buf.toString();
    }
 
-   public final void writeIdPartToBdb(TupleOutput output) {
+   public final void writeIdPartToBdb(DataOutput output) throws IOException {
       output.writeInt(stamp);
       output.writeInt(authorityNid);
       writeSourceIdToBdb(output);
    }
 
-   protected abstract void writeSourceIdToBdb(TupleOutput output);
+   protected abstract void writeSourceIdToBdb(DataOutput output) throws IOException;
 
    //~--- get methods ---------------------------------------------------------
 

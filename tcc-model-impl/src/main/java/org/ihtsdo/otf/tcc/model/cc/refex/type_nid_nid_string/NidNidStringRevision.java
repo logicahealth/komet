@@ -2,10 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
 
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -21,6 +17,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuid
 
 import java.beans.PropertyVetoException;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -54,11 +53,11 @@ public class NidNidStringRevision extends RefexRevision<NidNidStringRevision, Ni
       string1 = eVersion.getString1();
    }
 
-   public NidNidStringRevision(TupleInput input, NidNidStringMember primoridalMember) {
+   public NidNidStringRevision(DataInputStream input, NidNidStringMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       c1Nid    = input.readInt();
       c2Nid    = input.readInt();
-      string1 = input.readString();
+      string1 = input.readUTF();
    }
 
    public NidNidStringRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
@@ -157,10 +156,10 @@ public class NidNidStringRevision extends RefexRevision<NidNidStringRevision, Ni
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeInt(c1Nid);
       output.writeInt(c2Nid);
-      output.writeString(string1);
+      output.writeUTF(string1);
    }
 
    //~--- get methods ---------------------------------------------------------

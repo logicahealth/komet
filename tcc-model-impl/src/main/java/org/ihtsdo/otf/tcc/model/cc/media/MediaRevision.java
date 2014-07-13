@@ -2,9 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.media;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 
@@ -57,9 +57,9 @@ public class MediaRevision extends Revision<MediaRevision, Media>
       this.typeNid         = P.s.getNidForUuids(eiv.getTypeUuid());
    }
 
-   protected MediaRevision(TupleInput input, Media primoridalMember) {
+   protected MediaRevision(DataInputStream input, Media primoridalMember) throws IOException {
       super(input.readInt(), primoridalMember);
-      this.textDescription = input.readString();
+      this.textDescription = input.readUTF();
       this.typeNid         = input.readInt();
    }
 
@@ -163,8 +163,8 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeString(textDescription);
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
+      output.writeUTF(textDescription);
       output.writeInt(typeNid);
    }
 

@@ -2,10 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleBinding;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -17,6 +13,8 @@ import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
-public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>>> implements I_BindConceptComponents {
+public class RefexMemberBinder implements I_BindConceptComponents {
     public static AtomicInteger      encountered                   = new AtomicInteger();
     public static AtomicInteger      written                       = new AtomicInteger();
     private static int               maxReadOnlyStatusAtPositionId = P.s.getMaxReadOnlyStamp();
@@ -44,8 +42,7 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public Collection<RefexMember<?, ?>> entryToObject(TupleInput input) {
+    public Collection<RefexMember<?, ?>> entryToObject(DataInputStream input) throws IOException {
         assert enclosingConcept != null;
 
         int                                 listSize = input.readInt();
@@ -96,7 +93,7 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
                         }
                     }
 
-                    refsetMember.readComponentFromBdb(input);
+                    refsetMember.readComponentFromStream(input);
                 } else {
                     try {
                         if (refsetMember == null) {
@@ -148,8 +145,8 @@ public class RefexMemberBinder extends TupleBinding<Collection<RefexMember<?, ?>
         return newRefsetMemberList;
     }
 
-    @Override
-    public void objectToEntry(Collection<RefexMember<?, ?>> list, TupleOutput output) {
+
+    public void objectToEntry(Collection<RefexMember<?, ?>> list, DataOutputStream output) throws IOException {
         List<RefexMember<?, ?>> refsetMembersToWrite = new ArrayList<>(list.size());
 
         for (RefexMember<?, ?> refsetMember : list) {

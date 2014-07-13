@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +15,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
+import org.ihtsdo.otf.tcc.model.cc.component.RefexDynamicMemberBinder;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidList;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
@@ -881,17 +884,17 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       binder.setupBinder(enclosingConcept);
 
       ArrayList<C> componentList;
-      TupleInput   readOnlyInput = nidData.getReadOnlyTupleInput();
+      DataInputStream readOnlyInput = nidData.getReadOnlyDataStream();
 
       if (readOnlyInput.available() > 0) {
          checkFormatAndVersion(readOnlyInput);
          readOnlyInput.mark(128);
-         readOnlyInput.skipFast(offset.offset);
+         readOnlyInput.skip(offset.offset);
 
          int listStart = readOnlyInput.readInt();
 
          readOnlyInput.reset();
-         readOnlyInput.skipFast(listStart);
+         readOnlyInput.skip(listStart);
          componentList = binder.entryToObject(readOnlyInput);
       } else {
          componentList = new ArrayList<>();
@@ -900,18 +903,18 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       assert componentList != null;
       binder.setTermComponentList(componentList);
 
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
+       DataInputStream mutableInput = nidData.getMutableInputStream();
 
-      if (readWriteInput.available() > 0) {
-         checkFormatAndVersion(readWriteInput);
-         readWriteInput.mark(128);
-         readWriteInput.skipFast(offset.offset);
+      if (mutableInput.available() > 0) {
+         checkFormatAndVersion(mutableInput);
+         mutableInput.mark(128);
+         mutableInput.skip(offset.offset);
 
-         int listStart = readWriteInput.readInt();
+         int listStart = mutableInput.readInt();
 
-         readWriteInput.reset();
-         readWriteInput.skipFast(listStart);
-         componentList = binder.entryToObject(readWriteInput);
+         mutableInput.reset();
+         mutableInput.skip(listStart);
+         componentList = binder.entryToObject(mutableInput);
       }
 
       return componentList;
@@ -923,17 +926,17 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       binder.setupBinder(enclosingConcept);
 
       Collection<RefexMember<?, ?>> componentList;
-      TupleInput                     readOnlyInput = nidData.getReadOnlyTupleInput();
+       DataInputStream                     readOnlyInput = nidData.getReadOnlyDataStream();
 
       if (readOnlyInput.available() > 0) {
          checkFormatAndVersion(readOnlyInput);
          readOnlyInput.mark(128);
-         readOnlyInput.skipFast(offset.offset);
+         readOnlyInput.skip(offset.offset);
 
          int listStart = readOnlyInput.readInt();
 
          readOnlyInput.reset();
-         readOnlyInput.skipFast(listStart);
+         readOnlyInput.skip(listStart);
          componentList = binder.entryToObject(readOnlyInput);
       } else {
          componentList = new ArrayList<>();
@@ -942,18 +945,18 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       assert componentList != null;
       binder.setTermComponentList(componentList);
 
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
+       DataInputStream readWriteInput = nidData.getMutableInputStream();
 
       if (readWriteInput.available() > 0) {
          readWriteInput.mark(128);
          checkFormatAndVersion(readWriteInput);
          readWriteInput.reset();
-         readWriteInput.skipFast(offset.offset);
+         readWriteInput.skip(offset.offset);
 
          int listStart = readWriteInput.readInt();
 
          readWriteInput.reset();
-         readWriteInput.skipFast(listStart);
+         readWriteInput.skip(listStart);
          componentList = binder.entryToObject(readWriteInput);
       }
 
@@ -966,17 +969,17 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       binder.setupBinder(enclosingConcept);
 
       Collection<RefexDynamicMember> componentList;
-      TupleInput                     readOnlyInput = nidData.getReadOnlyTupleInput();
+       DataInputStream                     readOnlyInput = nidData.getReadOnlyDataStream();
 
       if (readOnlyInput.available() > 0) {
          checkFormatAndVersion(readOnlyInput);
          readOnlyInput.mark(128);
-         readOnlyInput.skipFast(offset.offset);
+         readOnlyInput.skip(offset.offset);
 
          int listStart = readOnlyInput.readInt();
 
          readOnlyInput.reset();
-         readOnlyInput.skipFast(listStart);
+         readOnlyInput.skip(listStart);
          componentList = binder.entryToObject(readOnlyInput);
       } else {
          componentList = new ArrayList<>();
@@ -985,18 +988,18 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       assert componentList != null;
       binder.setTermComponentList(componentList);
 
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
+       DataInputStream readWriteInput = nidData.getMutableInputStream();
 
       if (readWriteInput.available() > 0) {
          readWriteInput.mark(128);
          checkFormatAndVersion(readWriteInput);
          readWriteInput.reset();
-         readWriteInput.skipFast(offset.offset);
+         readWriteInput.skip(offset.offset);
 
          int listStart = readWriteInput.readInt();
 
          readWriteInput.reset();
-         readWriteInput.skipFast(listStart);
+         readWriteInput.skip(listStart);
          componentList = binder.entryToObject(readWriteInput);
       }
 
@@ -1021,19 +1024,19 @@ public class ConceptDataSimpleReference extends ConceptDataManager
    }
 
    protected ConcurrentSkipListSet<Integer> getMutableIntSet(OFFSETS offset) throws IOException {
-      TupleInput mutableInput = nidData.getMutableTupleInput();
+      DataInputStream mutableInput = nidData.getMutableInputStream();
 
       if (mutableInput.available() < OFFSETS.getHeaderSize()) {
          return new ConcurrentSkipListSet<>();
       }
 
       mutableInput.mark(OFFSETS.getHeaderSize());
-      mutableInput.skipFast(offset.offset);
+      mutableInput.skip(offset.offset);
 
       int dataOffset = mutableInput.readInt();
 
       mutableInput.reset();
-      mutableInput.skipFast(dataOffset);
+      mutableInput.skip(dataOffset);
 
       IntSetBinder binder = new IntSetBinder();
 
@@ -1045,19 +1048,19 @@ public class ConceptDataSimpleReference extends ConceptDataManager
    }
 
    protected ConcurrentSkipListSet<Integer> getReadOnlyIntSet(OFFSETS offset) throws IOException {
-      TupleInput readOnlyInput = nidData.getReadOnlyTupleInput();
+       DataInputStream readOnlyInput = nidData.getReadOnlyDataStream();
 
       if (readOnlyInput.available() < OFFSETS.getHeaderSize()) {
          return new ConcurrentSkipListSet<>();
       }
 
       readOnlyInput.mark(OFFSETS.getHeaderSize());
-      readOnlyInput.skipFast(offset.offset);
+      readOnlyInput.skip(offset.offset);
 
       int dataOffset = readOnlyInput.readInt();
 
       readOnlyInput.reset();
-      readOnlyInput.skipFast(dataOffset);
+      readOnlyInput.skip(dataOffset);
 
       IntSetBinder binder = new IntSetBinder();
 
@@ -1489,10 +1492,13 @@ public class ConceptDataSimpleReference extends ConceptDataManager
    }
    
     @Override
-   public TupleInput getReadWriteTupleInput() throws IOException {
-      return nidData.getMutableTupleInput();
+   public DataInputStream getMutableDataStream() throws IOException {
+      return nidData.getMutableInputStream();
    }
-   
+
+    public byte[] getMutableBytes() throws IOException {
+        return nidData.getMutableBytes();
+    }
       /*
     * (non-Javadoc)
     *
@@ -1501,9 +1507,8 @@ public class ConceptDataSimpleReference extends ConceptDataManager
     */
    @Override
    public int getReadWriteDataVersion() throws InterruptedException, ExecutionException, IOException {
-      DataVersionBinder binder = DataVersionBinder.getBinder();
 
-      return binder.entryToObject(nidData.getMutableTupleInput());
+      return DataVersionFetcher.get(nidData.getMutableInputStream());
    }
    
       @Override
@@ -1513,7 +1518,7 @@ public class ConceptDataSimpleReference extends ConceptDataManager
 
    @Override
    public byte[] getReadWriteBytes() throws IOException {
-      return nidData.getReadWriteBytes();
+      return nidData.getMutableBytes();
    }
    
    @Override
@@ -1550,12 +1555,10 @@ public class ConceptDataSimpleReference extends ConceptDataManager
    
    @Override
    public boolean getIsAnnotationStyleRefex() throws IOException {
-      AnnotationStyleBinder binder            = AnnotationStyleBinder.getBinder();
-      TupleInput            readOnlyInput     = nidData.getReadOnlyTupleInput();
       boolean               isAnnotationStyle = false;
 
-      if (readOnlyInput.available() > 0) {
-         isAnnotationStyle = binder.entryToObject(readOnlyInput);
+      if (nidData.getReadOnlyDataStream().available() > 0) {
+         isAnnotationStyle = AnnotationStyleFinder.entryToObject(nidData.getReadOnlyDataStream());
       }
 
       return isAnnotationStyle;
@@ -1581,17 +1584,14 @@ public class ConceptDataSimpleReference extends ConceptDataManager
    }
    
    private long getDataVersion() throws IOException {
-      TupleInput readOnlyInput = nidData.getReadOnlyTupleInput();
       long       dataVersion   = Long.MIN_VALUE;
 
-      if (readOnlyInput.available() > 0) {
-         dataVersion = checkFormatAndVersion(readOnlyInput);
+      if (nidData.getReadOnlyDataStream().available() > 0) {
+         dataVersion = checkFormatAndVersion(nidData.getReadOnlyDataStream());
       }
 
-      TupleInput readWriteInput = nidData.getMutableTupleInput();
-
-      if (readWriteInput.available() > 0) {
-         dataVersion = checkFormatAndVersion(readWriteInput);
+      if (nidData.getMutableInputStream().available() > 0) {
+         dataVersion = checkFormatAndVersion(nidData.getMutableInputStream());
       }
 
       return dataVersion;

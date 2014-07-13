@@ -18,6 +18,9 @@
 
 package org.ihtsdo.otf.tcc.model.cc.component;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,8 +37,7 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
 
 /**
  *
@@ -52,7 +54,7 @@ public class AnnotationWriter {
    //~--- methods -------------------------------------------------------------
 
    @SuppressWarnings("unchecked")
-   public ConcurrentSkipListSet<RefexMember<?, ?>> entryToObject(TupleInput input, int enclosingConceptNid) {
+   public ConcurrentSkipListSet<RefexMember<?, ?>> entryToObject(DataInputStream input, int enclosingConceptNid) throws IOException {
       int listSize = input.readShort();
 
       if (listSize == 0) {
@@ -109,7 +111,7 @@ public class AnnotationWriter {
       return newRefsetMemberList;
    }
    
-   public ConcurrentSkipListSet<RefexDynamicMember> entryDynamicToObject(TupleInput input, int enclosingConceptNid) {
+   public ConcurrentSkipListSet<RefexDynamicMember> entryDynamicToObject(DataInputStream input, int enclosingConceptNid) throws IOException {
       int listSize = input.readShort();
 
       if (listSize == 0) {
@@ -164,8 +166,8 @@ public class AnnotationWriter {
    }
 
 
-   public void objectToEntry(Collection<RefexMember<?, ?>> list, TupleOutput output,
-                             int maxReadOnlyStatusAtPositionId) {
+   public void objectToEntry(Collection<RefexMember<?, ?>> list, DataOutput output,
+                             int maxReadOnlyStatusAtPositionId) throws IOException {
       if (list == null) {
          output.writeShort(0);    // List size
 
@@ -205,7 +207,7 @@ public class AnnotationWriter {
       }
    }
    
-   public void objectDynamicToEntry(Collection<RefexDynamicMember> list, TupleOutput output, int maxReadOnlyStatusAtPositionId) {
+   public void objectDynamicToEntry(Collection<RefexDynamicMember> list, DataOutput output, int maxReadOnlyStatusAtPositionId) throws IOException {
       if (list == null) {
          output.writeShort(0);    // List size
 

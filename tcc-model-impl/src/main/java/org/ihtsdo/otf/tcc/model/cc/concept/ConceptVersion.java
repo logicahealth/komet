@@ -2,7 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataOutput;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.ConstraintBI;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraint;
@@ -54,6 +53,7 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -90,7 +90,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    }
 
     @Override
-    public void writeExternal(DataOutput out) throws IOException {
+    public void writeExternal(DataOutputStream out) throws IOException {
         concept.writeExternal(out);
     }
 

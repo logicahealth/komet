@@ -15,11 +15,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -143,7 +139,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
         if (attributeBytes > 0) {
             byte[] bytes = new byte[attributeBytes];
             in.readFully(bytes);
-            this.conceptAttributes = new ConceptAttributes(this, new TupleInput(bytes));
+            this.conceptAttributes = new ConceptAttributes(this, new DataInputStream(new ByteArrayInputStream(bytes)));
         }
         int descriptionCount = in.readInt();
         if (descriptionCount > 0) {
@@ -153,7 +149,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                 if (byteCount > 0) {
                     byte[] bytes = new byte[byteCount];
                     in.readFully(bytes);
-                    descriptions.add(new Description(this, new TupleInput(bytes)));
+                    descriptions.add(new Description(this, new DataInputStream(new ByteArrayInputStream(bytes))));
                 }
             }
         }
@@ -165,7 +161,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                 if (byteCount > 0) {
                     byte[] bytes = new byte[byteCount];
                     in.readFully(bytes);
-                    relationshipsOutgoing.add(new Relationship(this, new TupleInput(bytes)));
+                    relationshipsOutgoing.add(new Relationship(this, new DataInputStream(new ByteArrayInputStream(bytes))));
                 }
             }
         }
@@ -177,7 +173,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                 if (byteCount > 0) {
                     byte[] bytes = new byte[byteCount];
                     in.readFully(bytes);
-                    media.add(new Media(this, new TupleInput(bytes)));
+                    media.add(new Media(this, new DataInputStream(new ByteArrayInputStream(bytes))));
                 }
             }
         }
@@ -192,7 +188,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                     byte[] bytes = new byte[byteCount];
                     in.readFully(bytes);
                     refsetMembers.add(RefexMemberFactory.create(refexNid, type, nid,
-                            new TupleInput(bytes)));
+                            new DataInputStream(new ByteArrayInputStream(bytes))));
                 }
             }
         }
@@ -206,33 +202,33 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                 if (byteCount > 0) {
                     byte[] bytes = new byte[byteCount];
                     in.readFully(bytes);
-                    refsetMembersDynamic.add(RefexDynamicMemberFactory.create(refexNid, nid, new TupleInput(bytes)));
+                    refsetMembersDynamic.add(RefexDynamicMemberFactory.create(refexNid, nid, new DataInputStream(new ByteArrayInputStream(bytes))));
                 }
             }
         }
     }
 
     @Override
-    public void writeExternal(DataOutput out) throws IOException {
+    public void writeExternal(DataOutputStream out) throws IOException {
         out.writeInt(nid);
         out.writeBoolean(annotationStyleRefex);
-        TupleOutput to = new TupleOutput();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream to = new DataOutputStream(new ByteArrayOutputStream());
         if (conceptAttributes != null) {
             conceptAttributes.writeToBdb(to, Integer.MIN_VALUE);
-            byte[] bytes = to.toByteArray();
-            to.reset();
+            byte[] bytes = baos.toByteArray();
             out.writeInt(bytes.length);
             out.write(bytes);
         } else {
             out.writeInt(0);
         }
-        to.reset();
+        baos = new ByteArrayOutputStream();
+        to = new DataOutputStream(new ByteArrayOutputStream());
         if ((descriptions != null) && !descriptions.isEmpty()) {
             out.writeInt(descriptions.size());
             for (Description desc : descriptions) {
                 desc.writeToBdb(to, Integer.MIN_VALUE);
-                byte[] bytes = to.toByteArray();
-                to.reset();
+                byte[] bytes = baos.toByteArray();
                 out.writeInt(bytes.length);
                 out.write(bytes);
             }
@@ -243,9 +239,10 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
         if ((relationshipsOutgoing != null) && !relationshipsOutgoing.isEmpty()) {
             out.writeInt(relationshipsOutgoing.size());
             for (Relationship rel : relationshipsOutgoing) {
+                baos = new ByteArrayOutputStream();
+                to = new DataOutputStream(new ByteArrayOutputStream());
                 rel.writeToBdb(to, Integer.MIN_VALUE);
-                byte[] bytes = to.toByteArray();
-                to.reset();
+                byte[] bytes = baos.toByteArray();
                 out.writeInt(bytes.length);
                 out.write(bytes);
             }
@@ -256,9 +253,10 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
         if ((media != null) && !media.isEmpty()) {
             out.writeInt(media.size());
             for (Media medium : media) {
+                baos = new ByteArrayOutputStream();
+                to = new DataOutputStream(new ByteArrayOutputStream());
                 medium.writeToBdb(to, Integer.MIN_VALUE);
-                byte[] bytes = to.toByteArray();
-                to.reset();
+                byte[] bytes = baos.toByteArray();
                 out.writeInt(bytes.length);
                 out.write(bytes);
             }
@@ -272,9 +270,10 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
             for (RefexMember<?, ?> refsetMember : refsetMembers) {
                 out.writeInt(refsetMember.nid);
                 out.writeInt(refsetMember.getRefexType().getTypeToken());
+                baos = new ByteArrayOutputStream();
+                to = new DataOutputStream(new ByteArrayOutputStream());
                 refsetMember.writeToBdb(to, Integer.MIN_VALUE);
-                byte[] bytes = to.toByteArray();
-                to.reset();
+                byte[] bytes = baos.toByteArray();
                 out.writeInt(bytes.length);
                 try {
                     out.write(bytes);
@@ -291,9 +290,10 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
             out.writeInt(refsetMembersDynamic.size());
             for (RefexDynamicMember refsetMember : refsetMembersDynamic) {
                 out.writeInt(refsetMember.nid);
+                baos = new ByteArrayOutputStream();
+                to = new DataOutputStream(new ByteArrayOutputStream());
                 refsetMember.writeToBdb(to, Integer.MIN_VALUE);
-                byte[] bytes = to.toByteArray();
-                to.reset();
+                byte[] bytes = baos.toByteArray();
                 out.writeInt(bytes.length);
                 out.write(bytes);
             }

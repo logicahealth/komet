@@ -2,18 +2,18 @@ package org.ihtsdo.otf.tcc.model.cc.identifier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.io.IOException;
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.id.UuidIdBI;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.UUID;
 
 //~--- JDK imports ------------------------------------------------------------
-
-import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 public class IdentifierVersionUuid extends IdentifierVersion implements UuidIdBI {
    private long lsb;
@@ -31,7 +31,7 @@ public class IdentifierVersionUuid extends IdentifierVersion implements UuidIdBI
       lsb = idv.getDenotation().getLeastSignificantBits();
    }
 
-   public IdentifierVersionUuid(TupleInput input) {
+   public IdentifierVersionUuid(DataInputStream input) throws IOException {
       super(input);
       msb = input.readLong();
       lsb = input.readLong();
@@ -98,7 +98,7 @@ public class IdentifierVersionUuid extends IdentifierVersion implements UuidIdBI
    }
 
    @Override
-   protected void writeSourceIdToBdb(TupleOutput output) {
+   protected void writeSourceIdToBdb(DataOutput output) throws IOException {
       output.writeLong(msb);
       output.writeLong(lsb);
    }

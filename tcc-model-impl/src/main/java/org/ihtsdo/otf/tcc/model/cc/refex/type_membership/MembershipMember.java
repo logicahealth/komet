@@ -2,8 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
@@ -35,7 +36,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       super();
    }
 
-   public MembershipMember(int enclosingConceptNid, TupleInput input) throws IOException {
+   public MembershipMember(int enclosingConceptNid, DataInputStream input) throws IOException {
       super(enclosingConceptNid, input);
    }
 
@@ -120,13 +121,13 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
+   protected void readMemberFields(DataInputStream input) {
 
       // nothing to read...
    }
 
    @Override
-   protected final MembershipRevision readMemberRevision(TupleInput input) {
+   protected final MembershipRevision readMemberRevision(DataInputStream input) throws IOException {
       return new MembershipRevision(input, this);
    }
 
@@ -150,7 +151,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
    }
 
    @Override
-   protected void writeMember(TupleOutput output) {
+   protected void writeMember(DataOutput output) {
 
       // nothing to write
    }

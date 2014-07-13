@@ -1,8 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
-//~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 
 
 //import org.dwfa.ace.api.I_IntSet;
@@ -21,7 +18,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -30,16 +26,16 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 import java.beans.PropertyVetoException;
 
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>>
         extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R> {
@@ -55,7 +51,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         assemblageNid = Integer.MAX_VALUE;
     }
 
-    public RefexMember(int enclosingConceptNid, TupleInput input) throws IOException {
+    public RefexMember(int enclosingConceptNid, DataInputStream input) throws IOException {
         super(enclosingConceptNid, input);
     }
 
@@ -137,7 +133,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
+    public void readFromDataStream(DataInputStream input) throws IOException {
         assemblageNid = input.readInt();
         referencedComponentNid = input.readInt();
         assert assemblageNid != Integer.MAX_VALUE;
@@ -161,9 +157,9 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
     }
 
-    protected abstract void readMemberFields(TupleInput input);
+    protected abstract void readMemberFields(DataInputStream input) throws IOException;
 
-    protected abstract R readMemberRevision(TupleInput input);
+    protected abstract R readMemberRevision(DataInputStream input) throws IOException;
 
     @Override
     public final boolean readyToWriteComponent() {
@@ -237,10 +233,10 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return buf.toString();
     }
 
-    protected abstract void writeMember(TupleOutput output);
+    protected abstract void writeMember(DataOutput output) throws IOException;
 
     @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
+    public void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
         List<RefexRevision<R, C>> additionalVersionsToWrite = new ArrayList<>();
 
         if (revisions != null) {

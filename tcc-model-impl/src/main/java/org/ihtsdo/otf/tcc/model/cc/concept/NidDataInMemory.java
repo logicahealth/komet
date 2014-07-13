@@ -1,10 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import java.io.IOException;
-
-import com.sleepycat.bind.tuple.TupleInput;
-import java.io.DataInputStream;
-import java.io.InputStream;
+import java.io.*;
 
 public class NidDataInMemory implements ConceptDataFetcherI {
 
@@ -32,18 +28,18 @@ public class NidDataInMemory implements ConceptDataFetcherI {
     }
 
     @Override
-    public TupleInput getReadOnlyTupleInput() {
-        return new TupleInput(getReadOnlyBytes());
+    public DataInputStream getReadOnlyDataStream() {
+        return new DataInputStream(new ByteArrayInputStream(getReadOnlyBytes()));
     }
 
     @Override
-    public byte[] getReadWriteBytes() {
+    public byte[] getMutableBytes() {
         return readWriteBytes;
     }
 
     @Override
-    public TupleInput getMutableTupleInput() {
-        return new TupleInput(getReadWriteBytes());
+    public DataInputStream getMutableInputStream() {
+        return new DataInputStream(new ByteArrayInputStream(getMutableBytes()));
     }
 
     @Override

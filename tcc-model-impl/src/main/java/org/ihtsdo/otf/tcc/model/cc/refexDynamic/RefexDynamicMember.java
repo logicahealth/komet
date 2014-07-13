@@ -19,13 +19,15 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import javax.naming.InvalidNameException;
+
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -45,7 +47,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
@@ -56,8 +57,7 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
 
 /**
  * {@link RefexDynamicMember}
@@ -81,7 +81,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         assemblageNid = Integer.MAX_VALUE;
     }
 
-    public RefexDynamicMember(int enclosingConceptNid, TupleInput input) throws IOException {
+    public RefexDynamicMember(int enclosingConceptNid, DataInputStream input) throws IOException {
         super(enclosingConceptNid, input);
     }
 
@@ -180,7 +180,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
+    public void readFromDataStream(DataInputStream input) throws IOException {
         assemblageNid = input.readInt();
         referencedComponentNid = input.readInt();
         assert assemblageNid != Integer.MAX_VALUE;
@@ -275,7 +275,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 //    }
 
     @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
+    public void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
         List<RefexDynamicRevision> additionalVersionsToWrite = new ArrayList<>();
 
         if (revisions != null) {
@@ -491,7 +491,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return Arrays.deepEquals(getData(), another);
     }
 
-    protected void readMemberFields(TupleInput input) {
+    protected void readMemberFields(DataInputStream input) throws IOException {
 
         //read the following format - 
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
@@ -508,14 +508,14 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             {
                 int dataLength = input.readInt();
                 byte[] data = new byte[dataLength];
-                input.read(data);
+                input.readFully(data);
                 
                 data_[i] = RefexDynamicData.typeToClass(dt, data, getAssemblageNid(), i);
             }
         }
     }
 
-    protected final RefexDynamicRevision readMemberRevision(TupleInput input) {
+    protected final RefexDynamicRevision readMemberRevision(DataInputStream input) throws IOException {
        return new RefexDynamicRevision(input, this);
     }
 
@@ -524,7 +524,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
        return true;
     }
 
-    protected void writeMember(TupleOutput output) {
+    protected void writeMember(DataOutput output) throws IOException {
 
         //Write with the following format - 
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...

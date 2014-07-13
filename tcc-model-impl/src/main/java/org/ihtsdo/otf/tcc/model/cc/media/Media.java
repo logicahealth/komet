@@ -1,10 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.media;
 
-//~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
 
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
@@ -21,12 +16,12 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.PropertyVetoException;
-
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.model.cc.P;
@@ -35,7 +30,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 public class Media extends ConceptComponent<MediaRevision, Media>
         implements MediaVersionFacade {
@@ -53,7 +47,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         super();
     }
 
-    public Media(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
+    public Media(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
         super(enclosingConcept.getNid(), input);
     }
 
@@ -144,16 +138,16 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
+    public void readFromDataStream(DataInputStream input) throws IOException {
 
         // nid, list size, and conceptNid are read already by the binder...
-        this.format = input.readString();
+        this.format = input.readUTF();
 
         int imageBytes = input.readInt();
 
         image = new byte[imageBytes];
-        input.read(image, 0, imageBytes);
-        textDescription = input.readString();
+        input.readFully(image, 0, imageBytes);
+        textDescription = input.readUTF();
         typeNid = input.readInt();
 
         int additionalVersionCount = input.readShort();
@@ -244,7 +238,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
+    public void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
         List<MediaRevision> partsToWrite = new ArrayList<>();
 
         if (revisions != null) {
@@ -258,10 +252,10 @@ public class Media extends ConceptComponent<MediaRevision, Media>
 
         // Start writing
         // conceptNid is the enclosing concept, does not need to be written.
-        output.writeString(format);
+        output.writeUTF(format);
         output.writeInt(image.length);
         output.write(image);
-        output.writeString(textDescription);
+        output.writeUTF(textDescription);
         output.writeInt(typeNid);
         output.writeShort(partsToWrite.size());
 

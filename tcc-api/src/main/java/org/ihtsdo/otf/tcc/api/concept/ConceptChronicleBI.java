@@ -19,6 +19,7 @@ import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.Collection;
@@ -26,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
 public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI> {
     
-   void writeExternal(DataOutput out) throws IOException;
+   void writeExternal(DataOutputStream out) throws IOException;
    void cancel() throws IOException;
 
    boolean commit(ChangeSetGenerationPolicy changeSetPolicy,

@@ -1,8 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -41,7 +43,7 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
         nid1 = P.s.getNidForUuids(eVersion.getUuid1());
     }
 
-    public NidRevision(TupleInput input, NidMember primoridalMember) {
+    public NidRevision(DataInputStream input, NidMember primoridalMember) throws IOException {
         super(input, primoridalMember);
         nid1 = input.readInt();
     }
@@ -128,7 +130,7 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
     }
 
     @Override
-    protected void writeFieldsToBdb(TupleOutput output) {
+    protected void writeFieldsToBdb(DataOutput output) throws IOException {
         output.writeInt(nid1);
     }
 

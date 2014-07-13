@@ -2,8 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -44,7 +46,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
       super(statusAtPositionNid, primoridalMember);
    }
 
-   public ConceptAttributesRevision(TupleInput input, ConceptAttributes primoridalMember) {
+   public ConceptAttributesRevision(DataInputStream input, ConceptAttributes primoridalMember) throws IOException {
       super(input, primoridalMember);
       defined = input.readBoolean();
    }
@@ -142,7 +144,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeBoolean(defined);
    }
 

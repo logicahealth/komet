@@ -1,5 +1,7 @@
 package org.ihtsdo.otf.tcc.datastore;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -11,7 +13,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 
-import com.sleepycat.bind.tuple.TupleInput;
 import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
@@ -108,14 +109,14 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
     }
 
     /* (non-Javadoc)
-     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getReadWriteBytes()
+     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getMutableBytes()
      */
     @Override
-    public synchronized byte[] getReadWriteBytes() throws IOException {
+    public synchronized byte[] getMutableBytes() throws IOException {
         if (readWriteBytes == null) {
             if (readWriteFuture == null) {
                 readWriteFuture = executorPool.submit(new GetNidData(nid, Bdb.getConceptDb().getReadWrite()));
-                return getReadWriteBytes();
+                return getMutableBytes();
             }
             try {
                 readWriteBytes = readWriteFuture.get();
@@ -128,23 +129,23 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
     }
 
     /* (non-Javadoc)
-     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getReadOnlyTupleInput()
+     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getReadOnlyDataStream()
      */
     @Override
-    public synchronized TupleInput getReadOnlyTupleInput() throws IOException {
-        return new TupleInput(getReadOnlyBytes());
+    public synchronized DataInputStream getReadOnlyDataStream() throws IOException {
+        return new DataInputStream(new ByteArrayInputStream(getReadOnlyBytes()));
     }
 
     /* (non-Javadoc)
-     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getReadWriteTupleInput()
+     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getMutableDataStream()
      */
     @Override
-    public synchronized TupleInput getMutableTupleInput() throws IOException {
-        return new TupleInput(getReadWriteBytes());
+    public synchronized DataInputStream getMutableInputStream() throws IOException {
+        return new DataInputStream(new ByteArrayInputStream(getMutableBytes()));
     }
 
     @Override
     public boolean isPrimordial() throws IOException {
-        return getReadOnlyBytes().length == 0 && getReadWriteBytes().length == 0;
+        return getReadOnlyBytes().length == 0 && getMutableBytes().length == 0;
     }
 }

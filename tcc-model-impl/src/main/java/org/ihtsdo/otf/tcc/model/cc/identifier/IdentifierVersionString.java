@@ -1,15 +1,16 @@
 package org.ihtsdo.otf.tcc.model.cc.identifier;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.io.IOException;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.api.id.StringIdBI;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class IdentifierVersionString extends IdentifierVersion implements StringIdBI {
 
@@ -25,9 +26,9 @@ public class IdentifierVersionString extends IdentifierVersion implements String
         stringDenotation = idv.getDenotation();
     }
 
-    public IdentifierVersionString(TupleInput input) {
+    public IdentifierVersionString(DataInputStream input) throws IOException {
         super(input);
-        stringDenotation = input.readString();
+        stringDenotation = input.readUTF();
     }
 
     public IdentifierVersionString(IdentifierVersionString another, Status status, long time,int authorNid,
@@ -82,8 +83,8 @@ public class IdentifierVersionString extends IdentifierVersion implements String
     }
 
     @Override
-    protected void writeSourceIdToBdb(TupleOutput output) {
-        output.writeString(stringDenotation);
+    protected void writeSourceIdToBdb(DataOutput output) throws IOException {
+        output.writeUTF(stringDenotation);
     }
 
     //~--- get methods ---------------------------------------------------------

@@ -2,10 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
 
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
@@ -20,6 +16,9 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 
 import java.beans.PropertyVetoException;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -52,7 +51,7 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
       boolean1 = eVersion.boolean1;
    }
 
-   public NidBooleanRevision(TupleInput input, NidBooleanMember primoridalMember) {
+   public NidBooleanRevision(DataInputStream input, NidBooleanMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       nid1      = input.readInt();
       boolean1 = input.readBoolean();
@@ -147,7 +146,7 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeInt(nid1);
       output.writeBoolean(boolean1);
    }

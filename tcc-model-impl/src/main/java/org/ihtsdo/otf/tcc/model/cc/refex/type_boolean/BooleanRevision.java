@@ -2,31 +2,26 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanMemberVersion;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_boolean.RefexBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanRevision;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-
-//~--- JDK imports ------------------------------------------------------------
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 import java.beans.PropertyVetoException;
-
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+//~--- JDK imports ------------------------------------------------------------
 
 public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMember>
         implements RefexBooleanAnalogBI<BooleanRevision> {
@@ -48,7 +43,7 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
       this.booleanValue = eVersion.isBooleanValue();
    }
 
-   public BooleanRevision(TupleInput input, BooleanMember primoridalMember) {
+   public BooleanRevision(DataInputStream input, BooleanMember primoridalMember) throws IOException {
       super(input, primoridalMember);
       booleanValue = input.readBoolean();
    }
@@ -137,7 +132,7 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
    }
 
    @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
+   protected void writeFieldsToBdb(DataOutput output) throws IOException {
       output.writeBoolean(booleanValue);
    }
 

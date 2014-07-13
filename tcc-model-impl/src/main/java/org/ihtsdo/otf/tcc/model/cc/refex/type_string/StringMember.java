@@ -2,17 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -27,6 +16,16 @@ import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+//~--- JDK imports ------------------------------------------------------------
 
 public class StringMember extends RefexMember<StringRevision, StringMember>
         implements RefexStringAnalogBI<StringRevision> {
@@ -43,7 +42,7 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
       super();
    }
 
-   public StringMember(int enclosingConceptNid, TupleInput input) throws IOException {
+   public StringMember(int enclosingConceptNid, DataInputStream input) throws IOException {
       super(enclosingConceptNid, input);
    }
 
@@ -129,12 +128,12 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      stringValue = input.readString();
+   protected void readMemberFields(DataInputStream input) throws IOException {
+      stringValue = input.readUTF();
    }
 
    @Override
-   protected final StringRevision readMemberRevision(TupleInput input) {
+   protected final StringRevision readMemberRevision(DataInputStream input) throws IOException {
       return new StringRevision(input, this);
    }
 
@@ -161,8 +160,8 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
    }
 
    @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeString(stringValue);
+   protected void writeMember(DataOutput output) throws IOException {
+      output.writeUTF(stringValue);
    }
 
    //~--- get methods ---------------------------------------------------------
