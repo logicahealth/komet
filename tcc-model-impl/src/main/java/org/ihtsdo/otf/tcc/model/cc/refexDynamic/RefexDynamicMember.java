@@ -72,7 +72,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     public int referencedComponentNid;
     public int assemblageNid;
     private RefexDynamicDataBI[] data_;
-    protected List<? extends Version> versions;
+    protected List<? extends RefexDynamicMemberVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public RefexDynamicMember() {
@@ -112,7 +112,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         }
 
         if (refsetMember.getRevisionList() != null) {
-            revisions = new RevisionSet<>(primordialStamp);
+            revisions = new RevisionSet(primordialStamp);
 
             for (TtkRefexDynamicRevision eVersion : refsetMember.getRevisionList()) {
                 revisions.add(new RefexDynamicRevision(eVersion, this));
@@ -191,7 +191,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
         if (additionalVersionCount > 0) {
             if (revisions == null) {
-                revisions = new RevisionSet<>(primordialStamp);
+                revisions = new RevisionSet(primordialStamp);
             }
 
             for (int i = 0; i < additionalVersionCount; i++) {
@@ -340,8 +340,8 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     }
 
     @Override
-    public RefexDynamicMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-        List<RefexDynamicMember.Version> vForC = getVersions(c);
+    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+        List<RefexDynamicMemberVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
             return null;
@@ -363,7 +363,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<? extends Version> getVersions() {
+    public List<? extends RefexDynamicMemberVersion> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -371,27 +371,27 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 count = count + revisions.size();
             }
 
-            ArrayList<Version> list = new ArrayList<>(count);
+            ArrayList<RefexDynamicMemberVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new Version(this));
+                list.add(new RefexDynamicMemberVersion(this, this));
             }
 
             if (revisions != null) {
                 for (RefexDynamicRevision rv : revisions) {
-                    list.add(new Version(rv));
+                    list.add(new RefexDynamicMemberVersion(rv, this));
                 }
             }
 
             versions = list;
         }
 
-        return (List<Version>) versions;
+        return (List<RefexDynamicMemberVersion>) versions;
     }
 
     @Override
-    public List<RefexDynamicMember.Version> getVersions(ViewCoordinate c) {
-        List<RefexDynamicMember.Version> returnTuples = new ArrayList<>(2);
+    public List<RefexDynamicMemberVersion> getVersions(ViewCoordinate c) {
+        List<RefexDynamicMemberVersion> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
                 c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
@@ -400,8 +400,8 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return returnTuples;
     }
 
-    public List<RefexDynamicMember.Version> getVersions(ViewCoordinate c, long time) {
-        List<RefexDynamicMember.Version> returnTuples = new ArrayList<>(2);
+    public List<RefexDynamicMemberVersion> getVersions(ViewCoordinate c, long time) {
+        List<RefexDynamicMemberVersion> returnTuples = new ArrayList<>(2);
 
         getVersionComputer().addSpecifiedVersions(c.getAllowedStatus(), (NidSetBI) null,
                 c.getViewPosition(), returnTuples, getVersions(), c.getPrecedence(),
@@ -448,180 +448,11 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             modified();
         }
     }
-
-    //~--- inner classes -------------------------------------------------------
-    public class Version extends ConceptComponent<RefexDynamicRevision, RefexDynamicMember>.Version
-            implements RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI {
-
-        public Version(RefexDynamicVersionBI<RefexDynamicRevision> cv) {
-            super(cv);
-        }
-
-        //~--- methods ----------------------------------------------------------
-        public RefexDynamicRevision makeAnalog() {
-            throw new UnsupportedOperationException("Must use Blueprints");
-        }
-
-        @Override
-        public RefexDynamicRevision makeAnalog(Status status, long time, int authorNid, int moduleNid, int pathNid) {
-            throw new UnsupportedOperationException("Must use Blueprints");
-        }
-
-        @Override
-        public boolean fieldsEqual(@SuppressWarnings("rawtypes") ConceptComponent.Version another) {
-            RefexDynamicMember.Version anotherVersion = (RefexDynamicMember.Version) another;
-
-            if (this.getAssemblageNid() != anotherVersion.getAssemblageNid()) {
-                return false;
-            }
-
-            if (this.getReferencedComponentNid() != anotherVersion.getReferencedComponentNid()) {
-                return false;
-            }
-
-            if (this.refexDataFieldsEqual(anotherVersion.getData())) {
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean refexDataFieldsEqual(RefexDynamicDataBI[] another) {
-            return getCv().refexDataFieldsEqual(another);
-        }
-
-        //~--- get methods ------------------------------------------------------
-        @Override
-        public int getAssemblageNid() {
-            return assemblageNid;
-        }
-
-        @SuppressWarnings("unchecked")
-        RefexDynamicVersionBI<RefexDynamicRevision> getCv() {
-            return (RefexDynamicVersionBI<RefexDynamicRevision>) cv;
-        }
-
-        public TtkRefexDynamicMemberChronicle getERefsetMember() throws IOException {
-            return new TtkRefexDynamicMemberChronicle(this);
-        }
-
-        public TtkRevision getERefsetRevision() throws IOException {
-            return new TtkRefexDynamicRevision(this);
-        }
-
-        @Override
-        public RefexDynamicMember getPrimordialVersion() {
-            return RefexDynamicMember.this;
-        }
-
-        @Override
-        public int getReferencedComponentNid() {
-            return RefexDynamicMember.this.getReferencedComponentNid();
-        }
-
-        @Override
-        public RefexDynamicCAB makeBlueprint(ViewCoordinate vc,
-                IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
-            return getCv().makeBlueprint(vc, idDirective, refexDirective);
-        }
-
-        @Override
-        public IntArrayList getVariableVersionNids() {
-            if (RefexDynamicMember.this != getCv()) {
-                return ((RefexDynamicRevision) getCv()).getVariableVersionNids();
-            } else {
-                return RefexDynamicMember.this.getVariableVersionNids();
-            }
-        }
-
-        @Override
-        public RefexDynamicMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-            return RefexDynamicMember.this.getVersion(c);
-        }
-
-        @Override
-        public List<? extends Version> getVersions() {
-            return RefexDynamicMember.this.getVersions();
-        }
-
-        @Override
-        public Collection<RefexDynamicMember.Version> getVersions(ViewCoordinate c) {
-            return RefexDynamicMember.this.getVersions(c);
-        }
-
-        //~--- set methods ------------------------------------------------------
-        @Override
-        public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-            RefexDynamicMember.this.setAssemblageNid(collectionNid);
-        }
-
-        @Override
-        public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
-            RefexDynamicMember.this.setReferencedComponentNid(componentNid);
-        }
-
-        /**
-         * @throws ContradictionException 
-         * @throws IOException 
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()
-         */
-        @Override
-        public RefexDynamicUsageDescription getRefexDynamicUsageDescription() throws IOException, ContradictionException {
-            return getCv().getRefexDynamicUsageDescription();
-        }
-
-        /**
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getData()
-         */
-        @Override
-        public RefexDynamicDataBI[] getData() {
-            return getCv().getData();
-        }
-
-        /**
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getData(int)
-         */
-        @Override
-        public RefexDynamicDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
-            return getCv().getData(columnNumber);
-        }
-        
-        /**
-         * @throws ContradictionException 
-         * @throws IOException 
-         * @throws InvalidNameException 
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI#getData(java.lang.String)
-         */
-        @Override
-        public RefexDynamicDataBI getData(String columnName) throws IndexOutOfBoundsException, InvalidNameException, IOException, ContradictionException {
-            return getCv().getData(columnName);
-        }
-
-        /**
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI[])
-         */
-        @Override
-        public void setData(RefexDynamicDataBI[] data) throws PropertyVetoException
-        {
-            ((RefexDynamicRevision)getCv()).setData(data);
-            
-        }
-
-        /**
-         * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI#setData(int, org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI)
-         */
-        @Override
-        public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
-        {
-            ((RefexDynamicRevision)getCv()).setData(columnNumber, data);
-        }
-    }
-    
     /**
      * From MembershipMember below here
      */
     
-    private static VersionComputer<RefexDynamicMember.Version> computer = new VersionComputer<>();
+    private static VersionComputer<RefexDynamicMemberVersion> computer = new VersionComputer<>();
 
     protected void addRefsetTypeNids(Set<Integer> allNids) {
         for (RefexDynamicDataBI data : getData())
@@ -713,12 +544,12 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         }
     }
 
-    @Override
+
     protected IntArrayList getVariableVersionNids() {
        return new IntArrayList(2);
     }
 
-    protected VersionComputer<RefexDynamicMember.Version> getVersionComputer() {
+    protected VersionComputer<RefexDynamicMemberVersion> getVersionComputer() {
        return computer;
     }
 

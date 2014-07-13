@@ -16,6 +16,7 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberSet;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 public interface I_ManageConceptData {
    void add(Description desc) throws IOException;

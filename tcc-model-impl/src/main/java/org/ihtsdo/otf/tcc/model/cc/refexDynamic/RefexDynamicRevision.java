@@ -225,7 +225,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         }
     }
 
-    @Override
+
     public IntArrayList getVariableVersionNids() {
         //No idea what this is for.  It doesn't seem to be used...
        //return new IntArrayList(0);
@@ -233,12 +233,12 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     @Override
-    public RefexDynamicMember.Version getVersion(ViewCoordinate c) throws ContradictionException {
-       return (RefexDynamicMember.Version) ((RefexDynamicMember) primordialComponent).getVersion(c);
+    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+       return (RefexDynamicMemberVersion) ((RefexDynamicMember) primordialComponent).getVersion(c);
     }
 
     @Override
-    public Collection<? extends RefexDynamicMember.Version> getVersions() {
+    public Collection<? extends RefexDynamicMemberVersion> getVersions() {
        return ((RefexDynamicMember) primordialComponent).getVersions();
     }
 

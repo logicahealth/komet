@@ -21,25 +21,18 @@ import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.component.AnnotationStyleBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.DataVersionBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.DescriptionBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.component.*;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 
 public class ConceptDataSimpleReference extends ConceptDataManager 
@@ -53,15 +46,20 @@ public class ConceptDataSimpleReference extends ConceptDataManager
       new ReentrantLock();
    ReentrantLock                                                               refsetMembersLock =
       new ReentrantLock();
+    ReentrantLock refsetMembersDynamicLock = new ReentrantLock();
    private AtomicReference<ConcurrentHashMap<Integer, RefexMember<?, ?>>> refsetMembersMap       =
       new AtomicReference<>();
+    private AtomicReference<ConcurrentHashMap<Integer, RefexDynamicMember>> refsetDynamicMembersMap = new AtomicReference<>();
    private AtomicReference<AddMemberSet>                                   refsetMembers      =
       new AtomicReference<>();
+    private AtomicReference<AddMemberDynamicSet> refsetDynamicMembers = new AtomicReference<>();
    private AtomicReference<ConcurrentHashMap<Integer, RefexMember<?, ?>>> refsetComponentMap =
       new AtomicReference<>();
+    private AtomicReference<ConcurrentHashMap<Integer, RefexDynamicMember>> refsetDynamicComponentMap = new AtomicReference<>();
    private AtomicReference<ConcurrentSkipListSet<Integer>> memberNids =
       new AtomicReference<>();
    private ReentrantLock                                   memberMapLock  = new ReentrantLock();
+   private ReentrantLock memberDynamicMapLock = new ReentrantLock();
    private AtomicReference<AddMediaSet>                    images         =
       new AtomicReference<>();
    ReentrantLock                                               imageLock = new ReentrantLock();

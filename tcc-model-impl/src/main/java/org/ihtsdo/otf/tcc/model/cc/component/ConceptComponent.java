@@ -31,6 +31,8 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
@@ -40,6 +42,7 @@ import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -53,6 +56,7 @@ import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 
 /**
@@ -1049,7 +1053,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                     RefexDynamicMember anotherAnnotation = anotherAnnotationMap.remove(annotation.getNid());
 
                     if (anotherAnnotation != null) {
-                        for (RefexDynamicMember.Version annotationVersion : anotherAnnotation.getVersions()) {
+                        for (RefexDynamicMemberVersion annotationVersion : anotherAnnotation.getVersions()) {
                             if ((annotationVersion.getStamp() != -1)
                                     && !annotationStamps.contains(annotationVersion.getStamp())) {
                                 annotation.addRevision(annotationVersion.getRevision());

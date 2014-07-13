@@ -30,12 +30,16 @@ import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 
 public class ConceptAttributesVersion extends Version<ConceptAttributesRevision, ConceptAttributes> implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
+
+    //TODO KEC don't think that ca is necessary as the parent class has cc
     private ConceptAttributes ca = null;
     
     public ConceptAttributesVersion(){}
@@ -85,6 +89,7 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
     public Collection<? extends RefexChronicleBI<?>> getRefexMembers(int refsetNid) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
 
     @Override
     public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {

@@ -231,7 +231,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         return componentBytes;
     }
     
-    private byte[] getRefsetDynamicBytes(I_ManageConceptData conceptData, boolean primordial,
+    private byte[] getRefsetDynamicBytes(I_ManageSimpleConceptData conceptData, boolean primordial,
             OFFSETS offset,
             Collection<RefexDynamicMember> members,
             RefexDynamicMemberBinder binder) throws InterruptedException,
