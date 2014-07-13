@@ -37,7 +37,7 @@ the specific language governing permissions and limitations under the License. -
     </distributionManagement>
    	
     <properties>
-        <branch>TT</branch>
+        <branch>tt-wdi</branch>
         <hk2.version>2.2.0-b14</hk2.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
@@ -276,10 +276,11 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <inherited>false</inherited>
                 <configuration>
-                    <doclet>ydoc.doclets.YStandard</doclet>
+                    <!-- Disabled - not installed on CI server -->
+                    <!--doclet>ydoc.doclets.YStandard</doclet>
                     <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
                     <additionalparam>-umlautogen</additionalparam>
-                    <docfilessubdirs>true</docfilessubdirs>
+                    <docfilessubdirs>true</docfilessubdirs-->
                 </configuration>
                 <reportSets>
                     <reportSet>

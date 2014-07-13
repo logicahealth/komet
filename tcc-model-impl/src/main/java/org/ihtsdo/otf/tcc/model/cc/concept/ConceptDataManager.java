@@ -19,6 +19,7 @@ import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 
 /**
@@ -103,6 +104,8 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    }
 
    protected abstract void addToMemberMap(RefexMember<?, ?> refsetMember);
+   
+   protected abstract void addToMemberMap(RefexDynamicMember refsetDynamicMember);
 
    protected long checkFormatAndVersion(TupleInput input) throws UnsupportedEncodingException {
       input.mark(128);
@@ -151,6 +154,21 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
                          NidPair.getRefexNidMemberNidPair(refsetMember.getAssemblageNid(), refsetMember.getNid()));
       }
    }
+   
+   void processNewRefsetDynamicMember(RefexDynamicMember refsetDynamicMember) throws IOException {
+          assert refsetDynamicMember != null : "refsetMember is null: " + this;
+          assert refsetDynamicMember.nid != 0 : "memberNid is 0: " + this;
+          assert refsetDynamicMember.getReferencedComponentNid() != 0 : "componentNid is 0: " + this;
+          assert refsetDynamicMember.enclosingConceptNid != 0 : "refsetNid is 0: " + this;
+
+          if (!isAnnotationStyleRefex()) {
+             getMemberNids().add(refsetDynamicMember.nid);
+             addToMemberMap(refsetDynamicMember);
+             modified();
+             P.s.addXrefPair(refsetDynamicMember.getReferencedComponentNid(),
+                             NidPair.getRefexNidMemberNidPair(refsetDynamicMember.getAssemblageNid(), refsetDynamicMember.getNid()));
+          }
+       }
 
    void processNewRel(Relationship rel) throws IOException {
       assert rel != null : "rel is null: " + this;
@@ -391,6 +409,41 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
          return super.add(e);
       }
    }
+   
+   public class AddMemberDynamicSet extends ConcurrentSkipListSet<RefexDynamicMember> {
+          private static final long serialVersionUID = 1L;
+
+          //~--- constructors -----------------------------------------------------
+
+          public AddMemberDynamicSet(Collection<RefexDynamicMember> c) {
+             super(new ComponentComparator());
+
+             for (RefexDynamicMember m : c) {
+                addDirect(m);
+             }
+          }
+
+          //~--- methods ----------------------------------------------------------
+
+          @Override
+          public boolean add(RefexDynamicMember e) {
+             try {
+                assert e != null : "Trying to add a null refset member to: " + this;
+
+                boolean returnValue = super.add(e);
+
+                processNewRefsetDynamicMember(e);
+
+                return returnValue;
+             } catch (IOException e1) {
+                throw new RuntimeException(e1);
+             }
+          }
+
+          public final boolean addDirect(RefexDynamicMember e) {
+             return super.add(e);
+          }
+       }
 
 
    public class AddSrcRelSet extends ConcurrentSkipListSet<Relationship> {

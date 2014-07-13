@@ -41,6 +41,8 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
@@ -51,6 +53,7 @@ import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.DataMarker;
@@ -88,6 +91,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private static NidSet rf1LangRefexNidSet;
     private static NidSet rf2LangRefexNidSet;
     private static List<TtkRefexAbstractMemberChronicle<?>> unresolvedAnnotations;
+    private static List<TtkRefexDynamicMemberChronicle> unresolvedAnnotationsDynamic;
 
 
     //~--- fields --------------------------------------------------------------
@@ -183,6 +187,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addAnnotation(annotation);
+    }
+    
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
+        return getConceptAttributes().addDynamicAnnotation(annotation);
     }
 
     public boolean addMemberNid(int nid) throws IOException {
@@ -324,6 +333,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         componentsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                 ConcurrentReferenceHashMap.ReferenceType.WEAK);
         unresolvedAnnotations = new ArrayList<>();
+        unresolvedAnnotationsDynamic = new ArrayList<>();
         fsXmlDescNid = Integer.MIN_VALUE;
         fsDescNid = Integer.MIN_VALUE;
         rf1LangRefexNidSet = new NidSet();
@@ -495,6 +505,51 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 }
             }
         }
+        
+        if ((eConcept.getRefsetMembersDynamic() != null) && !eConcept.getRefsetMembersDynamic().isEmpty()) {
+            if (c.isAnnotationStyleRefex()) {
+                for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
+                    ConceptComponent cc;
+                    Object referencedComponent = P.s.getComponent(er.getComponentUuid());
+
+                    if (referencedComponent != null) {
+                        if (referencedComponent instanceof ConceptChronicle) {
+                            cc = ((ConceptChronicle) referencedComponent).getConceptAttributes();
+                        } else {
+                            cc = (ConceptComponent) referencedComponent;
+                        }
+
+                        RefexDynamicMember r = (RefexDynamicMember) P.s.getComponent(er.getPrimordialComponentUuid());
+
+                        if (r == null) {
+                            cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                        } else {
+                            r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er,
+                                    P.s.getConceptNidForNid(cc.getNid())));
+                        }
+                    } else {
+                        unresolvedAnnotationsDynamic.add(er);
+                    }
+                }
+            } else {
+                if ((c.getRefsetDynamicMembers() == null) || c.getRefsetDynamicMembers().isEmpty()) {
+                    setRefsetMembersDynamicFromEConcept(eConcept, c);
+                } else {
+                    Set<Integer> currentMemberNids = c.data.getMemberNids();
+
+                    for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
+                        int rNid = P.s.getNidForUuids(er.primordialUuid);
+                        RefexDynamicMember r = c.getRefsetDynamicMember(rNid);
+
+                        if (currentMemberNids.contains(rNid) && (r != null)) {
+                            r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, c.getNid()));
+                        } else {
+                            c.getRefsetDynamicMembers().add(RefexDynamicMemberFactory.create(er, c.getNid()));
+                        }
+                    }
+                }
+            }
+        }
 
         return c;
     }
@@ -526,6 +581,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         if (eConcept.getRefsetMembers() != null) {
             setRefsetMembersFromEConcept(eConcept, c);
+        }
+        
+        if (eConcept.getRefsetMembersDynamic() != null) {
+            setRefsetMembersDynamicFromEConcept(eConcept, c);
         }
 
         return c;
@@ -650,6 +709,27 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 }
             }
         }
+        
+        for (TtkRefexDynamicMemberChronicle er : unresolvedAnnotationsDynamic) {
+            ConceptComponent cc;
+            Object referencedComponent = P.s.getComponent(er.getComponentUuid());
+
+            if (referencedComponent != null) {
+                if (referencedComponent instanceof ConceptChronicle) {
+                    cc = ((ConceptChronicle) referencedComponent).getConceptAttributes();
+                } else {
+                    cc = (ConceptComponent) referencedComponent;
+                }
+
+                RefexDynamicMember r = (RefexDynamicMember) P.s.getComponent(er.getPrimordialComponentUuid());
+
+                if (r == null) {
+                    cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                } else {
+                    r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                }
+            }
+        }
 
         if (!cantResolve.isEmpty()) {
             logger.log(Level.SEVERE, "Can't resolve annotations on import",
@@ -689,6 +769,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             if (!isAnnotationStyleRefex()) {
                 buff.append("\n refset members: ");
                 formatCollection(buff, getExtensions());
+                buff.append("\n refset dynamic members: ");
+                formatCollection(buff, getExtensionsDynamic());
             }
 
             buff.append("\n desc nids: ");
@@ -737,8 +819,15 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
+    //TODO [REFEX] why are there no calls to this method anywhere?
     public void updateXrefs() throws IOException {
         for (RefexMember<?, ?> m : getRefsetMembers()) {
+            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
+
+            P.s.addXrefPair(m.referencedComponentNid, npr);
+        }
+        
+        for (RefexDynamicMember m : getRefsetDynamicMembers()) {
             NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
 
             P.s.addXrefPair(m.referencedComponentNid, npr);
@@ -1204,6 +1293,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         return data.getRefsetMembers();
     }
+    
+    public Collection<RefexDynamicMember> getExtensionsDynamic() throws IOException {
+        if (isCanceled()) {
+            return new ArrayList<>();
+        }
+
+        return data.getRefsetDynamicMembers();
+    }
 
     public static ConceptChronicle getIfInMap(int nid) {
         return conceptsCRHM.get(nid);
@@ -1380,6 +1477,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException {
         return data.getRefsetMember(memberNid);
     }
+    
+    public RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException {
+        return data.getRefsetDynamicMember(memberNid);
+    }
 
     @Override
     public RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException {
@@ -1393,6 +1494,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public ConcurrentSkipListSet<RefexMember<?, ?>> getRefsetMembers() throws IOException {
         return data.getRefsetMembers();
+    }
+    
+    @Override
+    public ConcurrentSkipListSet<RefexDynamicMember> getRefsetDynamicMembers() throws IOException {
+        return data.getRefsetDynamicMembers();
     }
 
     @Override
@@ -1835,6 +1941,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             c.data.add(refsetMember);
         }
     }
+    
+    private static void setRefsetMembersDynamicFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
+        for (TtkRefexDynamicMemberChronicle eRefsetMember : eConcept.getRefsetMembersDynamic()) {
+            RefexDynamicMember refsetMember = RefexDynamicMemberFactory.create(eRefsetMember, c.getConceptNid());
+
+            c.data.add(refsetMember);
+        }
+    }
 
     private static void setRelationshipsFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
         for (TtkRelationshipChronicle eRel : eConcept.getRelationships()) {
@@ -1891,5 +2005,59 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                         percentageUsed);
             }
         }
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+    {
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexesDynamic();
+        }
+        return new ArrayList<>();
+    }
+    
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexDynamicAnnotations();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexDynamicMembers();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+    {
+        if (getConceptAttributes() != null)
+        {
+            return getConceptAttributes().getRefexesDynamicActive(viewCoordinate);
+        }
+        return new ArrayList<>();
     }
 }

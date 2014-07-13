@@ -42,6 +42,8 @@ import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -49,12 +51,15 @@ import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
  
 /**
@@ -70,6 +75,7 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     Collection<Relationship> relationshipsOutgoing;
     Collection<Media> media;
     Collection<RefexMember<?, ?>> refsetMembers;
+    Collection<RefexDynamicMember> refsetMembersDynamic;
 
     public ConceptChronicleDTO(TtkConceptChronicle ttkConceptChronicle) throws IOException {
         this.nid = Ts.get().getNidForUuids(ttkConceptChronicle.getPrimordialUuid());
@@ -115,6 +121,16 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                 RefexMember<?, ?> refsetMember = RefexMemberFactory.create(eRefsetMember, this.nid);
 
                 refsetMembers.add(refsetMember);
+            }
+
+        }
+        
+        if ((ttkConceptChronicle.getRefsetMembersDynamic() != null) && !ttkConceptChronicle.getRefsetMembersDynamic().isEmpty()) {
+            refsetMembersDynamic = new ArrayList<>(ttkConceptChronicle.getRefsetMembersDynamic().size());
+            for (TtkRefexDynamicMemberChronicle eRefsetMember : ttkConceptChronicle.getRefsetMembersDynamic()) {
+                RefexDynamicMember refsetMember = RefexDynamicMemberFactory.create(eRefsetMember, this.nid);
+
+                refsetMembersDynamic.add(refsetMember);
             }
 
         }
@@ -177,6 +193,20 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
                     in.readFully(bytes);
                     refsetMembers.add(RefexMemberFactory.create(refexNid, type, nid,
                             new TupleInput(bytes)));
+                }
+            }
+        }
+        
+        int refsetMemberDynamicCount = in.readInt();
+        if (refsetMemberDynamicCount > 0) {
+            refsetMembersDynamic = new ArrayList<>(refsetMemberDynamicCount);
+            for (int i = 0; i < refsetMemberDynamicCount; i++) {
+                int refexNid = in.readInt();
+                int byteCount = in.readInt();
+                if (byteCount > 0) {
+                    byte[] bytes = new byte[byteCount];
+                    in.readFully(bytes);
+                    refsetMembersDynamic.add(RefexDynamicMemberFactory.create(refexNid, nid, new TupleInput(bytes)));
                 }
             }
         }
@@ -256,6 +286,21 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
         } else {
             out.writeInt(0);
         }
+        
+        if ((refsetMembersDynamic != null) && !refsetMembersDynamic.isEmpty()) {
+            out.writeInt(refsetMembersDynamic.size());
+            for (RefexDynamicMember refsetMember : refsetMembersDynamic) {
+                out.writeInt(refsetMember.nid);
+                refsetMember.writeToBdb(to, Integer.MIN_VALUE);
+                byte[] bytes = to.toByteArray();
+                to.reset();
+                out.writeInt(bytes.length);
+                out.write(bytes);
+            }
+
+        } else {
+            out.writeInt(0);
+        }
     }
 
     @Override
@@ -286,6 +331,15 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI#getRefsetDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException
+    {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     @Override
@@ -327,6 +381,15 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+     */
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+    {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     @Override
@@ -482,6 +545,42 @@ public class ConceptChronicleDTO implements ConceptChronicleBI {
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

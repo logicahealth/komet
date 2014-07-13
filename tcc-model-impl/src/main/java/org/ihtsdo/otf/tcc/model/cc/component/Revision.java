@@ -6,7 +6,6 @@ import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,6 +76,12 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     public boolean addAnnotation(@SuppressWarnings("rawtypes") RefexChronicleBI annotation)
             throws IOException {
         return primordialComponent.addAnnotation(annotation);
+    }
+    
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation)
+            throws IOException {
+        return primordialComponent.addDynamicAnnotation(annotation);
     }
 
     abstract protected void addComponentNids(Set<Integer> allNids);
@@ -375,6 +380,43 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
         return primordialComponent.getRefexes();
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+    {
+        return primordialComponent.getRefexesDynamic();
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        return primordialComponent.getRefexDynamicMembers();
+    }
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        return primordialComponent.getRefexDynamicAnnotations();
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+    {
+        return primordialComponent.getRefexesDynamicActive(viewCoordinate);
     }
 
     @Override

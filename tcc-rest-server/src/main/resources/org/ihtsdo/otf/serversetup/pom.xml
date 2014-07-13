@@ -15,9 +15,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.ihtsdo.otf</groupId>
-            <artifactId>tcc-test-data</artifactId>   
-            <version>3.0</version>     
+            <groupId>gov.va.isaac.db</groupId>
+            <artifactId>isaac-sct</artifactId>
+            <version>2014.01.31-build-2</version>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -35,12 +35,12 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>tcc-test-data</includeArtifactIds>
+                            <includeArtifactIds>isaac-sct</includeArtifactIds>
                             <outputDirectory>${project.build.directory}/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>              
+            </plugin>
         </plugins>
     </build>
 </project>

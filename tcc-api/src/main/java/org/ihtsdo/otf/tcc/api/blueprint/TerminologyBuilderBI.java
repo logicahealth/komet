@@ -15,6 +15,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 
 public interface TerminologyBuilderBI {
@@ -28,6 +29,16 @@ public interface TerminologyBuilderBI {
      * @throws InvalidAmendmentSpec
      */
     RefexChronicleBI<?> construct(RefexCAB blueprint) throws IOException, InvalidCAB, ContradictionException;
+    
+    /**
+     *  
+     * @param res
+     * @return A <code>RefexDynamicChronicleBI</code> if the <code>blueprint</code> 
+     * regardless of if the RefexDynamicChronicleBI was modified. 
+     * @throws IOException
+     * @throws InvalidAmendmentSpec
+     */
+    RefexDynamicChronicleBI<?> construct(RefexDynamicCAB blueprint) throws IOException, InvalidCAB, ContradictionException;
 
     /**
      *  This method incurs an extra cost to determine if a current version already meets the specification. 

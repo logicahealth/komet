@@ -11,6 +11,8 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
@@ -18,9 +20,7 @@ import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.security.NoSuchAlgorithmException;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -62,8 +62,19 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public boolean addAnnotation(RefexChronicleBI<?> annotation) {
       throw new UnsupportedOperationException("Not supported.");
    }
+   
+   
 
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
    @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+       throw new UnsupportedOperationException("Not supported.");
+   }
+
+@Override
    public boolean makeAdjudicationAnalogs(EditCoordinate ec, ViewCoordinate vc) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }
@@ -200,6 +211,44 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
 
    @Override
    public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
+      throw new UnsupportedOperationException("Not supported.");
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+   {
+      throw new UnsupportedOperationException("Not supported.");
+   }
+   
+   
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      throw new UnsupportedOperationException("Not supported.");
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      throw new UnsupportedOperationException("Not supported.");
+   }
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+    */
+   @Override
+   public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+   {
       throw new UnsupportedOperationException("Not supported.");
    }
 

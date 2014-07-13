@@ -14,6 +14,8 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
@@ -22,7 +24,6 @@ import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,6 +58,16 @@ public class RelGroupVersion implements RelGroupVersionBI {
    @Override
    public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
       return rg.addAnnotation(annotation);
+   }
+
+
+    /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
+   @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+      return rg.addDynamicAnnotation(annotation);
    }
 
    @Override
@@ -343,6 +354,44 @@ public class RelGroupVersion implements RelGroupVersionBI {
    @Override
    public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
       return rg.getRefexes();
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+   {
+       return rg.getRefexesDynamic();
+   }
+   
+   
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      return rg.getRefexDynamicAnnotations();
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      return rg.getRefexDynamicMembers();
+   }
+
+/**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+    */
+   @Override
+   public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+   {
+       return rg.getRefexesDynamicActive(viewCoordinate);
    }
 
    @Override

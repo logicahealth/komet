@@ -11,6 +11,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMediaSet;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberDynamicSet;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberSet;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
@@ -22,6 +23,8 @@ public interface I_ManageConceptData {
    void add(Media img) throws IOException;
 
    void add(RefexMember<?, ?> refsetMember) throws IOException;
+   
+   void add(RefexDynamicMember refsetDynamicMember) throws IOException;
 
    void add(Relationship rel) throws IOException;
 
@@ -76,14 +79,20 @@ public interface I_ManageConceptData {
    int getNid();
 
    RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException;
+   
+   RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException;
 
    RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException;
 
    AddMemberSet getRefsetMembers() throws IOException;
+   
+   AddMemberDynamicSet getRefsetDynamicMembers() throws IOException;
 
    Collection<RefexMember<?, ?>> getRefsetMembersIfChanged() throws IOException;
    
    Set<Relationship> getSourceRels() throws IOException;
+   
+   Collection<RefexDynamicMember> getRefsetDynamicMembersIfChanged() throws IOException;
 
    Collection<Relationship> getSourceRelsIfChanged() throws IOException;
 

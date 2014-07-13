@@ -319,8 +319,8 @@ public class BdbCommitManager {
         boolean performCommit = true;
 
         try {
-            AceLog.getAppLog().info("Committing concept: " + c.toUserString() + " UUID: "
-                    + P.s.getUuidsForNid(c.getNid()).toString());
+            AceLog.getAppLog().info("Committing concept: " + c.toUserString() + " UUID: " 
+					+ c.getPrimordialUuid().toString());
             if (performCommit) {
                 BdbCommitSequence.nextSequence();
 

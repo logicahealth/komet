@@ -492,4 +492,14 @@ public class ConceptBdb extends ComponentBdb {
             }
         }
     }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.datastore.ComponentBdb#close()
+     */
+    @Override
+    public void close()
+    {
+        iteratorService.shutdownNow();
+        super.close();
+    }
 }

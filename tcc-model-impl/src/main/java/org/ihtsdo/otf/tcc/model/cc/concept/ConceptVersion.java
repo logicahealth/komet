@@ -40,6 +40,8 @@ import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
@@ -53,7 +55,6 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -100,7 +101,16 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       return concept.addAnnotation(annotation);
    }
 
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
    @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+      return concept.addDynamicAnnotation(annotation);
+   }
+
+@Override
    public void cancel() throws IOException {
       concept.cancel();
    }
@@ -642,6 +652,42 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
       return concept.getRefexes();
    }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+   {
+       return concept.getRefexesDynamic();
+   }
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      return concept.getRefexDynamicAnnotations();
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      return concept.getRefexDynamicMembers();
+   }
+
+   /**
+   * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+   */
+   @Override
+   public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+   {
+       return concept.getRefexesDynamicActive(viewCoordinate);
+   }
 
    @Override
    public RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException {
@@ -651,6 +697,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    @Override
    public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
       return concept.getRefsetMembers();
+   }
+   
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException {
+      return concept.getRefsetDynamicMembers();
    }
 
    @Override

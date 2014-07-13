@@ -14,6 +14,7 @@ package org.ihtsdo.otf.tcc.datastore.uuidnidmap;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.datastore.Bdb;
 import org.ihtsdo.otf.tcc.datastore.ComponentBdb;
 import org.ihtsdo.otf.tcc.datastore.temp.PrimordialId;
@@ -158,6 +159,11 @@ public class UuidToNidMapBdb extends ComponentBdb {
     }
 
     public List<UUID> getUuidsForNid(int nid) throws IOException {
+        ComponentBI component = Bdb.getComponent(nid);
+
+        if (component != null) {
+           return Bdb.getComponent(nid).getUUIDs();
+        }
         throw new UnsupportedOperationException();
     }
 

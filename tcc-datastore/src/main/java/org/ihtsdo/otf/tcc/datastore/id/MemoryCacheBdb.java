@@ -253,6 +253,11 @@ public class MemoryCacheBdb extends ComponentBdb {
     }
 
     private void printKeys(String prefix, Database db) {
+        if (db == null)
+        {
+            AceLog.getAppLog().fine(prefix + " - db is null!");
+            return;
+        }
         int size = (int) db.count();
         OpenIntIntHashMap nidMap = new OpenIntIntHashMap(size + 2);
         CursorConfig cursorConfig = new CursorConfig();

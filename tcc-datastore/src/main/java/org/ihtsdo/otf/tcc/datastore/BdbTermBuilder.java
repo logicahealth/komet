@@ -11,6 +11,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
@@ -29,6 +30,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -42,6 +44,9 @@ import org.ihtsdo.otf.tcc.model.cc.media.MediaRevision;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 
@@ -59,6 +64,17 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     public RefexChronicleBI<?> construct(RefexCAB blueprint)
             throws IOException, InvalidCAB, ContradictionException {
         RefexMember<?, ?> refex = getRefex(blueprint);
+        if (refex != null) {
+            return updateRefex(refex, blueprint);
+        }
+        refex = createRefex(blueprint);
+        return refex;
+    }
+    
+    @Override
+    public RefexDynamicChronicleBI<?> construct(RefexDynamicCAB blueprint)
+            throws IOException, InvalidCAB, ContradictionException {
+        RefexDynamicMember refex = getRefex(blueprint);
         if (refex != null) {
             return updateRefex(refex, blueprint);
         }
@@ -94,6 +110,34 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
         for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
             construct(annotBp);
         }
+        for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+            construct(annotBp);
+        }
+        return member;
+    }
+    
+    private RefexDynamicChronicleBI<?> updateRefex(RefexDynamicMember member,
+            RefexDynamicCAB blueprint) throws InvalidCAB, IOException, ContradictionException {
+        for (int pathNid : ec.getEditPaths().getSetValues()) {
+            RefexDynamicRevision refexRevision
+                    = member.makeAnalog(blueprint.getStatus(),
+                            Long.MAX_VALUE,
+                            ec.getAuthorNid(),
+                            ec.getModuleNid(),
+                            pathNid);
+            try {
+                blueprint.writeTo(refexRevision, false);
+            } catch (PropertyVetoException ex) {
+                throw new InvalidCAB("Refex: " + member
+                        + "\n\nRefexAmendmentSpec: " + blueprint, ex);
+            }
+        }
+        for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+            construct(annotBp);
+        }
+        for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+            construct(annotBp);
+        }
         return member;
     }
 
@@ -116,6 +160,20 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                         + "\ncomponent: "
                         + component + "\n\nRefexCAB: " + blueprint);
             }
+        }
+        return null;
+    }
+    
+    private RefexDynamicMember getRefex(RefexDynamicCAB blueprint)
+            throws InvalidCAB, IOException {
+        if (P.s.hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE
+                != P.s.getConceptNidForNid(P.s.getNidForUuids(blueprint.getMemberUUID()))) {
+            ComponentChronicleBI<?> component
+                    = P.s.getComponent(blueprint.getMemberUUID());
+            if (component == null) {
+                return null;
+            }
+            return (RefexDynamicMember) component;
         }
         return null;
     }
@@ -173,6 +231,42 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
         RefexMember<?, ?> newRefex = RefexMemberFactory.create(blueprint, ec);
 
         for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+            annotBp.setReferencedComponent(newRefex);
+            construct(annotBp);
+        }
+        for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+            annotBp.setReferencedComponent(newRefex);
+            construct(annotBp);
+        }
+        return newRefex;
+    }
+    
+    private RefexDynamicMember createRefex(RefexDynamicCAB blueprint)
+            throws IOException, InvalidCAB, ContradictionException {
+        
+        ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexAssemblageNid());
+        
+        if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
+            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
+                    P.s.getNidForUuids(blueprint.getComponentUuid()));
+        } else if (refexColCon.isAnnotationStyleRefex()) {
+            int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
+
+            int enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
+            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
+        } else {
+            int enclosingConceptNid = refexColCon.getNid();
+            int blueprintNid = Ts.get().getConceptNidForNid(blueprint.getComponentNid());
+            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
+        }
+
+        RefexDynamicMember newRefex = RefexDynamicMemberFactory.create(blueprint, ec);
+
+        for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+            annotBp.setReferencedComponent(newRefex);
+            construct(annotBp);
+        }
+        for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
             annotBp.setReferencedComponent(newRefex);
             construct(annotBp);
         }
@@ -241,6 +335,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
                     construct(annotBp);
                 }
+                for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+                    construct(annotBp);
+                }
             }
             return r;
         } else {
@@ -259,8 +356,12 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 rv.setTypeNid(blueprint.getTypeNid());
                 rv.setRefinabilityNid(blueprint.getRefinabilityNid());
                 rv.setCharacteristicNid(blueprint.getCharacteristicNid());
+                rv.setGroup(blueprint.getGroup());
             }
             for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+                construct(annotBp);
+            }
+            for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
                 construct(annotBp);
             }
         }
@@ -356,6 +457,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
                     construct(annotBp);
                 }
+                for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+                    construct(annotBp);
+                }
             }
             return d;
         } else {
@@ -372,6 +476,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 dr.setStatus(blueprint.getStatus());
                 dr.setInitialCaseSignificant(blueprint.isInitialCaseSignificant());
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+                    construct(annotBp);
+                }
+                for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
                     construct(annotBp);
                 }
             }
@@ -452,6 +559,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
                     construct(annotBp);
                 }
+                for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+                    construct(annotBp);
+                }
             }
             return img;
         } else {
@@ -465,6 +575,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                 imgR.setTypeNid(blueprint.getTypeNid());
                 imgR.setTextDescription(blueprint.getTextDescription());
                 for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+                    construct(annotBp);
+                }
+                for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
                     construct(annotBp);
                 }
             }
@@ -568,6 +681,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
             for (RefexCAB annot : blueprint.getConceptAttributeAB().getAnnotationBlueprints()) {
                 this.construct(annot);
             }
+            for (RefexDynamicCAB annot : blueprint.getConceptAttributeAB().getAnnotationDynamicBlueprints()) {
+                this.construct(annot);
+            }
         }
 
         for (DescriptionCAB fsnBp : fsnBps) {
@@ -607,11 +723,15 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                         ec.getAuthorNid(),
                         ec.getModuleNid(),
                         p);
+                r.setDefined(blueprint.defined);
                 cac.revisions.add(r);
             }
         }
         for (int p : ec.getEditPaths().getSetValues()) {
             for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
+                construct(annotBp);
+            }
+            for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
                 construct(annotBp);
             }
         }
@@ -637,6 +757,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
                         ec.getAuthorNid(),
                         ec.getModuleNid(),
                         p);
+                r.setDefined(blueprint.defined);
                 cac.revisions.add(r);
 
             }
