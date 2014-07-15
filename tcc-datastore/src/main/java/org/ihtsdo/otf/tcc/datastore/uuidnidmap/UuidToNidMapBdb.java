@@ -36,16 +36,14 @@ public class UuidToNidMapBdb extends ComponentBdb {
 
     private static final String ID_NEXT = "org.ihtsdo.ID_NEXT";
     private IdSequence idSequence;
-    ConcurrentHashMap<Byte, UuidToNidSoftMapSegment> readOnlyMap = new ConcurrentHashMap<>();
     ConcurrentHashMap<Byte, UuidToNidSoftMapSegment> mutableMap = new ConcurrentHashMap<>();
     ReentrantLock generateLock = new ReentrantLock();
 
     //~--- constructors --------------------------------------------------------
-    public UuidToNidMapBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv) throws IOException {
-        super(readOnlyBdbEnv, mutableBdbEnv);
+    public UuidToNidMapBdb(Bdb mutableBdbEnv) throws IOException {
+        super(mutableBdbEnv);
         idSequence = new IdSequence();
         for (int b = Byte.MIN_VALUE; b <= Byte.MAX_VALUE; b++) {
-            readOnlyMap.put((byte) b, new UuidToNidSoftMapSegment(readOnly, (byte) b));
             mutableMap.put((byte) b, new UuidToNidSoftMapSegment(mutable, (byte) b));
         }
     }
@@ -84,7 +82,6 @@ public class UuidToNidMapBdb extends ComponentBdb {
         Bdb.setProperty(ID_NEXT, Integer.toString(idSequence.sequence.get()));
 
         for (int b = Byte.MIN_VALUE; b <= Byte.MAX_VALUE; b++) {
-            readOnlyMap.get((byte) b).write();
             mutableMap.get((byte) b).write();
         }
         super.sync();
@@ -145,12 +142,7 @@ public class UuidToNidMapBdb extends ComponentBdb {
     }
 
     private int getNoGen(UUID key) {
-        int nid = readOnlyMap.get((byte) key.hashCode()).getNid(key);
-        if (nid != Integer.MAX_VALUE) {
-            return nid;
-        }
-
-        nid = mutableMap.get((byte) key.hashCode()).getNid(key);
+        int nid =  mutableMap.get((byte) key.hashCode()).getNid(key);
         if (nid != Integer.MAX_VALUE) {
             return nid;
         }

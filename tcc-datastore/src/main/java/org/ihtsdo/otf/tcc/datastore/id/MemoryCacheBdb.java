@@ -65,10 +65,9 @@ public class MemoryCacheBdb extends ComponentBdb {
     private AtomicReference<int[][][]> indexCacheRecords;
     private boolean[] mapChanged;
     private AtomicReference<int[][]> nidCNidMaps;
-    private int readOnlyRecords;
 
-    public MemoryCacheBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv) throws IOException {
-        super(readOnlyBdbEnv, mutableBdbEnv);
+    public MemoryCacheBdb(Bdb mutableBdbEnv) throws IOException {
+        super(mutableBdbEnv);
     }
 
     public void addNidPairForRefex(int nid, NidPairForRefex pair) throws IOException {
@@ -216,15 +215,12 @@ public class MemoryCacheBdb extends ComponentBdb {
 
     @Override
     protected void init() throws IOException {
-        preloadBoth();
+        preload();
 
         int maxId = Bdb.getUuidsToNidMap().getCurrentMaxNid();
 
-        readOnlyRecords = (int) readOnly.count();
-
         int mutableRecords = (int) mutable.count();
 
-        AceLog.getAppLog().info("NidCidMap readOnlyRecords: " + readOnlyRecords);
         AceLog.getAppLog().info("NidCidMap mutableRecords: " + mutableRecords);
 
         int nidCidMapCount = ((maxId - Integer.MIN_VALUE) / NID_CNID_MAP_SIZE) + 1;
@@ -240,12 +236,9 @@ public class MemoryCacheBdb extends ComponentBdb {
             Arrays.fill(nidCNidMaps.get()[index], Integer.MAX_VALUE);
         }
 
-        readMaps(readOnly);
-        closeReadOnly();
         readMaps(mutable);
 
         if (AceLog.getAppLog().isLoggable(Level.FINE)) {
-            printKeys("Read only keys: ", readOnly);
             printKeys("Mutable keys: ", mutable);
         }
 
@@ -555,7 +548,7 @@ public class MemoryCacheBdb extends ComponentBdb {
     /**
      * Retrieves the components nids enclosed by the input conceptNids.
      *
-     * @param conceptNativeIds the <code>NativeIdSetBI</code> for which the
+     * @param conceptNids the <code>NativeIdSetBI</code> for which the
      * components nids will be retrieved
      */
     public NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNids) throws IOException {

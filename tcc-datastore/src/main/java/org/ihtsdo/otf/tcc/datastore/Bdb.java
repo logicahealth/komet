@@ -71,7 +71,6 @@ public class Bdb {
 
     private static final String G_VERSION = "gVersion";
     public static AtomicLong gVersion = new AtomicLong();
-    private static Bdb readOnly;
     private static Bdb mutable;
     private static UuidToNidMapBdb uuidsToNidMapDb;
     public static MemoryCacheBdb memoryCacheBdb;
@@ -137,7 +136,6 @@ public class Bdb {
         EnvironmentMutableConfig mutableConfig = Bdb.mutable.bdbEnv.getMutableConfig();
         mutableConfig.setCacheSize(size);
         Bdb.mutable.bdbEnv.setMutableConfig(mutableConfig);
-        Bdb.readOnly.bdbEnv.setMutableConfig(mutableConfig);
     }
 
     public static long getCacheSize() {
@@ -148,7 +146,6 @@ public class Bdb {
         EnvironmentMutableConfig mutableConfig = Bdb.mutable.bdbEnv.getMutableConfig();
         mutableConfig.setCachePercent(Integer.parseInt(cachePercent));
         Bdb.mutable.bdbEnv.setMutableConfig(mutableConfig);
-        Bdb.readOnly.bdbEnv.setMutableConfig(mutableConfig);
     }
 
     public static int getCachePercent() {
@@ -210,7 +207,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                propDb = new PropertiesBdb(readOnly, mutable);
+                propDb = new PropertiesBdb(mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -234,7 +231,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                uuidsToNidMapDb = new UuidToNidMapBdb(readOnly, mutable);
+                uuidsToNidMapDb = new UuidToNidMapBdb(mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -258,7 +255,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                memoryCacheBdb = new MemoryCacheBdb(readOnly, mutable);
+                memoryCacheBdb = new MemoryCacheBdb(mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -281,7 +278,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                stampDb = new StampBdb(readOnly, mutable);
+                stampDb = new StampBdb(mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -304,7 +301,7 @@ public class Bdb {
                     updateProgress(1, 1);
                     return null;
                 }
-                conceptDb = new ConceptBdb(readOnly, mutable);
+                conceptDb = new ConceptBdb(mutable);
                 updateMessage("finished");
                 updateProgress(1, 1);
                 finishSetup();
@@ -353,7 +350,7 @@ public class Bdb {
         FutureTask<Void> setupPropDbTask = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                propDb = new PropertiesBdb(readOnly, mutable);
+                propDb = new PropertiesBdb(mutable);
                 finishSetup();
                 return null;
             }
@@ -363,7 +360,7 @@ public class Bdb {
         FutureTask<Void> setupUuidsToNidMapDb = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                uuidsToNidMapDb = new UuidToNidMapBdb(readOnly, mutable);
+                uuidsToNidMapDb = new UuidToNidMapBdb(mutable);
                 finishSetup();
                 return null;
             }
@@ -373,7 +370,7 @@ public class Bdb {
         FutureTask<Void> setupComponentNidToConceptNidDb = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                memoryCacheBdb = new MemoryCacheBdb(readOnly, mutable);
+                memoryCacheBdb = new MemoryCacheBdb(mutable);
                 finishSetup();
                 return null;
             }
@@ -382,7 +379,7 @@ public class Bdb {
         FutureTask<Void> setupStampDb = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                stampDb = new StampBdb(readOnly, mutable);
+                stampDb = new StampBdb(mutable);
                 finishSetup();
                 return null;
             }
@@ -391,7 +388,7 @@ public class Bdb {
         FutureTask<Void> setupConceptDb = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                conceptDb = new ConceptBdb(readOnly, mutable);
+                conceptDb = new ConceptBdb(mutable);
                 finishSetup();
                 return null;
             }
@@ -532,9 +529,6 @@ public class Bdb {
 //            LuceneManager.setRefsetLuceneRootDir(bdbDirectory);
 
             mutable = new Bdb(false, new File(bdbDirectory, "mutable"));
-            File readOnlyDir = new File(bdbDirectory, "read-only");
-            boolean readOnlyExists = readOnlyDir.exists();
-            readOnly = new Bdb(readOnlyExists, readOnlyDir);
             if (Looker.lookup(TtkEnvironment.class).useFxWorkers()) {
 
                 Platform.runLater(new Runnable() {
@@ -596,10 +590,6 @@ public class Bdb {
                         + Bdb.mutable.bdbEnv.getConfig().getConfigParam("je.maxMemory"));
                 AceLog.getAppLog().info("mutable shared cache: "
                         + Bdb.mutable.bdbEnv.getConfig().getSharedCache());
-                AceLog.getAppLog().info("readOnly maxMem: "
-                        + Bdb.readOnly.bdbEnv.getConfig().getConfigParam("je.maxMemory"));
-                AceLog.getAppLog().info("readOnly shared cache: "
-                        + Bdb.readOnly.bdbEnv.getConfig().getSharedCache());
 
             } catch (IOException ex) {
                 Logger.getLogger(Bdb.class.getName()).log(Level.SEVERE, null, ex);
@@ -774,11 +764,7 @@ public class Bdb {
                 activity.setProgressInfoLower("Writing mutable environment... ");
                 activity.setValue(7);
                 mutable.bdbEnv.sync();
-                activity.setProgressInfoLower("Writing readonly environment... ");
-                activity.setValue(8);
-                if (readOnly.bdbEnv.getConfig().getReadOnly() == false) {
-                    readOnly.bdbEnv.sync();
-                }
+
                 activity.setValue(9);
                 long endTime = System.currentTimeMillis();
 
@@ -877,19 +863,12 @@ public class Bdb {
             AceLog.getAppLog().info("Already closed somehow: closed: " + 
                     closed + "\n mutable: " + mutable);
         }
-        if (readOnly != null && readOnly.bdbEnv != null) {
-            try{
-            readOnly.bdbEnv.close();
-            }catch (IllegalStateException e){
-                //TODO can ignore for now, but need to fix the cause
-            }
-        }
+
         conceptDb = null;
         mutable = null;
         memoryCacheBdb = null;
         pathManager = null;
         propDb = null;
-        readOnly = null;
         stampCache = null;
         stampDb = null;
         uuidsToNidMapDb = null;
@@ -1023,8 +1002,6 @@ public class Bdb {
         StringBuilder statBuff = new StringBuilder();
         statBuff.append("<html>Mutable<br>");
         statBuff.append(mutable.bdbEnv.getStats(null).toStringVerbose());
-        statBuff.append("<br><br>ReadOnly:<br><br>");
-        statBuff.append(readOnly.bdbEnv.getStats(null).toStringVerbose());
 
         return statBuff.toString().replace("\n", "<br>");
     }

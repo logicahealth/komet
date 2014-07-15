@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -37,18 +37,18 @@
     <orderEntry type="library" scope="TEST" name="Maven: jfree:jcommon:1.0.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: commons-lang:commons-lang:2.6" level="project" />
+    <orderEntry type="module" module-name="tcc-serializer" scope="TEST" />
     <orderEntry type="module" module-name="tcc-model-impl" scope="TEST" />
     <orderEntry type="module" module-name="tcc-lookup" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.netbeans.api:org-openide-util-lookup:RELEASE73" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.sun.javafx:jfxrt:2.2.45" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2:2.2.0-b14" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:config-types:2.2.0-b14" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2-config:2.2.0-b14" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:core:2.2.0-b14" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2:2.3.0-b09" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:config-types:2.3.0-b09" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2-config:2.3.0-b09" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:core:2.3.0-b09" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jvnet:tiger-types:1.4" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2.external:bean-validator:2.2.0-b14" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2-runlevel:2.2.0-b14" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:class-model:2.2.0-b14" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2.external:bean-validator:2.3.0-b09" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2-runlevel:2.3.0-b09" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:class-model:2.3.0-b09" level="project" />
     <orderEntry type="module" module-name="tcc-api" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-queryparser:4.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-core:4.3.1" level="project" />

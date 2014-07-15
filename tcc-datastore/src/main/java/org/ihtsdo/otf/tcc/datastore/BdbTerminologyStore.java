@@ -562,7 +562,7 @@ public class BdbTerminologyStore extends Termstore {
 
     @Override
     public int getMaxReadOnlyStamp() {
-        return Bdb.getStampDb().getReadOnlyMax();
+        return Integer.MIN_VALUE;
     }
 
     @Override

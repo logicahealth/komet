@@ -17,7 +17,6 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
         SOFT, WEAK
     };
     private static REF_TYPE refType = REF_TYPE.SOFT;
-    private Future<byte[]> readOnlyFuture;
     private Future<byte[]> readWriteFuture;
     private int nid;
     private Reference<byte[]> readOnlyBytes;
@@ -55,7 +54,6 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
         super();
         this.nid = nid;
         if (executorPool != null) {
-            readOnlyFuture = executorPool.submit(new GetNidData(nid, Bdb.getConceptDb().getReadOnly()));
             readWriteFuture = executorPool.submit(new GetNidData(nid, Bdb.getConceptDb().getReadWrite()));
         }
     }

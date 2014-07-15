@@ -34,9 +34,9 @@ public class PropertiesBdb extends ComponentBdb {
 
     private TupleBinding<String> stringBinder = TupleBinding.getPrimitiveBinding(String.class);
 
-    public PropertiesBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv)
+    public PropertiesBdb(Bdb mutableBdbEnv)
             throws IOException {
-        super(readOnlyBdbEnv, mutableBdbEnv);
+        super(mutableBdbEnv);
     }
 
     /*
@@ -51,9 +51,6 @@ public class PropertiesBdb extends ComponentBdb {
         stringBinder.objectToEntry(key, propKey);
         try {
             if (mutable.get(null, propKey, propValue, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-                return (String) stringBinder.entryToObject(propValue);
-            }
-            if (readOnly.get(null, propKey, propValue, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
                 return (String) stringBinder.entryToObject(propValue);
             }
         } catch (DatabaseException e) {
@@ -78,18 +75,6 @@ public class PropertiesBdb extends ComponentBdb {
                     String key = (String) stringBinder.entryToObject(foundKey);
                     String value = (String) stringBinder.entryToObject(foundData);
                     propMap.put(key, value);
-                }
-            } finally {
-                propCursor.close();
-            }
-            propCursor = readOnly.openCursor(null, null);
-            try {
-                while (propCursor.getNext(foundKey, foundData, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-                    String key = (String) stringBinder.entryToObject(foundKey);
-                    String value = (String) stringBinder.entryToObject(foundData);
-                    if (propMap.containsKey(key) == false) {
-                        propMap.put(key, value);
-                    }
                 }
             } finally {
                 propCursor.close();

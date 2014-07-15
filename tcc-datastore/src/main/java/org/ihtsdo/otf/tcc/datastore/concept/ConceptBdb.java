@@ -75,13 +75,12 @@ public class ConceptBdb extends ComponentBdb {
      * Constructs ...
      *
      *
-     * @param readOnlyBdbEnv
      * @param mutableBdbEnv
      *
      * @throws IOException
      */
-    public ConceptBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv) throws IOException {
-        super(readOnlyBdbEnv, mutableBdbEnv);
+    public ConceptBdb(Bdb mutableBdbEnv) throws IOException {
+        super(mutableBdbEnv);
         getReadOnlyConceptIdSet();
     }
 
@@ -119,7 +118,7 @@ public class ConceptBdb extends ComponentBdb {
      */
     @Override
     protected void init() throws IOException {
-        preloadBoth();
+        preload();
     }
 
     /**
@@ -175,7 +174,7 @@ public class ConceptBdb extends ComponentBdb {
 
             sum = sum + count;
 
-            ParallelConceptIterator pci = new ParallelConceptIterator(first, last, count, processor, readOnly, mutable);
+            ParallelConceptIterator pci = new ParallelConceptIterator(first, last, count, processor, mutable);
 
             pcis.add(pci);
 
@@ -361,15 +360,13 @@ public class ConceptBdb extends ComponentBdb {
      */
     public final ConcurrentBitSetReadOnly getReadOnlyConceptIdSet() throws IOException {
         if (conceptIdSet == null) {
-            GetCNids readOnlyGetter = new GetCNids(readOnly);
             GetCNids mutableGetter  = new GetCNids(mutable);
 
             try {
-                ConcurrentBitSet readOnlyMap = readOnlyGetter.call();
                 ConcurrentBitSet mutableMap  = mutableGetter.call();
 
-                readOnlyMap.or(mutableMap);
-                conceptIdSet = new ConcurrentBitSet(readOnlyMap);
+
+                conceptIdSet = mutableMap;
             } catch (Exception e) {
                 throw new IOException(e);
             }

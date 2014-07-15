@@ -16,18 +16,10 @@ import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
  */
 public abstract class ComponentBdb {
 
-    protected Database readOnly = null;
     protected Database mutable = null;
 
-    public ComponentBdb(Bdb readOnlyBdbEnv, Bdb mutableBdbEnv)
+    public ComponentBdb(Bdb mutableBdbEnv)
             throws IOException {
-        try {
-            readOnly = Bdb.setupDatabase(readOnlyBdbEnv.bdbEnv.getConfig().getReadOnly(),
-                    getDbName(), readOnlyBdbEnv);
-        } catch (DatabaseException e) {
-            AceLog.getAppLog().warning(e.getLocalizedMessage());
-        }
-        mutable = Bdb.setupDatabase(false, getDbName(), mutableBdbEnv);
         init();
     }
 
@@ -35,38 +27,17 @@ public abstract class ComponentBdb {
 
     protected abstract String getDbName();
 
-    protected void closeReadOnly() {
-        if (readOnly != null) {
-            readOnly.close();
-            readOnly = null;
-        }
-    }
 
-    protected void preloadBoth() {
-        preload(readOnly);
-        preload(mutable);
-    }
-    
-    protected void preloadReadOnly() {
-        preload(readOnly);
-    }
-
-    protected void preloadMutable() {
-        preload(mutable);
-    }
-
-    private void preload(Database db) {
+    protected void preload() {
         PreloadConfig plConfig = new PreloadConfig();
         plConfig.setLoadLNs(false);
-        db.preload(plConfig);
+        mutable.preload(plConfig);
     }
+
 
     public void close() {
         try {
             sync();
-            if (readOnly != null) {
-                readOnly.close();
-            }
             mutable.close();
         } catch (IllegalStateException ex) {
             if (AceLog.getAppLog().isLoggable(Level.INFO)) {
@@ -80,14 +51,7 @@ public abstract class ComponentBdb {
     }
 
     public void sync() throws IOException {
-        if (readOnly != null && readOnly.getConfig().getReadOnly() == false) {
-            readOnly.sync();
-        }
         mutable.sync();
-    }
-
-    public Database getReadOnly() {
-        return readOnly;
     }
 
     public Database getReadWrite() {
