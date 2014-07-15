@@ -24,11 +24,6 @@
             <artifactId>mahout-collections</artifactId>
             <version>1.0</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.sleepycat</groupId>-->
-            <!--<artifactId>je</artifactId>-->
-            <!--<type>jar</type>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.ihtsdo.otf</groupId>
             <artifactId>tcc-api</artifactId>

@@ -11,7 +11,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
@@ -19,7 +19,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -34,8 +33,8 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private int c1Nid;
-   private int c2Nid;
+   protected int c1Nid;
+   protected int c2Nid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -43,14 +42,10 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
       super();
    }
 
-   public NidNidMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidNidMember(TtkRefexUuidUuidMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid = P.s.getNidForUuids(refsetMember.getUuid1());
-      c2Nid = P.s.getNidForUuids(refsetMember.getUuid2());
+      c1Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
+      c2Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid2());
 
       if (refsetMember.getRevisionList() != null) {
          revisions = new RevisionSet<NidNidRevision, NidNidMember>(primordialStamp);
@@ -130,16 +125,6 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
         return false;
     }
 
-   @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      c1Nid = input.readInt();
-      c2Nid = input.readInt();
-   }
-
-   @Override
-   protected final NidNidRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new NidNidRevision(input, this);
-   }
 
    @Override
    public boolean readyToWriteRefsetMember() {
@@ -165,12 +150,6 @@ public class NidNidMember extends RefexMember<NidNidRevision, NidNidMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeInt(c2Nid);
    }
 
    //~--- get methods ---------------------------------------------------------

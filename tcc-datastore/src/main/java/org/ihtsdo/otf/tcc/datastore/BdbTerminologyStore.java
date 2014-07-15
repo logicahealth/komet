@@ -25,7 +25,6 @@ import org.ihtsdo.otf.tcc.api.nid.NativeIdSetItrBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.api.store.TerminologyDI.CONCEPT_EVENT;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
 import org.ihtsdo.otf.tcc.datastore.id.MemoryCacheBdb;
@@ -36,8 +35,9 @@ import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
@@ -49,6 +49,7 @@ import org.ihtsdo.otf.tcc.model.cs.CsProperty;
 import org.jvnet.hk2.annotations.Service;
 
 //~--- JDK imports ------------------------------------------------------------
+import javax.inject.Singleton;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 
@@ -93,20 +94,13 @@ public class BdbTerminologyStore extends Termstore {
         } else {
             LOG.info("Database setup already initialized");
         }
-
-        try {
-            setupComplete.await();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public static void waitForSetup() {
-        try {
-            setupComplete.await();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//
+//        TODO figure out how to get HK2 to only get one class on startup... Not multiple BdbTerminologyStore...
+//        try {
+//            setupComplete.await();
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(BdbTerminologyStore.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     public void shutdown() {
@@ -390,7 +384,7 @@ public class BdbTerminologyStore extends Termstore {
         if (dependencies != null) {
             try {
                 for (DbDependency d : dependencies) {
-                    String value = P.s.getProperty(d.getKey());
+                    String value = PersistentStore.get().getProperty(d.getKey());
 
                     if (d.satisfactoryValue(value) == false) {
                         return false;

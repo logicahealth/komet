@@ -50,7 +50,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     private static VersionComputer<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private byte[][] arrayOfByteArray;
+    protected byte[][] arrayOfByteArray;
 
     @Override
     public byte[][] getArrayOfByteArray() {
@@ -67,10 +67,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     //~--- constructors --------------------------------------------------------
     public ArrayOfByteArrayMember() {
         super();
-    }
-
-    public ArrayOfByteArrayMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-        super(enclosingConceptNid, input);
     }
 
     public ArrayOfByteArrayMember(TtkRefexArrayOfByteArrayMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -156,22 +152,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     }
 
     @Override
-    protected void readMemberFields(DataInputStream in) throws IOException {
-      int arrayLength = in.readShort();
-      this.arrayOfByteArray = new byte[arrayLength][];
-      for (int i = 0; i < arrayLength; i++) {
-          int byteArrayLength = in.readInt();
-          this.arrayOfByteArray[i] = new byte[byteArrayLength];
-          in.readFully(this.arrayOfByteArray[i], 0, byteArrayLength);
-      }
-    }
-
-    @Override
-    protected final ArrayOfByteArrayRevision readMemberRevision(DataInputStream input) throws IOException {
-        return new ArrayOfByteArrayRevision(input, this);
-    }
-
-    @Override
     public boolean readyToWriteRefsetMember() {
         return true;
     }
@@ -201,14 +181,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
         return buff.toString();
     }
 
-    @Override
-    protected void writeMember(DataOutput out) throws IOException {
-     out.writeShort(arrayOfByteArray.length);
-      for (byte[] bytes: arrayOfByteArray) {
-        out.writeInt(bytes.length);  
-        out.write(bytes);
-      }
-    }
 
     //~--- get methods ---------------------------------------------------------
 

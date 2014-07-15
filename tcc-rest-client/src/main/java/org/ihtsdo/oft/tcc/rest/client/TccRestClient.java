@@ -40,7 +40,7 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 import org.ihtsdo.otf.tcc.model.cc.concept.NidDataInMemory;
@@ -109,12 +109,9 @@ public class TccRestClient extends Termstore {
 
       restClient          = ClientBuilder.newClient(cc);
       restClientSingleton = new TccRestClient();
-      P.s                 = restClientSingleton;
-      Ts.set(restClientSingleton);
-      FxTs.set(restClientSingleton);
-      P.s.putViewCoordinate(P.s.getMetadataVC());
-      P.s.putViewCoordinate(StandardViewCoordinates.getSnomedInferredLatest());
-      Ts.get().setGlobalSnapshot(Ts.get().getSnapshot(StandardViewCoordinates.getSnomedInferredLatest()));
+      restClientSingleton.putViewCoordinate(PersistentStore.get().getMetadataVC());
+      restClientSingleton.putViewCoordinate(StandardViewCoordinates.getSnomedInferredLatest());
+      restClientSingleton.setGlobalSnapshot(restClientSingleton.getSnapshot(StandardViewCoordinates.getSnomedInferredLatest()));
    }
 
    @Override

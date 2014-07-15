@@ -19,7 +19,6 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -41,7 +40,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
@@ -55,7 +54,7 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
-    private RefexDynamicDataBI[] data_;
+    protected RefexDynamicDataBI[] data_;
     
     public RefexDynamicRevision() {
         super();
@@ -66,8 +65,8 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     public RefexDynamicRevision(TtkRevision eVersion, RefexDynamicMember member)  throws IOException{
-        super(eVersion.getStatus(), eVersion.getTime(), P.s.getNidForUuids(eVersion.getAuthorUuid()),
-                 P.s.getNidForUuids(eVersion.getModuleUuid()), P.s.getNidForUuids(eVersion.getPathUuid()),  member);
+        super(eVersion.getStatus(), eVersion.getTime(), PersistentStore.get().getNidForUuids(eVersion.getAuthorUuid()),
+                 PersistentStore.get().getNidForUuids(eVersion.getModuleUuid()), PersistentStore.get().getNidForUuids(eVersion.getPathUuid()),  member);
     }
 
     public RefexDynamicRevision(DataInputStream input, RefexDynamicMember primordialComponent) throws IOException {
@@ -160,7 +159,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
         RefexDynamicCAB rdc = new RefexDynamicCAB(
-                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
+                PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), 
                 vc, 
@@ -204,26 +203,6 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         //I don't think we need to do anything here - with construction via Blueprint only, it should be impossible to create one that 
         //isn't ready to write
        return true;
-    }
-
-    @Override
-    protected void writeFieldsToBdb(DataOutput output) throws IOException {
-        //Write with the following format - 
-        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        output.writeInt(getData().length);
-        for (RefexDynamicDataBI column : getData())
-        {
-            if (column == null)
-            {
-                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
-            }
-            else
-            {
-                output.writeInt(column.getRefexDataType().getTypeToken());
-                output.writeInt(column.getData().length);
-                output.write(column.getData());
-            }
-        }
     }
 
 

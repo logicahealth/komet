@@ -41,7 +41,7 @@ import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
@@ -82,12 +82,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Field description
      */
     static int authorityNid = Integer.MAX_VALUE;
-    /**
-     * Field description
-     */
-    private static AnnotationWriter annotationWriter = new AnnotationWriter();
+
+    protected long[] additionalUuidParts;
 
    /** Field description */
+   @Deprecated
    protected ArrayList<IdentifierVersion> additionalIdVersions;
     /**
      * Field description
@@ -128,41 +127,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         super();
     }
 
-    /**
-     * Constructs ...
-     *
-     *
-     * @param enclosingConceptNid
-     * @param input
-     *
-     * @throws IOException
-     */
-    protected ConceptComponent(int enclosingConceptNid, DataInputStream input) throws IOException {
-        super();
-        this.enclosingConceptNid = enclosingConceptNid;
-        readComponentFromStream(input);
-
-        int cNid = P.s.getConceptNidForNid(nid);
-
-        if (cNid == Integer.MAX_VALUE) {
-            P.s.setConceptNidForNid(this.enclosingConceptNid, this.nid);
-        } else if (cNid != this.enclosingConceptNid) {
-            P.s.resetConceptNidForNid(this.enclosingConceptNid, this.nid);
-
-            if (fixAlert.compareAndSet(true, false)) {
-                logger.log(
-                        Level.SEVERE, "a. Datafix warning. See log for details.",
-                        new Exception(
-                        String.format(
-                        "a-Datafix: cNid %s %s incorrect for: %s %s should have been: {4}{5}", cNid,
-                        P.s.getUuidsForNid(cNid), this.nid, P.s.getUuidsForNid(this.nid),
-                        this.enclosingConceptNid, P.s.getUuidsForNid(this.enclosingConceptNid))));
-            }
-        }
-
-        assert nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
-    }
-
     // TODO move the EComponent constructors to a helper class or factory class...
     // So that the size of this class is kept limited ?
     /**
@@ -178,21 +142,21 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         super();
         assert eComponent != null;
 
-        if (P.s.hasUuid(eComponent.primordialUuid)) {
-            this.nid = P.s.getNidForUuids(eComponent.primordialUuid);
+        if (PersistentStore.get().hasUuid(eComponent.primordialUuid)) {
+            this.nid = PersistentStore.get().getNidForUuids(eComponent.primordialUuid);
         } else {
-            this.nid = P.s.getNidForUuids(eComponent.getUuids());
+            this.nid = PersistentStore.get().getNidForUuids(eComponent.getUuids());
         }
 
         assert this.nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
         this.enclosingConceptNid = enclosingConceptNid;
 
-        int cNid = P.s.getConceptNidForNid(nid);
+        int cNid = PersistentStore.get().getConceptNidForNid(nid);
 
         if (cNid == Integer.MAX_VALUE) {
-            P.s.setConceptNidForNid(this.enclosingConceptNid, this.nid);
+            PersistentStore.get().setConceptNidForNid(this.enclosingConceptNid, this.nid);
         } else if (cNid != this.enclosingConceptNid) {
-            P.s.resetConceptNidForNid(this.enclosingConceptNid, this.nid);
+            PersistentStore.get().resetConceptNidForNid(this.enclosingConceptNid, this.nid);
 
             if (fixAlert.compareAndSet(true, false)) {
                 logger.log(
@@ -200,12 +164,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         new Exception(
                                 String.format(
                                         "b-Datafix: cNid %s %s incorrect for: %s %s should have been: {4}{5}", cNid,
-                                        P.s.getUuidsForNid(cNid), this.nid, P.s.getUuidsForNid(this.nid),
-                                        this.enclosingConceptNid, P.s.getUuidsForNid(this.enclosingConceptNid))));
+                                        PersistentStore.get().getUuidsForNid(cNid), this.nid, PersistentStore.get().getUuidsForNid(this.nid),
+                                        this.enclosingConceptNid, PersistentStore.get().getUuidsForNid(this.enclosingConceptNid))));
             }
         }
 
-        this.primordialStamp = P.s.getStamp(eComponent);
+        this.primordialStamp = PersistentStore.get().getStamp(eComponent);
         assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid;
         this.primordialMsb = eComponent.getPrimordialComponentUuid().getMostSignificantBits();
         this.primordialLsb = eComponent.getPrimordialComponentUuid().getLeastSignificantBits();
@@ -233,12 +197,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     }
     
     public boolean isIndexed() {
-        return P.s.isIndexed(nid);
+        return PersistentStore.get().isIndexed(nid);
     }
     
     public void setIndexed() {
         if (!isUncommitted()) {
-            P.s.setIndexed(nid, true);
+            PersistentStore.get().setIndexed(nid, true);
         }
     }
     /**
@@ -411,18 +375,18 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     public static void addNidToBuffer(Appendable buf, int nidToConvert) {
         try {
             if ((nidToConvert != Integer.MAX_VALUE) && (nidToConvert != 0)) {
-                if (P.s.getConceptNidForNid(nidToConvert) == nidToConvert) {
+                if (PersistentStore.get().getConceptNidForNid(nidToConvert) == nidToConvert) {
                     buf.append("\"");
-                    buf.append(P.s.getConcept(nidToConvert).toString());
+                    buf.append(PersistentStore.get().getConcept(nidToConvert).toString());
                     buf.append("\" [");
                     buf.append(Integer.toString(nidToConvert));
                     buf.append("]");
                 } else {
-                    ComponentBI component = P.s.getComponent(nidToConvert);
+                    ComponentBI component = PersistentStore.get().getComponent(nidToConvert);
                     if (component != null) {
                         buf.append(component.getClass().getSimpleName());
                         buf.append(" from concept: \"");
-                        buf.append(P.s.getConceptForNid(nidToConvert).toString());
+                        buf.append(PersistentStore.get().getConceptForNid(nidToConvert).toString());
                         buf.append("\" [");
                         buf.append(Integer.toString(nidToConvert));
                         buf.append("]");  
@@ -496,8 +460,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     public static void addTextToBuffer(Appendable buf, int nidToConvert) {
         try {
-            if ((nidToConvert != Integer.MAX_VALUE) && (nidToConvert != 0) && (P.s.getConceptNidForNid(nidToConvert) == nidToConvert)) {
-                buf.append(P.s.getConcept(nidToConvert).toString());
+            if ((nidToConvert != Integer.MAX_VALUE) && (nidToConvert != 0) && (PersistentStore.get().getConceptNidForNid(nidToConvert) == nidToConvert)) {
+                buf.append(PersistentStore.get().getConcept(nidToConvert).toString());
             } else {
                 buf.append(Integer.toString(nidToConvert));
             }
@@ -540,7 +504,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     protected String assertionString() {
         try {
-            return P.s.getConcept(enclosingConceptNid).toLongString();
+            return PersistentStore.get().getConcept(enclosingConceptNid).toLongString();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
@@ -798,19 +762,19 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         LongMember longIdMember = new LongMember();
                         longIdMember.enclosingConceptNid = this.enclosingConceptNid;
                         longIdMember.setPrimordialUuid(longMemberUuid);
-                        longIdMember.nid = (P.s.getNidForUuids(longMemberUuid));
+                        longIdMember.nid = (PersistentStore.get().getNidForUuids(longMemberUuid));
 
 
-                        longIdMember.assemblageNid = P.s.getNidForUuids(idv.authorityUuid);
+                        longIdMember.assemblageNid = PersistentStore.get().getNidForUuids(idv.authorityUuid);
                         longIdMember.setReferencedComponentNid(nid);
                         longIdMember.setLong1(longId.getDenotation());
 
                         longIdMember.setSTAMP(
-                                P.s.getStamp(idv.getStatus(),
-                                idv.getTime(),
-                                P.s.getNidForUuids(idv.authorUuid),
-                                P.s.getNidForUuids(idv.moduleUuid),
-                                P.s.getNidForUuids(idv.pathUuid)));
+                                PersistentStore.get().getStamp(idv.getStatus(),
+                                        idv.getTime(),
+                                        PersistentStore.get().getNidForUuids(idv.authorUuid),
+                                        PersistentStore.get().getNidForUuids(idv.moduleUuid),
+                                        PersistentStore.get().getNidForUuids(idv.pathUuid)));
                         addAnnotation(longIdMember);
 
                         break;
@@ -827,17 +791,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
                         stringMember.enclosingConceptNid = this.enclosingConceptNid;
                         stringMember.setPrimordialUuid(stringMemberUuid);
-                        stringMember.nid = P.s.getNidForUuids(stringMemberUuid);
+                        stringMember.nid = PersistentStore.get().getNidForUuids(stringMemberUuid);
 
-                        stringMember.assemblageNid = P.s.getNidForUuids(idv.authorityUuid);
+                        stringMember.assemblageNid = PersistentStore.get().getNidForUuids(idv.authorityUuid);
                         stringMember.setReferencedComponentNid(nid);
                         stringMember.setString1(ids.getDenotation());
 
-                        stringMember.setSTAMP(P.s.getStamp(idv.getStatus(),
+                        stringMember.setSTAMP(PersistentStore.get().getStamp(idv.getStatus(),
                                 idv.getTime(),
-                                P.s.getNidForUuids(idv.authorUuid),
-                                P.s.getNidForUuids(idv.moduleUuid),
-                                P.s.getNidForUuids(idv.pathUuid)));
+                                PersistentStore.get().getNidForUuids(idv.authorUuid),
+                                PersistentStore.get().getNidForUuids(idv.moduleUuid),
+                                PersistentStore.get().getNidForUuids(idv.pathUuid)));
                         addAnnotation(stringMember);
                         } else {
                             // TODO add back in conversions for string identifiers after 
@@ -848,7 +812,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
                     case UUID:
                         additionalIdVersions.add(new IdentifierVersionUuid((TtkIdentifierUuid) idv));
-                        P.s.put(((TtkIdentifierUuid) idv).getDenotation(), nid);
+                        PersistentStore.get().put(((TtkIdentifierUuid) idv).getDenotation(), nid);
 
                         break;
 
@@ -982,7 +946,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             throws IOException {
         Set<Integer> versionSapNids = getVersionStamps();
 
-        P.s.setIndexed(nid, false);
+        PersistentStore.get().setIndexed(nid, false);
         // merge versions
         for (Version<R, C> v : another.getVersions()) {
             if ((v.getStamp() != -1) && !versionSapNids.contains(v.getStamp())) {
@@ -1089,79 +1053,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 //        }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    private void readAnnotationsFromStream(DataInputStream input) throws IOException {
-        annotations = annotationWriter.entryToObject(input, enclosingConceptNid);
-        annotationsDynamic = annotationWriter.entryDynamicToObject(input, enclosingConceptNid);
-    }
 
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    public final void readComponentFromStream(DataInputStream input) throws IOException {
-        this.nid = input.readInt();
-        this.primordialMsb = input.readLong();
-        this.primordialLsb = input.readLong();
-        this.primordialStamp = input.readInt();
-        assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
-        readIdentifierFromDataStream(input);
-        readAnnotationsFromStream(input);
-        readFromDataStream(input);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    public abstract void readFromDataStream(DataInputStream input) throws IOException;
-
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    private void readIdentifierFromDataStream(DataInputStream input) throws IOException {
-
-        // nid, list size, and conceptNid are read already by the binder...
-        int listSize = input.readShort();
-
-        if (listSize != 0) {
-            additionalIdVersions = new ArrayList<>(listSize);
-        }
-
-        for (int i = 0; i < listSize; i++) {
-            switch (IDENTIFIER_PART_TYPES.readType(input)) {
-                case LONG:
-                    throw new UnsupportedOperationException("Long identifiers must be represented as refexes...");
-
-                case STRING:
-                    throw new UnsupportedOperationException("Long identifiers must be represented as refexes...");
-
-                case UUID:
-                    IdentifierVersionUuid idvu = new IdentifierVersionUuid(input);
-
-                    if (idvu.getTime() != Long.MIN_VALUE) {
-                        additionalIdVersions.add(idvu);
-                    }
-
-                    break;
-
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-    }
 
     /**
      * Method description
@@ -1242,7 +1134,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             throw new UnsupportedOperationException("Cannot resetUncommitted if time != Long.MIN_VALUE");
         }
 
-        this.primordialStamp = P.s.getStamp(status, Long.MAX_VALUE, authorNid, moduleNid, pathNid);
+        this.primordialStamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, authorNid, moduleNid, pathNid);
         assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         this.getEnclosingConcept().setIsCanceled(false);
         this.clearVersions();
@@ -1547,37 +1439,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return true;
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param output
-     * @param maxReadOnlyStatusAtPositionNid
-     */
-    private void writeAnnotationsToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
-        annotationWriter.objectToEntry(annotations, output, maxReadOnlyStatusAtPositionNid);
-        annotationWriter.objectDynamicToEntry(annotationsDynamic, output, maxReadOnlyStatusAtPositionNid);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param output
-     * @param maxReadOnlyStatusAtPositionNid
-     */
-    public final void writeComponentToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
-        assert nid != 0;
-        assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
-        assert primordialStamp != Integer.MAX_VALUE;
-        output.writeInt(nid);
-        output.writeLong(primordialMsb);
-        output.writeLong(primordialLsb);
-        output.writeInt(primordialStamp);
-        writeIdentifierToBdb(output, maxReadOnlyStatusAtPositionNid);
-        writeAnnotationsToBdb(output, maxReadOnlyStatusAtPositionNid);
-        writeToBdb(output, maxReadOnlyStatusAtPositionNid);
-    }
 
     /**
      * Method description
@@ -1586,7 +1447,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @param output
      * @param maxStamp
      */
-    private void writeIdentifierToBdb(DataOutput output, int maxStamp) throws IOException {
+    private void writeAdditionalIdentifiersToDataOutput(DataOutput output, int maxStamp) throws IOException {
         List<IdentifierVersion> partsToWrite = new ArrayList<>();
 
         if (additionalIdVersions != null) {
@@ -1606,14 +1467,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param output
-     * @param maxReadOnlyStatusAtPositionNid
-     */
-    public abstract void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException;
 
     /**
      * Method description
@@ -1766,7 +1619,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public int getAuthorNid() {
-        return P.s.getAuthorNidForStamp(primordialStamp);
+        return PersistentStore.get().getAuthorNidForStamp(primordialStamp);
     }
 
     /**
@@ -2036,7 +1889,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     public ConceptChronicle getEnclosingConcept() {
         try {
 //            Need to do this to return different ways depending on datastore implementation
-            return (ConceptChronicle) P.s.getConcept(enclosingConceptNid);
+            return (ConceptChronicle) PersistentStore.get().getConcept(enclosingConceptNid);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -2125,7 +1978,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public int getModuleNid() {
-        return P.s.getModuleNidForStamp(primordialStamp);
+        return PersistentStore.get().getModuleNidForStamp(primordialStamp);
     }
 
     /**
@@ -2157,7 +2010,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final int getPathNid() {
-        return P.s.getPathNidForStamp(primordialStamp);
+        return PersistentStore.get().getPathNidForStamp(primordialStamp);
     }
 
     /**
@@ -2170,7 +2023,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Position getPosition() throws IOException {
-        return new Position(getTime(), P.s.getPath(getPathNid()));
+        return new Position(getTime(), PersistentStore.get().getPath(getPathNid()));
     }
 
     /**
@@ -2243,13 +2096,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
     {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
         List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
         HashSet<Integer> addedMembers = new HashSet<>();
 
         if ((pairs != null) && !pairs.isEmpty()) {
             for (NidPairForRefex pair : pairs) {
-                ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+                ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
                 if (component instanceof RefexDynamicChronicleBI<?>)
                 {
                     RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) component;
@@ -2322,16 +2175,16 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
     {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
         List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
         HashSet<Integer> addedMembers = new HashSet<>();
 
         if ((pairs != null) && !pairs.isEmpty()) {
             for (NidPairForRefex pair : pairs) {
-                ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+                ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
                 if (component instanceof RefexDynamicChronicleBI<?>)
                 {
-                    RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
+                    RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) PersistentStore.get().getComponent(pair.getMemberNid());
     
                     if ((ext != null) && !addedMembers.contains(ext.getNid())) {
                         addedMembers.add(ext.getNid());
@@ -2354,13 +2207,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
         List<RefexChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
         HashSet<Integer> addedMembers = new HashSet<>();
 
         if ((pairs != null) && !pairs.isEmpty()) {
             for (NidPairForRefex pair : pairs) {
-                ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+                ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
                 if (component instanceof RefexChronicleBI<?>)
                 {
                     RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
@@ -2403,7 +2256,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @throws IOException
      */
     public Set<Integer> getRefsetMemberSapNids() throws IOException {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
 
         if ((pairs == null) || pairs.isEmpty()) {
             return new HashSet<>(0);
@@ -2412,7 +2265,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         HashSet<Integer> returnValues = new HashSet<>(pairs.size());
 
         for (NidPairForRefex pair : pairs) {
-            ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+            ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
             if (component instanceof RefexChronicleBI<?>)
             {
                 RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
@@ -2439,7 +2292,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @throws IOException
      */
     public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
 
         if ((pairs == null) || pairs.isEmpty()) {
             return new ArrayList<>(0);
@@ -2449,7 +2302,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         HashSet<Integer> addedMembers = new HashSet<>();
 
         for (NidPairForRefex pair : pairs) {
-            ComponentChronicleBI<?> component = P.s.getComponent(pair.getMemberNid());
+            ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
             if (component instanceof RefexChronicleBI<?>)
             {
                 RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
@@ -2483,7 +2336,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final Status getStatus() {
-        return P.s.getStatusForStamp(primordialStamp);
+        return PersistentStore.get().getStatusForStamp(primordialStamp);
     }
 
     /**
@@ -2494,7 +2347,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final long getTime() {
-        return P.s.getTimeForStamp(primordialStamp);
+        return PersistentStore.get().getTimeForStamp(primordialStamp);
     }
 
     /**
@@ -2659,7 +2512,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public boolean isBaselineGeneration() {
-        return primordialStamp <= P.s.getMaxReadOnlyStamp();
+        return primordialStamp <= PersistentStore.get().getMaxReadOnlyStamp();
     }
 
     /**
@@ -2743,7 +2596,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (authorNid != getAuthorNid()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
             modified();
@@ -2764,7 +2617,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (moduleId != this.getModuleNid()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleId,
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleId,
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }
@@ -2802,7 +2655,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (pathId != getPathNid()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     pathId);
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
             modified();
@@ -2846,7 +2699,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (status != this.getStatus()) {
-            this.primordialStamp = P.s.getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }
@@ -2866,7 +2719,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (time != getTime()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }

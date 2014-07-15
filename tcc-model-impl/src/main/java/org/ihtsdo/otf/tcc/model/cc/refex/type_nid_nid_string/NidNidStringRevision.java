@@ -3,6 +3,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_string;
 //~--- non-JDK imports --------------------------------------------------------
 
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -17,21 +18,19 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuid
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 public class NidNidStringRevision extends RefexRevision<NidNidStringRevision, NidNidStringMember>
         implements RefexNidNidStringAnalogBI<NidNidStringRevision> {
-   private int    c1Nid;
-   private int    c2Nid;
-   private String string1;
+    protected int    c1Nid;
+    protected int    c2Nid;
+    protected String string1;
 
    //~--- constructors --------------------------------------------------------
 
@@ -48,17 +47,11 @@ public class NidNidStringRevision extends RefexRevision<NidNidStringRevision, Ni
 
    public NidNidStringRevision(TtkRefexUuidUuidStringRevision eVersion, NidNidStringMember member) throws IOException {
       super(eVersion, member);
-      c1Nid    = P.s.getNidForUuids(eVersion.getUuid1());
-      c2Nid    = P.s.getNidForUuids(eVersion.getUuid2());
+      c1Nid    = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
+      c2Nid    = PersistentStore.get().getNidForUuids(eVersion.getUuid2());
       string1 = eVersion.getString1();
    }
 
-   public NidNidStringRevision(DataInputStream input, NidNidStringMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      c1Nid    = input.readInt();
-      c2Nid    = input.readInt();
-      string1 = input.readUTF();
-   }
 
    public NidNidStringRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
                             NidNidStringMember primoridalMember) {
@@ -149,18 +142,12 @@ public class NidNidStringRevision extends RefexRevision<NidNidStringRevision, Ni
         buf.append(this.getClass().getSimpleName()).append(" ");
         buf.append(" c1Nid:").append(this.c1Nid);
         buf.append(" c2Nid:").append(this.c2Nid);
-        buf.append(" strValue:" + "'").append(this.string1).append("'");
+        buf.append(" string1:" + "'").append(this.string1).append("'");
       buf.append(super.toString());
 
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeInt(c2Nid);
-      output.writeUTF(string1);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

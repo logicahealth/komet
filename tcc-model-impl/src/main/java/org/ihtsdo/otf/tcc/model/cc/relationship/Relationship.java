@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
@@ -59,11 +59,11 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
 
    //~--- fields --------------------------------------------------------------
 
-   private int   c2Nid;
-   private int   characteristicNid;
-   private int   group;
-   private int   refinabilityNid;
-   private int   typeNid;
+   protected int   c2Nid;
+   protected int   characteristicNid;
+   protected int   group;
+   protected int   refinabilityNid;
+   protected int   typeNid;
    List<RelationshipVersion> versions;
 
    //~--- constructors --------------------------------------------------------
@@ -72,18 +72,14 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       super();
    }
 
-   public Relationship(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
-      super(enclosingConcept.getNid(), input);
-   }
-
    public Relationship(TtkRelationshipChronicle eRel, ConceptChronicleBI enclosingConcept) throws IOException {
       super(eRel, enclosingConcept.getNid());
-      c2Nid = P.s.getNidForUuids(eRel.getC2Uuid());
-      characteristicNid = P.s.getNidForUuids(eRel.getCharacteristicUuid());
+      c2Nid = PersistentStore.get().getNidForUuids(eRel.getC2Uuid());
+      characteristicNid = PersistentStore.get().getNidForUuids(eRel.getCharacteristicUuid());
       group = eRel.getRelGroup();
-      refinabilityNid = P.s.getNidForUuids(eRel.getRefinabilityUuid());
-      typeNid = P.s.getNidForUuids(eRel.getTypeUuid());
-      primordialStamp = P.s.getStamp(eRel);
+      refinabilityNid = PersistentStore.get().getNidForUuids(eRel.getRefinabilityUuid());
+      typeNid = PersistentStore.get().getNidForUuids(eRel.getTypeUuid());
+      primordialStamp = PersistentStore.get().getStamp(eRel);
 
       if (eRel.getRevisionList() != null) {
          revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
@@ -223,27 +219,6 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public void readFromDataStream(DataInputStream input) throws IOException {
-
-      // nid, list size, and conceptNid are read already by the binder...
-      c2Nid             = input.readInt();
-      characteristicNid = input.readInt();
-      group             = input.readInt();
-      refinabilityNid   = input.readInt();
-      typeNid           = input.readInt();
-
-      int additionalVersionCount = input.readInt();
-
-      if (additionalVersionCount > 0) {
-         revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
-
-         for (int i = 0; i < additionalVersionCount; i++) {
-            revisions.add(new RelationshipRevision(input, this));
-         }
-      }
-   }
-
-   @Override
    public boolean readyToWriteComponent() {
       assert c2Nid != Integer.MAX_VALUE : assertionString();
       assert characteristicNid != Integer.MAX_VALUE : assertionString();
@@ -349,35 +324,6 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       buf.append(super.validate(another));
 
       return buf.toString();
-   }
-
-   @Override
-   public void writeToBdb(DataOutput output, int maxReadOnlyStamp) throws IOException {
-
-      //
-      List<RelationshipRevision> revisionsToWrite = new ArrayList<>();
-
-      if (revisions != null) {
-         for (RelationshipRevision p : revisions) {
-            if ((p.getStamp() > maxReadOnlyStamp) && (p.getTime() != Long.MIN_VALUE)) {
-               revisionsToWrite.add(p);
-            }
-         }
-      }
-
-      // Start writing
-      // c1Nid is the enclosing concept, does not need to be written.
-      output.writeInt(c2Nid);
-      output.writeInt(getCharacteristicNid());
-      output.writeInt(group);
-      output.writeInt(getRefinabilityNid());
-      output.writeInt(getTypeNid());
-      output.writeInt(revisionsToWrite.size());
-
-      for (RelationshipRevision p : revisionsToWrite) {
-         p.writeRevisionBdb(output);
-      }
-      
    }
 
    //~--- get methods ---------------------------------------------------------

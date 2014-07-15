@@ -3,6 +3,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_float;
 //~--- non-JDK imports --------------------------------------------------------
 
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -18,20 +19,18 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatR
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.model.cc.P;
 
 public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMember>
         implements RefexNidFloatAnalogBI<NidFloatRevision> {
-   private int   c1Nid;
-   private float floatValue;
+   protected int   c1Nid;
+   protected float floatValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -47,14 +46,8 @@ public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMe
 
    public NidFloatRevision(TtkRefexUuidFloatRevision eVersion, NidFloatMember member) throws IOException {
       super(eVersion, member);
-      c1Nid      = P.s.getNidForUuids(eVersion.getUuid1());
+      c1Nid      = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
       floatValue = eVersion.getFloat1();
-   }
-
-   public NidFloatRevision(DataInputStream input, NidFloatMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      c1Nid      = input.readInt();
-      floatValue = input.readFloat();
    }
 
    public NidFloatRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
@@ -143,12 +136,6 @@ public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMe
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeFloat(floatValue);
    }
 
    //~--- get methods ---------------------------------------------------------

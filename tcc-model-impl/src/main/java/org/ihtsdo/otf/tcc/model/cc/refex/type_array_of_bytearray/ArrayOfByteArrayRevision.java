@@ -42,7 +42,7 @@ import java.util.Set;
 public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>
         implements RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision>  {
 
-   private byte[][] arrayOfByteArray;
+   protected byte[][] arrayOfByteArray;
 
     @Override
     public byte[][] getArrayOfByteArray() {
@@ -72,16 +72,6 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
       this.arrayOfByteArray = eVersion.getArrayOfByteArray1();
    }
 
-   public ArrayOfByteArrayRevision(DataInputStream in, ArrayOfByteArrayMember primoridalMember) throws IOException {
-      super(in, primoridalMember);
-      int arrayLength = in.readShort();
-      this.arrayOfByteArray = new byte[arrayLength][];
-      for (int i = 0; i < arrayLength; i++) {
-          int byteArrayLength = in.readInt();
-          this.arrayOfByteArray[i] = new byte[byteArrayLength];
-          in.readFully(this.arrayOfByteArray[i], 0, byteArrayLength);
-      }
-   }
 
    protected ArrayOfByteArrayRevision(Status status, long time, int authorNid,
            int moduleNid, int pathNid, ArrayOfByteArrayMember primoridalMember) {
@@ -174,15 +164,6 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
       buff.append(super.toString());
 
       return buff.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput out) throws IOException {
-      out.writeShort(arrayOfByteArray.length);
-      for (byte[] bytes: arrayOfByteArray) {
-        out.writeInt(bytes.length);  
-        out.write(bytes);
-      }
    }
 
    //~--- get methods ---------------------------------------------------------

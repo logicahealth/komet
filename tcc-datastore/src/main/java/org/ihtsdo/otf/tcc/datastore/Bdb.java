@@ -48,7 +48,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.io.FileIO;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.OFFSETS;
@@ -567,11 +567,6 @@ public class Bdb {
         setupLatch.countDown();
         if (setupLatch.getCount() == 0) {
             try {
-                if (P.s == null) {
-                    Ts.set(ts);
-                    FxTs.set(ts);
-                    P.s = ts;
-                }
                 Looker.add(ts, UUID.randomUUID(), "Embedded BdbTerminologyStore");
                 Looker.add(new TtkConceptChronicleConverter(), 
                         UUID.randomUUID(), "TtkConceptChronicle to ConceptChronicleDTO converter");

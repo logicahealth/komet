@@ -8,14 +8,13 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -153,8 +152,8 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
          getMemberNids().add(refsetMember.nid);
          addToMemberMap(refsetMember);
          modified();
-         P.s.addXrefPair(refsetMember.getReferencedComponentNid(),
-                         NidPair.getRefexNidMemberNidPair(refsetMember.getAssemblageNid(), refsetMember.getNid()));
+         PersistentStore.get().addXrefPair(refsetMember.getReferencedComponentNid(),
+                 NidPair.getRefexNidMemberNidPair(refsetMember.getAssemblageNid(), refsetMember.getNid()));
       }
    }
    
@@ -168,8 +167,8 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
              getMemberNids().add(refsetDynamicMember.nid);
              addToMemberMap(refsetDynamicMember);
              modified();
-             P.s.addXrefPair(refsetDynamicMember.getReferencedComponentNid(),
-                             NidPair.getRefexNidMemberNidPair(refsetDynamicMember.getAssemblageNid(), refsetDynamicMember.getNid()));
+             PersistentStore.get().addXrefPair(refsetDynamicMember.getReferencedComponentNid(),
+                     NidPair.getRefexNidMemberNidPair(refsetDynamicMember.getAssemblageNid(), refsetDynamicMember.getNid()));
           }
        }
 
@@ -177,11 +176,11 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
       assert rel != null : "rel is null: " + this;
       assert rel.nid != 0 : "relNid is 0: " + this;
       assert rel.getTypeNid() != 0 : "relTypeNid is 0: " + this;
-      assert P.s.getConceptForNid(rel.nid) != null :
+      assert PersistentStore.get().getConceptForNid(rel.nid) != null :
              "No concept for component: " + rel.nid + "\nsourceConcept: "
              + this.enclosingConcept.toLongString() + "\ndestConcept: "
              + ConceptChronicle.get(rel.getDestinationNid()).toLongString();
-      P.s.addRelOrigin(rel.getDestinationNid(), rel.getOriginNid());
+      PersistentStore.get().addRelOrigin(rel.getDestinationNid(), rel.getOriginNid());
       getSrcRelNids().add(rel.nid);
       modified();
    }
@@ -237,8 +236,8 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    public List<Relationship> getDestRels() throws IOException {
 
       // Need to make sure there are no pending db writes prior calling this method.
-      P.s.waitTillWritesFinished();
-      return new ArrayList(P.s.getDestRels(enclosingConcept.getNid()));
+      PersistentStore.get().waitTillWritesFinished();
+      return new ArrayList(PersistentStore.get().getDestRels(enclosingConcept.getNid()));
    }
 
    /*
@@ -250,12 +249,12 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
    public List<Relationship> getDestRels(NidSetBI allowedTypes) throws IOException {
 
       // Need to make sure there are no pending db writes prior calling this method.
-      P.s.waitTillWritesFinished();
+      PersistentStore.get().waitTillWritesFinished();
 
       List<Relationship> destRels = new ArrayList<>();
 
-      for (int originNid : P.s.getDestRelOriginNids(enclosingConcept.getNid(), allowedTypes)) {
-         ConceptChronicle c = (ConceptChronicle) P.s.getConceptForNid(originNid);
+      for (int originNid : PersistentStore.get().getDestRelOriginNids(enclosingConcept.getNid(), allowedTypes)) {
+         ConceptChronicle c = (ConceptChronicle) PersistentStore.get().getConceptForNid(originNid);
 
          if (c != null) {
             for (Relationship r : c.getRelationshipsOutgoing()) {

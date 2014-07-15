@@ -11,7 +11,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_string.TtkRefexUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_string.TtkRefexUuidStringRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
@@ -19,7 +19,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -34,8 +33,8 @@ public class NidStringMember extends RefexMember<NidStringRevision, NidStringMem
 
    //~--- fields --------------------------------------------------------------
 
-   private int    c1Nid;
-   private String string1;
+    protected int    c1Nid;
+    protected String string1;
 
    //~--- constructors --------------------------------------------------------
 
@@ -43,13 +42,9 @@ public class NidStringMember extends RefexMember<NidStringRevision, NidStringMem
       super();
    }
 
-   public NidStringMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidStringMember(TtkRefexUuidStringMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid    = P.s.getNidForUuids(refsetMember.getUuid1());
+      c1Nid    = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
       string1 = refsetMember.getString1();
 
       if (refsetMember.getRevisionList() != null) {
@@ -131,17 +126,6 @@ public class NidStringMember extends RefexMember<NidStringRevision, NidStringMem
     }
 
    @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      c1Nid    = input.readInt();
-      string1 = input.readUTF();
-   }
-
-   @Override
-   protected final NidStringRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new NidStringRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert c1Nid != Integer.MAX_VALUE;
       assert string1 != null;
@@ -160,16 +144,10 @@ public class NidStringMember extends RefexMember<NidStringRevision, NidStringMem
       buf.append(this.getClass().getSimpleName()).append(" ");
       buf.append(" c1Nid: ");
       addNidToBuffer(buf, c1Nid);
-      buf.append(" strValue:" + "'").append(this.string1).append("'");
+      buf.append(" string1:" + "'").append(this.string1).append("'");
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeUTF(string1);
    }
 
    //~--- get methods ---------------------------------------------------------

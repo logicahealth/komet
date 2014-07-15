@@ -32,7 +32,7 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
@@ -83,7 +83,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     }
 
     public ConceptAttributes getConAttr(ConceptAttributeAB blueprint) throws IOException, InvalidCAB {
-        ConceptAttributes cac = (ConceptAttributes) P.s.getConcept(blueprint.getComponentUuid()).getConceptAttributes();
+        ConceptAttributes cac = (ConceptAttributes) PersistentStore.get().getConcept(blueprint.getComponentUuid()).getConceptAttributes();
         if (cac == null) {
             throw new InvalidCAB("ConAttrAB can only be used for amendment, not creation."
                     + " Use ConceptCB instead. " + blueprint);
@@ -143,10 +143,10 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
     private RefexMember<?, ?> getRefex(RefexCAB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE
-                != P.s.getConceptNidForNid(P.s.getNidForUuids(blueprint.getMemberUUID()))) {
+        if (PersistentStore.get().hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE
+                != PersistentStore.get().getConceptNidForNid(PersistentStore.get().getNidForUuids(blueprint.getMemberUUID()))) {
             ComponentChronicleBI<?> component
-                    = P.s.getComponent(blueprint.getMemberUUID());
+                    = PersistentStore.get().getComponent(blueprint.getMemberUUID());
             if (component == null) {
                 return null;
             }
@@ -166,10 +166,10 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     
     private RefexDynamicMember getRefex(RefexDynamicCAB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE
-                != P.s.getConceptNidForNid(P.s.getNidForUuids(blueprint.getMemberUUID()))) {
+        if (PersistentStore.get().hasUuid(blueprint.getMemberUUID()) && Integer.MAX_VALUE
+                != PersistentStore.get().getConceptNidForNid(PersistentStore.get().getNidForUuids(blueprint.getMemberUUID()))) {
             ComponentChronicleBI<?> component
-                    = P.s.getComponent(blueprint.getMemberUUID());
+                    = PersistentStore.get().getComponent(blueprint.getMemberUUID());
             if (component == null) {
                 return null;
             }
@@ -212,20 +212,20 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private RefexMember<?, ?> createRefex(RefexCAB blueprint)
             throws IOException, InvalidCAB, ContradictionException {
         
-        ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexCollectionNid());
+        ConceptChronicle refexColCon = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getRefexCollectionNid());
         
         if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
-            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
-                    P.s.getNidForUuids(blueprint.getComponentUuid()));
+            PersistentStore.get().setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
+                    PersistentStore.get().getNidForUuids(blueprint.getComponentUuid()));
         } else if (refexColCon.isAnnotationStyleRefex()) {
-            int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
+            int rcNid = PersistentStore.get().getNidForUuids(blueprint.getReferencedComponentUuid());
 
-            int enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
-            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
+            int enclosingConceptNid = PersistentStore.get().getConceptNidForNid(rcNid);
+            PersistentStore.get().setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
         } else {
             int enclosingConceptNid = refexColCon.getNid();
             int blueprintNid = Ts.get().getConceptNidForNid(blueprint.getComponentNid());
-            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
+            PersistentStore.get().setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
         }
 
         RefexMember<?, ?> newRefex = RefexMemberFactory.create(blueprint, ec);
@@ -244,20 +244,20 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
     private RefexDynamicMember createRefex(RefexDynamicCAB blueprint)
             throws IOException, InvalidCAB, ContradictionException {
         
-        ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexAssemblageNid());
+        ConceptChronicle refexColCon = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getRefexAssemblageNid());
         
         if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
-            P.s.setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
-                    P.s.getNidForUuids(blueprint.getComponentUuid()));
+            PersistentStore.get().setConceptNidForNid(blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID),
+                    PersistentStore.get().getNidForUuids(blueprint.getComponentUuid()));
         } else if (refexColCon.isAnnotationStyleRefex()) {
-            int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
+            int rcNid = PersistentStore.get().getNidForUuids(blueprint.getReferencedComponentUuid());
 
-            int enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
-            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
+            int enclosingConceptNid = PersistentStore.get().getConceptNidForNid(rcNid);
+            PersistentStore.get().setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
         } else {
             int enclosingConceptNid = refexColCon.getNid();
             int blueprintNid = Ts.get().getConceptNidForNid(blueprint.getComponentNid());
-            P.s.setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
+            PersistentStore.get().setConceptNidForNid(enclosingConceptNid, blueprint.getComponentNid());
         }
 
         RefexDynamicMember newRefex = RefexDynamicMemberFactory.create(blueprint, ec);
@@ -275,9 +275,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
     private RelationshipChronicleBI getRel(RelationshipCAB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getComponentUuid())) {
+        if (PersistentStore.get().hasUuid(blueprint.getComponentUuid())) {
             ComponentChronicleBI<?> component
-                    = P.s.getComponent(blueprint.getComponentUuid());
+                    = PersistentStore.get().getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -297,7 +297,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
         RelationshipChronicleBI relc = getRel(blueprint);
 
         if (relc == null) {
-            ConceptChronicle c = (ConceptChronicle) P.s.getConcept(blueprint.getSourceNid());
+            ConceptChronicle c = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getSourceNid());
             Relationship r = new Relationship();
             Bdb.gVersion.incrementAndGet();
             r.enclosingConceptNid = c.getNid();
@@ -385,9 +385,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
     private DescriptionChronicleBI getDesc(DescriptionCAB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getComponentUuid())) {
+        if (PersistentStore.get().hasUuid(blueprint.getComponentUuid())) {
             ComponentChronicleBI<?> component
-                    = P.s.getComponent(blueprint.getComponentUuid());
+                    = PersistentStore.get().getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -424,7 +424,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
         if (desc == null) {
             int conceptNid = blueprint.getConceptNid();
-            ConceptChronicle c = (ConceptChronicle) P.s.getConcept(blueprint.getConceptNid());
+            ConceptChronicle c = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getConceptNid());
             Description d = new Description();
             Bdb.gVersion.incrementAndGet();
             d.enclosingConceptNid = c.getNid();
@@ -488,9 +488,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
     private MediaChronicleBI getMedia(MediaCAB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getComponentUuid())) {
+        if (PersistentStore.get().hasUuid(blueprint.getComponentUuid())) {
             ComponentChronicleBI<?> component
-                    = P.s.getComponent(blueprint.getComponentUuid());
+                    = PersistentStore.get().getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }
@@ -526,7 +526,7 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
         MediaChronicleBI imgC = getMedia(blueprint);
 
         if (imgC == null) {
-            ConceptChronicle c = (ConceptChronicle) P.s.getConcept(blueprint.getConceptNid());
+            ConceptChronicle c = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getConceptNid());
             Media img = new Media();
             Bdb.gVersion.incrementAndGet();
             img.enclosingConceptNid = c.getNid();
@@ -588,9 +588,9 @@ public class BdbTermBuilder implements TerminologyBuilderBI {
 
     private ConceptChronicleBI getConcept(ConceptCB blueprint)
             throws InvalidCAB, IOException {
-        if (P.s.hasUuid(blueprint.getComponentUuid())) {
+        if (PersistentStore.get().hasUuid(blueprint.getComponentUuid())) {
             ComponentChronicleBI<?> component
-                    = P.s.getComponent(blueprint.getComponentUuid());
+                    = PersistentStore.get().getComponent(blueprint.getComponentUuid());
             if (component == null) {
                 return null;
             }

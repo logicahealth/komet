@@ -11,15 +11,13 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.model.cs.ComputeEConceptForChangeSetI;
-import org.ihtsdo.otf.tcc.model.cs.CsProperty;
 import org.ihtsdo.otf.tcc.model.econcept.transfrom.EConceptTransformerBI;
 import org.ihtsdo.otf.tcc.api.io.FileIO;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
@@ -76,12 +74,12 @@ public class ChangeSetWriter implements ChangeSetGeneratorBI {
     @Override
     public void open(NidSetBI commitSapNids) throws IOException {
         if (changeSetFile.exists()) {
-            P.s.setProperty(changeSetFile.getName(),
+            PersistentStore.get().setProperty(changeSetFile.getName(),
                     Long.toString(changeSetFile.length()));
         } else {
-            P.s.setProperty(changeSetFile.getName(), "0");
+            PersistentStore.get().setProperty(changeSetFile.getName(), "0");
         }
-        P.s.setProperty(CsProperty.LAST_CHANGE_SET_WRITTEN.toString(),
+        PersistentStore.get().setProperty(CsProperty.LAST_CHANGE_SET_WRITTEN.toString(),
                 changeSetFile.getName());
         this.commitSapNids = commitSapNids;
         computer = new ChangeSetComputer(policy, commitSapNids);
@@ -139,9 +137,9 @@ public class ChangeSetWriter implements ChangeSetGeneratorBI {
                 changeSetFile.delete();
             } else {
                 ChangeSetLogger.logger.log(Level.INFO, "Finished writing: {0} size: {1}", new Object[]{changeSetFile.getName(), changeSetFile.length()});
-                P.s.setProperty(changeSetFile.getName(),
+                PersistentStore.get().setProperty(changeSetFile.getName(),
                         Long.toString(changeSetFile.length()));
-                P.s.setProperty(CsProperty.LAST_CHANGE_SET_WRITTEN.toString(),
+                PersistentStore.get().setProperty(CsProperty.LAST_CHANGE_SET_WRITTEN.toString(),
                         changeSetFile.getName());
             }
         }
@@ -187,7 +185,7 @@ public class ChangeSetWriter implements ChangeSetGeneratorBI {
                         + "\n##################################################################\n");
                 ChangeSetLogger.logger.log(Level.SEVERE, e.getLocalizedMessage(), new Exception("Exception writing change set for: " + c
                         + "\n See log for details", e));
-                P.s.cancelAfterCommit(commitSapNids);
+                PersistentStore.get().cancelAfterCommit(commitSapNids);
 
             }
             if (cswcOut != null) {

@@ -35,10 +35,6 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
       super(eVersion, member);
    }
 
-   public MembershipRevision(DataInputStream input, MembershipMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-   }
-
 
    public MembershipRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
                              MembershipMember primoridalMember) {
@@ -118,11 +114,6 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) {
-
-      // nothing to write
-   }
 
    //~--- get methods ---------------------------------------------------------
 

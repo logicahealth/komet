@@ -24,7 +24,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 
 public class LongRevision extends RefexRevision<LongRevision, LongMember>
         implements RefexLongAnalogBI<LongRevision> {
-   private long longValue;
+   protected long longValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -40,11 +40,6 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
    public LongRevision(TtkRefexLongRevision eVersion, LongMember member) throws IOException {
       super(eVersion, member);
       this.longValue = eVersion.getLongValue();
-   }
-
-   public LongRevision(DataInputStream input, LongMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      longValue = input.readLong();
    }
 
    public LongRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, LongMember primoridalMember) {
@@ -127,10 +122,6 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeLong(longValue);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

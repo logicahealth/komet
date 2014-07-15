@@ -31,7 +31,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 
 /**
@@ -53,12 +53,12 @@ public class FxConceptResource {
       if (id.length() == 36) {
          UUID uuid = UUID.fromString(id);
 
-         cnid = P.s.getNidForUuids(uuid);
+         cnid = PersistentStore.get().getNidForUuids(uuid);
       } else {
          cnid = Integer.parseInt(id);
       }
 
-      final ConceptDataFetcherI fetcher = P.s.getConceptDataFetcher(cnid);
+      final ConceptDataFetcherI fetcher = PersistentStore.get().getConceptDataFetcher(cnid);
 
       return new StreamingOutput() {
          @Override
@@ -67,10 +67,10 @@ public class FxConceptResource {
 
             dos.writeInt(cnid);
 
-            byte[] robs = fetcher.getReadOnlyBytes();
-
-            dos.writeInt(robs.length);
-            dos.write(robs);
+            //byte[] robs = fetcher.getReadOnlyBytes();
+             // TODO eliminate the read-only part on the other end, and then remove here...
+            dos.writeInt(0);
+            //dos.write(robs);
 
             byte[] rwbs = fetcher.getMutableBytes();
 
@@ -88,9 +88,9 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = P.s.getConcept(UUID.fromString(id));
+         c = PersistentStore.get().getConcept(UUID.fromString(id));
       } else {
-         c = P.s.getConcept(Integer.parseInt(id));
+         c = PersistentStore.get().getConcept(Integer.parseInt(id));
       }
 
       return "Concept html: " + id + " " + c.toLongString();
@@ -104,9 +104,9 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = P.s.getConcept(UUID.fromString(id));
+         c = PersistentStore.get().getConcept(UUID.fromString(id));
       } else {
-         c = P.s.getConcept(Integer.parseInt(id));
+         c = PersistentStore.get().getConcept(Integer.parseInt(id));
       }
 
       return "Concept plain: " + id + " " + c.toLongString();
@@ -120,13 +120,13 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = P.s.getConcept(UUID.fromString(id));
+         c = PersistentStore.get().getConcept(UUID.fromString(id));
       } else {
-         c = P.s.getConcept(Integer.parseInt(id));
+         c = PersistentStore.get().getConcept(Integer.parseInt(id));
       }
 
-      ViewCoordinate        vc   = P.s.getViewCoordinate(UUID.fromString(vcUuid));
-      TerminologySnapshotDI snap = P.s.getSnapshot(vc);
+      ViewCoordinate        vc   = PersistentStore.get().getViewCoordinate(UUID.fromString(vcUuid));
+      TerminologySnapshotDI snap = PersistentStore.get().getSnapshot(vc);
 
       return new ConceptChronicleDdo(snap, c, VersionPolicy.ALL_VERSIONS, RefexPolicy.REFEX_MEMBERS,
                            RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
@@ -143,13 +143,13 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = P.s.getConcept(UUID.fromString(id));
+         c = PersistentStore.get().getConcept(UUID.fromString(id));
       } else {
-         c = P.s.getConcept(Integer.parseInt(id));
+         c = PersistentStore.get().getConcept(Integer.parseInt(id));
       }
 
-      ViewCoordinate        vc   = P.s.getViewCoordinate(UUID.fromString(vcUuid));
-      TerminologySnapshotDI snap = P.s.getSnapshot(vc);
+      ViewCoordinate        vc   = PersistentStore.get().getViewCoordinate(UUID.fromString(vcUuid));
+      TerminologySnapshotDI snap = PersistentStore.get().getSnapshot(vc);
 
       return new ConceptChronicleDdo(snap, c, versionPolicy, refexPolicy, relationshipPolicy);
    }
@@ -162,9 +162,9 @@ public class FxConceptResource {
       ConceptChronicleBI c;
 
       if (id.length() == 36) {
-         c = P.s.getConcept(UUID.fromString(id));
+         c = PersistentStore.get().getConcept(UUID.fromString(id));
       } else {
-         c = P.s.getConcept(Integer.parseInt(id));
+         c = PersistentStore.get().getConcept(Integer.parseInt(id));
       }
 
       final TtkConceptChronicle econ = new TtkConceptChronicle(c);

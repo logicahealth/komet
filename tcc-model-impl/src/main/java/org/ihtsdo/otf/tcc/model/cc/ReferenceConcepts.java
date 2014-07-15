@@ -39,7 +39,7 @@ public enum ReferenceConcepts {
     private ReferenceConcepts(Collection<UUID> uuids) {
         try {
             this.uuids = new ArrayList<>(uuids);
-            this.nid = P.s.getNidForUuids(uuids);
+            this.nid = PersistentStore.get().getNidForUuids(uuids);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -48,7 +48,7 @@ public enum ReferenceConcepts {
     private ReferenceConcepts(UUID[] uuids) {
         try {
             this.uuids = Arrays.asList(uuids);
-            this.nid = P.s.getNidForUuids(this.uuids);
+            this.nid = PersistentStore.get().getNidForUuids(this.uuids);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -65,7 +65,7 @@ public enum ReferenceConcepts {
     public static void reset() {
         for (ReferenceConcepts c: ReferenceConcepts.values()) {
             try {
-                c.nid = P.s.getNidForUuids(c.uuids);
+                c.nid = PersistentStore.get().getNidForUuids(c.uuids);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }

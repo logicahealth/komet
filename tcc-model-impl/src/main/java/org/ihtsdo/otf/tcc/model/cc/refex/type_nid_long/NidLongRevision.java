@@ -11,12 +11,11 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -27,8 +26,8 @@ import java.util.Set;
 
 public class NidLongRevision extends RefexRevision<NidLongRevision, NidLongMember>
         implements RefexNidLongAnalogBI<NidLongRevision> {
-   private int  c1Nid;
-   private long longValue;
+   protected int  c1Nid;
+   protected long longValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -44,14 +43,8 @@ public class NidLongRevision extends RefexRevision<NidLongRevision, NidLongMembe
 
    public NidLongRevision(TtkRefexUuidLongRevision eVersion, NidLongMember member) throws IOException {
       super(eVersion, member);
-      c1Nid     = P.s.getNidForUuids(eVersion.getUuid1());
+      c1Nid     = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
       longValue = eVersion.getLong1();
-   }
-
-   public NidLongRevision(DataInputStream input, NidLongMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      c1Nid     = input.readInt();
-      longValue = input.readLong();
    }
 
    protected NidLongRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, 
@@ -138,12 +131,6 @@ public class NidLongRevision extends RefexRevision<NidLongRevision, NidLongMembe
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeLong(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

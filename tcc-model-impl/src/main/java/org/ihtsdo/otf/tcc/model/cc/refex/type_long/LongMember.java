@@ -42,10 +42,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
       super();
    }
 
-   public LongMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public LongMember(TtkRefexLongMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
       longValue = refsetMember.getLongValue();
@@ -129,16 +125,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
     }
 
    @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      longValue = input.readLong();
-   }
-
-   @Override
-   protected final LongRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new LongRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       return true;
    }
@@ -157,11 +143,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeLong(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

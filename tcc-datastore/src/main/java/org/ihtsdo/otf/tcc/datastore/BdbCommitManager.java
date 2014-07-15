@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.change.BdbCommitSequence;
@@ -42,7 +42,6 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
-import static org.ihtsdo.otf.tcc.datastore.Bdb.indexers;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageSimpleConceptData;
 import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
@@ -157,8 +156,8 @@ public class BdbCommitManager {
                             if (AceLog.getAppLog().isLoggable(Level.FINE)) {
                                 AceLog.getAppLog().fine(
                                         "Canceling on concept: "
-                                        + P.s.getComponent(uncommittedCNidsItr.nid()).toUserString() + " UUID: "
-                                        + P.s.getUuidsForNid(uncommittedCNidsItr.nid()).toString());
+                                        + PersistentStore.get().getComponent(uncommittedCNidsItr.nid()).toUserString() + " UUID: "
+                                        + PersistentStore.get().getUuidsForNid(uncommittedCNidsItr.nid()).toString());
                             }
                         }
 
@@ -169,9 +168,9 @@ public class BdbCommitManager {
                             if (AceLog.getAppLog().isLoggable(Level.FINE)) {
                                 AceLog.getAppLog().fine(
                                         "Canceling on concept: "
-                                        + P.s.getComponent(uncommittedCNidsNoChecksItr.nid()).toUserString()
+                                        + PersistentStore.get().getComponent(uncommittedCNidsNoChecksItr.nid()).toUserString()
                                         + " UUID: "
-                                        + P.s.getUuidsForNid(uncommittedCNidsNoChecksItr.nid()).toString());
+                                        + PersistentStore.get().getUuidsForNid(uncommittedCNidsNoChecksItr.nid()).toString());
                             }
                         }
 

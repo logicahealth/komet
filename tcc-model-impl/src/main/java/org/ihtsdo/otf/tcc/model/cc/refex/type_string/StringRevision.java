@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class StringRevision extends RefexRevision<StringRevision, StringMember>
         implements RefexStringAnalogBI<StringRevision> {
-   private String stringValue;
+   protected String stringValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -41,11 +41,6 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
    public StringRevision(TtkRefexStringRevision eVersion, StringMember primoridalMember) throws IOException {
       super(eVersion, primoridalMember);
       this.stringValue = eVersion.getString1();
-   }
-
-   public StringRevision(DataInputStream input, StringMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      stringValue = input.readUTF();
    }
 
    public StringRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, StringMember another) {
@@ -128,11 +123,6 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeUTF(stringValue);
    }
 
    //~--- get methods ---------------------------------------------------------

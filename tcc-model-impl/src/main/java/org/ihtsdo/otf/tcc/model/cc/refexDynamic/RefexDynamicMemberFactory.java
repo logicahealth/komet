@@ -26,11 +26,10 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -55,13 +54,6 @@ public class RefexDynamicMemberFactory {
        return new RefexDynamicMember(refsetMember, enclosingConceptNid);
    }
 
-
-   public static RefexDynamicMember create(int nid, int enclosingConceptNid, DataInputStream input)
-           throws IOException 
-   {
-       return new RefexDynamicMember(enclosingConceptNid, input);
-   }
-
    private static RefexDynamicMember createBlank(RefexDynamicCAB res) {
        
        return new RefexDynamicMember();
@@ -71,28 +63,28 @@ public class RefexDynamicMemberFactory {
    public static RefexDynamicMember reCreate(RefexDynamicCAB blueprint, RefexDynamicMember member, EditCoordinate ec)
            throws IOException, InvalidCAB, ContradictionException {
       blueprint.validate();
-      ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexAssemblageNid());
+      ConceptChronicle refexColCon = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getRefexAssemblageNid());
 
       member.assemblageNid = refexColCon.getNid();
-      member.nid               = P.s.getNidForUuids(blueprint.getMemberUUID());
+      member.nid               = PersistentStore.get().getNidForUuids(blueprint.getMemberUUID());
 
        if (refexColCon.isAnnotationStyleRefex()) {
-           int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
+           int rcNid = PersistentStore.get().getNidForUuids(blueprint.getReferencedComponentUuid());
 
            if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
                int setCnid = blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID);
-               if(setCnid != P.s.getConceptNidForNid(rcNid)){
+               if(setCnid != PersistentStore.get().getConceptNidForNid(rcNid)){
                    throw new InvalidCAB("Set enclosing concept nid does not match computed. Set: " + setCnid
-                                        + " Computed: " + P.s.getConceptNidForNid(rcNid));
+                                        + " Computed: " + PersistentStore.get().getConceptNidForNid(rcNid));
                }
            }
            
-           member.enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
-           P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
+           member.enclosingConceptNid = PersistentStore.get().getConceptNidForNid(rcNid);
+           PersistentStore.get().setConceptNidForNid(member.enclosingConceptNid, member.nid);
 
            ComponentChronicleBI<?> component = blueprint.getReferencedComponent();
            if (component == null) {
-               component = P.s.getComponent(blueprint.getReferencedComponentUuid());
+               component = PersistentStore.get().getComponent(blueprint.getReferencedComponentUuid());
            }
 
            if (component == null) {
@@ -109,14 +101,14 @@ public class RefexDynamicMemberFactory {
                }
            }
            member.enclosingConceptNid = refexColCon.getNid();
-           P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
+           PersistentStore.get().setConceptNidForNid(member.enclosingConceptNid, member.nid);
            refexColCon.getData().add(member);
        }
 
       for (int i = 0; i < ec.getEditPaths().size(); i++) {
          if (i == 0) {
-            member.setSTAMP(P.s.getStamp(blueprint.getStatus(), Long.MAX_VALUE,
-                ec.getAuthorNid(), ec.getModuleNid(), ec.getEditPaths().getSetValues()[i]));
+            member.setSTAMP(PersistentStore.get().getStamp(blueprint.getStatus(), Long.MAX_VALUE,
+                    ec.getAuthorNid(), ec.getModuleNid(), ec.getEditPaths().getSetValues()[i]));
             member.setPrimordialUuid(blueprint.getMemberUUID());
 
             try {

@@ -11,7 +11,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidString
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidStringVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
@@ -19,7 +19,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -33,27 +32,22 @@ public class NidNidNidStringMember
                    RefexNidNidNidStringAnalogBI<NidNidNidStringRevision> {
    private static VersionComputer<RefexMemberVersion<NidNidNidStringRevision, NidNidNidStringMember>> computer =
       new VersionComputer<>();
-   private int   nid1;
-   private int   nid2;
-   private int   nid3;
-   private String string1;
+    protected int   nid1;
+    protected int   nid2;
+    protected int   nid3;
+    protected String string1;
 
    public NidNidNidStringMember() {
       super();
-   }
-
-   public NidNidNidStringMember(int enclosingConceptNid, DataInputStream input)
-           throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public NidNidNidStringMember(TtkRefexUuidUuidUuidStringMemberChronicle refsetMember,
                                int enclosingConceptNid)
            throws IOException {
       super(refsetMember, enclosingConceptNid);
-      nid1   = P.s.getNidForUuids(refsetMember.getUuid1());
-      nid2   = P.s.getNidForUuids(refsetMember.getUuid2());
-      nid3   = P.s.getNidForUuids(refsetMember.getUuid3());
+      nid1   = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
+      nid2   = PersistentStore.get().getNidForUuids(refsetMember.getUuid2());
+      nid3   = PersistentStore.get().getNidForUuids(refsetMember.getUuid3());
       string1 = refsetMember.string1;
 
       if (refsetMember.getRevisionList() != null) {
@@ -122,19 +116,6 @@ public class NidNidNidStringMember
    }
 
    @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      nid1 = input.readInt();
-      nid2 = input.readInt();
-      nid3 = input.readInt();
-      string1 = input.readUTF();
-   }
-
-   @Override
-   protected final NidNidNidStringRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new NidNidNidStringRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert nid1 != Integer.MAX_VALUE;
       assert nid2 != Integer.MAX_VALUE;
@@ -188,14 +169,6 @@ public class NidNidNidStringMember
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeInt(nid1);
-      output.writeInt(nid2);
-      output.writeInt(nid3);
-      output.writeUTF(string1);
    }
 
    @Override

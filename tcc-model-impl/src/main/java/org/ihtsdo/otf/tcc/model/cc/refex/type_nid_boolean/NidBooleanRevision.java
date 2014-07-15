@@ -3,6 +3,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 //~--- non-JDK imports --------------------------------------------------------
 
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -16,22 +17,20 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanAnalogBI;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
 
 public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBooleanMember>
         implements RefexNidBooleanAnalogBI<NidBooleanRevision> {
-   private int   nid1;
-   private boolean boolean1;
+   protected int   nid1;
+   protected boolean boolean1;
 
    //~--- constructors --------------------------------------------------------
 
@@ -47,14 +46,8 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
 
    public NidBooleanRevision(TtkRefexUuidBooleanRevision eVersion, NidBooleanMember member) throws IOException {
       super(eVersion, member);
-      nid1      = P.s.getNidForUuids(eVersion.getUuid1());
+      nid1      = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
       boolean1 = eVersion.boolean1;
-   }
-
-   public NidBooleanRevision(DataInputStream input, NidBooleanMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      nid1      = input.readInt();
-      boolean1 = input.readBoolean();
    }
 
    public NidBooleanRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, 
@@ -143,12 +136,6 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeInt(nid1);
-      output.writeBoolean(boolean1);
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -116,7 +116,7 @@ public abstract class NidPair implements Comparable<NidPair>, Serializable {
          int nid1 = (int) nids;
          int nid2 = (int) (nids >>> 32);
 
-         if (P.s.getConceptNidForNid(nid2) != nid2) {
+         if (PersistentStore.get().getConceptNidForNid(nid2) != nid2) {
             returnValues.add(new NidPairForRefex(nid1, nid2));
          }
       }
@@ -132,7 +132,7 @@ public abstract class NidPair implements Comparable<NidPair>, Serializable {
          int nid2 = (int) (nids >>> 32);
 
          if (relTypes.contains(nid2)) {
-            returnValues.add(P.s.getConceptNidForNid(nid1));
+            returnValues.add(PersistentStore.get().getConceptNidForNid(nid1));
          }
       }
 

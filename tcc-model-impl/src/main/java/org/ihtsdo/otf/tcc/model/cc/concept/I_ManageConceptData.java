@@ -55,8 +55,6 @@ public interface I_ManageConceptData {
 
    Set<Integer> getDescNids() throws IOException;
 
-   Set<Integer> getDescNidsReadOnly() throws IOException;
-
    Set<Description> getDescriptions() throws IOException;
 
    Collection<Description> getDescriptionsIfChanged() throws IOException;
@@ -67,15 +65,11 @@ public interface I_ManageConceptData {
 
    Set<Integer> getImageNids() throws IOException;
 
-   Set<Integer> getImageNidsReadOnly() throws IOException;
-
    AddMediaSet getImages() throws IOException;
 
    Collection<Media> getImagesIfChanged() throws IOException;
 
    Set<Integer> getMemberNids() throws IOException;
-
-   Set<Integer> getMemberNidsReadOnly() throws IOException;
 
    int getNid();
 
@@ -98,8 +92,6 @@ public interface I_ManageConceptData {
    Collection<Relationship> getSourceRelsIfChanged() throws IOException;
 
    Set<Integer> getSrcRelNids() throws IOException;
-
-   Set<Integer> getSrcRelNidsReadOnly() throws IOException;
 
    NidListBI getUncommittedNids();
 

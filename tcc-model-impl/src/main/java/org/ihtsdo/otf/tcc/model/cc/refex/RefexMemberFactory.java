@@ -29,7 +29,7 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float.TtkRefex
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray.ArrayOfByteArrayMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_boolean.BooleanMember;
@@ -52,7 +52,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_string.NidStringMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -167,88 +166,6 @@ public class RefexMemberFactory {
     * Method description
     *
     *
-    * @param nid
-    * @param typeToken
-    * @param enclosingConceptNid
-    * @param input
-    *
-    * @return
-    *
-    * @throws IOException
-    */
-   @SuppressWarnings("rawtypes")
-   public static RefexMember create(int nid, int typeToken, int enclosingConceptNid, DataInputStream input)
-           throws IOException {
-      RefexType memberType = RefexType.getFromToken(typeToken);
-
-      switch (memberType) {
-      case BOOLEAN :
-         return new BooleanMember(enclosingConceptNid, input);
-
-      case CID :
-         return new NidMember(enclosingConceptNid, input);
-
-      case CID_CID :
-         return new NidNidMember(enclosingConceptNid, input);
-
-      case CID_CID_CID :
-         return new NidNidNidMember(enclosingConceptNid, input);
-
-      case CID_CID_STR :
-         return new NidNidStringMember(enclosingConceptNid, input);
-
-      case CID_INT :
-         return new NidIntMember(enclosingConceptNid, input);
-
-      case CID_STR :
-         return new NidStringMember(enclosingConceptNid, input);
-
-      case INT :
-         return new IntMember(enclosingConceptNid, input);
-
-      case CID_FLOAT :
-         return new NidFloatMember(enclosingConceptNid, input);
-
-      case MEMBER :
-         return new MembershipMember(enclosingConceptNid, input);
-
-      case STR :
-         return new StringMember(enclosingConceptNid, input);
-
-      case CID_LONG :
-         return new NidLongMember(enclosingConceptNid, input);
-
-      case LONG :
-         return new LongMember(enclosingConceptNid, input);
-
-      case ARRAY_BYTEARRAY :
-         return new ArrayOfByteArrayMember(enclosingConceptNid, input);
-
-      case CID_CID_CID_FLOAT :
-         return new NidNidNidFloatMember(enclosingConceptNid, input);
-
-      case CID_CID_CID_INT :
-         return new NidNidNidIntMember(enclosingConceptNid, input);
-
-      case CID_CID_CID_LONG :
-         return new NidNidNidLongMember(enclosingConceptNid, input);
-
-      case CID_CID_CID_STRING :
-         return new NidNidNidStringMember(enclosingConceptNid, input);
-
-      case CID_BOOLEAN :
-         return new NidBooleanMember(enclosingConceptNid, input);
-
-      default :
-         throw new UnsupportedOperationException("Can't handle member type: " + memberType + " "
-             + Ts.get().getConceptForNid(nid).toLongString());
-      }
-   }
-
-   /**
-    * Method description
-    *
-    *
     * @param res
     *
     * @return
@@ -332,28 +249,28 @@ public class RefexMemberFactory {
     */
    public static RefexMember<?, ?> reCreate(RefexCAB blueprint, RefexMember<?, ?> member, EditCoordinate ec)
            throws IOException, InvalidCAB {
-      ConceptChronicle refexColCon = (ConceptChronicle) P.s.getConcept(blueprint.getRefexCollectionNid());
+      ConceptChronicle refexColCon = (ConceptChronicle) PersistentStore.get().getConcept(blueprint.getRefexCollectionNid());
 
       member.assemblageNid = refexColCon.getNid();
-      member.nid               = P.s.getNidForUuids(blueprint.getMemberUUID());
+      member.nid               = PersistentStore.get().getNidForUuids(blueprint.getMemberUUID());
 
        if (refexColCon.isAnnotationStyleRefex()) {
-           int rcNid = P.s.getNidForUuids(blueprint.getReferencedComponentUuid());
+           int rcNid = PersistentStore.get().getNidForUuids(blueprint.getReferencedComponentUuid());
 
            if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
                int setCnid = blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID);
-               if(setCnid != P.s.getConceptNidForNid(rcNid)){
+               if(setCnid != PersistentStore.get().getConceptNidForNid(rcNid)){
                    throw new InvalidCAB("Set enclosing concept nid does not match computed. Set: " + setCnid
-                                        + " Computed: " + P.s.getConceptNidForNid(rcNid));
+                                        + " Computed: " + PersistentStore.get().getConceptNidForNid(rcNid));
                }
            }
            
-           member.enclosingConceptNid = P.s.getConceptNidForNid(rcNid);
-           P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
+           member.enclosingConceptNid = PersistentStore.get().getConceptNidForNid(rcNid);
+           PersistentStore.get().setConceptNidForNid(member.enclosingConceptNid, member.nid);
 
            ComponentChronicleBI<?> component = blueprint.getReferencedComponent();
            if (component == null) {
-               component = P.s.getComponent(blueprint.getReferencedComponentUuid());
+               component = PersistentStore.get().getComponent(blueprint.getReferencedComponentUuid());
            }
 
            if (component == null) {
@@ -370,14 +287,14 @@ public class RefexMemberFactory {
                }
            }
            member.enclosingConceptNid = refexColCon.getNid();
-           P.s.setConceptNidForNid(member.enclosingConceptNid, member.nid);
+           PersistentStore.get().setConceptNidForNid(member.enclosingConceptNid, member.nid);
            refexColCon.getData().add(member);
        }
 
       for (int i = 0; i < ec.getEditPaths().size(); i++) {
          if (i == 0) {
-            member.setSTAMP(P.s.getStamp(blueprint.getStatus(), Long.MAX_VALUE,
-                ec.getAuthorNid(), ec.getModuleNid(), ec.getEditPaths().getSetValues()[i]));
+            member.setSTAMP(PersistentStore.get().getStamp(blueprint.getStatus(), Long.MAX_VALUE,
+                    ec.getAuthorNid(), ec.getModuleNid(), ec.getEditPaths().getSetValues()[i]));
             member.setPrimordialUuid(blueprint.getMemberUUID());
 
             try {

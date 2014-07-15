@@ -38,7 +38,7 @@ the specific language governing permissions and limitations under the License. -
    	
     <properties>
         <branch>tt-wdi</branch>
-        <hk2.version>2.2.0-b14</hk2.version>
+        <hk2.version>2.3.0-b09</hk2.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
@@ -93,6 +93,13 @@ the specific language governing permissions and limitations under the License. -
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <pluginManagement>
             <plugins>
@@ -162,6 +169,17 @@ the specific language governing permissions and limitations under the License. -
 
         <plugins>
             <plugin>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-inhabitant-generator</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-inhabitants</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
@@ -203,8 +221,8 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -218,8 +236,9 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-rest-server</module>
         <module>tcc-datastore</module>
         <module>tcc-junit-ext</module>
-        <!--<module>tcc-integration-test</module>-->
+        <module>tcc-integration-test</module>
         <module>tcc-mojo</module>
+        <module>tcc-serializer</module>
     </modules>
     <profiles>
         <profile>

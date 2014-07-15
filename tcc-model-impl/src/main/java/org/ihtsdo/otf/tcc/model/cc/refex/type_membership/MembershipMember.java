@@ -36,11 +36,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       super();
    }
 
-   public MembershipMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
-   public MembershipMember(TtkRefexMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
+  public MembershipMember(TtkRefexMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
 
       if (refsetMember.getRevisionList() != null) {
@@ -121,17 +117,6 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
     }
 
    @Override
-   protected void readMemberFields(DataInputStream input) {
-
-      // nothing to read...
-   }
-
-   @Override
-   protected final MembershipRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new MembershipRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       return true;
    }
@@ -150,11 +135,6 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       return buf.toString();
    }
 
-   @Override
-   protected void writeMember(DataOutput output) {
-
-      // nothing to write
-   }
 
    //~--- get methods ---------------------------------------------------------
 

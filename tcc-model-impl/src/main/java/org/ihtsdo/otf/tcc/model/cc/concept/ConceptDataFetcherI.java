@@ -7,11 +7,7 @@ import java.io.IOException;
 
 public interface ConceptDataFetcherI {
 
-    byte[] getReadOnlyBytes() throws IOException;
-
     byte[] getMutableBytes() throws IOException;
-
-    DataInputStream getReadOnlyDataStream() throws IOException;
 
     DataInputStream getMutableInputStream() throws IOException;
 

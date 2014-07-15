@@ -33,16 +33,12 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private int int1;
+   protected int int1;
 
    //~--- constructors --------------------------------------------------------
 
    public IntMember() {
       super();
-   }
-
-   public IntMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public IntMember(TtkRefexIntMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -128,16 +124,6 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
     }
 
    @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      int1 = input.readInt();
-   }
-
-   @Override
-   protected final IntRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new IntRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       return true;
    }
@@ -158,10 +144,6 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeInt(int1);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

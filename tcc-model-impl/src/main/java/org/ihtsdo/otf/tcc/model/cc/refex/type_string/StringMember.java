@@ -34,16 +34,12 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private String stringValue;
+   protected String stringValue;
 
    //~--- constructors --------------------------------------------------------
 
    public StringMember() {
       super();
-   }
-
-   public StringMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public StringMember(TtkRefexStringMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -128,16 +124,6 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
     }
 
    @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      stringValue = input.readUTF();
-   }
-
-   @Override
-   protected final StringRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new StringRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert stringValue != null;
 
@@ -157,11 +143,6 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeUTF(stringValue);
    }
 
    //~--- get methods ---------------------------------------------------------

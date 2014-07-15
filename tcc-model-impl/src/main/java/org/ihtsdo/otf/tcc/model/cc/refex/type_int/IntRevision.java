@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class IntRevision extends RefexRevision<IntRevision, IntMember>
         implements RefexIntAnalogBI<IntRevision> {
-   private int intValue;
+   protected int intValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -41,11 +41,6 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
    public IntRevision(TtkRefexIntRevision eVersion, IntMember member) throws IOException {
       super(eVersion, member);
       this.intValue = eVersion.getIntValue();
-   }
-
-   public IntRevision(DataInputStream input, IntMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      intValue = input.readInt();
    }
 
    public IntRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, IntMember primoridalMember) {
@@ -128,10 +123,6 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeInt(intValue);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

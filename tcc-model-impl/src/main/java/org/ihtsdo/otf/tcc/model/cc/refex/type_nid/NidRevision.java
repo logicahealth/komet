@@ -2,17 +2,15 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
+
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_nid.NidMemberVersion;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -26,7 +24,7 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidRevision;
 public class NidRevision extends RefexRevision<NidRevision, NidMember>
         implements RefexNidAnalogBI<NidRevision> {
 
-    private int nid1;
+    protected int nid1;
 
     //~--- constructors --------------------------------------------------------
     public NidRevision() {
@@ -40,7 +38,7 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
 
     public NidRevision(TtkRefexUuidRevision eVersion, NidMember member) throws IOException {
         super(eVersion, member);
-        nid1 = P.s.getNidForUuids(eVersion.getUuid1());
+        nid1 = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
     }
 
     public NidRevision(DataInputStream input, NidMember primoridalMember) throws IOException {
@@ -127,11 +125,6 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
         buf.append(super.toString());
 
         return buf.toString();
-    }
-
-    @Override
-    protected void writeFieldsToBdb(DataOutput output) throws IOException {
-        output.writeInt(nid1);
     }
 
     //~--- get methods ---------------------------------------------------------

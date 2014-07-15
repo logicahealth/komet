@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
@@ -51,8 +51,8 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
          throw new IOException(e);
       }
 
-      nid = P.s.getNidForUuids(uuid);
-      P.s.setConceptNidForNid(conceptNid, nid);
+      nid = PersistentStore.get().getNidForUuids(uuid);
+      PersistentStore.get().setConceptNidForNid(conceptNid, nid);
       this.rels = rels;
    }
 

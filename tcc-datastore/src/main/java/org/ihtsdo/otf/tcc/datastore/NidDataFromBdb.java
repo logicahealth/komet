@@ -1,21 +1,14 @@
 package org.ihtsdo.otf.tcc.datastore;
 
+import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-
-import org.ihtsdo.otf.tcc.datastore.temp.AceLog;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
-import org.ihtsdo.otf.tcc.api.thread.NamedThreadFactory;
+import java.util.concurrent.*;
 
 public class NidDataFromBdb implements ConceptDataFetcherI {
 
@@ -74,41 +67,6 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
     }
 
     /* (non-Javadoc)
-     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getReadOnlyBytes()
-     */
-    @Override
-    public synchronized byte[] getReadOnlyBytes() throws IOException {
-        if (readOnlyBytes == null) {
-            if (readOnlyFuture == null) {
-                readOnlyFuture = executorPool.submit(new GetNidData(nid, Bdb.getConceptDb().getReadOnly()));
-            }
-            try {
-                byte[] bytes = readOnlyFuture.get();
-                switch (refType) {
-                    case SOFT:
-                        readOnlyBytes = new SoftReference<>(bytes);
-                        break;
-                    case WEAK:
-                        readOnlyBytes = new WeakReference<>(bytes);
-                        break;
-                    default:
-                        throw new RuntimeException("Don't know how to handle: " + refType);
-                }
-                readOnlyFuture = null;
-                return bytes;
-            } catch (InterruptedException | ExecutionException e) {
-                throw new IOException(e);
-            }
-        }
-        byte[] bytes = readOnlyBytes.get();
-        if (bytes != null) {
-            return bytes;
-        }
-        readOnlyBytes = null;
-        return getReadOnlyBytes();
-    }
-
-    /* (non-Javadoc)
      * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getMutableBytes()
      */
     @Override
@@ -128,13 +86,6 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
         return readWriteBytes;
     }
 
-    /* (non-Javadoc)
-     * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getReadOnlyDataStream()
-     */
-    @Override
-    public synchronized DataInputStream getReadOnlyDataStream() throws IOException {
-        return new DataInputStream(new ByteArrayInputStream(getReadOnlyBytes()));
-    }
 
     /* (non-Javadoc)
      * @see org.ihtsdo.db.bdb.ConceptDataFetcherI#getMutableDataStream()
@@ -146,6 +97,6 @@ public class NidDataFromBdb implements ConceptDataFetcherI {
 
     @Override
     public boolean isPrimordial() throws IOException {
-        return getReadOnlyBytes().length == 0 && getMutableBytes().length == 0;
+        return getMutableBytes().length == 0;
     }
 }

@@ -54,12 +54,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.cc.DataMarker;
+import org.ihtsdo.otf.tcc.model.cc.*;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
-import org.ihtsdo.otf.tcc.model.cc.NidPair;
-import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
@@ -133,28 +130,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 throw new UnsupportedOperationException("Can't handle reference type: " + refType);
         }
     }
-
-    private ConceptChronicle(int nid, NidDataInMemory conceptData) throws IOException {
-        super();
-        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-        this.nid = nid;
-        this.hashCode = Hashcode.compute(nid);
-
-        switch (refType) {
-            case SOFT:
-            case WEAK:
-                    this.data = new ConceptDataSimpleReference(this, conceptData);
-
-                break;
-
-            case STRONG:
-                throw new UnsupportedOperationException();
-
-            default:
-                throw new UnsupportedOperationException("Can't handle reference type: " + refType);
-        }
-    }
-
     public static final int DATA_VERSION = 0;
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -166,21 +141,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         out.writeInt(nid);
         out.writeBoolean(data.isAnnotationStyleRefex());
         throw new UnsupportedOperationException("Not supported yet."); 
-    }
-
-    /**
-     * For use in testing/test cases only.
-     *
-     * @param nid
-     * @param editable
-     * @param roBytes
-     * @param mutableBytes
-     * @throws IOException
-     */
-    protected ConceptChronicle(int nid, byte[] roBytes, byte[] mutableBytes) throws IOException {
-        this.nid = nid;
-        this.hashCode = Hashcode.compute(nid);
-        data = new ConceptDataSimpleReference(this, roBytes, mutableBytes);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -212,14 +172,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         LastChange.touchComponents(getConceptNidsAffectedByCommit());
         data.cancel();
 
-        if (P.s.forget(getConceptAttributes())) {
+        if (PersistentStore.get().forget(getConceptAttributes())) {
             canceled = true;
         }
     }
 
     private void collectPossibleKindOf(NidSetBI isATypes, NativeIdSetBI possibleKindOfConcepts, int cNid)
             throws IOException {
-        for (int cNidForOrigin : P.s.getDestRelOriginNids(cNid, isATypes)) {
+        for (int cNidForOrigin : PersistentStore.get().getDestRelOriginNids(cNid, isATypes)) {
             if (possibleKindOfConcepts.isMember(cNidForOrigin) == false) {
                 possibleKindOfConcepts.setMember(cNidForOrigin);
                 collectPossibleKindOf(isATypes, possibleKindOfConcepts, cNidForOrigin);
@@ -233,13 +193,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             throws IOException {
         this.modified();
 
-        return P.s.commit(this, ChangeSetPolicy.get(changeSetPolicy),
+        return PersistentStore.get().commit(this, ChangeSetPolicy.get(changeSetPolicy),
                 ChangeSetWriterThreading.get(changeSetWriterThreading));
     }
 
     public boolean commit(ChangeSetPolicy changeSetPolicy, ChangeSetWriterThreading changeSetWriterThreading)
             throws IOException {
-        return P.s.commit(this, changeSetPolicy, changeSetWriterThreading);
+        return PersistentStore.get().commit(this, changeSetPolicy, changeSetWriterThreading);
     }
 
     @Override
@@ -367,14 +327,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public static ConceptChronicle mergeAndWrite(TtkConceptChronicle eConcept)
             throws IOException {
-        int conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
+        int conceptNid = PersistentStore.get().getNidForUuids(eConcept.getPrimordialUuid());
 
         assert conceptNid != Integer.MAX_VALUE : "no conceptNid for uuids";
 
         ConceptChronicle c = get(conceptNid);
 
         mergeWithEConcept(eConcept, c);
-        P.s.addUncommittedNoChecks(c);
+        PersistentStore.get().addUncommittedNoChecks(c);
 
         return c;
     }
@@ -405,7 +365,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 Set<Integer> currentDNids = c.data.getDescNids();
 
                 for (TtkDescriptionChronicle ed : eConcept.getDescriptions()) {
-                    int dNid = P.s.getNidForUuids(ed.primordialUuid);
+                    int dNid = PersistentStore.get().getNidForUuids(ed.primordialUuid);
 
                     if (currentDNids.contains(dNid)) {
                         Description d = c.getDescription(dNid);
@@ -425,7 +385,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 Set<Integer> currentSrcRelNids = c.data.getSrcRelNids();
 
                 for (TtkRelationshipChronicle er : eConcept.getRelationships()) {
-                    int rNid = P.s.getNidForUuids(er.primordialUuid);
+                    int rNid = PersistentStore.get().getNidForUuids(er.primordialUuid);
 
                     if (currentSrcRelNids.contains(rNid)) {
                         Relationship r = c.getRelationship(rNid);
@@ -446,7 +406,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 Set<Integer> currentImageNids = c.data.getImageNids();
 
                 for (TtkMediaChronicle eImg : eConcept.getMedia()) {
-                    int iNid = P.s.getNidForUuids(eImg.primordialUuid);
+                    int iNid = PersistentStore.get().getNidForUuids(eImg.primordialUuid);
 
                     if (currentImageNids.contains(iNid)) {
                         Media img = c.getImage(iNid);
@@ -465,7 +425,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             if (c.isAnnotationStyleRefex()) {
                 for (TtkRefexAbstractMemberChronicle<?> er : eConcept.getRefsetMembers()) {
                     ConceptComponent cc;
-                    Object referencedComponent = P.s.getComponent(er.getComponentUuid());
+                    Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
 
                     if (referencedComponent != null) {
                         if (referencedComponent instanceof ConceptChronicle) {
@@ -474,13 +434,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                             cc = (ConceptComponent) referencedComponent;
                         }
 
-                        RefexMember r = (RefexMember) P.s.getComponent(er.getPrimordialComponentUuid());
+                        RefexMember r = (RefexMember) PersistentStore.get().getComponent(er.getPrimordialComponentUuid());
 
                         if (r == null) {
-                            cc.addAnnotation(RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                            cc.addAnnotation(RefexMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                         } else {
                             r.merge((RefexMember) RefexMemberFactory.create(er,
-                                    P.s.getConceptNidForNid(cc.getNid())));
+                                    PersistentStore.get().getConceptNidForNid(cc.getNid())));
                         }
                     } else {
                         unresolvedAnnotations.add(er);
@@ -493,7 +453,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     Set<Integer> currentMemberNids = c.data.getMemberNids();
 
                     for (TtkRefexAbstractMemberChronicle<?> er : eConcept.getRefsetMembers()) {
-                        int rNid = P.s.getNidForUuids(er.primordialUuid);
+                        int rNid = PersistentStore.get().getNidForUuids(er.primordialUuid);
                         RefexMember<?, ?> r = c.getRefsetMember(rNid);
 
                         if (currentMemberNids.contains(rNid) && (r != null)) {
@@ -510,7 +470,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             if (c.isAnnotationStyleRefex()) {
                 for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
                     ConceptComponent cc;
-                    Object referencedComponent = P.s.getComponent(er.getComponentUuid());
+                    Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
 
                     if (referencedComponent != null) {
                         if (referencedComponent instanceof ConceptChronicle) {
@@ -519,13 +479,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                             cc = (ConceptComponent) referencedComponent;
                         }
 
-                        RefexDynamicMember r = (RefexDynamicMember) P.s.getComponent(er.getPrimordialComponentUuid());
+                        RefexDynamicMember r = (RefexDynamicMember) PersistentStore.get().getComponent(er.getPrimordialComponentUuid());
 
                         if (r == null) {
-                            cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                            cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                         } else {
                             r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er,
-                                    P.s.getConceptNidForNid(cc.getNid())));
+                                    PersistentStore.get().getConceptNidForNid(cc.getNid())));
                         }
                     } else {
                         unresolvedAnnotationsDynamic.add(er);
@@ -538,7 +498,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     Set<Integer> currentMemberNids = c.data.getMemberNids();
 
                     for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
-                        int rNid = P.s.getNidForUuids(er.primordialUuid);
+                        int rNid = PersistentStore.get().getNidForUuids(er.primordialUuid);
                         RefexDynamicMember r = c.getRefsetDynamicMember(rNid);
 
                         if (currentMemberNids.contains(rNid) && (r != null)) {
@@ -691,7 +651,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         for (TtkRefexAbstractMemberChronicle<?> er : unresolvedAnnotations) {
             ConceptComponent cc;
-            Object referencedComponent = P.s.getComponent(er.getComponentUuid());
+            Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
 
             if (referencedComponent != null) {
                 if (referencedComponent instanceof ConceptChronicle) {
@@ -700,19 +660,19 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     cc = (ConceptComponent) referencedComponent;
                 }
 
-                RefexMember r = (RefexMember) P.s.getComponent(er.getPrimordialComponentUuid());
+                RefexMember r = (RefexMember) PersistentStore.get().getComponent(er.getPrimordialComponentUuid());
 
                 if (r == null) {
-                    cc.addAnnotation(RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                    cc.addAnnotation(RefexMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                 } else {
-                    r.merge((RefexMember) RefexMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                    r.merge((RefexMember) RefexMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                 }
             }
         }
         
         for (TtkRefexDynamicMemberChronicle er : unresolvedAnnotationsDynamic) {
             ConceptComponent cc;
-            Object referencedComponent = P.s.getComponent(er.getComponentUuid());
+            Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
 
             if (referencedComponent != null) {
                 if (referencedComponent instanceof ConceptChronicle) {
@@ -721,12 +681,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     cc = (ConceptComponent) referencedComponent;
                 }
 
-                RefexDynamicMember r = (RefexDynamicMember) P.s.getComponent(er.getPrimordialComponentUuid());
+                RefexDynamicMember r = (RefexDynamicMember) PersistentStore.get().getComponent(er.getPrimordialComponentUuid());
 
                 if (r == null) {
-                    cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                    cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                 } else {
-                    r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, P.s.getConceptNidForNid(cc.getNid())));
+                    r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                 }
             }
         }
@@ -824,37 +784,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         for (RefexMember<?, ?> m : getRefsetMembers()) {
             NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
 
-            P.s.addXrefPair(m.referencedComponentNid, npr);
+            PersistentStore.get().addXrefPair(m.referencedComponentNid, npr);
         }
         
         for (RefexDynamicMember m : getRefsetDynamicMembers()) {
             NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
 
-            P.s.addXrefPair(m.referencedComponentNid, npr);
+            PersistentStore.get().addXrefPair(m.referencedComponentNid, npr);
         }
-    }
-
-    //~--- get methods ---------------------------------------------------------
-    public static ConceptChronicle get(InputStream is) throws IOException {
-        DataInputStream dis = new DataInputStream(is);
-        int nid = dis.readInt();
-
-        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-
-        ConceptChronicle c = conceptsCRHM.get(nid);
-        NidDataInMemory ndim = new NidDataInMemory(is);
-
-        if (c == null) {
-            ConceptChronicle newC = new ConceptChronicle(nid, ndim);
-
-            c = conceptsCRHM.putIfAbsent(nid, newC);
-
-            if (c == null) {
-                c = newC;
-            }
-        }
-
-        return c;
     }
 
     public static ConceptChronicle get(int nid) throws IOException {
@@ -881,14 +818,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         int conceptNid;
         PersistentStoreI store = Hk2Looker.get().getService(PersistentStoreI.class);
         if (store.hasUuid(eConcept.getPrimordialUuid())) {
-            conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
+            conceptNid = PersistentStore.get().getNidForUuids(eConcept.getPrimordialUuid());
         } else if (eConcept.getConceptAttributes() != null) {
-            conceptNid = P.s.getNidForUuids(eConcept.getConceptAttributes().getUuids());
+            conceptNid = PersistentStore.get().getNidForUuids(eConcept.getConceptAttributes().getUuids());
         } else {
-            conceptNid = P.s.getNidForUuids(eConcept.getPrimordialUuid());
+            conceptNid = PersistentStore.get().getNidForUuids(eConcept.getPrimordialUuid());
         }
 
-        P.s.setConceptNidForNid(conceptNid, conceptNid);
+        PersistentStore.get().setConceptNidForNid(conceptNid, conceptNid);
         assert conceptNid != Integer.MAX_VALUE : "no conceptNid for uuids";
 
         ConceptChronicle c = get(conceptNid);
@@ -902,24 +839,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         return null;
-    }
-
-    public static ConceptChronicle get(int nid, byte[] roBytes, byte[] mutableBytes) throws IOException {
-        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
-
-        ConceptChronicle c = conceptsCRHM.get(nid);
-
-        if (c == null) {
-            ConceptChronicle newC = new ConceptChronicle(nid, roBytes, mutableBytes);
-
-            c = conceptsCRHM.putIfAbsent(nid, newC);
-
-            if (c == null) {
-                c = newC;
-            }
-        }
-
-        return c;
     }
 
     @Override
@@ -1228,7 +1147,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             }
         }
 
-        throw new IOException("No description: " + nid + " " + P.s.getUuidsForNid(nid) + " found in\n"
+        throw new IOException("No description: " + nid + " " + PersistentStore.get().getUuidsForNid(nid) + " found in\n"
                 + toLongString());
     }
 
@@ -1371,7 +1290,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public NativeIdSetBI getPossibleKindOfConcepts(NidSetBI isATypes) throws IOException {
-        NativeIdSetBI possibleKindOfConcepts = P.s.getEmptyNidSet();
+        NativeIdSetBI possibleKindOfConcepts = PersistentStore.get().getEmptyNidSet();
 
         possibleKindOfConcepts.setMember(getNid());
         collectPossibleKindOf(isATypes, possibleKindOfConcepts, nid);
@@ -1558,10 +1477,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return null;
     }
 
-    public Set<Integer> getRelationshipNids() throws IOException {
-        return data.getSrcRelNidsReadOnly();
-    }
-
     @Override
     public Collection<Relationship> getRelationshipsIncoming() throws IOException {
         if (isCanceled()) {
@@ -1668,7 +1583,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
      * @throws IOException
      */
     public static ConceptChronicle getTempConcept(TtkConceptChronicle eConcept) throws IOException {
-        int conceptNid = P.s.getNidForUuids(eConcept.getConceptAttributes().getPrimordialComponentUuid());
+        int conceptNid = PersistentStore.get().getNidForUuids(eConcept.getConceptAttributes().getPrimordialComponentUuid());
 
         assert conceptNid != Integer.MAX_VALUE : "no conceptNid for uuids";
 
@@ -1830,7 +1745,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public boolean hasExtensionsForComponent(int nid) throws IOException {
-        List<NidPairForRefex> refsetPairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> refsetPairs = PersistentStore.get().getRefexPairs(nid);
 
         if ((refsetPairs != null) && (refsetPairs.size() > 0)) {
             return true;

@@ -3,28 +3,25 @@ package org.ihtsdo.otf.tcc.datastore.concept;
 import com.sleepycat.bind.tuple.TupleBinding;
 import com.sleepycat.bind.tuple.TupleInput;
 import com.sleepycat.bind.tuple.TupleOutput;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptAttributesBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponentBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.DescriptionBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.MediaBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.RefexDynamicMemberBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.RefexMemberBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.RelationshipBinder;
-import org.ihtsdo.otf.tcc.model.cc.component.Revision;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesSerializer;
+import org.ihtsdo.otf.tcc.model.cc.component.*;
 import org.ihtsdo.otf.tcc.model.cc.concept.*;
+import org.ihtsdo.otf.tcc.model.cc.description.Description;
+import org.ihtsdo.otf.tcc.model.cc.description.DescriptionSerializer;
+import org.ihtsdo.otf.tcc.model.cc.media.MediaSerializer;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexGenericSerializer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicSerializer;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipSerializer;
+
+import java.io.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class ConceptBinder extends TupleBinding<ConceptChronicle> {
 
@@ -51,39 +48,23 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         try {
             I_ManageSimpleConceptData conceptData = (I_ManageSimpleConceptData) concept.getData();
             long dataVersion = conceptData.getLastChange();
-            boolean primordial = conceptData.getReadOnlyBytes().length == 0
-                    && conceptData.getReadWriteBytes().length == 0;
+            boolean primordial = conceptData.getReadWriteBytes().length == 0;
 
             byte[] attrOutput = getAttributeBytes(conceptData, primordial,
-                    OFFSETS.ATTRIBUTES, conceptData.getConceptAttributesIfChanged(),
-                    new ConceptAttributesBinder());
-            byte[] descOutput = getComponentBytes(conceptData, primordial,
-                    OFFSETS.DESCRIPTIONS, conceptData.getDescriptionsIfChanged(),
-                    new DescriptionBinder());
-            byte[] relOutput = getComponentBytes(conceptData, primordial,
-                    OFFSETS.SOURCE_RELS, conceptData.getSourceRelsIfChanged(),
-                    new RelationshipBinder());
-            byte[] imageOutput = getComponentBytes(conceptData, primordial,
-                    OFFSETS.IMAGES, conceptData.getImagesIfChanged(),
-                    new MediaBinder());
-            byte[] refsetOutput = getRefsetBytes(conceptData, primordial,
-                    OFFSETS.REFSET_MEMBERS, conceptData.getRefsetMembersIfChanged(),
-                    new RefexMemberBinder(concept));
-            byte[] refsetDynamicOutput = getRefsetDynamicBytes(conceptData, primordial,
-                    OFFSETS.REFSET_DYNAMIC_MEMBERS, conceptData.getRefsetDynamicMembersIfChanged(),
-                    new RefexDynamicMemberBinder(concept));
+                    OFFSETS.ATTRIBUTES, conceptData.getConceptAttributesIfChanged());
+            byte[] descOutput = getDescriptionBytes(conceptData, primordial, conceptData.getDescriptionsIfChanged());
+            byte[] relOutput = getRelBytes(conceptData, primordial, conceptData.getSourceRelsIfChanged());
+            byte[] imageOutput = getImageBytes(conceptData, primordial, conceptData.getImagesIfChanged());
+            byte[] refsetOutput = getRefsetBytes(conceptData, primordial, conceptData.getRefsetMembersIfChanged());
+            byte[] refsetDynamicOutput = getRefsetDynamicBytes(conceptData, primordial,conceptData.getRefsetDynamicMembersIfChanged());
             byte[] descNidOutput = getNidSetBytes(conceptData, primordial,
-                    conceptData.getDescNidsReadOnly(),
                     conceptData.getDescNids());
             byte[] srcRelNidOutput = getNidSetBytes(conceptData, primordial,
-                    conceptData.getSrcRelNidsReadOnly(),
                     conceptData.getSrcRelNids());
             byte[] imageNidOutput = getNidSetBytes(conceptData, primordial,
-                    conceptData.getImageNidsReadOnly(),
                     conceptData.getImageNids());
 
             byte[] memberNidOutput = getNidSetBytes(conceptData, primordial,
-                    conceptData.getMemberNidsReadOnly(),
                     conceptData.getMemberNids());
 
             finalOutput.writeInt(OFFSETS.CURRENT_FORMAT_VERSION); // FORMAT_VERSION
@@ -149,9 +130,8 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
     private static IntSetBinder intSetBinder = new IntSetBinder();
 
     private byte[] getNidSetBytes(I_ManageConceptData conceptData,
-            boolean primordial, Set<Integer> nidsReadOnly, Set<Integer> nids) throws IOException {
+            boolean primordial, Set<Integer> nids) throws IOException {
         HashSet<Integer> nidsToWrite = new HashSet<>(nids);
-        nidsToWrite.removeAll(nidsReadOnly);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         intSetBinder.objectToEntry(nidsToWrite, new DataOutputStream(output));
         return output.toByteArray();
@@ -161,8 +141,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
             I_ManageSimpleConceptData conceptData,
             boolean primordial,
             OFFSETS offset,
-            ConceptAttributes attributes,
-            ConceptComponentBinder<ConceptAttributesRevision, ConceptAttributes> conceptComponentBinder)
+            ConceptAttributes attributes)
             throws InterruptedException, ExecutionException, IOException {
         assert offset != null && offset.prev != null : "offset is malformed: " + offset;
         byte[] componentBytes;
@@ -171,9 +150,7 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         } else {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (attributes != null && attributes.getTime() != Long.MIN_VALUE) {
-                List<ConceptAttributes> attrList = new ArrayList<>();
-                attrList.add(attributes);
-                conceptComponentBinder.objectToEntry(attrList, new DataOutputStream(output));
+                ConceptAttributesSerializer.get().serialize(new DataOutputStream(output), attributes);
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -182,18 +159,19 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         return componentBytes;
     }
 
-    private <C extends ConceptComponent<V, C>, V extends Revision<V, C>> byte[] getComponentBytes(
-            I_ManageSimpleConceptData conceptData, boolean primordial, OFFSETS offset,
-            Collection<C> componentList,
-            ConceptComponentBinder<V, C> binder) throws InterruptedException,
+    private byte[] getDescriptionBytes(
+            I_ManageSimpleConceptData conceptData, boolean primordial,
+            Collection<Description> componentList) throws InterruptedException,
             ExecutionException, IOException {
         byte[] componentBytes;
         if (!primordial && componentList == null) {
-            componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
+            componentBytes = getPreviousData(conceptData,
+                    OFFSETS.DESCRIPTIONS,
+                    OFFSETS.values()[OFFSETS.DESCRIPTIONS.ordinal() + 1]);
         } else {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (componentList != null) {
-                binder.objectToEntry(componentList, new DataOutputStream(output));
+                DescriptionSerializer.get().serialize(new DataOutputStream(output), componentList);
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -205,18 +183,19 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         return componentBytes;
     }
 
-    private byte[] getRefsetBytes(I_ManageSimpleConceptData conceptData, boolean primordial,
-            OFFSETS offset,
-            Collection<RefexMember<?, ?>> members,
-            RefexMemberBinder binder) throws InterruptedException,
+    private byte[] getRelBytes(
+            I_ManageSimpleConceptData conceptData, boolean primordial,
+            Collection<Relationship> componentList) throws InterruptedException,
             ExecutionException, IOException {
         byte[] componentBytes;
-        if (!primordial && members == null) {
-            componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
+        if (!primordial && componentList == null) {
+            componentBytes = getPreviousData(conceptData,
+                    OFFSETS.SOURCE_RELS,
+                    OFFSETS.values()[OFFSETS.SOURCE_RELS.ordinal() + 1]);
         } else {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            if (members != null) {
-                binder.objectToEntry(members, new DataOutputStream(output));
+            if (componentList != null) {
+                RelationshipSerializer.get().serialize(new DataOutputStream(output), componentList);
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;
@@ -227,19 +206,69 @@ public class ConceptBinder extends TupleBinding<ConceptChronicle> {
         }
         return componentBytes;
     }
-    
-    private byte[] getRefsetDynamicBytes(I_ManageSimpleConceptData conceptData, boolean primordial,
-            OFFSETS offset,
-            Collection<RefexDynamicMember> members,
-            RefexDynamicMemberBinder binder) throws InterruptedException,
+
+
+    private byte[] getImageBytes(
+            I_ManageSimpleConceptData conceptData, boolean primordial,
+            Collection componentList) throws InterruptedException,
+            ExecutionException, IOException {
+        byte[] componentBytes;
+        if (!primordial && componentList == null) {
+            componentBytes = getPreviousData(conceptData,
+                    OFFSETS.IMAGES,
+                    OFFSETS.values()[OFFSETS.IMAGES.ordinal() + 1]);
+        } else {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            if (componentList != null) {
+                MediaSerializer.get().serialize(new DataOutputStream(output), componentList);
+                componentBytes = output.toByteArray();
+            } else {
+                componentBytes = zeroOutputArray;
+            }
+        }
+        if (componentBytes.length == 0) {
+            componentBytes = zeroOutputArray;
+        }
+        return componentBytes;
+    }
+
+
+    private byte[] getRefsetBytes(I_ManageSimpleConceptData conceptData, boolean primordial,
+            Collection<RefexMember<?, ?>> members) throws InterruptedException,
             ExecutionException, IOException {
         byte[] componentBytes;
         if (!primordial && members == null) {
-            componentBytes = getPreviousData(conceptData, offset, OFFSETS.values()[offset.ordinal() + 1]);
+            componentBytes = getPreviousData(conceptData,
+                    OFFSETS.REFSET_MEMBERS,
+                    OFFSETS.values()[OFFSETS.REFSET_MEMBERS.ordinal() + 1]);
         } else {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             if (members != null) {
-                binder.objectToEntry(members, new DataOutputStream(output));
+                RefexGenericSerializer.get().serialize(new DataOutputStream(output), members);
+                componentBytes = output.toByteArray();
+            } else {
+                componentBytes = zeroOutputArray;
+            }
+        }
+        if (componentBytes.length == 0) {
+            componentBytes = zeroOutputArray;
+        }
+        return componentBytes;
+
+    }
+    
+    private byte[] getRefsetDynamicBytes(I_ManageSimpleConceptData conceptData, boolean primordial,
+            Collection<RefexDynamicMember> members) throws InterruptedException,
+            ExecutionException, IOException {
+        byte[] componentBytes;
+        if (!primordial && members == null) {
+            componentBytes = getPreviousData(conceptData,
+                    OFFSETS.REFSET_DYNAMIC_MEMBERS,
+                    OFFSETS.values()[OFFSETS.REFSET_DYNAMIC_MEMBERS.ordinal() + 1]);
+        } else {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            if (members != null) {
+                RefexDynamicSerializer.get().serialize(new DataOutputStream(output), members);
                 componentBytes = output.toByteArray();
             } else {
                 componentBytes = zeroOutputArray;

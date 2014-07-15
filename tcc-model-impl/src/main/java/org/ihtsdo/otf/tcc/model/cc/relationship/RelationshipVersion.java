@@ -20,7 +20,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -29,8 +29,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
@@ -130,7 +129,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     public ConceptChronicle getType() throws IOException {
-        return (ConceptChronicle) P.s.getConcept(getTypeNid());
+        return (ConceptChronicle) PersistentStore.get().getConcept(getTypeNid());
     }
 
     @Override

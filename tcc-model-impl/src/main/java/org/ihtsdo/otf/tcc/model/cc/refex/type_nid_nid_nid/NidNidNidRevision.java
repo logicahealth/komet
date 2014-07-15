@@ -4,6 +4,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid;
 
 
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -19,21 +20,19 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid.TtkRefexUuidUu
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.model.cc.P;
 
 public class NidNidNidRevision extends RefexRevision<NidNidNidRevision, NidNidNidMember>
         implements RefexNidNidNidAnalogBI<NidNidNidRevision> {
-   private int c1Nid;
-   private int c2Nid;
-   private int c3Nid;
+    protected int c1Nid;
+    protected int c2Nid;
+    protected int c3Nid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -50,17 +49,11 @@ public class NidNidNidRevision extends RefexRevision<NidNidNidRevision, NidNidNi
 
    public NidNidNidRevision(TtkRefexUuidUuidUuidRevision eVersion, NidNidNidMember member) throws IOException {
       super(eVersion, member);
-      c1Nid = P.s.getNidForUuids(eVersion.getUuid1());
-      c2Nid = P.s.getNidForUuids(eVersion.getUuid2());
-      c3Nid = P.s.getNidForUuids(eVersion.getUuid3());
+      c1Nid = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
+      c2Nid = PersistentStore.get().getNidForUuids(eVersion.getUuid2());
+      c3Nid = PersistentStore.get().getNidForUuids(eVersion.getUuid3());
    }
 
-   public NidNidNidRevision(DataInputStream input, NidNidNidMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      c1Nid = input.readInt();
-      c2Nid = input.readInt();
-      c3Nid = input.readInt();
-   }
 
    public NidNidNidRevision(Status status, long time, int authorNid, int moduleNid,
            int pathNid, NidNidNidMember primoridalMember) {
@@ -160,13 +153,6 @@ public class NidNidNidRevision extends RefexRevision<NidNidNidRevision, NidNidNi
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeInt(c2Nid);
-      output.writeInt(c3Nid);
    }
 
    //~--- get methods ---------------------------------------------------------

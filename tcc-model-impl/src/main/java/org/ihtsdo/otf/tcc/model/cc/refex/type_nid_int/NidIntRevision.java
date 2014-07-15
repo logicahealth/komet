@@ -3,14 +3,13 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
+
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -26,8 +25,8 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_int.TtkRefexUuidIntRevis
 public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
         implements RefexNidIntAnalogBI<NidIntRevision> {
 
-    private int c1Nid;
-    private int intValue;
+    protected int c1Nid;
+    protected int intValue;
 
     //~--- constructors --------------------------------------------------------
     public NidIntRevision() {
@@ -42,15 +41,10 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
 
     public NidIntRevision(TtkRefexUuidIntRevision eVersion, NidIntMember member) throws IOException {
         super(eVersion, member);
-        c1Nid = P.s.getNidForUuids(eVersion.getUuid1());
+        c1Nid = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
         intValue = eVersion.getIntValue();
     }
 
-    public NidIntRevision(DataInputStream input, NidIntMember primoridalMember) throws IOException {
-        super(input, primoridalMember);
-        c1Nid = input.readInt();
-        intValue = input.readInt();
-    }
 
     protected NidIntRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, 
                             NidIntMember primoridalMember) {
@@ -136,12 +130,6 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
         buf.append(super.toString());
 
         return buf.toString();
-    }
-
-    @Override
-    protected void writeFieldsToBdb(DataOutput output) throws IOException {
-        output.writeInt(c1Nid);
-        output.writeInt(intValue);
     }
 
     //~--- get methods ---------------------------------------------------------

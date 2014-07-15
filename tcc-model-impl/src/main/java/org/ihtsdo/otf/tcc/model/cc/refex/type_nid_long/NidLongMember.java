@@ -11,7 +11,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
@@ -19,7 +19,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -34,8 +33,8 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private int  c1Nid;
-   private long longValue;
+   protected int  c1Nid;
+   protected long longValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -43,13 +42,9 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
       super();
    }
 
-   public NidLongMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidLongMember(TtkRefexUuidLongMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid     = P.s.getNidForUuids(refsetMember.getUuid1());
+      c1Nid     = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
       longValue = refsetMember.getLong1();
 
       if (refsetMember.getRevisionList() != null) {
@@ -131,17 +126,6 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
     }
 
    @Override
-   protected void readMemberFields(DataInputStream input) throws IOException {
-      c1Nid     = input.readInt();
-      longValue = input.readLong();
-   }
-
-   @Override
-   protected final NidLongRevision readMemberRevision(DataInputStream input) throws IOException {
-      return new NidLongRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert c1Nid != Integer.MAX_VALUE;
 
@@ -163,12 +147,6 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(DataOutput output) throws IOException {
-      output.writeInt(c1Nid);
-      output.writeLong(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

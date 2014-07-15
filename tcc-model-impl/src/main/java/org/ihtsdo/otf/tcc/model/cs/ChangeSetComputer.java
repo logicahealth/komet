@@ -30,11 +30,9 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -80,7 +78,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
 
             case MUTABLE_ONLY:
                 maxSapNid = Integer.MAX_VALUE;
-                minSapNid = P.s.getMaxReadOnlyStamp() + 1;
+                minSapNid = PersistentStore.get().getMaxReadOnlyStamp() + 1;
 
                 break;
 
@@ -133,11 +131,11 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                         if (ecd == null) {
                             ecd = new TtkDescriptionChronicle();
                             eDescriptions.add(ecd);
-                            ecd.setConceptUuid(P.s.getUuidPrimordialForNid(v.getConceptNid()));
+                            ecd.setConceptUuid(PersistentStore.get().getUuidPrimordialForNid(v.getConceptNid()));
                             ecd.setInitialCaseSignificant(v.isInitialCaseSignificant());
                             ecd.setLang(v.getLang());
                             ecd.setText(v.getText());
-                            ecd.setTypeUuid(P.s.getUuidPrimordialForNid(v.getTypeNid()));
+                            ecd.setTypeUuid(PersistentStore.get().getUuidPrimordialForNid(v.getTypeNid()));
                             setupFirstVersion(ecd, v);
                         } else {
                             TtkDescriptionRevision ecv = new TtkDescriptionRevision();
@@ -145,7 +143,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                             ecv.setInitialCaseSignificant(v.isInitialCaseSignificant());
                             ecv.setLang(v.getLang());
                             ecv.setText(v.getText());
-                            ecv.setTypeUuid(P.s.getUuidPrimordialForNid(v.getTypeNid()));
+                            ecv.setTypeUuid(PersistentStore.get().getUuidPrimordialForNid(v.getTypeNid()));
                             setupRevision(ecd, v, ecv);
                         }
                     }
@@ -171,17 +169,17 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                         if (eImg == null) {
                             eImg = new TtkMediaChronicle();
                             eImages.add(eImg);
-                            eImg.setConceptUuid(P.s.getUuidPrimordialForNid(v.getConceptNid()));
+                            eImg.setConceptUuid(PersistentStore.get().getUuidPrimordialForNid(v.getConceptNid()));
                             eImg.setFormat(v.getFormat());
                             eImg.setDataBytes(v.getMedia());
                             eImg.setTextDescription(v.getTextDescription());
-                            eImg.setTypeUuid(P.s.getUuidPrimordialForNid(v.getTypeNid()));
+                            eImg.setTypeUuid(PersistentStore.get().getUuidPrimordialForNid(v.getTypeNid()));
                             setupFirstVersion(eImg, v);
                         } else {
                             TtkMediaRevision eImgR = new TtkMediaRevision();
 
                             eImgR.setTextDescription(v.getTextDescription());
-                            eImgR.setTypeUuid(P.s.getUuidPrimordialForNid(v.getTypeNid()));
+                            eImgR.setTypeUuid(PersistentStore.get().getUuidPrimordialForNid(v.getTypeNid()));
                             setupRevision(eImg, v, eImgR);
                         }
                     }
@@ -199,7 +197,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
 
         for (RefexMember<?, ?> member : c.getRefsetMembers()) {
             TtkRefexAbstractMemberChronicle<?> eMember = null;
-            ConceptChronicle concept = (ConceptChronicle) P.s.getConceptForNid(member.getReferencedComponentNid());
+            ConceptChronicle concept = (ConceptChronicle) PersistentStore.get().getConceptForNid(member.getReferencedComponentNid());
 
             if ((concept != null) && !concept.isCanceled()) {
                 for (RefexMemberVersion<?, ?> v : member.getVersions()) {
@@ -234,7 +232,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
         }
 
         if (!membersToRemove.isEmpty()) {
-            P.s.addUncommittedNoChecks(c);
+            PersistentStore.get().addUncommittedNoChecks(c);
         }
 
         return eRefsetMembers;
@@ -256,20 +254,20 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                             if (ecr == null) {
                                 ecr = new TtkRelationshipChronicle();
                                 rels.add(ecr);
-                                ecr.setC1Uuid(P.s.getUuidPrimordialForNid(v.getC1Nid()));
-                                ecr.setC2Uuid(P.s.getUuidPrimordialForNid(v.getC2Nid()));
-                                ecr.setCharacteristicUuid(P.s.getUuidPrimordialForNid(v.getCharacteristicNid()));
-                                ecr.setRefinabilityUuid(P.s.getUuidPrimordialForNid(v.getRefinabilityNid()));
+                                ecr.setC1Uuid(PersistentStore.get().getUuidPrimordialForNid(v.getC1Nid()));
+                                ecr.setC2Uuid(PersistentStore.get().getUuidPrimordialForNid(v.getC2Nid()));
+                                ecr.setCharacteristicUuid(PersistentStore.get().getUuidPrimordialForNid(v.getCharacteristicNid()));
+                                ecr.setRefinabilityUuid(PersistentStore.get().getUuidPrimordialForNid(v.getRefinabilityNid()));
                                 ecr.setRelGroup(v.getGroup());
-                                ecr.setTypeUuid(P.s.getUuidPrimordialForNid(v.getTypeNid()));
+                                ecr.setTypeUuid(PersistentStore.get().getUuidPrimordialForNid(v.getTypeNid()));
                                 setupFirstVersion(ecr, v);
                             } else {
                                 TtkRelationshipRevision ecv = new TtkRelationshipRevision();
 
-                                ecv.setCharacteristicUuid(P.s.getUuidPrimordialForNid(v.getCharacteristicNid()));
-                                ecv.setRefinabilityUuid(P.s.getUuidPrimordialForNid(v.getRefinabilityNid()));
+                                ecv.setCharacteristicUuid(PersistentStore.get().getUuidPrimordialForNid(v.getCharacteristicNid()));
+                                ecv.setRefinabilityUuid(PersistentStore.get().getUuidPrimordialForNid(v.getRefinabilityNid()));
                                 ecv.setRelGroup(v.getGroup());
-                                ecv.setTypeUuid(P.s.getUuidPrimordialForNid(v.getTypeNid()));
+                                ecv.setTypeUuid(PersistentStore.get().getUuidPrimordialForNid(v.getTypeNid()));
                                 setupRevision(ecr, v, ecv);
                             }
                         } catch (AssertionError e) {
@@ -289,9 +287,9 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
     @SuppressWarnings("unchecked")
     private void setupFirstVersion(TtkComponentChronicle ec, Version<?, ?> v) throws IOException {
         ec.primordialUuid = v.getPrimordialUuid();
-        ec.setPathUuid(P.s.getUuidPrimordialForNid(v.getPathNid()));
+        ec.setPathUuid(PersistentStore.get().getUuidPrimordialForNid(v.getPathNid()));
         ec.setStatus(v.getStatus());
-        ec.setAuthorUuid(P.s.getUuidPrimordialForNid(v.getAuthorNid()));
+        ec.setAuthorUuid(PersistentStore.get().getUuidPrimordialForNid(v.getAuthorNid()));
         ec.setTime(v.getTime());
 
         if (v.getAdditionalIdentifierParts() != null) {
@@ -305,10 +303,10 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                     }
 
                     eIdv.setDenotation(idv.getDenotation());
-                    eIdv.setAuthorityUuid(P.s.getUuidPrimordialForNid(idv.getAuthorityNid()));
-                    eIdv.setPathUuid(P.s.getUuidPrimordialForNid(idv.getPathNid()));
+                    eIdv.setAuthorityUuid(PersistentStore.get().getUuidPrimordialForNid(idv.getAuthorityNid()));
+                    eIdv.setPathUuid(PersistentStore.get().getUuidPrimordialForNid(idv.getPathNid()));
                     eIdv.setStatus(idv.getStatus());
-                    eIdv.setAuthorUuid(P.s.getUuidPrimordialForNid(idv.getAuthorNid()));
+                    eIdv.setAuthorUuid(PersistentStore.get().getUuidPrimordialForNid(idv.getAuthorNid()));
                     eIdv.setTime(idv.getTime());
                 }
             }
@@ -327,7 +325,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
             for (RefexMember<?, ?> member : (Collection<RefexMember<?, ?>>) v.getAnnotations()) {
                 TtkRefexAbstractMemberChronicle<?> eMember = null;
                 ConceptChronicle concept =
-                        (ConceptChronicle) P.s.getConceptForNid(member.getReferencedComponentNid());
+                        (ConceptChronicle) PersistentStore.get().getConceptForNid(member.getReferencedComponentNid());
 
                 if ((concept != null) && !concept.isCanceled()) {
                     for (RefexMemberVersion<?, ?> mv : member.getVersions()) {
@@ -396,9 +394,9 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
             ec.revisions = new ArrayList();
         }
 
-        ev.setPathUuid(P.s.getUuidPrimordialForNid(v.getPathNid()));
+        ev.setPathUuid(PersistentStore.get().getUuidPrimordialForNid(v.getPathNid()));
         ev.setStatus(v.getStatus());
-        ev.setAuthorUuid(P.s.getUuidPrimordialForNid(v.getAuthorNid()));
+        ev.setAuthorUuid(PersistentStore.get().getUuidPrimordialForNid(v.getAuthorNid()));
         ev.setTime(v.getTime());
         ec.revisions.add(ev);
     }

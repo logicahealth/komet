@@ -26,7 +26,7 @@ import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
@@ -36,10 +36,10 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         implements DescriptionAnalogBI<DescriptionRevision> {
     private static VersionComputer<DescriptionVersion> computer = new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private boolean initialCaseSignificant;
-    private String lang;
-    private String text;
-    int typeNid;
+    protected boolean initialCaseSignificant;
+    protected String lang;
+    protected String text;
+    protected int typeNid;
 
     /*
      * Consider depreciating the below methods...
@@ -51,17 +51,13 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         super();
     }
 
-    public Description(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
-        super(enclosingConcept.getNid(), input);
-    }
-
     public Description(TtkDescriptionChronicle eDesc, ConceptChronicleBI enclosingConcept) throws IOException {
         super(eDesc, enclosingConcept.getNid());
         initialCaseSignificant = eDesc.isInitialCaseSignificant();
         lang = eDesc.getLang();
         text = eDesc.getText();
-        typeNid = P.s.getNidForUuids(eDesc.getTypeUuid());
-        primordialStamp = P.s.getStamp(eDesc);
+        typeNid = PersistentStore.get().getNidForUuids(eDesc.getTypeUuid());
+        primordialStamp = PersistentStore.get().getStamp(eDesc);
 
         if (eDesc.getRevisionList() != null) {
             revisions = new RevisionSet<DescriptionRevision, Description>(primordialStamp);
@@ -165,29 +161,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public void readFromDataStream(DataInputStream input) throws IOException {
-        initialCaseSignificant = input.readBoolean();
-        lang = input.readUTF();
-        text = input.readUTF();
-        typeNid = input.readInt();
-
-        // nid, list size, and conceptNid are read already by the binder...
-        int additionalVersionCount = input.readShort();
-
-        if (additionalVersionCount > 0) {
-            revisions = new RevisionSet<DescriptionRevision, Description>(primordialStamp);
-
-            for (int i = 0; i < additionalVersionCount; i++) {
-                DescriptionRevision dr = new DescriptionRevision(input, this);
-
-                if (dr.getTime() != Long.MIN_VALUE) {
-                    revisions.add(dr);
-                }
-            }
-        }
-    }
-
-    @Override
     public boolean readyToWriteComponent() {
         assert text != null : assertionString();
         assert typeNid != Integer.MAX_VALUE : assertionString();
@@ -278,31 +251,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         buf.append(super.validate(another));
 
         return buf.toString();
-    }
-
-    @Override
-    public void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
-        List<DescriptionRevision> partsToWrite = new ArrayList<>();
-
-        if (revisions != null) {
-            for (DescriptionRevision p : revisions) {
-                if ((p.getStamp() > maxReadOnlyStatusAtPositionNid)
-                        && (p.getTime() != Long.MIN_VALUE)) {
-                    partsToWrite.add(p);
-                }
-            }
-        }
-
-        output.writeBoolean(initialCaseSignificant);
-        output.writeUTF(lang);
-        output.writeUTF(text);
-        output.writeInt(typeNid);
-        output.writeShort(partsToWrite.size());
-
-        // conceptNid is the enclosing concept, does not need to be written.
-        for (DescriptionRevision p : partsToWrite) {
-            p.writeRevisionBdb(output);
-        }
     }
 
     //~--- get methods ---------------------------------------------------------

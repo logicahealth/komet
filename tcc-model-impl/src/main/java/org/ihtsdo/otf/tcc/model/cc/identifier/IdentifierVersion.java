@@ -6,11 +6,10 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -33,11 +32,11 @@ public abstract class IdentifierVersion implements IdBI {
 
    protected IdentifierVersion(TtkIdentifier idv) throws IOException {
       super();
-      this.stamp = P.s.getStamp(idv.getStatus(), idv.getTime(),
-                                    P.s.getNidForUuids(idv.getAuthorUuid()),
-                                    P.s.getNidForUuids(idv.getModuleUuid()),
-                                    P.s.getNidForUuids(idv.getPathUuid()));
-      this.authorityNid = P.s.getNidForUuids(idv.getAuthorityUuid());
+      this.stamp = PersistentStore.get().getStamp(idv.getStatus(), idv.getTime(),
+              PersistentStore.get().getNidForUuids(idv.getAuthorUuid()),
+              PersistentStore.get().getNidForUuids(idv.getModuleUuid()),
+              PersistentStore.get().getNidForUuids(idv.getPathUuid()));
+      this.authorityNid = PersistentStore.get().getNidForUuids(idv.getAuthorityUuid());
    }
 
    protected IdentifierVersion(DataInputStream input) throws IOException {
@@ -53,7 +52,7 @@ public abstract class IdentifierVersion implements IdBI {
 
    protected IdentifierVersion(Status status, long time, int authorNid, int moduleNid, int pathNid,
                                int authorityNid) {
-      this.stamp     = P.s.getStamp(status, time, authorNid, moduleNid, pathNid);
+      this.stamp     = PersistentStore.get().getStamp(status, time, authorNid, moduleNid, pathNid);
       this.authorityNid = authorityNid;
    }
 
@@ -149,12 +148,12 @@ public abstract class IdentifierVersion implements IdBI {
    }
 
    public int getAuthorId() {
-      return P.s.getAuthorNidForStamp(stamp);
+      return PersistentStore.get().getAuthorNidForStamp(stamp);
    }
 
    @Override
    public int getAuthorNid() {
-      return P.s.getAuthorNidForStamp(stamp);
+      return PersistentStore.get().getAuthorNidForStamp(stamp);
    }
 
    @Override
@@ -164,12 +163,12 @@ public abstract class IdentifierVersion implements IdBI {
 
    @Override
    public int getModuleNid() {
-      return P.s.getModuleNidForStamp(stamp);
+      return PersistentStore.get().getModuleNidForStamp(stamp);
    }
 
    @Override
    public int getPathNid() {
-      return P.s.getPathNidForStamp(stamp);
+      return PersistentStore.get().getPathNidForStamp(stamp);
    }
 
    @Override
@@ -179,12 +178,12 @@ public abstract class IdentifierVersion implements IdBI {
 
    @Override
    public Status getStatus() {
-      return P.s.getStatusForStamp(stamp);
+      return PersistentStore.get().getStatusForStamp(stamp);
    }
 
    @Override
    public long getTime() {
-      return P.s.getTimeForStamp(stamp);
+      return PersistentStore.get().getTimeForStamp(stamp);
    }
 
    public abstract ConceptComponent.IDENTIFIER_PART_TYPES getType();
@@ -200,6 +199,6 @@ public abstract class IdentifierVersion implements IdBI {
          throw new UnsupportedOperationException("Time alreay committed.");
       }
 
-      this.stamp = P.s.getStamp(getStatus(), time, getAuthorNid(), getModuleNid(), getPathNid());
+      this.stamp = PersistentStore.get().getStamp(getStatus(), time, getAuthorNid(), getModuleNid(), getPathNid());
    }
 }

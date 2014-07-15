@@ -19,7 +19,6 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -51,7 +50,7 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChroni
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
@@ -71,7 +70,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 {
     public int referencedComponentNid;
     public int assemblageNid;
-    private RefexDynamicDataBI[] data_;
+    protected RefexDynamicDataBI[] data_;
     protected List<? extends RefexDynamicMemberVersion> versions;
 
     //~--- constructors --------------------------------------------------------
@@ -81,15 +80,11 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         assemblageNid = Integer.MAX_VALUE;
     }
 
-    public RefexDynamicMember(int enclosingConceptNid, DataInputStream input) throws IOException {
-        super(enclosingConceptNid, input);
-    }
-
     public RefexDynamicMember(TtkRefexDynamicMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        assemblageNid = P.s.getNidForUuids(refsetMember.refexAssemblageUuid);
-        referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
-        primordialStamp = P.s.getStamp(refsetMember);
+        assemblageNid = PersistentStore.get().getNidForUuids(refsetMember.refexAssemblageUuid);
+        referencedComponentNid = PersistentStore.get().getNidForUuids(refsetMember.getComponentUuid());
+        primordialStamp = PersistentStore.get().getStamp(refsetMember);
         assert primordialStamp != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;
         assert assemblageNid != Integer.MAX_VALUE;
@@ -179,30 +174,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return (RefexDynamicMember) super.merge(component);
     }
 
-    @Override
-    public void readFromDataStream(DataInputStream input) throws IOException {
-        assemblageNid = input.readInt();
-        referencedComponentNid = input.readInt();
-        assert assemblageNid != Integer.MAX_VALUE;
-        assert referencedComponentNid != Integer.MAX_VALUE;
-        readMemberFields(input);
-
-        int additionalVersionCount = input.readShort();
-
-        if (additionalVersionCount > 0) {
-            if (revisions == null) {
-                revisions = new RevisionSet(primordialStamp);
-            }
-
-            for (int i = 0; i < additionalVersionCount; i++) {
-                RefexDynamicRevision r = readMemberRevision(input);
-
-                if ((r.stamp != -1) && (r.getTime() != Long.MIN_VALUE)) {
-                    revisions.add(r);
-                }
-            }
-        }
-    }
 
     @Override
     public final boolean readyToWriteComponent() {
@@ -273,39 +244,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 //
 //        return buf.toString();
 //    }
-
-    @Override
-    public void writeToBdb(DataOutput output, int maxReadOnlyStatusAtPositionNid) throws IOException {
-        List<RefexDynamicRevision> additionalVersionsToWrite = new ArrayList<>();
-
-        if (revisions != null) {
-            for (RefexDynamicRevision p : revisions) {
-                if ((p.getStamp() > maxReadOnlyStatusAtPositionNid)
-                        && (p.getTime() != Long.MIN_VALUE)) {
-                    additionalVersionsToWrite.add(p);
-                }
-            }
-        }
-
-        assert assemblageNid != Integer.MAX_VALUE;
-        assert referencedComponentNid != Integer.MAX_VALUE;
-        output.writeInt(assemblageNid);
-        output.writeInt(referencedComponentNid);
-        writeMember(output);
-        output.writeShort(additionalVersionsToWrite.size());
-
-        NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(assemblageNid, nid);
-        try {
-            P.s.addXrefPair(referencedComponentNid, npr);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        for (RefexDynamicRevision p : additionalVersionsToWrite) {
-            p.writeRevisionBdb(output);
-        }
-    }
-
     //~--- get methods ---------------------------------------------------------
     @Override
     public int getAssemblageNid() {
@@ -328,7 +266,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             InvalidCAB, ContradictionException {
 
         RefexDynamicCAB rdc = new RefexDynamicCAB(
-                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
+                PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), 
                 vc, 
@@ -419,7 +357,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 if ((this.assemblageNid != 0) && (this.nid != 0)) {
                     NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
 
-                    P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
+                    PersistentStore.get().forgetXrefPair(this.referencedComponentNid, oldNpr);
                 }
 
                 // new xref is added on the dbWrite.
@@ -440,7 +378,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             if ((this.referencedComponentNid != Integer.MAX_VALUE) && (this.assemblageNid != 0) && (this.nid != 0)) {
                 NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
 
-                P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
+                PersistentStore.get().forgetXrefPair(this.referencedComponentNid, oldNpr);
             }
 
             // new xref is added on the dbWrite.

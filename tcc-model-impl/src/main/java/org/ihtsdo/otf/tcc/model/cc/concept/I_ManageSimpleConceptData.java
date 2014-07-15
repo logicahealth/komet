@@ -25,8 +25,6 @@ import java.util.concurrent.ExecutionException;
  */
 public interface I_ManageSimpleConceptData extends I_ManageConceptData{
 
-    byte[] getReadOnlyBytes() throws IOException;
-
     byte[] getReadWriteBytes() throws IOException;
 
     DataInputStream getMutableDataStream() throws IOException;

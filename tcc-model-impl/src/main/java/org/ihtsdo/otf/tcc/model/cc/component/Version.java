@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -41,7 +41,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 
@@ -75,12 +75,12 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
     }
 
     public boolean isIndexed() {
-        return P.s.isIndexed(cc.nid);
+        return PersistentStore.get().isIndexed(cc.nid);
     }
 
     public void setIndexed() {
         if (!isUncommitted()) {
-            P.s.setIndexed(cc.nid, true);
+            PersistentStore.get().setIndexed(cc.nid, true);
         }
     }
 

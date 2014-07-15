@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-model-impl</artifactId>
+            <artifactId>tcc-serializer</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>

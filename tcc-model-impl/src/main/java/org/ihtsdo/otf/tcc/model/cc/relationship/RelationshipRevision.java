@@ -1,13 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -20,17 +19,17 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 public class RelationshipRevision extends Revision<RelationshipRevision, Relationship>
         implements RelationshipAnalogBI<RelationshipRevision> {
 
-    private int characteristicNid;
-    private int group;
-    private int refinabilityNid;
-    private int typeNid;
+    protected int characteristicNid;
+    protected int group;
+    protected int refinabilityNid;
+    protected int typeNid;
 
     //~--- constructors --------------------------------------------------------
     public RelationshipRevision() {
@@ -58,20 +57,13 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     public RelationshipRevision(TtkRelationshipRevision erv, Relationship primordialRel) throws IOException {
-        super(erv.getStatus(), erv.getTime(), P.s.getNidForUuids(erv.getAuthorUuid()),
-                P.s.getNidForUuids(erv.getModuleUuid()), P.s.getNidForUuids(erv.getPathUuid()), primordialRel);
-        this.characteristicNid = P.s.getNidForUuids(erv.getCharacteristicUuid());
+        super(erv.getStatus(), erv.getTime(), PersistentStore.get().getNidForUuids(erv.getAuthorUuid()),
+                PersistentStore.get().getNidForUuids(erv.getModuleUuid()), PersistentStore.get().getNidForUuids(erv.getPathUuid()), primordialRel);
+        this.characteristicNid = PersistentStore.get().getNidForUuids(erv.getCharacteristicUuid());
         this.group = erv.getGroup();
-        this.refinabilityNid = P.s.getNidForUuids(erv.getRefinabilityUuid());
-        this.typeNid = P.s.getNidForUuids(erv.getTypeUuid());
-        this.stamp = P.s.getStamp(erv);
-    }
-
-    public RelationshipRevision(DataInputStream input, Relationship primordialRel) throws IOException {
-        super(input.readInt(), primordialRel);
-        this.characteristicNid = input.readInt();
-        this.group = input.readInt();
-        this.refinabilityNid = input.readInt();
+        this.refinabilityNid = PersistentStore.get().getNidForUuids(erv.getRefinabilityUuid());
+        this.typeNid = PersistentStore.get().getNidForUuids(erv.getTypeUuid());
+        this.stamp = PersistentStore.get().getStamp(erv);
     }
 
     public RelationshipRevision(RelationshipAnalogBI another, Status status, long time, int authorNid,
@@ -199,14 +191,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         ConceptComponent.addTextToBuffer(buf, primordialComponent.getDestinationNid());
 
         return buf.toString();
-    }
-
-    @Override
-    public void writeFieldsToBdb(DataOutput output) throws IOException {
-        output.writeInt(characteristicNid);
-        output.writeInt(group);
-        output.writeInt(refinabilityNid);
-        output.writeInt(typeNid);
     }
 
     //~--- get methods ---------------------------------------------------------

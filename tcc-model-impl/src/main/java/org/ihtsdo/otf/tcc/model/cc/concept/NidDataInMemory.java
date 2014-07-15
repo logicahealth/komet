@@ -4,32 +4,18 @@ import java.io.*;
 
 public class NidDataInMemory implements ConceptDataFetcherI {
 
-    private byte[] readOnlyBytes;
     private byte[] readWriteBytes;
 
-    public NidDataInMemory(byte[] readOnlyBytes, byte[] readWriteBytes) {
+    public NidDataInMemory(byte[] readWriteBytes) {
         super();
-        this.readOnlyBytes = readOnlyBytes.clone();
         this.readWriteBytes = readWriteBytes.clone();
     }
 
     public NidDataInMemory(InputStream is) throws IOException {
         super();
         DataInputStream dis = new DataInputStream(is);
-        readOnlyBytes = new byte[dis.readInt()];
-        dis.readFully(readOnlyBytes);
         readWriteBytes = new byte[dis.readInt()];
         dis.readFully(readWriteBytes);
-    }
-
-    @Override
-    public byte[] getReadOnlyBytes() {
-        return readOnlyBytes;
-    }
-
-    @Override
-    public DataInputStream getReadOnlyDataStream() {
-        return new DataInputStream(new ByteArrayInputStream(getReadOnlyBytes()));
     }
 
     @Override
@@ -44,7 +30,7 @@ public class NidDataInMemory implements ConceptDataFetcherI {
 
     @Override
     public boolean isPrimordial() throws IOException {
-        return readOnlyBytes != null || readWriteBytes != null;
+        return readWriteBytes == null;
     }
 
     @Override

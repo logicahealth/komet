@@ -9,7 +9,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 
 /**
  *
@@ -22,36 +22,36 @@ public class StampResource {
     @Path("/read-only-max")
     @Produces("text/plain")
     public String getRoMaxStamp() throws IOException {
-        return Integer.toString(P.s.getMaxReadOnlyStamp());
+        return Integer.toString(PersistentStore.get().getMaxReadOnlyStamp());
     }
     @GET
     @Path("/time/{id}")
     @Produces("text/plain")
     public String getTime(@PathParam("id") String id) throws IOException {
-        return Long.toString(P.s.getTimeForStamp(Integer.parseInt(id)));
+        return Long.toString(PersistentStore.get().getTimeForStamp(Integer.parseInt(id)));
     }
     @GET
     @Path("/path/{id}")
     @Produces("text/plain")
     public String getPathNid(@PathParam("id") String id) throws IOException {
-        return Integer.toString(P.s.getPathNidForStamp(Integer.parseInt(id)));
+        return Integer.toString(PersistentStore.get().getPathNidForStamp(Integer.parseInt(id)));
     }
     @GET
     @Path("/author/{id}")
     @Produces("text/plain")
     public String getAuthorNid(@PathParam("id") String id) throws IOException {
-        return Integer.toString(P.s.getAuthorNidForStamp(Integer.parseInt(id)));
+        return Integer.toString(PersistentStore.get().getAuthorNidForStamp(Integer.parseInt(id)));
     }
     @GET
     @Path("/status/{id}")
     @Produces("text/plain")
     public String getStatus(@PathParam("id") String id) throws IOException {
-        return P.s.getStatusForStamp(Integer.parseInt(id)).name();
+        return PersistentStore.get().getStatusForStamp(Integer.parseInt(id)).name();
     }
     @GET
     @Path("/module/{id}")
     @Produces("text/plain")
     public String getModuleNid(@PathParam("id") String id) throws IOException {
-        return Integer.toString(P.s.getModuleNidForStamp(Integer.parseInt(id)));
+        return Integer.toString(PersistentStore.get().getModuleNidForStamp(Integer.parseInt(id)));
     }
 }

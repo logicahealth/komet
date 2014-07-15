@@ -13,11 +13,10 @@ import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Set;
@@ -36,8 +35,8 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     }
 
     public RefexRevision(TtkRevision eVersion, C member)  throws IOException{
-        super(eVersion.getStatus(), eVersion.getTime(), P.s.getNidForUuids(eVersion.getAuthorUuid()),
-                 P.s.getNidForUuids(eVersion.getModuleUuid()), P.s.getNidForUuids(eVersion.getPathUuid()),  member);
+        super(eVersion.getStatus(), eVersion.getTime(), PersistentStore.get().getNidForUuids(eVersion.getAuthorUuid()),
+                 PersistentStore.get().getNidForUuids(eVersion.getModuleUuid()), PersistentStore.get().getNidForUuids(eVersion.getPathUuid()),  member);
     }
 
     public RefexRevision(DataInputStream input, C primordialComponent) throws IOException {
@@ -143,7 +142,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
             InvalidCAB, ContradictionException {
         RefexCAB rcs = new RefexCAB(
                 getTkRefsetType(),
-                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
+                PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), 
                 vc, 

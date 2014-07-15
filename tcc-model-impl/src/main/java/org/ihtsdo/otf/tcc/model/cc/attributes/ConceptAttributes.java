@@ -33,18 +33,12 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     private static VersionComputer<ConceptAttributesVersion> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private boolean defined;
+    protected boolean defined;
     List<ConceptAttributesVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public ConceptAttributes() {
         super();
-    }
-
-    public ConceptAttributes(ConceptChronicleBI enclosingConcept, DataInputStream input) throws IOException {
-        super(enclosingConcept.getNid(), input);
-        assert this.nid == enclosingConcept.getNid(): "[1] nid and cNid don't match: " + 
-                enclosingConcept + "\n\n" + this;
     }
 
     public ConceptAttributes(TtkConceptAttributesChronicle eAttr, ConceptChronicleBI c) throws IOException {
@@ -120,33 +114,6 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public void readFromDataStream(DataInputStream input) {
-        try {
-
-            // nid, list size, and conceptNid are read already by the binder...
-            defined = input.readBoolean();
-
-            int additionalVersionCount = input.readShort();
-
-            if (additionalVersionCount > 0) {
-                if (revisions == null) {
-                    revisions = new RevisionSet(primordialStamp);
-                }
-
-                for (int i = 0; i < additionalVersionCount; i++) {
-                    ConceptAttributesRevision car = new ConceptAttributesRevision(input, this);
-
-                    if (car.getTime() != Long.MIN_VALUE) {
-                        revisions.add(car);
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            throw new RuntimeException(" Processing nid: " + enclosingConceptNid, e);
-        }
-    }
-
-    @Override
     public boolean readyToWriteComponent() {
         return true;
     }
@@ -214,28 +181,6 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         buf.append(super.validate(another));
 
         return buf.toString();
-    }
-
-    @Override
-    public void writeToBdb(DataOutput output, int maxReadOnlyStamp) throws IOException {
-        List<ConceptAttributesRevision> partsToWrite = new ArrayList<>();
-
-        if (revisions != null) {
-            for (ConceptAttributesRevision p : revisions) {
-                if ((p.getStamp() > maxReadOnlyStamp)
-                        && (p.getTime() != Long.MIN_VALUE)) {
-                    partsToWrite.add(p);
-                }
-            }
-        }
-
-        // Start writing
-        output.writeBoolean(defined);
-        output.writeShort(partsToWrite.size());
-
-        for (ConceptAttributesRevision p : partsToWrite) {
-            p.writeRevisionBdb(output);
-        }
     }
 
     //~--- get methods ---------------------------------------------------------

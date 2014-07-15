@@ -374,7 +374,8 @@ public class ParallelConceptIterator implements Callable<Boolean>, ConceptFetche
         roCursor.getCurrent(aKey, roFoundData, LockMode.READ_UNCOMMITTED);
         mutableCursor.getCurrent(aKey, mutableFoundData, LockMode.READ_UNCOMMITTED);
 
-        return ConceptChronicle.get(currentCNid, roFoundData.getData(), mutableFoundData.getData());
+        //return ConceptChronicle.get(currentCNid, roFoundData.getData(), mutableFoundData.getData());
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -394,7 +395,8 @@ public class ParallelConceptIterator implements Callable<Boolean>, ConceptFetche
 
         mutableCursor.getCurrent(aKey, mutableFoundData, LockMode.READ_UNCOMMITTED);
 
-        return ConceptChronicle.get(currentCNid, new byte[0], mutableFoundData.getData());
+        //return ConceptChronicle.get(currentCNid, new byte[0], mutableFoundData.getData());
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -414,7 +416,8 @@ public class ParallelConceptIterator implements Callable<Boolean>, ConceptFetche
 
         roCursor.getCurrent(aKey, roFoundData, LockMode.READ_UNCOMMITTED);
 
-        return ConceptChronicle.get(currentCNid, roFoundData.getData(), new byte[0]);
+        //return ConceptChronicle.get(currentCNid, roFoundData.getData(), new byte[0]);
+        throw new UnsupportedOperationException();
     }
 
     /**

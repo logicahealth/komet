@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
@@ -328,7 +328,7 @@ public class RelGroupVersion implements RelGroupVersionBI {
 
    @Override
    public Position getPosition() throws IOException {
-      return new Position(getTime(), P.s.getPath(getPathNid()));
+      return new Position(getTime(), PersistentStore.get().getPath(getPathNid()));
    }
 
    @Override

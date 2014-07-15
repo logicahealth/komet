@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMember>
         implements RefexBooleanAnalogBI<BooleanRevision> {
-   private boolean booleanValue;
+   protected boolean booleanValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -33,19 +33,9 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
       super();
    }
 
-   protected BooleanRevision(int statusAtPositionNid, BooleanMember primoridalMember) {
-      super(statusAtPositionNid, primoridalMember);
-      this.booleanValue = primoridalMember.getBoolean1();
-   }
-
    public BooleanRevision(TtkRefexBooleanRevision eVersion, BooleanMember booleanMember) throws IOException {
       super(eVersion, booleanMember);
       this.booleanValue = eVersion.isBooleanValue();
-   }
-
-   public BooleanRevision(DataInputStream input, BooleanMember primoridalMember) throws IOException {
-      super(input, primoridalMember);
-      booleanValue = input.readBoolean();
    }
 
    protected BooleanRevision(Status status, long time, int authorNid, int moduleNid,
@@ -129,11 +119,6 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(DataOutput output) throws IOException {
-      output.writeBoolean(booleanValue);
    }
 
    //~--- get methods ---------------------------------------------------------
