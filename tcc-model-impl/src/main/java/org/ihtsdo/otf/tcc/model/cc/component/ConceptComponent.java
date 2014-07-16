@@ -201,7 +201,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         this.primordialStamp = P.s.getStamp(eComponent);
-        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid;
+//        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid; //TODO-AKF: this won't be the case when inialized from existing data
         this.primordialMsb = eComponent.getPrimordialComponentUuid().getMostSignificantBits();
         this.primordialLsb = eComponent.getPrimordialComponentUuid().getLeastSignificantBits();
         convertId(eComponent.additionalIds);
