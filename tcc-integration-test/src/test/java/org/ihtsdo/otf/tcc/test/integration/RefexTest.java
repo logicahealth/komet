@@ -37,8 +37,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.junit.BdbTestRunner;
-import org.ihtsdo.otf.tcc.junit.BdbTestRunnerConfig;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -51,8 +49,7 @@ import org.junit.runner.RunWith;
  *
  * @author akf
  */
-@RunWith(BdbTestRunner.class)
-@BdbTestRunnerConfig()
+
 public class RefexTest {
 
     ConceptVersionBI concept;

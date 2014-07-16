@@ -27,18 +27,8 @@
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="module" module-name="tcc-junit-ext" scope="TEST" />
-    <orderEntry type="module" module-name="tcc-datastore" scope="TEST" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.sleepycat:je:5.0.97" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.apache.mahout:mahout-collections:1.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.apache.mahout:mahout-math:0.7" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.apache.commons:commons-math:2.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.uncommons.maths:uncommons-maths:1.2.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: jfree:jcommon:1.0.12" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
+    <orderEntry type="module" module-name="tcc-api" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: commons-lang:commons-lang:2.6" level="project" />
-    <orderEntry type="module" module-name="tcc-serializer" scope="TEST" />
-    <orderEntry type="module" module-name="tcc-model-impl" scope="TEST" />
     <orderEntry type="module" module-name="tcc-lookup" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.netbeans.api:org-openide-util-lookup:RELEASE73" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2:2.3.0-b09" level="project" />
@@ -49,15 +39,15 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2.external:bean-validator:2.3.0-b09" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:hk2-runlevel:2.3.0-b09" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.glassfish.hk2:class-model:2.3.0-b09" level="project" />
-    <orderEntry type="module" module-name="tcc-api" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apache.mahout:mahout-collections:1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-queryparser:4.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-core:4.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-queries:4.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.lucene:lucene-sandbox:4.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: jakarta-regexp:jakarta-regexp:1.4" level="project" />
-    <orderEntry type="module" module-name="tcc-dto-ddo" scope="TEST" />
     <orderEntry type="module" module-name="tcc-rest-server" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.slf4j:slf4j-simple:1.7.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.maven:maven-embedder:3.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.maven:maven-settings:3.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.plexus:plexus-utils:3.0.10" level="project" />

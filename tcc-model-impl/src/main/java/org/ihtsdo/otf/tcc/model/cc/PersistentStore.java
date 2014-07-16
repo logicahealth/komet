@@ -27,11 +27,12 @@ import javax.inject.Inject;
  * @author kec
  */
 
+
 public class PersistentStore {
 
     private static PersistentStore singleton;
 
-    private PersistentStoreI persistentStoreImplementation;
+    @Inject private PersistentStoreI persistentStoreImplementation;
 
     private PersistentStore() {
         System.out.println("Hk2Looker.get().getService(PersistentStoreI.class");

@@ -32,9 +32,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.junit.BdbTestRunner;
-import org.ihtsdo.otf.tcc.junit.BdbTestRunnerConfig;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicUsageDescriptionBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -49,8 +46,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@RunWith(BdbTestRunner.class)
-@BdbTestRunnerConfig()
+
 public class DynamicRefexTest
 {
 	ConceptVersionBI concept1;
@@ -116,13 +112,13 @@ public class DynamicRefexTest
 				
 				//Build concept 2
 				//assemblage is -- annotation style refex
-				RefexDynamicUsageDescriptionBuilder.createNewRefexDynamicUsageDescriptionConcept(c2.getDescription(), 
-						c2.getDescription(), "annotation style test data", new RefexDynamicColumnInfo[] {}, null, true, ec, vc);
+//				RefexDynamicUsageDescriptionBuilder.createNewRefexDynamicUsageDescriptionConcept(c2.getDescription(),
+//						c2.getDescription(), "annotation style test data", new RefexDynamicColumnInfo[] {}, null, true, ec, vc);
 				
 				//Build concept 3
 				//assemblage is refset style refex 
-				RefexDynamicUsageDescriptionBuilder.createNewRefexDynamicUsageDescriptionConcept(c3.getDescription(), 
-						c3.getDescription(), "refset style test data", new RefexDynamicColumnInfo[] {}, null, false, ec, vc);
+//				RefexDynamicUsageDescriptionBuilder.createNewRefexDynamicUsageDescriptionConcept(c3.getDescription(),
+//						c3.getDescription(), "refset style test data", new RefexDynamicColumnInfo[] {}, null, false, ec, vc);
 				
 				concept2 = Ts.get().getConceptVersion(vc, c2.getLenient().getConceptNid());
 				concept3 = Ts.get().getConceptVersion(vc, c3.getLenient().getConceptNid());

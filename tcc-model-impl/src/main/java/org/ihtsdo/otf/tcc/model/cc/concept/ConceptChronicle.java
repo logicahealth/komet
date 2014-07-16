@@ -115,11 +115,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         switch (refType) {
             case SOFT:
             case WEAK:
-//                TODO-AKF can do this on a field level
-                ConceptDataFactory factory = Hk2Looker.get().getService(ConceptDataFactory.class);
-                ConceptDataManager dataManager = (ConceptDataManager) factory.getConceptDataManager();
-                dataManager.setEnlosingConcept(this);
-                this.data = dataManager;
+////                TODO-AKF can do this on a field level
+//                ConceptDataFactory factory = Hk2Looker.get().getService(ConceptDataFactory.class);
+//                ConceptDataManager dataManager = (ConceptDataManager) factory.getConceptDataManager();
+//                dataManager.setEnlosingConcept(this);
+//                this.data = dataManager;
+
+                this.data = PersistentStore.get().getConceptData(nid);
 
                 break;
 

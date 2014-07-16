@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.ddo.store.FxTerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -65,7 +66,10 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
     void cancelAfterCommit(NidSetBI commitSapNids) throws IOException;
 
     // Method to wrap for client...
+    // TODO can this be removed...
     ConceptDataFetcherI getConceptDataFetcher(int cNid) throws IOException;
+
+    I_ManageConceptData getConceptData(int cNid) throws IOException;
 
     // Methods to remove from this interface...
     void addXrefPair(int nid, NidPairForRefex pair) throws IOException;
