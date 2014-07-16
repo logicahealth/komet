@@ -65,10 +65,6 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
 
     void cancelAfterCommit(NidSetBI commitSapNids) throws IOException;
 
-    // Method to wrap for client...
-    // TODO can this be removed...
-    ConceptDataFetcherI getConceptDataFetcher(int cNid) throws IOException;
-
     I_ManageConceptData getConceptData(int cNid) throws IOException;
 
     // Methods to remove from this interface...

@@ -88,23 +88,24 @@ public class ConceptResource {
         } else {
             cnid = Integer.parseInt(id);
         }
-        final ConceptDataFetcherI fetcher = PersistentStore.get().getConceptDataFetcher(cnid);
-        return new StreamingOutput() {
-
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                DataOutputStream dos = new DataOutputStream(output);
-                dos.writeInt(cnid);
-                // byte[] robs = fetcher.getReadOnlyBytes();
-                // zero out read only bytes...
-                // TODO eliminate the read-only part on the other end, and then remove here...
-                dos.writeInt(0);
-                //dos.write(robs);
-                byte[] rwbs = fetcher.getMutableBytes();
-                dos.writeInt(rwbs.length);
-                dos.write(rwbs);
-            }
-        };
+        throw new UnsupportedOperationException();
+//        final ConceptDataFetcherI fetcher = PersistentStore.get().getConceptDataFetcher(cnid);
+//        return new StreamingOutput() {
+//
+//            @Override
+//            public void write(OutputStream output) throws IOException, WebApplicationException {
+//                DataOutputStream dos = new DataOutputStream(output);
+//                dos.writeInt(cnid);
+//                // byte[] robs = fetcher.getReadOnlyBytes();
+//                // zero out read only bytes...
+//                // TODO eliminate the read-only part on the other end, and then remove here...
+//                dos.writeInt(0);
+//                //dos.write(robs);
+//                byte[] rwbs = fetcher.getMutableBytes();
+//                dos.writeInt(rwbs.length);
+//                dos.write(rwbs);
+//            }
+//        };
     }
     @GET
     @Path("{id}")

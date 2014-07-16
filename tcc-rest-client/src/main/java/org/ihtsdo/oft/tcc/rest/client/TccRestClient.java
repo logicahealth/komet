@@ -43,6 +43,7 @@ import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
 import org.ihtsdo.otf.tcc.model.cc.concept.NidDataInMemory;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
@@ -127,22 +128,6 @@ public class TccRestClient extends Termstore {
       String      nidStr = r.request(MediaType.TEXT_PLAIN).get(String.class);
 
       return Integer.parseInt(nidStr);
-   }
-
-   @Override
-   public ConceptDataFetcherI getConceptDataFetcher(int cNid) throws IOException {
-      WebTarget r  = restClient.target(serverUrlStr + "concept/" + cNid);
-      InputStream is = r.request(bdbMediaType).get(InputStream.class);
-
-      try (DataInputStream dis = new DataInputStream(is)) {
-         int returnNid = dis.readInt();    // the cnid
-
-         assert returnNid == cNid : "cNid: " + cNid + " returnNid: " + returnNid;
-
-         ConceptDataFetcherI fetcher = new NidDataInMemory(is);
-
-         return fetcher;
-      }
    }
 
    @Override
@@ -523,7 +508,12 @@ public class TccRestClient extends Termstore {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
-   @Override
+    @Override
+    public I_ManageConceptData getConceptData(int cNid) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
    public void commit() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
    }

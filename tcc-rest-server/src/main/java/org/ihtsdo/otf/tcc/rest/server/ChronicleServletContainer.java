@@ -22,7 +22,7 @@ import org.glassfish.jersey.internal.util.collection.Values;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.datastore.BdbTerminologyStore;
+
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.IOException;
@@ -51,7 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ChronicleServletContainer extends ServletContainer {
 
     private static final AtomicInteger threadCount = new AtomicInteger(1);
-    private static BdbTerminologyStore termStore;
+    //private static BdbTerminologyStore termStore;
     public static SetupStatus status;
     public static Integer maxHeaderSize;
     boolean success = false;
@@ -79,14 +79,14 @@ public class ChronicleServletContainer extends ServletContainer {
                 setupThread.stop();
             }
 
-            if (termStore != null) {
-                getServletContext().log("termStore is not null, shutting down. ");
-                termStore.shutdown();
-                getServletContext().log("termStore shutdown. ");
-                termStore = null;
-            } else {
-                getServletContext().log("termStore is null. ");
-            }
+//            if (termStore != null) {
+//                getServletContext().log("termStore is not null, shutting down. ");
+//                termStore.shutdown();
+//                getServletContext().log("termStore shutdown. ");
+//                termStore = null;
+//            } else {
+//                getServletContext().log("termStore is null. ");
+//            }
 
             status = SetupStatus.CLOSING_DB;
             super.destroy();
@@ -133,32 +133,32 @@ public class ChronicleServletContainer extends ServletContainer {
 
         if (localStatus == SetupStatus.DB_OPEN) {
             // If there's an error in db setup, then repeat as necessary
-            while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
-                getServletContext().log("Termstore is null");
-                getServletContext().log("Database status: " + status.toString());
-                status = SetupStatus.DB_OPEN_FAILED;
-                init();
-                dbSetupCount++;
-            }
-
-            // If the repetition is unsuccessful, then delete the database and try again
-            if ((termStore == null) && (dbSetupCount >= DB_SETUP_TRIES)) {
-                deleteBdb = true;
-                init();
-            }
-
-            try {
-                super.service(request, response);
-            } catch (NullPointerException e) {
-                getServletContext().log("Database status: " + status.toString());
-                getServletContext().log("Database load error.", e);
-                if (termStore == null) {
-                    getServletContext().log("Termstore is null and query was unsuccessful.");
-                } else {
-                    outputFileSizes();
-                }
-
-            }
+//            while ((termStore == null) && (dbSetupCount < DB_SETUP_TRIES)) {
+//                getServletContext().log("Termstore is null");
+//                getServletContext().log("Database status: " + status.toString());
+//                status = SetupStatus.DB_OPEN_FAILED;
+//                init();
+//                dbSetupCount++;
+//            }
+//
+//            // If the repetition is unsuccessful, then delete the database and try again
+//            if ((termStore == null) && (dbSetupCount >= DB_SETUP_TRIES)) {
+//                deleteBdb = true;
+//                init();
+//            }
+//
+//            try {
+//                super.service(request, response);
+//            } catch (NullPointerException e) {
+//                getServletContext().log("Database status: " + status.toString());
+//                getServletContext().log("Database load error.", e);
+//                if (termStore == null) {
+//                    getServletContext().log("Termstore is null and query was unsuccessful.");
+//                } else {
+//                    outputFileSizes();
+//                }
+//
+//            }
         } else {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
                     "Try: " + tryCount + " " + localStatus.toString());
@@ -196,35 +196,35 @@ public class ChronicleServletContainer extends ServletContainer {
         String s = this.getServletContext().getRealPath("mvn-repo");
 
         bi.append("The dir to maven repo: ").append(s).append("\n");
-        if (termStore != null) {
-
-            File bdb = new File(termStore.getBdbLocation());
-
-            getServletContext().log("The bdb path is: " + bdb.getAbsolutePath());
-
-            if (bdb.exists()) {
-                long i = getFolderSize(bdb);
-                bi.append("The bdb size is : ").append(i).append(" bytes.\n");
-            } else {
-                bi.append("File does not exist!\n");
-            }
-
-            File m2 = new File(bdb.getAbsolutePath() + "/../../mvn-repo");
-
-            bi.append("Maven repo path: ").append(m2.getAbsolutePath()).append("\n");
-
-            if (m2.exists()) {
-                long j = getFolderSize(m2);
-                bi.append("Maven repo size: ").append(j).append(" bytes.\n");
-                for (File f : listFiles(m2.getAbsolutePath())) {
-                    bi.append("File: ").append(f.getAbsolutePath()).append(" Size: ").append(f.length()).append("\n");
-                }
-            } else {
-                bi.append("Maven repo doesn't exist.");
-            }
-        } else {
-            bi.append("Termstore is null.");
-        }
+//        if (termStore != null) {
+//
+//            File bdb = new File(termStore.getBdbLocation());
+//
+//            getServletContext().log("The bdb path is: " + bdb.getAbsolutePath());
+//
+//            if (bdb.exists()) {
+//                long i = getFolderSize(bdb);
+//                bi.append("The bdb size is : ").append(i).append(" bytes.\n");
+//            } else {
+//                bi.append("File does not exist!\n");
+//            }
+//
+//            File m2 = new File(bdb.getAbsolutePath() + "/../../mvn-repo");
+//
+//            bi.append("Maven repo path: ").append(m2.getAbsolutePath()).append("\n");
+//
+//            if (m2.exists()) {
+//                long j = getFolderSize(m2);
+//                bi.append("Maven repo size: ").append(j).append(" bytes.\n");
+//                for (File f : listFiles(m2.getAbsolutePath())) {
+//                    bi.append("File: ").append(f.getAbsolutePath()).append(" Size: ").append(f.length()).append("\n");
+//                }
+//            } else {
+//                bi.append("Maven repo doesn't exist.");
+//            }
+//        } else {
+//            bi.append("Termstore is null.");
+//        }
         
         getServletContext().log(bi.toString());
     }
@@ -302,9 +302,9 @@ public class ChronicleServletContainer extends ServletContainer {
                             + TimeHelper.getElapsedTimeString(elapsedTime));
                     status = SetupStatus.OPENING_DB;
 
-                    BdbTerminologyStore temp = new BdbTerminologyStore();
-
-                    termStore = temp;
+//                    BdbTerminologyStore temp = new BdbTerminologyStore();
+//
+//                    termStore = temp;
                     status = SetupStatus.DB_OPEN;
                 } else {
                     status = SetupStatus.DB_OPEN_FAILED;
