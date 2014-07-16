@@ -93,7 +93,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
       typeNid                = input.readInt();
    }
 
-   protected DescriptionRevision(DescriptionVersionBI another, Status status, long time,
+   public DescriptionRevision(DescriptionVersionBI another, Status status, long time,
            int authorNid, int moduleNid, int pathNid, Description primoridalMember) {
       super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
       this.text                   = another.getText();
