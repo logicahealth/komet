@@ -2239,7 +2239,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if(primordialStamp == 0){
             throw new RuntimeException("### DEBUG -- Primordial stamp is 0");
         }
-        return P.s.getStatusForStamp(primordialStamp);
+        Status s = P.s.getStatusForStamp(primordialStamp);
+        if(s == null){
+            throw new RuntimeException("### DEBUG -- Status is null");
+        }
+        return s;
     }
 
     /**

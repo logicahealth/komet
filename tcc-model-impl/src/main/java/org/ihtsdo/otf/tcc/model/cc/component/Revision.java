@@ -486,7 +486,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     }
 
     @Override
-    public final void setStatus(org.ihtsdo.otf.tcc.api.coordinate.Status nid) {
+    public final void setStatus(Status status) {
 //        TODO-AKF: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
@@ -494,7 +494,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        }
 
         try {
-            this.stamp = P.s.getStamp(nid, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.stamp = P.s.getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     getPathNid());
         } catch (Exception e) {
             throw new RuntimeException();
