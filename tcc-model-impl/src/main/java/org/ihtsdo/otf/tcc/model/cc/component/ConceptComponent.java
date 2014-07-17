@@ -2236,6 +2236,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final Status getStatus() {
+        if(primordialStamp == 0){
+            throw new RuntimeException("### DEBUG -- Primordial stamp is 0");
+        }
         return P.s.getStatusForStamp(primordialStamp);
     }
 
