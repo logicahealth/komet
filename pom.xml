@@ -231,6 +231,7 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-integration-test</module>
         <module>tcc-mojo</module>
         <module>tcc-serializer</module>
+        <module>../wdi/tcc-uuit-nid-map</module>
     </modules>
     <profiles>
         <profile>

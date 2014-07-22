@@ -56,6 +56,7 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES
  * @version        Enter version here..., 13/03/27
  * @author         Enter your name here...    
  */
+@XmlRootElement()
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRevision {
 

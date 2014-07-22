@@ -31,13 +31,13 @@ public class DescriptionSerializer extends AbstractSerializer<Description, Descr
     @Override
     protected void serializeRevision(DataOutput output, DescriptionRevision revision) throws IOException {
         if (revision.text.equals(revision.primordialComponent.getText())) {
-            output.writeUTF((String) null);
+            output.writeUTF("");
         } else {
             output.writeUTF(revision.text);
         }
 
         if (revision.lang.equals(revision.primordialComponent.getLang())) {
-            output.writeUTF((String) null);
+            output.writeUTF("");
         } else {
             output.writeUTF(revision.lang);
         }
@@ -69,13 +69,13 @@ public class DescriptionSerializer extends AbstractSerializer<Description, Descr
     protected void deserializeRevision(DataInput input, DescriptionRevision revision) throws IOException {
         revision.text = input.readUTF();
 
-        if (revision.text == null) {
+        if (revision.text.isEmpty()) {
             revision.text = revision.primordialComponent.getText();
         }
 
         revision.lang = input.readUTF();
 
-        if (revision.lang == null) {
+        if (revision.lang.isEmpty()) {
             revision.lang = revision.primordialComponent.getLang();
         }
 

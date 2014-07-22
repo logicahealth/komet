@@ -32,19 +32,10 @@ public class PersistentStore {
 
     private static PersistentStore singleton;
 
-    @Inject private PersistentStoreI persistentStoreImplementation;
+    private PersistentStoreI persistentStoreImplementation;
 
     private PersistentStore() {
-        System.out.println("Hk2Looker.get().getService(PersistentStoreI.class");
-        System.out.println(Hk2Looker.get().getDescriptors(new Filter() {
-            @Override
-            public boolean matches(Descriptor descriptor) {
-                return true;
-            }
-        }));
         this.persistentStoreImplementation = Hk2Looker.get().getService(PersistentStoreI.class);
-        System.out.println("PersistentStore.persistentStoreImplementation: " + this.persistentStoreImplementation);
-
     }
 
     public static PersistentStoreI get() {
@@ -53,5 +44,4 @@ public class PersistentStore {
         }
         return singleton.persistentStoreImplementation;
     }
-
 }

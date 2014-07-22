@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -22,13 +23,19 @@ public abstract class AbstractSerializer<C extends ConceptComponent<R, C>, R ext
     }
 
     public void deserialize(DataInput input, CollectionCollector<C> collector) throws IOException {
-        int collectionSize = input.readInt();
+        int collectionSize = 0;
+        try {
+            collectionSize = input.readInt();
+        } catch (EOFException eof) {
+            // nothing to do...
+        }
         collector.init(collectionSize);
         for (int i = 0; i < collectionSize; i++) {
             C component = newComponent();
             deserialize(input, component);
             collector.add(component);
         }
+        
     }
 
     public void serialize(DataOutput output, C cc) throws IOException {

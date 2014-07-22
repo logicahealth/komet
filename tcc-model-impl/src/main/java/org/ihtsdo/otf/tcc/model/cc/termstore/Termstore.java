@@ -299,7 +299,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws Exception
      */
     @Override
-    public void loadEconFiles(String[] econFileStrings) throws Exception {
+    public final int loadEconFiles(String... econFileStrings) throws Exception {
         List<File> econFiles = new ArrayList<>(econFileStrings.length);
 
         for (String fileString : econFileStrings) {
@@ -307,8 +307,9 @@ public abstract class Termstore implements PersistentStoreI {
         }
 
         LastChange.suspendChangeNotifications();
-        loadEconFiles(econFiles.toArray(new File[econFiles.size()]));
+        int conceptsLoaded = loadEconFiles(econFiles.toArray(new File[econFiles.size()]));
         LastChange.resumeChangeNotifications();
+        return conceptsLoaded;
     }
 
     /**
@@ -624,7 +625,9 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public abstract ConceptChronicleBI getConcept(int cNid) throws IOException;
+    public final ConceptChronicle getConcept(int cNid) throws IOException {
+        return ConceptChronicle.get(cNid);
+    }
 
     /**
      * Method description
@@ -1021,4 +1024,6 @@ public abstract class Termstore implements PersistentStoreI {
         }
 
     }
+
+
 }

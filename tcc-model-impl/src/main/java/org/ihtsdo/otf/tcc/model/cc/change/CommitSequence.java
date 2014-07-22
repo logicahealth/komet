@@ -22,7 +22,7 @@ package org.ihtsdo.otf.tcc.model.cc.change;
  *
  * @author kec
  */
-public class BdbCommitSequence {
+public class CommitSequence {
    private static short commitSequence = Short.MIN_VALUE;
 
    //~--- methods -------------------------------------------------------------

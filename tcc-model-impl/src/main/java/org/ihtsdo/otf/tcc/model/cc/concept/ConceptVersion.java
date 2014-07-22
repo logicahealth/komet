@@ -46,7 +46,6 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.HistoricalRelType;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
@@ -88,11 +87,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       this.concept = concept;
       this.vc      = new ViewCoordinate(UUID.randomUUID(), coordinate.getName() + " clone", coordinate);
    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        concept.writeExternal(out);
-    }
 
    //~--- methods -------------------------------------------------------------
 
@@ -239,10 +233,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
          NidSetBI temp = new NidSet();
 
          try {
-            temp.add(PersistentStore.get().getNidForUuids(SnomedMetadataRf1.DEFINED_RF1.getUuids()));
-            temp.add(PersistentStore.get().getNidForUuids(SnomedMetadataRf1.DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids()));
-            temp.add(
-                PersistentStore.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids()));
             temp.add(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getConceptNid());
          } catch (ValidationException e) {
             throw new RuntimeException(e);
@@ -257,8 +247,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    private void setupFsnOrder() {
       if (fsnOrder == null) {
          NidListBI newList = new NidList();
-
-         newList.add(ReferenceConcepts.FULLY_SPECIFIED_RF1.getNid());
          newList.add(ReferenceConcepts.FULLY_SPECIFIED_RF2.getNid());
          fsnOrder = newList;
       }
@@ -268,10 +256,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       if (preferredOrder == null) {
          NidListBI newList = new NidList();
 
-         newList.add(ReferenceConcepts.PREFERRED_ACCEPTABILITY_RF1.getNid());
-         newList.add(ReferenceConcepts.PREFERRED_RF1.getNid());
          newList.add(ReferenceConcepts.PREFERRED_ACCEPTABILITY_RF2.getNid());
-         newList.add(ReferenceConcepts.SYNONYM_RF1.getNid());
          newList.add(ReferenceConcepts.SYNONYM_RF2.getNid());
          preferredOrder = newList;
       }
@@ -1092,8 +1077,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    public Collection<? extends DescriptionVersionBI> getSynonyms() throws IOException {
       if (synonymOrder == null) {
          synonymOrder = new NidList();
-         synonymOrder.add(ReferenceConcepts.ACCEPTABLE_ACCEPTABILITY.getNid());
-         synonymOrder.add(ReferenceConcepts.SYNONYM_RF1.getNid());
          synonymOrder.add(ReferenceConcepts.SYNONYM_RF2.getNid());
       }
 

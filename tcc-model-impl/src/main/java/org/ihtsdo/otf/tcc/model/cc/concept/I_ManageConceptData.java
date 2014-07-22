@@ -2,123 +2,109 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMediaSet;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberDynamicSet;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataManager.AddMemberSet;
 import org.ihtsdo.otf.tcc.model.cc.description.Description;
 import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 public interface I_ManageConceptData {
-   void add(Description desc) throws IOException;
+    void add(Description desc) throws IOException;
 
-   void add(Media img) throws IOException;
+    void add(Media img) throws IOException;
 
-   void add(RefexMember<?, ?> refsetMember) throws IOException;
-   
-   void add(RefexDynamicMember refsetDynamicMember) throws IOException;
+    void add(RefexMember<?, ?> refsetMember) throws IOException;
 
-   void add(Relationship rel) throws IOException;
+    void add(RefexDynamicMember refsetDynamicMember) throws IOException;
 
-   /**
-    * For single-concept cancel.
-    */
-   void cancel() throws IOException;
+    void add(Relationship rel) throws IOException;
 
-   void diet();
+    /**
+     * For single-concept cancel.
+     */
+    void cancel() throws IOException;
 
-   void modified();
+    void modified();
 
-   void modified(long sequence);
+    void modified(long sequence);
 
-   boolean readyToWrite();
+    boolean readyToWrite();
 
-   //~--- get methods ---------------------------------------------------------
-   Collection<Integer> getAllNids() throws IOException;
-   
-   ComponentChronicleBI<?> getComponent(int nid) throws IOException;
-   
-   ConceptAttributes getConceptAttributes() throws IOException;
-   
-   ConceptAttributes getConceptAttributesIfChanged() throws IOException;
-   
-   public Collection<Integer> getConceptNidsAffectedByCommit() throws IOException;
+    //~--- get methods ---------------------------------------------------------
+    Collection<Integer> getAllNids() throws IOException;
 
-   Set<Integer> getDescNids() throws IOException;
+    ComponentChronicleBI<?> getComponent(int nid) throws IOException;
 
-   Set<Description> getDescriptions() throws IOException;
+    ConceptAttributes getConceptAttributes() throws IOException;
 
-   Collection<Description> getDescriptionsIfChanged() throws IOException;
-   
-   List<Relationship> getDestRels() throws IOException;
+    void setConceptAttributes(ConceptAttributes attr) throws IOException;
 
-   List<Relationship> getDestRels(NidSetBI allowedTypes) throws IOException;
+    public Collection<Integer> getConceptNidsAffectedByCommit() throws IOException;
 
-   Set<Integer> getImageNids() throws IOException;
+    Set<Integer> getDescNids() throws IOException;
 
-   AddMediaSet getImages() throws IOException;
+    Collection<Description> getDescriptions() throws IOException;
 
-   Collection<Media> getImagesIfChanged() throws IOException;
+    void setDescriptions(Set<Description> descriptions) throws IOException;
 
-   Set<Integer> getMemberNids() throws IOException;
+    List<Relationship> getDestRels() throws IOException;
 
-   int getNid();
+    List<Relationship> getDestRels(NidSetBI allowedTypes) throws IOException;
 
-   RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException;
-   
-   RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException;
+    Set<Integer> getImageNids() throws IOException;
 
-   RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException;
+    Collection<Media> getMedia() throws IOException;
 
-   AddMemberSet getRefsetMembers() throws IOException;
-   
-   AddMemberDynamicSet getRefsetDynamicMembers() throws IOException;
+    Set<Integer> getMemberNids() throws IOException;
 
-   Collection<RefexMember<?, ?>> getRefsetMembersIfChanged() throws IOException;
-   
-   Set<Relationship> getSourceRels() throws IOException;
-   
-   Collection<RefexDynamicMember> getRefsetDynamicMembersIfChanged() throws IOException;
+    int getNid();
 
-   Collection<Relationship> getSourceRelsIfChanged() throws IOException;
+    RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException;
 
-   Set<Integer> getSrcRelNids() throws IOException;
+    RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException;
 
-   NidListBI getUncommittedNids();
+    RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException;
 
-   boolean isAnnotationStyleRefex() throws IOException;
+    Collection<RefexMember<?,?>> getRefsetMembers() throws IOException;
 
-   boolean isPrimordial() throws IOException;
+    Collection<RefexDynamicMember> getRefsetDynamicMembers() throws IOException;
 
-   boolean isUncommitted();
+    Collection<Relationship> getSourceRels() throws IOException;
 
-   boolean isUnwritten();
+    void setSourceRels(Set<Relationship> relationships) throws IOException;
 
-   //~--- set methods ---------------------------------------------------------
+    Set<Integer> getSrcRelNids() throws IOException;
 
-   void setConceptAttributes(ConceptAttributes attr) throws IOException;
-   
-   void setDescriptions(Set<Description> descriptions) throws IOException;
-   
-   void setSourceRels(Set<Relationship> relationships) throws IOException;
+    NidListBI getUncommittedNids();
 
-   void setIsAnnotationStyleRefex(boolean annotationStyleRefex);
-   
-   void setPrimordial(boolean isPrimordial);
+    boolean isAnnotationStyleRefex() throws IOException;
 
-   /**
-    * For single-concept commit.
-    * @param time
-    */
-   NidSetBI setCommitTime(long time);
-   
+    //~--- set methods ---------------------------------------------------------
+
+    boolean isPrimordial() throws IOException;
+
+    void setPrimordial(boolean isPrimordial);
+
+    boolean isUncommitted();
+
+    boolean isUnwritten();
+
+    void setIsAnnotationStyleRefex(boolean annotationStyleRefex);
+
+    /**
+     * For single-concept commit.
+     *
+     * @param time
+     */
+    NidSetBI setCommitTime(long time);
+
 }

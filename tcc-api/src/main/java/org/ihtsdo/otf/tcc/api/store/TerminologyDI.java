@@ -92,11 +92,29 @@ public interface TerminologyDI {
 
     void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception;
 
-    void loadEconFiles(File[] econFiles) throws Exception;
+    /**
+     *
+     * @param econFiles the files to load
+     * @return the number of concepts loaded
+     * @throws Exception
+     */
+    int loadEconFiles(File... econFiles) throws Exception;
 
-    void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception;
+    /**
+     *
+     * @param econFiles the files to load
+     * @return the number of concepts loaded
+     * @throws Exception
+     */
+    int loadEconFiles(java.nio.file.Path... econFiles) throws Exception;
 
-    void loadEconFiles(String[] econFileStrings) throws Exception;
+    /**
+     *
+     * @param econFileStrings the files to load
+     * @return the number of concepts loaded
+     * @throws Exception
+     */
+    int loadEconFiles(String... econFileStrings) throws Exception;
 
     Position newPosition(Path path, long time) throws IOException;
 

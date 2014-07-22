@@ -2,8 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
@@ -19,7 +17,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
@@ -37,25 +34,6 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
         implements RelationshipAnalogBI<RelationshipRevision> {
    private static int                                   classifierAuthorNid = Integer.MIN_VALUE;
    private static VersionComputer<RelationshipVersion> computer            = new VersionComputer<>();
-   public static int                              INFERRED_NID_RF1 = 0;
-   public static int                              INFERRED_NID_RF2 = 0;
-   public static int                              STATED_NID_RF1 = 0;
-   public static int                              STATED_NID_RF2 = 0;
-
-   //~--- static initializers -------------------------------------------------
-
-   static {
-      try {
-         INFERRED_NID_RF1 =
-            Ts.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-         STATED_NID_RF1 =
-            Ts.get().getNidForUuids(SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-         INFERRED_NID_RF2 = Ts.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
-         STATED_NID_RF2   = Ts.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
-      } catch (Exception ex) {
-         throw new RuntimeException(ex);
-      }
-   }
 
    //~--- fields --------------------------------------------------------------
 
@@ -192,23 +170,13 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
       RelationshipType relType = null;
 
-      if ((getCharacteristicNid()
-              == SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                 .getNid()) || (getCharacteristicNid()
-                                == SnomedMetadataRf1.DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                                   .getNid()) || (getCharacteristicNid()
-                                      == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid())) {
+      if (getCharacteristicNid() == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid()) {
          throw new InvalidCAB("Inferred relationships can not be used to make blueprints");
-      } else if ((getCharacteristicNid()
-                  == SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                     .getNid()) || (getCharacteristicNid()
-                                    == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid())) {
+      } else if (getCharacteristicNid() == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid()) {
          relType = RelationshipType.STATED_HIERARCHY;
-	  } else if (getCharacteristicNid() == SnomedMetadataRf1.QUALIFIER_CHARACTERISTICS_TYPE_RF1.getNid() ||
-			  getCharacteristicNid() == SnomedMetadataRf2.QUALIFYING_RELATIONSSHIP_RF2.getLenient().getNid()) {
+	  } else if (getCharacteristicNid() == SnomedMetadataRf2.QUALIFYING_RELATIONSSHIP_RF2.getLenient().getNid()) {
 	         relType = RelationshipType.QUALIFIER;
-	  } else if (getCharacteristicNid() == SnomedMetadataRf1.HISTORICAL_CHARACTERISTIC_TYPE_RF1.getNid() ||
-		  getCharacteristicNid() == SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getLenient().getNid()) {
+	  } else if (getCharacteristicNid() == SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getLenient().getNid()) {
          relType = RelationshipType.HISTORIC;
 	  }
 
@@ -442,15 +410,23 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       return returnTuples;
    }
 
-   @Override
-   public boolean isInferred() {
-      return (getCharacteristicNid() == INFERRED_NID_RF2) || (getCharacteristicNid() == INFERRED_NID_RF1);
-   }
+    protected static int inferredNid = Integer.MAX_VALUE;
+    protected static int statedNid = Integer.MAX_VALUE;
+    @Override
+    public boolean isInferred() throws IOException {
+        if (inferredNid == Integer.MAX_VALUE) {
+            inferredNid = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
+        }
+        return characteristicNid == inferredNid;
+    }
 
-   @Override
-   public boolean isStated() {
-      return (getCharacteristicNid() == STATED_NID_RF2) || (getCharacteristicNid() == STATED_NID_RF1);
-   }
+    @Override
+    public boolean isStated() throws IOException {
+        if (statedNid == Integer.MAX_VALUE) {
+            statedNid = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
+        }
+        return characteristicNid == statedNid;
+    }
 
    //~--- set methods ---------------------------------------------------------
 

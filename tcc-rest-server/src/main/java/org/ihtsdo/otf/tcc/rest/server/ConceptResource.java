@@ -4,23 +4,23 @@
  */
 package org.ihtsdo.otf.tcc.rest.server;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.UUID;
-import javax.ws.rs.*;
-import javax.ws.rs.core.StreamingOutput;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.UUID;
 
 /**
  *

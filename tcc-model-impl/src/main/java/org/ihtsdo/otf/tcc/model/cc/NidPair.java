@@ -7,6 +7,7 @@ import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
+// TODO move NidPair to bdb-store project
 public abstract class NidPair implements Comparable<NidPair>, Serializable {
    private int   hash;
    protected int nid1;

@@ -15,23 +15,23 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
+import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
+import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
+import org.ihtsdo.otf.tcc.ddo.store.FxTerminologyStoreDI;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
+import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
+import org.jvnet.hk2.annotations.Contract;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
-import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
-import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
-import org.ihtsdo.otf.tcc.ddo.store.FxTerminologyStoreDI;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
-import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
-import org.jvnet.hk2.annotations.Contract;
 
 /**
  *

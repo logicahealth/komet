@@ -26,7 +26,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
@@ -42,9 +41,7 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptDataFetcherI;
 import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
-import org.ihtsdo.otf.tcc.model.cc.concept.NidDataInMemory;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.termstore.Termstore;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
@@ -58,7 +55,6 @@ import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,7 +71,6 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.ddo.store.FxTs;
 
 /**
  *
@@ -576,12 +571,12 @@ public class TccRestClient extends Termstore {
    }
 
    @Override
-   public void loadEconFiles(File[] econFiles) throws Exception {
+   public int loadEconFiles(File... econFiles) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
     @Override
-    public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
+    public int loadEconFiles(java.nio.file.Path... econFiles) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -740,8 +735,4 @@ public class TccRestClient extends Termstore {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public ConceptChronicleBI getConcept(int cNid) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }

@@ -177,7 +177,7 @@ public class LastChange {
          case COMPONENT :
             short xrefSequence = (short) (lastChangeMap.get()[mapIndex][indexInMap] >> 16);
 
-            lastChangeMap.get()[mapIndex][indexInMap] = asInt(BdbCommitSequence.getCommitSequence(),
+            lastChangeMap.get()[mapIndex][indexInMap] = asInt(CommitSequence.getCommitSequence(),
                     xrefSequence);
             changedComponents.get().add(nid);
 
@@ -187,7 +187,7 @@ public class LastChange {
             short componentSequence = (short) lastChangeMap.get()[mapIndex][indexInMap];
 
             lastChangeMap.get()[mapIndex][indexInMap] = asInt(componentSequence,
-                    BdbCommitSequence.getCommitSequence());
+                    CommitSequence.getCommitSequence());
             changedXrefs.get().add(nid);
 
             break;
@@ -306,7 +306,7 @@ public class LastChange {
             LastChange.changedXrefs.getAndSet(new ConcurrentSkipListSet<Integer>());
          ConcurrentSkipListSet<Integer> changedComponents =
             LastChange.changedComponents.getAndSet(new ConcurrentSkipListSet<Integer>());
-         long sequence = BdbCommitSequence.nextSequence();
+         long sequence = CommitSequence.nextSequence();
 
          if (!changedXrefs.isEmpty() ||!changedComponents.isEmpty()) {
             List<WeakReference<TermChangeListener>> toRemove = new ArrayList<>();

@@ -26,8 +26,6 @@ import java.util.Collection;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
 public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI> {
-    
-   void writeExternal(DataOutputStream out) throws IOException;
    void cancel() throws IOException;
 
    boolean commit(ChangeSetGenerationPolicy changeSetPolicy,
@@ -58,11 +56,11 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    /**
      * Retrieves tuples matching the specified view coordinate
      * 
-     * @param cuttoffTime
+     * @param cutoffTime
      *          cutoff time to match tuples, tuples with a time greater than
      *          cutoff will no be returned
      * @return List of matching tuples
-     * @throws TerminologyException
+     * @throws IOException
      */
    public Collection<? extends RefexVersionBI<?>> getCurrentRefsetMembers(ViewCoordinate vc, Long cutoffTime)
            throws IOException;

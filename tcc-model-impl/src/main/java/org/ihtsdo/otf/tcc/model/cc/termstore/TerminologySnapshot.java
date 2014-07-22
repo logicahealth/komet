@@ -394,13 +394,13 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws Exception
     */
    @Override
-   public void loadEconFiles(File[] econFiles) throws Exception {
-      store.loadEconFiles(econFiles);
+   public int loadEconFiles(File... econFiles) throws Exception {
+      return store.loadEconFiles(econFiles);
    }
 
    @Override
-   public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
-      store.loadEconFiles(econFiles);
+   public int loadEconFiles(java.nio.file.Path... econFiles) throws Exception {
+      return store.loadEconFiles(econFiles);
    }
 
    /**
@@ -412,8 +412,8 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws Exception
     */
    @Override
-   public void loadEconFiles(String[] econFileStrings) throws Exception {
-      store.loadEconFiles(econFileStrings);
+   public int loadEconFiles(String... econFileStrings) throws Exception {
+      return store.loadEconFiles(econFileStrings);
    }
 
    /**

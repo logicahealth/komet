@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@javax.xml.bind.annotation.XmlSchema (
+        namespace = "http://transfer.object.jaxb.otf.ihtsdo.org"
+)
 package org.ihtsdo.otf.tcc.dto;
 
 /**
