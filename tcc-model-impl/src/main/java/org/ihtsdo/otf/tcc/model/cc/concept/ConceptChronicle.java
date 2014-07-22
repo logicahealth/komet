@@ -317,8 +317,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return c;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static ConceptChronicle mergeWithEConcept(TtkConceptChronicle eConcept, ConceptChronicle c)
+    public static ConceptChronicle mergeWithEConcept(TtkConceptChronicle eConcept, ConceptChronicle c)
             throws IOException {
         if (c.isAnnotationStyleRefex() == false) {
             c.setAnnotationStyleRefex(eConcept.isAnnotationStyleRefex());
