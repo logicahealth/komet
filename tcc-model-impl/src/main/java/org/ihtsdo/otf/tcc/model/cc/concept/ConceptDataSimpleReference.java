@@ -1329,4 +1329,9 @@ public class ConceptDataSimpleReference extends ConceptDataManager
         //        TODO-AKF: need this for JPA. Leave as unsupported?
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public void loadEagerly() throws IOException { //TODO-AKF -- need to implement?
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

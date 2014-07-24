@@ -69,6 +69,10 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
     */
    @Override
    public void add(Description desc) throws IOException {
+      if(isPrimordial()){
+          
+      }
+      add(desc);
       getDescriptions().add(desc);
       getDescNids().add(desc.nid);
       modified();
@@ -402,9 +406,14 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
          super(new ComponentComparator());
 
          for (Relationship r : c) {
-            add(r);
+            addDirect(r);
          }
       }
+      
+      public final boolean addDirect(Relationship r) {
+         return super.add(r);
+      }
+      
       public AddSrcRelSet(Collection<? extends Relationship> c, boolean addDirect) {
          super(new ComponentComparator());
          for (Relationship r : c) {

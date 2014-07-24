@@ -42,7 +42,7 @@ public interface I_ManageConceptData {
    Collection<Integer> getAllNids() throws IOException;
    
    ComponentChronicleBI<?> getComponent(int nid) throws IOException;
-   
+
    ConceptAttributes getConceptAttributes() throws IOException;
    
    ConceptAttributes getConceptAttributesIfChanged() throws IOException;
@@ -112,6 +112,8 @@ public interface I_ManageConceptData {
    void setIsAnnotationStyleRefex(boolean annotationStyleRefex);
    
    void setPrimordial(boolean isPrimordial);
+   
+   void loadEagerly() throws IOException;
 
    /**
     * For single-concept commit.

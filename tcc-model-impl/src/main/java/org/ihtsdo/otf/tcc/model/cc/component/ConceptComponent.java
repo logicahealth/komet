@@ -204,7 +204,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 //        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid; //TODO-AKF: this won't be the case when inialized from existing data
         this.primordialMsb = eComponent.getPrimordialComponentUuid().getMostSignificantBits();
         this.primordialLsb = eComponent.getPrimordialComponentUuid().getLeastSignificantBits();
-        convertId(eComponent.additionalIds);
+//        convertId(eComponent.additionalIds); //TODO-AKF: support additional IDs
         assert nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
 
         if (eComponent.getAnnotations() != null) {
@@ -2236,13 +2236,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final Status getStatus() {
-        if(primordialStamp == 0){
-            throw new RuntimeException("### DEBUG -- Primordial stamp is 0");
-        }
         Status s = P.s.getStatusForStamp(primordialStamp);
-        if(s == null){
-            throw new RuntimeException("### DEBUG -- Status is null");
-        }
         return s;
     }
 
