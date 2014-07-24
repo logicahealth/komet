@@ -53,7 +53,7 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
        
    }
    
-   protected abstract void setEnlosingConcept(ConceptChronicle enclosingConcept);
+   protected abstract void setEnlosingConcept(ConceptChronicle enclosingConcept) throws IOException;
    
    @Override
    public abstract void setIsAnnotationStyleRefex(boolean annotationStyleRefex);
@@ -69,10 +69,6 @@ public abstract class ConceptDataManager implements I_ManageConceptData {
     */
    @Override
    public void add(Description desc) throws IOException {
-      if(isPrimordial()){
-          
-      }
-      add(desc);
       getDescriptions().add(desc);
       getDescNids().add(desc.nid);
       modified();

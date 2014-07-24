@@ -117,7 +117,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 //                TODO-AKF can do this on a field level
                 ConceptDataFactory factory = Hk2Looker.get().getService(ConceptDataFactory.class);
                 ConceptDataManager dataManager = (ConceptDataManager) factory.getConceptDataManager();
-                dataManager.setEnlosingConcept(this);
+                dataManager.setEnlosingConcept(this); //TODO-AKF: this is calling loadEagerly... that will set isPrimordial or not
                 this.data = dataManager;
 
                 break;
@@ -376,9 +376,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             c.setAnnotationStyleRefex(eConcept.isAnnotationStyleRefex());
         }
         boolean primordial = c.data.isPrimordial();
-        if(!primordial){
-            c.loadConceptEagerly();
-        }
         
         TtkConceptAttributesChronicle eAttr = eConcept.getConceptAttributes();
 
@@ -773,7 +770,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public static ConceptChronicle get(int nid) throws IOException {
-        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
+         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
         ConceptChronicle c = conceptsCRHM.get(nid);
 
         if (c == null) {
@@ -783,7 +780,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
             if (c == null) {
                 c = newC;
-                c.data.setPrimordial(true);
             }
         }
 
@@ -807,7 +803,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         assert conceptNid != Integer.MAX_VALUE : "no conceptNid for uuids";
 
         ConceptChronicle c = get(conceptNid);
-
+        
         // return populateFromEConcept(eConcept, c);
         try {
             return mergeWithEConcept(eConcept, c);
