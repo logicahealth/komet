@@ -4,7 +4,7 @@
         <artifactId>tcc-parent</artifactId>
         <groupId>org.ihtsdo.otf</groupId>
         <version>1.4-TT-wdi-SNAPSHOT</version>
-        <relativePath>../../otf-versioning-service-wdi/pom.xml</relativePath>
+        <relativePath>../../otf-versioning-service/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
