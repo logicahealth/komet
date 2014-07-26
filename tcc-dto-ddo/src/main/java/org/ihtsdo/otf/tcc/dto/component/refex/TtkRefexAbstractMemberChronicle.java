@@ -14,6 +14,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
@@ -138,6 +139,13 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    }
 
    //~--- get methods ---------------------------------------------------------
+   @Override
+   protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+       references.add(this.refexExtensionUuid);
+       references.add(this.componentUuid);
+       addUuidReferencesForRefexRevision(references);
+   }
+    protected abstract void addUuidReferencesForRefexRevision(Collection<UUID> references);
 
    public UUID getComponentUuid() {
       return componentUuid;

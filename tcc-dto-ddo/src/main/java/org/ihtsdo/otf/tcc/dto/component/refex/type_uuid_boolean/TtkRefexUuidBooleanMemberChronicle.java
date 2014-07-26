@@ -69,7 +69,10 @@ public class TtkRefexUuidBooleanMemberChronicle extends TtkRefexAbstractMemberCh
       this.uuid1    = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
       this.boolean1 = transformer.transform(another.boolean1, another, ComponentFields.REFEX_STRING1);
    }
-
+    @Override
+    protected void addUuidReferencesForRefexRevision(Collection<UUID> references) {
+        references.add(uuid1);
+    }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

@@ -13,6 +13,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
@@ -56,7 +57,10 @@ public class TtkRefexUuidFloatRevision extends TtkRevision {
    }
 
    //~--- methods -------------------------------------------------------------
-
+   @Override
+   protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+       references.add(uuid1);
+   }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

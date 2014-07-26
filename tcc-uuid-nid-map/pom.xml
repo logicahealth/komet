@@ -10,7 +10,7 @@
     <artifactId>tcc-uuid-nid-map</artifactId>
     <packaging>jar</packaging>
 
-    <name>tcc-uuid-nid-map</name>
+    <name>${branch}: native uuid to int map</name>
     <url>http://maven.apache.org</url>
 
     <properties>

@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tcc-serializer</artifactId>
+    <name>${branch}: tcc native component serializer</name>
 
     <dependencies>
         <dependency>

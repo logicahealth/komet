@@ -58,7 +58,7 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES
  */
 @XmlRootElement()
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRevision {
+public abstract class   TtkComponentChronicle<V extends TtkRevision> extends TtkRevision {
 
    /** Field description */
    private static final long serialVersionUID = 1;
@@ -110,7 +110,6 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
 
       if (anotherAdditionalIds != null) {
          this.additionalIds = new ArrayList<>(anotherAdditionalIds.size());
-nextId:
          for (IdBI id : anotherAdditionalIds) {
             this.additionalIds.add((TtkIdentifier) TtkIdentifier.convertId(id));
          }
@@ -181,6 +180,15 @@ nextId:
          }
       }
    }
+
+    public void addStamps(Collection<TtkStamp> stamps) {
+        stamps.add(this.getStamp());
+        if (revisions != null) {
+            for (TtkRevision revision: revisions) {
+                stamps.add(revision.getStamp());
+            }
+        }
+    }
 
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
@@ -582,10 +590,24 @@ nextId:
     * @return
     */
    public List<TtkIdentifier> getAdditionalIdComponents() {
-      return additionalIds;
+       return additionalIds;
    }
 
-   /**
+   public Collection<UUID> getUuidReferences() {
+       HashSet<UUID> uuidReferences = new HashSet<>();
+       uuidReferences.add(this.authorUuid);
+       uuidReferences.add(this.moduleUuid);
+       uuidReferences.add(this.pathUuid);
+       addUuidReferencesForRevision(uuidReferences);
+       if (revisions != null) {
+           for (TtkRevision r: revisions) {
+               r.addUuidReferencesForRevision(uuidReferences);
+           }
+       }
+       return uuidReferences;
+    }
+
+    /**
     * Method description
     *
     *

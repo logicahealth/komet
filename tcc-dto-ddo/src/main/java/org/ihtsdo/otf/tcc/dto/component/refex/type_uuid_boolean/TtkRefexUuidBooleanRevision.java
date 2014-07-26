@@ -15,6 +15,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -92,7 +93,10 @@ public class TtkRefexUuidBooleanRevision extends TtkRevision {
       this.uuid1    = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
       this.boolean1 = transformer.transform(another.boolean1, another, ComponentFields.REFEX_BOOLEAN1);
    }
-
+    @Override
+    protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        // nothing to add
+    }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

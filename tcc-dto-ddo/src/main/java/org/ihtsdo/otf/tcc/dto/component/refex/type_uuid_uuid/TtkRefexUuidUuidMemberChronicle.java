@@ -71,7 +71,11 @@ public class TtkRefexUuidUuidMemberChronicle extends TtkRefexAbstractMemberChron
    }
 
    //~--- methods -------------------------------------------------------------
-
+   @Override
+   protected void addUuidReferencesForRefexRevision(Collection<UUID> references) {
+       references.add(uuid1);
+       references.add(uuid2);
+   }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

@@ -120,7 +120,12 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		}
 	}
 
-	/**
+    @Override
+    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
 	 * Returns a hash code for this <code>ERefset</code>.
 	 *
 	 * @return a hash code value for this <tt>ERefset</tt>.

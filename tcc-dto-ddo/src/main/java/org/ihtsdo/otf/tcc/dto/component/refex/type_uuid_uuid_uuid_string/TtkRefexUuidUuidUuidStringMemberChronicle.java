@@ -91,7 +91,12 @@ public class TtkRefexUuidUuidUuidStringMemberChronicle
       this.string1 = transformer.transform(another.string1, another,
               ComponentFields.REFEX_STRING1);
    }
-
+    @Override
+    protected void addUuidReferencesForRefexRevision(Collection<UUID> references) {
+        references.add(uuid1);
+        references.add(uuid2);
+        references.add(uuid3);
+    }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

@@ -23,9 +23,13 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
+import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.TtkRevisionProcessorBI;
+import org.ihtsdo.otf.tcc.dto.component.TtkStamp;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayMemberChronicle;
@@ -276,7 +280,42 @@ public class TtkConceptChronicle {
       }
    }
 
-   /**
+    public void processComponentRevisions(TtkRevisionProcessorBI processor) {
+        processChronicleRevisions(this.conceptAttributes, processor);
+        processChronicleRevisions(this.descriptions, processor);
+        processChronicleRevisions(this.relationships, processor);
+        processChronicleRevisions(this.media, processor);
+        processChronicleRevisions(this.refsetMembers, processor);
+        processChronicleRevisions(this.refsetMembersDynamic, processor);
+    }
+
+    private void processChronicleRevisions(TtkComponentChronicle<?> cc,
+                                           TtkRevisionProcessorBI processor) {
+        if (cc != null) {
+            processor.process(cc);
+            if (cc.revisions != null) {
+                cc.revisions.forEach(processor::process);
+            }
+            if (cc.annotations != null) {
+                processChronicleRevisions(cc.annotations, processor);
+            }
+            if (cc.additionalIds != null) {
+                cc.additionalIds.forEach(processor::process);
+            }
+        }
+    }
+
+    private void processChronicleRevisions(List<? extends TtkComponentChronicle<?>> componentList,
+                                           TtkRevisionProcessorBI processor) {
+        if (componentList != null) {
+            for (TtkComponentChronicle<?> cc: componentList) {
+                processChronicleRevisions(cc, processor);
+            }
+        }
+    }
+
+
+    /**
     * Method description
     *
     *

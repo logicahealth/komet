@@ -67,8 +67,12 @@ public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConc
       this.defined = transformer.transform(another.defined, another, ComponentFields.ATTRIBUTE_DEFINED);
    }
 
-   //~--- methods -------------------------------------------------------------
 
+   //~--- methods -------------------------------------------------------------
+   @Override
+   protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        // nothing to add
+   }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

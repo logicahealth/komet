@@ -85,6 +85,11 @@ public class TtkDescriptionChronicle extends TtkComponentChronicle<TtkDescriptio
                 ComponentFields.DESCRIPTION_ENCLOSING_CONCEPT_UUID);
     }
 
+    @Override
+    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        references.add(this.typeUuid);
+        references.add(this.conceptUuid);
+    }
     /**
      * Compares this object to the specified object. The result is <tt>true</tt>
      * if and only if the argument is not <tt>null</tt>, is a
