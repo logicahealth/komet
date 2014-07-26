@@ -55,7 +55,7 @@
                         <id>extract-berkeley-db</id>
                         <phase>generate-test-resources</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>unpack</goal>
                         </goals>
                         <configuration>
                            <skip>${skipTests}</skip>

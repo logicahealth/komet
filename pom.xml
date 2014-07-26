@@ -16,7 +16,7 @@ the specific language governing permissions and limitations under the License. -
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
-    <version>1.4-TT-SNAPSHOT</version>
+    <version>1.4-TT-wdi-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) Component chronicle service</name>
     <description>The Terminology Component Chronicle project provides the ability to
@@ -228,10 +228,10 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-model-impl</module>
         <module>tcc-rest-client</module>
         <module>tcc-rest-server</module>
-        <!--<module>tcc-integration-test</module>-->
+        <module>tcc-integration-test</module>
         <module>tcc-mojo</module>
         <module>tcc-serializer</module>
-        <!--<module>../wdi/tcc-uuit-nid-map</module>-->
+        <module>tcc-uuid-nid-map</module>
     </modules>
     <profiles>
         <profile>
