@@ -6,6 +6,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
@@ -31,6 +32,7 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float.TtkRefex
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
@@ -54,6 +56,7 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES
  * @version        Enter version here..., 13/03/27
  * @author         Enter your name here...    
  */
+@XmlRootElement()
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRevision {
 
@@ -69,6 +72,11 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
    @XmlElementWrapper(name = "annotations")
    @XmlElement(name = "refex")
    public List<TtkRefexAbstractMemberChronicle<?>> annotations;
+   
+   /** Field description */
+   @XmlElementWrapper(name = "annotationsDynamic")
+   @XmlElement(name = "refexDynamic")
+   public List<TtkRefexDynamicMemberChronicle> annotationsDynamic;
 
    /** Field description */
    @XmlAttribute
@@ -108,9 +116,8 @@ nextId:
          }
       }
 
-      Collection<? extends RefexChronicleBI<?>> anotherAnnotations = another.getAnnotations();
-
-      processAnnotations(anotherAnnotations);
+      processAnnotations(another.getAnnotations());
+      processDynamicAnnotations(another.getRefexDynamicAnnotations());
       this.primordialUuid = another.getPrimordialUuid();
    }
 
@@ -154,6 +161,14 @@ nextId:
             this.annotations.add((TtkRefexAbstractMemberChronicle<?>) r.makeTransform(transformer));
          }
       }
+      
+      if (another.annotationsDynamic != null) {
+          this.annotationsDynamic = new ArrayList<>(another.annotations.size());
+
+          for (TtkRefexDynamicMemberChronicle r : another.annotationsDynamic) {
+             this.annotationsDynamic.add((TtkRefexDynamicMemberChronicle) r.makeTransform(transformer));
+          }
+       }
 
       this.primordialUuid = transformer.transform(another.primordialUuid, another,
           ComponentFields.PRIMORDIAL_UUID);
@@ -249,6 +264,16 @@ nextId:
 
          for (RefexChronicleBI<?> r : annotations) {
             this.annotations.add(TtkConceptChronicle.convertRefex(r));
+         }
+      }
+   }
+   
+   private void processDynamicAnnotations(Collection<? extends RefexDynamicChronicleBI<?>> annotationsDynamic) throws IOException {
+      if ((annotationsDynamic != null) &&!annotationsDynamic.isEmpty()) {
+         this.annotationsDynamic = new ArrayList<>(annotationsDynamic.size());
+
+         for (RefexDynamicChronicleBI<?> r : annotationsDynamic) {
+            this.annotationsDynamic.add(TtkConceptChronicle.convertRefex(r));
          }
       }
    }
@@ -407,7 +432,22 @@ nextId:
             default :
                throw new UnsupportedOperationException("Can't handle refset type: " + type);
             }
+            
          }
+      }
+      
+      if (dataVersion >= 11)
+      {
+          short annotationsDynamicCount = in.readShort();
+          if (annotationsDynamicCount > 0) 
+          {
+                 annotationsDynamic = new ArrayList<>(annotationsDynamicCount);
+
+                 for (int i = 0; i < annotationsDynamicCount; i++) 
+                 {
+                    annotationsDynamic.add(new TtkRefexDynamicMemberChronicle(in, dataVersion));
+                 }
+          }
       }
    }
 
@@ -441,7 +481,21 @@ nextId:
 
          buff.append("annotations:\n");
 
-         for (TtkRefexAbstractMemberChronicle m : this.annotations) {
+         for (TtkRefexAbstractMemberChronicle<?> m : this.annotations) {
+            buff.append(TtkConceptChronicle.PADDING);
+            buff.append(TtkConceptChronicle.PADDING);
+
+            for (int i = 0; i < depth; i++) {
+               buff.append(TtkConceptChronicle.PADDING);
+            }
+
+            buff.append(m);
+            buff.append("\n");
+         }
+         
+         buff.append("annotations dynamic:\n");
+
+         for (TtkRefexDynamicMemberChronicle m : this.annotationsDynamic) {
             buff.append(TtkConceptChronicle.PADDING);
             buff.append(TtkConceptChronicle.PADDING);
 
@@ -510,6 +564,15 @@ nextId:
             r.writeExternal(out);
          }
       }
+      if (annotationsDynamic == null) {
+          out.writeShort(0);
+       } else {
+          out.writeShort(annotationsDynamic.size());
+
+          for (TtkRefexDynamicMemberChronicle r : annotationsDynamic) {
+             r.writeExternal(out);
+          }
+       }
    }
 
    /**
@@ -531,6 +594,10 @@ nextId:
    public List<TtkRefexAbstractMemberChronicle<?>> getAnnotations() {
       return annotations;
    }
+   
+   public List<TtkRefexDynamicMemberChronicle> getAnnotationsDynamic() {
+          return annotationsDynamic;
+       }
 
    /**
     * Method description
@@ -657,6 +724,10 @@ nextId:
     */
    public void setAnnotations(List<TtkRefexAbstractMemberChronicle<?>> annotations) {
       this.annotations = annotations;
+   }
+   
+   public void setAnnotationsDynamic(List<TtkRefexDynamicMemberChronicle> annotationsDynamic) {
+      this.annotationsDynamic = annotationsDynamic;
    }
 
    /**

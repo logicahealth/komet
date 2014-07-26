@@ -256,7 +256,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
                 refinabilityUuid = SnomedMetadataRf2.OPTIONAL_REFINIBILITY_RF2.getUuids()[0];
                 break;
             case HISTORIC:
-                characteristicUuid =SnomedMetadataRf2.HISTORICAL_REFSET_RF2.getUuids()[0]; 
+				characteristicUuid =SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getUuids()[0]; 
                 refinabilityUuid =SnomedMetadataRf2.NOT_REFINABLE_RF2.getUuids()[0];
                 break;
         }
@@ -307,6 +307,10 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
 
         }
         for (RefexCAB annotBp : getAnnotationBlueprints()) {
+            annotBp.setReferencedComponentUuid(getComponentUuid());
+            annotBp.recomputeUuid();
+        }
+        for (RefexDynamicCAB annotBp : getAnnotationDynamicBlueprints()) {
             annotBp.setReferencedComponentUuid(getComponentUuid());
             annotBp.recomputeUuid();
         }
@@ -480,6 +484,9 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
             return false;
         }
         if (relationshipVersion.getDestinationNid() != getTargetNid()) {
+            return false;
+        }
+        if (relationshipVersion.getGroup() != getGroup()) {
             return false;
         }
         return true;

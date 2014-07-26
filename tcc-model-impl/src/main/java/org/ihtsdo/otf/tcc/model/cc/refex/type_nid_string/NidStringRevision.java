@@ -2,11 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 
 
-
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -25,14 +23,13 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.model.cc.P;
 
 public class NidStringRevision extends RefexRevision<NidStringRevision, NidStringMember>
         implements RefexNidStringAnalogBI<NidStringRevision> {
-   private int    c1Nid;
-   private String strValue;
+    protected int    c1Nid;
+    protected String string1;
 
    //~--- constructors --------------------------------------------------------
 
@@ -43,32 +40,26 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
    public NidStringRevision(int statusAtPositionNid, NidStringMember primoridalMember) {
       super(statusAtPositionNid, primoridalMember);
       c1Nid    = primoridalMember.getC1Nid();
-      strValue = primoridalMember.getString1();
+      string1 = primoridalMember.getString1();
    }
    
    public NidStringRevision(TtkRefexUuidStringRevision eVersion, NidStringMember member) throws IOException {
       super(eVersion, member);
-      c1Nid    = P.s.getNidForUuids(eVersion.getUuid1());
-      strValue = eVersion.getString1();
-   }
-
-   public NidStringRevision(TupleInput input, NidStringMember primoridalMember) {
-      super(input, primoridalMember);
-      c1Nid    = input.readInt();
-      strValue = input.readString();
+      c1Nid    = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
+      string1 = eVersion.getString1();
    }
 
    public NidStringRevision(Status status, long time, int authorNid, int moduleNid, int pathNid,
                          NidStringMember primoridalMember) {
       super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
       c1Nid    = primoridalMember.getC1Nid();
-      strValue = primoridalMember.getString1();
+      string1 = primoridalMember.getString1();
    }
 
    protected NidStringRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, NidStringRevision another) {
       super(status, time, authorNid, moduleNid, pathNid, another.primordialComponent);
       c1Nid    = another.c1Nid;
-      strValue = another.strValue;
+      string1 = another.string1;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -93,7 +84,7 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
       if (NidStringRevision.class.isAssignableFrom(obj.getClass())) {
          NidStringRevision another = (NidStringRevision) obj;
 
-         return (this.c1Nid == another.c1Nid) && this.strValue.equals(another.strValue) && super.equals(obj);
+         return (this.c1Nid == another.c1Nid) && this.string1.equals(another.string1) && super.equals(obj);
       }
 
       return false;
@@ -124,7 +115,7 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
    @Override
    public boolean readyToWriteRefsetRevision() {
       assert c1Nid != Integer.MAX_VALUE;
-      assert strValue != null;
+      assert string1 != null;
 
       return true;
    }
@@ -140,17 +131,12 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
       buf.append(this.getClass().getSimpleName()).append(":{");
       buf.append(" c1Nid: ");
       ConceptComponent.addNidToBuffer(buf, c1Nid);
-      buf.append(" strValue:" + "'").append(this.strValue).append("'");
+      buf.append(" string1:" + "'").append(this.string1).append("'");
       buf.append(super.toString());
 
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeInt(c1Nid);
-      output.writeString(strValue);
-   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -165,7 +151,7 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
 
    @Override
    public String getString1() {
-      return strValue;
+      return string1;
    }
 
    @Override
@@ -202,12 +188,12 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
 
    @Override
    public void setString1(String str) throws PropertyVetoException {
-      this.strValue = str;
+      this.string1 = str;
       modified();
    }
 
    public void setStringValue(String strValue) {
-      this.strValue = strValue;
+      this.string1 = strValue;
       modified();
    }
 }

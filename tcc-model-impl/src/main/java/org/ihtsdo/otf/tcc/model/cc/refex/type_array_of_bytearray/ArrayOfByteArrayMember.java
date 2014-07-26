@@ -15,11 +15,6 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.io.IOException;
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -36,6 +31,15 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 /**
  *
  * @author kec
@@ -46,7 +50,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     private static VersionComputer<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private byte[][] arrayOfByteArray;
+    protected byte[][] arrayOfByteArray;
 
     @Override
     public byte[][] getArrayOfByteArray() {
@@ -63,10 +67,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     //~--- constructors --------------------------------------------------------
     public ArrayOfByteArrayMember() {
         super();
-    }
-
-    public ArrayOfByteArrayMember(int enclosingConceptNid, TupleInput input) throws IOException {
-        super(enclosingConceptNid, input);
     }
 
     public ArrayOfByteArrayMember(TtkRefexArrayOfByteArrayMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -152,22 +152,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     }
 
     @Override
-    protected void readMemberFields(TupleInput in) {
-      int arrayLength = in.readShort();
-      this.arrayOfByteArray = new byte[arrayLength][];
-      for (int i = 0; i < arrayLength; i++) {
-          int byteArrayLength = in.readInt();
-          this.arrayOfByteArray[i] = new byte[byteArrayLength];
-          in.read(this.arrayOfByteArray[i], 0, byteArrayLength);
-      }
-    }
-
-    @Override
-    protected final ArrayOfByteArrayRevision readMemberRevision(TupleInput input) {
-        return new ArrayOfByteArrayRevision(input, this);
-    }
-
-    @Override
     public boolean readyToWriteRefsetMember() {
         return true;
     }
@@ -197,14 +181,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
         return buff.toString();
     }
 
-    @Override
-    protected void writeMember(TupleOutput out) {
-     out.writeShort(arrayOfByteArray.length);
-      for (byte[] bytes: arrayOfByteArray) {
-        out.writeInt(bytes.length);  
-        out.write(bytes);
-      }
-    }
 
     //~--- get methods ---------------------------------------------------------
 

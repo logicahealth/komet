@@ -13,19 +13,19 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.Collection;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
 public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI> {
-    
-   void writeExternal(DataOutput out) throws IOException;
    void cancel() throws IOException;
 
    boolean commit(ChangeSetGenerationPolicy changeSetPolicy,
@@ -56,11 +56,11 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    /**
      * Retrieves tuples matching the specified view coordinate
      * 
-     * @param cuttoffTime
+     * @param cutoffTime
      *          cutoff time to match tuples, tuples with a time greater than
      *          cutoff will no be returned
      * @return List of matching tuples
-     * @throws TerminologyException
+     * @throws IOException
      */
    public Collection<? extends RefexVersionBI<?>> getCurrentRefsetMembers(ViewCoordinate vc, Long cutoffTime)
            throws IOException;
@@ -72,6 +72,8 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException;
 
    Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException;
+   
+   Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException;
 
    Collection<? extends RelGroupVersionBI> getRelationshipGroupsActive(ViewCoordinate vc)
            throws IOException, ContradictionException;

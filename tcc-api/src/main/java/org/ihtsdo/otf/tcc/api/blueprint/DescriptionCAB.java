@@ -270,6 +270,10 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
             annotBp.setReferencedComponentUuid(getComponentUuid());
             annotBp.recomputeUuid();
         }
+        for (RefexDynamicCAB annotBp : getAnnotationDynamicBlueprints()) {
+            annotBp.setReferencedComponentUuid(getComponentUuid());
+            annotBp.recomputeUuid();
+        }
     }
 
     /**

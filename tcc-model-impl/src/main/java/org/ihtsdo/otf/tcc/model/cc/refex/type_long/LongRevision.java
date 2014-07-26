@@ -2,9 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -23,7 +24,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 
 public class LongRevision extends RefexRevision<LongRevision, LongMember>
         implements RefexLongAnalogBI<LongRevision> {
-   private long longValue;
+   protected long longValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -39,11 +40,6 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
    public LongRevision(TtkRefexLongRevision eVersion, LongMember member) throws IOException {
       super(eVersion, member);
       this.longValue = eVersion.getLongValue();
-   }
-
-   public LongRevision(TupleInput input, LongMember primoridalMember) {
-      super(input, primoridalMember);
-      longValue = input.readLong();
    }
 
    public LongRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, LongMember primoridalMember) {
@@ -126,10 +122,6 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeLong(longValue);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

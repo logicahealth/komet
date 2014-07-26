@@ -1,12 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -33,18 +33,12 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     private static VersionComputer<ConceptAttributesVersion> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private boolean defined;
+    protected boolean defined;
     List<ConceptAttributesVersion> versions;
 
     //~--- constructors --------------------------------------------------------
     public ConceptAttributes() {
         super();
-    }
-
-    public ConceptAttributes(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
-        super(enclosingConcept.getNid(), input);
-        assert this.nid == enclosingConcept.getNid(): "[1] nid and cNid don't match: " + 
-                enclosingConcept + "\n\n" + this;
     }
 
     public ConceptAttributes(TtkConceptAttributesChronicle eAttr, ConceptChronicleBI c) throws IOException {
@@ -120,33 +114,6 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
-        try {
-
-            // nid, list size, and conceptNid are read already by the binder...
-            defined = input.readBoolean();
-
-            int additionalVersionCount = input.readShort();
-
-            if (additionalVersionCount > 0) {
-                if (revisions == null) {
-                    revisions = new RevisionSet(primordialStamp);
-                }
-
-                for (int i = 0; i < additionalVersionCount; i++) {
-                    ConceptAttributesRevision car = new ConceptAttributesRevision(input, this);
-
-                    if (car.getTime() != Long.MIN_VALUE) {
-                        revisions.add(car);
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            throw new RuntimeException(" Processing nid: " + enclosingConceptNid, e);
-        }
-    }
-
-    @Override
     public boolean readyToWriteComponent() {
         return true;
     }
@@ -214,28 +181,6 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         buf.append(super.validate(another));
 
         return buf.toString();
-    }
-
-    @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStamp) {
-        List<ConceptAttributesRevision> partsToWrite = new ArrayList<>();
-
-        if (revisions != null) {
-            for (ConceptAttributesRevision p : revisions) {
-                if ((p.getStamp() > maxReadOnlyStamp)
-                        && (p.getTime() != Long.MIN_VALUE)) {
-                    partsToWrite.add(p);
-                }
-            }
-        }
-
-        // Start writing
-        output.writeBoolean(defined);
-        output.writeShort(partsToWrite.size());
-
-        for (ConceptAttributesRevision p : partsToWrite) {
-            p.writeRevisionBdb(output);
-        }
     }
 
     //~--- get methods ---------------------------------------------------------

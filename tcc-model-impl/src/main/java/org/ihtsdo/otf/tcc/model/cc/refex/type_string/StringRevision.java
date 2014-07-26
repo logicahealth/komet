@@ -2,34 +2,30 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-
 public class StringRevision extends RefexRevision<StringRevision, StringMember>
         implements RefexStringAnalogBI<StringRevision> {
-   private String stringValue;
+   protected String stringValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -45,11 +41,6 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
    public StringRevision(TtkRefexStringRevision eVersion, StringMember primoridalMember) throws IOException {
       super(eVersion, primoridalMember);
       this.stringValue = eVersion.getString1();
-   }
-
-   public StringRevision(TupleInput input, StringMember primoridalMember) {
-      super(input, primoridalMember);
-      stringValue = input.readString();
    }
 
    public StringRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, StringMember another) {
@@ -132,11 +123,6 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeString(stringValue);
    }
 
    //~--- get methods ---------------------------------------------------------

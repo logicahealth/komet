@@ -16,6 +16,11 @@
 
 package org.ihtsdo.otf.tcc.api.relationship;
 
+import java.io.IOException;
+
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.spec.ValidationException;
+
 /**
  *
  * @author kec
@@ -24,4 +29,30 @@ public enum RelationshipType {
     STATED_HIERARCHY, STATED_ROLE,
     INFERRED_HIERARCY, INFERRED_ROLE,
     HISTORIC, QUALIFIER;
+
+	public static RelationshipType getRelationshipType(int refNid, int charNid) throws ValidationException, IOException {
+		if (charNid == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getNid()) {
+			if (refNid == SnomedMetadataRf2.NOT_REFINABLE_RF2.getNid()) {
+				return STATED_HIERARCHY;
+			} else if (refNid == SnomedMetadataRf2.OPTIONAL_REFINIBILITY_RF2.getNid()) {
+				return STATED_ROLE;
+			}
+		} else if (charNid == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getNid()) {
+				if (refNid == SnomedMetadataRf2.NOT_REFINABLE_RF2.getNid()) {
+					return INFERRED_HIERARCY;
+				} else if (refNid == SnomedMetadataRf2.OPTIONAL_REFINIBILITY_RF2.getNid()) {
+					return INFERRED_ROLE;
+				}
+		} else if (charNid == SnomedMetadataRf2.QUALIFYING_RELATIONSSHIP_RF2.getNid()) {
+			if (refNid == SnomedMetadataRf2.MANDATORY_REFINIBILITY_RF2.getNid()) {
+				return QUALIFIER;
+			}
+		} else if (charNid == SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getNid()) {
+			if (refNid == SnomedMetadataRf2.NOT_REFINABLE_RF2.getNid()) {
+				return HISTORIC;
+			}
+		}
+
+		return null;
+	}
 }

@@ -2,7 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataOutput;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.ConstraintBI;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraint;
@@ -19,7 +18,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
@@ -40,20 +39,21 @@ import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.HistoricalRelType;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataOutputStream;
 import java.io.IOException;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -88,11 +88,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       this.vc      = new ViewCoordinate(UUID.randomUUID(), coordinate.getName() + " clone", coordinate);
    }
 
-    @Override
-    public void writeExternal(DataOutput out) throws IOException {
-        concept.writeExternal(out);
-    }
-
    //~--- methods -------------------------------------------------------------
 
    @Override
@@ -100,7 +95,16 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       return concept.addAnnotation(annotation);
    }
 
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
+    */
    @Override
+   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
+   {
+      return concept.addDynamicAnnotation(annotation);
+   }
+
+@Override
    public void cancel() throws IOException {
       concept.cancel();
    }
@@ -110,13 +114,13 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
            throws IOException, ContradictionException {
       switch (checkType) {
       case EQUALS :
-         return P.s.getConceptVersion(vc, cNid).getNid() == constraint.getStrict(vc).getNid();
+         return PersistentStore.get().getConceptVersion(vc, cNid).getNid() == constraint.getStrict(vc).getNid();
 
       case IGNORE :
          return true;
 
       case KIND_OF :
-         return P.s.getConceptVersion(vc, cNid).isKindOf(constraint.getStrict(vc));
+         return PersistentStore.get().getConceptVersion(vc, cNid).isKindOf(constraint.getStrict(vc));
 
       default :
          throw new UnsupportedOperationException("Illegal ConstraintCheckType: " + checkType);
@@ -229,10 +233,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
          NidSetBI temp = new NidSet();
 
          try {
-            temp.add(P.s.getNidForUuids(SnomedMetadataRf1.DEFINED_RF1.getUuids()));
-            temp.add(P.s.getNidForUuids(SnomedMetadataRf1.DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids()));
-            temp.add(
-                P.s.getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids()));
             temp.add(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getConceptNid());
          } catch (ValidationException e) {
             throw new RuntimeException(e);
@@ -247,8 +247,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    private void setupFsnOrder() {
       if (fsnOrder == null) {
          NidListBI newList = new NidList();
-
-         newList.add(ReferenceConcepts.FULLY_SPECIFIED_RF1.getNid());
          newList.add(ReferenceConcepts.FULLY_SPECIFIED_RF2.getNid());
          fsnOrder = newList;
       }
@@ -258,10 +256,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       if (preferredOrder == null) {
          NidListBI newList = new NidList();
 
-         newList.add(ReferenceConcepts.PREFERRED_ACCEPTABILITY_RF1.getNid());
-         newList.add(ReferenceConcepts.PREFERRED_RF1.getNid());
          newList.add(ReferenceConcepts.PREFERRED_ACCEPTABILITY_RF2.getNid());
-         newList.add(ReferenceConcepts.SYNONYM_RF1.getNid());
          newList.add(ReferenceConcepts.SYNONYM_RF2.getNid());
          preferredOrder = newList;
       }
@@ -642,6 +637,42 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
       return concept.getRefexes();
    }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+   {
+       return concept.getRefexesDynamic();
+   }
+
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+   {
+      return concept.getRefexDynamicAnnotations();
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+    */
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+   {
+      return concept.getRefexDynamicMembers();
+   }
+
+   /**
+   * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+   */
+   @Override
+   public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+   {
+       return concept.getRefexesDynamicActive(viewCoordinate);
+   }
 
    @Override
    public RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException {
@@ -651,6 +682,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    @Override
    public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
       return concept.getRefsetMembers();
+   }
+   
+   @Override
+   public Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException {
+      return concept.getRefsetDynamicMembers();
    }
 
    @Override
@@ -718,7 +754,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
       for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
          for (RelationshipVersionBI relv : rel.getVersions()) {
-            ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getOriginNid());
+            ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getOriginNid());
 
             conceptSet.add(cv);
          }
@@ -740,7 +776,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
          for (RelationshipVersionBI relv : rel.getVersions()) {
             if (typeNids.contains(relv.getTypeNid())) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getOriginNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getOriginNid());
 
                conceptSet.add(cv);
             }
@@ -757,7 +793,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
       for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
          for (RelationshipVersionBI relv : rel.getVersions(vc)) {
-            ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getOriginNid());
+            ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getOriginNid());
 
             conceptSet.add(cv);
          }
@@ -780,7 +816,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
          for (RelationshipVersionBI relv : rel.getVersions(vc)) {
             if (typeNids.contains(relv.getTypeNid())) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getOriginNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getOriginNid());
 
                conceptSet.add(cv);
             }
@@ -798,7 +834,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
          for (RelationshipVersionBI relv : rel.getVersions(vc)) {
             if (vc.getIsaNid() == relv.getTypeNid()) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getOriginNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getOriginNid());
 
                conceptSet.add(cv);
             }
@@ -815,7 +851,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
          for (RelationshipVersionBI relv : rel.getVersions()) {
             if (vc.getIsaNid() == relv.getTypeNid()) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getOriginNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getOriginNid());
 
                conceptSet.add(cv);
             }
@@ -901,7 +937,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
       for (RelationshipChronicleBI rel : getRelationshipsOutgoing()) {
          for (RelationshipVersionBI relv : rel.getVersions()) {
-            ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getDestinationNid());
+            ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getDestinationNid());
 
             conceptSet.add(cv);
          }
@@ -923,7 +959,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsOutgoing()) {
          for (RelationshipVersionBI relv : rel.getVersions()) {
             if (typeNids.contains(relv.getTypeNid())) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getDestinationNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getDestinationNid());
 
                conceptSet.add(cv);
             }
@@ -940,7 +976,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
       for (RelationshipChronicleBI rel : getRelationshipsOutgoing()) {
          for (RelationshipVersionBI relv : rel.getVersions(vc)) {
-            ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getDestinationNid());
+            ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getDestinationNid());
 
             conceptSet.add(cv);
          }
@@ -963,7 +999,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsOutgoing()) {
          for (RelationshipVersionBI relv : rel.getVersions(vc)) {
             if (typeNids.contains(relv.getTypeNid())) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getDestinationNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getDestinationNid());
 
                conceptSet.add(cv);
             }
@@ -981,7 +1017,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsOutgoing()) {
          for (RelationshipVersionBI relv : rel.getVersions(vc)) {
             if (vc.getIsaNid() == relv.getTypeNid()) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getDestinationNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getDestinationNid());
 
                conceptSet.add(cv);
             }
@@ -998,7 +1034,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
       for (RelationshipChronicleBI rel : getRelationshipsOutgoing()) {
          for (RelationshipVersionBI relv : rel.getVersions()) {
             if (vc.getIsaNid() == relv.getTypeNid()) {
-               ConceptVersionBI cv = P.s.getConceptVersion(vc, relv.getDestinationNid());
+               ConceptVersionBI cv = PersistentStore.get().getConceptVersion(vc, relv.getDestinationNid());
 
                conceptSet.add(cv);
             }
@@ -1041,8 +1077,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    public Collection<? extends DescriptionVersionBI> getSynonyms() throws IOException {
       if (synonymOrder == null) {
          synonymOrder = new NidList();
-         synonymOrder.add(ReferenceConcepts.ACCEPTABLE_ACCEPTABILITY.getNid());
-         synonymOrder.add(ReferenceConcepts.SYNONYM_RF1.getNid());
          synonymOrder.add(ReferenceConcepts.SYNONYM_RF2.getNid());
       }
 
@@ -1199,7 +1233,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
    @Override
    public boolean isLeaf() throws IOException {
-      return P.s.getPossibleChildren(concept.nid, vc).length == 0;
+      return PersistentStore.get().getPossibleChildren(concept.nid, vc).length == 0;
    }
 
    // TODO

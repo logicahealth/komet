@@ -1,13 +1,13 @@
 package org.ihtsdo.otf.tcc.model.cs;
 
-import org.ihtsdo.otf.tcc.model.cs.ChangeSetLogger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
@@ -60,10 +60,10 @@ public class ChangeSetWriterHandler implements Runnable, ProcessUnfetchedConcept
          }
          switch (changeSetWriterThreading) {
             case MULTI_THREAD:
-               P.s.iterateConceptDataInParallel(this);
+               PersistentStore.get().iterateConceptDataInParallel(this);
                break;
             case SINGLE_THREAD:
-               P.s.iterateConceptDataInSequence(this);
+               PersistentStore.get().iterateConceptDataInSequence(this);
                break;
             default:
                throw new RuntimeException("Can't handle threading: " + changeSetWriterThreading);

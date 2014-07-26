@@ -23,87 +23,156 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-xsd</id>
+
+    <profiles>
+        <profile>
+            <id>schemagen-for-data-display-objects</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-xsd</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/xsd.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <!--
+                           TODO: Consider this alternative:
+                           http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+                           https://github.com/whummer/jaxb-facets
+                        -->
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>jaxb2-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>schemagen-ddo</id>
+                                <goals>
+                                    <goal>schemagen</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/xsd.xml</descriptor>
-                            </descriptors>
+                            <transformSchemas>
+
+                                <!--                            Each schema element defines:
+
+                                                            a) A <<namespace uri>> for one of your namespaces.
+                                                               This namespace uri must be unique within the schemas element.
+
+                                                            b) A <<toPrefix>> that you want to use for the namespace.
+                                                               Should not contain whitespace or exotic characters.
+                                                               This yields a namespace definition on the form
+                                                               <xs:schema ... xmlns:[toPrefix]="[uri]" ... />
+
+                                                               (I.e: <xs:schema ... xmlns:some="http://some/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema"> )
+
+                                                               ... and transforms relevant xml schema elements to use the provided namespace prefix:
+
+                                                               <some:elementName ... />
+
+                                                            c) The desired <<toFile>> name of the generated XML schema definition file,
+                                                               excluding the ".xsd" suffix (which will be added automatically).-->
+
+                                <transformSchema>
+                                    <uri>http://display.object.jaxb.otf.ihtsdo.org</uri>
+                                    <toFile>data-display-objects.xsd</toFile>
+                                </transformSchema>
+                            </transformSchemas>
+                            <includes>
+                                <include>**/DefinitionalState.java</include>
+                                <include>**/*Ddo.java</include>
+                                <include>**/ComponentReference.java</include>
+                                <include>**/ResultList.java</include>
+                                <include>**/TaxonomyReferenceWithConcept.java</include>
+                                <include>**/RefexPolicy.java</include>
+                                <include>**/RelationshipPolicy.java</include>
+                                <include>**/VersionPolicy.java</include>
+                                <include>**/TimeReference.java</include>
+                                <include>**/IDENTIFIER_PART_TYPES.java</include>
+                                <include>**/REFEX_TYPE_DDO.java</include>
+                                <include>**/ddo/package-info.java</include>
+                                <include>**/ddo/**/package-info.java</include>
+                            </includes>
                         </configuration>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-         <plugin>              
-             <!-- 
-                TODO: Consider this alternative:
-                http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
-                https://github.com/whummer/jaxb-facets
-             -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>schemagen</id>
-                        <goals>
-                            <goal>schemagen</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <transformSchemas>
-                        
-<!--                            Each schema element defines:
-
-                            a) A <<namespace uri>> for one of your namespaces.
-                               This namespace uri must be unique within the schemas element.
-
-                            b) A <<toPrefix>> that you want to use for the namespace.
-                               Should not contain whitespace or exotic characters.
-                               This yields a namespace definition on the form
-                               <xs:schema ... xmlns:[toPrefix]="[uri]" ... />
-
-                               (I.e: <xs:schema ... xmlns:some="http://some/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema"> )
-
-                               ... and transforms relevant xml schema elements to use the provided namespace prefix:
-
-                               <some:elementName ... />
-
-                            c) The desired <<toFile>> name of the generated XML schema definition file,
-                               excluding the ".xsd" suffix (which will be added automatically).-->
-                        
-                        <transformSchema>
-                            <uri>http://display.object.jaxb.otf.ihtsdo.org</uri>
-                            <toFile>data-display-objects.xsd</toFile>
-                        </transformSchema>
-                    </transformSchemas>
-                    <includes>
-                        <include>**/DefinitionalState.java</include>
-                        <include>**/*Ddo.java</include>
-                        <include>**/ComponentReference.java</include>
-                        <include>**/ResultList.java</include>
-                        <include>**/TaxonomyReferenceWithConcept.java</include>
-                        <include>**/RefexPolicy.java</include>
-                        <include>**/RelationshipPolicy.java</include>
-                        <include>**/VersionPolicy.java</include>
-                        <include>**/TimeReference.java</include>
-                        <include>**/IDENTIFIER_PART_TYPES.java</include>
-                        <include>**/REFEX_TYPE_DDO.java</include>
-                        <include>**/ddo/package-info.java</include>
-                        <include>**/ddo/**/package-info.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>schemagen-for-data-transfer-objects</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-xsd</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/xsd.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <!--
+                           TODO: Consider this alternative:
+                           http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+                           https://github.com/whummer/jaxb-facets
+                        -->
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>jaxb2-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>schemagen-dto</id>
+                                <goals>
+                                    <goal>schemagen</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <transformSchemas>
+                                <transformSchema>
+                                    <uri>http://transfer.object.jaxb.otf.ihtsdo.org</uri>
+                                    <toFile>data-transfer-objects.xsd</toFile>
+                                </transformSchema>
+                            </transformSchemas>
+                            <includes>
+                                <include>org/ihtsdo/otf/tcc/dto/TtkConceptChronicle.java</include>
+                                <include>org/ihtsdo/otf/tcc/dto/package-info.java</include>
+                                <!--<include>**/ihtsdo/otf/tcc/dto/**/*.java</include>-->
+                                <!--<include>**/ihtsdo/otf/tcc/dto/package-info.java</include>-->
+                                <!--<include>**/ihtsdo/otf/tcc/dto/**/package-info.java</include>-->
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

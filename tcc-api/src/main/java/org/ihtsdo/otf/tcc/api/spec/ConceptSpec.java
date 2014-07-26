@@ -22,6 +22,7 @@ package org.ihtsdo.otf.tcc.api.spec;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -155,6 +156,19 @@ public class ConceptSpec implements SpecBI {
     */
    public ConceptSpec(String description, UUID uuid) {
       this(description, new UUID[] { uuid }, new RelSpec[] {});
+   }
+   
+   /**
+    * Constructs ...
+    *
+    *
+    * @param description
+    * @param uuid
+    * @param parentConcept - used as the destination in a relspec, with a type of {@link Snomed#IS_A} and a source of this spec being created.
+    */
+   public ConceptSpec(String description, UUID uuid, ConceptSpec parentConcept) {
+      this(description, new UUID[] { uuid }, new RelSpec[1]);
+      this.relSpecs[0] = new RelSpec(this, Snomed.IS_A, parentConcept);
    }
 
    /**

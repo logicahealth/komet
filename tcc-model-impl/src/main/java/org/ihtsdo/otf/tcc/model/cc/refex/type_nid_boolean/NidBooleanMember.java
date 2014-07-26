@@ -2,13 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -18,13 +11,20 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatMemberChronicle;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Class description
@@ -41,10 +41,10 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
       new VersionComputer<>();
 
    /** Field description */
-   private int c1Nid;
+   protected int c1Nid;
 
    /** Field description */
-   private boolean boolean1;
+   protected boolean boolean1;
 
    /**
     * Constructs ...
@@ -58,19 +58,6 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * Constructs ...
     *
     *
-    * @param enclosingConceptNid
-    * @param input
-    *
-    * @throws IOException
-    */
-   public NidBooleanMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
-   /**
-    * Constructs ...
-    *
-    *
     * @param refsetMember
     * @param enclosingConceptNid
     *
@@ -78,7 +65,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     */
    public NidBooleanMember(TtkRefexUuidBooleanMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid      = P.s.getNidForUuids(refsetMember.getUuid1());
+      c1Nid      = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
       boolean1 = refsetMember.boolean1;
 
       if (refsetMember.getRevisionList() != null) {
@@ -163,7 +150,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
     * Method description
     *
     *
-    * @param statusNid
+    * @param status
     * @param time
     * @param authorNid
     * @param moduleNid
@@ -178,31 +165,6 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
       addRevision(newR);
 
       return newR;
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param input
-    */
-   @Override
-   protected void readMemberFields(TupleInput input) {
-      c1Nid      = input.readInt();
-      boolean1 = input.readBoolean();
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param input
-    *
-    * @return
-    */
-   @Override
-   protected final NidBooleanRevision readMemberRevision(TupleInput input) {
-      return new NidBooleanRevision(input, this);
    }
 
    /**
@@ -278,18 +240,6 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param output
-    */
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(c1Nid);
-      output.writeBoolean(boolean1);
    }
 
    /**

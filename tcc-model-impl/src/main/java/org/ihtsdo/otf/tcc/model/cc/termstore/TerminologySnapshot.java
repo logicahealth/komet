@@ -23,7 +23,7 @@ import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
@@ -394,13 +394,13 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws Exception
     */
    @Override
-   public void loadEconFiles(File[] econFiles) throws Exception {
-      store.loadEconFiles(econFiles);
+   public int loadEconFiles(File... econFiles) throws Exception {
+      return store.loadEconFiles(econFiles);
    }
 
    @Override
-   public void loadEconFiles(java.nio.file.Path[] econFiles) throws Exception {
-      store.loadEconFiles(econFiles);
+   public int loadEconFiles(java.nio.file.Path... econFiles) throws Exception {
+      return store.loadEconFiles(econFiles);
    }
 
    /**
@@ -412,8 +412,8 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws Exception
     */
    @Override
-   public void loadEconFiles(String[] econFileStrings) throws Exception {
-      store.loadEconFiles(econFileStrings);
+   public int loadEconFiles(String... econFileStrings) throws Exception {
+      return store.loadEconFiles(econFileStrings);
    }
 
    /**
@@ -615,7 +615,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public int getConceptNidForNid(int nid) {
-      return P.s.getConceptNidForNid(nid);
+      return PersistentStore.get().getConceptNidForNid(nid);
    }
 
    /**
@@ -828,7 +828,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public Collection<Integer> getNidCollection(Collection<UUID> uuids) throws IOException {
-      return P.s.getNidCollection(uuids);
+      return PersistentStore.get().getNidCollection(uuids);
    }
 
    /**
@@ -843,7 +843,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public int getNidForUuids(Collection<UUID> uuids) throws IOException {
-      return P.s.getNidForUuids(uuids);
+      return PersistentStore.get().getNidForUuids(uuids);
    }
 
    /**
@@ -858,7 +858,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public int getNidForUuids(UUID... uuids) throws IOException {
-      return P.s.getNidForUuids(uuids);
+      return PersistentStore.get().getNidForUuids(uuids);
    }
 
    /**
@@ -874,7 +874,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public int getNidFromAlternateId(UUID authorityUuid, String altId) throws IOException {
-      return P.s.getNidForUuids(UuidFactory.getUuidFromAlternateId(authorityUuid, altId));
+      return PersistentStore.get().getNidForUuids(UuidFactory.getUuidFromAlternateId(authorityUuid, altId));
    }
 
    /**
@@ -1003,7 +1003,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public Collection<UUID> getUuidCollection(Collection<Integer> nids) throws IOException {
-      return P.s.getUuidCollection(nids);
+      return PersistentStore.get().getUuidCollection(nids);
    }
 
    /**

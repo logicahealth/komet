@@ -1,12 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -22,21 +17,26 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         implements RefexBooleanAnalogBI<BooleanRevision> {
 
     private static VersionComputer<RefexMemberVersion<BooleanRevision, BooleanMember>> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private boolean booleanValue;
+    protected boolean booleanValue;
 
     //~--- constructors --------------------------------------------------------
     public BooleanMember() {
         super();
-    }
-
-    public BooleanMember(int enclosingConceptNid, TupleInput input) throws IOException {
-        super(enclosingConceptNid, input);
     }
 
     public BooleanMember(TtkRefexBooleanMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -121,15 +121,6 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         return false;
     }
 
-    @Override
-    protected void readMemberFields(TupleInput input) {
-        booleanValue = input.readBoolean();
-    }
-
-    @Override
-    protected final BooleanRevision readMemberRevision(TupleInput input) {
-        return new BooleanRevision(input, this);
-    }
 
     @Override
     public boolean readyToWriteRefsetMember() {
@@ -150,11 +141,6 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         buf.append(super.toString());
 
         return buf.toString();
-    }
-
-    @Override
-    protected void writeMember(TupleOutput output) {
-        output.writeBoolean(booleanValue);
     }
 
     //~--- get methods ---------------------------------------------------------

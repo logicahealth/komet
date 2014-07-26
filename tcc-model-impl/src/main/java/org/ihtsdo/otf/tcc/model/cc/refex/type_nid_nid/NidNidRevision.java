@@ -2,31 +2,30 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidAnalogBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidRevision;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+
 import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid.NidNidMemberVersion;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid.RefexNidNidAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid.TtkRefexUuidUuidRevision;
 
 public class NidNidRevision extends RefexRevision<NidNidRevision, NidNidMember>
         implements RefexNidNidAnalogBI<NidNidRevision> {
-   private int c1Nid;
-   private int c2Nid;
+   protected int c1Nid;
+   protected int c2Nid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -42,16 +41,10 @@ public class NidNidRevision extends RefexRevision<NidNidRevision, NidNidMember>
 
    public NidNidRevision(TtkRefexUuidUuidRevision eVersion, NidNidMember member) throws IOException {
       super(eVersion, member);
-      c1Nid = P.s.getNidForUuids(eVersion.getUuid1());
-      c2Nid = P.s.getNidForUuids(eVersion.getUuid2());
+      c1Nid = PersistentStore.get().getNidForUuids(eVersion.getUuid1());
+      c2Nid = PersistentStore.get().getNidForUuids(eVersion.getUuid2());
    }
 
-   public NidNidRevision(TupleInput input, NidNidMember primoridalMember) {
-      super(input, primoridalMember);
-      c1Nid = input.readInt();
-      c2Nid = input.readInt();
-   }
-   
    public NidNidRevision(Status status, long time, int authorNid,
            int moduleNid, int pathNid, NidNidMember primoridalMember) {
       super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
@@ -146,11 +139,6 @@ public class NidNidRevision extends RefexRevision<NidNidRevision, NidNidMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeInt(c1Nid);
-      output.writeInt(c2Nid);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

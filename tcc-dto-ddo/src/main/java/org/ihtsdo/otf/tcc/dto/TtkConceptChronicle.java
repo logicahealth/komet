@@ -21,6 +21,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
@@ -46,14 +47,10 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_float.TtkRefex
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
-
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_FLOAT;
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_INT;
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_LONG;
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_STRING;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -82,7 +79,7 @@ public class TtkConceptChronicle {
    public static final String PADDING = "     ";
 
    /** Field description */
-   public static final int dataVersion = 10;
+   public static final int dataVersion = 11;
 
    /** Field description */
    public static final long serialVersionUID = 1;
@@ -117,6 +114,11 @@ public class TtkConceptChronicle {
    @XmlElementWrapper(name = "refex-member-collection")
    @XmlElement(name = "refex")
    protected List<TtkRefexAbstractMemberChronicle<?>> refsetMembers;
+   
+   /** Field description */
+   @XmlElementWrapper(name = "refex-member-dynamic-collection")
+   @XmlElement(name = "refexDynamic")
+   protected List<TtkRefexDynamicMemberChronicle> refsetMembersDynamic;
 
    /** Field description */
    @XmlElementWrapper(name = "relationship-collection")
@@ -165,16 +167,31 @@ public class TtkConceptChronicle {
       }
 
       if (!c.isAnnotationStyleRefex()) {
-         Collection<? extends RefexChronicleBI> members = c.getRefsetMembers();
+         Collection<? extends RefexChronicleBI<?>> members = c.getRefsetMembers();
 
          if (members != null) {
             refsetMembers = new ArrayList<>(members.size());
 
-            for (RefexChronicleBI m : members) {
+            for (RefexChronicleBI<?> m : members) {
                TtkRefexAbstractMemberChronicle<?> member = convertRefex(m);
 
                if (member != null) {
                   refsetMembers.add(member);
+               } else {
+                  throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
+               }
+            }
+         }
+         Collection<? extends RefexDynamicChronicleBI<?>> membersDynamic = c.getRefsetDynamicMembers();
+
+         if (membersDynamic != null) {
+            refsetMembersDynamic = new ArrayList<>(members.size());
+
+            for (RefexDynamicChronicleBI<?> m : membersDynamic) {
+               TtkRefexDynamicMemberChronicle member = convertRefex(m);
+
+               if (member != null) {
+                  refsetMembersDynamic.add(member);
                } else {
                   throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
                }
@@ -241,6 +258,14 @@ public class TtkConceptChronicle {
             this.refsetMembers.add((TtkRefexAbstractMemberChronicle<?>) d.makeTransform(transformer));
          }
       }
+      
+      if (another.refsetMembersDynamic != null) {
+          this.refsetMembersDynamic = new ArrayList<>(another.refsetMembersDynamic.size());
+
+          for (TtkRefexDynamicMemberChronicle d : another.refsetMembersDynamic) {
+             this.refsetMembersDynamic.add((TtkRefexDynamicMemberChronicle) d.makeTransform(transformer));
+          }
+       }
 
       if (another.relationships != null) {
          this.relationships = new ArrayList<>(another.relationships.size());
@@ -293,6 +318,10 @@ public class TtkConceptChronicle {
       } else {
          throw new UnsupportedOperationException("Cannot handle: " + m);
       }
+   }
+   
+   public static TtkRefexDynamicMemberChronicle convertRefex(RefexDynamicChronicleBI<?> m) throws IOException {
+       return new TtkRefexDynamicMemberChronicle(m);
    }
 
    /**
@@ -367,6 +396,17 @@ public class TtkConceptChronicle {
                return false;
             }
          } else if (!this.refsetMembers.equals(another.refsetMembers)) {
+            return false;
+         }
+         
+         // Compare Refset Members
+         if (this.refsetMembersDynamic == null) {
+            if (another.refsetMembersDynamic == null) {             // Equal!
+            } else if (another.refsetMembersDynamic.isEmpty()) {    // Equal!
+            } else {
+               return false;
+            }
+         } else if (!this.refsetMembersDynamic.equals(another.refsetMembersDynamic)) {
             return false;
          }
 
@@ -577,6 +617,21 @@ public class TtkConceptChronicle {
       } else {
          annotationIndexStyleRefex = false;
       }
+      
+      if (readDataVersion >= 11)
+      {
+         int refsetDynamicMemberCount = in.readInt();
+
+         if (refsetDynamicMemberCount > 0)
+         {
+            refsetMembersDynamic = new ArrayList<>(refsetDynamicMemberCount);
+
+            for (int i = 0; i < refsetDynamicMemberCount; i++)
+            {
+               refsetMembersDynamic.add(new TtkRefexDynamicMemberChronicle(in, readDataVersion));
+            }
+         }
+      }
    }
 
    /**
@@ -635,6 +690,18 @@ public class TtkConceptChronicle {
          buff.append(PADDING + "none\n");
       } else {
          for (TtkRefexAbstractMemberChronicle<?> r : this.refsetMembers) {
+            buff.append(PADDING);
+            buff.append(r);
+            buff.append("\n");
+         }
+      }
+      
+      buff.append("\n   RefsetMembersDynamic: \n");
+
+      if (this.refsetMembersDynamic == null) {
+         buff.append(PADDING + "none\n");
+      } else {
+         for (TtkRefexDynamicMemberChronicle r : this.refsetMembersDynamic) {
             buff.append(PADDING);
             buff.append(r);
             buff.append("\n");
@@ -721,9 +788,19 @@ public class TtkConceptChronicle {
             r.writeExternal(out);
          }
       }
-
+      
       out.writeBoolean(annotationStyleRefex);
       out.writeBoolean(annotationIndexStyleRefex);
+      
+      if (refsetMembersDynamic == null) {
+          out.writeInt(0);
+       } else {
+          out.writeInt(refsetMembersDynamic.size());
+
+          for (TtkRefexDynamicMemberChronicle r : refsetMembersDynamic) {
+             r.writeExternal(out);
+          }
+       }
    }
 
    /**
@@ -786,6 +863,17 @@ public class TtkConceptChronicle {
       }
 
       return refsetMembers;
+   }
+   
+   /**
+    * Will not return null
+    */
+   public List<TtkRefexDynamicMemberChronicle> getRefsetMembersDynamic() {
+      if (refsetMembersDynamic == null) {
+         refsetMembersDynamic = new ArrayList<>();
+      }
+
+      return refsetMembersDynamic;
    }
 
    /**
@@ -895,6 +983,10 @@ public class TtkConceptChronicle {
    public void setRefsetMembers(List<TtkRefexAbstractMemberChronicle<?>> refsetMembers) {
       this.refsetMembers = refsetMembers;
    }
+   
+   public void setRefsetDynamicMembers(List<TtkRefexDynamicMemberChronicle> refsetMembersDynamic) {
+         this.refsetMembersDynamic = refsetMembersDynamic;
+      }
 
    /**
     * Method description

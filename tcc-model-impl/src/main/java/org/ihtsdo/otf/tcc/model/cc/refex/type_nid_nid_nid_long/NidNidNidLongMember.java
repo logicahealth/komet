@@ -2,33 +2,29 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.apache.mahout.math.list
-   .IntArrayList;
-import org.ihtsdo.otf.tcc.api.blueprint
-   .ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_long.RefexNidNidNidLongAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_long
-   .RefexNidNidNidLongVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long
-   .TtkRefexUuidUuidUuidLongMemberChronicle;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_long.RefexNidNidNidLongVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidNidNidLongMember
         extends RefexMember<NidNidNidLongRevision, NidNidNidLongMember>
@@ -36,27 +32,22 @@ public class NidNidNidLongMember
                    RefexNidNidNidLongAnalogBI<NidNidNidLongRevision> {
    private static VersionComputer<RefexMemberVersion<NidNidNidLongRevision, NidNidNidLongMember>> computer =
       new VersionComputer<>();
-   private int   nid1;
-   private int   nid2;
-   private int   nid3;
-   private long long1;
+    protected int   nid1;
+    protected int   nid2;
+    protected int   nid3;
+    protected long long1;
 
    public NidNidNidLongMember() {
       super();
-   }
-
-   public NidNidNidLongMember(int enclosingConceptNid, TupleInput input)
-           throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public NidNidNidLongMember(TtkRefexUuidUuidUuidLongMemberChronicle refsetMember,
                                int enclosingConceptNid)
            throws IOException {
       super(refsetMember, enclosingConceptNid);
-      nid1   = P.s.getNidForUuids(refsetMember.getUuid1());
-      nid2   = P.s.getNidForUuids(refsetMember.getUuid2());
-      nid3   = P.s.getNidForUuids(refsetMember.getUuid3());
+      nid1   = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
+      nid2   = PersistentStore.get().getNidForUuids(refsetMember.getUuid2());
+      nid3   = PersistentStore.get().getNidForUuids(refsetMember.getUuid3());
       long1 = refsetMember.long1;
 
       if (refsetMember.getRevisionList() != null) {
@@ -124,18 +115,7 @@ public class NidNidNidLongMember
       return newR;
    }
 
-   @Override
-   protected void readMemberFields(TupleInput input) {
-      nid1 = input.readInt();
-      nid2 = input.readInt();
-      nid3 = input.readInt();
-      long1 = input.readLong();
-   }
 
-   @Override
-   protected final NidNidNidLongRevision readMemberRevision(TupleInput input) {
-      return new NidNidNidLongRevision(input, this);
-   }
 
    @Override
    public boolean readyToWriteRefsetMember() {
@@ -191,14 +171,6 @@ public class NidNidNidLongMember
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(nid1);
-      output.writeInt(nid2);
-      output.writeInt(nid3);
-      output.writeLong(long1);
    }
 
    @Override

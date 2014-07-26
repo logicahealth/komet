@@ -2,15 +2,15 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -22,7 +22,7 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
@@ -33,10 +33,10 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
 
    //~--- fields --------------------------------------------------------------
 
-   private boolean initialCaseSignificant;
-   private String  lang;
-   private String  text;
-   private int     typeNid;
+   protected boolean initialCaseSignificant;
+   protected String  lang;
+   protected String  text;
+   protected int     typeNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -66,31 +66,13 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
 
    public DescriptionRevision(TtkDescriptionRevision edv, Description primoridalMember)
            throws IOException {
-      super(edv.getStatus(),edv.getTime(), P.s.getNidForUuids(edv.getAuthorUuid()),
-              P.s.getNidForUuids(edv.getModuleUuid()), P.s.getNidForUuids(edv.getPathUuid()),primoridalMember);
+      super(edv.getStatus(),edv.getTime(), PersistentStore.get().getNidForUuids(edv.getAuthorUuid()),
+              PersistentStore.get().getNidForUuids(edv.getModuleUuid()), PersistentStore.get().getNidForUuids(edv.getPathUuid()),primoridalMember);
       initialCaseSignificant = edv.isInitialCaseSignificant();
       lang                   = edv.getLang();
       text                   = edv.getText();
-      typeNid                = P.s.getNidForUuids(edv.getTypeUuid());
-      stamp                 = P.s.getStamp(edv);
-   }
-
-   protected DescriptionRevision(TupleInput input, Description primoridalMember) {
-      super(input, primoridalMember);
-      text = input.readString();
-
-      if (text == null) {
-         text = primoridalMember.getText();
-      }
-
-      lang = input.readString();
-
-      if (lang == null) {
-         lang = primoridalMember.getLang();
-      }
-
-      initialCaseSignificant = input.readBoolean();
-      typeNid                = input.readInt();
+      typeNid                = PersistentStore.get().getNidForUuids(edv.getTypeUuid());
+      stamp                 = PersistentStore.get().getStamp(edv);
    }
 
    public DescriptionRevision(DescriptionVersionBI another, Status status, long time,
@@ -246,24 +228,6 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
       buf.append(super.validate(another));
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      if (text.equals(primordialComponent.getText())) {
-         output.writeString((String) null);
-      } else {
-         output.writeString(text);
-      }
-
-      if (lang.equals(primordialComponent.getLang())) {
-         output.writeString((String) null);
-      } else {
-         output.writeString(lang);
-      }
-
-      output.writeBoolean(initialCaseSignificant);
-      output.writeInt(typeNid);
    }
 
    //~--- get methods ---------------------------------------------------------

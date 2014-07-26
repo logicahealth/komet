@@ -76,7 +76,7 @@ public interface RelationshipVersionBI<A extends RelationshipAnalogBI>
     *
     * @return
     */
-   public boolean isInferred();
+   public boolean isInferred() throws IOException;
 
    /**
     * Method description
@@ -84,5 +84,5 @@ public interface RelationshipVersionBI<A extends RelationshipAnalogBI>
     *
     * @return
     */
-   public boolean isStated();
+   public boolean isStated() throws IOException;
 }

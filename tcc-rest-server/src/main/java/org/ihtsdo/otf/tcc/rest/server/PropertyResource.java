@@ -13,7 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 
 /**
  *
@@ -30,7 +30,7 @@ public class PropertyResource {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 ObjectOutputStream oos = new ObjectOutputStream(output);
-                oos.writeObject(P.s.getProperties());
+                oos.writeObject(PersistentStore.get().getProperties());
             }
         };
     }
@@ -39,7 +39,7 @@ public class PropertyResource {
     @Path("{key}")
     @Produces("text/plain")
     public String getProperty(@PathParam("key") String key) throws IOException  {
-        return P.s.getProperty(key);
+        return PersistentStore.get().getProperty(key);
     }
 
     

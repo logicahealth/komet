@@ -2,12 +2,12 @@ package org.ihtsdo.otf.tcc.model.cc.media;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -19,18 +19,17 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
 
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
 public class MediaRevision extends Revision<MediaRevision, Media>
         implements MediaVersionFacade {
-   private String textDescription;
-   private int    typeNid;
+    protected String textDescription;
+    protected int    typeNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -51,16 +50,10 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
 
    public MediaRevision(TtkMediaRevision eiv, Media primoridalMember) throws IOException {
-      super(eiv.getStatus(), eiv.getTime(), P.s.getNidForUuids(eiv.getAuthorUuid()),
-            P.s.getNidForUuids(eiv.getModuleUuid()), P.s.getNidForUuids(eiv.getPathUuid()), primoridalMember);
+      super(eiv.getStatus(), eiv.getTime(), PersistentStore.get().getNidForUuids(eiv.getAuthorUuid()),
+            PersistentStore.get().getNidForUuids(eiv.getModuleUuid()), PersistentStore.get().getNidForUuids(eiv.getPathUuid()), primoridalMember);
       this.textDescription = eiv.getTextDescription();
-      this.typeNid         = P.s.getNidForUuids(eiv.getTypeUuid());
-   }
-
-   protected MediaRevision(TupleInput input, Media primoridalMember) {
-      super(input.readInt(), primoridalMember);
-      this.textDescription = input.readString();
-      this.typeNid         = input.readInt();
+      this.typeNid         = PersistentStore.get().getNidForUuids(eiv.getTypeUuid());
    }
 
    protected MediaRevision(MediaVersionBI another, Status status, long time, int authorNid,
@@ -160,12 +153,6 @@ public class MediaRevision extends Revision<MediaRevision, Media>
       buf.append(textDescription);
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeString(textDescription);
-      output.writeInt(typeNid);
    }
 
    //~--- get methods ---------------------------------------------------------

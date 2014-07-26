@@ -11,4 +11,15 @@
                 <stagingSiteURL>file:/Sites/tcc</stagingSiteURL>
             </properties>
         </action>
+        <action>
+            <actionName>rebuild</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>-e</goal>
+            </goals>
+        </action>
     </actions>

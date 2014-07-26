@@ -2,13 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -24,6 +17,15 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class IntMember extends RefexMember<IntRevision, IntMember>
         implements RefexIntAnalogBI<IntRevision> {
    private static VersionComputer<RefexMemberVersion<IntRevision, IntMember>> computer =
@@ -31,16 +33,12 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private int int1;
+   protected int int1;
 
    //~--- constructors --------------------------------------------------------
 
    public IntMember() {
       super();
-   }
-
-   public IntMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public IntMember(TtkRefexIntMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -126,16 +124,6 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      int1 = input.readInt();
-   }
-
-   @Override
-   protected final IntRevision readMemberRevision(TupleInput input) {
-      return new IntRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       return true;
    }
@@ -156,10 +144,6 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(int1);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

@@ -20,5 +20,22 @@ package org.ihtsdo.otf.tcc.api.coordinate;
  * @author kec
  */
 public enum Status {
-    INACTIVE, ACTIVE
+    INACTIVE(false), ACTIVE(true);
+
+    boolean isActive;
+
+    Status(boolean isActive) {
+        this.isActive = isActive;
+    }
+    public boolean getBoolean() {
+        return isActive;
+    }
+
+    public static Status getFromBoolean(boolean isActive) {
+        if (isActive) {
+            return ACTIVE;
+        }
+        return INACTIVE;
+    }
 }
+

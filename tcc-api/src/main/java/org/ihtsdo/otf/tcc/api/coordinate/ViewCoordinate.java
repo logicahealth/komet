@@ -42,6 +42,7 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 @XmlRootElement(name = "view-coordinate")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class ViewCoordinate implements Externalizable {
+    public static final long serialVersionUID = 1;
 
     private long lastModSequence = Long.MIN_VALUE;
     private EnumSet<Status> allowedStatus;

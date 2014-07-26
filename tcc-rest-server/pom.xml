@@ -27,6 +27,11 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcc-model-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.5</version>
@@ -69,11 +74,6 @@
             <version>2.2</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <version>${project.version}</version>
-            <artifactId>tcc-datastore</artifactId>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -103,7 +103,7 @@
             <name>GlassFish Maven Repository</name>
             <url>http://download.java.net/maven/glassfish</url>
             <layout>default</layout>
-        </repository>      
+        </repository>
     </repositories>
     <pluginRepositories>
     </pluginRepositories>

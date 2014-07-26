@@ -2,8 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 import org.apache.mahout.math.list.IntArrayList;
@@ -35,11 +36,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       super();
    }
 
-   public MembershipMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
-   public MembershipMember(TtkRefexMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
+  public MembershipMember(TtkRefexMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
 
       if (refsetMember.getRevisionList() != null) {
@@ -120,17 +117,6 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-
-      // nothing to read...
-   }
-
-   @Override
-   protected final MembershipRevision readMemberRevision(TupleInput input) {
-      return new MembershipRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       return true;
    }
@@ -149,11 +135,6 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       return buf.toString();
    }
 
-   @Override
-   protected void writeMember(TupleOutput output) {
-
-      // nothing to write
-   }
 
    //~--- get methods ---------------------------------------------------------
 

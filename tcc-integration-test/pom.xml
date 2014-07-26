@@ -4,12 +4,13 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.1-TT-SNAPSHOT</version>
+        <version>1.4-TT-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-integration-test</artifactId>
     <name>${branch}: Integration tests</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <skipTests>true</skipTests>
     </properties>
     <dependencies>
         <dependency>
@@ -21,12 +22,6 @@
             <groupId>org.glassfish.jersey.test-framework</groupId>
             <artifactId>jersey-test-framework-core</artifactId>
             <version>${jersey-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-junit-ext</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -43,12 +38,6 @@
             <scope>test</scope>
             <classifier>classes</classifier>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-test-data</artifactId>   
-            <version>2.0</version>     
-            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -69,8 +58,16 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>tcc-test-data</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/test-resources/</outputDirectory>
+                           <skip>${skipTests}</skip>
+                           <artifactItems>
+                                <artifact>
+                                    <groupId>gov.va.isaac.db</groupId>
+                                    <artifactId>isaac-sct</artifactId>
+                                    <version>2014.01.31-build-2</version>
+                                    <type>zip</type>
+                                </artifact>
+                           </artifactItems>
+                           <outputDirectory>${project.build.directory}/test-resources/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
