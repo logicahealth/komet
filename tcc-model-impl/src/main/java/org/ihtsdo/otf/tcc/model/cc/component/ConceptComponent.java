@@ -170,7 +170,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         this.primordialStamp = PersistentStore.get().getStamp(eComponent);
-        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid;
+//        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid; //TODO-AKF: this will be the case with JPA/Hibernate
         this.primordialMsb = eComponent.getPrimordialComponentUuid().getMostSignificantBits();
         this.primordialLsb = eComponent.getPrimordialComponentUuid().getLeastSignificantBits();
 //        convertId(eComponent.additionalIds); //TODO-AKF: support additional IDs
