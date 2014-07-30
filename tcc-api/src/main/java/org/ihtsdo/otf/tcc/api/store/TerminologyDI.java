@@ -77,14 +77,16 @@ public interface TerminologyDI {
     void forget(RefexChronicleBI extension) throws IOException;
 
     void forget(RelationshipVersionBI rel) throws IOException;
-    
+
     /**
-     * Cause all index generators implementing the <code>IndexerBI</code> to first
-     * <code>clearIndex()</code> then iterate over all chronicles in the database
-     * and pass those chronicles to <code>index(ComponentChronicleBI chronicle)</code>
-     * and when complete, to call <code>commitWriter()</code>. <code>IndexerBI</code> services
-     * will be discovered using the HK2 dependency injection framework. 
-     * @throws IOException 
+     * Cause all index generators implementing the <code>IndexerBI</code> to
+     * first <code>clearIndex()</code> then iterate over all chronicles in the
+     * database and pass those chronicles to
+     * <code>index(ComponentChronicleBI chronicle)</code> and when complete, to
+     * call <code>commitWriter()</code>. <code>IndexerBI</code> services will be
+     * discovered using the HK2 dependency injection framework.
+     *
+     * @throws IOException
      */
     void index() throws IOException;
 
@@ -130,9 +132,9 @@ public interface TerminologyDI {
 
     //~--- get methods ---------------------------------------------------------
     NativeIdSetBI getAllConceptNids() throws IOException;
-    
+
     NativeIdSetBI getAllConceptNidsFromCache() throws IOException;
-    
+
     NativeIdSetBI getAllComponentNids() throws IOException;
 
     NativeIdSetBI getConceptNidsForComponentNids(NativeIdSetBI componentNativeIds) throws IOException;
@@ -140,17 +142,21 @@ public interface TerminologyDI {
     /**
      * Retrieves the components nids from the input concept nids
      *
-     * @param conceptNativeIds the <code>NativeIdSetBI<code> for which the components nids will be retrieved
+     * @param conceptNativeIds the
+     * {@link org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI} for which the components
+     * nids will be retrieved
      */
     NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException;
-   /**
-    * Nids that are not claimed by one of the provided concept nids. 
-    * @param conceptNativeIds the set of native concept nids. 
-    * @return the orphan set. 
-    * @throws IOException 
-    */
+
+    /**
+     * Nids that are not claimed by one of the provided concept nids.
+     *
+     * @param conceptNativeIds the set of native concept nids.
+     * @return the orphan set.
+     * @throws IOException
+     */
     NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNativeIds) throws IOException;
-    
+
     int getAuthorNidForStamp(int sapNid);
 
     NativeIdSetBI getEmptyNidSet() throws IOException;
