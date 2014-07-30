@@ -12,7 +12,7 @@ the specific language governing permissions and limitations under the License. -
     <parent>
         <groupId>com.informatics</groupId>
         <artifactId>informatics-parent-pom</artifactId>
-        <version>1.21</version>
+        <version>1.22</version>
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
