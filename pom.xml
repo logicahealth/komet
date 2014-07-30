@@ -12,11 +12,11 @@ the specific language governing permissions and limitations under the License. -
     <parent>
         <groupId>com.informatics</groupId>
         <artifactId>informatics-parent-pom</artifactId>
-        <version>1.9</version>
+        <version>1.21</version>
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
-    <version>1.5-TT-SNAPSHOT</version>
+    <version>1.4-TT-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) Component chronicle service</name>
     <description>The Terminology Component Chronicle project provides the ability to
@@ -24,17 +24,8 @@ the specific language governing permissions and limitations under the License. -
         of all changes.
     </description>
     <scm>
-        <connection>scm:git:https://github.com/IHTSDO/OTF-Versioning-Service.git</connection>
-        <developerConnection>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</developerConnection>
-        <url>https://github.com/IHTSDO/OTF-Versioning-Service</url>
-        <tag>sprint2</tag>
+        <developerConnection>scm:git:http://informatics.com/stash/scm/ot/otf-versioning-service.git</developerConnection>
     </scm>
-    <distributionManagement>
-        <site>
-            <id>site</id>
-            <url>scm:git:git@github.com:IHTSDO/OTF-Versioning-Service.git</url>
-        </site>
-    </distributionManagement>
    	
     <properties>
         <branch>TT</branch>
@@ -149,15 +140,16 @@ the specific language governing permissions and limitations under the License. -
                     <version>0.7.1.201405082137</version>
                 </plugin>
 
-            <plugin>
-            <!--
-               TODO: Consider this alternative:
-               http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
-               https://github.com/whummer/jaxb-facets
-            -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jaxb2-maven-plugin</artifactId>
-            <version>1.6</version></plugin>
+                <plugin>
+                    <!--
+                       TODO: Consider this alternative:
+                       http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+                       https://github.com/whummer/jaxb-facets
+                    -->
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>1.6</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -264,25 +256,6 @@ the specific language governing permissions and limitations under the License. -
                                                         <report>cim</report>
                                                         <report>issue-tracking</report>
                             -->
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <inherited>false</inherited>
-                <configuration>
-                    <!-- Disabled - not installed on CI server -->
-                    <!--doclet>ydoc.doclets.YStandard</doclet>
-                    <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
-                    <additionalparam>-umlautogen</additionalparam>
-                    <docfilessubdirs>true</docfilessubdirs-->
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>aggregate</report>
                         </reports>
                     </reportSet>
                 </reportSets>
