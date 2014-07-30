@@ -191,19 +191,6 @@ the specific language governing permissions and limitations under the License. -
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
-                <configuration>
-                    <preparationGoals>clean install</preparationGoals>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <remoteTagging>true</remoteTagging>
-                    <arguments>-Pintegration-test</arguments>
-                    <tagNameFormat>tcc-@{project.version}</tagNameFormat>
-                    <goals>deploy site site:stage scm-publish:publish-scm</goals>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
