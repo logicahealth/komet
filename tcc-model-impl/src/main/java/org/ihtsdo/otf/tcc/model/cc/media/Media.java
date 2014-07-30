@@ -1,11 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.media;
 
-//~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 
-
-
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -21,21 +17,19 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.PropertyVetoException;
-
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 public class Media extends ConceptComponent<MediaRevision, Media>
         implements MediaVersionFacade {
@@ -44,8 +38,8 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     //~--- fields --------------------------------------------------------------
     protected String format;
     protected byte[] image;
-    private String textDescription;
-    private int typeNid;
+    protected String textDescription;
+    protected int typeNid;
     List<MediaVersion> versions;
 
     //~--- constructors --------------------------------------------------------
@@ -53,17 +47,14 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         super();
     }
 
-    public Media(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
-        super(enclosingConcept.getNid(), input);
-    }
 
     public Media(TtkMediaChronicle eMedia, ConceptChronicleBI enclosingConcept) throws IOException {
         super(eMedia, enclosingConcept.getNid());
         image = eMedia.getDataBytes();
         format = eMedia.getFormat();
         textDescription = eMedia.getTextDescription();
-        typeNid = P.s.getNidForUuids(eMedia.getTypeUuid());
-        primordialStamp = P.s.getStamp(eMedia);
+        typeNid = PersistentStore.get().getNidForUuids(eMedia.getTypeUuid());
+        primordialStamp = PersistentStore.get().getStamp(eMedia);
 
         if (eMedia.getRevisionList() != null) {
             revisions = new RevisionSet<MediaRevision, Media>(primordialStamp);
@@ -144,30 +135,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
-
-        // nid, list size, and conceptNid are read already by the binder...
-        this.format = input.readString();
-
-        int imageBytes = input.readInt();
-
-        image = new byte[imageBytes];
-        input.read(image, 0, imageBytes);
-        textDescription = input.readString();
-        typeNid = input.readInt();
-
-        int additionalVersionCount = input.readShort();
-
-        for (int i = 0; i < additionalVersionCount; i++) {
-            MediaRevision ir = new MediaRevision(input, this);
-
-            if (ir.getTime() != Long.MIN_VALUE) {
-                revisions.add(ir);
-            }
-        }
-    }
-
-    @Override
     public boolean readyToWriteComponent() {
         assert textDescription != null : assertionString();
         assert format != null : assertionString();
@@ -243,32 +210,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         return buf.toString();
     }
 
-    @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
-        List<MediaRevision> partsToWrite = new ArrayList<>();
-
-        if (revisions != null) {
-            for (MediaRevision p : revisions) {
-                if ((p.getStamp() > maxReadOnlyStatusAtPositionNid)
-                        && (p.getTime() != Long.MIN_VALUE)) {
-                    partsToWrite.add(p);
-                }
-            }
-        }
-
-        // Start writing
-        // conceptNid is the enclosing concept, does not need to be written.
-        output.writeString(format);
-        output.writeInt(image.length);
-        output.write(image);
-        output.writeString(textDescription);
-        output.writeInt(typeNid);
-        output.writeShort(partsToWrite.size());
-
-        for (MediaRevision p : partsToWrite) {
-            p.writeRevisionBdb(output);
-        }
-    }
 
     //~--- get methods ---------------------------------------------------------
 

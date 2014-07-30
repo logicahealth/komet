@@ -2,12 +2,13 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -17,12 +18,12 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 public class ConceptAttributesRevision extends Revision<ConceptAttributesRevision, ConceptAttributes>
         implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {  
-   private boolean defined = false;
+   protected boolean defined = false;
 
    //~--- constructors --------------------------------------------------------
    public ConceptAttributesRevision() {
@@ -35,8 +36,8 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    }
 
    public ConceptAttributesRevision(TtkConceptAttributesRevision another, ConceptAttributes primoridalMember) throws IOException{
-      super(another.getStatus(), another.getTime(), P.s.getNidForUuids(another.getAuthorUuid()),
-            P.s.getNidForUuids(another.getModuleUuid()), P.s.getNidForUuids(another.getPathUuid()), primoridalMember);
+      super(another.getStatus(), another.getTime(), PersistentStore.get().getNidForUuids(another.getAuthorUuid()),
+            PersistentStore.get().getNidForUuids(another.getModuleUuid()), PersistentStore.get().getNidForUuids(another.getPathUuid()), primoridalMember);
       this.defined = another.isDefined();
    }
 
@@ -44,7 +45,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
       super(statusAtPositionNid, primoridalMember);
    }
 
-   public ConceptAttributesRevision(TupleInput input, ConceptAttributes primoridalMember) {
+   public ConceptAttributesRevision(DataInputStream input, ConceptAttributes primoridalMember) throws IOException {
       super(input, primoridalMember);
       defined = input.readBoolean();
    }
@@ -139,11 +140,6 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
       }
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeBoolean(defined);
    }
 
    //~--- get methods ---------------------------------------------------------

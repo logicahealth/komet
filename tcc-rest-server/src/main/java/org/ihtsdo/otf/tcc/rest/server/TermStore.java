@@ -9,7 +9,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 
 /**
  *
@@ -22,7 +22,7 @@ public class TermStore {
     @Path("/wait-for-writes")
     @Produces("text/plain")
     public String waitForWrites(@PathParam("id") String idStr) throws IOException {
-        P.s.waitTillWritesFinished();
+        PersistentStore.get().waitTillWritesFinished();
         return "OK";
     }
 }

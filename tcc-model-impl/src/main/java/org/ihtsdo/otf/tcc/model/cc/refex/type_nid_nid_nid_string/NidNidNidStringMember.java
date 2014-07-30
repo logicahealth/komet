@@ -2,33 +2,29 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.apache.mahout.math.list
-   .IntArrayList;
-import org.ihtsdo.otf.tcc.api.blueprint
-   .ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidStringAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string
-   .RefexNidNidNidStringVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string
-   .TtkRefexUuidUuidUuidStringMemberChronicle;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidStringVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidNidNidStringMember
         extends RefexMember<NidNidNidStringRevision, NidNidNidStringMember>
@@ -36,27 +32,22 @@ public class NidNidNidStringMember
                    RefexNidNidNidStringAnalogBI<NidNidNidStringRevision> {
    private static VersionComputer<RefexMemberVersion<NidNidNidStringRevision, NidNidNidStringMember>> computer =
       new VersionComputer<>();
-   private int   nid1;
-   private int   nid2;
-   private int   nid3;
-   private String string1;
+    protected int   nid1;
+    protected int   nid2;
+    protected int   nid3;
+    protected String string1;
 
    public NidNidNidStringMember() {
       super();
-   }
-
-   public NidNidNidStringMember(int enclosingConceptNid, TupleInput input)
-           throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public NidNidNidStringMember(TtkRefexUuidUuidUuidStringMemberChronicle refsetMember,
                                int enclosingConceptNid)
            throws IOException {
       super(refsetMember, enclosingConceptNid);
-      nid1   = P.s.getNidForUuids(refsetMember.getUuid1());
-      nid2   = P.s.getNidForUuids(refsetMember.getUuid2());
-      nid3   = P.s.getNidForUuids(refsetMember.getUuid3());
+      nid1   = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
+      nid2   = PersistentStore.get().getNidForUuids(refsetMember.getUuid2());
+      nid3   = PersistentStore.get().getNidForUuids(refsetMember.getUuid3());
       string1 = refsetMember.string1;
 
       if (refsetMember.getRevisionList() != null) {
@@ -125,19 +116,6 @@ public class NidNidNidStringMember
    }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      nid1 = input.readInt();
-      nid2 = input.readInt();
-      nid3 = input.readInt();
-      string1 = input.readString();
-   }
-
-   @Override
-   protected final NidNidNidStringRevision readMemberRevision(TupleInput input) {
-      return new NidNidNidStringRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert nid1 != Integer.MAX_VALUE;
       assert nid2 != Integer.MAX_VALUE;
@@ -191,14 +169,6 @@ public class NidNidNidStringMember
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(nid1);
-      output.writeInt(nid2);
-      output.writeInt(nid3);
-      output.writeString(string1);
    }
 
    @Override

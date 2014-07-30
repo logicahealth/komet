@@ -2,15 +2,15 @@ package org.ihtsdo.otf.tcc.model.cc.identifier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-
-
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
 import org.ihtsdo.otf.tcc.api.id.LongIdBI;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent.IDENTIFIER_PART_TYPES;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class IdentifierVersionLong extends IdentifierVersion implements LongIdBI {
    private long longDenotation;
@@ -26,7 +26,7 @@ public class IdentifierVersionLong extends IdentifierVersion implements LongIdBI
       longDenotation = idv.getDenotation();
    }
 
-   public IdentifierVersionLong(TupleInput input) {
+   public IdentifierVersionLong(DataInputStream input) throws IOException {
       super(input);
       longDenotation = input.readLong();
    }
@@ -80,7 +80,7 @@ public class IdentifierVersionLong extends IdentifierVersion implements LongIdBI
    }
 
    @Override
-   protected void writeSourceIdToBdb(TupleOutput output) {
+   protected void writeSourceIdToBdb(DataOutput output) throws IOException {
       output.writeLong(longDenotation);
    }
    

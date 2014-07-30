@@ -44,7 +44,7 @@ import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -299,7 +299,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws Exception
      */
     @Override
-    public void loadEconFiles(String[] econFileStrings) throws Exception {
+    public final int loadEconFiles(String... econFileStrings) throws Exception {
         List<File> econFiles = new ArrayList<>(econFileStrings.length);
 
         for (String fileString : econFileStrings) {
@@ -307,8 +307,9 @@ public abstract class Termstore implements PersistentStoreI {
         }
 
         LastChange.suspendChangeNotifications();
-        loadEconFiles(econFiles.toArray(new File[econFiles.size()]));
+        int conceptsLoaded = loadEconFiles(econFiles.toArray(new File[econFiles.size()]));
         LastChange.resumeChangeNotifications();
+        return conceptsLoaded;
     }
 
     /**
@@ -467,7 +468,7 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public ComponentChronicleBI<?> getComponentFromAlternateId(int authorityNid, String altId) throws IOException {
         try {
-            return getComponent(P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid),
+            return getComponent(PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid),
                     altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
@@ -554,7 +555,7 @@ public abstract class Termstore implements PersistentStoreI {
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(
-                    vc, P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+                    vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid), altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -577,7 +578,7 @@ public abstract class Termstore implements PersistentStoreI {
     public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUUID, String altId)
             throws IOException, ContradictionException {
         try {
-            return getComponentVersion(vc, P.s.getNidForUuids(UuidT5Generator.get(authorityUUID, altId)));
+            return getComponentVersion(vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUUID, altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -624,7 +625,9 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public abstract ConceptChronicleBI getConcept(int cNid) throws IOException;
+    public final ConceptChronicle getConcept(int cNid) throws IOException {
+        return ConceptChronicle.get(cNid);
+    }
 
     /**
      * Method description
@@ -671,7 +674,7 @@ public abstract class Termstore implements PersistentStoreI {
     public ConceptChronicle getConceptFromAlternateId(int authorityNid, String altId) throws IOException {
         try {
             return ConceptChronicle.get(
-                    P.s.getNidForUuids(UuidT5Generator.get(P.s.getUuidPrimordialForNid(authorityNid), altId)));
+                    PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid), altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -691,7 +694,7 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public ConceptChronicleBI getConceptFromAlternateId(UUID authorityUuid, String altId) throws IOException {
         try {
-            return ConceptChronicle.get(P.s.getNidForUuids(UuidT5Generator.get(authorityUuid, altId)));
+            return ConceptChronicle.get(PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUuid, altId)));
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
@@ -801,7 +804,7 @@ public abstract class Termstore implements PersistentStoreI {
         ConceptVersionGetter processor = new ConceptVersionGetter(cNids, c);
 
         try {
-            P.s.iterateConceptDataInParallel(processor);
+            PersistentStore.get().iterateConceptDataInParallel(processor);
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -824,7 +827,7 @@ public abstract class Termstore implements PersistentStoreI {
         ConceptGetter processor = new ConceptGetter(cNids);
 
         try {
-            P.s.iterateConceptDataInParallel(processor);
+            PersistentStore.get().iterateConceptDataInParallel(processor);
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -881,7 +884,7 @@ public abstract class Termstore implements PersistentStoreI {
      */
     @Override
     public int getNidFromAlternateId(UUID authorityUuid, String altId) throws IOException {
-        return P.s.getNidForUuids(UuidFactory.getUuidFromAlternateId(authorityUuid, altId));
+        return PersistentStore.get().getNidForUuids(UuidFactory.getUuidFromAlternateId(authorityUuid, altId));
     }
 
     /**
@@ -963,7 +966,7 @@ public abstract class Termstore implements PersistentStoreI {
         List<IndexerBI> indexers;
 
         public IndexGenerator() throws IOException {
-            this.nids = P.s.getAllConceptNids();
+            this.nids = PersistentStore.get().getAllConceptNids();
             indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
             for (IndexerBI i : indexers) {
                 i.clearIndex();
@@ -1014,11 +1017,13 @@ public abstract class Termstore implements PersistentStoreI {
     public void index() throws IOException {
         try {
             IndexGenerator ig = new IndexGenerator();
-            P.s.iterateConceptDataInParallel(ig);
+            PersistentStore.get().iterateConceptDataInParallel(ig);
             ig.commit();
         } catch (Exception ex) {
             throw new IOException(ex);
         }
 
     }
+
+
 }

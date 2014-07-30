@@ -1,11 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -18,7 +17,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
@@ -26,7 +24,7 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
@@ -36,33 +34,14 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
         implements RelationshipAnalogBI<RelationshipRevision> {
    private static int                                   classifierAuthorNid = Integer.MIN_VALUE;
    private static VersionComputer<RelationshipVersion> computer            = new VersionComputer<>();
-   public static int                              INFERRED_NID_RF1 = 0;
-   public static int                              INFERRED_NID_RF2 = 0;
-   public static int                              STATED_NID_RF1 = 0;
-   public static int                              STATED_NID_RF2 = 0;
-
-   //~--- static initializers -------------------------------------------------
-
-   static {
-      try {
-         INFERRED_NID_RF1 =
-            Ts.get().getNidForUuids(SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-         STATED_NID_RF1 =
-            Ts.get().getNidForUuids(SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getUuids());
-         INFERRED_NID_RF2 = Ts.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
-         STATED_NID_RF2   = Ts.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
-      } catch (Exception ex) {
-         throw new RuntimeException(ex);
-      }
-   }
 
    //~--- fields --------------------------------------------------------------
 
-   private int   c2Nid;
-   private int   characteristicNid;
-   private int   group;
-   private int   refinabilityNid;
-   private int   typeNid;
+   protected int   c2Nid;
+   protected int   characteristicNid;
+   protected int   group;
+   protected int   refinabilityNid;
+   protected int   typeNid;
    List<RelationshipVersion> versions;
 
    //~--- constructors --------------------------------------------------------
@@ -71,18 +50,14 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       super();
    }
 
-   public Relationship(ConceptChronicleBI enclosingConcept, TupleInput input) throws IOException {
-      super(enclosingConcept.getNid(), input);
-   }
-
    public Relationship(TtkRelationshipChronicle eRel, ConceptChronicleBI enclosingConcept) throws IOException {
       super(eRel, enclosingConcept.getNid());
-      c2Nid = P.s.getNidForUuids(eRel.getC2Uuid());
-      characteristicNid = P.s.getNidForUuids(eRel.getCharacteristicUuid());
+      c2Nid = PersistentStore.get().getNidForUuids(eRel.getC2Uuid());
+      characteristicNid = PersistentStore.get().getNidForUuids(eRel.getCharacteristicUuid());
       group = eRel.getRelGroup();
-      refinabilityNid = P.s.getNidForUuids(eRel.getRefinabilityUuid());
-      typeNid = P.s.getNidForUuids(eRel.getTypeUuid());
-      primordialStamp = P.s.getStamp(eRel);
+      refinabilityNid = PersistentStore.get().getNidForUuids(eRel.getRefinabilityUuid());
+      typeNid = PersistentStore.get().getNidForUuids(eRel.getTypeUuid());
+      primordialStamp = PersistentStore.get().getStamp(eRel);
 
       if (eRel.getRevisionList() != null) {
          revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
@@ -195,45 +170,20 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
       RelationshipType relType = null;
 
-      if ((getCharacteristicNid()
-              == SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                 .getNid()) || (getCharacteristicNid()
-                                == SnomedMetadataRf1.DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                                   .getNid()) || (getCharacteristicNid()
-                                      == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid())) {
+      if (getCharacteristicNid() == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid()) {
          throw new InvalidCAB("Inferred relationships can not be used to make blueprints");
-      } else if ((getCharacteristicNid()
-                  == SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                     .getNid()) || (getCharacteristicNid()
-                                    == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid())) {
+      } else if (getCharacteristicNid() == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid()) {
          relType = RelationshipType.STATED_HIERARCHY;
-      }
+	  } else if (getCharacteristicNid() == SnomedMetadataRf2.QUALIFYING_RELATIONSSHIP_RF2.getLenient().getNid()) {
+	         relType = RelationshipType.QUALIFIER;
+	  } else if (getCharacteristicNid() == SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getLenient().getNid()) {
+         relType = RelationshipType.HISTORIC;
+	  }
 
       RelationshipCAB relBp = new RelationshipCAB(getOriginNid(), getTypeNid(), getDestinationNid(), getGroup(), relType,
                                 getVersion(vc), vc, idDirective, refexDirective);
 
       return relBp;
-   }
-
-   @Override
-   public void readFromBdb(TupleInput input) {
-
-      // nid, list size, and conceptNid are read already by the binder...
-      c2Nid             = input.readInt();
-      characteristicNid = input.readInt();
-      group             = input.readSortedPackedInt();
-      refinabilityNid   = input.readInt();
-      typeNid           = input.readInt();
-
-      int additionalVersionCount = input.readSortedPackedInt();
-
-      if (additionalVersionCount > 0) {
-         revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
-
-         for (int i = 0; i < additionalVersionCount; i++) {
-            revisions.add(new RelationshipRevision(input, this));
-         }
-      }
    }
 
    @Override
@@ -342,35 +292,6 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       buf.append(super.validate(another));
 
       return buf.toString();
-   }
-
-   @Override
-   public void writeToBdb(TupleOutput output, int maxReadOnlyStamp) {
-
-      //
-      List<RelationshipRevision> revisionsToWrite = new ArrayList<>();
-
-      if (revisions != null) {
-         for (RelationshipRevision p : revisions) {
-            if ((p.getStamp() > maxReadOnlyStamp) && (p.getTime() != Long.MIN_VALUE)) {
-               revisionsToWrite.add(p);
-            }
-         }
-      }
-
-      // Start writing
-      // c1Nid is the enclosing concept, does not need to be written.
-      output.writeInt(c2Nid);
-      output.writeInt(getCharacteristicNid());
-      output.writeSortedPackedInt(group);
-      output.writeInt(getRefinabilityNid());
-      output.writeInt(getTypeNid());
-      output.writeSortedPackedInt(revisionsToWrite.size());
-
-      for (RelationshipRevision p : revisionsToWrite) {
-         p.writeRevisionBdb(output);
-      }
-      
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -489,15 +410,23 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       return returnTuples;
    }
 
-   @Override
-   public boolean isInferred() {
-      return (getCharacteristicNid() == INFERRED_NID_RF2) || (getCharacteristicNid() == INFERRED_NID_RF1);
-   }
+    protected static int inferredNid = Integer.MAX_VALUE;
+    protected static int statedNid = Integer.MAX_VALUE;
+    @Override
+    public boolean isInferred() throws IOException {
+        if (inferredNid == Integer.MAX_VALUE) {
+            inferredNid = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
+        }
+        return characteristicNid == inferredNid;
+    }
 
-   @Override
-   public boolean isStated() {
-      return (getCharacteristicNid() == STATED_NID_RF2) || (getCharacteristicNid() == STATED_NID_RF1);
-   }
+    @Override
+    public boolean isStated() throws IOException {
+        if (statedNid == Integer.MAX_VALUE) {
+            statedNid = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
+        }
+        return characteristicNid == statedNid;
+    }
 
    //~--- set methods ---------------------------------------------------------
 

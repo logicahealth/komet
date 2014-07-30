@@ -2,34 +2,30 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_int.RefexIntAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-
 public class IntRevision extends RefexRevision<IntRevision, IntMember>
         implements RefexIntAnalogBI<IntRevision> {
-   private int intValue;
+   protected int intValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -45,11 +41,6 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
    public IntRevision(TtkRefexIntRevision eVersion, IntMember member) throws IOException {
       super(eVersion, member);
       this.intValue = eVersion.getIntValue();
-   }
-
-   public IntRevision(TupleInput input, IntMember primoridalMember) {
-      super(input, primoridalMember);
-      intValue = input.readInt();
    }
 
    public IntRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, IntMember primoridalMember) {
@@ -132,10 +123,6 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
       return buf.toString();
    }
 
-   @Override
-   protected void writeFieldsToBdb(TupleOutput output) {
-      output.writeInt(intValue);
-   }
 
    //~--- get methods ---------------------------------------------------------
 

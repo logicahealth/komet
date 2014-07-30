@@ -1,11 +1,8 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.*;
@@ -13,7 +10,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
@@ -31,6 +28,8 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
@@ -40,8 +39,9 @@ import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
@@ -51,6 +51,10 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberVersion;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 
 /**
  * Class description
@@ -78,17 +82,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Field description
      */
     static int authorityNid = Integer.MAX_VALUE;
-    /**
-     * Field description
-     */
-    private static AnnotationWriter annotationWriter = new AnnotationWriter();
+
+    protected long[] additionalUuidParts;
 
    /** Field description */
+   @Deprecated
    protected ArrayList<IdentifierVersion> additionalIdVersions;
     /**
      * Field description
      */
     public ConcurrentSkipListSet<RefexMember<?, ?>> annotations;
+    public ConcurrentSkipListSet<RefexDynamicMember> annotationsDynamic;
     /**
      * Field description
      */
@@ -123,41 +127,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         super();
     }
 
-    /**
-     * Constructs ...
-     *
-     *
-     * @param enclosingConceptNid
-     * @param input
-     *
-     * @throws IOException
-     */
-    protected ConceptComponent(int enclosingConceptNid, TupleInput input) throws IOException {
-        super();
-        this.enclosingConceptNid = enclosingConceptNid;
-        readComponentFromBdb(input);
-
-        int cNid = P.s.getConceptNidForNid(nid);
-
-        if (cNid == Integer.MAX_VALUE) {
-            P.s.setConceptNidForNid(this.enclosingConceptNid, this.nid);
-        } else if (cNid != this.enclosingConceptNid) {
-            P.s.resetConceptNidForNid(this.enclosingConceptNid, this.nid);
-
-            if (fixAlert.compareAndSet(true, false)) {
-                logger.log(
-                        Level.SEVERE, "a. Datafix warning. See log for details.",
-                        new Exception(
-                        String.format(
-                        "a-Datafix: cNid %s %s incorrect for: %s %s should have been: {4}{5}", cNid,
-                        P.s.getUuidsForNid(cNid), this.nid, P.s.getUuidsForNid(this.nid),
-                        this.enclosingConceptNid, P.s.getUuidsForNid(this.enclosingConceptNid))));
-            }
-        }
-
-        assert nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
-    }
-
     // TODO move the EComponent constructors to a helper class or factory class...
     // So that the size of this class is kept limited ?
     /**
@@ -173,21 +142,21 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         super();
         assert eComponent != null;
 
-        if (P.s.hasUuid(eComponent.primordialUuid)) {
-            this.nid = P.s.getNidForUuids(eComponent.primordialUuid);
+        if (PersistentStore.get().hasUuid(eComponent.primordialUuid)) {
+            this.nid = PersistentStore.get().getNidForUuids(eComponent.primordialUuid);
         } else {
-            this.nid = P.s.getNidForUuids(eComponent.getUuids());
+            this.nid = PersistentStore.get().getNidForUuids(eComponent.getUuids());
         }
 
         assert this.nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
         this.enclosingConceptNid = enclosingConceptNid;
 
-        int cNid = P.s.getConceptNidForNid(nid);
+        int cNid = PersistentStore.get().getConceptNidForNid(nid);
 
         if (cNid == Integer.MAX_VALUE) {
-            P.s.setConceptNidForNid(this.enclosingConceptNid, this.nid);
+            PersistentStore.get().setConceptNidForNid(this.enclosingConceptNid, this.nid);
         } else if (cNid != this.enclosingConceptNid) {
-            P.s.resetConceptNidForNid(this.enclosingConceptNid, this.nid);
+            PersistentStore.get().resetConceptNidForNid(this.enclosingConceptNid, this.nid);
 
             if (fixAlert.compareAndSet(true, false)) {
                 logger.log(
@@ -195,16 +164,16 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         new Exception(
                                 String.format(
                                         "b-Datafix: cNid %s %s incorrect for: %s %s should have been: {4}{5}", cNid,
-                                        P.s.getUuidsForNid(cNid), this.nid, P.s.getUuidsForNid(this.nid),
-                                        this.enclosingConceptNid, P.s.getUuidsForNid(this.enclosingConceptNid))));
+                                        PersistentStore.get().getUuidsForNid(cNid), this.nid, PersistentStore.get().getUuidsForNid(this.nid),
+                                        this.enclosingConceptNid, PersistentStore.get().getUuidsForNid(this.enclosingConceptNid))));
             }
         }
 
-        this.primordialStamp = P.s.getStamp(eComponent);
-        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid;
+        this.primordialStamp = PersistentStore.get().getStamp(eComponent);
+//        assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid; //TODO-AKF: this will be the case with JPA/Hibernate
         this.primordialMsb = eComponent.getPrimordialComponentUuid().getMostSignificantBits();
         this.primordialLsb = eComponent.getPrimordialComponentUuid().getLeastSignificantBits();
-        convertId(eComponent.additionalIds);
+//        convertId(eComponent.additionalIds); //TODO-AKF: support additional IDs
         assert nid != Integer.MAX_VALUE : "Processing nid: " + enclosingConceptNid;
 
         if (eComponent.getAnnotations() != null) {
@@ -216,15 +185,24 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 this.annotations.add(annot);
             }
         }
+        if (eComponent.getAnnotationsDynamic() != null) {
+            this.annotationsDynamic = new ConcurrentSkipListSet<>();
+
+            for (TtkRefexDynamicMemberChronicle eAnnot : eComponent.getAnnotationsDynamic()) {
+                RefexDynamicMember annot = RefexDynamicMemberFactory.create(eAnnot, enclosingConceptNid);
+
+                this.annotationsDynamic.add(annot);
+            }
+        }
     }
     
     public boolean isIndexed() {
-        return P.s.isIndexed(nid);
+        return PersistentStore.get().isIndexed(nid);
     }
     
     public void setIndexed() {
         if (!isUncommitted()) {
-            P.s.setIndexed(nid, true);
+            PersistentStore.get().setIndexed(nid, true);
         }
     }
     /**
@@ -257,7 +235,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          *
          * @return
          */
-        public static IDENTIFIER_PART_TYPES readType(TupleInput input) {
+        public static IDENTIFIER_PART_TYPES readType(DataInputStream input) throws IOException {
             int partTypeId = input.readByte();
 
             switch (partTypeId) {
@@ -280,7 +258,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
          *
          * @param output
          */
-        public void writeType(TupleOutput output) {
+        public void writeType(DataOutput output) throws IOException {
             output.writeByte(partTypeId);
         }
 
@@ -329,6 +307,21 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         modified();
         return annotations.add((RefexMember<?, ?>) annotation);
+    }
+    
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI annotation) throws IOException {
+        if (annotationsDynamic == null) {
+            annotationsDynamic = new ConcurrentSkipListSet<>(new Comparator<RefexDynamicChronicleBI>() {
+                @Override
+                public int compare(RefexDynamicChronicleBI t, RefexDynamicChronicleBI t1) {
+                    return t.getNid() - t1.getNid();
+                }
+            });
+        }
+
+        modified();
+        return annotationsDynamic.add((RefexDynamicMember) annotation);
     }
 
     /**
@@ -382,18 +375,18 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     public static void addNidToBuffer(Appendable buf, int nidToConvert) {
         try {
             if ((nidToConvert != Integer.MAX_VALUE) && (nidToConvert != 0)) {
-                if (P.s.getConceptNidForNid(nidToConvert) == nidToConvert) {
+                if (PersistentStore.get().getConceptNidForNid(nidToConvert) == nidToConvert) {
                     buf.append("\"");
-                    buf.append(P.s.getConcept(nidToConvert).toString());
+                    buf.append(PersistentStore.get().getConcept(nidToConvert).toString());
                     buf.append("\" [");
                     buf.append(Integer.toString(nidToConvert));
                     buf.append("]");
                 } else {
-                    ComponentBI component = P.s.getComponent(nidToConvert);
+                    ComponentBI component = PersistentStore.get().getComponent(nidToConvert);
                     if (component != null) {
                         buf.append(component.getClass().getSimpleName());
                         buf.append(" from concept: \"");
-                        buf.append(P.s.getConceptForNid(nidToConvert).toString());
+                        buf.append(PersistentStore.get().getConceptForNid(nidToConvert).toString());
                         buf.append("\" [");
                         buf.append(Integer.toString(nidToConvert));
                         buf.append("]");  
@@ -467,8 +460,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     public static void addTextToBuffer(Appendable buf, int nidToConvert) {
         try {
-            if ((nidToConvert != Integer.MAX_VALUE) && (nidToConvert != 0) && (P.s.getConceptNidForNid(nidToConvert) == nidToConvert)) {
-                buf.append(P.s.getConcept(nidToConvert).toString());
+            if ((nidToConvert != Integer.MAX_VALUE) && (nidToConvert != 0) && (PersistentStore.get().getConceptNidForNid(nidToConvert) == nidToConvert)) {
+                buf.append(PersistentStore.get().getConcept(nidToConvert).toString());
             } else {
                 buf.append(Integer.toString(nidToConvert));
             }
@@ -511,7 +504,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     protected String assertionString() {
         try {
-            return P.s.getConcept(enclosingConceptNid).toLongString();
+            return PersistentStore.get().getConcept(enclosingConceptNid).toLongString();
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
@@ -591,6 +584,34 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 }
             }
         }
+        
+        if (annotationsDynamic != null) {
+            List<Object> toRemove = new ArrayList<>();
+
+            for (RefexDynamicMember a : annotationsDynamic) {
+                a.clearVersions();
+
+                if (a.getTime() == Long.MAX_VALUE) {
+                    toRemove.add(a);
+                } else if (a.revisions != null) {
+                    for (RefexDynamicRevision rv : a.revisions) {
+                        List<RefexDynamicRevision> revToRemove = new ArrayList<>();
+
+                        if (rv.getTime() == Long.MAX_VALUE) {
+                            revToRemove.add(rv);
+                        }
+
+                        a.revisions.removeAll(revToRemove);
+                    }
+                }
+            }
+
+            if (toRemove.size() > 0) {
+                for (Object r : toRemove) {
+                    annotationsDynamic.remove((RefexMember<?, ?>) r);
+                }
+            }
+        }
     }
 
     /**
@@ -600,6 +621,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     protected void clearAnnotationVersions() {
         if (annotations != null) {
             for (RefexMember<?, ?> rm : annotations) {
+                rm.clearVersions();
+            }
+        }
+        if (annotationsDynamic != null) {
+            for (RefexDynamicMember rm : annotationsDynamic) {
                 rm.clearVersions();
             }
         }
@@ -736,19 +762,19 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         LongMember longIdMember = new LongMember();
                         longIdMember.enclosingConceptNid = this.enclosingConceptNid;
                         longIdMember.setPrimordialUuid(longMemberUuid);
-                        longIdMember.nid = (P.s.getNidForUuids(longMemberUuid));
+                        longIdMember.nid = (PersistentStore.get().getNidForUuids(longMemberUuid));
 
 
-                        longIdMember.assemblageNid = P.s.getNidForUuids(idv.authorityUuid);
+                        longIdMember.assemblageNid = PersistentStore.get().getNidForUuids(idv.authorityUuid);
                         longIdMember.setReferencedComponentNid(nid);
                         longIdMember.setLong1(longId.getDenotation());
 
                         longIdMember.setSTAMP(
-                                P.s.getStamp(idv.getStatus(),
-                                idv.getTime(),
-                                P.s.getNidForUuids(idv.authorUuid),
-                                P.s.getNidForUuids(idv.moduleUuid),
-                                P.s.getNidForUuids(idv.pathUuid)));
+                                PersistentStore.get().getStamp(idv.getStatus(),
+                                        idv.getTime(),
+                                        PersistentStore.get().getNidForUuids(idv.authorUuid),
+                                        PersistentStore.get().getNidForUuids(idv.moduleUuid),
+                                        PersistentStore.get().getNidForUuids(idv.pathUuid)));
                         addAnnotation(longIdMember);
 
                         break;
@@ -765,17 +791,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
                         stringMember.enclosingConceptNid = this.enclosingConceptNid;
                         stringMember.setPrimordialUuid(stringMemberUuid);
-                        stringMember.nid = P.s.getNidForUuids(stringMemberUuid);
+                        stringMember.nid = PersistentStore.get().getNidForUuids(stringMemberUuid);
 
-                        stringMember.assemblageNid = P.s.getNidForUuids(idv.authorityUuid);
+                        stringMember.assemblageNid = PersistentStore.get().getNidForUuids(idv.authorityUuid);
                         stringMember.setReferencedComponentNid(nid);
                         stringMember.setString1(ids.getDenotation());
 
-                        stringMember.setSTAMP(P.s.getStamp(idv.getStatus(),
+                        stringMember.setSTAMP(PersistentStore.get().getStamp(idv.getStatus(),
                                 idv.getTime(),
-                                P.s.getNidForUuids(idv.authorUuid),
-                                P.s.getNidForUuids(idv.moduleUuid),
-                                P.s.getNidForUuids(idv.pathUuid)));
+                                PersistentStore.get().getNidForUuids(idv.authorUuid),
+                                PersistentStore.get().getNidForUuids(idv.moduleUuid),
+                                PersistentStore.get().getNidForUuids(idv.pathUuid)));
                         addAnnotation(stringMember);
                         } else {
                             // TODO add back in conversions for string identifiers after 
@@ -786,7 +812,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
                     case UUID:
                         additionalIdVersions.add(new IdentifierVersionUuid((TtkIdentifierUuid) idv));
-                        P.s.put(((TtkIdentifierUuid) idv).getDenotation(), nid);
+                        PersistentStore.get().put(((TtkIdentifierUuid) idv).getDenotation(), nid);
 
                         break;
 
@@ -895,6 +921,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 changed = changed || annotationChanged;
             }
         }
+        if (annotationsDynamic != null) {
+            for (RefexDynamicMember a : annotationsDynamic) {
+                boolean annotationChanged = a.makeAdjudicationAnalogs(ec, vc);
+
+                changed = changed || annotationChanged;
+            }
+        }
 
         return changed;
     }
@@ -913,7 +946,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             throws IOException {
         Set<Integer> versionSapNids = getVersionStamps();
 
-        P.s.setIndexed(nid, false);
+        PersistentStore.get().setIndexed(nid, false);
         // merge versions
         for (Version<R, C> v : another.getVersions()) {
             if ((v.getStamp() != -1) && !versionSapNids.contains(v.getStamp())) {
@@ -966,6 +999,33 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 this.annotations.addAll(anotherAnnotationMap.values());
             }
         }
+        
+        if (another.annotationsDynamic != null) {
+            if (this.annotationsDynamic == null) {
+                this.annotationsDynamic = another.annotationsDynamic;
+            } else {
+                HashMap<Integer, RefexDynamicMember> anotherAnnotationMap = new HashMap<>();
+
+                for (RefexDynamicChronicleBI annotation : another.annotationsDynamic) {
+                    anotherAnnotationMap.put(annotation.getNid(), (RefexDynamicMember) annotation);
+                }
+
+                for (RefexDynamicMember annotation : this.annotationsDynamic) {
+                    RefexDynamicMember anotherAnnotation = anotherAnnotationMap.remove(annotation.getNid());
+
+                    if (anotherAnnotation != null) {
+                        for (RefexDynamicMemberVersion annotationVersion : anotherAnnotation.getVersions()) {
+                            if ((annotationVersion.getStamp() != -1)
+                                    && !annotationStamps.contains(annotationVersion.getStamp())) {
+                                annotation.addRevision(annotationVersion.getRevision());
+                            }
+                        }
+                    }
+                }
+
+                this.annotationsDynamic.addAll(anotherAnnotationMap.values());
+            }
+        }
 
         return this;
     }
@@ -993,78 +1053,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 //        }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    private void readAnnotationsFromBdb(TupleInput input) {
-        annotations = annotationWriter.entryToObject(input, enclosingConceptNid);
-    }
 
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    public final void readComponentFromBdb(TupleInput input) {
-        this.nid = input.readInt();
-        this.primordialMsb = input.readLong();
-        this.primordialLsb = input.readLong();
-        this.primordialStamp = input.readInt();
-        assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
-        readIdentifierFromBdb(input);
-        readAnnotationsFromBdb(input);
-        readFromBdb(input);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    public abstract void readFromBdb(TupleInput input);
-
-    /**
-     * Method description
-     *
-     *
-     * @param input
-     */
-    private void readIdentifierFromBdb(TupleInput input) {
-
-        // nid, list size, and conceptNid are read already by the binder...
-        int listSize = input.readShort();
-
-        if (listSize != 0) {
-            additionalIdVersions = new ArrayList<>(listSize);
-        }
-
-        for (int i = 0; i < listSize; i++) {
-            switch (IDENTIFIER_PART_TYPES.readType(input)) {
-                case LONG:
-                    throw new UnsupportedOperationException("Long identifiers must be represented as refexes...");
-
-                case STRING:
-                    throw new UnsupportedOperationException("Long identifiers must be represented as refexes...");
-
-                case UUID:
-                    IdentifierVersionUuid idvu = new IdentifierVersionUuid(input);
-
-                    if (idvu.getTime() != Long.MIN_VALUE) {
-                        additionalIdVersions.add(idvu);
-                    }
-
-                    break;
-
-                default:
-                    throw new UnsupportedOperationException();
-            }
-        }
-    }
 
     /**
      * Method description
@@ -1085,6 +1074,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         if (annotations != null) {
             for (RefexMember<?, ?> m : annotations) {
+                assert m.readyToWrite();
+            }
+        }
+        
+        if (annotationsDynamic != null) {
+            for (RefexDynamicMember m : annotationsDynamic) {
                 assert m.readyToWrite();
             }
         }
@@ -1139,7 +1134,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             throw new UnsupportedOperationException("Cannot resetUncommitted if time != Long.MIN_VALUE");
         }
 
-        this.primordialStamp = P.s.getStamp(status, Long.MAX_VALUE, authorNid, moduleNid, pathNid);
+        this.primordialStamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, authorNid, moduleNid, pathNid);
         assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         this.getEnclosingConcept().setIsCanceled(false);
         this.clearVersions();
@@ -1163,6 +1158,16 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (annotations != null) {
             for (RefexChronicleBI<?> a : annotations) {
                 for (RefexVersionBI<?> av : a.getVersions()) {
+                    if (av.stampIsInRange(min, max)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        if (annotationsDynamic != null) {
+            for (RefexDynamicChronicleBI<?> a : annotationsDynamic) {
+                for (RefexDynamicVersionBI<?> av : a.getVersions()) {
                     if (av.stampIsInRange(min, max)) {
                         return true;
                     }
@@ -1231,6 +1236,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         buf.append(additionalIdVersions);
         buf.append(" annotations:");
         buf.append(annotations);
+        buf.append(" annotations Dynamic:");
+        buf.append(annotationsDynamic);
         buf.append("};");
 
         return buf.toString();
@@ -1432,36 +1439,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return true;
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param output
-     * @param maxReadOnlyStatusAtPositionNid
-     */
-    private void writeAnnotationsToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
-        annotationWriter.objectToEntry(annotations, output, maxReadOnlyStatusAtPositionNid);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param output
-     * @param maxReadOnlyStatusAtPositionNid
-     */
-    public final void writeComponentToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
-        assert nid != 0;
-        assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
-        assert primordialStamp != Integer.MAX_VALUE;
-        output.writeInt(nid);
-        output.writeLong(primordialMsb);
-        output.writeLong(primordialLsb);
-        output.writeInt(primordialStamp);
-        writeIdentifierToBdb(output, maxReadOnlyStatusAtPositionNid);
-        writeAnnotationsToBdb(output, maxReadOnlyStatusAtPositionNid);
-        writeToBdb(output, maxReadOnlyStatusAtPositionNid);
-    }
 
     /**
      * Method description
@@ -1470,7 +1447,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @param output
      * @param maxStamp
      */
-    private void writeIdentifierToBdb(TupleOutput output, int maxStamp) {
+    private void writeAdditionalIdentifiersToDataOutput(DataOutput output, int maxStamp) throws IOException {
         List<IdentifierVersion> partsToWrite = new ArrayList<>();
 
         if (additionalIdVersions != null) {
@@ -1490,14 +1467,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param output
-     * @param maxReadOnlyStatusAtPositionNid
-     */
-    public abstract void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid);
 
     /**
      * Method description
@@ -1594,12 +1563,22 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (annotations != null) {
             size = size + annotations.size();
         }
+        if (annotationsDynamic != null) {
+            size = size + annotationsDynamic.size();
+        }
 
         HashSet<Integer> sapNids = new HashSet<>(size);
 
         if (annotations != null) {
             for (RefexChronicleBI<?> annotation : annotations) {
                 for (RefexVersionBI<?> av : annotation.getVersions()) {
+                    sapNids.add(av.getStamp());
+                }
+            }
+        }
+        if (annotationsDynamic != null) {
+            for (RefexDynamicChronicleBI<?> annotation : annotationsDynamic) {
+                for (RefexDynamicVersionBI<?> av : annotation.getVersions()) {
                     sapNids.add(av.getStamp());
                 }
             }
@@ -1619,7 +1598,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (annotations == null) {
             return Collections.unmodifiableCollection(new ArrayList<RefexChronicleBI<?>>());
         }
-
         return Collections.unmodifiableCollection(annotations);
     }
 
@@ -1641,7 +1619,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public int getAuthorNid() {
-        return P.s.getAuthorNidForStamp(primordialStamp);
+        return PersistentStore.get().getAuthorNidForStamp(primordialStamp);
     }
 
     /**
@@ -1691,6 +1669,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         if (annotations != null) {
             size = size + annotations.size();
+        }
+        if (annotationsDynamic != null) {
+            size = size + annotationsDynamic.size();
         }
 
         HashSet<Integer> stamps = new HashSet<>(size);
@@ -1908,7 +1889,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     public ConceptChronicle getEnclosingConcept() {
         try {
 //            Need to do this to return different ways depending on datastore implementation
-            return (ConceptChronicle) P.s.getConcept(enclosingConceptNid);
+            return (ConceptChronicle) PersistentStore.get().getConcept(enclosingConceptNid);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -1997,7 +1978,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public int getModuleNid() {
-        return P.s.getModuleNidForStamp(primordialStamp);
+        return PersistentStore.get().getModuleNidForStamp(primordialStamp);
     }
 
     /**
@@ -2029,7 +2010,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final int getPathNid() {
-        return P.s.getPathNidForStamp(primordialStamp);
+        return PersistentStore.get().getPathNidForStamp(primordialStamp);
     }
 
     /**
@@ -2042,7 +2023,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Position getPosition() throws IOException {
-        return new Position(getTime(), P.s.getPath(getPathNid()));
+        return new Position(getTime(), PersistentStore.get().getPath(getPathNid()));
     }
 
     /**
@@ -2108,6 +2089,113 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         return returnValues;
     }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+    {
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
+        List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
+        HashSet<Integer> addedMembers = new HashSet<>();
+
+        if ((pairs != null) && !pairs.isEmpty()) {
+            for (NidPairForRefex pair : pairs) {
+                ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
+                if (component instanceof RefexDynamicChronicleBI<?>)
+                {
+                    RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) component;
+    
+                    if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                        addedMembers.add(ext.getNid());
+                        returnValues.add(ext);
+                    }
+                }
+            }
+        }
+
+        ComponentBI component = this;
+
+        if (component instanceof ConceptChronicle) {
+            component = ((ConceptChronicle) component).getConceptAttributes();
+        }
+
+        ComponentChronicleBI<?> cc = (ComponentChronicleBI<?>) component;
+        Collection<? extends RefexDynamicChronicleBI<?>> fetchedAnnotations = cc.getRefexDynamicAnnotations();
+
+        if (fetchedAnnotations != null) {
+            for (RefexDynamicChronicleBI<?> annotation : fetchedAnnotations) {
+                if (addedMembers.contains(annotation.getNid()) == false) {
+                    returnValues.add(annotation);
+                    addedMembers.add(annotation.getNid());
+                }
+            }
+        }
+
+        return Collections.unmodifiableCollection(returnValues);
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+    {
+        Collection<? extends RefexDynamicChronicleBI<?>> refexes = getRefexesDynamic();
+        List<RefexDynamicVersionBI<?>> returnValues = new ArrayList<>(refexes.size());
+
+        for (RefexDynamicChronicleBI<?> refex : refexes) {
+            for (RefexDynamicVersionBI<?> version : refex.getVersions(viewCoordinate)) {
+                returnValues.add(version);
+            }
+        }
+
+        return Collections.unmodifiableCollection(returnValues);
+    }
+    
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        if (annotationsDynamic == null) {
+            return Collections.unmodifiableCollection(new ArrayList<RefexDynamicChronicleBI<?>>());
+        }
+
+        return Collections.unmodifiableCollection(annotationsDynamic);
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
+        List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
+        HashSet<Integer> addedMembers = new HashSet<>();
+
+        if ((pairs != null) && !pairs.isEmpty()) {
+            for (NidPairForRefex pair : pairs) {
+                ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
+                if (component instanceof RefexDynamicChronicleBI<?>)
+                {
+                    RefexDynamicChronicleBI<?> ext = (RefexDynamicChronicleBI<?>) PersistentStore.get().getComponent(pair.getMemberNid());
+    
+                    if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                        addedMembers.add(ext.getNid());
+                        returnValues.add(ext);
+                    }
+                }
+            }
+        }
+        
+        return Collections.unmodifiableCollection(returnValues);
+    }
 
     /**
      * Method description
@@ -2119,17 +2207,21 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
         List<RefexChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
         HashSet<Integer> addedMembers = new HashSet<>();
 
         if ((pairs != null) && !pairs.isEmpty()) {
             for (NidPairForRefex pair : pairs) {
-                RefexChronicleBI<?> ext = (RefexChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
-
-                if ((ext != null) && !addedMembers.contains(ext.getNid())) {
-                    addedMembers.add(ext.getNid());
-                    returnValues.add(ext);
+                ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
+                if (component instanceof RefexChronicleBI<?>)
+                {
+                    RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
+    
+                    if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                        addedMembers.add(ext.getNid());
+                        returnValues.add(ext);
+                    }
                 }
             }
         }
@@ -2164,7 +2256,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @throws IOException
      */
     public Set<Integer> getRefsetMemberSapNids() throws IOException {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
 
         if ((pairs == null) || pairs.isEmpty()) {
             return new HashSet<>(0);
@@ -2173,14 +2265,18 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         HashSet<Integer> returnValues = new HashSet<>(pairs.size());
 
         for (NidPairForRefex pair : pairs) {
-            RefexChronicleBI<?> ext = (RefexChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
-
-            if (ext != null) {
-                for (RefexVersionBI<?> refexV : ext.getVersions()) {
-                    returnValues.add(refexV.getStamp());
+            ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
+            if (component instanceof RefexChronicleBI<?>)
+            {
+                RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
+    
+                if (ext != null) {
+                    for (RefexVersionBI<?> refexV : ext.getVersions()) {
+                        returnValues.add(refexV.getStamp());
+                    }
+    
+                    returnValues.addAll(((ConceptComponent) ext).getRefsetMemberSapNids());
                 }
-
-                returnValues.addAll(((ConceptComponent) ext).getRefsetMemberSapNids());
             }
         }
 
@@ -2196,7 +2292,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @throws IOException
      */
     public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
-        List<NidPairForRefex> pairs = P.s.getRefexPairs(nid);
+        List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
 
         if ((pairs == null) || pairs.isEmpty()) {
             return new ArrayList<>(0);
@@ -2206,11 +2302,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         HashSet<Integer> addedMembers = new HashSet<>();
 
         for (NidPairForRefex pair : pairs) {
-            RefexChronicleBI<?> ext = (RefexChronicleBI<?>) P.s.getComponent(pair.getMemberNid());
-
-            if ((ext != null) && !addedMembers.contains(ext.getNid())) {
-                addedMembers.add(ext.getNid());
-                returnValues.add(ext);
+            ComponentChronicleBI<?> component = PersistentStore.get().getComponent(pair.getMemberNid());
+            if (component instanceof RefexChronicleBI<?>)
+            {
+                RefexChronicleBI<?> ext = (RefexChronicleBI<?>) component;
+    
+                if ((ext != null) && !addedMembers.contains(ext.getNid())) {
+                    addedMembers.add(ext.getNid());
+                    returnValues.add(ext);
+                }
             }
         }
 
@@ -2236,7 +2336,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final Status getStatus() {
-        return P.s.getStatusForStamp(primordialStamp);
+        return PersistentStore.get().getStatusForStamp(primordialStamp);
     }
 
     /**
@@ -2247,7 +2347,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final long getTime() {
-        return P.s.getTimeForStamp(primordialStamp);
+        return PersistentStore.get().getTimeForStamp(primordialStamp);
     }
 
     /**
@@ -2412,7 +2512,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public boolean isBaselineGeneration() {
-        return primordialStamp <= P.s.getMaxReadOnlyStamp();
+        return primordialStamp <= PersistentStore.get().getMaxReadOnlyStamp();
     }
 
     /**
@@ -2423,7 +2523,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @return
      */
-    public static boolean isCanceled(TupleInput input) {
+    public static boolean isCanceled(DataInputStream input) throws IOException {
         int nid = input.readInt();
         int primordialSapNid = input.readInt();
 
@@ -2470,6 +2570,14 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 }
             }
         }
+        
+        if (annotationsDynamic != null) {
+            for (RefexDynamicChronicleBI<?> r : annotationsDynamic) {
+                if (r.isUncommitted()) {
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
@@ -2488,7 +2596,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (authorNid != getAuthorNid()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
             modified();
@@ -2509,7 +2617,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (moduleId != this.getModuleNid()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleId,
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleId,
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }
@@ -2547,7 +2655,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (pathId != getPathNid()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     pathId);
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
             modified();
@@ -2591,7 +2699,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (status != this.getStatus()) {
-            this.primordialStamp = P.s.getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }
@@ -2611,7 +2719,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         if (time != getTime()) {
-            this.primordialStamp = P.s.getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),
+            this.primordialStamp = PersistentStore.get().getStamp(getStatus(), time, getAuthorNid(), getModuleNid(),
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }

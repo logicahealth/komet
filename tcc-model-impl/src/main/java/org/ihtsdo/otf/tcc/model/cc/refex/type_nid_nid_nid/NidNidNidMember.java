@@ -1,13 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
 
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -17,12 +11,20 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid.TtkRefexUuidUuidUuidMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid.TtkRefexUuidUuidUuidRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidNidNidMember extends RefexMember<NidNidNidRevision, NidNidNidMember>
         implements
@@ -32,24 +34,20 @@ public class NidNidNidMember extends RefexMember<NidNidNidRevision, NidNidNidMem
     private static VersionComputer<RefexMemberVersion<NidNidNidRevision, NidNidNidMember>> computer =
             new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
-    private int c1Nid;
-    private int c2Nid;
-    private int c3Nid;
+    protected int c1Nid;
+    protected int c2Nid;
+    protected int c3Nid;
 
     //~--- constructors --------------------------------------------------------
     public NidNidNidMember() {
         super();
     }
 
-    public NidNidNidMember(int enclosingConceptNid, TupleInput input) throws IOException {
-        super(enclosingConceptNid, input);
-    }
-
     public NidNidNidMember(TtkRefexUuidUuidUuidMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        c1Nid = P.s.getNidForUuids(refsetMember.getUuid1());
-        c2Nid = P.s.getNidForUuids(refsetMember.getUuid2());
-        c3Nid = P.s.getNidForUuids(refsetMember.getUuid3());
+        c1Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
+        c2Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid2());
+        c3Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid3());
 
         if (refsetMember.getRevisionList() != null) {
             revisions = new RevisionSet<NidNidNidRevision, NidNidNidMember>(primordialStamp);
@@ -135,18 +133,6 @@ public class NidNidNidMember extends RefexMember<NidNidNidRevision, NidNidNidMem
     }
 
     @Override
-    protected void readMemberFields(TupleInput input) {
-        c1Nid = input.readInt();
-        c2Nid = input.readInt();
-        c3Nid = input.readInt();
-    }
-
-    @Override
-    protected final NidNidNidRevision readMemberRevision(TupleInput input) {
-        return new NidNidNidRevision(input, this);
-    }
-
-    @Override
     public boolean readyToWriteRefsetMember() {
         assert c1Nid != Integer.MAX_VALUE;
         assert c2Nid != Integer.MAX_VALUE;
@@ -173,13 +159,6 @@ public class NidNidNidMember extends RefexMember<NidNidNidRevision, NidNidNidMem
         buf.append(super.toString());
 
         return buf.toString();
-    }
-
-    @Override
-    protected void writeMember(TupleOutput output) {
-        output.writeInt(c1Nid);
-        output.writeInt(c2Nid);
-        output.writeInt(c3Nid);
     }
 
     //~--- get methods ---------------------------------------------------------

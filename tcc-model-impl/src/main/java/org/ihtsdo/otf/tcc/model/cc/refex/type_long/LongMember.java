@@ -2,17 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -28,6 +17,16 @@ import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+//~--- JDK imports ------------------------------------------------------------
+
 public class LongMember extends RefexMember<LongRevision, LongMember>
         implements RefexLongAnalogBI<LongRevision> {
    private static VersionComputer<RefexMemberVersion<LongRevision, LongMember>> computer =
@@ -41,10 +40,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
 
    public LongMember() {
       super();
-   }
-
-   public LongMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
    }
 
    public LongMember(TtkRefexLongMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
@@ -130,16 +125,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      longValue = input.readLong();
-   }
-
-   @Override
-   protected final LongRevision readMemberRevision(TupleInput input) {
-      return new LongRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       return true;
    }
@@ -158,11 +143,6 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeLong(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

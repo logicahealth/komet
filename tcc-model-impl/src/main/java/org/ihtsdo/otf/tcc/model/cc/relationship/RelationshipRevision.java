@@ -1,12 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -14,22 +14,21 @@ import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf1;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 public class RelationshipRevision extends Revision<RelationshipRevision, Relationship>
         implements RelationshipAnalogBI<RelationshipRevision> {
 
-    private int characteristicNid;
-    private int group;
-    private int refinabilityNid;
-    private int typeNid;
+    protected int characteristicNid;
+    protected int group;
+    protected int refinabilityNid;
+    protected int typeNid;
 
     //~--- constructors --------------------------------------------------------
     public RelationshipRevision() {
@@ -57,25 +56,27 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     public RelationshipRevision(TtkRelationshipRevision erv, Relationship primordialRel) throws IOException {
-        super(erv.getStatus(), erv.getTime(), P.s.getNidForUuids(erv.getAuthorUuid()),
-                P.s.getNidForUuids(erv.getModuleUuid()), P.s.getNidForUuids(erv.getPathUuid()), primordialRel);
-        this.characteristicNid = P.s.getNidForUuids(erv.getCharacteristicUuid());
+        super(erv.getStatus(), erv.getTime(), PersistentStore.get().getNidForUuids(erv.getAuthorUuid()),
+                PersistentStore.get().getNidForUuids(erv.getModuleUuid()), PersistentStore.get().getNidForUuids(erv.getPathUuid()), primordialRel);
+        this.characteristicNid = PersistentStore.get().getNidForUuids(erv.getCharacteristicUuid());
         this.group = erv.getGroup();
-        this.refinabilityNid = P.s.getNidForUuids(erv.getRefinabilityUuid());
-        this.typeNid = P.s.getNidForUuids(erv.getTypeUuid());
-        this.stamp = P.s.getStamp(erv);
-    }
-
-    public RelationshipRevision(TupleInput input, Relationship primordialRel) {
-        super(input.readInt(), primordialRel);
-        this.characteristicNid = input.readInt();
-        this.group = input.readSortedPackedInt();
-        this.refinabilityNid = input.readInt();
+        this.refinabilityNid = PersistentStore.get().getNidForUuids(erv.getRefinabilityUuid());
+        this.typeNid = PersistentStore.get().getNidForUuids(erv.getTypeUuid());
+        this.stamp = PersistentStore.get().getStamp(erv);
     }
 
     public RelationshipRevision(RelationshipAnalogBI another, Status status, long time, int authorNid,
             int moduleNid, int pathNid, Relationship primordialRel) {
         super(status, time, authorNid, moduleNid, pathNid, primordialRel);
+        this.characteristicNid = another.getCharacteristicNid();
+        this.group = another.getGroup();
+        this.refinabilityNid = another.getRefinabilityNid();
+        this.typeNid = another.getTypeNid();
+    }
+    
+    public RelationshipRevision(RelationshipAnalogBI another, Relationship primordialMember) {
+        super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
+              another.getPathNid(), primordialMember);
         this.characteristicNid = another.getCharacteristicNid();
         this.group = another.getGroup();
         this.refinabilityNid = another.getRefinabilityNid();
@@ -129,16 +130,14 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
         RelationshipType relType = null;
 
-        if ((getCharacteristicNid()
-                == SnomedMetadataRf1.INFERRED_DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                .getNid()) || (getCharacteristicNid()
-                == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid())) {
+        if (getCharacteristicNid()  == SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid()) {
             throw new InvalidCAB("Inferred relationships can not be used to make blueprints");
-        } else if ((getCharacteristicNid()
-                == SnomedMetadataRf1.STATED_DEFINING_CHARACTERISTIC_TYPE_RF1.getLenient()
-                .getNid()) || (getCharacteristicNid()
-                == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid())) {
+        } else if (getCharacteristicNid() == SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid()) {
             relType = RelationshipType.STATED_HIERARCHY;
+        } else if (getCharacteristicNid() == SnomedMetadataRf2.QUALIFYING_RELATIONSSHIP_RF2.getLenient().getNid()) {
+        	relType = RelationshipType.QUALIFIER;
+        } else if (getCharacteristicNid() == SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getLenient().getNid()) {
+        	relType = RelationshipType.HISTORIC;
         }
 
         RelationshipCAB relBp = new RelationshipCAB(getOriginNid(), getTypeNid(), getDestinationNid(), getGroup(), relType,
@@ -194,14 +193,6 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         return buf.toString();
     }
 
-    @Override
-    public void writeFieldsToBdb(TupleOutput output) {
-        output.writeInt(characteristicNid);
-        output.writeSortedPackedInt(group);
-        output.writeInt(refinabilityNid);
-        output.writeInt(typeNid);
-    }
-
     //~--- get methods ---------------------------------------------------------
     @Override
     public int getCharacteristicNid() {
@@ -254,17 +245,20 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public boolean isInferred() {
-        return (getCharacteristicNid() == Relationship.INFERRED_NID_RF2)
-                || (getCharacteristicNid() == Relationship.INFERRED_NID_RF1);
+    public boolean isInferred() throws IOException {
+        if (Relationship.inferredNid == Integer.MAX_VALUE) {
+            Relationship.inferredNid  = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
+        }
+        return characteristicNid == Relationship.inferredNid ;
     }
 
     @Override
-    public boolean isStated() {
-        return (getCharacteristicNid() == Relationship.STATED_NID_RF2)
-                || (getCharacteristicNid() == Relationship.STATED_NID_RF1);
+    public boolean isStated() throws IOException {
+        if (Relationship.statedNid == Integer.MAX_VALUE) {
+            Relationship.statedNid = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids());
+        }
+        return characteristicNid == Relationship.statedNid;
     }
-
     //~--- set methods ---------------------------------------------------------
     @Override
     public void setCharacteristicNid(int characteristicNid) {

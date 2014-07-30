@@ -1,12 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
-//~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
 
 
 //import org.dwfa.ace.api.I_IntSet;
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -21,7 +19,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -30,16 +27,15 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 import java.beans.PropertyVetoException;
 
+import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
-import org.ihtsdo.otf.tcc.model.cc.P;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>>
         extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R> {
@@ -55,15 +51,11 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         assemblageNid = Integer.MAX_VALUE;
     }
 
-    public RefexMember(int enclosingConceptNid, TupleInput input) throws IOException {
-        super(enclosingConceptNid, input);
-    }
-
     public RefexMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        assemblageNid = P.s.getNidForUuids(refsetMember.refexExtensionUuid);
-        referencedComponentNid = P.s.getNidForUuids(refsetMember.getComponentUuid());
-        primordialStamp = P.s.getStamp(refsetMember);
+        assemblageNid = PersistentStore.get().getNidForUuids(refsetMember.refexExtensionUuid);
+        referencedComponentNid = PersistentStore.get().getNidForUuids(refsetMember.getComponentUuid());
+        primordialStamp = PersistentStore.get().getStamp(refsetMember);
         assert primordialStamp != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;
         assert assemblageNid != Integer.MAX_VALUE;
@@ -137,35 +129,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     @Override
-    public void readFromBdb(TupleInput input) {
-        assemblageNid = input.readInt();
-        referencedComponentNid = input.readInt();
-        assert assemblageNid != Integer.MAX_VALUE;
-        assert referencedComponentNid != Integer.MAX_VALUE;
-        readMemberFields(input);
-
-        int additionalVersionCount = input.readShort();
-
-        if (additionalVersionCount > 0) {
-            if (revisions == null) {
-                revisions = new RevisionSet<R, C>(primordialStamp);
-            }
-
-            for (int i = 0; i < additionalVersionCount; i++) {
-                R r = readMemberRevision(input);
-
-                if ((r.stamp != -1) && (r.getTime() != Long.MIN_VALUE)) {
-                    revisions.add(r);
-                }
-            }
-        }
-    }
-
-    protected abstract void readMemberFields(TupleInput input);
-
-    protected abstract R readMemberRevision(TupleInput input);
-
-    @Override
     public final boolean readyToWriteComponent() {
         assert referencedComponentNid != Integer.MAX_VALUE : assertionString();
         assert referencedComponentNid != 0 : assertionString();
@@ -237,39 +200,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return buf.toString();
     }
 
-    protected abstract void writeMember(TupleOutput output);
 
-    @Override
-    public void writeToBdb(TupleOutput output, int maxReadOnlyStatusAtPositionNid) {
-        List<RefexRevision<R, C>> additionalVersionsToWrite = new ArrayList<>();
-
-        if (revisions != null) {
-            for (RefexRevision<R, C> p : revisions) {
-                if ((p.getStamp() > maxReadOnlyStatusAtPositionNid)
-                        && (p.getTime() != Long.MIN_VALUE)) {
-                    additionalVersionsToWrite.add(p);
-                }
-            }
-        }
-
-        assert assemblageNid != Integer.MAX_VALUE;
-        assert referencedComponentNid != Integer.MAX_VALUE;
-        output.writeInt(assemblageNid);
-        output.writeInt(referencedComponentNid);
-        writeMember(output);
-        output.writeShort(additionalVersionsToWrite.size());
-
-        NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(assemblageNid, nid);
-        try {
-            P.s.addXrefPair(referencedComponentNid, npr);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        for (RefexRevision<R, C> p : additionalVersionsToWrite) {
-            p.writeRevisionBdb(output);
-        }
-    }
 
     //~--- get methods ---------------------------------------------------------
     @Override
@@ -298,7 +229,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             IdDirective idDirective, RefexDirective refexDirective) throws IOException,
             InvalidCAB, ContradictionException {
         RefexCAB rcs = new RefexCAB(getTkRefsetType(),
-                P.s.getUuidPrimordialForNid(getReferencedComponentNid()),
+                PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), vc, idDirective, refexDirective);
 
@@ -389,7 +320,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
                 if ((this.assemblageNid != 0) && (this.nid != 0)) {
                     NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
 
-                    P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
+                    PersistentStore.get().forgetXrefPair(this.referencedComponentNid, oldNpr);
                 }
 
                 // new xref is added on the dbWrite.
@@ -416,7 +347,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             if ((this.referencedComponentNid != Integer.MAX_VALUE) && (this.assemblageNid != 0) && (this.nid != 0)) {
                 NidPairForRefex oldNpr = NidPair.getRefexNidMemberNidPair(this.assemblageNid, this.nid);
 
-                P.s.forgetXrefPair(this.referencedComponentNid, oldNpr);
+                PersistentStore.get().forgetXrefPair(this.referencedComponentNid, oldNpr);
             }
 
             // new xref is added on the dbWrite.

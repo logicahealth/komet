@@ -2,13 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -18,12 +11,20 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringAnalogB
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuidUuidStringRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNidStringMember>
         implements RefexNidNidStringAnalogBI<NidNidStringRevision> {
@@ -32,9 +33,9 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
 
    //~--- fields --------------------------------------------------------------
 
-   private int    c1Nid;
-   private int    c2Nid;
-   private String string1;
+    protected int    c1Nid;
+    protected int    c2Nid;
+    protected String string1;
 
    //~--- constructors --------------------------------------------------------
 
@@ -42,14 +43,10 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
       super();
    }
 
-   public NidNidStringMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidNidStringMember(TtkRefexUuidUuidStringMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid    = P.s.getNidForUuids(refsetMember.getUuid1());
-      c2Nid    = P.s.getNidForUuids(refsetMember.getUuid2());
+      c1Nid    = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
+      c2Nid    = PersistentStore.get().getNidForUuids(refsetMember.getUuid2());
       string1 = refsetMember.getString1();
 
       if (refsetMember.getRevisionList() != null) {
@@ -134,18 +131,6 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      c1Nid    = input.readInt();
-      c2Nid    = input.readInt();
-      string1 = input.readString();
-   }
-
-   @Override
-   protected final NidNidStringRevision readMemberRevision(TupleInput input) {
-      return new NidNidStringRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert c1Nid != Integer.MAX_VALUE;
       assert c2Nid != Integer.MAX_VALUE;
@@ -167,17 +152,10 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
       addNidToBuffer(buf, c1Nid);
       buf.append(" c2Nid: ");
       addNidToBuffer(buf, c2Nid);
-      buf.append(" strValue:" + "'").append(this.string1).append("'");
+      buf.append(" string1:" + "'").append(this.string1).append("'");
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(c1Nid);
-      output.writeInt(c2Nid);
-      output.writeString(string1);
    }
 
    //~--- get methods ---------------------------------------------------------

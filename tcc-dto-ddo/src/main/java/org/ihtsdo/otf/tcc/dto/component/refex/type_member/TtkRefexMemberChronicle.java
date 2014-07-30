@@ -34,10 +34,10 @@ public class TtkRefexMemberChronicle extends TtkRefexAbstractMemberChronicle<Ttk
    public TtkRefexMemberChronicle(RefexChronicleBI another) throws IOException {
       super((RefexVersionBI) another.getPrimordialVersion());
 
-      Collection<? extends RefexNidNidNidVersionBI> refexes   = another.getVersions();
+      Collection<? extends RefexVersionBI> refexes   = another.getVersions();
       int                                              partCount = refexes.size();
-      Iterator<? extends RefexNidNidNidVersionBI>   itr       = refexes.iterator();
-      RefexNidNidNidVersionBI                       rv        = itr.next();
+      Iterator<? extends RefexVersionBI>   itr       = refexes.iterator();
+      RefexVersionBI                       rv        = itr.next();
 
       if (partCount > 1) {
          revisions = new ArrayList<>(partCount - 1);

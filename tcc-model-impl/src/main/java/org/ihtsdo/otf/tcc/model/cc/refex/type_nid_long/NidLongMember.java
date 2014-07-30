@@ -2,13 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -18,12 +11,20 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
         implements RefexNidLongAnalogBI<NidLongRevision> {
@@ -32,8 +33,8 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private int  c1Nid;
-   private long longValue;
+   protected int  c1Nid;
+   protected long longValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -41,13 +42,9 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
       super();
    }
 
-   public NidLongMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidLongMember(TtkRefexUuidLongMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid     = P.s.getNidForUuids(refsetMember.getUuid1());
+      c1Nid     = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
       longValue = refsetMember.getLong1();
 
       if (refsetMember.getRevisionList() != null) {
@@ -129,17 +126,6 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      c1Nid     = input.readInt();
-      longValue = input.readLong();
-   }
-
-   @Override
-   protected final NidLongRevision readMemberRevision(TupleInput input) {
-      return new NidLongRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert c1Nid != Integer.MAX_VALUE;
 
@@ -161,12 +147,6 @@ public class NidLongMember extends RefexMember<NidLongRevision, NidLongMember>
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(c1Nid);
-      output.writeLong(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

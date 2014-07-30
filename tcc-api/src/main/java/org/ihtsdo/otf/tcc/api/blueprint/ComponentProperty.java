@@ -99,9 +99,10 @@ public enum ComponentProperty {
    /**
     * Text of a description. 
     */
-   DESCRIPTION_TEXT
+   DESCRIPTION_TEXT,
+   
+   /**
+    * Used to store the data array associated with a RefexDynamic type.
+    */
+   DYNAMIC_REFEX_DATA
 }
-
-
-
- 

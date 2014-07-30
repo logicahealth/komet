@@ -12,10 +12,10 @@ import java.util.Date;
 import java.util.Set;
 import java.util.logging.Level;
 
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.model.cc.P;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
@@ -104,9 +104,9 @@ public class ChangeSetReader implements ChangeSetReaderI {
                 ChangeSetLogger.logger.log(
                         Level.INFO, "\n  +++++----------------\n End of change set: {0}\n  +++++---------------\n", changeSetFile.getName());
                 nextCommit = Long.MAX_VALUE;
-                P.s.setProperty(changeSetFile.getName(),
+                PersistentStore.get().setProperty(changeSetFile.getName(),
                         Long.toString(changeSetFile.length()));
-                P.s.setProperty(CsProperty.LAST_CHANGE_SET_READ.toString(),
+                PersistentStore.get().setProperty(CsProperty.LAST_CHANGE_SET_READ.toString(),
                         changeSetFile.getName());
                 if (csreOut != null) {
                     csreOut.flush();
@@ -177,7 +177,7 @@ public class ChangeSetReader implements ChangeSetReaderI {
     }
 
     private void lazyInit() throws FileNotFoundException, IOException, ClassNotFoundException {
-        String lastImportSize = P.s.getProperty(changeSetFile.getName());
+        String lastImportSize = PersistentStore.get().getProperty(changeSetFile.getName());
         if (lastImportSize != null) {
             long lastSize = Long.parseLong(lastImportSize);
             if (lastSize == changeSetFile.length()) {

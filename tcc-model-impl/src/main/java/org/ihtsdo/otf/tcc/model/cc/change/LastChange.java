@@ -28,7 +28,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
 import org.ihtsdo.otf.tcc.api.concurrency.ConcurrentReentrantLocks;
@@ -177,7 +177,7 @@ public class LastChange {
          case COMPONENT :
             short xrefSequence = (short) (lastChangeMap.get()[mapIndex][indexInMap] >> 16);
 
-            lastChangeMap.get()[mapIndex][indexInMap] = asInt(BdbCommitSequence.getCommitSequence(),
+            lastChangeMap.get()[mapIndex][indexInMap] = asInt(CommitSequence.getCommitSequence(),
                     xrefSequence);
             changedComponents.get().add(nid);
 
@@ -187,7 +187,7 @@ public class LastChange {
             short componentSequence = (short) lastChangeMap.get()[mapIndex][indexInMap];
 
             lastChangeMap.get()[mapIndex][indexInMap] = asInt(componentSequence,
-                    BdbCommitSequence.getCommitSequence());
+                    CommitSequence.getCommitSequence());
             changedXrefs.get().add(nid);
 
             break;
@@ -197,7 +197,7 @@ public class LastChange {
       }
 
       if (changeType == Change.XREF) {
-         int cNid = P.s.getConceptNidForNid(nid);
+         int cNid = PersistentStore.get().getConceptNidForNid(nid);
 
          if ((cNid != nid) && (cNid != Integer.MAX_VALUE)) {
             LastChange.touch(cNid, changeType);
@@ -306,7 +306,7 @@ public class LastChange {
             LastChange.changedXrefs.getAndSet(new ConcurrentSkipListSet<Integer>());
          ConcurrentSkipListSet<Integer> changedComponents =
             LastChange.changedComponents.getAndSet(new ConcurrentSkipListSet<Integer>());
-         long sequence = BdbCommitSequence.nextSequence();
+         long sequence = CommitSequence.nextSequence();
 
          if (!changedXrefs.isEmpty() ||!changedComponents.isEmpty()) {
             List<WeakReference<TermChangeListener>> toRemove = new ArrayList<>();

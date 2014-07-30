@@ -2,17 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -25,12 +14,21 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+//~--- JDK imports ------------------------------------------------------------
 
 public class NidMember extends RefexMember<NidRevision, NidMember>
         implements RefexNidAnalogBI<NidRevision> {
@@ -39,7 +37,7 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
 
    //~--- fields --------------------------------------------------------------
 
-   private int c1Nid;
+   protected int c1Nid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -47,13 +45,9 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
       super();
    }
 
-   public NidMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidMember(TtkRefexUuidMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid = P.s.getNidForUuids(refsetMember.getUuid1());
+      c1Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
 
       if (refsetMember.getRevisionList() != null) {
          revisions = new RevisionSet<NidRevision, NidMember>(primordialStamp);
@@ -135,16 +129,6 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      c1Nid = input.readInt();
-   }
-
-   @Override
-   protected final NidRevision readMemberRevision(TupleInput input) {
-      return new NidRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert c1Nid != Integer.MAX_VALUE;
 
@@ -172,11 +156,6 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
       ComponentVersionBI c1Component = snapshot.getComponentVersion(c1Nid);
 
       return super.toUserString(snapshot) + " c1: " + c1Component.toUserString(snapshot);
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(c1Nid);
    }
 
    //~--- get methods ---------------------------------------------------------

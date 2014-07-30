@@ -191,6 +191,10 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             annotBp.setReferencedComponentUuid(getComponentUuid());
             annotBp.recomputeUuid();
         }
+        for (RefexDynamicCAB annotBp : getAnnotationDynamicBlueprints()) {
+            annotBp.setReferencedComponentUuid(getComponentUuid());
+            annotBp.recomputeUuid();
+        }
     }
 
     /**
@@ -306,8 +310,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        this(memberType, referencedComponentUuid, collectionNid, null, refexVersion, viewCoordinate, idDirective, refexDirective);
-        recomputeUuid();
+         this(memberType, referencedComponentUuid, collectionNid, refexVersion.getPrimordialUuid(), refexVersion, viewCoordinate, idDirective, refexDirective);
+		recomputeUuid();
         this.properties.put(ComponentProperty.COMPONENT_ID,
                 getComponentUuid());
     }
@@ -620,6 +624,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * @throws PropertyVetoException if the new value is not valid
      * @throws IOException signals that an I/O exception has occurred
      */
+    //TODO Dan notes this is broken, and forgets to set assemblage nid
     public void setProperties(RefexAnalogBI<?> refexAnalog) throws PropertyVetoException, IOException {
         for (Entry<ComponentProperty, Object> entry : properties.entrySet()) {
             switch (entry.getKey()) {
@@ -792,7 +797,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                 case COMPONENT_ID:
                     if (refexVersion.getNid() != getInt(COMPONENT_ID)) {
                         return false;
-                    }
+                    }  //TODO dan notes this is missing a break....
                 case BOOLEAN_EXTENSION_1:
                     if (!RefexBooleanVersionBI.class.isAssignableFrom(refexVersion.getClass())) {
                         return false;

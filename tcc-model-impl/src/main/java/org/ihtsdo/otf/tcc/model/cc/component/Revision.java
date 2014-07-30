@@ -1,16 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -24,10 +15,21 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class Revision<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
         implements ComponentVersionBI, AnalogBI, AnalogGeneratorBI<V> {
@@ -55,7 +57,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        this.primordialComponent.getEnclosingConcept().modified(); //TODO-AKF: modified
     }
 
-    public Revision(TupleInput input, C conceptComponent) {
+    public Revision(DataInputStream input, C conceptComponent) throws IOException {
         this(input.readInt(), conceptComponent);
         conceptComponent.clearVersions();
         assert stamp != 0;
@@ -63,7 +65,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     public Revision(Status status, long time, int authorNid, int moduleNid, int pathNid,
             C primordialComponent) {
-        this.stamp = P.s.getStamp(status, time, authorNid, moduleNid, pathNid);
+        this.stamp = PersistentStore.get().getStamp(status, time, authorNid, moduleNid, pathNid);
         assert stamp != 0;
         assert primordialComponent != null;
         assert stamp != Integer.MAX_VALUE;
@@ -78,12 +80,18 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
             throws IOException {
         return primordialComponent.addAnnotation(annotation);
     }
+    
+    @Override
+    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation)
+            throws IOException {
+        return primordialComponent.addDynamicAnnotation(annotation);
+    }
 
     abstract protected void addComponentNids(Set<Integer> allNids);
 
     protected String assertionString() {
         try {
-            return P.s.getConcept(primordialComponent.enclosingConceptNid).toLongString();
+            return PersistentStore.get().getConcept(primordialComponent.enclosingConceptNid).toLongString();
         } catch (IOException ex) {
             Logger.getLogger(ConceptComponent.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -126,7 +134,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
      * different situation 2. Analogy, in language, a comparison between
      * concepts
      *
-     * @param statusNid
+     * @param status
      * @param pathNid
      * @param time
      * @return
@@ -237,13 +245,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.versionsEqual(vc1, vc2, compareAuthoring);
     }
 
-    protected abstract void writeFieldsToBdb(TupleOutput output);
-
-    public final void writeRevisionBdb(TupleOutput output) {
-        output.writeInt(stamp);
-        writeFieldsToBdb(output);
-    }
-
     //~--- get methods ---------------------------------------------------------
     @Override
     public Collection<? extends IdBI> getAdditionalIds() {
@@ -278,7 +279,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public int getAuthorNid() {
-        return P.s.getAuthorNidForStamp(stamp);
+        return PersistentStore.get().getAuthorNidForStamp(stamp);
     }
 
     @Override
@@ -340,7 +341,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public int getModuleNid() {
-        return P.s.getModuleNidForStamp(stamp);
+        return PersistentStore.get().getModuleNidForStamp(stamp);
     }
 
     @Override
@@ -350,12 +351,12 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public int getPathNid() {
-        return P.s.getPathNidForStamp(stamp);
+        return PersistentStore.get().getPathNidForStamp(stamp);
     }
 
     @Override
     public Position getPosition() throws IOException {
-        return new Position(getTime(), P.s.getPath(getPathNid()));
+        return new Position(getTime(), PersistentStore.get().getPath(getPathNid()));
     }
 
     public Set<Position> getPositions() throws IOException {
@@ -376,6 +377,43 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
         return primordialComponent.getRefexes();
     }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
+    {
+        return primordialComponent.getRefexesDynamic();
+    }
+    
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
+    {
+        return primordialComponent.getRefexDynamicMembers();
+    }
+    
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
+     */
+    @Override
+    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
+    {
+        return primordialComponent.getRefexDynamicAnnotations();
+    }
+
+    /**
+     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
+    {
+        return primordialComponent.getRefexesDynamicActive(viewCoordinate);
+    }
 
     @Override
     public int getStamp() {
@@ -388,12 +426,12 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public Status getStatus() {
-        return P.s.getStatusForStamp(stamp);
+        return PersistentStore.get().getStatusForStamp(stamp);
     }
 
     @Override
     public long getTime() {
-        return P.s.getTimeForStamp(stamp);
+        return PersistentStore.get().getTimeForStamp(stamp);
     }
 
     @Override
@@ -417,7 +455,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public boolean isBaselineGeneration() {
-        return stamp <= P.s.getMaxReadOnlyStamp();
+        return stamp <= PersistentStore.get().getMaxReadOnlyStamp();
     }
 
     @Override
@@ -440,7 +478,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        }
 
         if (authorNid != getPathNid()) {
-            this.stamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
+            this.stamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, authorNid, getModuleNid(),
                     getPathNid());
             modified();
         }
@@ -455,7 +493,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        }
 
         try {
-            this.stamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleNid,
+            this.stamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), moduleNid,
                     getPathNid());
         } catch (Exception e) {
             throw new RuntimeException();
@@ -477,16 +515,16 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //                    + "Use makeAnalog instead.");
 //        }
 
-        this.stamp = P.s.getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(), pathId);
+        this.stamp = PersistentStore.get().getStamp(getStatus(), Long.MAX_VALUE, getAuthorNid(), getModuleNid(), pathId);
     }
 
     public void setStatusAtPosition(Status status, long time, int authorNid, int moduleNid, int pathNid) {
-        this.stamp = P.s.getStamp(status, time, authorNid, moduleNid, pathNid);
+        this.stamp = PersistentStore.get().getStamp(status, time, authorNid, moduleNid, pathNid);
         modified();
     }
 
     @Override
-    public final void setStatus(org.ihtsdo.otf.tcc.api.coordinate.Status nid) {
+    public final void setStatus(Status status) {
 //        TODO-AKF: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
@@ -494,7 +532,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        }
 
         try {
-            this.stamp = P.s.getStamp(nid, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.stamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     getPathNid());
         } catch (Exception e) {
             throw new RuntimeException();
@@ -517,7 +555,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
                 int authorNid = getAuthorNid(); //HERE
                 int moduleNid = getModuleNid();
                 int pathNid = getPathNid();
-                this.stamp = P.s.getStamp(status, time, authorNid, moduleNid,
+                this.stamp = PersistentStore.get().getStamp(status, time, authorNid, moduleNid,
                         pathNid);
             } catch (Exception e) {
                 throw new RuntimeException(e);

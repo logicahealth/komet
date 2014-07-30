@@ -16,7 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 
 /**
  *
@@ -35,7 +35,7 @@ public class RelationshipPairResource {
          public void write(OutputStream output) throws IOException, WebApplicationException {
             ObjectOutputStream oos = new ObjectOutputStream(output);
 
-            oos.writeObject(P.s.getDestRelOriginNids(nid));
+            oos.writeObject(PersistentStore.get().getDestRelOriginNids(nid));
          }
       };
    }
@@ -51,7 +51,7 @@ public class RelationshipPairResource {
          public void write(OutputStream output) throws IOException, WebApplicationException {
             ObjectOutputStream oos = new ObjectOutputStream(output);
 
-            oos.writeObject(P.s.getDestRelOriginNids(nid, relTypes));
+            oos.writeObject(PersistentStore.get().getDestRelOriginNids(nid, relTypes));
          }
       };
    }

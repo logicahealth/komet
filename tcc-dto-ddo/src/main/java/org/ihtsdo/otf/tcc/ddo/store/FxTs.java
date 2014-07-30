@@ -17,24 +17,24 @@ package org.ihtsdo.otf.tcc.ddo.store;
 
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
+import javax.inject.Inject;
+
 /**
  * 
  * @author kec
- * @deprecated This class will be removed in a future sprint, 
- * replaced by HK2 dependency injection
  */
-@Deprecated
+
 public class FxTs {
-    private static FxTerminologyStoreDI singleton;
+    private static FxTs singleton;
+
+    @Inject private FxTerminologyStoreDI store;
+
+    private FxTs() {}
 
     public static FxTerminologyStoreDI get() {
-        return singleton;
+        if (singleton == null) {
+            singleton = new FxTs();
+        }
+        return singleton.store;
     }
-
-    public static void set(FxTerminologyStoreDI singleton) {
-        FxTs.singleton = singleton;
-        Ts.set(singleton);
-    }
-
-    
 }

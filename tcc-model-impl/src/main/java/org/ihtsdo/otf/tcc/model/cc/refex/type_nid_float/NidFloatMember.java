@@ -2,13 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_float;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
-import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -18,12 +11,20 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_float.RefexNidFloatAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_float.RefexNidFloatVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatRevision;
-import org.ihtsdo.otf.tcc.model.cc.P;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember>
         implements RefexNidFloatAnalogBI<NidFloatRevision> {
@@ -32,8 +33,8 @@ public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember
 
    //~--- fields --------------------------------------------------------------
 
-   private int   c1Nid;
-   private float floatValue;
+    protected int   c1Nid;
+    protected float floatValue;
 
    //~--- constructors --------------------------------------------------------
 
@@ -41,13 +42,9 @@ public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember
       super();
    }
 
-   public NidFloatMember(int enclosingConceptNid, TupleInput input) throws IOException {
-      super(enclosingConceptNid, input);
-   }
-
    public NidFloatMember(TtkRefexUuidFloatMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
       super(refsetMember, enclosingConceptNid);
-      c1Nid      = P.s.getNidForUuids(refsetMember.getUuid1());
+      c1Nid      = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
       floatValue = refsetMember.getFloatValue();
 
       if (refsetMember.getRevisionList() != null) {
@@ -127,17 +124,6 @@ public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember
     }
 
    @Override
-   protected void readMemberFields(TupleInput input) {
-      c1Nid      = input.readInt();
-      floatValue = input.readFloat();
-   }
-
-   @Override
-   protected final NidFloatRevision readMemberRevision(TupleInput input) {
-      return new NidFloatRevision(input, this);
-   }
-
-   @Override
    public boolean readyToWriteRefsetMember() {
       assert c1Nid != Integer.MAX_VALUE;
 
@@ -159,12 +145,6 @@ public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember
       buf.append(super.toString());
 
       return buf.toString();
-   }
-
-   @Override
-   protected void writeMember(TupleOutput output) {
-      output.writeInt(c1Nid);
-      output.writeFloat(floatValue);
    }
 
    //~--- get methods ---------------------------------------------------------
