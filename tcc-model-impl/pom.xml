@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.4-TT</version>
+        <version>1.5-TT-SNAPSHOT</version>
     </parent>
     <artifactId>tcc-model-impl</artifactId>
     <name>${branch}: Model implementation</name>
