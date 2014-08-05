@@ -45,7 +45,7 @@ public class StandardViewCoordinates {
 
     public static ViewCoordinate getSnomedInferredLatestActiveOnly() throws IOException {
         ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
-                "SNOMED Infered-Latest", PersistentStore.get().getMetadataVC());
+                "SNOMED Infered-Latest", Ts.get().getMetadataVC());
         Position snomedPosition
                 = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                         Long.MAX_VALUE);
