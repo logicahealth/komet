@@ -45,12 +45,6 @@
             <version>4.3.1</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.ihtsdo.otf</groupId>
-            <artifactId>tcc-model-impl</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
