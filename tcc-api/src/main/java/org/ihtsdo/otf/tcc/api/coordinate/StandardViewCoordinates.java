@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 import java.io.IOException;
@@ -30,43 +27,59 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
  * @author kec
  */
 public class StandardViewCoordinates {
-   public static ViewCoordinate getSnomedInferredLatest() throws IOException {
-      ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
-                                   "SNOMED Infered-Latest", Ts.get().getMetadataVC());
-      Position snomedPosition =
-         Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
-                              Long.MAX_VALUE);
 
-      snomedVc.setViewPosition(snomedPosition);
-      snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED);
-      snomedVc.setAllowedStatus(EnumSet.of(Status.ACTIVE, Status.INACTIVE));
+    public static ViewCoordinate getSnomedInferredLatest() throws IOException {
+        ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
+                "SNOMED Infered-Latest", Ts.get().getMetadataVC());
+        Position snomedPosition
+                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                        Long.MAX_VALUE);
 
-      return snomedVc;
-   }
-   public static ViewCoordinate getSnomedStatedLatest() throws IOException {
-      ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734871-836a-11e2-9e96-0800200c9a66"),
-                                   "SNOMED Stated-Latest", Ts.get().getMetadataVC());
-      Position snomedPosition =
-         Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
-                              Long.MAX_VALUE);
+        snomedVc.setViewPosition(snomedPosition);
+        snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED);
+        snomedVc.setAllowedStatus(EnumSet.of(Status.ACTIVE, Status.INACTIVE));
 
-      snomedVc.setViewPosition(snomedPosition);
-      snomedVc.setRelationshipAssertionType(RelAssertionType.STATED);
+        return snomedVc;
+    }
 
-      return snomedVc;
-   }
-   
-      public static ViewCoordinate getSnomedInferredThenStatedLatest() throws IOException {
-      ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734872-836a-11e2-9e96-0800200c9a66"),
-                                   "SNOMED Inferred then Stated-Latest", Ts.get().getMetadataVC());
-      Position snomedPosition =
-         Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
-                              Long.MAX_VALUE);
+    public static ViewCoordinate getSnomedInferredLatestActiveOnly() throws IOException {
+        ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
+                "SNOMED Infered-Latest", Ts.get().getMetadataVC());
+        Position snomedPosition
+                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                        Long.MAX_VALUE);
 
-      snomedVc.setViewPosition(snomedPosition);
-      snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED_THEN_STATED);
+        snomedVc.setViewPosition(snomedPosition);
+        snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED);
+        snomedVc.setAllowedStatus(EnumSet.of(Status.ACTIVE));
 
-      return snomedVc;
-   }
+        return snomedVc;
+    }
+
+    public static ViewCoordinate getSnomedStatedLatest() throws IOException {
+        ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734871-836a-11e2-9e96-0800200c9a66"),
+                "SNOMED Stated-Latest", Ts.get().getMetadataVC());
+        Position snomedPosition
+                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                        Long.MAX_VALUE);
+
+        snomedVc.setViewPosition(snomedPosition);
+        snomedVc.setRelationshipAssertionType(RelAssertionType.STATED);
+
+        return snomedVc;
+    }
+
+    public static ViewCoordinate getSnomedInferredThenStatedLatest() throws IOException {
+        ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734872-836a-11e2-9e96-0800200c9a66"),
+                "SNOMED Inferred then Stated-Latest", Ts.get().getMetadataVC());
+        Position snomedPosition
+                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                        Long.MAX_VALUE);
+
+        snomedVc.setViewPosition(snomedPosition);
+        snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED_THEN_STATED);
+
+        return snomedVc;
+    }
 
 }
