@@ -27,11 +27,15 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 //~--- inner classes -------------------------------------------------------
 
 public class StringMemberVersion extends RefexMemberVersion<StringRevision, StringMember> implements RefexStringAnalogBI<StringRevision> {
-    private final StringMember rm;
+    private StringMember rm;
 
-    StringMemberVersion(RefexStringAnalogBI cv, final StringMember rm) {
+    public StringMemberVersion(RefexStringAnalogBI cv, final StringMember rm) {
         super(cv, rm);
         this.rm = rm;
+    }
+    
+    public StringMemberVersion(){
+        super();
     }
 
     //~--- methods ----------------------------------------------------------
