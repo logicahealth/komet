@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.api.coordinate;
+package org.ihtsdo.otf.tcc.model.version;
 
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.store.Ts;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 
 /**
  *
@@ -30,9 +33,9 @@ public class StandardViewCoordinates {
 
     public static ViewCoordinate getSnomedInferredLatest() throws IOException {
         ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
-                "SNOMED Infered-Latest", Ts.get().getMetadataVC());
+                "SNOMED Infered-Latest", PersistentStore.get().getMetadataVC());
         Position snomedPosition
-                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                = PersistentStore.get().newPosition(PersistentStore.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                         Long.MAX_VALUE);
 
         snomedVc.setViewPosition(snomedPosition);
@@ -44,9 +47,9 @@ public class StandardViewCoordinates {
 
     public static ViewCoordinate getSnomedInferredLatestActiveOnly() throws IOException {
         ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734870-836a-11e2-9e96-0800200c9a66"),
-                "SNOMED Infered-Latest", Ts.get().getMetadataVC());
+                "SNOMED Infered-Latest", PersistentStore.get().getMetadataVC());
         Position snomedPosition
-                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                = PersistentStore.get().newPosition(PersistentStore.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                         Long.MAX_VALUE);
 
         snomedVc.setViewPosition(snomedPosition);
@@ -58,9 +61,9 @@ public class StandardViewCoordinates {
 
     public static ViewCoordinate getSnomedStatedLatest() throws IOException {
         ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734871-836a-11e2-9e96-0800200c9a66"),
-                "SNOMED Stated-Latest", Ts.get().getMetadataVC());
+                "SNOMED Stated-Latest", PersistentStore.get().getMetadataVC());
         Position snomedPosition
-                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                = PersistentStore.get().newPosition(PersistentStore.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                         Long.MAX_VALUE);
 
         snomedVc.setViewPosition(snomedPosition);
@@ -71,9 +74,9 @@ public class StandardViewCoordinates {
 
     public static ViewCoordinate getSnomedInferredThenStatedLatest() throws IOException {
         ViewCoordinate snomedVc = new ViewCoordinate(UUID.fromString("0c734872-836a-11e2-9e96-0800200c9a66"),
-                "SNOMED Inferred then Stated-Latest", Ts.get().getMetadataVC());
+                "SNOMED Inferred then Stated-Latest", PersistentStore.get().getMetadataVC());
         Position snomedPosition
-                = Ts.get().newPosition(Ts.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
+                = PersistentStore.get().newPosition(PersistentStore.get().getPath(Snomed.SNOMED_RELEASE_PATH.getLenient().getConceptNid()),
                         Long.MAX_VALUE);
 
         snomedVc.setViewPosition(snomedPosition);
