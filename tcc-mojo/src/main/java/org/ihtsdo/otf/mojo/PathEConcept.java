@@ -62,7 +62,7 @@ public class PathEConcept extends AbstractMojo {
             if (!folders.exists()) {
                 folders.mkdirs();
             }
-            File out = new File(DIR + "/target/generated-resources/pathEConcept.jbin"); //${project.build.directory}/generated-resources
+            File out = new File(DIR + "/target/generated-resources/pathEConcept.jbin");
             createPathEConcepts(initialPaths, out);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Exception writing EConcept file", ex);
