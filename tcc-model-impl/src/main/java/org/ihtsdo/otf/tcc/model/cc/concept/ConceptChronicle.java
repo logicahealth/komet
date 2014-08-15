@@ -336,6 +336,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         if ((eConcept.getDescriptions() != null) && !eConcept.getDescriptions().isEmpty()) {
             if (primordial || (c.getDescriptions() == null) || c.getDescriptions().isEmpty()) {
+                System.out.println("### DEBUG: setting descriptions from eConcept");
                 setDescriptionsFromEConcept(eConcept, c);
             } else {
                 Set<Integer> currentDNids = c.data.getDescNids();
@@ -1803,13 +1804,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             HashSet<Description> descs = new HashSet<>();
             for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
                 Description desc = new Description(eDesc, c);
+                System.out.println("### DEBUG: adding description (primordial). Description is : " + desc.toSimpleString());
                 descs.add(desc);
             }
             c.data.setDescriptions(descs);
         } else {
             for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
                 Description desc = new Description(eDesc, c);
-
+                System.out.println("### DEBUG: adding description. Description is : " + desc.toSimpleString());
                 c.data.add(desc);
             }
         }
