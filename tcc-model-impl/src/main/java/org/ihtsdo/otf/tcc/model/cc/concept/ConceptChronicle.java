@@ -339,6 +339,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 System.out.println("### DEBUG: setting descriptions from eConcept");
                 setDescriptionsFromEConcept(eConcept, c);
             } else {
+                System.out.println("### DEBUG: merging descriptions with eConcept");
                 Set<Integer> currentDNids = c.data.getDescNids();
 
                 for (TtkDescriptionChronicle ed : eConcept.getDescriptions()) {
