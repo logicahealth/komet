@@ -804,6 +804,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         ConceptChronicle c = get(conceptNid);
         
+        System.out.println("### DEBUG: Concept descriptions should be empty. Found " + c.getDescriptions().size() +" descriptions.");
+        
         // return populateFromEConcept(eConcept, c);
         try {
             return mergeWithEConcept(eConcept, c);
