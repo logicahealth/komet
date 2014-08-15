@@ -17,8 +17,15 @@ package org.ihtsdo.otf.tcc.api.coordinate;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
+import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import org.ihtsdo.otf.tcc.api.nid.NidSet;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
@@ -80,6 +87,19 @@ public class StandardViewCoordinates {
         snomedVc.setRelationshipAssertionType(RelAssertionType.INFERRED_THEN_STATED);
 
         return snomedVc;
+    }
+    
+    public static ViewCoordinate getMetadataViewCoordinate() throws IOException {
+        Path viewPath = new Path(TermAux.WB_AUX_PATH.getNid(), null);
+        Position viewPosition = new Position(Long.MAX_VALUE, viewPath);
+        EnumSet<Status> allowedStatusNids = EnumSet.of(Status.ACTIVE);
+        ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
+        int languageNid = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
+        int classifierNid = TermAux.IHTSDO_CLASSIFIER.getNid();
+
+        return new ViewCoordinate(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"), "meta-vc", Precedence.PATH,
+                viewPosition, allowedStatusNids, contradictionManager, languageNid, classifierNid,
+                RelAssertionType.INFERRED_THEN_STATED, null, LanguageSort.RF2_LANG_REFEX);
     }
 
 }

@@ -35,6 +35,13 @@ public class StandardEditCoordinates {
 
       return editCoordinate;
    }
+   
+   public static EditCoordinate getDefaultUserWorkbenchAux() throws IOException {
+       
+       EditCoordinate editCoordinate = new EditCoordinate(TermAux.USER.getLenient().getNid(),
+               TermAux.TERM_AUX_MODULE.getLenient().getNid(),
+               TermAux.WB_AUX_PATH.getLenient().getNid());
 
-
+      return editCoordinate;
+   }
 }

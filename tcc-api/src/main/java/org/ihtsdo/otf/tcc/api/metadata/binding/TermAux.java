@@ -72,4 +72,7 @@ public class TermAux {
     public static ConceptSpec TERM_AUX_MODULE = 
             new ConceptSpec("terminology auxiliary module (module concept)",
             UUID.fromString("dacb22ed-b2df-3667-88b8-2c17a545d37e"));
+    public static ConceptSpec EN_LANG =
+            new ConceptSpec("United States English (language concept)",
+            UUID.fromString("ddcc2a22-f8fc-33bb-bbb0-944abb395c14"));
 }
