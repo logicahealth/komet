@@ -336,8 +336,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         if ((eConcept.getDescriptions() != null) && !eConcept.getDescriptions().isEmpty()) {
             if (primordial || (c.getDescriptions() == null) || c.getDescriptions().isEmpty()) {
+                System.out.println("### DEBUG: setting descriptions from eConcept");
                 setDescriptionsFromEConcept(eConcept, c);
             } else {
+                System.out.println("### DEBUG: merging descriptions with eConcept");
                 Set<Integer> currentDNids = c.data.getDescNids();
 
                 for (TtkDescriptionChronicle ed : eConcept.getDescriptions()) {
@@ -801,6 +803,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         assert conceptNid != Integer.MAX_VALUE : "no conceptNid for uuids";
 
         ConceptChronicle c = get(conceptNid);
+        
+        System.out.println("### DEBUG: Concept descriptions should be empty. Found " + c.getDescriptions().size() +" descriptions.");
         
         // return populateFromEConcept(eConcept, c);
         try {
@@ -1803,13 +1807,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             HashSet<Description> descs = new HashSet<>();
             for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
                 Description desc = new Description(eDesc, c);
+                System.out.println("### DEBUG: adding description (primordial). Description is : " + desc.toSimpleString());
                 descs.add(desc);
             }
             c.data.setDescriptions(descs);
         } else {
             for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
                 Description desc = new Description(eDesc, c);
-
+                System.out.println("### DEBUG: adding description. Description is : " + desc.toSimpleString());
                 c.data.add(desc);
             }
         }
