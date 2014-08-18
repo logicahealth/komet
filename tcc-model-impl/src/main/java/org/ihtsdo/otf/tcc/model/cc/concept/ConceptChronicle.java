@@ -343,13 +343,17 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 Set<Integer> currentDNids = c.data.getDescNids();
 
                 for (TtkDescriptionChronicle ed : eConcept.getDescriptions()) {
+                    System.out.println("### DEBUG: econcept description uuid is: " + ed.primordialUuid);
                     int dNid = PersistentStore.get().getNidForUuids(ed.primordialUuid);
-
+                    System.out.println("### DEBUG: associated nid is: " + dNid);
+                    
                     if (currentDNids.contains(dNid)) {
+                        System.out.println("###DEBUG: contains nid, merging");
                         Description d = c.getDescription(dNid);
 
                         d.merge(new Description(ed, c));
                     } else {
+                        System.out.println("###DEBUG: creating new description");
                         c.getDescriptions().add(new Description(ed, c));
                     }
                 }
