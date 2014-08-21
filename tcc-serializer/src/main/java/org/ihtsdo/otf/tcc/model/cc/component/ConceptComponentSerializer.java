@@ -159,13 +159,13 @@ public class ConceptComponentSerializer {
     }
 
     public static void deserialize(DataInput input, ConceptComponent cc) throws IOException {
-        assert cc.nid != 0;
-        assert cc.primordialStamp != 0 && cc.primordialStamp != Integer.MAX_VALUE : "Processing nid: " + cc.nid;
         cc.nid = input.readInt();
         cc.enclosingConceptNid = input.readInt();
         cc.primordialMsb = input.readLong();
         cc.primordialLsb = input.readLong();
         cc.primordialStamp = input.readInt();
+        assert cc.nid != 0;
+        assert cc.primordialStamp != 0 && cc.primordialStamp != Integer.MAX_VALUE : "Processing nid: " + cc.nid;
 
         // Additional UUIDs
 
@@ -189,23 +189,59 @@ public class ConceptComponentSerializer {
                         member = ArrayOfByteArraySerializer.get().deserialize(input, new ArrayOfByteArrayMember());
                         break;
                     case BOOLEAN:
+                        member = BooleanSerializer.get().deserialize(input, new BooleanMember());
+                        break;
                     case CID:
+                        member = NidSerializer.get().deserialize(input, new NidMember());
+                        break;
                     case CID_BOOLEAN:
+                        member = NidBooleanSerializer.get().deserialize(input, new NidBooleanMember());
+                        break;
                     case CID_CID:
+                        member = NidNidSerializer.get().deserialize(input, new NidNidMember());
+                        break;
                     case CID_CID_CID:
+                        member = NidNidNidSerializer.get().deserialize(input, new NidNidNidMember());
+                        break;
                     case CID_CID_CID_FLOAT:
+                        member = NidNidNidFloatSerializer.get().deserialize(input, new NidNidNidFloatMember());
+                        break;
                     case CID_CID_CID_INT:
+                        member = NidNidNidIntSerializer.get().deserialize(input, new NidNidNidIntMember());
+                        break;
                     case CID_CID_CID_LONG:
+                        member = NidNidNidLongSerializer.get().deserialize(input, new NidNidNidLongMember());
+                        break;
                     case CID_CID_CID_STRING:
+                        member = NidNidNidStringSerializer.get().deserialize(input, new NidNidNidStringMember());
+                        break;
                     case CID_CID_STR:
+                        member = NidNidStringSerializer.get().deserialize(input, new NidNidStringMember());
+                        break;
                     case CID_FLOAT:
+                        member = NidFloatSerializer.get().deserialize(input, new NidFloatMember());
+                        break;
                     case CID_INT:
+                        member = NidIntSerializer.get().deserialize(input, new NidIntMember());
+                        break;
                     case CID_LONG:
+                        member = NidLongSerializer.get().deserialize(input, new NidLongMember());
+                        break;
                     case CID_STR:
+                        member = NidStringSerializer.get().deserialize(input, new NidStringMember());
+                        break;
                     case INT:
+                        member = IntSerializer.get().deserialize(input, new IntMember());
+                        break;
                     case LONG:
+                        member = LongSerializer.get().deserialize(input, new LongMember());
+                        break;
                     case MEMBER:
+                        member = MembershipSerializer.get().deserialize(input, new MembershipMember());
+                        break;
                     case STR:
+                        member = StringSerializer.get().deserialize(input, new StringMember());
+                        break;
                     default:
                         throw new RuntimeException("Can't handle type: " + rxType);
 

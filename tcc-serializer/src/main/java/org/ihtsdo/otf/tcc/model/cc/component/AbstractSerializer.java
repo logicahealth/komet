@@ -1,5 +1,9 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
+import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
+import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.EOFException;
@@ -22,7 +26,7 @@ public abstract class AbstractSerializer<C extends ConceptComponent<R, C>, R ext
         }
     }
 
-    public void deserialize(DataInput input, CollectionCollector<C> collector) throws IOException {
+    public void deserialize(DataInput input, CollectionCollector<C> collector, ModificationTracker modificationTracker) throws IOException {
         int collectionSize = 0;
         try {
             collectionSize = input.readInt();
@@ -32,6 +36,7 @@ public abstract class AbstractSerializer<C extends ConceptComponent<R, C>, R ext
         collector.init(collectionSize);
         for (int i = 0; i < collectionSize; i++) {
             C component = newComponent();
+            component.setModificationTracker(modificationTracker);
             deserialize(input, component);
             collector.add(component);
         }
@@ -66,6 +71,8 @@ public abstract class AbstractSerializer<C extends ConceptComponent<R, C>, R ext
             r.primordialComponent = cc;
             ConceptComponentRevisionSerializer.deserialize(input, r);
             deserializeRevision(input, r);
+
+            cc.setModificationTracker(cc.modificationTracker);
             cc.addRevisionNoRedundancyCheck(r);
         }
         return cc;

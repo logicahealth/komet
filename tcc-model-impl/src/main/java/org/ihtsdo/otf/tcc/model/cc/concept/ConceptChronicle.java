@@ -31,7 +31,7 @@ import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
@@ -121,8 +121,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         this.data = PersistentStore.get().getConceptData(nid);
     }
 
-    public static final int DATA_VERSION = 0;
-
     //~--- methods -------------------------------------------------------------
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
@@ -132,19 +130,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addDynamicAnnotation(annotation);
-    }
-
-    public boolean addMemberNid(int nid) throws IOException {
-        Set<Integer> memberNids = data.getMemberNids();
-
-        if (!memberNids.contains(nid)) {
-            memberNids.add(nid);
-            modified();
-
-            return true;
-        }
-
-        return false;
     }
 
     @Override
@@ -171,7 +156,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public boolean commit(ChangeSetGenerationPolicy changeSetPolicy,
             ChangeSetGenerationThreadingPolicy changeSetWriterThreading)
             throws IOException {
-        this.modified();
 
         return PersistentStore.get().commit(this, ChangeSetPolicy.get(changeSetPolicy),
                 ChangeSetWriterThreading.get(changeSetWriterThreading));
@@ -187,40 +171,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return getNid() - o.getNid();
     }
 
-    public static void disableComponentsCRHM() {
-        componentsCRHM = new ConcurrentReferenceHashMap<Integer, Object>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                ConcurrentReferenceHashMap.ReferenceType.WEAK) {
-                    @Override
-                    public Object put(Integer key, Object value) {
-                        return null;
-                    }
-
-                    @Override
-                    public void putAll(Map<? extends Integer, ? extends Object> m) {
-                        // nothing to do;
-                    }
-
-                    @Override
-                    public Object putIfAbsent(Integer key, Object value) {
-                        return null;
-                    }
-
-                    @Override
-                    public boolean replace(Integer key, Object oldValue, Object newValue) {
-                        return false;
-                    }
-
-                    @Override
-                    public Object replace(Integer key, Object value) {
-                        return false;
-                    }
-                };
-    }
-
-    public static void enableComponentsCRHM() {
-        componentsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                ConcurrentReferenceHashMap.ReferenceType.WEAK);
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -488,12 +438,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return c;
     }
 
-    public void modified() {
-        data.modified();
+    public void modified(ComponentChronicleBI modifiedComponent) {
+        data.modified(modifiedComponent);
     }
 
-    public void modified(long sequence) {
-        data.modified(sequence);
+    public void modified(ConceptComponent modifiedComponent, long sequence) {
+        data.modified(modifiedComponent, sequence);
     }
 
     private static ConceptChronicle populateFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
@@ -1162,11 +1112,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.getDestRels(allowedTypes);
     }
 
-    @Override
-    public ConceptChronicle getEnclosingConcept() {
-        return this;
-    }
-
     public RefexMember<?, ?> getExtension(int componentNid) throws IOException {
         if (isCanceled()) {
             return null;
@@ -1566,7 +1511,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             }
 
             if (fsDescNid == Integer.MIN_VALUE) {
-                fsDescNid = SnomedMetadataRfx.getDES_FULL_SPECIFIED_NAME_NID();
+                fsDescNid = SnomedMetadataRf2.PREFERRED_RF2.getNid();
             }
 
             if (getDescriptions().size() > 0) {
@@ -1743,13 +1688,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public boolean isCanceled() throws IOException {
-        if (!canceled) {
-            if ((getConceptAttributes() != null) && (getConceptAttributes().getPrimordialVersion().getTime() == Long.MIN_VALUE)) {
-                canceled = true;
-            }
-        }
-
-        return canceled;
+        return data.isConceptForgotten();
     }
 
     public boolean isParentOf(ConceptChronicle child, ViewCoordinate vc) throws IOException, ContradictionException {

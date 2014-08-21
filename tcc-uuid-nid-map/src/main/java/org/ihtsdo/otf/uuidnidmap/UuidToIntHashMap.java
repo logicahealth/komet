@@ -30,7 +30,7 @@ import org.apache.mahout.math.map.PrimeFinder;
  *
  * @author kec
  */
-public class UuidToIntHashMap extends AbstractUuidToIntHashMap {
+public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidToIntMap {
     public long[] getTable() {
         return table;
     }
@@ -61,6 +61,15 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap {
      * @serial
      */
     protected byte state[];
+
+    public int getFreeEntries() {
+        return freeEntries;
+    }
+
+    public void setFreeEntries(int freeEntries) {
+        this.freeEntries = freeEntries;
+    }
+
     /**
      * The number of table entries in state==FREE.
      *
@@ -144,6 +153,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap {
             return indexOfKey(key) >= 0;
     }
 
+    @Override
     public boolean containsKey(UUID key) {
             return indexOfKey(key) >= 0;
     }
@@ -153,6 +163,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap {
      *
      * @return <tt>true</tt> if the receiver contains the specified value.
      */
+    @Override
     public boolean containsValue(int value) {
         return indexOfValue(value) >= 0;
     }
@@ -215,6 +226,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap {
             return values[i];
     }
 
+    @Override
     public int get(UUID key) {
             int i = indexOfKey(key);
             if (i < 0) {

@@ -43,7 +43,8 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
 
     public ConceptAttributes(TtkConceptAttributesChronicle eAttr, ConceptChronicleBI c) throws IOException {
         super(eAttr, c.getNid());
-        assert this.nid == c.getNid(): "[2] nid and cNid don't match: " + 
+        assert this.nid == c.getNid(): "[2] nid and cNid don't match: " +
+                this.nid + ":" + c.getNid() + " processing: " +
                 eAttr + "\n\n" + c;
         defined = eAttr.isDefined();
 

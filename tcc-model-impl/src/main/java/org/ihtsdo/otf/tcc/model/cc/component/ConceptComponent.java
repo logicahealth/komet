@@ -43,6 +43,7 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChroni
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
@@ -97,6 +98,16 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Field description
      */
     public int enclosingConceptNid;
+
+
+    /**
+     * @param modificationTracker
+     */
+    public void setModificationTracker(ModificationTracker modificationTracker) {
+        this.modificationTracker = modificationTracker;
+    }
+
+    public ModificationTracker modificationTracker;
     /**
      * Field description
      */
@@ -346,9 +357,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         boolean returnValue = additionalIdVersions.add(srcId);
-        ConceptChronicle c = getEnclosingConcept();
-
-        c.modified();
+        getModificationTracker().modified((ComponentChronicleBI) this);
 
         return returnValue;
     }
@@ -422,9 +431,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         assert r != null;
 
         boolean returnValue;
-        ConceptChronicle c = getEnclosingConcept();
-
-        assert c != null : "Can't find concept for: " + r;
 
         if (revisions == null) {
             revisions = new RevisionSet(primordialStamp);
@@ -434,7 +440,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         r.primordialComponent = (C) this;
-        c.modified();
+        if (modificationTracker != null) {
+            modificationTracker.modified(r.getChronicle());
+        }
         clearVersions();
         return returnValue;
     }
@@ -480,7 +488,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @param uuidId
      * @param authorityNid
-     * @param statusNid
+     * @param status
      * @param time
      * @param authorNid
      * @param moduleNid
@@ -1124,7 +1132,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Method description
      *
      *
-     * @param statusNid
+     * @param status
      * @param authorNid
      * @param pathNid
      * @param moduleNid
@@ -1136,7 +1144,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         this.primordialStamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, authorNid, moduleNid, pathNid);
         assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
-        this.getEnclosingConcept().setIsCanceled(false);
         this.clearVersions();
     }
 
@@ -1886,13 +1893,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @return
      */
-    public ConceptChronicle getEnclosingConcept() {
-        try {
-//            Need to do this to return different ways depending on datastore implementation
-            return (ConceptChronicle) PersistentStore.get().getConcept(enclosingConceptNid);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public ModificationTracker getModificationTracker() {
+        return this.modificationTracker;
     }
 
     /**
@@ -2689,7 +2691,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Method description
      *
      *
-     * @param statusId
+     * @param status
      */
     @Override
     public final void setStatus(Status status) {

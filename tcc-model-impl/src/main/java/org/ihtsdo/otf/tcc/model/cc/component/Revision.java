@@ -24,7 +24,6 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -328,10 +327,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     @Override
     public Collection<? extends RefexVersionBI<?>> getRefexMembersActive(ViewCoordinate xyz) throws IOException {
         return primordialComponent.getRefexMembersActive(xyz);
-    }
-
-    public ConceptChronicle getEnclosingConcept() {
-        return primordialComponent.getEnclosingConcept();
     }
 
     @Override

@@ -38,7 +38,7 @@ the specific language governing permissions and limitations under the License. -
    	
     <properties>
         <branch>tt-wdi</branch>
-        <hk2.version>2.3.0-b09</hk2.version>
+        <hk2.version>2.3.0-b10</hk2.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>

@@ -1,8 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -254,9 +252,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     //~--- get methods ---------------------------------------------------------
-    public ConceptChronicle getConcept() {
-        return getEnclosingConcept();
-    }
 
     @Override
     public int getConceptNid() {

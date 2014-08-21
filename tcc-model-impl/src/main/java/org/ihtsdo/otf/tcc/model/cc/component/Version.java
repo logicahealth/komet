@@ -435,16 +435,6 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      * Method description
      *
      *
-     * @return
-     */
-    public ConceptChronicle getEnclosingConcept() {
-        return cc.getEnclosingConcept();
-    }
-
-    /**
-     * Method description
-     *
-     *
      * @param xyz
      *
      * @return

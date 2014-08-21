@@ -302,11 +302,6 @@ public class RelGroupVersion implements RelGroupVersionBI {
    }
 
    @Override
-   public ConceptChronicleBI getEnclosingConcept() {
-      return rg.getEnclosingConcept();
-   }
-
-   @Override
    public Collection<? extends RefexVersionBI<?>> getRefexMembersInactive(ViewCoordinate xyz) throws IOException {
       return rg.getRefexMembersInactive(xyz);
    }
