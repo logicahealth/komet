@@ -401,7 +401,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         buf.append("]");  
                     } else {
                         buf.append("[" + Integer.toString(nidToConvert)
-                                + "null]");
+                                + " is null]");
                     }
 
                 }
