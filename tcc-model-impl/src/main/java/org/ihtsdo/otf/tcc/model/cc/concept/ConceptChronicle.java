@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -529,27 +530,25 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             processComponentChronicles(getConceptAttributes(), processor);
         }
 
-        if (getDescriptions() != null) {
-            for (ComponentChronicleBI cc : getDescriptions()) {
-                processComponentChronicles(cc, processor);
-            }
-        }
+        processComponentList(getDescriptions(), processor);
+        processComponentList(getNativeSourceRels(), processor);
+        processComponentList(getImages(), processor);
+        processComponentList(getRefsetMembers(), processor);
+        processComponentList(getRefsetDynamicMembers(), processor);
+        
+        
 
-        if (getNativeSourceRels() != null) {
-            for (ComponentChronicleBI cc : getNativeSourceRels()) {
-                processComponentChronicles(cc, processor);
-            }
-        }
+    }
 
-        if (getImages() != null) {
-            for (ComponentChronicleBI cc : getImages()) {
+    private void processComponentList(Collection<? extends ComponentChronicleBI> componentCollection, ProcessComponentChronicleBI processor) throws Exception {
+        if (componentCollection != null) {
+            OpenIntHashSet nids = new OpenIntHashSet(componentCollection.size());
+            for (ComponentChronicleBI cc : componentCollection) {
+                if (nids.contains(cc.getNid())) {
+                    throw new RuntimeException("List contains duplicate components..." + componentCollection);
+                }
                 processComponentChronicles(cc, processor);
-            }
-        }
-
-        if (getRefsetMembers() != null) {
-            for (ComponentChronicleBI cc : getRefsetMembers()) {
-                processComponentChronicles(cc, processor);
+                nids.add(cc.getNid());
             }
         }
     }
@@ -557,9 +556,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private void processComponentChronicles(ComponentChronicleBI cc,
             ProcessComponentChronicleBI processor) throws Exception {
         processor.process(cc);
-        for (RefexChronicleBI refex : cc.getAnnotations()) {
-            processComponentChronicles(refex, processor);
-        }
+        processComponentList(cc.getAnnotations(), processor);
     }
 
     public boolean readyToWrite() {
