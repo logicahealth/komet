@@ -121,6 +121,15 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         this.data = PersistentStore.get().getConceptData(nid);
     }
 
+        public ConceptChronicle(int nid, I_ManageConceptData data) throws IOException {
+        super();
+        lazyInit();
+        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
+        this.nid = nid;
+        this.hashCode = Hashcode.compute(nid);
+        this.data = data;
+    }
+
     //~--- methods -------------------------------------------------------------
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
@@ -715,6 +724,26 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
+    public static ConceptChronicle get(int nid, I_ManageConceptData data) throws IOException {
+        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
+        lazyInit();
+        ConceptChronicle c = conceptsCRHM.get(nid);
+
+        if (c == null) {
+            ConceptChronicle newC = new ConceptChronicle(nid, data);
+
+            c = conceptsCRHM.putIfAbsent(nid, newC);
+
+            if (c == null) {
+                c = newC;
+            }
+        }
+
+        conceptsCRHM.put(nid, c);
+
+        return c;
+    }
+    
     public static ConceptChronicle get(int nid) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
         lazyInit();
@@ -1137,6 +1166,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public static ConceptChronicle getIfInMap(int nid) {
+        lazyInit();
         return conceptsCRHM.get(nid);
     }
 
