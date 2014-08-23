@@ -1,7 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
-import org.ihtsdo.otf.tcc.model.cc.concept.I_ManageConceptData;
 import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 
 import java.io.DataInput;
