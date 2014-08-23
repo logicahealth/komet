@@ -535,9 +535,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         processComponentList(getImages(), processor);
         processComponentList(getRefsetMembers(), processor);
         processComponentList(getRefsetDynamicMembers(), processor);
-        
-        
-
     }
 
     private void processComponentList(Collection<? extends ComponentChronicleBI> componentCollection, ProcessComponentChronicleBI processor) throws Exception {
