@@ -67,6 +67,7 @@ import java.util.*;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.*;
+import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
 
 /**
  * Class description
@@ -280,6 +281,27 @@ public class TtkConceptChronicle {
       }
    }
 
+   public void processComponentChronicles(TtkChronicleProcessor processor) {
+       processChronicle(this.conceptAttributes, processor);
+        processChronicle(this.descriptions, processor);
+        processChronicle(this.relationships, processor);
+        processChronicle(this.media, processor);
+        processChronicle(this.refsetMembers, processor);
+        processChronicle(this.refsetMembersDynamic, processor);
+   }
+ 
+      private void processChronicle(Collection<? extends TtkComponentChronicle> chronicleCollection, TtkChronicleProcessor processor) {
+       for (TtkComponentChronicle component: chronicleCollection) {
+           processChronicle(component, processor);
+       }
+   }
+   
+   private void processChronicle(TtkComponentChronicle chronicle, TtkChronicleProcessor processor) {
+       processor.process(chronicle);
+       processChronicle(chronicle.getAnnotations(), processor);
+       processChronicle(chronicle.getAnnotationsDynamic(), processor);
+    }
+   
     public void processComponentRevisions(TtkRevisionProcessorBI processor) {
         processChronicleRevisions(this.conceptAttributes, processor);
         processChronicleRevisions(this.descriptions, processor);
