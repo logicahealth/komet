@@ -59,6 +59,20 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
       c1Nid    = another.c1Nid;
       intValue = another.intValue;
    }
+   
+   public NidIntRevision(RefexNidIntAnalogBI another, Status status, long time, int authorNid,
+            int moduleNid, int pathNid, NidIntMember primoridalMember) {
+        super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
+        this.c1Nid = another.getNid1();
+        this.intValue = another.getInt1();
+    }
+    
+    public NidIntRevision(RefexNidIntAnalogBI another, NidIntMember primordialMember){
+        super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
+              another.getPathNid(), primordialMember);
+        this.c1Nid = another.getNid1();
+        this.intValue = another.getInt1();
+    }
 
     //~--- methods -------------------------------------------------------------
     @Override

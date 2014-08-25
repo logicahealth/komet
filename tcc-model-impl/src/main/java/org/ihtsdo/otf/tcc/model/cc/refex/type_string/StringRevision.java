@@ -52,6 +52,18 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
       super(status, time, authorNid, moduleNid, pathNid, another.primordialComponent);
       stringValue = another.stringValue;
    }
+   
+   public StringRevision(RefexStringAnalogBI another, Status status, long time, int authorNid,
+            int moduleNid, int pathNid, StringMember primoridalMember) {
+        super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
+        this.stringValue = another.getString1();
+    }
+    
+    public StringRevision(RefexStringAnalogBI another, StringMember primordialMember){
+        super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
+              another.getPathNid(), primordialMember);
+        this.stringValue = another.getString1();
+    }
 
    //~--- methods -------------------------------------------------------------
 

@@ -27,11 +27,15 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 //~--- inner classes -------------------------------------------------------
 
 public class NidLongMemberVersion extends RefexMemberVersion<NidLongRevision, NidLongMember> implements RefexNidLongAnalogBI<NidLongRevision> {
-    private final NidLongMember rm;
+    private NidLongMember rm;
 
-    NidLongMemberVersion(RefexNidLongAnalogBI cv, final NidLongMember rm) {
+    public NidLongMemberVersion(RefexNidLongAnalogBI cv, final NidLongMember rm) {
         super(cv,rm);
         this.rm = rm;
+    }
+    
+    public NidLongMemberVersion(){
+        super();
     }
     //~--- methods ----------------------------------------------------------
 
