@@ -4,7 +4,7 @@
   <parent>
       <groupId>org.ihtsdo.otf</groupId>
       <artifactId>tcc-parent</artifactId>
-      <version>1.7-TT-SNAPSHOT</version>
+      <version>1.6-TT</version>
   </parent>
   <artifactId>tcc-rest-client</artifactId>
     <name>${branch}: REST client</name>
