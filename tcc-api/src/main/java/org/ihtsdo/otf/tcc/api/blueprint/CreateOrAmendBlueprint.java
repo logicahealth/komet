@@ -27,6 +27,7 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -49,30 +50,30 @@ import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 /**
- * The Class CreateOrAmendBlueprint contains methods for creating a terminology
- * generic blueprint. This blueprint can be constructed into a type of
- * <code>ComonentChronicleBI</code>. This is the preferred method for updating
- * or creating new components or concepts.
+ * The Class CreateOrAmendBlueprint contains methods for creating a terminology generic blueprint. This
+ * blueprint can be constructed into a type of
+ * <code>ComonentChronicleBI</code>. This is the preferred method for updating or creating new components or
+ * concepts.
  *
  * @see TerminologyBuilderBI
  * @see ComponentChronicleBI
  */
 public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
-    protected EnumMap<ComponentProperty, Object> properties
-            = new EnumMap<>(ComponentProperty.class);
+    protected EnumMap<ComponentProperty, Object> properties =
+            new EnumMap<>(ComponentProperty.class);
     /**
      * Field description
      */
     private List<RefexCAB> annotations = new ArrayList<>();
     private List<RefexDynamicCAB> annotationsDynamic = new ArrayList<>();
-
+    
     /**
      * Field description
      */
     private static AtomicLong propigationId = new AtomicLong();
-
-    private Object lastPropigationId = Long.MIN_VALUE;
+    
+   private Object lastPropigationId = Long.MIN_VALUE;
 
     /**
      * Field description
@@ -117,19 +118,14 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     /**
      * Instantiates a new create or amend blueprint.
      *
-     * @param componentUuid the uuid of the component specified by this
-     * blueprint
-     * @param componentVersion the component version to create this blueprint
-     * from
-     * @param viewCoordinate the view coordinate specifying which versions are
-     * active and inactive
+     * @param componentUuid the uuid of the component specified by this blueprint
+     * @param componentVersion the component version to create this blueprint from
+     * @param viewCoordinate the view coordinate specifying which versions are active and inactive
      * @param idDirective
      * @param refexDirective
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
-     * @throws ContradictionException if more than one version is returned for
-     * the view coordinate
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more than one version is returned for the view coordinate
      */
     public CreateOrAmendBlueprint(UUID componentUuid, ComponentVersionBI componentVersion,
             ViewCoordinate viewCoordinate, IdDirective idDirective,
@@ -142,7 +138,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         setStatus(Status.ACTIVE);
         setComponentUuidNoRecompute(componentUuid);
 
-        //TODO Dan notes, this is wrong - should be calling recomputeUuid(), as far as I can tell... for every case but the preserve ones...
+      //TODO Dan notes, this is wrong - should be calling recomputeUuid(), as far as I can tell... for every case but the preserve ones...
         //tis also wrong, because there is no way to use the API to actually pass in the desired componentUuid.  It is set above, and then overwritten
         //in almost every case.  One would expect that if the directive is a type of PRESERVE, then you should not default to overwriting with the component
         //version UUID.  PRESERVE is ill defined.  PRESERVE what?  What the user said in the API?  Or what the componentVersion has?
@@ -164,32 +160,27 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Adds an annotation blueprint to be associated with this component
-     * blueprint.
+     * Adds an annotation blueprint to be associated with this component blueprint.
      *
-     * @param annotationBlueprint the annotation blueprint to associate with
-     * this component blueprint
+     * @param annotationBlueprint the annotation blueprint to associate with this component blueprint
      */
     public void addAnnotationBlueprint(RefexCAB annotationBlueprint) {
         annotations.add(annotationBlueprint);
     }
 
     /**
-     * Adds an annotation blueprint to be associated with this component
-     * blueprint.
+     * Adds an annotation blueprint to be associated with this component blueprint.
      *
-     * @param annotationBlueprint the annotation blueprint to associate with
-     * this component blueprint
+     * @param annotationBlueprint the annotation blueprint to associate with this component blueprint
      */
     public void addAnnotationBlueprint(RefexDynamicCAB annotationBlueprint) {
         annotationsDynamic.add(annotationBlueprint);
     }
-
+    
     /**
-     * Adds an additional <code>UUID</code> ID to the component specified by
-     * this component blueprint. This is a UUID in addition to the primordial
-     * uuid associated with this concept. Use setComponentUuid to set the
-     * primordial uuid.
+     * Adds an additional
+     * <code>UUID</code> ID to the component specified by this component blueprint. This is a UUID in addition
+     * to the primordial uuid associated with this concept. Use setComponentUuid to set the primordial uuid.
      *
      * @param extraUuid the uuid identifier to add
      * @param authorityNid the authority associated with the identifier
@@ -200,9 +191,9 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Adds an additional <code>long</code> ID to the component specified by
-     * this component blueprint. Any SCT IDs to add to this concept should be
-     * added using this method.
+     * Adds an additional
+     * <code>long</code> ID to the component specified by this component blueprint. Any SCT IDs to add to this
+     * concept should be added using this method.
      *
      * @param longId the long identifier to add
      * @param authorityNid the authority associated with the identifier
@@ -232,8 +223,8 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Adds an additional <code>String</code> ID to the component specified by
-     * this component blueprint.
+     * Adds an additional
+     * <code>String</code> ID to the component specified by this component blueprint.
      *
      * @param stringId the string identifier to add
      * @param authorityNid the authority associated with the identifier
@@ -243,9 +234,8 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Listens for a property change event in any of the component blueprint
-     * classes and recomputes the blueprints' computed uuid if a dependent
-     * component has changed.
+     * Listens for a property change event in any of the component blueprint classes and recomputes the
+     * blueprints' computed uuid if a dependent component has changed.
      *
      * @param propertyChangeEvent the property change event
      */
@@ -262,19 +252,14 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * This method is implemented by the other component blueprint classes. This
-     * allows the components to recompute their uuids if a dependent component
-     * changes.
+     * This method is implemented by the other component blueprint classes. This allows the components to
+     * recompute their uuids if a dependent component changes.
      *
-     * @throws NoSuchAlgorithmException indicates a no such algorithm exception
-     * has occurred
-     * @throws UnsupportedEncodingException indicates an unsupported encoding
-     * exception has occurred
+     * @throws NoSuchAlgorithmException indicates a no such algorithm exception has occurred
+     * @throws UnsupportedEncodingException indicates an unsupported encoding exception has occurred
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
-     * @throws ContradictionException if more than one version is found for a
-     * give position or view coordinate
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more than one version is found for a give position or view coordinate
      */
     public abstract void recomputeUuid()
             throws NoSuchAlgorithmException, UnsupportedEncodingException, IOException, InvalidCAB,
@@ -301,67 +286,57 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Replace the annotation blueprints associated with this blueprint with the
-     * given list of <code>annoationBlueprints</code>.
+     * Replace the annotation blueprints associated with this blueprint with the given list of
+     * <code>annoationBlueprints</code>.
      *
-     * @param annotationBlueprints the annotation blueprints to associate with
-     * this component blueprint
+     * @param annotationBlueprints the annotation blueprints to associate with this component blueprint
      */
     public void replaceAnnotationBlueprints(List<RefexCAB> annotationBlueprints) {
         this.annotations = annotationBlueprints;
     }
-
+    
     /**
-     * Replace the annotation blueprints associated with this blueprint with the
-     * given list of <code>annoationBlueprints</code>.
+     * Replace the annotation blueprints associated with this blueprint with the given list of
+     * <code>annoationBlueprints</code>.
      *
-     * @param annotationDynamicBlueprints the annotation blueprints to associate
-     * with this component blueprint
+     * @param annotationBlueprints the annotation blueprints to associate with this component blueprint
      */
     public void replaceAnnotationDynamicBlueprints(List<RefexDynamicCAB> annotationDynamicBlueprints) {
         this.annotationsDynamic = annotationDynamicBlueprints;
     }
 
     /**
-     * Returns list of annotation blueprints associated with this component
-     * blueprint.
+     * Returns list of annotation blueprints associated with this component blueprint.
      *
      * @return a list of annotation blueprints associated with this component
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
-     * @throws ContradictionException if more then one version is found for a
-     * particular view coordinate
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more then one version is found for a particular view coordinate
      */
     public List<RefexCAB> getAnnotationBlueprints() throws IOException, InvalidCAB, ContradictionException {
         return annotations;
     }
-
+    
     /**
-     * Returns list of annotation blueprints associated with this component
-     * blueprint.
+     * Returns list of annotation blueprints associated with this component blueprint.
      *
      * @return a list of annotation blueprints associated with this component
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
-     * @throws ContradictionException if more then one version is found for a
-     * particular view coordinate
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more then one version is found for a particular view coordinate
      */
     public List<RefexDynamicCAB> getAnnotationDynamicBlueprints() throws IOException, InvalidCAB, ContradictionException {
         return annotationsDynamic;
     }
 
     /**
-     * Returns list of annotation blueprints associated with this component
-     * blueprint. Gets a list from the original component if null.
+     * Returns list of annotation blueprints associated with this component blueprint. Gets a list from the
+     * original component if null.
      *
      * @return a list of annotation blueprints associated with this component
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
-     * @throws ContradictionException if more then one version is found for a
-     * particular view coordinate
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more then one version is found for a particular view coordinate
      */
     private List<RefexCAB> getAnnotationBlueprintsFromOriginal()
             throws IOException, InvalidCAB, ContradictionException {
@@ -407,17 +382,15 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
         return annotations;
     }
-
+    
     /**
-     * Returns list of annotation blueprints associated with this component
-     * blueprint. Gets a list from the original component if null.
+     * Returns list of annotation blueprints associated with this component blueprint. Gets a list from the
+     * original component if null.
      *
      * @return a list of annotation blueprints associated with this component
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
-     * @throws ContradictionException if more then one version is found for a
-     * particular view coordinate
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more then one version is found for a particular view coordinate
      */
     private List<RefexDynamicCAB> getAnnotationDynamicBlueprintsFromOriginal()
             throws IOException, InvalidCAB, ContradictionException {
@@ -513,27 +486,24 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Returns a map of IDs as <code>Objects</code> and their associated
-     * authority nids. The supported IDs are currently: long, string, and uuid.
+     * Returns a map of IDs as
+     * <code>Objects</code> and their associated authority nids. The supported IDs are currently: long,
+     * string, and uuid.
      *
-     * @return a map of IDs as <code>Objects</code> and their associated
-     * authority nids
+     * @return a map of IDs as <code>Objects</code> and their associated authority nids
      */
     public HashMap<Object, Integer> getIdMap() {
         return idMap;
     }
 
     /**
-     * Gets a string representing the primordial uuid for the component
-     * specified by the <code>componentNid</code>. This is uuid associated with
-     * the first version of the component.
+     * Gets a string representing the primordial uuid for the component specified by the
+     * <code>componentNid</code>. This is uuid associated with the first version of the component.
      *
      * @param componentNid the nid associated with the component in question
-     * @return a string representing the primordial uuid of the component in
-     * question
+     * @return a string representing the primordial uuid of the component in question
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      */
     protected String getPrimoridalUuidString(int componentNid) throws IOException, InvalidCAB {
         ComponentBI component = Ts.get().getComponent(componentNid);
@@ -552,16 +522,13 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Gets a string representing the primordial uuid for the component
-     * specified by the input uuid. This is uuid associated with the first
-     * version of the component.
+     * Gets a string representing the primordial uuid for the component specified by the
+     * <code>uuid/code>. This is uuid associated with the first version of the component.
      *
      * @param uuid the uuid of the component in question
-     * @return a string representing the primordial uuid of the component in
-     * question
+     * @return a string representing the primordial uuid of the component in question
      * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are
-     * invalid
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      */
     protected String getPrimoridalUuidString(UUID uuid) throws IOException, InvalidCAB {
         if (Ts.get() == null) {
@@ -592,8 +559,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     /**
      * Sets the uuid of the component specified by this blueprint.
      *
-     * @param componentUuid the uuid of the component specified by this
-     * blueprint
+     * @param componentUuid the uuid of the component specified by this blueprint
      */
     public void setComponentUuid(UUID componentUuid) {
         UUID oldUuid = (UUID) properties.get(ComponentProperty.COMPONENT_ID);
@@ -606,10 +572,9 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Sets the component uuid. Does not fire a property change event for the
-     * changed uuid. No dependent component uuids will be recomputed. This is
-     * useful when setting the component uuid to a pre-determined uuid, and
-     * purposefully not use a re-computable uuid.
+     * Sets the component uuid. Does not fire a property change event for the changed uuid. No dependent
+     * component uuids will be recomputed. This is useful when setting the component uuid to a pre-determined
+     * uuid, and purposefully not use a re-computable uuid.
      *
      * @param componentUuid the new component uuid no recompute
      */
@@ -634,20 +599,18 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     /**
      * Sets the uuid of the status associated with this component blueprint.
      *
-     * @param status the uuid of the status associated with this component
-     * blueprint
+     * @param statusUuid the uuid of the status associated with this component blueprint
      */
     public final void setStatus(Status status) {
         properties.put(ComponentProperty.STATUS, status);
     }
 
     /**
-     * Gets an integer representation of the value associated with the given
-     * refex property <code>key</code>.
+     * Gets an integer representation of the value associated with the given refex property
+     * <code>key</code>.
      *
      * @param key the refex property key
-     * @return an integer representation of the value associated with the
-     * specified refex property
+     * @return an integer representation of the value associated with the specified refex property
      */
     public int getInt(ComponentProperty key) {
         Object obj = properties.get(key);
@@ -662,12 +625,11 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
 
     /**
-     * Gets an UUID representation of the value associated with the given refex
-     * property <code>key</code>.
+     * Gets an UUID representation of the value associated with the given refex property
+     * <code>key</code>.
      *
      * @param key the refex property key
-     * @return an integer representation of the value associated with the
-     * specified refex property
+     * @return an integer representation of the value associated with the specified refex property
      */
     public UUID getUuid(ComponentProperty key) {
         Object obj = properties.get(key);

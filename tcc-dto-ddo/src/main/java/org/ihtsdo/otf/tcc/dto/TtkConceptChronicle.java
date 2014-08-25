@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.dto;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
@@ -23,9 +22,13 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
+import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.TtkRevisionProcessorBI;
+import org.ihtsdo.otf.tcc.dto.component.TtkStamp;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayMemberChronicle;
@@ -52,8 +55,12 @@ import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
-//~--- JDK imports ------------------------------------------------------------
+import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_FLOAT;
+import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_INT;
+import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_LONG;
+import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_STRING;
 
+//~--- JDK imports ------------------------------------------------------------
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -63,13 +70,14 @@ import java.util.*;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.*;
+import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
 
 /**
  * Class description
  *
  *
- * @version        Enter version here..., 13/03/27
- * @author         Enter your name here...    
+ * @version Enter version here..., 13/03/27
+ * @author Enter your name here...
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "concept")
@@ -114,7 +122,7 @@ public class TtkConceptChronicle {
    @XmlElementWrapper(name = "refex-member-collection")
    @XmlElement(name = "refex")
    protected List<TtkRefexAbstractMemberChronicle<?>> refsetMembers;
-   
+
    /** Field description */
    @XmlElementWrapper(name = "refex-member-dynamic-collection")
    @XmlElement(name = "refexDynamic")
@@ -167,7 +175,7 @@ public class TtkConceptChronicle {
       }
 
       if (!c.isAnnotationStyleRefex()) {
-         Collection<? extends RefexChronicleBI<?>> members = c.getRefsetMembers();
+         Collection<? extends RefexChronicleBI> members = c.getRefsetMembers();
 
          if (members != null) {
             refsetMembers = new ArrayList<>(members.size());
@@ -258,7 +266,7 @@ public class TtkConceptChronicle {
             this.refsetMembers.add((TtkRefexAbstractMemberChronicle<?>) d.makeTransform(transformer));
          }
       }
-      
+
       if (another.refsetMembersDynamic != null) {
           this.refsetMembersDynamic = new ArrayList<>(another.refsetMembersDynamic.size());
 
@@ -275,6 +283,63 @@ public class TtkConceptChronicle {
          }
       }
    }
+
+    public void processComponentChronicles(TtkChronicleProcessor processor) {
+        processChronicle(this.conceptAttributes, processor);
+        processChronicle(this.descriptions, processor);
+        processChronicle(this.relationships, processor);
+        processChronicle(this.media, processor);
+        processChronicle(this.refsetMembers, processor);
+        processChronicle(this.refsetMembersDynamic, processor);
+    }
+
+    private void processChronicle(Collection<? extends TtkComponentChronicle> chronicleCollection, TtkChronicleProcessor processor) {
+        if (chronicleCollection != null) {
+            for (TtkComponentChronicle component : chronicleCollection) {
+                processChronicle(component, processor);
+            }
+        }
+    }
+
+    private void processChronicle(TtkComponentChronicle chronicle, TtkChronicleProcessor processor) {
+        processor.process(chronicle);
+        processChronicle(chronicle.getAnnotations(), processor);
+        processChronicle(chronicle.getAnnotationsDynamic(), processor);
+    }
+
+    public void processComponentRevisions(TtkRevisionProcessorBI processor) {
+        processChronicleRevisions(this.conceptAttributes, processor);
+        processChronicleRevisions(this.descriptions, processor);
+        processChronicleRevisions(this.relationships, processor);
+        processChronicleRevisions(this.media, processor);
+        processChronicleRevisions(this.refsetMembers, processor);
+        processChronicleRevisions(this.refsetMembersDynamic, processor);
+    }
+
+    private void processChronicleRevisions(TtkComponentChronicle<?> cc,
+            TtkRevisionProcessorBI processor) {
+        if (cc != null) {
+            processor.process(cc);
+            if (cc.revisions != null) {
+                cc.revisions.forEach(processor::process);
+            }
+            if (cc.annotations != null) {
+                processChronicleRevisions(cc.annotations, processor);
+            }
+            if (cc.additionalIds != null) {
+                cc.additionalIds.forEach(processor::process);
+            }
+        }
+    }
+
+    private void processChronicleRevisions(List<? extends TtkComponentChronicle<?>> componentList,
+            TtkRevisionProcessorBI processor) {
+        if (componentList != null) {
+            for (TtkComponentChronicle<?> cc : componentList) {
+                processChronicleRevisions(cc, processor);
+            }
+        }
+    }
 
    /**
     * Method description
@@ -319,7 +384,7 @@ public class TtkConceptChronicle {
          throw new UnsupportedOperationException("Cannot handle: " + m);
       }
    }
-   
+
    public static TtkRefexDynamicMemberChronicle convertRefex(RefexDynamicChronicleBI<?> m) throws IOException {
        return new TtkRefexDynamicMemberChronicle(m);
    }
@@ -398,7 +463,7 @@ public class TtkConceptChronicle {
          } else if (!this.refsetMembers.equals(another.refsetMembers)) {
             return false;
          }
-         
+
          // Compare Refset Members
          if (this.refsetMembersDynamic == null) {
             if (another.refsetMembersDynamic == null) {             // Equal!
@@ -695,7 +760,7 @@ public class TtkConceptChronicle {
             buff.append("\n");
          }
       }
-      
+
       buff.append("\n   RefsetMembersDynamic: \n");
 
       if (this.refsetMembersDynamic == null) {

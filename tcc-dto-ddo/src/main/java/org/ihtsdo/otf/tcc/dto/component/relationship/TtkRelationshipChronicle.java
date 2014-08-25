@@ -94,6 +94,14 @@ public class TtkRelationshipChronicle extends TtkComponentChronicle<TtkRelations
 
    //~--- methods -------------------------------------------------------------
 
+    @Override
+    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        references.add(this.typeUuid);
+        references.add(this.c1Uuid);
+        references.add(this.c2Uuid);
+        references.add(this.characteristicUuid);
+        references.add(this.refinabilityUuid);
+    }
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

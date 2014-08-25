@@ -24,7 +24,6 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -330,10 +329,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.getRefexMembersActive(xyz);
     }
 
-    public ConceptChronicle getEnclosingConcept() {
-        return primordialComponent.getEnclosingConcept();
-    }
-
     @Override
     public Collection<? extends RefexVersionBI<?>> getRefexMembersInactive(ViewCoordinate xyz) throws IOException {
         return getChronicle().getRefexMembersInactive(xyz);
@@ -524,7 +519,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     }
 
     @Override
-    public final void setStatus(Status status) {
+    public final void setStatus(org.ihtsdo.otf.tcc.api.coordinate.Status nid) {
 //        TODO-AKF: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
@@ -532,7 +527,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 //        }
 
         try {
-            this.stamp = PersistentStore.get().getStamp(status, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
+            this.stamp = PersistentStore.get().getStamp(nid, Long.MAX_VALUE, getAuthorNid(), getModuleNid(),
                     getPathNid());
         } catch (Exception e) {
             throw new RuntimeException();

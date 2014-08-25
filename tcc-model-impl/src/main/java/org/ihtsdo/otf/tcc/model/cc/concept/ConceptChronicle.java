@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -31,7 +32,7 @@ import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
@@ -121,7 +122,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         this.data = PersistentStore.get().getConceptData(nid);
     }
 
-    public static final int DATA_VERSION = 0;
+        public ConceptChronicle(int nid, I_ManageConceptData data) throws IOException {
+        super();
+        lazyInit();
+        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
+        this.nid = nid;
+        this.hashCode = Hashcode.compute(nid);
+        this.data = data;
+    }
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -132,19 +140,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addDynamicAnnotation(annotation);
-    }
-
-    public boolean addMemberNid(int nid) throws IOException {
-        Set<Integer> memberNids = data.getMemberNids();
-
-        if (!memberNids.contains(nid)) {
-            memberNids.add(nid);
-            modified();
-
-            return true;
-        }
-
-        return false;
     }
 
     @Override
@@ -171,7 +166,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public boolean commit(ChangeSetGenerationPolicy changeSetPolicy,
             ChangeSetGenerationThreadingPolicy changeSetWriterThreading)
             throws IOException {
-        this.modified();
 
         return PersistentStore.get().commit(this, ChangeSetPolicy.get(changeSetPolicy),
                 ChangeSetWriterThreading.get(changeSetWriterThreading));
@@ -187,40 +181,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return getNid() - o.getNid();
     }
 
-    public static void disableComponentsCRHM() {
-        componentsCRHM = new ConcurrentReferenceHashMap<Integer, Object>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                ConcurrentReferenceHashMap.ReferenceType.WEAK) {
-                    @Override
-                    public Object put(Integer key, Object value) {
-                        return null;
-                    }
-
-                    @Override
-                    public void putAll(Map<? extends Integer, ? extends Object> m) {
-                        // nothing to do;
-                    }
-
-                    @Override
-                    public Object putIfAbsent(Integer key, Object value) {
-                        return null;
-                    }
-
-                    @Override
-                    public boolean replace(Integer key, Object oldValue, Object newValue) {
-                        return false;
-                    }
-
-                    @Override
-                    public Object replace(Integer key, Object value) {
-                        return false;
-                    }
-                };
-    }
-
-    public static void enableComponentsCRHM() {
-        componentsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                ConcurrentReferenceHashMap.ReferenceType.WEAK);
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -317,25 +277,23 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return c;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static ConceptChronicle mergeWithEConcept(TtkConceptChronicle eConcept, ConceptChronicle c)
+    public static ConceptChronicle mergeWithEConcept(TtkConceptChronicle eConcept, ConceptChronicle c)
             throws IOException {
         if (c.isAnnotationStyleRefex() == false) {
             c.setAnnotationStyleRefex(eConcept.isAnnotationStyleRefex());
         }
-        boolean primordial = c.data.isPrimordial();
-        
+
         TtkConceptAttributesChronicle eAttr = eConcept.getConceptAttributes();
 
         
         if (eAttr != null) {
-            if (primordial || c.getConceptAttributes() == null) {
+            if (c.getData().isPrimordial()) {
                 setAttributesFromEConcept(c, eAttr);
             }
         }
 
         if ((eConcept.getDescriptions() != null) && !eConcept.getDescriptions().isEmpty()) {
-            if (primordial || (c.getDescriptions() == null) || c.getDescriptions().isEmpty()) {
+            if (c.getDescriptions().isEmpty()) {
                 setDescriptionsFromEConcept(eConcept, c);
             } else {
                 Set<Integer> currentDNids = c.data.getDescNids();
@@ -355,7 +313,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         if ((eConcept.getRelationships() != null) && !eConcept.getRelationships().isEmpty()) {
-            if (primordial || (c.getNativeSourceRels() == null) || c.getNativeSourceRels().isEmpty()) {
+            if (c.getNativeSourceRels().isEmpty()) {
                 setRelationshipsFromEConcept(eConcept, c);
             } else {
                 Set<Integer> currentSrcRelNids = c.data.getSrcRelNids();
@@ -373,12 +331,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 }
             }
         }
-        try{
-        if ((eConcept.getMedia() != null) && !eConcept.getMedia().isEmpty()) {
-            if (primordial || (c.getImages() == null) || c.getImages().isEmpty()) {
-                setImagesFromEConcept(eConcept, c);
-            } else {
-                Set<Integer> currentImageNids = c.data.getImageNids();
+
+        try {
+            if ((eConcept.getMedia() != null) && !eConcept.getMedia().isEmpty()) {
+                if (c.getImages().isEmpty()) {
+                    setImagesFromEConcept(eConcept, c);
+                } else {
+                    Set<Integer> currentImageNids = c.data.getImageNids();
 
                     for (TtkMediaChronicle eImg : eConcept.getMedia()) {
                         int iNid = PersistentStore.get().getNidForUuids(eImg.primordialUuid);
@@ -489,12 +448,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return c;
     }
 
-    public void modified() {
-        data.modified();
+    public void modified(ComponentChronicleBI modifiedComponent) {
+        data.modified(modifiedComponent);
     }
 
-    public void modified(long sequence) {
-        data.modified(sequence);
+    public void modified(ConceptComponent modifiedComponent, long sequence) {
+        data.modified(modifiedComponent, sequence);
     }
 
     private static ConceptChronicle populateFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
@@ -571,27 +530,22 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             processComponentChronicles(getConceptAttributes(), processor);
         }
 
-        if (getDescriptions() != null) {
-            for (ComponentChronicleBI cc : getDescriptions()) {
-                processComponentChronicles(cc, processor);
-            }
-        }
+        processComponentList(getDescriptions(), processor);
+        processComponentList(getNativeSourceRels(), processor);
+        processComponentList(getImages(), processor);
+        processComponentList(getRefsetMembers(), processor);
+        processComponentList(getRefsetDynamicMembers(), processor);
+    }
 
-        if (getNativeSourceRels() != null) {
-            for (ComponentChronicleBI cc : getNativeSourceRels()) {
+    private void processComponentList(Collection<? extends ComponentChronicleBI> componentCollection, ProcessComponentChronicleBI processor) throws Exception {
+        if (componentCollection != null) {
+            OpenIntHashSet nids = new OpenIntHashSet(componentCollection.size());
+            for (ComponentChronicleBI cc : componentCollection) {
+                if (nids.contains(cc.getNid())) {
+                    throw new RuntimeException("List contains duplicate components..." + componentCollection);
+                }
                 processComponentChronicles(cc, processor);
-            }
-        }
-
-        if (getImages() != null) {
-            for (ComponentChronicleBI cc : getImages()) {
-                processComponentChronicles(cc, processor);
-            }
-        }
-
-        if (getRefsetMembers() != null) {
-            for (ComponentChronicleBI cc : getRefsetMembers()) {
-                processComponentChronicles(cc, processor);
+                nids.add(cc.getNid());
             }
         }
     }
@@ -599,9 +553,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private void processComponentChronicles(ComponentChronicleBI cc,
             ProcessComponentChronicleBI processor) throws Exception {
         processor.process(cc);
-        for (RefexChronicleBI refex : cc.getAnnotations()) {
-            processComponentChronicles(refex, processor);
-        }
+        processComponentList(cc.getAnnotations(), processor);
     }
 
     public boolean readyToWrite() {
@@ -766,6 +718,26 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
+    public static ConceptChronicle get(int nid, I_ManageConceptData data) throws IOException {
+        assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
+        lazyInit();
+        ConceptChronicle c = conceptsCRHM.get(nid);
+
+        if (c == null) {
+            ConceptChronicle newC = new ConceptChronicle(nid, data);
+
+            c = conceptsCRHM.putIfAbsent(nid, newC);
+
+            if (c == null) {
+                c = newC;
+            }
+        }
+
+        conceptsCRHM.put(nid, c);
+
+        return c;
+    }
+    
     public static ConceptChronicle get(int nid) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
         lazyInit();
@@ -797,11 +769,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         } else {
             conceptNid = PersistentStore.get().getNidForUuids(eConcept.getPrimordialUuid());
         }
+
         PersistentStore.get().setConceptNidForNid(conceptNid, conceptNid);
         assert conceptNid != Integer.MAX_VALUE : "no conceptNid for uuids";
 
         ConceptChronicle c = get(conceptNid);
-        
+
         // return populateFromEConcept(eConcept, c);
         try {
             return mergeWithEConcept(eConcept, c);
@@ -1162,11 +1135,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.getDestRels(allowedTypes);
     }
 
-    @Override
-    public ConceptChronicle getEnclosingConcept() {
-        return this;
-    }
-
     public RefexMember<?, ?> getExtension(int componentNid) throws IOException {
         if (isCanceled()) {
             return null;
@@ -1192,6 +1160,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public static ConceptChronicle getIfInMap(int nid) {
+        lazyInit();
         return conceptsCRHM.get(nid);
     }
 
@@ -1566,7 +1535,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             }
 
             if (fsDescNid == Integer.MIN_VALUE) {
-                fsDescNid = SnomedMetadataRfx.getDES_FULL_SPECIFIED_NAME_NID();
+                fsDescNid = SnomedMetadataRf2.PREFERRED_RF2.getNid();
             }
 
             if (getDescriptions().size() > 0) {
@@ -1743,13 +1712,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public boolean isCanceled() throws IOException {
-        if (!canceled) {
-            if ((getConceptAttributes() != null) && (getConceptAttributes().getPrimordialVersion().getTime() == Long.MIN_VALUE)) {
-                canceled = true;
-            }
-        }
-
-        return canceled;
+        return data.isConceptForgotten();
     }
 
     public boolean isParentOf(ConceptChronicle child, ViewCoordinate vc) throws IOException, ContradictionException {
@@ -1799,19 +1762,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     private static void setDescriptionsFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
-        if (c.data.isPrimordial()) {
-            HashSet<Description> descs = new HashSet<>();
-            for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
-                Description desc = new Description(eDesc, c);
-                descs.add(desc);
-            }
-            c.data.setDescriptions(descs);
-        } else {
-            for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
-                Description desc = new Description(eDesc, c);
+        for (TtkDescriptionChronicle eDesc : eConcept.getDescriptions()) {
+            Description desc = new Description(eDesc, c);
 
-                c.data.add(desc);
-            }
+            c.data.add(desc);
         }
     }
 
@@ -1844,19 +1798,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     private static void setRelationshipsFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
-        if(c.data.isPrimordial()){
-            HashSet<Relationship> rels = new HashSet<>();
-            for (TtkRelationshipChronicle eRel : eConcept.getRelationships()) {
-                Relationship rel = new Relationship(eRel, c);
-                rels.add(rel);
-            }
-            c.data.setSourceRels(rels);
-        }else {
-            for (TtkRelationshipChronicle eRel : eConcept.getRelationships()) {
-                Relationship rel = new Relationship(eRel, c);
+        for (TtkRelationshipChronicle eRel : eConcept.getRelationships()) {
+            Relationship rel = new Relationship(eRel, c);
 
-                c.data.getSourceRels().add(rel);
-            }
+            c.data.getSourceRels().add(rel);
         }
     }
     /**

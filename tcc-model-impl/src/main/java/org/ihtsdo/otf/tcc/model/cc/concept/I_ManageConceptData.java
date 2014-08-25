@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface I_ManageConceptData {
+public interface I_ManageConceptData extends ModificationTracker {
     void add(Description desc) throws IOException;
 
     void add(Media img) throws IOException;
@@ -28,14 +28,13 @@ public interface I_ManageConceptData {
 
     void add(Relationship rel) throws IOException;
 
+    void forgetConcept();
+    boolean isConceptForgotten();
+
     /**
      * For single-concept cancel.
      */
     void cancel() throws IOException;
-
-    void modified();
-
-    void modified(long sequence);
 
     boolean readyToWrite();
 
@@ -45,11 +44,11 @@ public interface I_ManageConceptData {
     ComponentChronicleBI<?> getComponent(int nid) throws IOException;
 
     ConceptAttributes getConceptAttributes() throws IOException;
-   
-   void setConceptAttributes(ConceptAttributes attr) throws IOException;
-   
-   public Collection<Integer> getConceptNidsAffectedByCommit() throws IOException;
-   
+
+    void setConceptAttributes(ConceptAttributes attr) throws IOException;
+
+    public Collection<Integer> getConceptNidsAffectedByCommit() throws IOException;
+
     Set<Integer> getDescNids() throws IOException;
 
     Collection<Description> getDescriptions() throws IOException;
@@ -106,4 +105,5 @@ public interface I_ManageConceptData {
      * @param time
      */
     NidSetBI setCommitTime(long time);
+
 }

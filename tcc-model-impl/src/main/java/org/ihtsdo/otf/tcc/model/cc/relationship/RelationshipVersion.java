@@ -87,7 +87,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
 
     //~--- get methods ------------------------------------------------------
     public int getC1Nid() {
-        return getEnclosingConcept().getNid();
+        return getConceptNid();
     }
 
     public int getC2Nid() {

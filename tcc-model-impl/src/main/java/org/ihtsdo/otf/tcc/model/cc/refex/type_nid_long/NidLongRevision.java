@@ -60,6 +60,20 @@ public class NidLongRevision extends RefexRevision<NidLongRevision, NidLongMembe
       c1Nid     = another.c1Nid;
       longValue = another.longValue;
    }
+   
+   public NidLongRevision(RefexNidLongAnalogBI another, Status status, long time, int authorNid,
+            int moduleNid, int pathNid, NidLongMember primoridalMember) {
+        super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
+        this.c1Nid = another.getNid1();
+        this.longValue = another.getLong1();
+    }
+    
+    public NidLongRevision(RefexNidLongAnalogBI another, NidLongMember primordialMember){
+        super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
+              another.getPathNid(), primordialMember);
+        this.c1Nid = another.getNid1();
+        this.longValue = another.getLong1();
+    }
    //~--- methods -------------------------------------------------------------
 
    @Override

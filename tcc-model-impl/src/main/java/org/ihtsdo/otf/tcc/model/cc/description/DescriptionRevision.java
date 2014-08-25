@@ -75,18 +75,9 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
       stamp                 = PersistentStore.get().getStamp(edv);
    }
 
-   public DescriptionRevision(DescriptionVersionBI another, Status status, long time,
+   protected DescriptionRevision(DescriptionVersionBI another, Status status, long time,
            int authorNid, int moduleNid, int pathNid, Description primoridalMember) {
       super(status, time, authorNid, moduleNid, pathNid, primoridalMember);
-      this.text                   = another.getText();
-      this.typeNid                = another.getTypeNid();
-      this.lang                   = another.getLang();
-      this.initialCaseSignificant = another.isInitialCaseSignificant();
-   }
-   
-   public DescriptionRevision(DescriptionVersionBI another, Description primoridalMember) {
-      super(another.getStatus(), another.getTime(), another.getAuthorNid(), another.getModuleNid(),
-              another.getPathNid(), primoridalMember);
       this.text                   = another.getText();
       this.typeNid                = another.getTypeNid();
       this.lang                   = another.getLang();

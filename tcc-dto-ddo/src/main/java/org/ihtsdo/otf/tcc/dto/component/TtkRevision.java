@@ -17,11 +17,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -152,6 +148,27 @@ public abstract class TtkRevision implements ExternalStampBI {
         assert moduleUuid != null : another;
         this.time = transformer.transform(another.time, another, ComponentFields.TIME);
     }
+
+    public TtkStamp getStamp() {
+        return new TtkStamp(status, time, authorUuid, moduleUuid, pathUuid);
+    }
+
+    public Collection<UUID> getUuidReferences() {
+        HashSet<UUID> uuidReferences = new HashSet<>();
+        addUuidReferencesForRevision(uuidReferences);
+        return uuidReferences;
+    }
+
+    protected final void addUuidReferencesForRevision(Collection<UUID> references) {
+        references.add(this.authorUuid);
+        references.add(this.pathUuid);
+        references.add(this.moduleUuid);
+        addUuidReferencesForRevisionComponent(references);
+    }
+
+    protected abstract void addUuidReferencesForRevisionComponent(Collection<UUID> references);
+
+
 
     /**
      * Compares this object to the specified object. The result is <tt>true</tt> if and only if the argument

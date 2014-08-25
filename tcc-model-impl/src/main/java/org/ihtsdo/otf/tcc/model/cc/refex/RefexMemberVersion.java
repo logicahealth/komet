@@ -39,11 +39,15 @@ import org.ihtsdo.otf.tcc.model.cc.component.Version;
 //~--- inner classes -------------------------------------------------------
 public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMember<R, C>> 
     extends Version<R, C> implements RefexAnalogBI<R> {
-    private final RefexMember rm;
+    private RefexMember rm;
 
     public RefexMemberVersion(RefexAnalogBI<R> cv, final RefexMember<R,C> rm) {
         super(cv,rm);
         this.rm = rm;
+    }
+    
+    public RefexMemberVersion(){
+        super();
     }
 
     //~--- methods ----------------------------------------------------------

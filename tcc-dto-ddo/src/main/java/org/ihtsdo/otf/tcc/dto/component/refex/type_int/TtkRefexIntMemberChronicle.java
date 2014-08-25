@@ -68,6 +68,11 @@ public class TtkRefexIntMemberChronicle extends TtkRefexAbstractMemberChronicle<
 
    //~--- methods -------------------------------------------------------------
 
+    @Override
+    protected void addUuidReferencesForRefexRevision(Collection<UUID> references) {
+        // nothing to do...
+    }
+
    /**
     * Compares this object to the specified object. The result is <tt>true</tt>
     * if and only if the argument is not <tt>null</tt>, is a

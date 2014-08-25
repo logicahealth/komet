@@ -34,7 +34,5 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
     T getPrimordialVersion();
     
     boolean makeAdjudicationAnalogs(EditCoordinate ec, ViewCoordinate vc) throws Exception;
-    
-    ConceptChronicleBI getEnclosingConcept();
 
 }

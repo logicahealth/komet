@@ -24,7 +24,6 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRfx;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
@@ -429,7 +428,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             usAnnot = new RefexCAB(RefexType.CID,
                     fullySpecifiedNameBlueprint.getComponentUuid(),
                     usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -437,7 +436,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             gbAnnot = new RefexCAB(RefexType.CID,
                     fullySpecifiedNameBlueprint.getComponentUuid(),
                     gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -447,7 +446,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             usAnnot = new RefexCAB(RefexType.CID,
                     fullySpecifiedNameBlueprint.getComponentUuid(),
                     usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -599,7 +598,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             usAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -607,7 +606,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             gbAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -617,7 +616,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             usAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -626,7 +625,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             gbAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRfx.getDESC_PREFERRED_NID());
+            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
             if (moduleUuid != null) {
                 gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }

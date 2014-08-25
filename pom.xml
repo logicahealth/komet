@@ -16,7 +16,7 @@ the specific language governing permissions and limitations under the License. -
     </parent>
     <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-parent</artifactId>
-    <version>1.5-TT</version>
+    <version>1.6-TT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) Component chronicle service</name>
     <description>The Terminology Component Chronicle project provides the ability to
@@ -24,12 +24,12 @@ the specific language governing permissions and limitations under the License. -
         of all changes.
     </description>
     <scm>
-        <developerConnection>scm:git:http://informatics.com/stash/scm/ot/otf-versioning-service.git</developerConnection>
+        <developerConnection>http://informatics.com/stash/scm/ot/otf-versioning-service.git</developerConnection>
     </scm>
    	
     <properties>
-        <branch>TT</branch>
-        <hk2.version>2.3.0-b09</hk2.version>
+        <branch>develop</branch>
+        <hk2.version>2.3.0-b10</hk2.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <drools.version>5.5.0.Final</drools.version>
         <jbpm.version>5.4.0.Final</jbpm.version>
@@ -140,16 +140,15 @@ the specific language governing permissions and limitations under the License. -
                     <version>0.7.1.201405082137</version>
                 </plugin>
 
-                <plugin>
-                    <!--
-                       TODO: Consider this alternative:
-                       http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
-                       https://github.com/whummer/jaxb-facets
-                    -->
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>jaxb2-maven-plugin</artifactId>
-                    <version>1.6</version>
-                </plugin>
+            <plugin>
+            <!--
+               TODO: Consider this alternative:
+               http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+               https://github.com/whummer/jaxb-facets
+            -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jaxb2-maven-plugin</artifactId>
+            <version>1.6</version></plugin>
             </plugins>
         </pluginManagement>
 
@@ -191,6 +190,19 @@ the specific language governing permissions and limitations under the License. -
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin.version}</version>
+                <configuration>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <remoteTagging>true</remoteTagging>
+                    <arguments>-Pintegration-test</arguments>
+                    <tagNameFormat>tcc-@{project.version}</tagNameFormat>
+                    <goals>deploy site site:stage scm-publish:publish-scm</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
@@ -207,7 +219,7 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-model-impl</module>
         <module>tcc-rest-client</module>
         <module>tcc-rest-server</module>
-        <!--<module>tcc-integration-test</module>-->
+        <module>tcc-integration-test</module>
         <module>tcc-mojo</module>
         <module>tcc-serializer</module>
         <module>tcc-uuid-nid-map</module>
@@ -243,6 +255,25 @@ the specific language governing permissions and limitations under the License. -
                                                         <report>cim</report>
                                                         <report>issue-tracking</report>
                             -->
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <!-- Disabled - not installed on CI server -->
+                    <!--doclet>ydoc.doclets.YStandard</doclet>
+                    <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
+                    <additionalparam>-umlautogen</additionalparam>
+                    <docfilessubdirs>true</docfilessubdirs-->
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
                         </reports>
                     </reportSet>
                 </reportSets>

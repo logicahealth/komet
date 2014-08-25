@@ -10,6 +10,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
+
+    public Lock getWriteLock() {
+        return w;
+    }
+
     private final Lock w = rwl.writeLock();
 
     /**
@@ -64,6 +69,13 @@ public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
         }
     }
 
+    public int getDistinct() {
+        return distinct;
+    }
+
+    public void setDistinct(int distinct) {
+        this.distinct = distinct;
+    }
     @Override
     public int get(long[] key) {
         r.lock();

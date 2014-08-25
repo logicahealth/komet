@@ -12,6 +12,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
@@ -42,7 +43,12 @@ public class TtkMediaRevision extends TtkRevision {
       readExternal(in, dataVersion);
    }
 
-   public TtkMediaRevision(TtkMediaRevision another, ComponentTransformerBI transformer) {
+    @Override
+    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        references.add(this.typeUuid);
+    }
+
+    public TtkMediaRevision(TtkMediaRevision another, ComponentTransformerBI transformer) {
       super(another, transformer);
       this.textDescription = transformer.transform(another.textDescription, another, ComponentFields.MEDIA_TEXT_DESCRIPTION);
       this.typeUuid = transformer.transform(another.typeUuid, another, ComponentFields.MEDIA_TYPE_UUID);

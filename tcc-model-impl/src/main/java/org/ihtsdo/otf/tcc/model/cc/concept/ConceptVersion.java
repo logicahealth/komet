@@ -480,11 +480,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
    }
 
    @Override
-   public ConceptChronicleBI getEnclosingConcept() {
-      return concept;
-   }
-
-   @Override
    public Collection<? extends DescriptionVersionBI> getDescriptionsFullySpecifiedActive() throws IOException {
       setupFsnOrder();
 

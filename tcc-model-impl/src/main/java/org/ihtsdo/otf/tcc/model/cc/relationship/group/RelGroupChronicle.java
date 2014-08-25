@@ -164,10 +164,6 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       throw new UnsupportedOperationException("Not supported.");
    }
 
-   @Override
-   public ConceptChronicle getEnclosingConcept() {
-      return (ConceptChronicle) rels.iterator().next().getEnclosingConcept();
-   }
 
    @Override
    public Collection<? extends RefexVersionBI<?>> getRefexMembersInactive(ViewCoordinate xyz) throws IOException {

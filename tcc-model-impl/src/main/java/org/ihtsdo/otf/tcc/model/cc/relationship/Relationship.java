@@ -207,7 +207,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
 
       buf.append(this.getClass().getSimpleName()).append(":{");
       buf.append("src:");
-      ConceptComponent.addNidToBuffer(buf, getEnclosingConcept().getNid());
+      ConceptComponent.addNidToBuffer(buf, getConceptNid());
       buf.append(" t:");
       ConceptComponent.addNidToBuffer(buf, getTypeNid());
       buf.append(" dest:");

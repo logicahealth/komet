@@ -20,6 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
@@ -107,6 +108,11 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
     }
 
     //~--- methods -------------------------------------------------------------
+    @Override
+    protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+        // nothing to add
+    }
+
     /**
      * Compares this object to the specified object. The result is <tt>true</tt>
      * if and only if the argument is not <tt>null</tt>, is a
