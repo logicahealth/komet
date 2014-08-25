@@ -3,7 +3,7 @@
     <parent>
         <artifactId>tcc-parent</artifactId>
         <groupId>org.ihtsdo.otf</groupId>
-        <version>1.6-TT</version>
+        <version>1.7-TT-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
