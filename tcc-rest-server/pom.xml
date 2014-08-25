@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ihtsdo.otf</groupId>
         <artifactId>tcc-parent</artifactId>
-        <version>1.6-TT-SNAPSHOT</version>
+        <version>1.6-TT</version>
     </parent>
     <artifactId>tcc-rest-server</artifactId>
     <packaging>war</packaging>
