@@ -102,8 +102,6 @@ public class LoadIndexBdb extends AbstractMojo {
             //Dan notes: and wouldn't we _not_ want to do this, if we already indexed above, during the load?
             store.index();
 
-            Ts.close();
-
             if (!dbExists && moveToReadOnly) {
                 getLog().info("moving mutable to read-only");
 
