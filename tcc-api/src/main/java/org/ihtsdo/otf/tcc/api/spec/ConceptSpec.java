@@ -402,6 +402,7 @@ next:
     * @throws ValidationException
     */
    public ConceptChronicleBI getLenient() throws ValidationException, IOException {
+       assert Ts.get() != null: "Ts not properly set up. Ts.get() is null();";
       try {
          if (localChronicle != null) {
             return localChronicle;
@@ -410,7 +411,7 @@ next:
          boolean found = false;
 
          for (UUID uuid : uuids) {
-            if ((Ts.get() != null) && Ts.get().hasUuid(uuid)) {
+            if (Ts.get().hasUuid(uuid)) {
                found = true;
 
                break;
