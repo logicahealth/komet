@@ -181,6 +181,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         this.primordialStamp = PersistentStore.get().getStamp(eComponent);
+        if(primordialStamp == 0){
+            System.out.println("### DEBUG: primordial stamp was zero for component: " + eComponent);
+        }
         assert primordialStamp > 0 : " Processing nid: " + enclosingConceptNid;
         this.primordialMsb = eComponent.getPrimordialComponentUuid().getMostSignificantBits();
         this.primordialLsb = eComponent.getPrimordialComponentUuid().getLeastSignificantBits();
