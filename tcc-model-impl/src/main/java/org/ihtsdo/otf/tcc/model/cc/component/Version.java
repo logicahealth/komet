@@ -135,7 +135,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      * @return
      */
-    public abstract boolean fieldsEqual(Version<R,C> another); //TODO-AKF: make sure signature is correct
+    public abstract boolean fieldsEqual(Version<R,C> another);
 
     /**
      * Method description
@@ -553,7 +553,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         if (cv == cc) {
             return makeAnalog(getStatus(), getTime(), getAuthorNid(), getModuleNid(), getPathNid());
         }
-        return (R) cv; //TODO-AKF: not sure casting and return type is correct
+        return (R) cv; 
     }
 
     /**
@@ -649,7 +649,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public boolean isBaselineGeneration() {
-        return cv == cc; //TODO-AKF: is this okay?
+        return cv == cc;
     }
 
     /**
@@ -695,7 +695,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      * @throws PropertyVetoException
      */
-    public void setNid(int nid) throws PropertyVetoException { //TODO-AKF: removing final
+    public void setNid(int nid) throws PropertyVetoException {
         ((AnalogBI) cv).setNid(nid);
     }
 
