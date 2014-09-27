@@ -367,10 +367,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
    @Override
    public ConceptAttributeVersionBI getConceptAttributesActive() throws IOException, ContradictionException {
-       //TODO-AKF: just for debugging
-       if(concept.getConceptAttributes() == null){
-           System.out.println("### DEBUG: concept attributes null for concept: " + concept);
-       }
       return concept.getConceptAttributes().getVersion(vc);
    }
 
