@@ -140,15 +140,16 @@ the specific language governing permissions and limitations under the License. -
                     <version>0.7.1.201405082137</version>
                 </plugin>
 
-            <plugin>
-            <!--
-               TODO: Consider this alternative:
-               http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
-               https://github.com/whummer/jaxb-facets
-            -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jaxb2-maven-plugin</artifactId>
-            <version>1.6</version></plugin>
+                <plugin>
+                    <!--
+                       TODO: Consider this alternative:
+                       http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
+                       https://github.com/whummer/jaxb-facets
+                    -->
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>1.6</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -209,6 +210,22 @@ the specific language governing permissions and limitations under the License. -
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
