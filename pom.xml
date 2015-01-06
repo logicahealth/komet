@@ -105,6 +105,7 @@
 				<version>1.0-m4.3</version>
 				<configuration>
 					<pushReleases>false</pushReleases>
+					<noDeploy>true</noDeploy>
 					<allowSnapshots>true</allowSnapshots> <!-- Change this and the above back -->
 					<scmCommentPrefix>[jgitflow-plugin]</scmCommentPrefix>
 					<enableSshAgent>true</enableSshAgent>
