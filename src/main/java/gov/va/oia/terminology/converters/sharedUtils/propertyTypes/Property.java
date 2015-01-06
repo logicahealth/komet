@@ -20,7 +20,7 @@ package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import org.ihtsdo.etypes.EConcept;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
  * 
@@ -189,7 +189,7 @@ public class Property
 	 * Any the created concept will be passed to any registered listeners before the concept is written.
 	 * @param concept
 	 */
-	public void conceptCreated(EConcept concept)
+	public void conceptCreated(TtkConceptChronicle concept)
 	{
 		for (ConceptCreationNotificationListener ccn : listeners_)
 		{

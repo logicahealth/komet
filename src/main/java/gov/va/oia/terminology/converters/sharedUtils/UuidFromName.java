@@ -20,7 +20,7 @@ package gov.va.oia.terminology.converters.sharedUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import org.dwfa.util.id.Type5UuidFactory;
+import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 public class UuidFromName
 {
@@ -33,10 +33,10 @@ public class UuidFromName
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
-		System.out.println(Type5UuidFactory.get(Type5UuidFactory.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench development path"));
-		System.out.println(Type5UuidFactory.get(Type5UuidFactory.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench development origin"));
-		System.out.println(Type5UuidFactory.get(Type5UuidFactory.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench release candidate path"));
-		System.out.println(Type5UuidFactory.get(Type5UuidFactory.PATH_ID_FROM_FS_DESC, "Project Refsets"));
+		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench development path"));
+		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench development origin"));
+		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench release candidate path"));
+		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "Project Refsets"));
 
 	}
 

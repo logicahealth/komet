@@ -53,6 +53,16 @@
 			<version>3.3</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.ihtsdo.otf</groupId>
+			<artifactId>tcc-api</artifactId>
+			<version>${otf-vs.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ihtsdo.otf</groupId>
+			<artifactId>tcc-dto-ddo</artifactId>
+			<version>${otf-vs.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

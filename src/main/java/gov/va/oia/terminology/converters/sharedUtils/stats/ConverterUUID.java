@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
-import org.dwfa.util.id.Type5UuidFactory;
+import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 /**
  * A utility class for generating UUIDs which keeps track of what was used to generate the UUIDs - which
@@ -123,7 +123,7 @@ public class ConverterUUID
 		UUID uuid;
 		try
 		{
-			uuid = Type5UuidFactory.get(namespace, name);
+			uuid = UuidT5Generator .get(namespace, name);
 		}
 		catch (Exception e)
 		{

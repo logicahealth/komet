@@ -18,7 +18,7 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import org.ihtsdo.etypes.EConcept;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
  * 
@@ -31,5 +31,5 @@ import org.ihtsdo.etypes.EConcept;
  */
 public interface ConceptCreationNotificationListener
 {
-	public void conceptCreated(Property property, EConcept concept);
+	public void conceptCreated(Property property, TtkConceptChronicle concept);
 }

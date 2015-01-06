@@ -19,7 +19,7 @@
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import java.util.HashMap;
-import org.ihtsdo.etypes.EConcept;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
  * Fields to treat as refsets
@@ -29,9 +29,9 @@ import org.ihtsdo.etypes.EConcept;
  */
 public class BPT_MemberRefsets extends PropertyType
 {
-	private HashMap<String, EConcept> conceptMap_;  //We store concepts here, because by their nature, refsets can't be written until they are populated
+	private HashMap<String, TtkConceptChronicle> conceptMap_;  //We store concepts here, because by their nature, refsets can't be written until they are populated
 	//this happens much later in the conversion cycle.
-	private EConcept refsetIdentityParent_;  //Typically "Term-name Refsets" under "Project Refsets"
+	private TtkConceptChronicle refsetIdentityParent_;  //Typically "Term-name Refsets" under "Project Refsets"
 
 	public BPT_MemberRefsets(String terminologyName)
 	{
@@ -39,12 +39,12 @@ public class BPT_MemberRefsets extends PropertyType
 		conceptMap_ = new HashMap<>();
 	}
 	
-	public EConcept getConcept(String propertyName)
+	public TtkConceptChronicle getConcept(String propertyName)
 	{
 		return getConcept(getProperty(propertyName));
 	}
 	
-	public EConcept getConcept(Property property)
+	public TtkConceptChronicle getConcept(Property property)
 	{
 		return conceptMap_.get(property.getSourcePropertyNameFSN());
 	}
@@ -54,18 +54,18 @@ public class BPT_MemberRefsets extends PropertyType
 		conceptMap_.clear();
 	}
 	
-	public void setRefsetIdentityParent(EConcept refsetIdentityParent)
+	public void setRefsetIdentityParent(TtkConceptChronicle refsetIdentityParent)
 	{
 		refsetIdentityParent_ = refsetIdentityParent; 
 	}
 	
-	public EConcept getRefsetIdentityParent()
+	public TtkConceptChronicle getRefsetIdentityParent()
 	{
 		return refsetIdentityParent_;
 	}
 
 	@Override
-	public void conceptCreated(Property p, EConcept concept)
+	public void conceptCreated(Property p, TtkConceptChronicle concept)
 	{
 		super.conceptCreated(p, concept);
 		conceptMap_.put(p.getSourcePropertyNameFSN(), concept);

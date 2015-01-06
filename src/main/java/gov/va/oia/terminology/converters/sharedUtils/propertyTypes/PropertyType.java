@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
-import org.ihtsdo.etypes.EConcept;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
  * Abstract base class to help in mapping code system property types into the workbench data model.
@@ -256,7 +256,7 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	}
 
 	@Override
-	public void conceptCreated(Property property, EConcept concept)
+	public void conceptCreated(Property property, TtkConceptChronicle concept)
 	{
 		//default, noop method.
 	}
