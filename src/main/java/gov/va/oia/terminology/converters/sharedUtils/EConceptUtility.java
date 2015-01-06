@@ -122,18 +122,18 @@ public class EConceptUtility
 		//Start our creating our path concept, by hanging it under path/release
 		//Note, this concept gets created on WorkbenchAuxiliary path.
 		//need to gen the UUID on the special namespace, so it can be targeted from assembly pom
-		TtkConceptChronicle c = creatTtkConceptChronicle(ConverterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, pathName), pathName, pathReleaseUUID_);  
+		TtkConceptChronicle c = createConcept(ConverterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, pathName), pathName, pathReleaseUUID_);  
 		addDescription(c, pathName, DescriptionType.SYNONYM, true, null, null, Status.ACTIVE);  //Need a synonym as well, to be able to target from assembly pom
 		c.writeExternal(dos);
 		
 		//Add it to the pathOriginRefSet, done on workbenchAux path.
-		TtkConceptChronicle pathOriginRefsetConcept = creatTtkConceptChronicle(pathOriginRefSetUUID_);
+		TtkConceptChronicle pathOriginRefsetConcept = createConcept(pathOriginRefSetUUID_);
 		//Max value will be displayed as 'latest'.  Why on earth we are using an int for a time value, I have no idea.
 		addRefsetMember(pathOriginRefsetConcept, c.getPrimordialUuid(), workbenchAuxilary, Integer.MAX_VALUE, Status.ACTIVE, null);
 		pathOriginRefsetConcept.writeExternal(dos);
 		
 		//Also, add it to the pathRefset.  Also done on WorkbenchAux path.
-		TtkConceptChronicle pathRefsetConcept = creatTtkConceptChronicle(pathRefSetUUID_);
+		TtkConceptChronicle pathRefsetConcept = createConcept(pathRefSetUUID_);
 		addRefsetMember(pathRefsetConcept, pathUUID_, c.getPrimordialUuid(), Status.ACTIVE, null);
 		pathRefsetConcept.writeExternal(dos);
 		
@@ -145,17 +145,17 @@ public class EConceptUtility
 	 * Create a concept, automatically setting as many fields as possible (adds a description, calculates
 	 * the UUID, status current, etc)
 	 */
-	public TtkConceptChronicle creatTtkConceptChronicle(String preferredDescription)
+	public TtkConceptChronicle createConcept(String preferredDescription)
 	{
-		return createTtkConceptChronicle(ConverterUUID.createNamespaceUUIDFromString(preferredDescription), preferredDescription);
+		return createConcept(ConverterUUID.createNamespaceUUIDFromString(preferredDescription), preferredDescription);
 	}
 
 	/**
 	 * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
 	 */
-	public TtkConceptChronicle creatTtkConceptChronicle(String name, UUID parentConceptPrimordial)
+	public TtkConceptChronicle createConcept(String name, UUID parentConceptPrimordial)
 	{
-		TtkConceptChronicle concept = creatTtkConceptChronicle(name);
+		TtkConceptChronicle concept = createConcept(name);
 		addRelationship(concept, parentConceptPrimordial);
 		return concept;
 	}
@@ -163,25 +163,25 @@ public class EConceptUtility
 	/**
 	 * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
 	 */
-	public TtkConceptChronicle creatTtkConceptChronicle(UUID conceptPrimordialUuid, String name, UUID relParentPrimordial)
+	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String name, UUID relParentPrimordial)
 	{
-		TtkConceptChronicle concept = createTtkConceptChronicle(conceptPrimordialUuid, name);
+		TtkConceptChronicle concept = createConcept(conceptPrimordialUuid, name);
 		addRelationship(concept, relParentPrimordial);
 		return concept;
 	}
 	
-	public TtkConceptChronicle creatTtkConceptChronicle(UUID conceptPrimordialUuid)
+	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid)
 	{
-		return creatTtkConceptChronicle(conceptPrimordialUuid, (Long)null, Status.ACTIVE);
+		return createConcept(conceptPrimordialUuid, (Long)null, Status.ACTIVE);
 	}
 
 	/**
 	 * Create a concept, automatically setting as many fields as possible (adds a description (en US)
 	 * status current, etc
 	 */
-	public TtkConceptChronicle createTtkConceptChronicle(UUID conceptPrimordialUuid, String preferredDescription)
+	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String preferredDescription)
 	{
-		return creatTtkConceptChronicle(conceptPrimordialUuid, preferredDescription, null, Status.ACTIVE);
+		return createConcept(conceptPrimordialUuid, preferredDescription, null, Status.ACTIVE);
 	}
 
 	/**
@@ -189,9 +189,9 @@ public class EConceptUtility
 	 * 
 	 * @param time - set to now if null
 	 */
-	public TtkConceptChronicle creatTtkConceptChronicle(UUID conceptPrimordialUuid, String preferredDescription, Long time, Status status)
+	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String preferredDescription, Long time, Status status)
 	{
-		TtkConceptChronicle TtkConceptChronicle = creatTtkConceptChronicle(conceptPrimordialUuid, time, status);
+		TtkConceptChronicle TtkConceptChronicle = createConcept(conceptPrimordialUuid, time, status);
 		addFullySpecifiedName(TtkConceptChronicle, preferredDescription);
 		return TtkConceptChronicle;
 	}
@@ -204,7 +204,7 @@ public class EConceptUtility
 	 * @param status - if null, set to current
 	 * @return
 	 */
-	public TtkConceptChronicle creatTtkConceptChronicle(UUID conceptPrimordialUuid, Long time, Status status)
+	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, Long time, Status status)
 	{
 		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicle();
 		TtkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
@@ -250,7 +250,7 @@ public class EConceptUtility
 	 */
 	private TtkConceptChronicle createVARefsetRootConcept()
 	{
-		return creatTtkConceptChronicle(PROJECT_REFSETS_UUID, PROJECT_REFSETS_NAME, TermAux.REFSET_IDENTITY.getUuids()[0]);
+		return createConcept(PROJECT_REFSETS_UUID, PROJECT_REFSETS_NAME, TermAux.REFSET_IDENTITY.getUuids()[0]);
 	}
 
 	/**
@@ -872,7 +872,7 @@ public class EConceptUtility
 			boolean indexRefsetMembers, UUID relParentPrimordial, UUID secondParent, Property sourceProperty, DataOutputStream dos)
 			throws Exception
 	{
-		TtkConceptChronicle concept = createTtkConceptChronicle(primordial, fsnName);
+		TtkConceptChronicle concept = createConcept(primordial, fsnName);
 		concept.setAnnotationStyleRefex(indexRefsetMembers);
 		addRelationship(concept, relParentPrimordial);
 		if (secondParent != null)
@@ -937,7 +937,7 @@ public class EConceptUtility
 				TtkConceptChronicle refsetRoot = createVARefsetRootConcept();
 				refsetRoot.writeExternal(dos);
 				
-				TtkConceptChronicle refsetTermGroup = creatTtkConceptChronicle(pt.getPropertyTypeReferenceSetName(), refsetRoot.getPrimordialUuid());
+				TtkConceptChronicle refsetTermGroup = createConcept(pt.getPropertyTypeReferenceSetName(), refsetRoot.getPrimordialUuid());
 				((BPT_MemberRefsets) pt).setRefsetIdentityParent(refsetTermGroup);
 				secondParent = refsetTermGroup.getPrimordialUuid(); 
 			}
@@ -987,7 +987,7 @@ public class EConceptUtility
 	private TtkConceptChronicle createMetaDataSpecialConcept(UUID primordial, String fsnName, String preferredName, UUID relParentPrimordial, DataOutputStream dos)
 			throws Exception
 	{
-		TtkConceptChronicle concept = creatTtkConceptChronicle(primordial);
+		TtkConceptChronicle concept = createConcept(primordial);
 		//UUID needs to always be the same per description, so things merge properly when this gets created by multiple loaders
 		addDescription(concept, UuidT5Generator.get("FSN:" + fsnName), fsnName, DescriptionType.FSN, true, null, null, Status.ACTIVE);
 		concept.setAnnotationStyleRefex(false);
