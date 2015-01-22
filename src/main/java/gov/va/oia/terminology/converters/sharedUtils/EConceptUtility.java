@@ -355,21 +355,21 @@ public class EConceptUtility
 	 * @param sourceDescriptionTypeUUID - if null, set to "member"
 	 * @param sourceDescriptionRefsetUUID - if null, this and sourceDescriptionTypeUUID are ignored.
 	 */
-	public TtkDescriptionChronicle addDescription(TtkConceptChronicle TtkConceptChronicle, UUID descriptionPrimordialUUID, String descriptionValue, 
+	public TtkDescriptionChronicle addDescription(TtkConceptChronicle ttkConceptChronicle, UUID descriptionPrimordialUUID, String descriptionValue, 
 			DescriptionType wbDescriptionType, boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, Status status)
 	{
-		List<TtkDescriptionChronicle> descriptions = TtkConceptChronicle.getDescriptions();
+		List<TtkDescriptionChronicle> descriptions = ttkConceptChronicle.getDescriptions();
 		if (descriptions == null)
 		{
 			descriptions = new ArrayList<TtkDescriptionChronicle>();
-			TtkConceptChronicle.setDescriptions(descriptions);
+			ttkConceptChronicle.setDescriptions(descriptions);
 		}
 		TtkDescriptionChronicle description = new TtkDescriptionChronicle();
-		description.setConceptUuid(TtkConceptChronicle.getPrimordialUuid());
+		description.setConceptUuid(ttkConceptChronicle.getPrimordialUuid());
 		description.setLang(lang_);
 		if (descriptionPrimordialUUID == null)
 		{
-			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(TtkConceptChronicle.getPrimordialUuid().toString(), descriptionValue, 
+			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(ttkConceptChronicle.getPrimordialUuid().toString(), descriptionValue, 
 					wbDescriptionType.name(), preferred + "", (sourceDescriptionTypeUUID == null ? null : sourceDescriptionTypeUUID.toString()));
 		}
 		description.setPrimordialComponentUuid(descriptionPrimordialUUID);
@@ -392,7 +392,7 @@ public class EConceptUtility
 		}
 		description.setTypeUuid(descriptionTypeUuid);
 		description.setText(descriptionValue);
-		setRevisionAttributes(description, status, TtkConceptChronicle.getConceptAttributes().getTime());
+		setRevisionAttributes(description, status, ttkConceptChronicle.getConceptAttributes().getTime());
 
 		descriptions.add(description);
 		//Add the en-us info
