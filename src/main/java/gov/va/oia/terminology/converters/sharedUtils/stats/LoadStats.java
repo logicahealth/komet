@@ -34,6 +34,7 @@ public class LoadStats
 	private AtomicInteger concepts_ = new AtomicInteger();
 	private AtomicInteger clonedConcepts_ = new AtomicInteger();
 	private AtomicInteger skippedPropertiesCounter_ = new AtomicInteger();
+	private AtomicInteger generatedPreferredTermCount_ = new AtomicInteger();
 	private TreeMap<String, Integer> descriptions_ = new TreeMap<String, Integer>();
 	private TreeMap<String, Integer> conceptIds_ = new TreeMap<String, Integer>();
 	private TreeMap<String, TreeMap<String, Integer>> componentIds_ = new TreeMap<String, TreeMap<String, Integer>>();
@@ -71,6 +72,11 @@ public class LoadStats
 	public int getSkippedPropertyCount()
 	{
 		return skippedPropertiesCounter_.get();
+	}
+	
+	public void incDescriptionCopiedFromFSNCount()
+	{
+		generatedPreferredTermCount_.incrementAndGet();
 	}
 
 	public void addDescription(String descName)
@@ -155,6 +161,10 @@ public class LoadStats
 			result.add("Description '" + value.getKey() + "': " + value.getValue());
 		}
 		result.add("Descriptions Total: " + sum);
+		if (generatedPreferredTermCount_.get() > 0)
+		{
+			result.add("Descriptions duplicated from FSN: " + generatedPreferredTermCount_.get());
+		}
 
 		sum = 0;
 		nestedSum = 0;
