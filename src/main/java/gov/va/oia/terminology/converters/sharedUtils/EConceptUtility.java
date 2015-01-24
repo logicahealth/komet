@@ -70,20 +70,20 @@ public class EConceptUtility
 	public static enum DescriptionType{FSN, SYNONYM, DEFINITION};
 	public static final UUID isARelUuid_ = Snomed.IS_A.getUuids()[0];
 	public final UUID authorUuid_ = TermAux.USER.getUuids()[0];
-	public final UUID synonymUuid_ = Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0];
-	public final UUID definitionUuid_ = Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0];
-	public final UUID fullySpecifiedNameUuid_ = Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getUuids()[0];
-	public final UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0];
-	public final UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0];
-	public final UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
+	public final static UUID synonymUuid_ = Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0];
+	public final static UUID definitionUuid_ = Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0];
+	public final static UUID fullySpecifiedNameUuid_ = Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getUuids()[0];
+	public final static UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0];
+	public final static UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0];
+	public final static UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
 	public final UUID definingCharacteristicUuid_ = SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids()[0];
 	public final UUID notRefinableUuid = SnomedMetadataRf2.NOT_REFINABLE_RF2.getUuids()[0];
 	public final UUID moduleUuid_ = TtkRevision.unspecifiedModuleUuid;
-	public final UUID refsetMemberTypeNormalMemberUuid_ = UUID.fromString("cc624429-b17d-4ac5-a69e-0b32448aaf3c"); //normal member
+	public final static UUID refsetMemberTypeNormalMemberUuid_ = UUID.fromString("cc624429-b17d-4ac5-a69e-0b32448aaf3c"); //normal member
 	public final String PROJECT_REFSETS_NAME = "Project Refsets";
 	public final UUID PROJECT_REFSETS_UUID = UUID.fromString("7fe3e31f-a969-53ff-8702-f7837e4a03d9");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "Project Refsets")
-	public final UUID pathOriginRefSetUUID_ = TermAux.PATH_ORIGIN_REFSET.getUuids()[0];
-	public final UUID pathRefSetUUID_ = TermAux.PATH_REFSET.getUuids()[0];
+	public final static UUID pathOriginRefSetUUID_ = TermAux.PATH_ORIGIN_REFSET.getUuids()[0];
+	public final static UUID pathRefSetUUID_ = TermAux.PATH_REFSET.getUuids()[0];
 	public final UUID pathUUID_ = TermAux.PATH.getUuids()[0];
 	public final UUID pathReleaseUUID_ =  UUID.fromString("88f89cc0-1d94-34a4-85ed-aa1949079314");
 	public final UUID workbenchAuxilary = TermAux.WB_AUX_PATH.getUuids()[0];
@@ -206,7 +206,7 @@ public class EConceptUtility
 	 */
 	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, Long time, Status status)
 	{
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicle();
+		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
 		TtkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
 		conceptAttributes.setDefined(false);
@@ -226,7 +226,7 @@ public class EConceptUtility
 		{
 			return null;
 		}
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicle();
+		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
 		TtkConceptChronicle.setPrimordialUuid(cloneSource.getPrimordialUuid());
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
 		if (cloneSource.getConceptAttributes() != null)
@@ -565,29 +565,29 @@ public class EConceptUtility
 	/**
 	 * uses the component time, creates the UUID from the component UUID, the value UUID, and the type UUID.
 	 * 
-	 * @param valuTtkConceptChronicle - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
+	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID valuTtkConceptChronicle, UUID refsetUuid)
+	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID valueConcept, UUID refsetUuid)
 	{
-		return addUuidAnnotation(component, null, valuTtkConceptChronicle, refsetUuid, Status.ACTIVE, null);
+		return addUuidAnnotation(component, null, valueConcept, refsetUuid, Status.ACTIVE, null);
 	}
 	
 	/**
 	 * Generates the UUID, uses the component time
 	 * 
-	 * @param valuTtkConceptChronicle - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
+	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkConceptChronicle concept, UUID valuTtkConceptChronicle, UUID refsetUuid)
+	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkConceptChronicle concept, UUID valueConcept, UUID refsetUuid)
 	{
-		return addUuidAnnotation(concept.getConceptAttributes(), valuTtkConceptChronicle, refsetUuid);
+		return addUuidAnnotation(concept.getConceptAttributes(), valueConcept, refsetUuid);
 	}
 
 	/**
 	 * annotationPrimordialUuid - if null, generated from component UUID, value, type
 	 * @param time - If time is null, uses the component time.
-	 * @param valuTtkConceptChronicle - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
+	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID annotationPrimordialUuid, UUID valuTtkConceptChronicle, UUID refsetUuid, 
+	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID annotationPrimordialUuid, UUID valueConcept, UUID refsetUuid, 
 			Status status, Long time)
 	{
 		List<TtkRefexAbstractMemberChronicle<?>> annotations = component.getAnnotations();
@@ -604,10 +604,10 @@ public class EConceptUtility
 		if (annotationPrimordialUuid == null)
 		{
 			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromStrings(component.getPrimordialComponentUuid().toString(), 
-					(valuTtkConceptChronicle == null ? refsetMemberTypeNormalMemberUuid_ : valuTtkConceptChronicle).toString(), refsetUuid.toString());
+					(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept).toString(), refsetUuid.toString());
 		}
 		conceptRefexMember.setPrimordialComponentUuid(annotationPrimordialUuid);
-		conceptRefexMember.setUuid1(valuTtkConceptChronicle == null ? refsetMemberTypeNormalMemberUuid_ : valuTtkConceptChronicle);
+		conceptRefexMember.setUuid1(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept);
 		conceptRefexMember.setRefexExtensionUuid(refsetUuid);
 		setRevisionAttributes(conceptRefexMember, status, (time == null ? component.getTime() : time));
 
