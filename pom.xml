@@ -107,6 +107,8 @@
 					<pushReleases>true</pushReleases>
 					<scmCommentPrefix>[jgitflow-plugin]</scmCommentPrefix>
 					<enableSshAgent>true</enableSshAgent>
+					<allowSnapshots>true</allowSnapshots>
+					<enableFeatureVersions>true</enableFeatureVersions>
 					<flowInitContext>
 						<masterBranchName>master</masterBranchName>
 						<developBranchName>develop</developBranchName>
