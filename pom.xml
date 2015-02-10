@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>gov.va.oia.terminology.converters</groupId>
 	<artifactId>term-convert-common-base</artifactId>
-	<version>3.0.1</version>
+	<version>3.1</version>
 	<packaging>jar</packaging>
 	
 	<name>Converters Common Code</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<otf-vs.version>1.1-va-1.10</otf-vs.version>
+		<otf-vs.version>1.1-va-1.11</otf-vs.version>
 	</properties>
 
 	<scm>
@@ -107,6 +107,8 @@
 					<pushReleases>true</pushReleases>
 					<scmCommentPrefix>[jgitflow-plugin]</scmCommentPrefix>
 					<enableSshAgent>true</enableSshAgent>
+					<allowSnapshots>true</allowSnapshots>
+					<enableFeatureVersions>true</enableFeatureVersions>
 					<flowInitContext>
 						<masterBranchName>master</masterBranchName>
 						<developBranchName>develop</developBranchName>

@@ -70,27 +70,24 @@ public class EConceptUtility
 	public static enum DescriptionType{FSN, SYNONYM, DEFINITION};
 	public static final UUID isARelUuid_ = Snomed.IS_A.getUuids()[0];
 	public final UUID authorUuid_ = TermAux.USER.getUuids()[0];
-	public final UUID synonymUuid_ = Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0];
-	public final UUID definitionUuid_ = Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0];
-	public final UUID fullySpecifiedNameUuid_ = Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getUuids()[0];
-	public final UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0];
-	public final UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0];
-	public final UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
+	public final static UUID synonymUuid_ = Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0];
+	public final static UUID definitionUuid_ = Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0];
+	public final static UUID fullySpecifiedNameUuid_ = Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getUuids()[0];
+	public final static UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0];
+	public final static UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0];
+	public final static UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
 	public final UUID definingCharacteristicUuid_ = SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids()[0];
 	public final UUID notRefinableUuid = SnomedMetadataRf2.NOT_REFINABLE_RF2.getUuids()[0];
 	public final UUID moduleUuid_ = TtkRevision.unspecifiedModuleUuid;
-	public final UUID refsetMemberTypeNormalMemberUuid_ = UUID.fromString("cc624429-b17d-4ac5-a69e-0b32448aaf3c"); //normal member
+	public final static UUID refsetMemberTypeNormalMemberUuid_ = UUID.fromString("cc624429-b17d-4ac5-a69e-0b32448aaf3c"); //normal member
 	public final String PROJECT_REFSETS_NAME = "Project Refsets";
 	public final UUID PROJECT_REFSETS_UUID = UUID.fromString("7fe3e31f-a969-53ff-8702-f7837e4a03d9");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "Project Refsets")
-	public final UUID pathOriginRefSetUUID_ = TermAux.PATH_ORIGIN_REFSET.getUuids()[0];
-	public final UUID pathRefSetUUID_ = TermAux.PATH_REFSET.getUuids()[0];
+	public final static UUID pathOriginRefSetUUID_ = TermAux.PATH_ORIGIN_REFSET.getUuids()[0];
+	public final static UUID pathRefSetUUID_ = TermAux.PATH_REFSET.getUuids()[0];
 	public final UUID pathUUID_ = TermAux.PATH.getUuids()[0];
 	public final UUID pathReleaseUUID_ =  UUID.fromString("88f89cc0-1d94-34a4-85ed-aa1949079314");
 	public final UUID workbenchAuxilary = TermAux.WB_AUX_PATH.getUuids()[0];
 	public final long defaultTime_;
-	
-	private UUID wbPropertyMetadataDescUUID = null;
-	private UUID wbPropertyMetadataRelUUID = null;
 	
 	private final String lang_ = "en";
 	private UUID terminologyPathUUID_ = workbenchAuxilary;  //start with this.
@@ -206,7 +203,7 @@ public class EConceptUtility
 	 */
 	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, Long time, Status status)
 	{
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicle();
+		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
 		TtkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
 		conceptAttributes.setDefined(false);
@@ -226,7 +223,7 @@ public class EConceptUtility
 		{
 			return null;
 		}
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicle();
+		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
 		TtkConceptChronicle.setPrimordialUuid(cloneSource.getPrimordialUuid());
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
 		if (cloneSource.getConceptAttributes() != null)
@@ -355,21 +352,21 @@ public class EConceptUtility
 	 * @param sourceDescriptionTypeUUID - if null, set to "member"
 	 * @param sourceDescriptionRefsetUUID - if null, this and sourceDescriptionTypeUUID are ignored.
 	 */
-	public TtkDescriptionChronicle addDescription(TtkConceptChronicle TtkConceptChronicle, UUID descriptionPrimordialUUID, String descriptionValue, 
+	public TtkDescriptionChronicle addDescription(TtkConceptChronicle ttkConceptChronicle, UUID descriptionPrimordialUUID, String descriptionValue, 
 			DescriptionType wbDescriptionType, boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, Status status)
 	{
-		List<TtkDescriptionChronicle> descriptions = TtkConceptChronicle.getDescriptions();
+		List<TtkDescriptionChronicle> descriptions = ttkConceptChronicle.getDescriptions();
 		if (descriptions == null)
 		{
 			descriptions = new ArrayList<TtkDescriptionChronicle>();
-			TtkConceptChronicle.setDescriptions(descriptions);
+			ttkConceptChronicle.setDescriptions(descriptions);
 		}
 		TtkDescriptionChronicle description = new TtkDescriptionChronicle();
-		description.setConceptUuid(TtkConceptChronicle.getPrimordialUuid());
+		description.setConceptUuid(ttkConceptChronicle.getPrimordialUuid());
 		description.setLang(lang_);
 		if (descriptionPrimordialUUID == null)
 		{
-			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(TtkConceptChronicle.getPrimordialUuid().toString(), descriptionValue, 
+			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(ttkConceptChronicle.getPrimordialUuid().toString(), descriptionValue, 
 					wbDescriptionType.name(), preferred + "", (sourceDescriptionTypeUUID == null ? null : sourceDescriptionTypeUUID.toString()));
 		}
 		description.setPrimordialComponentUuid(descriptionPrimordialUUID);
@@ -392,7 +389,7 @@ public class EConceptUtility
 		}
 		description.setTypeUuid(descriptionTypeUuid);
 		description.setText(descriptionValue);
-		setRevisionAttributes(description, status, TtkConceptChronicle.getConceptAttributes().getTime());
+		setRevisionAttributes(description, status, ttkConceptChronicle.getConceptAttributes().getTime());
 
 		descriptions.add(description);
 		//Add the en-us info
@@ -565,29 +562,29 @@ public class EConceptUtility
 	/**
 	 * uses the component time, creates the UUID from the component UUID, the value UUID, and the type UUID.
 	 * 
-	 * @param valuTtkConceptChronicle - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
+	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID valuTtkConceptChronicle, UUID refsetUuid)
+	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID valueConcept, UUID refsetUuid)
 	{
-		return addUuidAnnotation(component, null, valuTtkConceptChronicle, refsetUuid, Status.ACTIVE, null);
+		return addUuidAnnotation(component, null, valueConcept, refsetUuid, Status.ACTIVE, null);
 	}
 	
 	/**
 	 * Generates the UUID, uses the component time
 	 * 
-	 * @param valuTtkConceptChronicle - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
+	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkConceptChronicle concept, UUID valuTtkConceptChronicle, UUID refsetUuid)
+	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkConceptChronicle concept, UUID valueConcept, UUID refsetUuid)
 	{
-		return addUuidAnnotation(concept.getConceptAttributes(), valuTtkConceptChronicle, refsetUuid);
+		return addUuidAnnotation(concept.getConceptAttributes(), valueConcept, refsetUuid);
 	}
 
 	/**
 	 * annotationPrimordialUuid - if null, generated from component UUID, value, type
 	 * @param time - If time is null, uses the component time.
-	 * @param valuTtkConceptChronicle - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
+	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID annotationPrimordialUuid, UUID valuTtkConceptChronicle, UUID refsetUuid, 
+	public TtkRefexUuidMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID annotationPrimordialUuid, UUID valueConcept, UUID refsetUuid, 
 			Status status, Long time)
 	{
 		List<TtkRefexAbstractMemberChronicle<?>> annotations = component.getAnnotations();
@@ -604,10 +601,10 @@ public class EConceptUtility
 		if (annotationPrimordialUuid == null)
 		{
 			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromStrings(component.getPrimordialComponentUuid().toString(), 
-					(valuTtkConceptChronicle == null ? refsetMemberTypeNormalMemberUuid_ : valuTtkConceptChronicle).toString(), refsetUuid.toString());
+					(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept).toString(), refsetUuid.toString());
 		}
 		conceptRefexMember.setPrimordialComponentUuid(annotationPrimordialUuid);
-		conceptRefexMember.setUuid1(valuTtkConceptChronicle == null ? refsetMemberTypeNormalMemberUuid_ : valuTtkConceptChronicle);
+		conceptRefexMember.setUuid1(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept);
 		conceptRefexMember.setRefexExtensionUuid(refsetUuid);
 		setRevisionAttributes(conceptRefexMember, status, (time == null ? component.getTime() : time));
 
@@ -944,21 +941,12 @@ public class EConceptUtility
 			else if (pt instanceof BPT_Descriptions)
 			{
 				//only do this once, in case we see a BPT_Descriptions more than once
-				if (wbPropertyMetadataDescUUID == null)
-				{
-					wbPropertyMetadataDescUUID = setupWbPropertyMetadata("Description source type reference set", "Description name in source terminology", pt, dos);
-					secondParent = wbPropertyMetadataDescUUID;
-				}
+				secondParent = setupWbPropertyMetadata("Description source type reference set", "Description name in source terminology", pt, dos);
 			}
 			
 			else if (pt instanceof BPT_Relations)
 			{
-				//only do this once, in case we see a BPT_Relations more than once
-				if (wbPropertyMetadataRelUUID == null)
-				{
-					wbPropertyMetadataRelUUID = setupWbPropertyMetadata("Relation source type reference set", "Relation name in source terminology", pt, dos);
-					secondParent = wbPropertyMetadataRelUUID;
-				}
+				secondParent = setupWbPropertyMetadata("Relation source type reference set", "Relation name in source terminology", pt, dos);
 			}
 			
 			for (Property p : pt.getProperties())
@@ -1001,6 +989,8 @@ public class EConceptUtility
 		return concept;
 	}
 
+	private UUID refsetSynonymNameUUID = null;
+	private UUID refsetValueParentSynonymNameUUID = null;
 	
 	private UUID setupWbPropertyMetadata(String refsetSynonymName, String refsetValueParentSynonynmName, PropertyType pt, DataOutputStream dos) throws Exception
 	{
@@ -1010,12 +1000,15 @@ public class EConceptUtility
 		}
 		//Create a concept under "Reference set (foundation metadata concept)"  7e38cd2d-6f1a-3a81-be0b-21e6090573c2
 		//Now create the description type refset bucket.  UUID should always be the same - not terminology specific.  This should come from the WB, eventually.
-		UUID uuid = UuidT5Generator.get(refsetSynonymName + " (foundation metadata concept)");
-		createMetaDataSpecialConcept(uuid, refsetSynonymName + " (foundation metadata concept)", refsetSynonymName,
-				UUID.fromString("7e38cd2d-6f1a-3a81-be0b-21e6090573c2"), dos);
+		if (refsetSynonymNameUUID == null)
+		{
+			refsetSynonymNameUUID = UuidT5Generator.get(refsetSynonymName + " (foundation metadata concept)");
+			createMetaDataSpecialConcept(refsetSynonymNameUUID, refsetSynonymName + " (foundation metadata concept)", refsetSynonymName,
+					UUID.fromString("7e38cd2d-6f1a-3a81-be0b-21e6090573c2"), dos);
+		}
 		
 		//Now create the terminology specific refset type as a child
-		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), false, uuid, dos);
+		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), false, refsetSynonymNameUUID, dos);
 		ConverterUUID.addMapping(pt.getPropertyTypeReferenceSetName(), pt.getPropertyTypeReferenceSetUUID());
 		
 		//TODO we shouldn't have to create this concept in the future - two new concepts have been added to the US extension for this purpose.
@@ -1024,13 +1017,16 @@ public class EConceptUtility
 		//Until then - create our own.....
 		//Finally, create the Reference set attribute children that we will put the actual properties under
 		//Create the concept under "Reference set attribute (foundation metadata concept)"  7e52203e-8a35-3121-b2e7-b783b34d97f2
-		uuid = UuidT5Generator.get(refsetValueParentSynonynmName + " (foundation metadata concept)");
-		createMetaDataSpecialConcept(uuid, refsetValueParentSynonynmName + " (foundation metadata concept)", refsetValueParentSynonynmName,
-				UUID.fromString("7e52203e-8a35-3121-b2e7-b783b34d97f2"), dos).getPrimordialUuid();
+		if (refsetValueParentSynonymNameUUID == null)
+		{
+			refsetValueParentSynonymNameUUID = UuidT5Generator.get(refsetValueParentSynonynmName + " (foundation metadata concept)");
+			createMetaDataSpecialConcept(refsetValueParentSynonymNameUUID, refsetValueParentSynonynmName + " (foundation metadata concept)", refsetValueParentSynonynmName,
+					UUID.fromString("7e52203e-8a35-3121-b2e7-b783b34d97f2"), dos).getPrimordialUuid();
+		}
 		
 		//Now create the terminology specific refset type as a child - very similar to above, but since this isn't the refset concept, just an organization
 		//concept, I add an 's' to make it plural, and use a different UUID (calculated from the new plural)
 		//I have a case in UMLS and RxNorm loaders where this makes a duplicate, but its ok, it should merge.
-		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), pt.getPropertyTypeReferenceSetName() + "s", false, uuid, dos).getPrimordialUuid();
+		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), pt.getPropertyTypeReferenceSetName() + "s", false, refsetValueParentSynonymNameUUID, dos).getPrimordialUuid();
 	}
 }
