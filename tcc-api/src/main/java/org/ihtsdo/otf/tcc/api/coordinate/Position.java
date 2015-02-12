@@ -29,7 +29,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 @XmlRootElement(name = "position")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 
-public class Position implements Externalizable {
+public class Position implements Comparable<Position>, Externalizable {
 
 
     private static final int dataVersion = 1;
@@ -37,6 +37,11 @@ public class Position implements Externalizable {
      *
      */
     private static final long serialVersionUID = 1L;
+
+    public Position(Position another) {
+        this.time = another.getTime();
+        this.path = new Path(another.getPath());
+    }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -209,9 +214,13 @@ public class Position implements Externalizable {
         StringBuilder buff = new StringBuilder();
 
         try {
-            ConceptChronicleBI cb = Ts.get().getConcept(path.getConceptNid());
-
-            buff.append(cb.toUserString());
+            if (path != null) {
+                ConceptChronicleBI cb = Ts.get().getConcept(path.getConceptNid());
+                buff.append(cb.toUserString());
+            } else {
+                buff.append("null path");
+            }
+            
         } catch (IOException e) {
             buff.append(e.getMessage());
              Logger.getLogger(Position.class.getName()).log(Level.SEVERE, null, e);
@@ -388,6 +397,18 @@ public class Position implements Externalizable {
     public Collection<? extends Position> getBarriers() {
         // TODO support barriers
         throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public int compareTo(Position o) {
+        if (this.time != o.time) {
+            if (this.time - o.time > 0) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+        return this.path.conceptNid - o.path.conceptNid;
     }
 
 }

@@ -83,6 +83,6 @@ public class RefexArrayOfByteArrayChronicleDdo
     */
    @Override
    public REFEX_TYPE_DDO getType() {
-      return REFEX_TYPE_DDO.COMP;
+      return REFEX_TYPE_DDO.ARRAY_BYTEARRAY;
    }
 }

@@ -15,11 +15,24 @@
  */
 package org.ihtsdo.otf.tcc.api.coordinate;
 
+import java.time.Instant;
+
 /**
  *
  * @author kec
+ * 
  */
 public interface VersionPointBI {
+    
     long getTime();
+    
+    int getModuleNid();
+    
+    int getAuthorNid();
+    
     int getPathNid();
+    
+    default Instant getTimeAsInstant() {
+       return Instant.ofEpochMilli(getTime());
+    }
 }

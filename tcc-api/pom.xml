@@ -15,9 +15,9 @@
     -->
 
     <parent>
-        <groupId>org.ihtsdo.otf</groupId>
-        <artifactId>tcc-parent</artifactId>
-        <version>1.7-TT-SNAPSHOT</version>
+        <groupId>gov.vha.isaac</groupId>
+        <artifactId>ochre-parent</artifactId>
+        <version>2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tcc-api</artifactId>
@@ -33,99 +33,6 @@
             <artifactId>tcc-lookup</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.mahout</groupId>
-            <artifactId>mahout-collections</artifactId>
-            <version>1.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>4.3.1</version>
-            <type>jar</type>
-        </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-xsd</id>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/xsd.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-         <plugin>              
-             <!-- 
-                TODO: Consider this alternative:
-                http://schrepfler.blogspot.com/2013/03/generating-xml-schema-documentation.html
-                https://github.com/whummer/jaxb-facets
-             -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>schemagen</id>
-                        <goals>
-                            <goal>schemagen</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <transformSchemas>
-                        
-<!--                            Each schema element defines:
 
-                            a) A <<namespace uri>> for one of your namespaces.
-                               This namespace uri must be unique within the schemas element.
-
-                            b) A <<toPrefix>> that you want to use for the namespace.
-                               Should not contain whitespace or exotic characters.
-                               This yields a namespace definition on the form
-                               <xs:schema ... xmlns:[toPrefix]="[uri]" ... />
-
-                               (I.e: <xs:schema ... xmlns:some="http://some/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema"> )
-
-                               ... and transforms relevant xml schema elements to use the provided namespace prefix:
-
-                               <some:elementName ... />
-
-                     c) The desired <<toFile>> name of the generated XML schema definition file,
-                        excluding the ".xsd" suffix (which will be added automatically).-->
-                        
-                        <transformSchema>
-                            <uri>http://api.chronicle.jaxb.otf.ihtsdo.org</uri>
-                            <toFile>chronicle-api.xsd</toFile>
-                        </transformSchema>
-                    </transformSchemas>
-                    <includes>
-                        <!--                        <include>**/ViewCoordinate.java</include>-->
-                        <!--                        <include>**/ConceptSpec.java</include>-->
-                        <!--                        <include>**/Snomed.java</include>-->
-                        <include>**/LanguageSort.java</include>
-                        <include>**/ContradictionManagerPolicy.java</include>
-                        <include>**/SimplePosition.java</include>
-                        <include>**/SimplePath.java</include>
-                        <include>**/RelAssertionType.java</include>
-                        <include>**/Precedence.java</include>
-                        <include>**/Status.java</include>
-                        <include>**/SimpleViewCoordinate.java</include>
-                        <include>**/SimpleConceptSpecification.java</include>
-                        <include>**/package-info.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>    

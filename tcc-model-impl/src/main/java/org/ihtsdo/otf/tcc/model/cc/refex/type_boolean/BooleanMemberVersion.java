@@ -18,7 +18,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_boolean;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.refex.type_boolean.RefexBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanRevision;
@@ -29,8 +28,8 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 public class BooleanMemberVersion extends RefexMemberVersion<BooleanRevision, BooleanMember> implements RefexBooleanAnalogBI<BooleanRevision> {
     private final BooleanMember rm;
 
-    BooleanMemberVersion(RefexBooleanAnalogBI<BooleanRevision> cv, final BooleanMember rm) {
-        super(cv,rm);
+    BooleanMemberVersion(RefexBooleanAnalogBI<BooleanRevision> cv, final BooleanMember rm, int stamp) {
+        super(cv,rm, stamp);
         this.rm = rm;
     }
 

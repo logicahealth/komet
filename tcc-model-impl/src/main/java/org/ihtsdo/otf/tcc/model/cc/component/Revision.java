@@ -20,7 +20,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
@@ -53,7 +52,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         this.primordialComponent = primordialComponent;
         primordialComponent.clearVersions();
         assert stamp != Integer.MAX_VALUE;
-//        this.primordialComponent.getEnclosingConcept().modified(); //TODO-AKF: modified
+//        this.primordialComponent.getEnclosingConcept().modified(); //TODO-AKF-KEC: modified
     }
 
     public Revision(DataInputStream input, C conceptComponent) throws IOException {
@@ -70,7 +69,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         assert stamp != Integer.MAX_VALUE;
         this.primordialComponent = primordialComponent;
         primordialComponent.clearVersions();
-//TODO-AKF        this.primordialComponent.getEnclosingConcept().modified();
+//TODO-AKF-KEC        this.primordialComponent.getEnclosingConcept().modified();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -186,7 +185,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
             buf.append(" ");
             buf.append(getTime());
         } catch (Throwable e) {
-            buf.append(" !!! Invalid sapNid. Cannot compute path, time, status. !!! ");
+            buf.append(" !!! Invalid stamp. !!! ");
             buf.append(e.getLocalizedMessage());
         }
 
@@ -466,7 +465,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     //~--- set methods ---------------------------------------------------------
     @Override
     public void setAuthorNid(int authorNid) {
-//        TODO-AKF: do we want to keep this check?
+//        TODO-AKF-KEC: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
 //                    + "Use makeAnalog instead.");
@@ -481,7 +480,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setModuleNid(int moduleNid) {
-        //        TODO-AKF: do we want to keep this check?
+        //        TODO-AKF-KEC: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
 //                    + "Use makeAnalog instead.");
@@ -504,7 +503,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setPathNid(int pathId) {
-        //        TODO-AKF: do we want to keep this check?
+        //        TODO-AKF-KEC: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
 //                    + "Use makeAnalog instead.");
@@ -520,7 +519,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public final void setStatus(org.ihtsdo.otf.tcc.api.coordinate.Status nid) {
-//        TODO-AKF: do we want to keep this check?
+//        TODO-AKF-KEC: do we want to keep this check?
 //        if (getTime() != Long.MAX_VALUE) {
 //            throw new UnsupportedOperationException("Cannot change status if time != Long.MAX_VALUE; "
 //                    + "Use makeAnalog instead.");

@@ -20,6 +20,7 @@ package org.ihtsdo.otf.tcc.model.index.service;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -29,7 +30,6 @@ import org.jvnet.hk2.annotations.Contract;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.Future;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 
 /**
@@ -57,6 +57,13 @@ public interface IndexerBI {
     public IndexedGenerationCallable getIndexedGenerationCallable(int nid);
 
     /**
+     * To maximize search performance, you can optionally call forceMerge.  
+     * forceMerge is a costly operation, so generally call it when the 
+     * index is relatively static (after finishing a bulk addition of documents)
+     */
+    public void forceMerge();
+    
+    /**
      * Query index with no specified target generation of the index.
      *
      * @param query The query to apply.
@@ -66,10 +73,9 @@ public interface IndexerBI {
      * component that matched, and the score of that match relative to other
      * matches.
      * @throws IOException
-     * @throws ParseException
      */
     public List<SearchResult> query(String query, ComponentProperty field, int sizeLimit)
-            throws IOException, ParseException;
+            throws IOException;
 
     /**
      *
@@ -82,17 +88,22 @@ public interface IndexerBI {
      * component that matched, and the score of that match relative to other
      * matches.
      * @throws IOException
-     * @throws ParseException
      */
     public List<SearchResult> query(String query, ComponentProperty field, int sizeLimit,
             long targetGeneration)
-            throws IOException, ParseException;
+            throws IOException;
     
     /**
      *
      * @return the name of this indexer.
      */
     public String getIndexerName();
+    
+    /**
+     * 
+     * @return File representing the folder where the indexer stores its files. 
+     */
+    public File getIndexerFolder();
 
     /**
      * Checkpoints the index writer.

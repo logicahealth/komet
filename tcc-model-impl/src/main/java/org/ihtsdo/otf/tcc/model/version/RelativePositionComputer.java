@@ -25,8 +25,15 @@ import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.VersionPointBI;
 
 /**
- *
- *
+ * Computes the relative position of two positions with respect to each other. 
+ * Used to determine which position is the most current given a time, and a 
+ * set of modules and paths to compute the relative position with respect to. 
+ * <br/>
+ * Each <class>Position</class> is given it's own RelativePositionCOmputer, which 
+ * is stored in a cache. 
+ * 
+ * TODO needs to be a means to clear out the position computer cache, or extend it
+ * after a commit. 
  *
  *
  *
@@ -55,6 +62,11 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
         return pm;
     }
     Position destination;
+    /**
+     * Mapping from pathNid to each segment for that pathNid.
+     * There is one entry for each path reachable antecedent to the destination 
+     * position of the computer. 
+     */
     HashMap<Integer, Segment> pathNidSegmentMap;
 
     public RelativePositionComputer(Position destination) {
@@ -64,19 +76,37 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
 
     private static class Segment {
 
-        int segmentNid;
+        /**
+         * Each segment gets it's own sequence which gets greater the further
+         * prior to the position of the relative position computer. 
+         * TODO if we have a path sequence, may not need segment sequence. 
+         */
+        int segmentSequence;
+        
+        /**
+         * The pathNid of this segment. Each ancestor path to the position of the 
+         * computer gets it's own segment. 
+         * TODO if we have a path sequence, many not need segment sequence. 
+         */
         int pathNid;
+        /**
+         * The end time of the position of the relative position computer. 
+         * stamps with times after the end time are not part of the 
+         * path. 
+         */
         long endTime;
+        
         BitSet precedingSegments;
 
-        public Segment(int segmentNid, int pathNid, long endTime, BitSet precedingSegments) {
-            this.segmentNid = segmentNid;
+        public Segment(int segmentSequence, int pathNid, long endTime, BitSet precedingSegments) {
+            this.segmentSequence = segmentSequence;
             this.pathNid = pathNid;
             this.endTime = endTime;
             this.precedingSegments = new BitSet(precedingSegments.size());
             this.precedingSegments.or(precedingSegments);
         }
 
+        // Could check for modules here...
         public boolean containsPosition(int pathNid, long time) {
             if (this.pathNid == pathNid && time != Long.MIN_VALUE) {
                 return time <= endTime;
@@ -87,22 +117,30 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
 
     private static HashMap<Integer, Segment>  setupPathNidSegmentMap(Position destination) {
         HashMap<Integer, Segment> pathNidSegmentMap = new HashMap<>();
-        AtomicInteger segmentNidSequence = new AtomicInteger(0);
+        AtomicInteger segmentSequence = new AtomicInteger(0);
+        
+        // the sequence of the preceding segments is set in the recursive 
+        // call.
         BitSet precedingSegments = new BitSet();
-        addOriginsToPathNidSegmentMap(destination, pathNidSegmentMap, segmentNidSequence, precedingSegments);
+        
+        // call to recursive method...
+        addOriginsToPathNidSegmentMap(destination, pathNidSegmentMap, segmentSequence, precedingSegments);
 
         return pathNidSegmentMap;
 
     }
 
+    // recursively called method
     private static void addOriginsToPathNidSegmentMap(Position destination,
-            HashMap<Integer, Segment> pathNidRpcNidMap, AtomicInteger segmentNidSequence, BitSet precedingSegments) {
-        Segment segment = new Segment(segmentNidSequence.getAndIncrement(), destination.getPath().getConceptNid(),
+            HashMap<Integer, Segment> pathNidSegmentMap, AtomicInteger segmentSequence, BitSet precedingSegments) {
+        Segment segment = new Segment(segmentSequence.getAndIncrement(), destination.getPath().getConceptNid(),
                 destination.getTime(), precedingSegments);
-        precedingSegments.set(segment.segmentNid);
-        pathNidRpcNidMap.put(destination.getPath().getConceptNid(), segment);
+        // precedingSegments is cumulative, each recursive call adds another
+        precedingSegments.set(segment.segmentSequence);
+        pathNidSegmentMap.put(destination.getPath().getConceptNid(), segment);
         for (Position origin : destination.getOrigins()) {
-            addOriginsToPathNidSegmentMap(origin, pathNidRpcNidMap, segmentNidSequence, precedingSegments);
+            // Recursive call
+            addOriginsToPathNidSegmentMap(origin, pathNidSegmentMap, segmentSequence, precedingSegments);
         }
     }
 
@@ -145,10 +183,10 @@ public class RelativePositionComputer implements RelativePositionComputerBI {
                 return RelativePosition.EQUAL;
             }
         }
-        if (seg1.precedingSegments.get(seg2.segmentNid) == true) {
+        if (seg1.precedingSegments.get(seg2.segmentSequence) == true) {
             return RelativePosition.BEFORE;
         }
-        if (seg2.precedingSegments.get(seg1.segmentNid) == true) {
+        if (seg2.precedingSegments.get(seg1.segmentSequence) == true) {
             return RelativePosition.AFTER;
         }
         return RelativePosition.CONTRADICTION;

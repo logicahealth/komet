@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -13,14 +12,11 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanMember
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +25,8 @@ import java.util.Set;
 public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         implements RefexBooleanAnalogBI<BooleanRevision> {
 
-    private static VersionComputer<RefexMemberVersion<BooleanRevision, BooleanMember>> computer =
-            new VersionComputer<>();
+    private static VersionComputer<RefexMemberVersion<BooleanRevision, BooleanMember>> computer
+            = new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     protected boolean booleanValue;
 
@@ -101,7 +97,7 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
         return newR;
     }
 
-     @Override
+    @Override
     protected boolean refexFieldsEqual(ConceptComponent<BooleanRevision, BooleanMember> obj) {
         if (BooleanMember.class.isAssignableFrom(obj.getClass())) {
             BooleanMember another = (BooleanMember) obj;
@@ -114,13 +110,12 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
 
     @Override
     public boolean refexFieldsEqual(RefexVersionBI another) {
-        if(RefexBooleanVersionBI.class.isAssignableFrom(another.getClass())){
+        if (RefexBooleanVersionBI.class.isAssignableFrom(another.getClass())) {
             RefexBooleanVersionBI bv = (RefexBooleanVersionBI) another;
             return this.booleanValue = bv.getBoolean1();
         }
         return false;
     }
-
 
     @Override
     public boolean readyToWriteRefsetMember() {
@@ -177,13 +172,19 @@ public class BooleanMember extends RefexMember<BooleanRevision, BooleanMember>
             ArrayList<BooleanMemberVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new BooleanMemberVersion(this, this));
+                list.add(new BooleanMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new BooleanMemberVersion(this, this, stampAlias));
+                }
             }
 
             if (revisions != null) {
                 for (BooleanRevision br : revisions) {
                     if (br.getTime() != Long.MIN_VALUE) {
-                        list.add(new BooleanMemberVersion(br, this));
+                        list.add(new BooleanMemberVersion(br, this, br.stamp));
+                        for (int stampAlias : getCommitManager().getAliases(br.stamp)) {
+                            list.add(new BooleanMemberVersion(br, this, stampAlias));
+                        }
                     }
                 }
             }

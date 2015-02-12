@@ -57,7 +57,7 @@ public class EConceptToChangeSet {
     * eccsFiles[i] (correspondence based on array index). This method allows output files to be written to 
     * any directory. 
     * @param econFiles Files to convert to change set files. 
-    * @param eccsFiles Corresponding files to store the change set. If file already exists, 
+    * @param eccsFiles Corresponding files to termstore the change set. If file already exists,
     * it will be overwritten. 
     * @throws IOException
     * @throws ClassNotFoundException 

@@ -26,11 +26,9 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 //~--- inner classes -------------------------------------------------------
 
 public class IntMemberVersion extends RefexMemberVersion<IntRevision, IntMember> implements RefexIntAnalogBI<IntRevision> {
-    private final IntMember rm;
 
-    IntMemberVersion(RefexIntAnalogBI cv, final IntMember rm) {
-        super(cv,rm);
-        this.rm = rm;
+    IntMemberVersion(RefexIntAnalogBI cv, final IntMember rm, int stamp) {
+        super(cv,rm, stamp);
     }
     //~--- methods ----------------------------------------------------------
 

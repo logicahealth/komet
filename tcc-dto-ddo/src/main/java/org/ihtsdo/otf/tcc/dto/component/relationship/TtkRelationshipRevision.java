@@ -44,15 +44,13 @@ public class TtkRelationshipRevision extends TtkRevision {
    }
 
    public TtkRelationshipRevision(RelationshipVersionBI rv) throws IOException {
+      super(rv);
       TerminologyStoreDI ts = Ts.get();
 
       characteristicUuid = ts.getUuidPrimordialForNid(rv.getCharacteristicNid());
       refinabilityUuid   = ts.getUuidPrimordialForNid(rv.getRefinabilityNid());
       group              = rv.getGroup();
       typeUuid           = ts.getUuidPrimordialForNid(rv.getTypeNid());
-      pathUuid           = ts.getUuidPrimordialForNid(rv.getPathNid());
-      status             = rv.getStatus();
-      time               = rv.getTime();
    }
 
    public TtkRelationshipRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

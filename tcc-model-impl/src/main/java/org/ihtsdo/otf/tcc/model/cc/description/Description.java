@@ -25,10 +25,10 @@ import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 public class Description extends ConceptComponent<DescriptionRevision, Description>
         implements DescriptionAnalogBI<DescriptionRevision> {
@@ -58,7 +58,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         primordialStamp = PersistentStore.get().getStamp(eDesc);
 
         if (eDesc.getRevisionList() != null) {
-            revisions = new RevisionSet<DescriptionRevision, Description>(primordialStamp);
+            revisions = new RevisionSet<>(primordialStamp);
 
             for (TtkDescriptionRevision edv : eDesc.getRevisionList()) {
                 
@@ -321,13 +321,19 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
             ArrayList<DescriptionVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new DescriptionVersion(this, this));
+                list.add(new DescriptionVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new DescriptionVersion(this, this, stampAlias));
+                }
             }
 
             if (revisions != null) {
                 for (DescriptionRevision rev : revisions) {
                     if (rev.getTime() != Long.MIN_VALUE) {
-                        list.add(new DescriptionVersion(rev, this));
+                        list.add(new DescriptionVersion(rev, this, rev.stamp));
+                        for (int stampAlias : getCommitManager().getAliases(rev.stamp)) {
+                            list.add(new DescriptionVersion(rev, this, stampAlias));
+                        }
                     }
                 }
             }

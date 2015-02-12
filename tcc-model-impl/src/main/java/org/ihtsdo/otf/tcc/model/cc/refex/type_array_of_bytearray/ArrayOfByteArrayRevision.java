@@ -27,9 +27,6 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;

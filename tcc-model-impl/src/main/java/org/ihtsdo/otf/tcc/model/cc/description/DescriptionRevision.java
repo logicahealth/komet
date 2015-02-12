@@ -2,8 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;

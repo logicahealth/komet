@@ -13,7 +13,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;

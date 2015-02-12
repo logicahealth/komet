@@ -88,7 +88,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     /**
      * Map to hold additional IDs.
      */
-    private HashMap<Object, Integer> idMap = new HashMap<>();
+    private HashMap<Object, UUID> idMap = new HashMap<>();
     /**
      * Field description
      */
@@ -183,11 +183,11 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * to the primordial uuid associated with this concept. Use setComponentUuid to set the primordial uuid.
      *
      * @param extraUuid the uuid identifier to add
-     * @param authorityNid the authority associated with the identifier
+     * @param authorityUuid the authority associated with the identifier
      * @see CreateOrAmendBlueprint#setComponentUuid(java.util.UUID)
      */
-    public void addExtraUuid(UUID extraUuid, int authorityNid) {
-        idMap.put(extraUuid, authorityNid);
+    public void addExtraUuid(UUID extraUuid, UUID authorityUuid) {
+        idMap.put(extraUuid, authorityUuid);
     }
 
     /**
@@ -196,10 +196,10 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * concept should be added using this method.
      *
      * @param longId the long identifier to add
-     * @param authorityNid the authority associated with the identifier
+     * @param authorityUuid the authority associated with the identifier
      */
-    public void addLongId(Long longId, int authorityNid) {
-        idMap.put(longId, authorityNid);
+    public void addLongId(Long longId, UUID authorityUuid) {
+        idMap.put(longId, authorityUuid);
     }
 
     /**
@@ -227,10 +227,10 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * <code>String</code> ID to the component specified by this component blueprint.
      *
      * @param stringId the string identifier to add
-     * @param authorityNid the authority associated with the identifier
+     * @param authorityUuid the authority associated with the identifier
      */
-    public void addStringId(String stringId, int authorityNid) {
-        idMap.put(stringId, authorityNid);
+    public void addStringId(String stringId, UUID authorityUuid) {
+        idMap.put(stringId, authorityUuid);
     }
 
     /**
@@ -492,7 +492,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      *
      * @return a map of IDs as <code>Objects</code> and their associated authority nids
      */
-    public HashMap<Object, Integer> getIdMap() {
+    public HashMap<Object, UUID> getIdMap() {
         return idMap;
     }
 
@@ -531,6 +531,9 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      */
     protected String getPrimoridalUuidString(UUID uuid) throws IOException, InvalidCAB {
+        if (uuid == null) {
+            System.out.println("Null uuid");
+        }
         if (Ts.get() == null) {
             return uuid.toString();
         }
@@ -599,7 +602,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     /**
      * Sets the uuid of the status associated with this component blueprint.
      *
-     * @param statusUuid the uuid of the status associated with this component blueprint
+     * @param status
      */
     public final void setStatus(Status status) {
         properties.put(ComponentProperty.STATUS, status);

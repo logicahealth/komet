@@ -14,13 +14,11 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_string.TtkRefexUuidStrin
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,7 @@ public class NidStringMember extends RefexMember<NidStringRevision, NidStringMem
       string1 = refsetMember.getString1();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<NidStringRevision, NidStringMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexUuidStringRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidStringRevision(eVersion, this));
@@ -180,35 +178,41 @@ public class NidStringMember extends RefexMember<NidStringRevision, NidStringMem
       return computer;
    }
 
-   @SuppressWarnings("unchecked")
-   @Override
-   public List<NidStringMemberVersion> getVersions() {
-      if (versions == null) {
-         int count = 1;
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<NidStringMemberVersion> getVersions() {
+        if (versions == null) {
+            int count = 1;
 
-         if (revisions != null) {
-            count = count + revisions.size();
-         }
-
-         ArrayList<NidStringMemberVersion> list = new ArrayList<>(count);
-
-         if (getTime() != Long.MIN_VALUE) {
-            list.add(new NidStringMemberVersion(this, this));
-         }
-
-         if (revisions != null) {
-            for (RefexNidStringAnalogBI r : revisions) {
-               if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new NidStringMemberVersion(r, this));
-               }
+            if (revisions != null) {
+                count = count + revisions.size();
             }
-         }
 
-         versions = list;
-      }
+            ArrayList<NidStringMemberVersion> list = new ArrayList<>(count);
 
-      return (List<NidStringMemberVersion>) versions;
-   }
+            if (getTime() != Long.MIN_VALUE) {
+                list.add(new NidStringMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new NidStringMemberVersion(this, this, stampAlias));
+                }
+            }
+
+            if (revisions != null) {
+                for (RefexNidStringAnalogBI r : revisions) {
+                    if (r.getTime() != Long.MIN_VALUE) {
+                        list.add(new NidStringMemberVersion(r, this, r.getStamp()));
+                        for (int stampAlias : getCommitManager().getAliases(r.getStamp())) {
+                            list.add(new NidStringMemberVersion(r, this, stampAlias));
+                        }
+                    }
+                }
+            }
+
+            versions = list;
+        }
+
+        return (List<NidStringMemberVersion>) versions;
+    }
 
    //~--- set methods ---------------------------------------------------------
 

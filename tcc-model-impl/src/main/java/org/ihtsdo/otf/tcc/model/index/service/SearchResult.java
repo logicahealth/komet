@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.model.index.service;
 
 /**
- * Class to store the nid of a component that matches a search, and the
+ * Class to termstore the nid of a component that matches a search, and the
  * sore of that component's match.
  * @author kec
  */

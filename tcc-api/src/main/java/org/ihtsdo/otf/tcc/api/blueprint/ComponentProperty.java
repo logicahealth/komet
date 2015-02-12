@@ -100,9 +100,16 @@ public enum ComponentProperty {
     * Text of a description. 
     */
    DESCRIPTION_TEXT,
+
+      /**
+       * Identifier of the logic profile concept for this refex version,
+       * either represented as a UUID or a nid.
+       */
+
+   LOGIC_PROFILE_ID,
    
    /**
-    * Used to store the data array associated with a RefexDynamic type.
+    * Used to termstore the data array associated with a RefexDynamic type.
     */
    DYNAMIC_REFEX_DATA
 }

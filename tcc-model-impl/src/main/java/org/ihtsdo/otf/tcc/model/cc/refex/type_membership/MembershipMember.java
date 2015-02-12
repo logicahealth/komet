@@ -2,25 +2,19 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
@@ -40,7 +34,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
       super(refsetMember, enclosingConceptNid);
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<MembershipRevision, MembershipMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new MembershipRevision(eVersion, this));
@@ -166,13 +160,19 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
          ArrayList<MembershipMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new MembershipMemberVersion(this, this));
+            list.add(new MembershipMemberVersion(this, this, primordialStamp));
+            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                list.add(new MembershipMemberVersion(this, this, stampAlias));
+            }
          }
 
          if (revisions != null) {
             for (MembershipRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new MembershipMemberVersion(r, this));
+                  list.add(new MembershipMemberVersion(r, this, r.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        list.add(new MembershipMemberVersion(r, this, stampAlias));
+                    }
                }
             }
          }

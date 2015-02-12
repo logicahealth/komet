@@ -21,17 +21,14 @@ import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 //~--- inner classes -------------------------------------------------------
 
 public class LongMemberVersion extends RefexMemberVersion<LongRevision, LongMember> implements RefexLongAnalogBI<LongRevision> {
-    private final LongMember rm;
 
-    LongMemberVersion(RefexLongAnalogBI cv, final LongMember rm) {
-        super(cv, rm);
-        this.rm = rm;
+    LongMemberVersion(RefexLongAnalogBI cv, final LongMember rm, int stamp) {
+        super(cv, rm, stamp);
     }
 
     //~--- methods ----------------------------------------------------------

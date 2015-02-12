@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.jvnet.hk2.annotations.Contract;
 
 @Contract
@@ -61,6 +62,26 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     ComponentChronicleBI<?> getComponent(UUID... uuids) throws IOException;
 
+    /**
+     * Maybe should only be accessible from component? Or <code>PersistentStoreI</code>
+     * @param sememeNid
+     * @return 
+     */
+    RefexChronicleBI<?> getSememe(int sememeNid);
+
+    /**
+     * Maybe should only be accessible from component? Or <code>PersistentStoreI</code>
+     * @param assemblageNid
+     * @return 
+     */
+    Collection<? extends RefexChronicleBI<?>> getSememesForAssemblage(int assemblageNid);
+
+    /**
+     * Maybe should only be accessible from component? Or <code>PersistentStoreI</code>
+     * @param componentNid
+     * @return 
+     */
+    public Collection<? extends RefexChronicleBI<?>> getSememesForComponent(int componentNid);
     /**
      * 
      * @param authorityNid

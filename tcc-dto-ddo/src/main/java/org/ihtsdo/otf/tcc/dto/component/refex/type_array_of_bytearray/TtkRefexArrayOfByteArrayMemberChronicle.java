@@ -24,6 +24,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
@@ -37,13 +38,16 @@ import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
  *
  * @see TkConcept
  */
-public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexArrayOfByteArrayRevision> {
+public class TtkRefexArrayOfByteArrayMemberChronicle
+        extends TtkRefexAbstractMemberChronicle<TtkRefexArrayOfByteArrayRevision> {
 
     /**
      * The Constant serialVersionUID, used to prevent the class from computing
      * its own serialVersionUID based on a hash of all the method signatures.
      */
     public static final long serialVersionUID = 1;
+    
+
     //~--- fields --------------------------------------------------------------
     /**
      * The array of byte array associated with this TK Refex Array of Bytearray
@@ -78,8 +82,6 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
      *
      * @param refexArrayOfBytearrayVersion the refex array of byte array version
      * specifying how to construct this TK Refex Array of Byte Array Member
-     * @param revisionHandling specifying if addition versions should be
-     * included or not
      * @throws IOException signals that an I/O exception has occurred
      */
     public TtkRefexArrayOfByteArrayMemberChronicle(RefexArrayOfBytearrayVersionBI refexArrayOfBytearrayVersion) throws IOException {
@@ -91,6 +93,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
             RefexArrayOfBytearrayVersionBI rv = itr.next();
 
             this.arrayOfByteArray1 = rv.getArrayOfByteArray();
+            
 
             if (partCount > 1) {
                 revisions = new ArrayList<>(partCount - 1);
@@ -98,12 +101,8 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
                 while (itr.hasNext()) {
                     rv = itr.next();
                     TtkRefexArrayOfByteArrayRevision rev = new TtkRefexArrayOfByteArrayRevision(rv);
-                    if (rev.getTime() == this.time) {
-                        // TODO this check can be removed after trek-95 change sets are no longer in production. 
-                        this.arrayOfByteArray1 = rev.arrayOfByteArray1;
-                    } else {
-                        revisions.add(rev);
-                    }
+                    revisions.add(rev);
+
                 }
             }
         
@@ -132,12 +131,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
      *
      * @param another the TK Refex Array of Byte Array Member specifying how to
      * construct this TK Refex Array of Byte Array Member
-     * @param conversionMap the map for converting from one set of uuids to
-     * another
-     * @param offset the offset to be applied to the time associated with this
-     * TK Refex Array of Byte Array Member
-     * @param mapAll set to <code>true</code> to map all the uuids in this TK
-     * Refex Array of Byte Array Member based on the conversion map
+     * @param transformer
      */
     public TtkRefexArrayOfByteArrayMemberChronicle(TtkRefexArrayOfByteArrayMemberChronicle another, ComponentTransformerBI transformer) {
         super(another, transformer);
@@ -198,12 +192,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
     /**
      *
-     * @param conversionMap the map for converting from one set of uuids to
-     * another
-     * @param offset the offset to be applied to the time associated with this
-     * TK Refex Array of Byte Array Member
-     * @param mapAll set to <code>true</code> to map all the uuids in this TK
-     * Refex Array of Byte Array Member based on the conversion map
+     * @param transformer
      * @return the converted TK Refex Array of Byte Array Member
      */
     @Override
@@ -237,12 +226,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
             for (int i = 0; i < versionSize; i++) {
                 TtkRefexArrayOfByteArrayRevision rev = new TtkRefexArrayOfByteArrayRevision(in, dataVersion);
-                if (rev.getTime() == this.time) {
-                    // TODO this check can be removed after trek-95 change sets are no longer in production. 
-                    arrayOfByteArray1 = rev.arrayOfByteArray1;
-                } else {
-                    revisions.add(rev);
-                }
+                revisions.add(rev);
             }
         }
     }
@@ -300,7 +284,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
      * @return a list of revisions on this TK Refex Array of Byte Array Member
      */
     @Override
-    public List<TtkRefexArrayOfByteArrayRevision> getRevisionList() {
+    public List<? extends TtkRefexArrayOfByteArrayRevision> getRevisionList() {
         return revisions;
     }
 

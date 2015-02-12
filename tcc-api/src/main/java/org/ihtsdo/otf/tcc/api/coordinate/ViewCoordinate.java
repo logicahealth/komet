@@ -21,16 +21,13 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.*;
+
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerPolicy;
 import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.contradiction.strategy.LastCommitWins;
@@ -39,16 +36,19 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.SimpleConceptSpecification;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
-@XmlRootElement(name = "view-coordinate")
+@XmlRootElement(name = "viewCoordinate")
 @XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlType (propOrder={"allowedStatusAsString","classifierSpec","contradictionManagerPolicy",
+                     "languageSort", "languageSpec", "languagePreferenceList",
+                     "name", "precedence", "relationshipAssertionType", "vcUuid",
+                     "viewPosition"})
 public class ViewCoordinate implements Externalizable {
     public static final long serialVersionUID = 1;
 
     private long lastModSequence = Long.MIN_VALUE;
     private EnumSet<Status> allowedStatus;
-    private int classifierNid = Integer.MAX_VALUE;
+    
     private ContradictionManagerBI contradictionManager;
-    private NidListBI langPrefList = new NidList();
     private LanguageSort langSort;
     private int languageNid = Integer.MAX_VALUE;
     private String name;
@@ -57,11 +57,16 @@ public class ViewCoordinate implements Externalizable {
     private RelAssertionType relAssertionType;
     private UUID vcUuid;
     private ViewCoordinate vcWithAllStatusValues;    // transient
-    private static int isaNid = 0;
+    
     private ConceptSpec classifierSpec;
     private ConceptSpec languageSpec;
     private List<ConceptSpec> langPrefSpecs;
+    
+    private static int isaNid = Integer.MAX_VALUE;
+    private int classifierNid = Integer.MAX_VALUE;
+    private NidListBI langPrefList = new NidList();
 
+    
     //~--- constructors --------------------------------------------------------
     public ViewCoordinate() throws ValidationException {
         super();
@@ -278,36 +283,43 @@ public class ViewCoordinate implements Externalizable {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        TerminologyStoreDI ts = Ts.get();
 
         lastModSequence = in.readLong();
-
         allowedStatus = (EnumSet<Status>) in.readObject();
-
-        classifierNid = ts.getNidForUuids((UUID) in.readObject());
         contradictionManager = (ContradictionManagerBI) in.readObject();
-        Object readObject = in.readObject();
-
-        if (readObject == null) {
-            langPrefList = null;
-        } else {
-            langPrefList = new NidList();
-            langPrefList.addAll(ts.getNidCollection((Collection<UUID>) readObject));
-        }
-
         langSort = (LanguageSort) in.readObject();
-        languageNid = ts.getNidForUuids((UUID) in.readObject());
         name = (String) in.readObject();
         viewPosition = (Position) in.readObject();
         precedence = (Precedence) in.readObject();
         relAssertionType = (RelAssertionType) in.readObject();
         vcUuid = (UUID) in.readObject();
-
         classifierSpec = (ConceptSpec) in.readObject();
         languageSpec = (ConceptSpec) in.readObject();
-        langPrefSpecs = (List<ConceptSpec>) in.readObject();
+        langPrefSpecs = (ArrayList<ConceptSpec>) in.readObject();
+
     
-    
+        classifierNid = Integer.MAX_VALUE;
+        languageNid = Integer.MAX_VALUE;
+        langPrefList = null;
+        
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+ 
+        out.writeLong(lastModSequence);
+        out.writeObject(allowedStatus);
+        out.writeObject(contradictionManager);
+        out.writeObject(langSort);
+       out.writeObject(name);
+        out.writeObject(viewPosition);
+        out.writeObject(precedence);
+        out.writeObject(relAssertionType);
+        out.writeObject(vcUuid);
+
+        out.writeObject(classifierSpec);
+        out.writeObject(languageSpec);
+        out.writeObject(langPrefSpecs);
     }
 
     private static boolean testEquals(Object o1, Object o2) {
@@ -369,36 +381,6 @@ public class ViewCoordinate implements Externalizable {
         sb.append(" \nrelAssertionType: ").append(relAssertionType);
 
         return sb.toString();
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        TerminologyStoreDI ts = Ts.get();
-
-        out.writeLong(lastModSequence);
-
-        out.writeObject(allowedStatus);
-
-        out.writeObject(ts.getUuidPrimordialForNid(classifierNid));
-        out.writeObject(contradictionManager);
-
-        if (langPrefList == null) {
-            out.writeObject(null);
-        } else {
-            out.writeObject(ts.getUuidCollection(langPrefList.getListValues()));
-        }
-
-        out.writeObject(langSort);
-        out.writeObject(ts.getUuidPrimordialForNid(languageNid));
-        out.writeObject(name);
-        out.writeObject(viewPosition);
-        out.writeObject(precedence);
-        out.writeObject(relAssertionType);
-        out.writeObject(vcUuid);
-
-        out.writeObject(classifierSpec);
-        out.writeObject(languageSpec);
-        out.writeObject(langPrefSpecs);
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -509,7 +491,7 @@ public class ViewCoordinate implements Externalizable {
     }
 
     public int getIsaNid() {
-        if (isaNid == 0) {
+        if (isaNid == 0 || isaNid == Integer.MAX_VALUE) {
             try {
                 isaNid = Snomed.IS_A.getNid();
             } catch (ValidationException ex) {
@@ -548,24 +530,31 @@ public class ViewCoordinate implements Externalizable {
         }
         return langPrefList;
     }
-
-    public List<ConceptSpec> getLangPrefConceptSpecList() throws IOException {
+    
+    public LanguagePreferenceList getLanguagePreferenceList() throws IOException {
         if (langPrefSpecs != null) {
-            return langPrefSpecs;
+            return new LanguagePreferenceList(langPrefSpecs);
         }
         if (langPrefList == null) {
-            return new ArrayList<>(0);
+            return new LanguagePreferenceList(new ArrayList<>(0));
         }
-        List<ConceptSpec> returnValue = new ArrayList<>(langPrefList.size());
+        langPrefSpecs = new ArrayList<>(langPrefList.size());
         for (int nid : langPrefList.getListArray()) {
-            returnValue.add(new ConceptSpec(nid));
+            langPrefSpecs.add(new ConceptSpec(nid));
         }
-        return returnValue;
+        
+        return new LanguagePreferenceList(langPrefSpecs);
     }
 
-    public void setLangPrefConceptSpecList(List<ConceptSpec> langPrefSpecs) throws ValidationException, IOException {
+    public void setLanguagePreferenceList(LanguagePreferenceList languagePreferenceList) throws IOException {
         langPrefList.clear();
-        this.langPrefSpecs = langPrefSpecs;
+        
+        if (languagePreferenceList != null) {
+            this.langPrefSpecs = languagePreferenceList.getPreferenceList() ;
+            for (ConceptSpec conceptSpec: this.langPrefSpecs) {
+                langPrefList.add(conceptSpec.getNid());
+            }
+        }
     }
 
     public LanguageSort getLanguageSort() {
@@ -645,12 +634,13 @@ public class ViewCoordinate implements Externalizable {
     }
 
     //~--- set methods ---------------------------------------------------------
-    public void setClassifierNid(int classifierNid) {
+    public void setClassifierNid(int classifierNid) throws IOException {
         if (Ts.get() != null) {
             this.lastModSequence = Ts.get().getSequence();
         }
         this.vcWithAllStatusValues = null;
         this.classifierNid = classifierNid;
+        this.classifierSpec = new ConceptSpec(classifierNid);
     }
 
     public void setViewPosition(Position viewPosition) {

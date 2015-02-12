@@ -289,8 +289,9 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = Snomed.CORE_MODULE.getUuids()[0];
 		UUID parents[] = new UUID[] { RefexDynamic.REFEX_DYNAMIC_COLUMNS.getUuids()[0] };
+                UUID path = null; // If this is not to be deprecated, we need to fix up the paths. 
 
-		ConceptCB cab = new ConceptCB(columnName, columnName, lc, isA, idDir, module, parents);
+		ConceptCB cab = new ConceptCB(columnName, columnName, lc, isA, idDir, module, path, parents);
 		
 		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(),  Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], LanguageCode.EN, 
 				columnDescription, false, IdDirective.GENERATE_HASH);

@@ -3,7 +3,7 @@ package org.ihtsdo.otf.tcc.api.store;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 /**
- * Ts is short for Terminology store...
+ * Ts is short for Terminology termstore...
  *
  * @author kec
  *

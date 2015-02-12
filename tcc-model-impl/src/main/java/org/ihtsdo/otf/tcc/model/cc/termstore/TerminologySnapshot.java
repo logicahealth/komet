@@ -45,6 +45,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
+import javafx.concurrent.Task;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
@@ -60,6 +62,16 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
 
    /** Field description */
    private PersistentStoreI store;
+
+    @Override
+    public Stream<? extends ConceptChronicleBI> getConceptStream() throws IOException {
+        return store.getConceptStream();
+    }
+
+    @Override
+    public Stream<? extends ConceptChronicleBI> getParallelConceptStream() throws IOException {
+        return store.getParallelConceptStream();
+    }
 
    /** Field description */
    private ViewCoordinate vc;
@@ -931,8 +943,8 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException {
-      return store.getPathSetFromSapSet(sapNids);
+   public Set<Path> getPathSetFromStampSet(Set<Integer> sapNids) throws IOException {
+      return store.getPathSetFromStampSet(sapNids);
    }
 
    /**
@@ -1073,4 +1085,5 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     public NativeIdSetBI getAllConceptNidsFromCache() throws IOException {
         return store.getAllConceptNidsFromCache();
     }
+
 }

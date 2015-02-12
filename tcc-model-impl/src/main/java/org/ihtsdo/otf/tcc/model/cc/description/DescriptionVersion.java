@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -35,21 +34,19 @@ import org.ihtsdo.otf.tcc.model.cc.component.Version;
 //~--- inner classes -------------------------------------------------------
 
 public class DescriptionVersion extends Version<DescriptionRevision, Description> implements DescriptionAnalogBI<DescriptionRevision>, TypedComponentVersionBI {
-    private Description d = null;
-
+ 
     public DescriptionVersion(){}
     
-    public DescriptionVersion(DescriptionAnalogBI<DescriptionRevision> cv, Description d) {
-        super(cv,d);
-        this.d = d;
+    public DescriptionVersion(DescriptionAnalogBI<DescriptionRevision> cv, Description d, int stamp) {
+        super(cv,d, stamp);
     }
 
     //~--- methods ----------------------------------------------------------
     public DescriptionRevision makeAnalog() {
-        if (d == cv) {
-            return new DescriptionRevision(d);
+        if (cc == cv) {
+            return new DescriptionRevision((Description) cc);
         }
-        return new DescriptionRevision((DescriptionRevision) cv, d);
+        return new DescriptionRevision((DescriptionRevision) cv, (Description) cc);
     }
 
     @Override
@@ -78,7 +75,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
     //~--- get methods ------------------------------------------------------
     @Override
     public int getConceptNid() {
-        return d.enclosingConceptNid;
+        return cc.enclosingConceptNid;
     }
 
     public DescriptionAnalogBI<DescriptionRevision> getCv() {
@@ -97,7 +94,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
 
     @Override
     public Description getPrimordialVersion() {
-        return d;
+        return (Description) cc;
     }
 
     @Override
@@ -112,17 +109,17 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
 
     @Override
     public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
-        return d.getVersion(c);
+        return ((Description)cc).getVersion(c);
     }
 
     @Override
     public List<? extends DescriptionVersion> getVersions() {
-        return d.getVersions();
+        return ((Description)cc).getVersions();
     }
 
     @Override
     public Collection<DescriptionVersion> getVersions(ViewCoordinate c) {
-        return d.getVersions(c);
+        return ((Description)cc).getVersions(c);
     }
 
     @Override

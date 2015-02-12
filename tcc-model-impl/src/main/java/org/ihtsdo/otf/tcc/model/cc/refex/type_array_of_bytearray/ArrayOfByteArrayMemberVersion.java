@@ -27,11 +27,9 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 //~--- inner classes -------------------------------------------------------
 public class ArrayOfByteArrayMemberVersion extends RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember> implements RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> {
-    private final ArrayOfByteArrayMember rm;
 
-    ArrayOfByteArrayMemberVersion(RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> cv, final ArrayOfByteArrayMember rm) {
-        super(cv,rm);
-        this.rm = rm;
+    ArrayOfByteArrayMemberVersion(RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> cv, final ArrayOfByteArrayMember rm, int stamp) {
+        super(cv,rm, stamp);
     }
 
     //~--- methods ----------------------------------------------------------

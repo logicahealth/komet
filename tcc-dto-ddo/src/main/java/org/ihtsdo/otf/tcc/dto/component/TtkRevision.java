@@ -83,7 +83,7 @@ public abstract class TtkRevision implements ExternalStampBI {
     }
 
     @SuppressWarnings("unused")
-	private static final long serialVersionUID      = 1;
+    private static final long serialVersionUID      = 1;
     public static UUID        unspecifiedUserUuid   = UUID.fromString("f7495b58-6630-3499-a44e-2052b5fcf06c");
     public static UUID        unspecifiedModuleUuid = UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67");
     @XmlAttribute
@@ -105,8 +105,14 @@ public abstract class TtkRevision implements ExternalStampBI {
         super();
         this.status     = another.getStatus();
         this.authorUuid = Ts.get().getComponent(another.getAuthorNid()).getPrimordialUuid();
+        if (this.authorUuid == null) {
+            System.out.println("opps1");
+        }
         this.pathUuid   = Ts.get().getComponent(another.getPathNid()).getPrimordialUuid();
         this.moduleUuid = Ts.get().getComponent(another.getModuleNid()).getPrimordialUuid();
+        if (this.moduleUuid == null) {
+            System.out.println("opps2");
+        }
         assert pathUuid != null : another;
         assert authorUuid != null : another;
         assert status != null : another;
@@ -240,6 +246,9 @@ public abstract class TtkRevision implements ExternalStampBI {
     }
 
     public static CharSequence informAboutUuid(UUID uuid) {
+        if (uuid == null) {
+            return "NULL UUID";
+        }
         if (Ts.get() == null) {
             return uuid.toString();
         }

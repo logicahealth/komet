@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Set;
 
 public interface I_ManageConceptData extends ModificationTracker {
+    
+    ConceptChronicle getConceptChronicle();
+    
+    
     void add(Description desc) throws IOException;
 
     void add(Media img) throws IOException;

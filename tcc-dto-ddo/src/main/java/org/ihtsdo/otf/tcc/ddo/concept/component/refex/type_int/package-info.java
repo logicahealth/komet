@@ -13,7 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@javax.xml.bind.annotation.XmlSchema (
-      namespace = "http://display.object.jaxb.otf.ihtsdo.org"
-    )
+
 package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_int;

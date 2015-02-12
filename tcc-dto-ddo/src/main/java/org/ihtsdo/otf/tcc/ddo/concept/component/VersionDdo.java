@@ -29,6 +29,7 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.relationship.RelationshipVersion
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Objects;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -293,4 +294,38 @@ public abstract class VersionDdo implements Serializable {
        assert viewCoordinateUuid != null;
       this.viewCoordinateUuid = viewCoordinateUuid;
    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode(this.authorReference);
+        hash = 53 * hash + Objects.hashCode(this.fxTime);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VersionDdo other = (VersionDdo) obj;
+        if (!Objects.equals(this.authorReference, other.authorReference)) {
+            return false;
+        }
+        if (!Objects.equals(this.fxTime, other.fxTime)) {
+            return false;
+        }
+        if (!Objects.equals(this.moduleReference, other.moduleReference)) {
+            return false;
+        }
+        if (!Objects.equals(this.pathReference, other.pathReference)) {
+            return false;
+        }
+        return this.status == other.status;
+    }
+   
+   
 }

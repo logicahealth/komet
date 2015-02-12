@@ -61,8 +61,12 @@ import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 
 /**
  *
@@ -88,6 +92,7 @@ public class UuidDtoBuilder {
     * @param time
     * @param authorUuid
     * @param pathUuid
+    * @param moduleUuid
     */
    public UuidDtoBuilder(long time, UUID authorUuid, UUID pathUuid, UUID moduleUuid) {
       this.time   = time;
@@ -110,43 +115,61 @@ public class UuidDtoBuilder {
     */
    public TtkConceptChronicle construct(ConceptCB blueprint)
            throws IOException, InvalidCAB, ContradictionException {
-      TtkConceptChronicle newC = new TtkConceptChronicle();
-
-      newC.setAnnotationStyleRefex(blueprint.isAnnotationRefexExtensionIdentity());
-      newC.setPrimordialUuid(blueprint.getComponentUuid());
-      construct(blueprint.getConceptAttributeAB(), newC);
-
-      List<DescriptionCAB>  fsnBps   = blueprint.getFullySpecifiedNameCABs();
-      List<DescriptionCAB>  prefBps  = blueprint.getPreferredNameCABs();
-      List<DescriptionCAB>  descBps  = blueprint.getDescriptionCABs();
-      List<RelationshipCAB>   relBps   = blueprint.getRelationshipCABs();
-      List<MediaCAB> mediaBps = blueprint.getMediaCABs();
-
-      for (DescriptionCAB fsnBp : fsnBps) {
-         this.construct(fsnBp, newC);
-      }
-
-      for (DescriptionCAB prefBp : prefBps) {
-         this.construct(prefBp, newC);
-      }
-
-      for (DescriptionCAB descBp : descBps) {
-         if (fsnBps.contains(descBp) || prefBps.contains(descBp)) {
-            continue;
-         } else {
-            this.construct(descBp, newC);
-         }
-      }
-
-      for (RelationshipCAB relBp : relBps) {
-         this.construct(relBp, newC);
-      }
-
-      for (MediaCAB mediaBp : mediaBps) {
-         construct(mediaBp, newC);
-      }
-
-      return newC;
+       try {
+           TtkConceptChronicle newC = new TtkConceptChronicle();
+           
+           newC.setAnnotationStyleRefex(blueprint.isAnnotationRefexExtensionIdentity());
+           newC.setPrimordialUuid(blueprint.getComponentUuid());
+           
+           construct(blueprint.getConceptAttributeAB(), newC);
+           
+           blueprint.getIdMap().keySet().stream().filter((key) -> (key instanceof UUID)).forEach((key) -> {
+               TtkIdentifierUuid newUuid = new TtkIdentifierUuid((UUID) key);
+               newUuid.setStatus(Status.ACTIVE);
+               newUuid.setTime(time);
+               newUuid.setAuthorUuid(authorUuid);
+               newUuid.setModuleUuid(moduleUuid);
+               newUuid.setPathUuid(pathUuid);
+               newC.getConceptAttributes().getAdditionalIdComponents().add(newUuid);
+           });
+           
+           List<DescriptionCAB>  fsnBps   = blueprint.getFullySpecifiedNameCABs();
+           List<DescriptionCAB>  prefBps  = blueprint.getPreferredNameCABs();
+           
+           for (DescriptionCAB fsnBp : fsnBps) {
+               this.construct(fsnBp, newC);
+           }
+           
+           for (DescriptionCAB prefBp : prefBps) {
+               this.construct(prefBp, newC);
+           }
+           
+           for (DescriptionCAB descBp : blueprint.getDescriptionCABs()) {
+               if (!fsnBps.contains(descBp) && !prefBps.contains(descBp)) {
+                   this.construct(descBp, newC);
+               }
+           }
+           
+           for (RelationshipCAB relBp : blueprint.getRelationshipCABs()) {
+               this.construct(relBp, newC);
+           }
+           
+           for (MediaCAB mediaBp : blueprint.getMediaCABs()) {
+               construct(mediaBp, newC);
+           }
+           
+           for (RefexCAB sememeCAB: blueprint.getSememeCABs()) {
+               constructSememe(sememeCAB, newC);
+           }
+           
+           for (RefexDynamicCAB sememeDynamicCAB: blueprint.getSememeCABsDynamic()) {
+               constructSememe(sememeDynamicCAB, newC);
+           }
+           
+           return newC;
+       } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+           throw new IOException(ex);
+       }
    }
 
    /**
@@ -296,6 +319,34 @@ public class UuidDtoBuilder {
 	      }
    }
 
+   private void constructSememe(RefexCAB blueprint, TtkConceptChronicle component)
+           throws IOException, InvalidCAB, ContradictionException {
+      TtkRefexAbstractMemberChronicle annot = createRefex(blueprint);
+
+      component.getRefsetMembers().add(annot);
+
+      for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
+         construct(childBp, annot);
+      }
+      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+          construct(annotBp, annot);
+      }
+   }
+   
+   private void constructSememe(RefexDynamicCAB blueprint, TtkConceptChronicle component)
+           throws IOException, InvalidCAB, ContradictionException {
+	      TtkRefexDynamicMemberChronicle annot = createRefex(blueprint);
+
+	      component.getRefsetMembersDynamic().add(annot);
+
+	      for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
+	         construct(childBp, annot);
+	      }
+	      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
+	          construct(annotBp, annot);
+	      }
+   }
+   
    /**
     * Method description
     *
@@ -544,6 +595,7 @@ public class UuidDtoBuilder {
       rm1.time               = time;
       rm1.authorUuid         = authorUuid;
       rm1.moduleUuid         = moduleUuid;
+      rm1.pathUuid           = pathUuid;
    }
    
 	private TtkRefexDynamicMemberChronicle createRefex(RefexDynamicCAB blueprint) throws IOException, InvalidCAB, ContradictionException

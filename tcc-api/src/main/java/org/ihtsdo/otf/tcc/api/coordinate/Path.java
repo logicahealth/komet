@@ -32,7 +32,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 
 public class Path implements Externalizable {
 
-    private static final int dataVersion = 1;
+    private static final int dataVersion = 2;
     /**
      *
      */
@@ -44,7 +44,11 @@ public class Path implements Externalizable {
 
         if (objDataVersion == 1) {
             UUID conceptUuid = (UUID) in.readObject();
-            conceptNid = Ts.get().getNidForUuids(conceptUuid);
+            conceptNid = Integer.MAX_VALUE;
+            origins = (Set<Position>) in.readObject();
+            conceptSpec = (ConceptSpec) in.readObject();
+        } else if (objDataVersion == 2) {
+            conceptNid = Integer.MAX_VALUE;
             origins = (Set<Position>) in.readObject();
             conceptSpec = (ConceptSpec) in.readObject();
         } else {
@@ -55,14 +59,13 @@ public class Path implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeInt(dataVersion);
-        out.writeObject(Ts.get().getUuidPrimordialForNid(conceptNid));
         out.writeObject(origins);
-        out.writeObject(conceptSpec);
+        out.writeObject(getConceptSpec());
     }
     /**
      *
      */
-    int conceptNid;
+    int conceptNid = Integer.MAX_VALUE;
     Set<Position> origins = new HashSet<>();
     ConceptSpec conceptSpec;
 
@@ -72,10 +75,26 @@ public class Path implements Externalizable {
     
     public Path() {
     }
+    
+    public Path(ConceptSpec conceptSpec, List<? extends Position> origins) {
+        super();
+        this.conceptSpec = new ConceptSpec(conceptSpec);
+        if (origins != null) {
+            this.origins = new CopyOnWriteArraySet<>(origins);
+        } else {
+            this.origins = new CopyOnWriteArraySet<>();
+        }
+    }
 
     public Path(SimplePath another) {
         this.conceptSpec = new ConceptSpec(another.getPathConceptSpecification());
         for (SimplePosition origin: another.getOrigins()) {
+            origins.add(new Position(origin));
+        }
+    }
+    public Path(Path another) {
+        this.conceptSpec = another.getConceptSpec();
+        for (Position origin: another.getOrigins()) {
             origins.add(new Position(origin));
         }
     }
@@ -126,7 +145,9 @@ public class Path implements Externalizable {
     public int getConceptNid() {
         if (conceptNid == Integer.MAX_VALUE) {
             try {
-                conceptNid = conceptSpec.getNid();
+                if (conceptSpec != null) {
+                    conceptNid = conceptSpec.getNid();
+                }
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {
@@ -135,15 +156,19 @@ public class Path implements Externalizable {
         }
         return conceptNid;
     }
-   public ConceptSpec getConceptSpec() throws IOException {
-      if (this.conceptSpec != null) {
-          return conceptSpec;
-      }
-      return new ConceptSpec(this.conceptNid);
+   public ConceptSpec getConceptSpec() {
+        try {
+            if (this.conceptSpec != null) {
+                return conceptSpec;
+            }
+            return new ConceptSpec(this.conceptNid);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
    }
    public void setConceptSpec(ConceptSpec conceptSpec) throws IOException {
        this.conceptSpec = conceptSpec;
-      this.conceptNid = Integer.MAX_VALUE;
+       this.conceptNid = Integer.MAX_VALUE;
    }
  
    
@@ -278,8 +303,14 @@ public class Path implements Externalizable {
     public String toString() {
         StringBuilder buff = new StringBuilder();
         try {
-            ConceptChronicleBI cb = Ts.get().getConcept(getConceptNid());
-            buff.append(cb.toUserString());
+            int conceptNid = getConceptNid();
+            if (conceptNid != Integer.MAX_VALUE) {
+                ConceptChronicleBI cb = Ts.get().getConcept(conceptNid);
+                buff.append(cb.toUserString());
+            } else {
+                buff.append("not yet defined concept");
+            }
+            
         } catch (IOException e) {
             buff.append(e.getMessage());
             Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, e);

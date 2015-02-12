@@ -36,13 +36,11 @@ import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 //~--- inner classes -------------------------------------------------------
 
 public class RelationshipVersion extends Version<RelationshipRevision, Relationship> implements RelationshipAnalogBI<RelationshipRevision>, TypedComponentVersionBI {
-    private Relationship r = null;
     
     public RelationshipVersion (){}
 
-    public RelationshipVersion(RelationshipAnalogBI cv, Relationship r) {
-        super(cv,r);
-        this.r = r;
+    public RelationshipVersion(RelationshipAnalogBI cv, Relationship r, int stamp) {
+        super(cv,r, stamp);
     }
 
     //~--- methods ----------------------------------------------------------
@@ -61,18 +59,15 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
         if (this.getRefinabilityNid() != anotherVersion.getRefinabilityNid()) {
             return false;
         }
-        if (this.getTypeNid() != anotherVersion.getTypeNid()) {
-            return false;
-        }
-        return true;
+        return this.getTypeNid() == anotherVersion.getTypeNid();
     }
 
     public RelationshipRevision makeAnalog() {
-        if (r != getCv()) {
+        if (cc != getCv()) {
             RelationshipRevision rev = (RelationshipRevision) getCv();
-            return new RelationshipRevision(rev, r);
+            return new RelationshipRevision(rev, ((Relationship)cc));
         }
-        return new RelationshipRevision(r);
+        return new RelationshipRevision(((Relationship)cc));
     }
 
     @Override
@@ -91,7 +86,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     public int getC2Nid() {
-        return getCv().getDestinationNid();//TODO-AKF: Does this method need to be here? Why C2Nid and DestinationNid?
+        return getCv().getDestinationNid();
     }
 
     @Override
@@ -115,12 +110,12 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
 
     @Override
     public int getOriginNid() {
-        return r.enclosingConceptNid;
+        return cc.enclosingConceptNid;
     }
 
     @Override
     public Relationship getPrimordialVersion() {
-        return r;
+        return (Relationship) cc;
     }
 
     @Override
@@ -139,17 +134,17 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
 
     @Override
     public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
-        return r.getVersion(c);
+        return ((Relationship) cc).getVersion(c);
     }
 
     @Override
     public List<? extends RelationshipVersion> getVersions() {
-        return r.getVersions();
+        return ((Relationship) cc).getVersions();
     }
 
     @Override
     public Collection<RelationshipVersion> getVersions(ViewCoordinate c) {
-        return r.getVersions(c);
+        return ((Relationship) cc).getVersions(c);
     }
 
     @Override

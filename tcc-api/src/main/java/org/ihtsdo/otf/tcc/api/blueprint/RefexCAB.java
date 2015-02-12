@@ -241,6 +241,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * @param referencedComponentNid the nid of the referenced component
      * @param collectionNid the nid of the refex collection concept
      * @param idDirective - typically IdDirective.GENERATE_HASH
+     * @param refexDirective
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is found for a given position or view
@@ -269,12 +270,15 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        this(memberType,
-                referencedComponentUUID,
-                Ts.get().getNidForUuids(collectionUuid),
-                null, null, null,
-                idDirective,
-                refexDirective);
+        super(null, null, null, idDirective, refexDirective);
+        this.memberType = memberType;
+        this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUUID);
+        this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionUuid);
+        this.properties.put(ComponentProperty.STATUS,
+                Status.ACTIVE);
+        if (this.properties.get(ComponentProperty.STATUS) != null) {
+            setStatus( (Status) this.properties.get(ComponentProperty.STATUS));
+        }
         recomputeUuid();
         this.properties.put(ComponentProperty.COMPONENT_ID,
                 getComponentUuid());
@@ -290,7 +294,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * no more than one refex member per referenced component.
      *
      * @param memberType the refex member type
-     * @param referencedComponentNid the nid of the referenced component
+     * @param referencedComponentUuid
      * @param collectionNid the nid of the refex collection concept
      * @param refexVersion the refex version to use as a pattern
      * @param viewCoordinate the view coordinate specifying which versions are active and inactive
@@ -322,7 +326,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * <code>memberUuid</code> as the refex member uuid.
      *
      * @param memberType the refex member type
-     * @param referencedComponentNid the nid of the referenced component
+     * @param referencedComponentUuid
      * @param collectionNid the nid of the refex collection concept
      * @param memberUuid the uuid of the refex member
      * @param refexVersion the refex version to use as a pattern

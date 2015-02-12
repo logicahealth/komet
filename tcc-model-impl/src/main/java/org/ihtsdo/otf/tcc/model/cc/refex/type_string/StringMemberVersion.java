@@ -21,17 +21,14 @@ import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 //~--- inner classes -------------------------------------------------------
 
 public class StringMemberVersion extends RefexMemberVersion<StringRevision, StringMember> implements RefexStringAnalogBI<StringRevision> {
-    private StringMember rm;
-
-    public StringMemberVersion(RefexStringAnalogBI cv, final StringMember rm) {
-        super(cv, rm);
-        this.rm = rm;
+    public StringMemberVersion(RefexStringAnalogBI cv, final StringMember rm,
+            int stamp) {
+        super(cv, rm, stamp);
     }
     
     public StringMemberVersion(){
