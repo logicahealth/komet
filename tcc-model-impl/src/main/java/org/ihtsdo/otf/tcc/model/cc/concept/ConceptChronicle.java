@@ -102,7 +102,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     Precedence precedencePolicy;
 
     //~--- constructors --------------------------------------------------------
-//    TODO-AKF: can this be private?
     public ConceptChronicle() {
         lazyInit();
     }
@@ -352,7 +351,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     }
                 }
             }
-        } catch (NullPointerException e) { //TODO-AKF: fix this
+        } catch (NullPointerException e) { //TODO-AKF-KEC: support images
             System.out.println("Image not supported yet");
         }
         if (!eConcept.getRefsetMembers().isEmpty()) {
@@ -567,7 +566,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         init();
     }
 
-//    public void resetNidData() {  //TODO-AKF: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
+//    public void resetNidData() {  //TODO-AKF-KEC: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
 //        data.resetNidData();
 //    }
     public static void resolveUnresolvedAnnotations(Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException {

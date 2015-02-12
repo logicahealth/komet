@@ -86,7 +86,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     public int getC2Nid() {
-        return getCv().getDestinationNid();//TODO-AKF: Does this method need to be here? Why C2Nid and DestinationNid?
+        return getCv().getDestinationNid();
     }
 
     @Override

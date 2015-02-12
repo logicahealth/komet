@@ -1062,7 +1062,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * Call when data has changed, so concept updates it's version.
      */
     protected void modified() {
-//TODO-AKF
+//TODO-AKF-KEC: should this be implemented?
 //        try {
 //            if (enclosingConceptNid != Integer.MIN_VALUE) {
 //                if ((P.s != null) && P.s.hasConcept(enclosingConceptNid)) {
