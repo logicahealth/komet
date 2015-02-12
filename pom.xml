@@ -21,7 +21,14 @@ the specific language governing permissions and limitations under the License. -
     <scm>
         <developerConnection> fix me... </developerConnection>
     </scm>
-   	
+    <distributionManagement>
+        <repository>
+            <id>tumalo artifactory</id>
+            <name>tumalo artifactory-releases</name>
+            <url>http://dev.informatics.com/artifactory/ext-release-local</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <branch>woolsthorpe</branch>
         <hk2.version>2.4.0-b10</hk2.version>
