@@ -53,7 +53,6 @@ import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriter;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriterHandler;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -67,14 +66,20 @@ import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerPolicy;
+import org.ihtsdo.otf.tcc.api.coordinate.LanguagePreferenceList;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
+import org.ihtsdo.otf.tcc.model.path.PathManager;
 
 /**
  *
  * @author kec
  */
 public abstract class Termstore implements PersistentStoreI {
+
+    protected static ViewCoordinate metadataVC = null;
 
     /**
      * Field description
@@ -312,6 +317,31 @@ public abstract class Termstore implements PersistentStoreI {
         return conceptsLoaded;
     }
 
+    public static ViewCoordinate makeMetaViewCoordinate() throws IOException {
+        Path viewPath = new Path();
+        viewPath.setConceptSpec(TermAux.WB_AUX_PATH);
+        Position viewPosition = new Position(Long.MAX_VALUE, viewPath);
+        EnumSet<Status> allowedStatus = EnumSet.of(Status.ACTIVE);
+        ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
+        ViewCoordinate vc = new ViewCoordinate();
+        vc.setAllowedStatus(allowedStatus);
+        vc.setClassifierSpec(TermAux.IHTSDO_CLASSIFIER);
+        vc.setContradictionManager(contradictionManager);
+        vc.setContradictionManagerPolicy(ContradictionManagerPolicy.IDENTIFY_ALL_CONFLICTS);
+        vc.setLanguageSpec(SnomedMetadataRf2.US_ENGLISH_REFSET_RF2);
+        ArrayList<ConceptSpec> langPrefConceptSpecList = new ArrayList<>();
+        langPrefConceptSpecList.add(SnomedMetadataRf2.US_ENGLISH_REFSET_RF2);
+        langPrefConceptSpecList.add(SnomedMetadataRf2.GB_ENGLISH_REFSET_RF2);
+        vc.setLanguagePreferenceList(new LanguagePreferenceList(langPrefConceptSpecList));
+        vc.setLanguageSort(LanguageSort.RF2_LANG_REFEX);
+        vc.setName("meta-vc");
+        vc.setPrecedence(Precedence.PATH);
+        vc.setRelationshipAssertionType(RelAssertionType.INFERRED_THEN_STATED);
+        vc.setVcUuid(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"));
+        vc.setViewPosition(viewPosition);
+        return vc;
+    }
+
     /**
      * Method description
      *
@@ -321,16 +351,8 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     protected ViewCoordinate makeMetaVc() throws IOException {
-        Path viewPath = new Path(TermAux.WB_AUX_PATH.getLenient().getNid(), null);
-        Position viewPosition = new Position(Long.MAX_VALUE, viewPath);
-        EnumSet<Status> allowedStatusNids = EnumSet.of(Status.ACTIVE);
-        ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
-        int languageNid = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getNid();
-        int classifierNid = ReferenceConcepts.SNOROCKET.getNid();
 
-        return new ViewCoordinate(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"), "meta-vc", Precedence.PATH,
-                viewPosition, allowedStatusNids, contradictionManager, languageNid, classifierNid,
-                RelAssertionType.INFERRED_THEN_STATED, null, LanguageSort.RF2_LANG_REFEX);
+        return makeMetaViewCoordinate();
     }
 
     /**
@@ -515,7 +537,7 @@ public abstract class Termstore implements PersistentStoreI {
             }
 
             return ((ComponentChronicleBI<?>) component).getVersion(coordinate);
-        } 
+        }
         return null;
     }
 
@@ -622,11 +644,14 @@ public abstract class Termstore implements PersistentStoreI {
      *
      * @return
      *
-     * @throws IOException
      */
     @Override
-    public final ConceptChronicle getConcept(int cNid) throws IOException {
-        return ConceptChronicle.get(cNid);
+    public ConceptChronicle getConcept(int cNid)  {
+        try {
+            return ConceptChronicle.get(cNid);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     /**
@@ -959,71 +984,55 @@ public abstract class Termstore implements PersistentStoreI {
         return id.toString();
     }
 
-    private static class IndexGenerator implements ProcessUnfetchedConceptDataBI,
-            ProcessComponentChronicleBI {
-
-        NativeIdSetBI nids;
-        List<IndexerBI> indexers;
-
-        public IndexGenerator() throws IOException {
-            this.nids = PersistentStore.get().getAllConceptNids();
-            indexers = Hk2Looker.get().getAllServices(IndexerBI.class);
-            for (IndexerBI i : indexers) {
-                i.clearIndex();
-            }
+    @Override
+    public final ViewCoordinate getMetadataVC() throws IOException {
+        if (metadataVC == null) {
+            metadataVC = makeMetaVc();
+            putViewCoordinate(metadataVC);
         }
-
-        @Override
-        public boolean allowCancel() {
-            return false;
-        }
-
-        @Override
-        public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fetcher) throws Exception {
-            ConceptChronicle cc = (ConceptChronicle) fetcher.fetch();
-            cc.processComponentChronicles(this);
-        }
-
-        @Override
-        public NativeIdSetBI getNidSet() throws IOException {
-            return nids;
-        }
-
-        @Override
-        public String getTitle() {
-            return "Index generator";
-        }
-
-        @Override
-        public boolean continueWork() {
-            return true;
-        }
-
-        @Override
-        public void process(ComponentChronicleBI cc) throws Exception {
-            for (IndexerBI i : indexers) {
-                i.index(cc);
-            }
-        }
-
-        public void commit() {
-            for (IndexerBI i : indexers) {
-                i.commitWriter();
-            }
-        }
+        return metadataVC;
     }
 
     @Override
-    public void index() throws IOException {
-        try {
-            IndexGenerator ig = new IndexGenerator();
-            PersistentStore.get().iterateConceptDataInParallel(ig);
-            ig.commit();
-        } catch (Exception ex) {
-            throw new IOException(ex);
-        }
-
+    public final Path getPath(int pathNid) throws IOException {
+        return PathManager.get().get(pathNid);
     }
 
+    @Override
+    public final List<? extends Path> getPathChildren(int nid) {
+        return PathManager.get().getPathChildren(nid);
+    }
+
+    @Override
+    public final Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
+        HashSet<Path> paths = new HashSet<>(positions.size());
+        for (Position position : positions) {
+            paths.add(position.getPath());
+            // addOrigins(paths, position.getPath().getInheritedOrigins());
+        }
+        return paths;
+    }
+
+    @Override
+    public final Set<Path> getPathSetFromStampSet(Set<Integer> stamps) throws IOException {
+        HashSet<Path> paths = new HashSet<>(stamps.size());
+        for (int stamp : stamps) {
+            Path path = PathManager.get().get(getPathNidForStamp(stamp));
+            paths.add(path);
+        }
+        return paths;
+    }
+
+    @Override
+    public final Set<Position> getPositionSet(Set<Integer> stamps) throws IOException {
+        TreeSet<Position> positions = new TreeSet<>();
+        for (int stamp : stamps) {
+            if (stamp >= 0) {
+                Path path = PathManager.get().get(getPathNidForStamp(stamp));
+                positions.add(new Position(getTimeForStamp(stamp), path));
+            }
+        }
+        return positions;
+    }
 
 }

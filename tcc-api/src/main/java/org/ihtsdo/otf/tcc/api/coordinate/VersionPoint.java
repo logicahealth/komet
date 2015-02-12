@@ -16,14 +16,13 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 /**
  *
  * @author kec
  */
 public class VersionPoint implements VersionPointBI {
-    private int stamp;
+    private final int stamp;
 
     public VersionPoint(int stamp) {
         this.stamp = stamp;
@@ -41,5 +40,15 @@ public class VersionPoint implements VersionPointBI {
 
     public Status getStatus() {
         return Ts.get().getStatusForStamp(stamp);
+    }
+
+    @Override
+    public int getModuleNid() {
+       return Ts.get().getModuleNidForStamp(stamp);
+    }
+
+    @Override
+    public int getAuthorNid() {
+        return Ts.get().getAuthorNidForStamp(stamp);
     }
 }

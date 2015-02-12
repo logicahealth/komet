@@ -14,13 +14,11 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuid
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +48,7 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
       string1 = refsetMember.getString1();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<NidNidStringRevision, NidNidStringMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexUuidUuidStringRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidNidStringRevision(eVersion, this));
@@ -216,13 +214,19 @@ public class NidNidStringMember extends RefexMember<NidNidStringRevision, NidNid
          ArrayList<NidNidStringMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new NidNidStringMemberVersion(this, this));
+            list.add(new NidNidStringMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new NidNidStringMemberVersion(this, this, stampAlias));
+                }
          }
 
          if (revisions != null) {
             for (RefexNidNidStringAnalogBI r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new NidNidStringMemberVersion(r, this));
+                  list.add(new NidNidStringMemberVersion(r, this, r.getStamp()));
+                        for (int stampAlias : getCommitManager().getAliases(r.getStamp())) {
+                            list.add(new NidNidStringMemberVersion(r, this, stampAlias));
+                        }
                }
             }
          }

@@ -14,13 +14,11 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBool
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +67,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
       boolean1 = refsetMember.boolean1;
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<NidBooleanRevision, NidBooleanMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexUuidBooleanRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidBooleanRevision(eVersion, this));
@@ -327,13 +325,19 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
          ArrayList<NidBooleanMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new NidBooleanMemberVersion(this, this));
+            list.add(new NidBooleanMemberVersion(this, this, primordialStamp));
+            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                list.add(new NidBooleanMemberVersion(this, this, stampAlias));
+            }
          }
 
          if (revisions != null) {
             for (NidBooleanRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new NidBooleanMemberVersion(r, this));
+                  list.add(new NidBooleanMemberVersion(r, this, r.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        list.add(new NidBooleanMemberVersion(r, this, stampAlias));
+                    }
                }
             }
          }

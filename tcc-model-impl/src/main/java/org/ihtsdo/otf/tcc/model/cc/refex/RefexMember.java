@@ -1,14 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
-
-
 //import org.dwfa.ace.api.I_IntSet;
-
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.NidPair;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -24,11 +20,8 @@ import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -190,8 +183,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
             buf.append(
                     "\tRefsetMember.referencedComponentNid not equal: \n"
                     + "\t\tthis.referencedComponentNid = ").append(this.referencedComponentNid).append(
-                    "\n" + "\t\tanother.referencedComponentNid = ").append(
-                    another.referencedComponentNid).append("\n");
+                            "\n" + "\t\tanother.referencedComponentNid = ").append(
+                            another.referencedComponentNid).append("\n");
         }
 
         // Compare the parents
@@ -199,8 +192,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
         return buf.toString();
     }
-
-
 
     //~--- get methods ---------------------------------------------------------
     @Override
@@ -266,7 +257,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<? extends RefexMemberVersion<R,C>> getVersions() {
+    public List<? extends RefexMemberVersion<R, C>> getVersions() {
         if (versions == null) {
             int count = 1;
 
@@ -276,18 +267,28 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
             ArrayList<RefexMemberVersion> list = new ArrayList<>(count);
 
-            list.add(new RefexMemberVersion(this, this));
+            if (getTime() != Long.MIN_VALUE) {
+                list.add(new RefexMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new RefexMemberVersion(this, this, stampAlias));
+                }
+            }
 
             if (revisions != null) {
-                for (RefexRevision rv : revisions) {
-                    list.add(new RefexMemberVersion(rv, this));
+                for (RefexRevision r : revisions) {
+                    if (r.getTime() != Long.MIN_VALUE) {
+                        list.add(new RefexMemberVersion(r, this, r.stamp));
+                        for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                            list.add(new RefexMemberVersion(r, this, stampAlias));
+                        }
+                    }
                 }
             }
 
             versions = list;
         }
 
-        return (List<RefexMemberVersion<R,C>>) versions;
+        return (List<RefexMemberVersion<R, C>>) versions;
     }
 
     @Override

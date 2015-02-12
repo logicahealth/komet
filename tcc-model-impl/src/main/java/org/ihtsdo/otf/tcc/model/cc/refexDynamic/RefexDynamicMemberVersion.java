@@ -15,7 +15,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 import javax.naming.InvalidNameException;
@@ -30,10 +29,9 @@ import java.util.List;
 public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, RefexDynamicMember>
         implements RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI {
 
-    RefexDynamicMember rdm;
-    public RefexDynamicMemberVersion(RefexDynamicVersionBI<RefexDynamicRevision> cv, RefexDynamicMember rdm) {
-        super(cv, rdm);
-        this.rdm = rdm;
+    public RefexDynamicMemberVersion(RefexDynamicVersionBI<RefexDynamicRevision> cv, 
+            RefexDynamicMember rdm, int stamp) {
+        super(cv, rdm, stamp);
     }
 
     //~--- methods ----------------------------------------------------------
@@ -72,7 +70,7 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
     //~--- get methods ------------------------------------------------------
     @Override
     public int getAssemblageNid() {
-        return rdm.getAssemblageNid();
+        return getCv().getAssemblageNid();
     }
 
     @SuppressWarnings("unchecked")
@@ -90,12 +88,12 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
 
     @Override
     public RefexDynamicMember getPrimordialVersion() {
-        return rdm;
+        return (RefexDynamicMember) cc;
     }
 
     @Override
     public int getReferencedComponentNid() {
-        return rdm.getReferencedComponentNid();
+        return getCv().getReferencedComponentNid();
     }
 
     @Override
@@ -106,40 +104,37 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
 
 
     public IntArrayList getVariableVersionNids() {
-        if (rdm != getCv()) {
-            return ((RefexDynamicRevision) getCv()).getVariableVersionNids();
-        } else {
-            return rdm.getVariableVersionNids();
-        }
+        return ((RefexDynamicRevision) getCv()).getVariableVersionNids();
     }
 
     @Override
     public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-        return rdm.getVersion(c);
+        return ((RefexDynamicMember) cc).getVersion(c);
     }
 
     @Override
     public List<? extends RefexDynamicMemberVersion> getVersions() {
-        return rdm.getVersions();
+        return ((RefexDynamicMember) cc).getVersions();
     }
 
     @Override
     public Collection<RefexDynamicMemberVersion> getVersions(ViewCoordinate c) {
-        return rdm.getVersions(c);
+        return ((RefexDynamicMember) cc).getVersions(c);
     }
 
     //~--- set methods ------------------------------------------------------
     @Override
     public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-        rdm.setAssemblageNid(collectionNid);
+        ((RefexDynamicMember) cc).setAssemblageNid(collectionNid);
     }
 
     @Override
     public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
-        rdm.setReferencedComponentNid(componentNid);
+        ((RefexDynamicMember) cc).setReferencedComponentNid(componentNid);
     }
 
     /**
+     * @return 
      * @throws ContradictionException
      * @throws IOException
      * @see org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI#getRefexDynamicUsageDescription()

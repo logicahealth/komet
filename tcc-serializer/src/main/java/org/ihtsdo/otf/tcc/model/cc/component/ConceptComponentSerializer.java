@@ -46,6 +46,8 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicSerializer;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import org.ihtsdo.otf.tcc.model.cc.refex.logic.LogicGraphMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.logic.LogicGraphSerializer;
 
 /**
  * Created by kec on 7/13/14.
@@ -53,7 +55,7 @@ import java.io.IOException;
 public class ConceptComponentSerializer {
 
     public static void serialize(DataOutput output, ConceptComponent cc) throws IOException {
-        assert cc.nid != 0;
+        assert cc.nid < 0;
         assert cc.primordialStamp != 0 && cc.primordialStamp != Integer.MAX_VALUE : "Processing nid: " + cc.nid;
         output.writeInt(cc.nid);
         output.writeInt(cc.enclosingConceptNid);
@@ -82,7 +84,7 @@ public class ConceptComponentSerializer {
                     case ARRAY_BYTEARRAY:
                         ArrayOfByteArraySerializer.get().serialize(output, (ArrayOfByteArrayMember) rx);
                         break;
-                    case BOOLEAN:
+                     case BOOLEAN:
                         BooleanSerializer.get().serialize(output, (BooleanMember) rx);
                         break;
                     case CID:
@@ -160,11 +162,12 @@ public class ConceptComponentSerializer {
 
     public static void deserialize(DataInput input, ConceptComponent cc) throws IOException {
         cc.nid = input.readInt();
-        cc.enclosingConceptNid = input.readInt();
+         cc.enclosingConceptNid = input.readInt();
+        assert cc.enclosingConceptNid < 0;
         cc.primordialMsb = input.readLong();
         cc.primordialLsb = input.readLong();
         cc.primordialStamp = input.readInt();
-        assert cc.nid != 0;
+        assert cc.nid < 0;
         assert cc.primordialStamp != 0 && cc.primordialStamp != Integer.MAX_VALUE : "Processing nid: " + cc.nid;
 
         // Additional UUIDs
@@ -185,6 +188,9 @@ public class ConceptComponentSerializer {
                 RefexType rxType = RefexType.readType(input);
                 RefexMember member;
                 switch (rxType) {
+                    case LOGIC:
+                        member = LogicGraphSerializer.get().deserialize(input, new LogicGraphMember());
+                        break;
                     case ARRAY_BYTEARRAY:
                         member = ArrayOfByteArraySerializer.get().deserialize(input, new ArrayOfByteArrayMember());
                         break;
@@ -248,7 +254,6 @@ public class ConceptComponentSerializer {
                 }
                 cc.addAnnotation(member);
             }
-
         }
 
         // dynamic refexes

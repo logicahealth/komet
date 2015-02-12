@@ -16,11 +16,15 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *
@@ -254,6 +258,7 @@ public class IntSet implements NativeIdSetBI {
     public void setAll(int max) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
 
     @Override
     public int getMaxPossibleId() {

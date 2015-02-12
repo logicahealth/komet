@@ -54,7 +54,7 @@ import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 
@@ -312,12 +312,18 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             ArrayList<RefexDynamicMemberVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new RefexDynamicMemberVersion(this, this));
+                list.add(new RefexDynamicMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new RefexDynamicMemberVersion(this, this, stampAlias));
+                }
             }
 
             if (revisions != null) {
                 for (RefexDynamicRevision rv : revisions) {
-                    list.add(new RefexDynamicMemberVersion(rv, this));
+                    list.add(new RefexDynamicMemberVersion(rv, this, rv.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(rv.getStamp())) {
+                        list.add(new RefexDynamicMemberVersion(rv, this, stampAlias));
+                    }
                 }
             }
 

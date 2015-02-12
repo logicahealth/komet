@@ -2,7 +2,8 @@ package org.ihtsdo.otf.tcc.api.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataOutput;
+import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
+import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
@@ -19,13 +20,12 @@ import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.Collection;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
-public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI> {
+public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI>, ChronicledConcept {
    void cancel() throws IOException;
 
    boolean commit(ChangeSetGenerationPolicy changeSetPolicy,

@@ -15,8 +15,12 @@
  */
 package org.ihtsdo.otf.tcc.lookup;
 
+import javafx.embed.swing.JFXPanel;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+
+import java.lang.annotation.Annotation;
 
 /**
  *
@@ -26,8 +30,17 @@ public class Hk2Looker {
     private static ServiceLocator looker = null;
     public static ServiceLocator get() {
         if (looker == null) {
+            JFXPanel initFxPanel = new JFXPanel();
             looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         }
         return looker;
+    }
+
+    public static <T> T getService(Class<T> contractOrImpl) {
+        return get().getService(contractOrImpl, new Annotation[0]);
+    }
+
+    public static RunLevelController getRunLevelController() {
+        return getService(RunLevelController.class);
     }
 }

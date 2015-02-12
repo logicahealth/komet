@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatMemberChronicle;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 /**
@@ -32,7 +31,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
  * @author         Enter your name here...
  */
 public class NidBooleanMemberVersion extends RefexMemberVersion<NidBooleanRevision, NidBooleanMember> implements RefexNidBooleanAnalogBI<NidBooleanRevision> {
-    private final NidBooleanMember rm;
 
     /**
      * Constructs ...
@@ -40,9 +38,9 @@ public class NidBooleanMemberVersion extends RefexMemberVersion<NidBooleanRevisi
      *
      * @param cv
      */
-    NidBooleanMemberVersion(RefexNidBooleanAnalogBI cv, final NidBooleanMember rm) {
-        super(cv, rm);
-        this.rm = rm;
+    NidBooleanMemberVersion(RefexNidBooleanAnalogBI cv, final NidBooleanMember rm,
+            int stamp) {
+        super(cv, rm, stamp);
     }
 
     /**

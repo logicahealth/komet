@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.ihtsdo.otf</groupId>
-        <artifactId>tcc-parent</artifactId>
-        <version>1.7-TT-mojo_ext-SNAPSHOT</version>
+        <groupId>gov.vha.isaac</groupId>
+        <artifactId>ochre-parent</artifactId>
+        <version>2.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.ihtsdo.otf</groupId>
     <artifactId>tcc-mojo</artifactId>
     <packaging>maven-plugin</packaging>
     <name>${branch}: Mojo</name>
@@ -16,20 +16,36 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>2.2.1</version>
+            <version>3.2.5</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ihtsdo.otf</groupId>
             <artifactId>tcc-model-impl</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.3</version>
+<!--                <configuration>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>-->
+        <configuration>
+          <goalPrefix>tcc-mojo</goalPrefix>
+<!--          <outputDirectory>target/dir</outputDirectory>-->
+        </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

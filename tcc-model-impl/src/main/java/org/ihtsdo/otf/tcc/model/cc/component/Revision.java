@@ -20,7 +20,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
@@ -186,7 +185,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
             buf.append(" ");
             buf.append(getTime());
         } catch (Throwable e) {
-            buf.append(" !!! Invalid sapNid. Cannot compute path, time, status. !!! ");
+            buf.append(" !!! Invalid stamp. !!! ");
             buf.append(e.getLocalizedMessage());
         }
 

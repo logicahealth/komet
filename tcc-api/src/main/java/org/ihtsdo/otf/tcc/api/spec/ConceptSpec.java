@@ -135,6 +135,9 @@ public class ConceptSpec implements SpecBI {
     */
    public ConceptSpec(String description, String uuid) {
       this(description, uuid, new RelSpec[] {});
+   }   
+   public ConceptSpec(ConceptSpec conceptSpec) {
+      this(conceptSpec.description, conceptSpec.uuids, new RelSpec[] {});
    }
    /**
     * Constructs ...
@@ -195,9 +198,13 @@ public class ConceptSpec implements SpecBI {
       this(description, new UUID[] { uuid }, relSpecs);
    }
 
-   public ConceptSpec(int nid) throws IOException {
-      this(Ts.get().getConcept(nid).getDescriptions().iterator().next().getPrimordialVersion().getText(), 
-              Ts.get().getUuidPrimordialForNid(nid));
+   public ConceptSpec(int nid) throws IOException{
+      this(Ts.get().getConcept(nid));
+   }
+
+   public ConceptSpec(ConceptChronicleBI chronicle) throws IOException{
+      this(chronicle.getDescriptions().iterator().next().getPrimordialVersion().getText(), 
+              chronicle.getUUIDs().toArray(new UUID[0]));
    }
 
    /**
@@ -243,7 +250,10 @@ public class ConceptSpec implements SpecBI {
     */
    @Override
    public String toString() {
-      return "ConceptSpec{" + description + "; " + Arrays.asList(uuids) + "}";
+       if (uuids != null) {
+          return "ConceptSpec{" + description + "; " + Arrays.asList(uuids) + "}";
+       }
+            return "ConceptSpec{" + description + "; null UUIDs}";
    }
 
    /**

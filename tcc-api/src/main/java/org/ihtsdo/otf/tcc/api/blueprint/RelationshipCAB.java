@@ -89,6 +89,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
      * @param relationshipType the tk relationship type specifying the
      * relationship characteristic type. This value is used to determine the
      * relationship refinability type.
+     * @param idDirective
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are
      * invalid
@@ -256,7 +257,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
                 refinabilityUuid = SnomedMetadataRf2.OPTIONAL_REFINIBILITY_RF2.getUuids()[0];
                 break;
             case HISTORIC:
-				characteristicUuid =SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getUuids()[0]; 
+		characteristicUuid =SnomedMetadataRf2.HISTORICAL_RELATIONSSHIP_RF2.getUuids()[0]; 
                 refinabilityUuid =SnomedMetadataRf2.NOT_REFINABLE_RF2.getUuids()[0];
                 break;
         }

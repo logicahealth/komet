@@ -21,6 +21,7 @@ package org.ihtsdo.otf.tcc.dto.component.transformer;
  */
 public enum ComponentFields {
     // REVISION_FIELDS
+// REVISION_FIELDS
         STATUS_UUID,
         TIME,
         AUTHOR_UUID,
@@ -66,6 +67,7 @@ public enum ComponentFields {
         REFEX_STRING1,
         REFEX_LONG1,
         REFEX_FLOAT1,
+        REFEX_LOGIC_GRAPH_BYTES,
         
    // RELATIONSHIP FIELDS
         RELATIONSHIP_ORIGIN_UUID, //TODO, LEGACY FIELD, DEPRECATE/REMOVE

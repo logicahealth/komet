@@ -14,13 +14,11 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexU
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +49,7 @@ public class NidNidNidLongMember
       long1 = refsetMember.long1;
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<NidNidNidLongRevision, NidNidNidLongMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexUuidUuidUuidLongRevision eVersion :
                  refsetMember.getRevisionList()) {
@@ -222,13 +220,19 @@ public class NidNidNidLongMember
          ArrayList<NidNidNidLongMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new NidNidNidLongMemberVersion(this, this));
+            list.add(new NidNidNidLongMemberVersion(this, this, primordialStamp));
+            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                list.add(new NidNidNidLongMemberVersion(this, this, stampAlias));
+            }
          }
 
          if (revisions != null) {
             for (NidNidNidLongRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new NidNidNidLongMemberVersion(r, this));
+                  list.add(new NidNidNidLongMemberVersion(r, this, r.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        list.add(new NidNidNidLongMemberVersion(r, this, stampAlias));
+                    }
                }
             }
          }

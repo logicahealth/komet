@@ -13,13 +13,10 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongMemberChroni
 import org.ihtsdo.otf.tcc.dto.component.refex.type_long.TtkRefexLongRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
       longValue = refsetMember.getLongValue();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<LongRevision, LongMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexLongRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new LongRevision(eVersion, this));
@@ -180,13 +177,19 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
          ArrayList<LongMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new LongMemberVersion(this, this));
+            list.add(new LongMemberVersion(this, this, primordialStamp));
+            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                list.add(new LongMemberVersion(this, this, stampAlias));
+            }
          }
 
          if (revisions != null) {
             for (LongRevision lr : revisions) {
                if (lr.getTime() != Long.MIN_VALUE) {
-                  list.add(new LongMemberVersion(lr, this));
+                  list.add(new LongMemberVersion(lr, this, lr.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(lr.stamp)) {
+                        list.add(new LongMemberVersion(lr, this, stampAlias));
+                    }
                }
             }
          }

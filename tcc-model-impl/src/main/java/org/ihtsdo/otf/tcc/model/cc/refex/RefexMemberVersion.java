@@ -20,7 +20,6 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -28,23 +27,19 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMember<R, C>> 
     extends Version<R, C> implements RefexAnalogBI<R> {
-    private RefexMember rm;
-
-    public RefexMemberVersion(RefexAnalogBI<R> cv, final RefexMember<R,C> rm) {
-        super(cv,rm);
-        this.rm = rm;
-    }
+   
+    public RefexMemberVersion(RefexAnalogBI<R> cv, final RefexMember<R,C> rm, int stamp) {
+        super(cv,rm, stamp);
+   }
     
     public RefexMemberVersion(){
         super();
@@ -53,13 +48,13 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     //~--- methods ----------------------------------------------------------
     @Override
     public RefexType getRefexType() {
-        return rm.getRefexType();
+        return ((RefexMember) cc).getRefexType();
     }
 
     public R makeAnalog() {
-        if (rm != cv) {
+        if (cc != cv) {
         }
-        return (R) rm.makeAnalog();
+        return (R) ((RefexMember) cc).makeAnalog();
     }
 
     @Override
@@ -93,7 +88,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     //~--- get methods ------------------------------------------------------
     @Override
     public int getAssemblageNid() {
-        return rm.assemblageNid;
+        return ((RefexMember) cc).assemblageNid;
     }
 
     @Override
@@ -116,12 +111,12 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
 
     @Override
     public RefexMember getPrimordialVersion() {
-        return rm;
+        return ((RefexMember) cc);
     }
 
     @Override
     public int getReferencedComponentNid() {
-        return rm.getReferencedComponentNid();
+        return ((RefexMember) cc).getReferencedComponentNid();
     }
 
     @Override
@@ -130,28 +125,28 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     public int getTypeNid() {
-        return rm.getTypeNid();
+        return ((RefexMember) cc).getTypeNid();
     }
 
     @Override
     public RefexMemberVersion<R,C> getVersion(ViewCoordinate c) throws ContradictionException {
-        return rm.getVersion(c);
+        return ((RefexMember) cc).getVersion(c);
     }
 
     @Override
     public List<? extends RefexMemberVersion<R,C>> getVersions() {
-        return rm.getVersions();
+        return ((RefexMember) cc).getVersions();
     }
 
     @Override
     public Collection<RefexMemberVersion<R, C>> getVersions(ViewCoordinate c) {
-        return rm.getVersions(c);
+        return ((RefexMember) cc).getVersions(c);
     }
 
     //~--- set methods ------------------------------------------------------
     @Override
     public void setAssemblageNid(int collectionNid) throws PropertyVetoException, IOException {
-        rm.setAssemblageNid(collectionNid);
+        ((RefexMember) cc).setAssemblageNid(collectionNid);
     }
 
     @Override
@@ -162,7 +157,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
 
     @Override
     public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
-        rm.setReferencedComponentNid(componentNid);
+        ((RefexMember) cc).setReferencedComponentNid(componentNid);
     }
     
 }

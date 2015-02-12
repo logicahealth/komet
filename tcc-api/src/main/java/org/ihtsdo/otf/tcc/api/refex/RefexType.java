@@ -5,8 +5,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
+
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_boolean.RefexBooleanVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
@@ -58,6 +59,8 @@ public enum RefexType {
      */
     CID_BOOLEAN(19, RefexNidBooleanVersionBI.class),
     
+    LOGIC(20, LogicGraphAnalogBI.class),
+
     UNKNOWN(Byte.MAX_VALUE, null);
 
     public static RefexType getFromToken(int type) throws UnsupportedOperationException {

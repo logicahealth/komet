@@ -15,6 +15,13 @@
  */
 package org.ihtsdo.otf.tcc.api.nid;
 
+import org.ihtsdo.otf.tcc.api.store.Ts;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /**
  *
  * @author kec
@@ -126,4 +133,14 @@ public interface NativeIdSetBI {
      * @param max
      */
     void setAll(int max);
+
+
+    public default List<UUID> toPrimordialUuidSet() throws IOException {
+        ArrayList<UUID> returnValues = new ArrayList<>(this.size());
+        NativeIdSetItrBI nativeIdSetItr = getSetBitIterator();
+        while (nativeIdSetItr.next()) {
+            returnValues.add(Ts.get().getUuidPrimordialForNid(nativeIdSetItr.nid()));
+        }
+        return returnValues;
+    }
 }

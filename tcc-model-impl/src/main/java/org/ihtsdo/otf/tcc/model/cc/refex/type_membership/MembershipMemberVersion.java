@@ -21,17 +21,14 @@ import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 //~--- inner classes -------------------------------------------------------
 
 public class MembershipMemberVersion extends RefexMemberVersion<MembershipRevision, MembershipMember> implements RefexAnalogBI<MembershipRevision> {
-    private final MembershipMember rm;
 
-    MembershipMemberVersion(RefexAnalogBI cv, final MembershipMember rm) {
-        super(cv, rm);
-        this.rm = rm;
+    MembershipMemberVersion(RefexAnalogBI cv, final MembershipMember rm, int stamp) {
+        super(cv, rm, stamp);
     }
 
     //~--- methods ----------------------------------------------------------

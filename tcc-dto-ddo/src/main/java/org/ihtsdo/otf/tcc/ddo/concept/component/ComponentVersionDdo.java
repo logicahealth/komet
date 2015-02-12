@@ -33,6 +33,7 @@ import org.ihtsdo.otf.tcc.api.id.IdBI;
 import java.io.IOException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.xml.bind.Unmarshaller;
@@ -123,4 +124,26 @@ public class ComponentVersionDdo<T extends ComponentChronicleDdo, V extends Comp
    public int getComponentNid() {
        return this.chronicle.getComponentNid();
    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.chronicle.getComponentNid());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ComponentVersionDdo<?, ?> other = (ComponentVersionDdo<?, ?>) obj;
+        if (this.chronicle.getComponentNid() !=  other.chronicle.getComponentNid()) {
+            return false;
+        }
+        return super.equals(obj);
+    }
 }

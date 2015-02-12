@@ -17,12 +17,10 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +48,7 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
       c1Nid = PersistentStore.get().getNidForUuids(refsetMember.getUuid1());
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<NidRevision, NidMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexUuidRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidRevision(eVersion, this));
@@ -197,13 +195,19 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
          ArrayList<NidMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new NidMemberVersion(this, this));
+            list.add(new NidMemberVersion(this, this, primordialStamp));
+            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                list.add(new NidMemberVersion(this, this, stampAlias));
+            }
          }
 
          if (revisions != null) {
             for (NidRevision cr : revisions) {
                if (cr.getTime() != Long.MIN_VALUE) {
-                  list.add(new NidMemberVersion(cr, this));
+                  list.add(new NidMemberVersion(cr, this, cr.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(cr.stamp)) {
+                        list.add(new NidMemberVersion(cr, this, stampAlias));
+                    }
                }
             }
          }

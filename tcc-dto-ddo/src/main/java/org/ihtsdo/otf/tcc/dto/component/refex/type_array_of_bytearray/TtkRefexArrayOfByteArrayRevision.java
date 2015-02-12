@@ -109,7 +109,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
 
     //~--- methods -------------------------------------------------------------
     @Override
-    protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
+    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
         // nothing to add
     }
 

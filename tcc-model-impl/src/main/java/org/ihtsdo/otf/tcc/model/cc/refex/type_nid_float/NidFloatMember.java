@@ -14,13 +14,11 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatR
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,7 @@ public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember
       floatValue = refsetMember.getFloatValue();
 
       if (refsetMember.getRevisionList() != null) {
-         revisions = new RevisionSet<NidFloatRevision, NidFloatMember>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRefexUuidFloatRevision eVersion : refsetMember.getRevisionList()) {
             revisions.add(new NidFloatRevision(eVersion, this));
@@ -195,13 +193,19 @@ public class NidFloatMember extends RefexMember<NidFloatRevision, NidFloatMember
          ArrayList<NidFloatMemberVersion> list = new ArrayList<>(count);
 
          if (getTime() != Long.MIN_VALUE) {
-            list.add(new NidFloatMemberVersion(this, this));
+            list.add(new NidFloatMemberVersion(this, this, primordialStamp));
+            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                list.add(new NidFloatMemberVersion(this, this, stampAlias));
+            }
          }
 
          if (revisions != null) {
             for (NidFloatRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new NidFloatMemberVersion(r, this));
+                  list.add(new NidFloatMemberVersion(r, this, r.stamp));
+                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        list.add(new NidFloatMemberVersion(r, this, stampAlias));
+                    }
                }
             }
          }
