@@ -93,14 +93,7 @@ the specific language governing permissions and limitations under the License. -
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.9</version>
             </plugin>
-                <plugin>
-                    <groupId>external.atlassian.jgitflow</groupId>
-                    <artifactId>jgitflow-maven-plugin</artifactId>
-                    <version>1.0-m4.3</version>
-                    <configuration>
-                        <enableFeatureVersions>true</enableFeatureVersions>
-                    </configuration>
-                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
@@ -194,16 +187,11 @@ the specific language governing permissions and limitations under the License. -
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+                <version>1.0-m4.3</version>
                 <configuration>
-                    <preparationGoals>clean install</preparationGoals>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <remoteTagging>true</remoteTagging>
-                    <arguments>-Pintegration-test</arguments>
-                    <tagNameFormat>tcc-@{project.version}</tagNameFormat>
-                    <goals>deploy site site:stage scm-publish:publish-scm</goals>
+                    <enableFeatureVersions>true</enableFeatureVersions>
                 </configuration>
             </plugin>
             <plugin>
