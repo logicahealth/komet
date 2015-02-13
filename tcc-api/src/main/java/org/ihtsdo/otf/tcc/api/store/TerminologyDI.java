@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
@@ -22,7 +23,9 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
+import org.jvnet.hk2.annotations.Contract;
 
+@Contract
 public interface TerminologyDI {
 
     public static enum CONCEPT_EVENT {
@@ -79,20 +82,27 @@ public interface TerminologyDI {
     void forget(RelationshipVersionBI rel) throws IOException;
 
     /**
-     * Cause all index generators implementing the <code>IndexerBI</code> to
-     * first <code>clearIndex()</code> then iterate over all chronicles in the
+     * Cause all index generators implementing the {@code IndexerBI} to
+     * first {@code clearIndex()} then iterate over all chronicles in the
      * database and pass those chronicles to
-     * <code>index(ComponentChronicleBI chronicle)</code> and when complete, to
-     * call <code>commitWriter()</code>. <code>IndexerBI</code> services will be
+     * {@code index(ComponentChronicleBI chronicle)} and when complete, to
+     * call {@code commitWriter()}. {@code IndexerBI} services will be
      * discovered using the HK2 dependency injection framework.
      *
+     * @return 
      * @throws IOException
      */
     void index() throws IOException;
 
+    @Deprecated
     void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;
 
+    @Deprecated
     void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception;
+
+    Stream<? extends ConceptChronicleBI> getConceptStream() throws IOException;
+    
+    Stream<? extends ConceptChronicleBI> getParallelConceptStream() throws IOException;
 
     /**
      *
@@ -157,23 +167,23 @@ public interface TerminologyDI {
      */
     NativeIdSetBI getOrphanNids(NativeIdSetBI conceptNativeIds) throws IOException;
 
-    int getAuthorNidForStamp(int sapNid);
+    int getAuthorNidForStamp(int stamp);
 
     NativeIdSetBI getEmptyNidSet() throws IOException;
 
     ViewCoordinate getMetadataVC() throws IOException;
 
-    int getModuleNidForStamp(int sapNid);
+    int getModuleNidForStamp(int stamp);
 
     Path getPath(int pathNid) throws IOException;
 
-    int getPathNidForStamp(int sapNid);
+    int getPathNidForStamp(int stamp);
 
     Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
 
-    Set<Path> getPathSetFromSapSet(Set<Integer> sapNids) throws IOException;
+    Set<Path> getPathSetFromStampSet(Set<Integer> stamp) throws IOException;
 
-    Set<Position> getPositionSet(Set<Integer> sapNids) throws IOException;
+    Set<Position> getPositionSet(Set<Integer> stamp) throws IOException;
 
     Status getStatusForStamp(int stamp);
 
@@ -191,7 +201,7 @@ public interface TerminologyDI {
      * Retrieve the concept nid from a specified nid.
      *
      * @param nid
-     * @return the <code>int</code> concept nid of the specified nid
+     * @return the {@code int} concept nid of the specified nid
      */
     int getConceptNidForNid(int nid);
 

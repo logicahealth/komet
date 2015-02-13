@@ -25,7 +25,7 @@ public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> exten
      * @param idDirective
      * @param refexDirective
      * @return the refex blueprint, which can be constructed to create a
-     *         <code>RefexChronicleBI</code>
+     *         {@code RefexChronicleBI}
      * @throws IOException
      *             signals that an I/O exception has occurred
      * @throws ContradictionException

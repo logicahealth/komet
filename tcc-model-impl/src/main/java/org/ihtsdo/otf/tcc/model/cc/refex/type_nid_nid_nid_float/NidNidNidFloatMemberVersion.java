@@ -28,11 +28,10 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
  * @author aimeefurber
  */
 public class NidNidNidFloatMemberVersion extends RefexMemberVersion<NidNidNidFloatRevision, NidNidNidFloatMember> implements RefexNidNidNidFloatVersionBI<NidNidNidFloatRevision> {
-    private final NidNidNidFloatMember rm;
 
-    NidNidNidFloatMemberVersion(RefexNidNidNidFloatAnalogBI cv, final NidNidNidFloatMember rm) {
-        super(cv,rm);
-        this.rm = rm;
+    NidNidNidFloatMemberVersion(RefexNidNidNidFloatAnalogBI cv, 
+            final NidNidNidFloatMember rm, int stamp) {
+        super(cv,rm, stamp);
     }
 
     RefexNidNidNidFloatAnalogBI getCv() {

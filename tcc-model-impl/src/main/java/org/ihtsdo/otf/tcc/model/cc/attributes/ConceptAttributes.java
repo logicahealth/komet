@@ -1,8 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -25,13 +23,13 @@ import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevision, ConceptAttributes>
         implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
 
-    private static VersionComputer<ConceptAttributesVersion> computer =
-            new VersionComputer<>();
+    private static VersionComputer<ConceptAttributesVersion> computer
+            = new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     protected boolean defined;
     List<ConceptAttributesVersion> versions;
@@ -43,9 +41,9 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
 
     public ConceptAttributes(TtkConceptAttributesChronicle eAttr, ConceptChronicleBI c) throws IOException {
         super(eAttr, c.getNid());
-        assert this.nid == c.getNid(): "[2] nid and cNid don't match: " +
-                this.nid + ":" + c.getNid() + " processing: " +
-                eAttr + "\n\n" + c;
+        assert this.nid == c.getNid() : "[2] nid and cNid don't match: "
+                + this.nid + ":" + c.getNid() + " processing: "
+                + eAttr + "\n\n" + c;
         defined = eAttr.isDefined();
 
         if (eAttr.getRevisionList() != null) {
@@ -149,8 +147,8 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
 
         return buf.toString();
     }
-    
-    public String toSimpleString(){
+
+    public String toSimpleString() {
         StringBuilder buf = new StringBuilder();
         buf.append(" -nid: ").append(nid);
         buf.append(" -enclosing concept nid: ").append(enclosingConceptNid);
@@ -163,7 +161,8 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
      * Test method to check to see if two objects are equal in all respects.
      *
      * @param another
-     * @return either a zero length String, or a String containing a description of the validation failures.
+     * @return either a zero length String, or a String containing a description
+     * of the validation failures.
      * @throws IOException
      */
     public String validate(ConceptAttributes another) throws IOException {
@@ -175,7 +174,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         if (this.defined != another.defined) {
             buf.append("\tConceptAttributes.defined not equal: "
                     + "\n\t\tthis.defined = ").append(this.defined).append("\n"
-                    + "\t\tanother.defined = ").append(another.defined).append("\n");
+                            + "\t\tanother.defined = ").append(another.defined).append("\n");
         }
 
         // Compare the parents
@@ -196,7 +195,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
 //        return nid;
 //    }
     @Override
-    public ConceptAttributeAB makeBlueprint(ViewCoordinate vc, 
+    public ConceptAttributeAB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
         ConceptAttributeAB conAttrBp = new ConceptAttributeAB(nid, defined,
                 getVersion(vc), vc, refexDirective, idDirective);
@@ -244,13 +243,19 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
             list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new ConceptAttributesVersion(this, this));
+                list.add(new ConceptAttributesVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new ConceptAttributesVersion(this, this, stampAlias));
+                }
             }
 
             if (revisions != null) {
                 for (ConceptAttributesRevision r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
-                        list.add(new ConceptAttributesVersion(r, this));
+                        list.add(new ConceptAttributesVersion(r, this, r.stamp));
+                        for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                            list.add(new ConceptAttributesVersion(r, this, stampAlias));
+                        }
                     }
                 }
             }

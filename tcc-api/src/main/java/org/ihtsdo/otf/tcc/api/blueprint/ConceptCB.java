@@ -45,7 +45,7 @@ import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 /**
  * The Class ConceptCB contains methods for creating a concept blueprint. This blueprint can be constructed
  * into a type of
- * <code>ConceptChronicleBI</code>. This is the preferred method for creating new concepts. Use
+ * {@code ConceptChronicleBI}. This is the preferred method for creating new concepts. Use
  * ConceptAttributeAB to amend concept attributes if the concept already exists.
  *
  * @see TerminologyBuilderBI
@@ -69,6 +69,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     private LanguageCode lang;
     private UUID isaType;
     private UUID moduleUuid;
+    private UUID pathUuid;
     private boolean defined;
     private List<DescriptionCAB> fsnCABs = new ArrayList<>();
     private List<DescriptionCAB> prefCABs = new ArrayList<>();
@@ -76,36 +77,10 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     private List<RelationshipCAB> relCABs = new ArrayList<>();
     private List<MediaCAB> mediaCABs = new ArrayList<>();
     private ConceptAttributeAB conAttrAB;
-    private Collection<UUID> parents = new TreeSet<UUID>() {
-        @Override
-        public boolean add(UUID e) {
-            boolean result = super.add(e);
-            setComponentUuid(computeComponentUuid());
-            return result;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends UUID> clctn) {
-            boolean result = super.addAll(clctn);
-            setComponentUuid(computeComponentUuid());
-            return result;
-        }
-
-        @Override
-        public boolean remove(Object obj) {
-            boolean result = super.remove(obj);
-            setComponentUuid(computeComponentUuid());
-            return result;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> clctn) {
-            boolean result = super.removeAll(clctn);
-            setComponentUuid(computeComponentUuid());
-            return result;
-        }
-    };
+    private Collection<UUID> parents = new TreeSet<>();
     private boolean annotationRefexExtensionIdentity;
+    private List<RefexCAB> sememeCABs = new ArrayList<>();
+    private List<RefexDynamicCAB> sememeCABsDynamic = new ArrayList<>();
 
     /**
      * Gets the uuids of parent concept for this concept blueprint.
@@ -124,7 +99,9 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the description
      * @param isaTypeUuid the uuid representing the relationship type to use for specifying the parent
      * concepts
-     * @param idDirective generally <code><b>IdDirective.GENERATE_HASH</b></code> for new concepts
+     * @param idDirective generally {@code <b>IdDirective.GENERATE_HASH</b>} for new concepts
+     * @param moduleUuid
+     * @param pathUuid
      * @param parentUuids the uuids of the parent concept
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
@@ -136,8 +113,9 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             UUID isaTypeUuid,
             IdDirective idDirective,
             UUID moduleUuid,
+            UUID pathUuid,
             UUID... parentUuids) throws IOException, InvalidCAB, ContradictionException {
-        this(fullySpecifiedName, preferredName, langCode, isaTypeUuid, idDirective, moduleUuid, null, parentUuids);
+        this(fullySpecifiedName, preferredName, langCode, isaTypeUuid, idDirective, moduleUuid, pathUuid, null, parentUuids);
     }
 
     public ConceptCB(String fullySpecifiedName,
@@ -146,6 +124,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             UUID isaTypeUuid,
             IdDirective idDirective,
             UUID moduleUuid,
+            UUID pathUuid,
             UUID conceptUuid,
             UUID... parentUuids) throws IOException, InvalidCAB, ContradictionException {
         super(conceptUuid, null, null, idDirective, RefexDirective.EXCLUDE);
@@ -156,12 +135,17 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         this.lang = langCode;
         this.isaType = isaTypeUuid;
         this.moduleUuid = moduleUuid;
+        this.pathUuid = pathUuid;
         //TODO Dan notes this was also broken, and the module wasn't being set properly - however, I have to wonder
         //Why does the blueprint even need the module?  The module is set from the editCoordinate when the blueprint 
         //is constructed.  Near as I can tell, the module is never ever read from the blueprint.
         if (moduleUuid != null)
         {
             properties.put(ComponentProperty.MODULE_ID, moduleUuid);
+        }
+        if (pathUuid != null)
+        {
+            properties.put(ComponentProperty.PATH_ID, pathUuid);
         }
         if (parentUuids != null) {
             this.parents.addAll(Arrays.asList(parentUuids));
@@ -179,7 +163,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the description
      * @param isaTypeUuid the uuid representing the relationship type to use for specifying the parent
      * concepts
-     * @param idDirective generally <code><b>IdDirective.GENERATE_HASH</b></code> for new concepts
+     * @param idDirective generally {@code <b>IdDirective.GENERATE_HASH</b>} for new concepts
      * @param parentUuids the uuids of the parent concept
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
@@ -213,7 +197,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new concept blueprint based on the given
-     * <code>conceptVersion</code>. Can specify a uuid for the new concept.
+     * {@code conceptVersion}. Can specify a uuid for the new concept.
      *
      * @param conceptVersion the concept version to use to create this concept blueprint
      * @param newConceptUuid the uuid representing the new concept
@@ -591,14 +575,14 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * coordinate
      */
     private void addPreferredNameDialectRefexes(DescriptionCAB preferredBlueprint, LanguageCode dialect) throws 
-            UnsupportedEncodingException, IOException, InvalidCAB, ContradictionException {
+            UnsupportedEncodingException, IOException, InvalidCAB, ContradictionException, NoSuchAlgorithmException {
         RefexCAB usAnnot;
         RefexCAB gbAnnot;
         if (dialect == LanguageCode.EN) {
             usAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
+            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
             if (moduleUuid != null) {
                 usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -606,9 +590,12 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             gbAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
+            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
             if (moduleUuid != null) {
                 gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
+            }
+            if (pathUuid != null) {
+                gbAnnot.properties.put(ComponentProperty.PATH_ID, pathUuid);
             }
             preferredBlueprint.addAnnotationBlueprint(usAnnot);
             preferredBlueprint.addAnnotationBlueprint(gbAnnot);
@@ -616,16 +603,19 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             usAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
+            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
             if (moduleUuid != null) {
                 usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
+            }
+            if (pathUuid != null) {
+                usAnnot.properties.put(ComponentProperty.PATH_ID, pathUuid);
             }
             preferredBlueprint.addAnnotationBlueprint(usAnnot);
         } else if (dialect == LanguageCode.EN_GB) {
             gbAnnot = new RefexCAB(RefexType.CID,
                     preferredBlueprint.getComponentUuid(),
                     gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getNid());
+            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
             if (moduleUuid != null) {
                 gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -673,7 +663,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Checks if this concept blueprint is marked as defined.
      *
-     * @return <code>true</code>, if the concept is defined
+     * @return {@code true}, if the concept is defined
      */
     public boolean isDefined() {
         return defined;
@@ -682,7 +672,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Marks this concept blueprint as defined
      *
-     * @param defined set to <code>true</code> if the concept is defined
+     * @param defined set to {@code true} if the concept is defined
      */
     public void setDefined(boolean defined) {
         this.defined = defined;
@@ -691,7 +681,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Checks if the descriptions associated with this concept are marked as initial case sensitive.
      *
-     * @return <code>true</code>, if the descriptions are initial case sensitive
+     * @return {@code true}, if the descriptions are initial case sensitive
      */
     public boolean isInitialCaseSensitive() {
         return initialCaseSensitive;
@@ -700,7 +690,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Marks the descriptions associated with this concept are marked as initial case sensitive.
      *
-     * @param initialCaseSensitive set to <code>true</code> to mark the descriptions as initial case sensitive
+     * @param initialCaseSensitive set to {@code true} to mark the descriptions as initial case sensitive
      */
     public void setInitialCaseSensitive(boolean initialCaseSensitive) {
         this.initialCaseSensitive = initialCaseSensitive;
@@ -715,9 +705,11 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is found for a given position or view
      * coordinate
+     * @throws java.io.UnsupportedEncodingException
+     * @throws java.security.NoSuchAlgorithmException
      */
     public DescriptionCAB makeFullySpecifiedNameCAB(IdDirective idDirective)
-            throws IOException, InvalidCAB, ContradictionException {
+            throws IOException, InvalidCAB, ContradictionException, UnsupportedEncodingException, NoSuchAlgorithmException {
         //get rf1/rf2 concepts
         UUID fsnUuid = SnomedMetadataRf2.FULLY_SPECIFIED_NAME_RF2.getUuids()[0];
         DescriptionCAB blueprint = new DescriptionCAB(
@@ -743,9 +735,11 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is found for a given position or view
      * coordinate
+     * @throws java.io.UnsupportedEncodingException
+     * @throws java.security.NoSuchAlgorithmException
      */
     public DescriptionCAB makePreferredCAB(IdDirective idDirective)
-            throws IOException, InvalidCAB, ContradictionException {
+            throws IOException, InvalidCAB, ContradictionException, UnsupportedEncodingException, NoSuchAlgorithmException {
         //get rf1/rf2 concepts
         UUID synUuid = SnomedMetadataRf2.SYNONYM_RF2.getUuids()[0];
         DescriptionCAB blueprint = new DescriptionCAB(
@@ -798,8 +792,10 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is found for a given position or view
      * coordinate
+     * @throws java.io.UnsupportedEncodingException
+     * @throws java.security.NoSuchAlgorithmException
      */
-    public List<DescriptionCAB> getFullySpecifiedNameCABs() throws IOException, InvalidCAB, ContradictionException {
+    public List<DescriptionCAB> getFullySpecifiedNameCABs() throws IOException, InvalidCAB, ContradictionException, UnsupportedEncodingException, NoSuchAlgorithmException {
         if (fsnCABs.isEmpty()) {
             fsnCABs.add(makeFullySpecifiedNameCAB(idDirective));
         }
@@ -815,8 +811,10 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is found for a given position or view
      * coordinate
+     * @throws java.io.UnsupportedEncodingException
+     * @throws java.security.NoSuchAlgorithmException
      */
-    public List<DescriptionCAB> getPreferredNameCABs() throws IOException, InvalidCAB, ContradictionException {
+    public List<DescriptionCAB> getPreferredNameCABs() throws IOException, InvalidCAB, ContradictionException, UnsupportedEncodingException, NoSuchAlgorithmException {
         if (prefCABs.isEmpty()) {
             prefCABs.add(makePreferredCAB(idDirective));
         }
@@ -951,9 +949,40 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * Method description
      *
      *
-     * @return
+     * @param annotationRefexExtensionIdentity
      */
     public void setAnnotationRefexExtensionIdentity(boolean annotationRefexExtensionIdentity) {
         this.annotationRefexExtensionIdentity = annotationRefexExtensionIdentity;
     }
+    
+        /**
+     * Adds a sememe blueprint to be associated with this assemblage (concept) blueprint.
+     *
+     * @param sememeBlueprint the sememe blueprint to associate with this assemblage blueprint
+     * @return The provided sememeBlueprint to enable method chaining. 
+     */
+    public RefexCAB addSememeBlueprint(RefexCAB sememeBlueprint) {
+        sememeCABs.add(sememeBlueprint);
+        return sememeBlueprint;
+    }
+
+    /**
+     * Adds an dynamic sememe blueprint to be associated with this assemblage (concept) blueprint.
+     *
+     * @param sememeDynamicBlueprint the sememe blueprint to associate with this assemblage blueprint
+     * @return The provided sememeDynamicBlueprint to enable method chaining. 
+     */
+    public RefexDynamicCAB addSememeBlueprint(RefexDynamicCAB sememeDynamicBlueprint) {
+        sememeCABsDynamic.add(sememeDynamicBlueprint);
+        return sememeDynamicBlueprint;
+    }
+
+    public List<RefexCAB> getSememeCABs() {
+        return sememeCABs;
+    }
+
+    public List<RefexDynamicCAB> getSememeCABsDynamic() {
+        return sememeCABsDynamic;
+    }
+
 }

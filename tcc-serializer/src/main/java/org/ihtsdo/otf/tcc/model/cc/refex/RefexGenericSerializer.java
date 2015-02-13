@@ -79,6 +79,7 @@ public class RefexGenericSerializer {
                 m.setModificationTracker(conceptData);
                 ArrayOfByteArraySerializer.get().deserialize(input, (ArrayOfByteArrayMember) m);
                 break;
+                
             case BOOLEAN:
                 m = new BooleanMember();
                 m.setModificationTracker(conceptData);
@@ -186,7 +187,7 @@ public class RefexGenericSerializer {
                 m.setModificationTracker(conceptData);
                 StringSerializer.get().deserialize(input, (StringMember) m);
                 break;
-
+                
             default:
                 throw new UnsupportedOperationException("Can't handle: " + type);
         }
@@ -213,6 +214,7 @@ public class RefexGenericSerializer {
             case ARRAY_BYTEARRAY:
                 ArrayOfByteArraySerializer.get().serialize(output, (ArrayOfByteArrayMember) m);
                 break;
+
             case BOOLEAN:
                 BooleanSerializer.get().serialize(output, (BooleanMember) m);
                 break;

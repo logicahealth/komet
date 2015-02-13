@@ -24,6 +24,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
@@ -33,17 +34,20 @@ import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
  * type refex member in the eConcept format and contains methods specific for
  * interacting with an array of byte array type refex member. Further discussion
  * of the eConcept format can be found on
- * <code>TkConcept</code>.
+ * {@code TkConcept}.
  *
  * @see TkConcept
  */
-public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexArrayOfByteArrayRevision> {
+public class TtkRefexArrayOfByteArrayMemberChronicle
+        extends TtkRefexAbstractMemberChronicle<TtkRefexArrayOfByteArrayRevision> {
 
     /**
      * The Constant serialVersionUID, used to prevent the class from computing
      * its own serialVersionUID based on a hash of all the method signatures.
      */
     public static final long serialVersionUID = 1;
+    
+
     //~--- fields --------------------------------------------------------------
     /**
      * The array of byte array associated with this TK Refex Array of Bytearray
@@ -61,7 +65,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on the
-     * <code>refexChronicle</code>.
+     * {@code refexChronicle}.
      *
      * @param refexChronicle the refex chronicle specifying how to construct
      * this TK Refex Array of Byte Array Member
@@ -73,13 +77,11 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on the
-     * <code>refexArrayOfBytearrayVersion</code> and using the given
-     * <code>revisionHandling</code>.
+     * {@code refexArrayOfBytearrayVersion} and using the given
+     * {@code revisionHandling}.
      *
      * @param refexArrayOfBytearrayVersion the refex array of byte array version
      * specifying how to construct this TK Refex Array of Byte Array Member
-     * @param revisionHandling specifying if addition versions should be
-     * included or not
      * @throws IOException signals that an I/O exception has occurred
      */
     public TtkRefexArrayOfByteArrayMemberChronicle(RefexArrayOfBytearrayVersionBI refexArrayOfBytearrayVersion) throws IOException {
@@ -91,6 +93,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
             RefexArrayOfBytearrayVersionBI rv = itr.next();
 
             this.arrayOfByteArray1 = rv.getArrayOfByteArray();
+            
 
             if (partCount > 1) {
                 revisions = new ArrayList<>(partCount - 1);
@@ -98,12 +101,8 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
                 while (itr.hasNext()) {
                     rv = itr.next();
                     TtkRefexArrayOfByteArrayRevision rev = new TtkRefexArrayOfByteArrayRevision(rv);
-                    if (rev.getTime() == this.time) {
-                        // TODO this check can be removed after trek-95 change sets are no longer in production. 
-                        this.arrayOfByteArray1 = rev.arrayOfByteArray1;
-                    } else {
-                        revisions.add(rev);
-                    }
+                    revisions.add(rev);
+
                 }
             }
         
@@ -112,7 +111,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on the
      * specified data input,
-     * <code>in</code>.
+     * {@code in}.
      *
      * @param in the data input specifying how to construct this TK Refex
      * Array of Byte Array Member
@@ -127,17 +126,12 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on
-     * <code>another</code> TK Refex Array of Byte Array Member and allows for
+     * {@code another} TK Refex Array of Byte Array Member and allows for
      * uuid conversion.
      *
      * @param another the TK Refex Array of Byte Array Member specifying how to
      * construct this TK Refex Array of Byte Array Member
-     * @param conversionMap the map for converting from one set of uuids to
-     * another
-     * @param offset the offset to be applied to the time associated with this
-     * TK Refex Array of Byte Array Member
-     * @param mapAll set to <code>true</code> to map all the uuids in this TK
-     * Refex Array of Byte Array Member based on the conversion map
+     * @param transformer
      */
     public TtkRefexArrayOfByteArrayMemberChronicle(TtkRefexArrayOfByteArrayMemberChronicle another, ComponentTransformerBI transformer) {
         super(another, transformer);
@@ -152,14 +146,14 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
     }
 
     /**
-     * Compares this object to the specified object. The result is <tt>true</tt>
-     * if and only if the argument is not <tt>null</tt>, is a
-     * <tt>ERefsetLongMember</tt> object, and contains the same values, field by
-     * field, as this <tt>ERefsetLongMember</tt>.
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a
+     * {@code ERefsetLongMember} object, and contains the same values, field by
+     * field, as this {@code ERefsetLongMember}.
      *
      * @param obj the object to compare with.
-     * @return <code>true</code>, if successful <code>true</code> if the objects
-     * are the same; <code>false</code> otherwise.
+     * @return {@code true}, if successful {@code true} if the objects
+     * are the same; {@code false} otherwise.
      */
     @Override
     public boolean equals(Object obj) {
@@ -187,9 +181,9 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
     /**
      * Returns a hash code for this
-     * <code>ERefsetArrayofByteArrayMember</code>.
+     * {@code ERefsetArrayofByteArrayMember}.
      *
-     * @return a hash code value for this <tt>ERefsetArrayofByteArrayMember</tt>.
+     * @return a hash code value for this {@code ERefsetArrayofByteArrayMember}.
      */
     @Override
     public int hashCode() {
@@ -198,12 +192,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
     /**
      *
-     * @param conversionMap the map for converting from one set of uuids to
-     * another
-     * @param offset the offset to be applied to the time associated with this
-     * TK Refex Array of Byte Array Member
-     * @param mapAll set to <code>true</code> to map all the uuids in this TK
-     * Refex Array of Byte Array Member based on the conversion map
+     * @param transformer
      * @return the converted TK Refex Array of Byte Array Member
      */
     @Override
@@ -237,12 +226,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
 
             for (int i = 0; i < versionSize; i++) {
                 TtkRefexArrayOfByteArrayRevision rev = new TtkRefexArrayOfByteArrayRevision(in, dataVersion);
-                if (rev.getTime() == this.time) {
-                    // TODO this check can be removed after trek-95 change sets are no longer in production. 
-                    arrayOfByteArray1 = rev.arrayOfByteArray1;
-                } else {
-                    revisions.add(rev);
-                }
+                revisions.add(rev);
             }
         }
     }
@@ -300,7 +284,7 @@ public class TtkRefexArrayOfByteArrayMemberChronicle extends TtkRefexAbstractMem
      * @return a list of revisions on this TK Refex Array of Byte Array Member
      */
     @Override
-    public List<TtkRefexArrayOfByteArrayRevision> getRevisionList() {
+    public List<? extends TtkRefexArrayOfByteArrayRevision> getRevisionList() {
         return revisions;
     }
 

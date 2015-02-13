@@ -32,7 +32,7 @@ public interface RefexVersionBI<A extends RefexAnalogBI<A>>
     * description to make a blueprint of
     * @param idDirective
     * @param refexDirective
-    * @return the refex blueprint, which can be constructed to create a <code>RefexChronicleBI</code>
+    * @return the refex blueprint, which can be constructed to create a {@code RefexChronicleBI}
     * @throws IOException signals that an I/O exception has occurred
     * @throws ContradictionException if more than one version of the
     * description was returned for the specified view coordinate

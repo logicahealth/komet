@@ -1,11 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.media;
 
-
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -16,9 +15,6 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
-
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -46,7 +42,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     public Media() {
         super();
     }
-
 
     public Media(TtkMediaChronicle eMedia, ConceptChronicleBI enclosingConcept) throws IOException {
         super(eMedia, enclosingConcept.getNid());
@@ -76,7 +71,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         versions = null;
         clearAnnotationVersions();
     }
-
 
     // TODO Verify this is a correct implementation
     @Override
@@ -179,9 +173,10 @@ public class Media extends ConceptComponent<MediaRevision, Media>
 
     /**
      * Test method to check to see if two objects are equal in all respects.
+     *
      * @param another
-     * @return either a zero length String, or a String containing a description of the
-     * validation failures.
+     * @return either a zero length String, or a String containing a description
+     * of the validation failures.
      * @throws IOException
      */
     public String validate(Media another) throws IOException {
@@ -210,7 +205,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         return buf.toString();
     }
 
-
     //~--- get methods ---------------------------------------------------------
 
     /*
@@ -229,7 +223,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
      * @see org.dwfa.vodb.types.I_ImageVersioned#getFormat()
      */
     @Override
-    public MediaCAB makeBlueprint(ViewCoordinate vc, 
+    public MediaCAB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
         MediaCAB mediaBp = new MediaCAB(getConceptNid(),
                 getTypeNid(),
@@ -245,8 +239,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     public String getFormat() {
         return format;
     }
-
-
 
     @Override
     public byte[] getMedia() {
@@ -299,14 +291,20 @@ public class Media extends ConceptComponent<MediaRevision, Media>
             ArrayList<MediaVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new MediaVersion(this, this));
+                list.add(new MediaVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new MediaVersion(this, this, stampAlias));
+                }
             }
 
             if (revisions != null) {
                 for (MediaRevision ir : revisions) {
                     if (ir.getTime() != Long.MIN_VALUE) {
-                        list.add(new MediaVersion(ir, this));
-                    }
+                        list.add(new MediaVersion(ir, this, ir.stamp));
+                            for (int stampAlias : getCommitManager().getAliases(ir.stamp)) {
+                            list.add(new MediaVersion(ir, this, stampAlias));
+                        }
+                 }
                 }
             }
 

@@ -80,7 +80,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * 
 	 * DOES NOT set the value - only returns it.
 	 *
-	 * @return A <code>UUID</code> based on a Type 5 generator that uses the content fields of the refex.
+	 * @return A {@code UUID} based on a Type 5 generator that uses the content fields of the refex.
 	 * @throws InvalidCAB if the any of the values in blueprint to make are invalid
 	 * @throws IOException 
 	 */
@@ -161,7 +161,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	}
 	
 	/**
-	 * Gets a string representing the primordial uuid of the specified nid-based <code>refexProperty</code>.
+	 * Gets a string representing the primordial uuid of the specified nid-based {@code refexProperty}.
 	 *
 	 * @param refexProperty the refexProperty representing the nid-bsed property
 	 * @return a String representing the primordial uuid of the refex property
@@ -199,7 +199,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	}
 	
 	/**
-	 * Instantiates a new refex blueprint using nid values and a given <code>refexVersion</code>. Uses the given <code>memberUuid</code> as the refex
+	 * Instantiates a new refex blueprint using nid values and a given {@code refexVersion}. Uses the given {@code memberUuid} as the refex
 	 * member uuid.
 	 *
 	 * @param referencedComponentUuid the UUID of the referenced component
@@ -332,7 +332,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * Checks if the refex properties contain the specified property.
 	 *
 	 * @param key the refex property in question
-	 * @return <code>true</code>, if the refex properties contain the specified property
+	 * @return {@code true}, if the refex properties contain the specified property
 	 */
 	public boolean hasProperty(ComponentProperty key)
 	{
@@ -340,7 +340,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	}
 	
 	/**
-	 * Writes this refex member blueprint to the given <code>refex</code>.
+	 * Writes this refex member blueprint to the given {@code refex}.
 	 *
 	 * @param refex the refex analog to write this refex blueprint to
 	 * @param includeStamp write the stamp if true, otherwise skip stamp attributes
@@ -423,11 +423,11 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	}
 	
 	/**
-	 * Checks to see if this refex blueprint's properties are equivalent to the given <code>refexVersion</code>
+	 * Checks to see if this refex blueprint's properties are equivalent to the given {@code refexVersion}
 	 * excluding time, author, module and path.
 	 *
 	 * @param refexVersion the refex version to compare against
-	 * @return <code>true</code>, if this refex blueprint's properties are equal to the specified refexVersion - 
+	 * @return {@code true}, if this refex blueprint's properties are equal to the specified refexVersion -
 	 * while not checking time, author, module or path.
 	 * @throws InvalidCAB 
 	 */

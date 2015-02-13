@@ -21,7 +21,6 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int.RefexNidNidNidIntAnalog
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int.RefexNidNidNidIntVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 /**
@@ -29,11 +28,10 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
  * @author aimeefurber
  */
 public class NidNidNidIntMemberVersion extends RefexMemberVersion<NidNidNidIntRevision, NidNidNidIntMember> implements RefexNidNidNidIntVersionBI<NidNidNidIntRevision> {
-    private final NidNidNidIntMember rm;
 
-    NidNidNidIntMemberVersion(RefexNidNidNidIntAnalogBI cv, final NidNidNidIntMember rm) {
-        super(cv,rm);
-        this.rm = rm;
+    NidNidNidIntMemberVersion(RefexNidNidNidIntAnalogBI cv, final NidNidNidIntMember rm,
+            int stamp) {
+        super(cv,rm, stamp);
     }
 
     RefexNidNidNidIntAnalogBI getCv() {

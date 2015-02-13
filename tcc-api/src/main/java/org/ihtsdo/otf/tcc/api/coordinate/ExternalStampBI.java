@@ -1,6 +1,5 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import java.util.UUID;
 
 public interface ExternalStampBI {

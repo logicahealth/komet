@@ -21,14 +21,13 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 public class Relationship extends ConceptComponent<RelationshipRevision, Relationship>
         implements RelationshipAnalogBI<RelationshipRevision> {
@@ -60,7 +59,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       primordialStamp = PersistentStore.get().getStamp(eRel);
 
       if (eRel.getRevisionList() != null) {
-         revisions = new RevisionSet<RelationshipRevision, Relationship>(primordialStamp);
+         revisions = new RevisionSet<>(primordialStamp);
 
          for (TtkRelationshipRevision erv : eRel.getRevisionList()) {
             revisions.add(new RelationshipRevision(erv, this));
@@ -362,34 +361,40 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       return null;
    }
 
-   @Override
-   public List<RelationshipVersion> getVersions() {
-      if (versions == null) {
-         int count = 1;
+    @Override
+    public List<RelationshipVersion> getVersions() {
+        if (versions == null) {
+            int count = 1;
 
-         if (revisions != null) {
-            count = count + revisions.size();
-         }
-
-         ArrayList<RelationshipVersion> list = new ArrayList<>(count);
-
-         if (getTime() != Long.MIN_VALUE) {
-            list.add(new RelationshipVersion(this, this));
-         }
-
-         if (revisions != null) {
-            for (RelationshipRevision r : revisions) {
-               if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new RelationshipVersion(r, this));
-               }
+            if (revisions != null) {
+                count = count + revisions.size();
             }
-         }
 
-         versions = list;
-      }
+            ArrayList<RelationshipVersion> list = new ArrayList<>(count);
 
-      return versions;
-   }
+            if (getTime() != Long.MIN_VALUE) {
+                list.add(new RelationshipVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new RelationshipVersion(this, this, stampAlias));
+                }
+            }
+
+            if (revisions != null) {
+                for (RelationshipRevision r : revisions) {
+                    if (r.getTime() != Long.MIN_VALUE) {
+                        list.add(new RelationshipVersion(r, this, r.stamp));
+                        for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                            list.add(new RelationshipVersion(r, this, stampAlias));
+                        }
+                    }
+                }
+            }
+
+            versions = list;
+        }
+
+        return versions;
+    }
 
    @Override
    public List<RelationshipVersion> getVersions(ViewCoordinate c) {

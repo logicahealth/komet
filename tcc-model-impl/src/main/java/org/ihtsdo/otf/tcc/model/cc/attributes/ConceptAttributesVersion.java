@@ -20,41 +20,33 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
-import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 
 public class ConceptAttributesVersion extends Version<ConceptAttributesRevision, ConceptAttributes> implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
 
-    //TODO KEC don't think that ca is necessary as the parent class has cc
-    private ConceptAttributes ca = null;
     
     public ConceptAttributesVersion(){}
     
-    public ConceptAttributesVersion(ConceptAttributeAnalogBI<ConceptAttributesRevision> cv, ConceptAttributes ca) {
-        super(cv, ca);
-        this.ca = ca;
+    public ConceptAttributesVersion(ConceptAttributeAnalogBI<ConceptAttributesRevision> cv, ConceptAttributes cc, int stamp) {
+        super(cv, cc, stamp);
     }
 
     //~--- methods ----------------------------------------------------------
     public ConceptAttributesRevision makeAnalog() {
-        if (cv == ca) {
-            return new ConceptAttributesRevision(ca, ca);
+        if (cv == cc) {
+            return new ConceptAttributesRevision(((ConceptAttributes) cc), ((ConceptAttributes)cc));
         }
-        return new ConceptAttributesRevision((ConceptAttributesRevision) getCv(), ca);
+        return new ConceptAttributesRevision((ConceptAttributesRevision) getCv(), (ConceptAttributes) cc);
     }
 
     @Override
@@ -82,7 +74,7 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
 
     @Override
     public ConceptAttributes getPrimordialVersion() {
-        return ca;
+        return (ConceptAttributes) cc;
     }
 
     @Override
@@ -93,17 +85,17 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
 
     @Override
     public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
-        return ca.getVersion(c);
+        return ((ConceptAttributes)cc).getVersion(c);
     }
 
     @Override
     public List<? extends ConceptAttributesVersion> getVersions() {
-        return ca.getVersions();
+        return ((ConceptAttributes)cc).getVersions();
     }
 
     @Override
     public Collection<ConceptAttributesVersion> getVersions(ViewCoordinate c) {
-        return ca.getVersions(c);
+        return ((ConceptAttributes)cc).getVersions(c);
     }
 
     @Override
@@ -127,8 +119,8 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
         buf.append(" -nid: ").append(getCv().getNid());
         buf.append(" -enclosing concept nid: ").append(getCv().getConceptNid());
         buf.append(" -stamp: ").append(getCv().getStamp());
-        if(ca == cv){
-            buf.append(" -revision count: ").append(ca.revisions.size());
+        if(cc == cv){
+            buf.append(" -revision count: ").append(cc.revisions.size());
         }
         buf.append(" -defined: ").append(getCv().isDefined());
         return buf.toString();

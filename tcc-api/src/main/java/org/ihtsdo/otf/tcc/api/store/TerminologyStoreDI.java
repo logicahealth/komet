@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.jvnet.hk2.annotations.Contract;
 
 @Contract
@@ -36,9 +37,9 @@ public interface TerminologyStoreDI extends TerminologyDI {
      * Retrieves the components nids that are children of the input parent nid
      *
      * @author dylangrald
-     * @param parentNid the <code>int</code> nid of the parent component
-     * @param viewCoordinate the desired <code>ViewCoordinate</code>
-     * @return the <code>NativeIdSetBI</code> of children of the parent nid
+     * @param parentNid the {@code int} nid of the parent component
+     * @param viewCoordinate the desired {@code ViewCoordinate}
+     * @return the {@code NativeIdSetBI} of children of the parent nid
      */
     public NativeIdSetBI isChildOfSet(int parentNid, ViewCoordinate viewCoordinate);
 
@@ -61,6 +62,26 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     ComponentChronicleBI<?> getComponent(UUID... uuids) throws IOException;
 
+    /**
+     * Maybe should only be accessible from component? Or {@code PersistentStoreI}
+     * @param sememeNid
+     * @return 
+     */
+    RefexChronicleBI<?> getSememe(int sememeNid);
+
+    /**
+     * Maybe should only be accessible from component? Or {@code PersistentStoreI}
+     * @param assemblageNid
+     * @return 
+     */
+    Collection<? extends RefexChronicleBI<?>> getSememesForAssemblage(int assemblageNid);
+
+    /**
+     * Maybe should only be accessible from component? Or {@code PersistentStoreI}
+     * @param componentNid
+     * @return 
+     */
+    public Collection<? extends RefexChronicleBI<?>> getSememesForComponent(int componentNid);
     /**
      * 
      * @param authorityNid
@@ -116,10 +137,10 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     /**
      * Retrieves the
-     * <code>ConceptChronicleBI</code> from the specified component nid.
+     * {@code ConceptChronicleBI} from the specified component nid.
      *
      * @param nid
-     * @return  <code>ConceptChronicleBI</code> associated with the specified
+     * @return  {@code ConceptChronicleBI} associated with the specified
      * component nid.
      * @throws IOException
      */
@@ -157,7 +178,7 @@ public interface TerminologyStoreDI extends TerminologyDI {
      *
      * @param cNid
      * @param vc
-     * @return concept nids that are children of input nid,      * stored <code>int[]</code>
+     * @return concept nids that are children of input nid,      * stored {@code int[]}
      * @throws IOException
      */
     int[] getPossibleChildren(int cNid, ViewCoordinate vc) throws IOException;
@@ -207,10 +228,10 @@ public interface TerminologyStoreDI extends TerminologyDI {
     /**
      * Calculates whether childNid is a kind of parentNid
      *
-     * @param parentNid the <code>int</code> nid of the parent concept
-     * @param childNid the <code>int</code> nid of the child concept
-     * @param vc the desired <code>ViewCoordinate</code>
-     * @return the <code>boolean</code> value of whether childNid is a kind of
+     * @param parentNid the {@code int} nid of the parent concept
+     * @param childNid the {@code int} nid of the child concept
+     * @param vc the desired {@code ViewCoordinate}
+     * @return the {@code boolean} value of whether childNid is a kind of
      * parentNid
      */
     boolean isKindOf(int childNid, int parentNid, ViewCoordinate vc)
@@ -219,10 +240,10 @@ public interface TerminologyStoreDI extends TerminologyDI {
     /**
      * Calculates whether childNid is a child of parentNid
      *
-     * @param parentNid the <code>int</code> nid of the parent concept
-     * @param childNid the <code>int</code> nid of the child concept
-     * @param vc the desired <code>ViewCoordinate</code>
-     * @return the <code>boolean</code> value of whether childNid is a child of
+     * @param parentNid the {@code int} nid of the parent concept
+     * @param childNid the {@code int} nid of the child concept
+     * @param vc the desired {@code ViewCoordinate}
+     * @return the {@code boolean} value of whether childNid is a child of
      * parentNid
      */
     boolean isChildOf(int childNid, int parentNid, ViewCoordinate vc)
@@ -231,9 +252,9 @@ public interface TerminologyStoreDI extends TerminologyDI {
     /**
      * Calculates the set of concepts that are a kind of parentNid
      *
-     * @param parentNid the <code>int</code> nid of the parent concept
-     * @param vc the desired <code>ViewCoordinate</code>
-     * @return the <code>NativeIdSetBI</code> of components that are a kind of
+     * @param parentNid the {@code int} nid of the parent concept
+     * @param vc the desired {@code ViewCoordinate}
+     * @return the {@code NativeIdSetBI} of components that are a kind of
      * parentNid
      */
     NativeIdSetBI isKindOfSet(int parentNid, ViewCoordinate vc);

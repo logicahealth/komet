@@ -21,32 +21,28 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 
 public class MediaVersion extends Version<MediaRevision, Media> implements MediaVersionFacade {
-    private final Media m;
-
-    public MediaVersion(MediaVersionFacade cv, final Media m) {
-        super(cv,m);
-        this.m = m;
+   
+    public MediaVersion(MediaVersionFacade cv, final Media m, int stamp) {
+        super(cv,m, stamp);
     }
 
     //~--- methods ----------------------------------------------------------
     public MediaRevision makeAnalog() {
-        if (getCv() != m) {
-            return new MediaRevision((MediaRevision) getCv(), m);
+        if (getCv() != cc) {
+            return new MediaRevision((MediaRevision) getCv(), (Media) cc);
         }
-        return new MediaRevision(m);
+        return new MediaRevision((Media) cc);
     }
 
     @Override
@@ -72,7 +68,7 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     //~--- get methods ------------------------------------------------------
     @Override
     public int getConceptNid() {
-        return m.enclosingConceptNid;
+        return cc.enclosingConceptNid;
     }
 
     MediaVersionFacade getCv() {
@@ -86,17 +82,17 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
 
     @Override
     public String getFormat() {
-        return m.format;
+        return ((Media) cc).format;
     }
 
     @Override
     public byte[] getMedia() {
-        return m.image;
+        return ((Media) cc).image;
     }
 
     @Override
     public Media getPrimordialVersion() {
-        return m;
+        return ((Media) cc);
     }
 
     @Override
@@ -111,17 +107,17 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
 
     @Override
     public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
-        return m.getVersion(c);
+        return ((Media) cc).getVersion(c);
     }
 
     @Override
     public List<? extends MediaVersion> getVersions() {
-        return m.getVersions();
+        return ((Media) cc).getVersions();
     }
 
     @Override
     public Collection<MediaVersion> getVersions(ViewCoordinate c) {
-        return m.getVersions(c);
+        return ((Media) cc).getVersions(c);
     }
 
     //~--- set methods ------------------------------------------------------

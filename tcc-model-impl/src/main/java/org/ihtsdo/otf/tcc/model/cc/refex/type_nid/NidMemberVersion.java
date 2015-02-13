@@ -18,21 +18,17 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 //~--- inner classes -------------------------------------------------------
 
 public class NidMemberVersion extends RefexMemberVersion<NidRevision, NidMember> implements RefexNidAnalogBI<NidRevision> {
-    private NidMember rm;
 
-    public NidMemberVersion(RefexNidAnalogBI cv, final NidMember rm) {
-        super(cv,rm);
-        this.rm = rm;
+    public NidMemberVersion(RefexNidAnalogBI cv, final NidMember rm, int stamp) {
+        super(cv,rm, stamp);
     }
     
     public NidMemberVersion(){

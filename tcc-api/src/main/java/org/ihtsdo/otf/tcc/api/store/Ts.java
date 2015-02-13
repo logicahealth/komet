@@ -1,12 +1,9 @@
 package org.ihtsdo.otf.tcc.api.store;
 
-import java.lang.reflect.Method;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
-import javax.inject.Inject;
-
 /**
- * Ts is short for Terminology store...
+ * Ts is short for Terminology termstore...
  *
  * @author kec
  *
@@ -14,28 +11,14 @@ import javax.inject.Inject;
 
 public class Ts {
 
-    private static Ts singleton;
 
-    @Inject private TerminologyStoreDI store;
-
-    private Ts() {};
-
-   //~--- methods -------------------------------------------------------------
-
-   public static void close() throws Exception {
-      get().shutdown();
-   }
-
+    private static TerminologyStoreDI store;
    //~--- get methods ---------------------------------------------------------
 
    public static TerminologyStoreDI get() {
-      if (singleton == null) {
-          singleton = new Ts();
+      if (store == null) {
+          store = Hk2Looker.get().getService(TerminologyStoreDI.class);
       }
-      return singleton.store;
-   }
-
-   public static TerminologySnapshotDI getGlobalSnapshot() {
-       return get().getGlobalSnapshot();
+      return store;
    }
 }

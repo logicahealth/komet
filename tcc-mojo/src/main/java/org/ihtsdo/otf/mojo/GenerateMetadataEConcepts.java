@@ -28,11 +28,15 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
@@ -58,7 +62,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChroni
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexInteger;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexPolymorphic;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexUUID;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
@@ -69,11 +72,9 @@ import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
  * A utility class to pick up {@link ConceptSpec} entries, and write them out to an eConcept file.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- *
- * @goal generate-metadata-eConcepts
- * 
- * @phase process-sources
  */
+@Mojo( name = "generate-metadata-eConcepts",
+        defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class GenerateMetadataEConcepts extends AbstractMojo
 {
 	private final UUID authorUuid_ = TermAux.USER.getUuids()[0];
@@ -114,9 +115,9 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 	/**
 	 * Name and location of the output file.
 	 * 
-	 * @parameter expression="${project.build.directory}/metadataEConcepts.jbin"
-	 * @required
 	 */
+    @Parameter(required = true,
+               defaultValue = "${project.build.directory}/metadataEConcepts.jbin")
 	private File outputFile;
 
 	/**
@@ -124,24 +125,22 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 	 * 
 	 * Each {@link ConceptSpec} found will be output to the eConcept file.
 	 * 
-	 * @parameter
-	 * @optional
 	 */
+    @Parameter
 	private String[] classesWithConceptSpecs;
 
 	/**
 	 * Any other {@link ConceptSpec} which should be built into the eConcept file.
 	 *
-	 * @parameter
-	 * @optional
-	 */
+     */
+    @Parameter
 	private ConceptSpec[] conceptSpecs;
 
 	/**
 	 * Instead of writing the default jbin format, write the eccs change set format instead.
 	 *
-	 * @optional
-	 */
+     */
+    @Parameter
 	private boolean writeAsChangeSetFormat = false;
 	
 	/**
@@ -168,6 +167,8 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 	}
 
 	/**
+     * @throws org.apache.maven.plugin.MojoExecutionException
+     * @throws org.apache.maven.plugin.MojoFailureException
 	 * @see org.apache.maven.plugin.Mojo#execute()
 	 */
 	@Override
@@ -182,107 +183,101 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 				throw new MojoExecutionException("Cannot create the folder " + outputFile.getParentFile().getAbsolutePath());
 			}
 
-			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)));
-			
-			ArrayList<ConceptSpec> conceptSpecsToProcess = new ArrayList<>();
-			
-
-			if (conceptSpecs != null)
-			{
-				for (ConceptSpec cs : conceptSpecs)
-				{
-					conceptSpecsToProcess.add(cs);
-				}
-			}
-			if (classesWithConceptSpecs != null)
-			{
-				for (String cs : classesWithConceptSpecs)
-				{
-					conceptSpecsToProcess.addAll(getSpecsFromClass(cs));
-				}
-			}
-			
-			int count = 0;
-			for (ConceptSpec cs : conceptSpecsToProcess)
-			{
-				TtkConceptChronicle converted = convert(cs);
-				if (RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0].equals(cs.getUuids()[0]))
-				{
-					converted.setAnnotationStyleRefex(true);
-					//Add the special synonym to establish this as an assemblage concept
-					TtkDescriptionChronicle description = addDescription(converted, "This concept is used as an assemblage for defining new Refex extensions.  "
-							+ "The attached data columns describe what columns are required to define a new Refex. ",
-							DescriptionType.SYNONYM, false);
-					
-					//Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-					addDynamicAnnotation(description, RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0], new TtkRefexDynamicData[0]);
-					
-					//Define the 4 columns that may be used when creating other refex attachment data
-					//col 1 - column order
-					TtkRefexDynamicData[] data = new TtkRefexDynamicData[4];
-					data[0] = new TtkRefexInteger(0);
-					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_ORDER.getUuids()[0]);
-					data[2] = new TtkRefexString(RefexDynamicDataType.INTEGER.name());
-					data[3] = null;
-					//Yes, describing itself
-					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
-					
-					//col 2 - column name
-					data = new TtkRefexDynamicData[4];
-					data[0] = new TtkRefexInteger(1);
-					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_NAME.getUuids()[0]);
-					data[2] = new TtkRefexString(RefexDynamicDataType.UUID.name());
-					data[3] = null;
-					//Yes, describing itself
-					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
-					
-					//col 3 - column type
-					data = new TtkRefexDynamicData[4];
-					data[0] = new TtkRefexInteger(2);
-					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_TYPE.getUuids()[0]);
-					data[2] = new TtkRefexString(RefexDynamicDataType.STRING.name());
-					data[3] = null;
-					//Yes, describing itself
-					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
-					
-					//col 4 - column default value
-					data = new TtkRefexDynamicData[4];
-					data[0] = new TtkRefexInteger(3);
-					data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_DEFAULT_VALUE.getUuids()[0]);
-					data[2] = new TtkRefexString(RefexDynamicDataType.POLYMORPHIC.name());
-					data[3] = null;
-					//Yes, describing itself
-					addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
-					
-				}
-				else if (RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0].equals(cs.getUuids()[0]))
-				{
-					converted.setAnnotationStyleRefex(true);
-					TtkDescriptionChronicle description = addDescription(converted, "The definition describes the overall purpose of using this concept as a Refex Assemblage",
-							DescriptionType.SYNONYM, false);
-					
-					//Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-					//Yes, assemblage is itself in this case, and there is no data.
-					addDynamicAnnotation(description, RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0], new TtkRefexDynamicData[0]);
-				}
-				else if (RefexDynamic.REFEX_COLUMN_ORDER.getUuids()[0].equals(cs.getUuids()[0]))
-				{
-					addDescription(converted, "Stores the column order of this column within a Dynamic Refex Definition",
-							DescriptionType.SYNONYM, false);
-				}
-				else if (RefexDynamic.REFEX_COLUMN_NAME.getUuids()[0].equals(cs.getUuids()[0]))
-				{
-					addDescription(converted, "Stores the concept reference to the concept that defines the name of this column within a Dynamic Refex Definition",
-							DescriptionType.SYNONYM, false);
-				}
-				else if (RefexDynamic.REFEX_COLUMN_TYPE.getUuids()[0].equals(cs.getUuids()[0]))
-				{
-					addDescription(converted, "Stores the data type of this column within a Dynamic Refex Definition",
-							DescriptionType.SYNONYM, false);
-				}
-				else if (RefexDynamic.REFEX_COLUMN_DEFAULT_VALUE.getUuids()[0].equals(cs.getUuids()[0]))
-				{
-					addDescription(converted, "Stores the (optional) default value of this column within a Dynamic Refex Definition",
+                        int count;
+                    try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
+                        ArrayList<ConceptSpec> conceptSpecsToProcess = new ArrayList<>();
+                        if (conceptSpecs != null)
+                        {
+                            conceptSpecsToProcess.addAll(Arrays.asList(conceptSpecs));
+                        }
+                        if (classesWithConceptSpecs != null)
+                        {
+                            for (String cs : classesWithConceptSpecs)
+                            {
+                                conceptSpecsToProcess.addAll(getSpecsFromClass(cs));
+                            }
+                        }
+                        count = 0;
+                        for (ConceptSpec cs : conceptSpecsToProcess)
+                        {
+                            TtkConceptChronicle converted = convert(cs);
+                            if (RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0].equals(cs.getUuids()[0]))
+                            {
+                                converted.setAnnotationStyleRefex(true);
+                                //Add the special synonym to establish this as an assemblage concept
+                                TtkDescriptionChronicle description = addDescription(converted, "This concept is used as an assemblage for defining new Refex extensions.  "
+                                        + "The attached data columns describe what columns are required to define a new Refex. ",
+                                        DescriptionType.SYNONYM, false);
+                                
+                                //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
+                                addDynamicAnnotation(description, RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0], new TtkRefexDynamicData[0]);
+                                
+                                //Define the 4 columns that may be used when creating other refex attachment data
+                                //col 1 - column order
+                                TtkRefexDynamicData[] data = new TtkRefexDynamicData[4];
+                                data[0] = new TtkRefexInteger(0);
+                                data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_ORDER.getUuids()[0]);
+                                data[2] = new TtkRefexString(RefexDynamicDataType.INTEGER.name());
+                                data[3] = null;
+                                //Yes, describing itself
+                                addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
+                                
+                                //col 2 - column name
+                                data = new TtkRefexDynamicData[4];
+                                data[0] = new TtkRefexInteger(1);
+                                data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_NAME.getUuids()[0]);
+                                data[2] = new TtkRefexString(RefexDynamicDataType.UUID.name());
+                                data[3] = null;
+                                //Yes, describing itself
+                                addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
+                                
+                                //col 3 - column type
+                                data = new TtkRefexDynamicData[4];
+                                data[0] = new TtkRefexInteger(2);
+                                data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_TYPE.getUuids()[0]);
+                                data[2] = new TtkRefexString(RefexDynamicDataType.STRING.name());
+                                data[3] = null;
+                                //Yes, describing itself
+                                addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
+                                
+                                //col 4 - column default value
+                                data = new TtkRefexDynamicData[4];
+                                data[0] = new TtkRefexInteger(3);
+                                data[1] = new TtkRefexUUID(RefexDynamic.REFEX_COLUMN_DEFAULT_VALUE.getUuids()[0]);
+                                data[2] = new TtkRefexString(RefexDynamicDataType.POLYMORPHIC.name());
+                                data[3] = null;
+                                //Yes, describing itself
+                                addDynamicAnnotation(converted.getConceptAttributes(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0], data);
+                                
+                            }
+                            else if (RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0].equals(cs.getUuids()[0]))
+                            {
+                                converted.setAnnotationStyleRefex(true);
+                                TtkDescriptionChronicle description = addDescription(converted, "The definition describes the overall purpose of using this concept as a Refex Assemblage",
+                                        DescriptionType.SYNONYM, false);
+                                
+                                //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
+                                //Yes, assemblage is itself in this case, and there is no data.
+                                addDynamicAnnotation(description, RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0], new TtkRefexDynamicData[0]);
+                            }
+                            else if (RefexDynamic.REFEX_COLUMN_ORDER.getUuids()[0].equals(cs.getUuids()[0]))
+                            {
+                                addDescription(converted, "Stores the column order of this column within a Dynamic Refex Definition",
+                                        DescriptionType.SYNONYM, false);
+                            }
+                            else if (RefexDynamic.REFEX_COLUMN_NAME.getUuids()[0].equals(cs.getUuids()[0]))
+                            {
+                                addDescription(converted, "Stores the concept reference to the concept that defines the name of this column within a Dynamic Refex Definition",
+                                        DescriptionType.SYNONYM, false);
+                            }
+                            else if (RefexDynamic.REFEX_COLUMN_TYPE.getUuids()[0].equals(cs.getUuids()[0]))
+                            {
+                                addDescription(converted, "Stores the data type of this column within a Dynamic Refex Definition",
+                                        DescriptionType.SYNONYM, false);
+                            }
+                            else if (RefexDynamic.REFEX_COLUMN_DEFAULT_VALUE.getUuids()[0].equals(cs.getUuids()[0]))
+                            {
+                                addDescription(converted, "Stores the (optional) default value of this column within a Dynamic Refex Definition",
 							DescriptionType.SYNONYM, false);
 				}
 				
@@ -293,8 +288,8 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 				converted.writeExternal(dos);
 				count++;
 			}
-			dos.flush();
-			dos.close();
+                        dos.flush();
+                    }
 			getLog().info("Wrote " + count + " concepts to " + outputFile.getAbsolutePath() + ".");
 		}
 		catch (IOException | IllegalArgumentException | IllegalAccessException | ClassNotFoundException | NoSuchAlgorithmException | PropertyVetoException e)
@@ -332,7 +327,7 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 		setRevisionAttributes(annotation, null, null);
 		if (component.getAnnotationsDynamic() == null)
 		{
-			component.setAnnotationsDynamic(new ArrayList<TtkRefexDynamicMemberChronicle>());
+			component.setAnnotationsDynamic(new ArrayList<>());
 		}
 		component.getAnnotationsDynamic().add(annotation);
 		return annotation;
@@ -401,7 +396,7 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 		object.setModuleUuid(moduleUuid_);
 		object.setPathUuid(pathUUID_);
 		object.setStatus(status == null ? Status.ACTIVE : status);
-		object.setTime(time == null ? defaultTime_ : time.longValue());
+		object.setTime(time == null ? defaultTime_ : time);
 	}
 
 	/**
@@ -418,7 +413,7 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 			List<TtkDescriptionChronicle> descriptions = eConcept.getDescriptions();
 			if (descriptions == null)
 			{
-				descriptions = new ArrayList<TtkDescriptionChronicle>();
+				descriptions = new ArrayList<>();
 				eConcept.setDescriptions(descriptions);
 			}
 			TtkDescriptionChronicle description = new TtkDescriptionChronicle();
@@ -458,7 +453,7 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 
 			if (annotations == null)
 			{
-				annotations = new ArrayList<TtkRefexAbstractMemberChronicle<?>>();
+				annotations = new ArrayList<>();
 				component.setAnnotations(annotations);
 			}
 
@@ -495,7 +490,7 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 			List<TtkRelationshipChronicle> relationships = eConcept.getRelationships();
 			if (relationships == null)
 			{
-				relationships = new ArrayList<TtkRelationshipChronicle>();
+				relationships = new ArrayList<>();
 				eConcept.setRelationships(relationships);
 			}
 

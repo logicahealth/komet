@@ -93,8 +93,9 @@ public class RefexDynamicUsageDescriptionBuilder
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = TermAux.TERM_AUX_MODULE.getUuids()[0];
 		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.REFEX_DYNAMIC_IDENTITY.getUuids()[0] : parentConcept };
+                UUID path = null; // TODO get the path set right...
 
-		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, parents);
+		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, path, parents);
 		cab.setAnnotationRefexExtensionIdentity(annotationStyle);
 		
 		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(), Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], lc, refexDescription, false,

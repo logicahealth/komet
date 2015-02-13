@@ -13,7 +13,7 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntMemberChronicl
 import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
@@ -169,33 +169,39 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
 
    @SuppressWarnings("unchecked")
    @Override
-   public List<IntMemberVersion> getVersions() {
-      if (versions == null) {
-         int count = 1;
+    public List<IntMemberVersion> getVersions() {
+        if (versions == null) {
+            int count = 1;
 
-         if (revisions != null) {
-            count = count + revisions.size();
-         }
-
-         ArrayList<IntMemberVersion> list = new ArrayList<>(count);
-
-         if (getTime() != Long.MIN_VALUE) {
-            list.add(new IntMemberVersion(this, this));
-         }
-
-         if (revisions != null) {
-            for (RefexIntAnalogBI r : revisions) {
-               if (r.getTime() != Long.MIN_VALUE) {
-                  list.add(new IntMemberVersion(r, this));
-               }
+            if (revisions != null) {
+                count = count + revisions.size();
             }
-         }
 
-         versions = list;
-      }
+            ArrayList<IntMemberVersion> list = new ArrayList<>(count);
 
-      return (List<IntMemberVersion>) versions;
-   }
+            if (getTime() != Long.MIN_VALUE) {
+                list.add(new IntMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new IntMemberVersion(this, this, stampAlias));
+                }
+            }
+
+            if (revisions != null) {
+                for (RefexIntAnalogBI r : revisions) {
+                    if (r.getTime() != Long.MIN_VALUE) {
+                        list.add(new IntMemberVersion(r, this, r.getStamp()));
+                        for (int stampAlias : getCommitManager().getAliases(r.getStamp())) {
+                            list.add(new IntMemberVersion(r, this, stampAlias));
+                        }
+                    }
+                }
+            }
+
+            versions = list;
+        }
+
+        return (List<IntMemberVersion>) versions;
+    }
 
    //~--- set methods ---------------------------------------------------------
 

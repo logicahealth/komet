@@ -27,6 +27,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
 
 /**
  * Enum description
@@ -57,6 +58,7 @@ public enum REFEX_TYPE_DDO {
                                     COMP_COMP_COMP_LONG(17, RefexNidNidNidLongVersionBI.class),
                                     COMP_COMP_COMP_STRING(18, RefexNidNidNidStringVersionBI.class),
                                     COMP_BOOLEAN(19, RefexNidBooleanVersionBI.class),
+                                    LOGIC(14, LogicGraphVersionBI.class),
                                     UNKNOWN(Byte.MAX_VALUE, null);
 
    /** Field description */

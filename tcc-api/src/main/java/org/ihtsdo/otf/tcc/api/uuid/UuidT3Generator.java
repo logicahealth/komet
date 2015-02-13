@@ -25,7 +25,7 @@ import java.util.UUID;
  * The Class UuidT3Generator generates a type 3 UUID object. A type 3 UUID is
  * name based and uses MD5 hashing to create the uuid from the given name. This
  * generator should only be used for SNOMED Ids, all other users should use
- * <code>UuidT5Generator</code>
+ * {@code UuidT5Generator}
  *
  * @see <a
  * href="http://en.wikipedia.org/wiki/Universally_unique_identifier">http://en.wikipedia.org/wiki/Universally_unique_identifier</a>

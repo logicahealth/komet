@@ -44,15 +44,13 @@ public class TtkRelationshipRevision extends TtkRevision {
    }
 
    public TtkRelationshipRevision(RelationshipVersionBI rv) throws IOException {
+      super(rv);
       TerminologyStoreDI ts = Ts.get();
 
       characteristicUuid = ts.getUuidPrimordialForNid(rv.getCharacteristicNid());
       refinabilityUuid   = ts.getUuidPrimordialForNid(rv.getRefinabilityNid());
       group              = rv.getGroup();
       typeUuid           = ts.getUuidPrimordialForNid(rv.getTypeNid());
-      pathUuid           = ts.getUuidPrimordialForNid(rv.getPathNid());
-      status             = rv.getStatus();
-      time               = rv.getTime();
    }
 
    public TtkRelationshipRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
@@ -77,14 +75,14 @@ public class TtkRelationshipRevision extends TtkRevision {
        references.add(this.refinabilityUuid);
    }
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>ERelationshipVersion</tt> object, and contains the same values,
-    * field by field, as this <tt>ERelationshipVersion</tt>.
+    * Compares this object to the specified object. The result is {@code true}
+    * if and only if the argument is not {@code null}, is a
+    * {@code ERelationshipVersion} object, and contains the same values,
+    * field by field, as this {@code ERelationshipVersion}.
     *
     * @param obj the object to compare with.
-    * @return <code>true</code> if the objects are the same;
-    *         <code>false</code> otherwise.
+    * @return {@code true} if the objects are the same;
+    *         {@code false} otherwise.
     */
    public boolean equals(Object obj) {
       if (obj == null) {

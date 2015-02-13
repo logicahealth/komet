@@ -102,7 +102,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     Precedence precedencePolicy;
 
     //~--- constructors --------------------------------------------------------
-//    TODO-AKF: can this be private?
     public ConceptChronicle() {
         lazyInit();
     }
@@ -352,7 +351,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     }
                 }
             }
-        } catch (NullPointerException e) { //TODO-AKF: fix this
+        } catch (NullPointerException e) { //TODO-AKF-KEC: support images
             System.out.println("Image not supported yet");
         }
         if (!eConcept.getRefsetMembers().isEmpty()) {
@@ -393,7 +392,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                         if (currentMemberNids.contains(rNid) && (r != null)) {
                             r.merge((RefexMember) RefexMemberFactory.create(er, c.getNid()));
                         } else {
-                            c.getRefsetMembers().add(RefexMemberFactory.create(er, c.getNid()));
+                            c.getData().add(RefexMemberFactory.create(er, c.getNid()));
                         }
                     }
                 }
@@ -567,7 +566,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         init();
     }
 
-//    public void resetNidData() {  //TODO-AKF: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
+//    public void resetNidData() {  //TODO-AKF-KEC: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
 //        data.resetNidData();
 //    }
     public static void resolveUnresolvedAnnotations(Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException {
@@ -697,7 +696,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
             return "canceled concept";
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Exception in toUserSTring()", ex);
+            logger.log(Level.SEVERE, "Exception in toUserString()", ex);
 
             return ex.toString();
         }
@@ -882,6 +881,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public ComponentChronicleBI<?> getComponent(int nid) throws IOException {
+        if (this.getNid() == nid) {
+            return this;
+        }
         return data.getComponent(nid);
     }
 
@@ -1225,7 +1227,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public Set<Position> getPositions() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+         return Ts.get().getPositionSet(getAllStamps());
     }
 
     public NativeIdSetBI getPossibleKindOfConcepts(NidSetBI isATypes) throws IOException {
@@ -1354,8 +1356,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public ConcurrentSkipListSet<RefexDynamicMember> getRefsetDynamicMembers() throws IOException {
-        return (ConcurrentSkipListSet<RefexDynamicMember>) data.getRefsetDynamicMembers();
+    public Collection<RefexDynamicMember> getRefsetDynamicMembers() throws IOException {
+        return data.getRefsetDynamicMembers();
     }
 
     @Override
@@ -1535,7 +1537,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             }
 
             if (fsDescNid == Integer.MIN_VALUE) {
-                fsDescNid = SnomedMetadataRf2.PREFERRED_RF2.getNid();
+                fsDescNid = Ts.get().getNidForUuids(SnomedMetadataRf2.PREFERRED_RF2.getUuids());
             }
 
             if (getDescriptions().size() > 0) {
@@ -1635,7 +1637,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public Collection<? extends ConceptVersionBI> getVersions() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            for (Position p: getPositions()) {
+               // need to know if stated or inferred...   
+            }
+            throw new UnsupportedOperationException("Not supported yet.");
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override

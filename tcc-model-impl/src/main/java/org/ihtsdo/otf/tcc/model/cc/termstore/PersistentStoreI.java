@@ -75,8 +75,11 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
     /**
      * @TODO modify the write concept routine to update the identifiers map
      * (UUIDs, etc) Possibly remove identifiers from Lucene?
+     *  @deprecated use getSememesForAssemblage
      */
-    List<NidPairForRefex> getRefexPairs(int nid) throws IOException;
+    @Deprecated List<NidPairForRefex> getRefexPairs(int nid) throws IOException;
+
+    
 
     int[] getDestRelOriginNids(int cNid, NidSetBI relTypes) throws IOException;
 

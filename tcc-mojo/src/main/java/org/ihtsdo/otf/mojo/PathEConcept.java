@@ -28,6 +28,8 @@ import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.spec.PathSpec;
@@ -40,20 +42,21 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_int.TtkRefexUuidIntMembe
  *
  * @author aimeefurber
  * @author dylangrald
- * @goal create-path-econcept
  */
+@Mojo(name = "create-path-econcept")
 public class PathEConcept extends AbstractMojo {
-
-    /**
-     * Paths to add to initial database.
-     *
-     * @parameter
-     */
-    private PathSpec[] initialPaths;
 
     private static final String DIR = System.getProperty("user.dir");
 
     private static final Logger LOGGER = Logger.getLogger(PathEConcept.class.getName());
+
+
+    /**
+     * Paths to add to initial database.
+     *
+     */
+    @Parameter
+    private PathSpec[] initialPaths;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -111,11 +114,11 @@ public class PathEConcept extends AbstractMojo {
         originRefsetConcept.setRefsetMembers(originMembers);
 
         //write to file (will merge with existing concepts, assumes that Path and Origin concepts have been loaded)
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(out)));
-        pathRefsetConcept.writeExternal(dos);
-        originRefsetConcept.writeExternal(dos);
-        dos.flush();
-        dos.close();
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(out)))) {
+            pathRefsetConcept.writeExternal(dos);
+            originRefsetConcept.writeExternal(dos);
+            dos.flush();
+        }
     }
 
 }

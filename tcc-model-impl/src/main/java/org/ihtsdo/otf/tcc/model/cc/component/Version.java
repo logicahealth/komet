@@ -40,9 +40,10 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.store.TerminologyDI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 
 /**
@@ -50,11 +51,22 @@ import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
  * @param <C>
  */
 public abstract class Version<R extends Revision<R, C>, C extends ConceptComponent<R, C>> implements ComponentVersionBI, AnalogGeneratorBI<R> {
+
+    private static TerminologyDI terminology;
+    private static TerminologyDI getTermService() {
+        if (terminology == null) {
+            terminology = Hk2Looker.getService(TerminologyDI.class);
+        }
+        return terminology;
+    }
+    
+    
     /**
      * Field description
      */
     protected ComponentVersionBI cv;
     protected ConceptComponent<R, C> cc = null;
+    protected int stamp;
     
     public Version(){}
     
@@ -67,11 +79,14 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      *
      * @param cv
+     * @param cc
+     * @param stamp
      */
-    public Version(ComponentVersionBI cv, ConceptComponent<R, C> cc) {
+    public Version(ComponentVersionBI cv, ConceptComponent<R, C> cc, int stamp) {
         super();
         this.cc = cc;
         this.cv = cv;
+        this.stamp = stamp;
     }
 
     public boolean isIndexed() {
@@ -86,7 +101,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
 
     @Override
     public boolean isActive() {
-        return cv.getStatus() == Status.ACTIVE;
+        return getTermService().getStatusForStamp(stamp).getBoolean();
     }
 
     /**
@@ -135,7 +150,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      * @return
      */
-    public abstract boolean fieldsEqual(Version<R,C> another); //TODO-AKF: make sure signature is correct
+    public abstract boolean fieldsEqual(Version<R,C> another);
 
     /**
      * Method description
@@ -309,7 +324,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public int getAuthorNid() {
-        return cv.getAuthorNid();
+        return getTermService().getAuthorNidForStamp(stamp);
     }
 
     /**
@@ -454,7 +469,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public int getModuleNid() {
-        return cv.getModuleNid();
+        return getTermService().getModuleNidForStamp(stamp);
     }
 
     /**
@@ -476,7 +491,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public int getPathNid() {
-        return cv.getPathNid();
+        return getTermService().getPathNidForStamp(stamp);
     }
 
     /**
@@ -489,7 +504,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public Position getPosition() throws IOException {
-        return cv.getPosition();
+        return new Position(getTime(), getTermService().getPath(getPathNid()));
     }
 
     /**
@@ -553,7 +568,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         if (cv == cc) {
             return makeAnalog(getStatus(), getTime(), getAuthorNid(), getModuleNid(), getPathNid());
         }
-        return (R) cv; //TODO-AKF: not sure casting and return type is correct
+        return (R) cv; 
     }
 
     /**
@@ -564,7 +579,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public int getStamp() {
-        return cv.getStamp();
+        return this.stamp;
     }
 
     /**
@@ -575,7 +590,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public Status getStatus() {
-        return cv.getStatus();
+        return getTermService().getStatusForStamp(stamp);
     }
 
     /**
@@ -586,7 +601,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public long getTime() {
-        return cv.getTime();
+        return getTermService().getTimeForStamp(stamp);
     }
 
     /**
@@ -649,7 +664,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      */
     @Override
     public boolean isBaselineGeneration() {
-        return cv == cc; //TODO-AKF: is this okay?
+        return cv == cc;
     }
 
     /**
@@ -695,7 +710,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      * @throws PropertyVetoException
      */
-    public void setNid(int nid) throws PropertyVetoException { //TODO-AKF: removing final
+    public void setNid(int nid) throws PropertyVetoException {
         ((AnalogBI) cv).setNid(nid);
     }
 
@@ -715,7 +730,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      * Method description
      *
      *
-     * @param statusNid
+     * @param status
      *
      * @throws PropertyVetoException
      */
@@ -741,6 +756,8 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         return cc.getRefexesDynamicActive(viewCoordinate);
     }
     /**
+     * @return 
+     * @throws java.io.IOException 
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
      */
     @Override
@@ -750,6 +767,8 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
     }
 
     /**
+     * @return 
+     * @throws java.io.IOException
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
      */
     @Override
@@ -758,6 +777,8 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         return cc.getRefexDynamicAnnotations();
     }
     /**
+     * @return 
+     * @throws java.io.IOException
      * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
      */
     @Override

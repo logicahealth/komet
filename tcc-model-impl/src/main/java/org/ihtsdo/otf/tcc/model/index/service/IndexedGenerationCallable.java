@@ -20,9 +20,9 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * A
- * <code>Callable&lt;Long&gt;</code> object that will block until the indexer
+ * {@code Callable&lt;Long&gt;} object that will block until the indexer
  * has added the document to the index. The
- * <code>call()</code> method on the object will return the index generation
+ * {@code call()} method on the object will return the index generation
  * that contains the document, which can be used in search calls to make sure
  * that generation is available to the searcher.
  *

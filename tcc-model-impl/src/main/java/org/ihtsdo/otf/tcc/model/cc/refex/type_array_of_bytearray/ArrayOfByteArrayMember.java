@@ -27,13 +27,10 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexAr
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.cc.computer.version.VersionComputer;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,8 +44,8 @@ import java.util.Set;
 public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>
         implements RefexArrayOfBytearrayAnalogBI<ArrayOfByteArrayRevision> {
 
-    private static VersionComputer<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> computer =
-            new VersionComputer<>();
+    private static VersionComputer<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> computer
+            = new VersionComputer<>();
     //~--- fields --------------------------------------------------------------
     protected byte[][] arrayOfByteArray;
 
@@ -62,7 +59,6 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
         this.arrayOfByteArray = byteArray;
         modified();
     }
-
 
     //~--- constructors --------------------------------------------------------
     public ArrayOfByteArrayMember() {
@@ -87,7 +83,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     protected void addRefsetTypeNids(Set<Integer> allNids) {
         // ;
     }
- 
+
     @Override
     protected void addSpecProperties(RefexCAB rcs) {
         rcs.with(ComponentProperty.ARRAY_OF_BYTEARRAY, arrayOfByteArray);
@@ -120,7 +116,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
 
         return newR;
     }
-    
+
     @Override
     public ArrayOfByteArrayRevision makeAnalog(org.ihtsdo.otf.tcc.api.coordinate.Status status, long time, int authorNid, int moduleNid, int pathNid) {
         ArrayOfByteArrayRevision newR = new ArrayOfByteArrayRevision(status, time,
@@ -144,7 +140,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
 
     @Override
     public boolean refexFieldsEqual(RefexVersionBI another) {
-        if(RefexArrayOfBytearrayVersionBI.class.isAssignableFrom(another.getClass())){
+        if (RefexArrayOfBytearrayVersionBI.class.isAssignableFrom(another.getClass())) {
             RefexArrayOfBytearrayVersionBI bv = (RefexArrayOfBytearrayVersionBI) another;
             return Arrays.deepEquals(this.arrayOfByteArray, bv.getArrayOfByteArray());
         }
@@ -163,27 +159,25 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
     @Override
     public String toString() {
         StringBuilder buff = new StringBuilder();
-     buff.append("AOBA size: ");
-      buff.append(this.arrayOfByteArray.length);
-      for (int i = 0; i < this.arrayOfByteArray.length; i++) {
-        buff.append(" ").append(i);
-        buff.append(": ");
-        if(this.arrayOfByteArray[i].length == 16){
-            buff.append(UuidT5Generator.getUuidFromRawBytes(this.arrayOfByteArray[i]));
-        }else{
-            buff.append(this.arrayOfByteArray[i]);
+        buff.append("AOBA size: ");
+        buff.append(this.arrayOfByteArray.length);
+        for (int i = 0; i < this.arrayOfByteArray.length; i++) {
+            buff.append(" ").append(i);
+            buff.append(": ");
+            if (this.arrayOfByteArray[i].length == 16) {
+                buff.append(UuidT5Generator.getUuidFromRawBytes(this.arrayOfByteArray[i]));
+            } else {
+                buff.append(this.arrayOfByteArray[i]);
+            }
+
         }
-        
-      }
-      buff.append(" ");
-      buff.append(super.toString());
+        buff.append(" ");
+        buff.append(super.toString());
 
         return buff.toString();
     }
 
-
     //~--- get methods ---------------------------------------------------------
-
     @Override
     protected RefexType getTkRefsetType() {
         return RefexType.ARRAY_BYTEARRAY;
@@ -211,13 +205,19 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
             ArrayList<ArrayOfByteArrayMemberVersion> list = new ArrayList<>(count);
 
             if (getTime() != Long.MIN_VALUE) {
-                list.add(new ArrayOfByteArrayMemberVersion(this, this));
+                list.add(new ArrayOfByteArrayMemberVersion(this, this, primordialStamp));
+                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    list.add(new ArrayOfByteArrayMemberVersion(this, this, stampAlias));
+                }
             }
 
             if (revisions != null) {
                 for (ArrayOfByteArrayRevision br : revisions) {
                     if (br.getTime() != Long.MIN_VALUE) {
-                        list.add(new ArrayOfByteArrayMemberVersion(br, this));
+                        list.add(new ArrayOfByteArrayMemberVersion(br, this, br.stamp));
+                        for (int stampAlias : getCommitManager().getAliases(br.stamp)) {
+                            list.add(new ArrayOfByteArrayMemberVersion(br, this, stampAlias));
+                        }
                     }
                 }
             }

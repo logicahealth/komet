@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.dto;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
@@ -25,10 +26,8 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevisionProcessorBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkStamp;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayMemberChronicle;
@@ -81,7 +80,7 @@ import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "concept")
-public class TtkConceptChronicle {
+public class TtkConceptChronicle implements ChronicledObjectUniversal {
 
    /** Field description */
    public static final String PADDING = "     ";
@@ -193,7 +192,7 @@ public class TtkConceptChronicle {
          Collection<? extends RefexDynamicChronicleBI<?>> membersDynamic = c.getRefsetDynamicMembers();
 
          if (membersDynamic != null) {
-            refsetMembersDynamic = new ArrayList<>(members.size());
+            refsetMembersDynamic = new ArrayList<>(membersDynamic.size());
 
             for (RefexDynamicChronicleBI<?> m : membersDynamic) {
                TtkRefexDynamicMemberChronicle member = convertRefex(m);
@@ -390,13 +389,13 @@ public class TtkConceptChronicle {
    }
 
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a <tt>EConcept</tt>
+    * Compares this object to the specified object. The result is {@code true}
+    * if and only if the argument is not {@code null}, is a {@code EConcept}
     * object, and contains the same values, field by field, as this
-    * <tt>EConcept</tt>.
+    * {@code EConcept}.
     *
     * @param obj the object to compare with.
-    * @return <code>true</code> if the objects are the same; <code>false</code>
+    * @return {@code true} if the objects are the same; {@code false}
     * otherwise.
     */
    @Override
@@ -413,7 +412,7 @@ public class TtkConceptChronicle {
          // =========================================================
          // Compare ConceptAttributes
          if (this.conceptAttributes == null) {
-            if (this.conceptAttributes != another.conceptAttributes) {
+            if (another.conceptAttributes != null) {
                return false;
             }
          } else if (!this.conceptAttributes.equals(another.conceptAttributes)) {
@@ -421,59 +420,31 @@ public class TtkConceptChronicle {
          }
 
          // Compare Descriptions
-         if (this.descriptions == null) {
-            if (another.descriptions == null) {              // Equal!
-            } else if (another.descriptions.isEmpty()) {     // Equal!
-            } else {
-               return false;
-            }
-         } else if (!this.descriptions.equals(another.descriptions)) {
-            return false;
+         if (!ListCompareHelper.equals(this.descriptions, another.descriptions)) {
+             return false;
          }
 
          // Compare Relationships
-         if (this.relationships == null) {
-            if (another.relationships == null) {             // Equal!
-            } else if (another.relationships.isEmpty()) {    // Equal!
-            } else {
-               return false;
-            }
-         } else if (!this.relationships.equals(another.relationships)) {
-            return false;
+         if (!ListCompareHelper.equals(this.relationships, another.relationships)) {
+             return false;
          }
 
          // Compare Images
-         if (this.media == null) {
-            if (another.media == null) {                     // Equal!
-            } else if (another.media.isEmpty()) {            // Equal!
-            } else {
-               return false;
-            }
-         } else if (!this.media.equals(another.media)) {
-            return false;
+         if (!ListCompareHelper.equals(this.media, another.media)) {
+             return false;
+         }
+
+
+         // Compare Refset Members
+         if (!ListCompareHelper.equals(this.refsetMembers, another.refsetMembers)) {
+             return false;
          }
 
          // Compare Refset Members
-         if (this.refsetMembers == null) {
-            if (another.refsetMembers == null) {             // Equal!
-            } else if (another.refsetMembers.isEmpty()) {    // Equal!
-            } else {
-               return false;
-            }
-         } else if (!this.refsetMembers.equals(another.refsetMembers)) {
-            return false;
+         if (!ListCompareHelper.equals(this.refsetMembersDynamic, another.refsetMembersDynamic)) {
+             return false;
          }
 
-         // Compare Refset Members
-         if (this.refsetMembersDynamic == null) {
-            if (another.refsetMembersDynamic == null) {             // Equal!
-            } else if (another.refsetMembersDynamic.isEmpty()) {    // Equal!
-            } else {
-               return false;
-            }
-         } else if (!this.refsetMembersDynamic.equals(another.refsetMembersDynamic)) {
-            return false;
-         }
 
          // If none of the previous comparisons fail, the objects must be equal
          return true;
@@ -484,9 +455,9 @@ public class TtkConceptChronicle {
 
    /**
     * Returns a hash code for this
-    * <code>EConcept</code>.
+    * {@code EConcept}.
     *
-    * @return a hash code value for this <tt>EConcept</tt>.
+    * @return a hash code value for this {@code EConcept}.
     */
    @Override
    public int hashCode() {

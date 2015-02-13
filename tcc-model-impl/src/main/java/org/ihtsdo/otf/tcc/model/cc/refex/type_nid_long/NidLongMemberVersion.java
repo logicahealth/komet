@@ -21,17 +21,15 @@ import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_long.TtkRefexUuidLongRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 //~--- inner classes -------------------------------------------------------
 
 public class NidLongMemberVersion extends RefexMemberVersion<NidLongRevision, NidLongMember> implements RefexNidLongAnalogBI<NidLongRevision> {
-    private NidLongMember rm;
 
-    public NidLongMemberVersion(RefexNidLongAnalogBI cv, final NidLongMember rm) {
-        super(cv,rm);
-        this.rm = rm;
+    public NidLongMemberVersion(RefexNidLongAnalogBI cv, final NidLongMember rm,
+            int stamp) {
+        super(cv,rm, stamp);
     }
     
     public NidLongMemberVersion(){

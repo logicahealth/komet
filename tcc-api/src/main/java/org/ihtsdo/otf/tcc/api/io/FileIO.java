@@ -440,7 +440,7 @@ public class FileIO {
 
     /**
      * Returns a String of the relative directory of a file, relative to the
-     * <code>user.dir</code> System property.
+     * {@code user.dir} System property.
      * 
      * @param f the file to get the relative directory of.
      * @return a String of the relative directory.
