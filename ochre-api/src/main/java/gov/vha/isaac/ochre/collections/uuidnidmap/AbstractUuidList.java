@@ -192,9 +192,9 @@ public abstract class AbstractUuidList extends AbstractList {
     }
 
     /**
-     * Returns true if the receiver contains the specified element.
      *
      * @param elem element whose presence in the receiver is to be tested.
+     * @return true if the receiver contains the specified element.
      */
     public boolean contains(long[] elem) {
         return indexOfFromTo(elem, 0, size - 1) >= 0;
@@ -281,9 +281,9 @@ public abstract class AbstractUuidList extends AbstractList {
     }
 
     /**
-     * Returns the element at the specified position in the receiver.
      *
      * @param index index of element to return.
+     * @return the element at the specified position in the receiver.
      * @exception IndexOutOfBoundsException index is out of range (index &lt; 0 || index &gt;= size()).
      */
     public long[] get(int index) {
@@ -305,6 +305,7 @@ public abstract class AbstractUuidList extends AbstractList {
      * {@code public} visibility in subclasses.
      *
      * @param index index of element to return.
+     * @return the element at the specified position in the receiver;
      */
     protected abstract long[] getQuick(int index);
 
@@ -693,15 +694,15 @@ public abstract class AbstractUuidList extends AbstractList {
      * that those overriding methods not only update the size of the delegate but also of this class. For
      * example: public DatabaseList extends AbstractUuidList { ... public void removeFromTo(int from,int to) {
      * myDatabase.removeFromTo(from,to); this.setSizeRaw(size-(to-from+1)); } }
+     * @param newSize the size of the receiver
      */
     protected void setSizeRaw(int newSize) {
         size = newSize;
     }
 
     /**
-     * Returns the number of elements contained in the receiver.
      *
-     * @returns the number of elements contained in the receiver.
+     * @return the number of elements contained in the receiver.
      */
     @Override
     public int size() {
