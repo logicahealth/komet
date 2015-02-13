@@ -57,10 +57,10 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>ERefset</tt> object, and contains the same values, field by field,
-    * as this <tt>ERefset</tt>.
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a
+    * <code>ERefset</code> object, and contains the same values, field by field,
+    * as this <code>ERefset</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same;
@@ -98,7 +98,7 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    /**
     * Returns a hash code for this <code>ERefset</code>.
     *
-    * @return a hash code value for this <tt>ERefset</tt>.
+    * @return a hash code value for this <code>ERefset</code>.
     */
    @Override
    public int hashCode() {

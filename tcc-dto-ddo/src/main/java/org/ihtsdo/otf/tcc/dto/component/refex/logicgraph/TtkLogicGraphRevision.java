@@ -93,10 +93,10 @@ public class TtkLogicGraphRevision extends TtkRevision {
     }
 
     /**
-     * Compares this object to the specified object. The result is <tt>true</tt>
-     * if and only if the argument is not <tt>null</tt>, is a
-     * <tt>ERefsetLongVersion</tt> object, and contains the same values, field
-     * by field, as this <tt>ERefsetLongVersion</tt>.
+     * Compares this object to the specified object. The result is <code>true</code>
+     * if and only if the argument is not <code>null</code>, is a
+     * <code>ERefsetLongVersion</code> object, and contains the same values, field
+     * by field, as this <code>ERefsetLongVersion</code>.
      *
      * @param obj the object to compare with.
      * @return <code>true</code> if the objects are the same; <code>false</code>
@@ -127,7 +127,7 @@ public class TtkLogicGraphRevision extends TtkRevision {
 
     /**
      * 
-     * @return a hash code value for this <tt>ERefsetArrayofByteArrayRevision</tt>.
+     * @return a hash code value for this <code>ERefsetArrayofByteArrayRevision</code>.
      */
     @Override
     public int hashCode() {

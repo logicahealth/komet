@@ -129,9 +129,9 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
    }
 
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt> if and only if the argument
-    * is not <tt>null</tt>, is a <tt>EComponent</tt> object, and contains the same values, field by field, as
-    * this <tt>EComponent</tt>.
+    * Compares this object to the specified object. The result is <code>true</code> if and only if the argument
+    * is not <code>null</code>, is a <code>EComponent</code> object, and contains the same values, field by field, as
+    * this <code>EComponent</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same; <code>false</code> otherwise.
@@ -155,7 +155,7 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
     * Returns a hash code for this
     * <code>EComponent</code>.
     *
-    * @return a hash code value for this <tt>EComponent</tt>.
+    * @return a hash code value for this <code>EComponent</code>.
     */
    @Override
    public final int hashCode() {

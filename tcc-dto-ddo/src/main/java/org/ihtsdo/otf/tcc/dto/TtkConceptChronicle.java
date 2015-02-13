@@ -389,10 +389,10 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
    }
 
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a <tt>EConcept</tt>
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a <code>EConcept</code>
     * object, and contains the same values, field by field, as this
-    * <tt>EConcept</tt>.
+    * <code>EConcept</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same; <code>false</code>
@@ -457,7 +457,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
     * Returns a hash code for this
     * <code>EConcept</code>.
     *
-    * @return a hash code value for this <tt>EConcept</tt>.
+    * @return a hash code value for this <code>EConcept</code>.
     */
    @Override
    public int hashCode() {

@@ -74,10 +74,10 @@ public class TtkRefexUuidBooleanMemberChronicle extends TtkRefexAbstractMemberCh
         references.add(uuid1);
     }
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>ERefsetCidStrMember</tt> object, and contains the same values, field by field,
-    * as this <tt>ERefsetCidStrMember</tt>.
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a
+    * <code>ERefsetCidStrMember</code> object, and contains the same values, field by field,
+    * as this <code>ERefsetCidStrMember</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same;
@@ -115,7 +115,7 @@ public class TtkRefexUuidBooleanMemberChronicle extends TtkRefexAbstractMemberCh
    /**
     * Returns a hash code for this <code>ERefsetCidStrMember</code>.
     *
-    * @return a hash code value for this <tt>ERefsetCidStrMember</tt>.
+    * @return a hash code value for this <code>ERefsetCidStrMember</code>.
     */
    @Override
    public int hashCode() {

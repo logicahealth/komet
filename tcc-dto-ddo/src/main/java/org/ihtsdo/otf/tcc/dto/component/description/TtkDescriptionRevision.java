@@ -68,10 +68,10 @@ public class TtkDescriptionRevision extends TtkRevision {
         references.add(this.typeUuid);
     }
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>EDescriptionVersion</tt> object, and contains the same values, field by field,
-    * as this <tt>EDescriptionVersion</tt>.
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a
+    * <code>EDescriptionVersion</code> object, and contains the same values, field by field,
+    * as this <code>EDescriptionVersion</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same;

@@ -62,10 +62,10 @@ public class TtkRefexUuidFloatRevision extends TtkRevision {
        references.add(uuid1);
    }
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>ERefsetCidFloatVersion</tt> object, and contains the same values, field by field,
-    * as this <tt>ERefsetCidFloatVersion</tt>.
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a
+    * <code>ERefsetCidFloatVersion</code> object, and contains the same values, field by field,
+    * as this <code>ERefsetCidFloatVersion</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same;

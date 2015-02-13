@@ -128,7 +128,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
     /**
 	 * Returns a hash code for this <code>ERefset</code>.
 	 *
-	 * @return a hash code value for this <tt>ERefset</tt>.
+	 * @return a hash code value for this <code>ERefset</code>.
 	 */
 	@Override
 	public int hashCode()
@@ -247,9 +247,9 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 	}
 
 	/**
-	 * Compares this object to the specified object. The result is <tt>true</tt> if and only if the argument is not <tt>null</tt>, is a
-	 * <tt>ERefsetLongMember</tt> object, and contains the same values, field by field,
-	 * as this <tt>ERefsetLongMember</tt>.
+	 * Compares this object to the specified object. The result is <code>true</code> if and only if the argument is not <code>null</code>, is a
+	 * <code>ERefsetLongMember</code> object, and contains the same values, field by field,
+	 * as this <code>ERefsetLongMember</code>.
 	 *
 	 * @param obj the object to compare with.
 	 * @return <code>true</code> if the objects are the same; <code>false</code> otherwise.

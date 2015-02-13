@@ -54,10 +54,10 @@ public class TtkIdentifierString extends TtkIdentifier {
        references.add(this.authorityUuid);
    }
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>EIdentifierVersionString</tt> object, and contains the same values, field by field,
-    * as this <tt>EIdentifierVersionString</tt>.
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a
+    * <code>EIdentifierVersionString</code> object, and contains the same values, field by field,
+    * as this <code>EIdentifierVersionString</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same;
@@ -90,7 +90,7 @@ public class TtkIdentifierString extends TtkIdentifier {
    /**
     * Returns a hash code for this <code>EIdentifierVersionString</code>.
     *
-    * @return a hash code value for this <tt>EIdentifierVersionString</tt>.
+    * @return a hash code value for this <code>EIdentifierVersionString</code>.
     */
    @Override
    public int hashCode() {

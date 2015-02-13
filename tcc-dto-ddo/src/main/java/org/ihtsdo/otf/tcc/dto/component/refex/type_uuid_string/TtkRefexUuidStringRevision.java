@@ -62,10 +62,10 @@ public class TtkRefexUuidStringRevision extends TtkRevision {
    }
 
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>ERefsetCidStrVersion</tt> object, and contains the same values, field by field,
-    * as this <tt>ERefsetCidStrVersion</tt>.
+    * Compares this object to the specified object. The result is <code>true</code>
+    * if and only if the argument is not <code>null</code>, is a
+    * <code>ERefsetCidStrVersion</code> object, and contains the same values, field by field,
+    * as this <code>ERefsetCidStrVersion</code>.
     *
     * @param obj the object to compare with.
     * @return <code>true</code> if the objects are the same;

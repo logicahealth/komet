@@ -41,10 +41,10 @@ public class UuidSorting extends Object {
      * @param key the value to be searched for.
      * @param from the leftmost search position, inclusive.
      * @param to the rightmost search position, inclusive.
-     * @return index of the search key, if it is contained in the list; otherwise, <tt>(-(<i>insertion
-     * point</i>) - 1)</tt>. The <i>insertion point</i> is defined as the the point at which the value would
+     * @return index of the search key, if it is contained in the list; otherwise, <code>(-(<i>insertion
+     * point</i>) - 1)</code>. The <i>insertion point</i> is defined as the the point at which the value would
      * be inserted into the list: the index of the first element greater than the key, or
-     * <tt>list.length</tt>, if all elements in the list are less than the specified key. Note that this
+     * <code>list.length</code>, if all elements in the list are less than the specified key. Note that this
      * guarantees that the return value will be &gt;= 0 if and only if the key is found.
      * @see java.util.Arrays
      */
@@ -89,8 +89,8 @@ public class UuidSorting extends Object {
      * @param a the array to be sorted.
      * @param fromIndex the index of the first element (inclusive) to be sorted.
      * @param toIndex the index of the last element (exclusive) to be sorted.
-     * @throws IllegalArgumentException if <tt>fromIndex &gt; toIndex</tt>
-     * @throws ArrayIndexOutOfBoundsException if <tt>fromIndex &lt; 0</tt> or <tt>toIndex &gt; a.length</tt>
+     * @throws IllegalArgumentException if <code>fromIndex &gt; toIndex</code>
+     * @throws ArrayIndexOutOfBoundsException if <code>fromIndex &lt; 0</code> or <code>toIndex &gt; a.length</code>
      */
     public static void mergeSort(long[] a, int fromIndex, int toIndex) {
         rangeCheck(a.length, fromIndex, toIndex);
@@ -101,8 +101,8 @@ public class UuidSorting extends Object {
     /**
      * Sorts the specified range of the specified array of elements according to the order induced by the
      * specified comparator. All elements in the range must be <i>mutually comparable</i> by the specified
-     * comparator (that is, <tt>c.compare(e1, e2)</tt> must not throw a <tt>ClassCastException</tt> for any
-     * elements <tt>e1</tt> and <tt>e2</tt> in the range). <p>
+     * comparator (that is, <code>c.compare(e1, e2)</code> must not throw a <code>ClassCastException</code> for any
+     * elements <code>e1</code> and <code>e2</code> in the range). <p>
      *
      * This sort is guaranteed to be <i>stable</i>: equal elements will not be reordered as a result of the
      * sort. <p>
@@ -117,8 +117,8 @@ public class UuidSorting extends Object {
      * @param c the comparator to determine the order of the array.
      * @throws ClassCastException if the array contains elements that are not <i>mutually comparable</i> using
      * the specified comparator.
-     * @throws IllegalArgumentException if <tt>fromIndex &gt; toIndex</tt>
-     * @throws ArrayIndexOutOfBoundsException if <tt>fromIndex &lt; 0</tt> or <tt>toIndex &gt; a.length</tt>
+     * @throws IllegalArgumentException if <code>fromIndex &gt; toIndex</code>
+     * @throws ArrayIndexOutOfBoundsException if <code>fromIndex &lt; 0</code> or <code>toIndex &gt; a.length</code>
      * @see Comparator
      */
     public static void mergeSort(long[] a, int fromIndex, int toIndex,
@@ -212,8 +212,8 @@ public class UuidSorting extends Object {
     /**
      * Sorts the specified range of the specified array of elements according to the order induced by the
      * specified comparator. All elements in the range must be <i>mutually comparable</i> by the specified
-     * comparator (that is, <tt>c.compare(e1, e2)</tt> must not throw a <tt>ClassCastException</tt> for any
-     * elements <tt>e1</tt> and <tt>e2</tt> in the range). <p>
+     * comparator (that is, <code>c.compare(e1, e2)</code> must not throw a <code>ClassCastException</code> for any
+     * elements <code>e1</code> and <code>e2</code> in the range). <p>
      *
      * The sorting algorithm is a tuned quicksort, adapted from Jon L. Bentley and M. Douglas McIlroy's
      * "Engineering a Sort Function", Software-Practice and Experience, Vol. 23(11) P. 1249-1265 (November
@@ -226,8 +226,8 @@ public class UuidSorting extends Object {
      * @param c the comparator to determine the order of the array.
      * @throws ClassCastException if the array contains elements that are not <i>mutually comparable</i> using
      * the specified comparator.
-     * @throws IllegalArgumentException if <tt>fromIndex &gt; toIndex</tt>
-     * @throws ArrayIndexOutOfBoundsException if <tt>fromIndex &lt; 0</tt> or <tt>toIndex &gt; a.length</tt>
+     * @throws IllegalArgumentException if <code>fromIndex &gt; toIndex</code>
+     * @throws ArrayIndexOutOfBoundsException if <code>fromIndex &lt; 0</code> or <code>toIndex &gt; a.length</code>
      * @see Comparator
      */
     public static void quickSort(long[] a, int fromIndex, int toIndex,

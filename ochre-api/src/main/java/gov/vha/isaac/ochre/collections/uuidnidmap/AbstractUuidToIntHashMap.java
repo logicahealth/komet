@@ -38,9 +38,9 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
     }
 
     /**
-     * Returns <tt>true</tt> if the receiver contains the specified key.
+     * Returns <code>true</code> if the receiver contains the specified key.
      *
-     * @return <tt>true</tt> if the receiver contains the specified key.
+     * @return <code>true</code> if the receiver contains the specified key.
      */
     public boolean containsKey(final long[] key) {
         return !forEachKey(new UuidProcedure() {
@@ -66,12 +66,12 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
      * order. Subclasses can define a particular order, for example, "sorted by key". All methods which
      * <i>can</i> be expressed in terms of this method (most methods can) <i>must guarantee</i> to use the
      * <i>same</i> order defined by this method, even if it is no particular order. This is necessary so that,
-     * for example, methods <tt>keys</tt> and <tt>values</tt> will yield association pairs, not two
+     * for example, methods <code>keys</code> and <code>values</code> will yield association pairs, not two
      * uncorrelated lists.
      *
-     * @param procedure the procedure to be applied. Stops iteration if the procedure returns <tt>false</tt>,
+     * @param procedure the procedure to be applied. Stops iteration if the procedure returns <code>false</code>,
      * otherwise continues.
-     * @return <tt>false</tt> if the procedure stopped before all keys where iterated over, <tt>true</tt>
+     * @return <code>false</code> if the procedure stopped before all keys where iterated over, <code>true</code>
      * otherwise.
      */
     public abstract boolean forEachKey(UuidProcedure procedure);
@@ -80,9 +80,9 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
      * Applies a procedure to each (key,value) pair of the receiver, if any. Iteration order is guaranteed to
      * be <i>identical</i> to the order used by method {@link #forEachKey(UuidProcedure)}.
      *
-     * @param procedure the procedure to be applied. Stops iteration if the procedure returns <tt>false</tt>,
+     * @param procedure the procedure to be applied. Stops iteration if the procedure returns <code>false</code>,
      * otherwise continues.
-     * @return <tt>false</tt> if the procedure stopped before all keys where iterated over, <tt>true</tt>
+     * @return <code>false</code> if the procedure stopped before all keys where iterated over, <code>true</code>
      * otherwise.
      */
     public boolean forEachPair(final UuidIntProcedure procedure) {
@@ -99,7 +99,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
      * exists an association for the given key or not.
      *
      * @param key the key to be searched for.
-     * @return the value associated with the specified key; <tt>0</tt> if no such key is present.
+     * @return the value associated with the specified key; <code>0</code> if no such key is present.
      */
     public abstract int get(long[] key);
 
@@ -109,7 +109,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
      * is guaranteed to be <i>identical</i> to the order used by method {@link #forEachKey(UuidProcedure)}.
      *
      * @param value the value to search for.
-     * @return the first key for which holds <tt>get(key) == value</tt>; returns <tt>Double.NaN</tt> if no
+     * @return the first key for which holds <code>get(key) == value</code>; returns <code>Double.NaN</code> if no
      * such key exists.
      */
     public long[] keyOf(final int value) {
@@ -130,7 +130,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
 
     /**
      * Returns a list filled with all keys contained in the receiver. The returned list has a size that equals
-     * <tt>this.size()</tt>. Note: Keys are filled into the list in no particular order. However, the order is
+     * <code>this.size()</code>. Note: Keys are filled into the list in no particular order. However, the order is
      * <i>identical</i> to the order used by method {@link #forEachKey(UuidProcedure)}. <p> This method can be
      * used to iterate over the keys of the receiver.
      *
@@ -144,7 +144,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
 
     /**
      * Fills all keys contained in the receiver into the specified list. Fills the list, starting at index 0.
-     * After this call returns the specified list has a new size that equals <tt>this.size()</tt>. Iteration
+     * After this call returns the specified list has a new size that equals <code>this.size()</code>. Iteration
      * order is guaranteed to be <i>identical</i> to the order used by method
      * {@link #forEachKey(UuidProcedure)}. <p> This method can be used to iterate over the keys of the
      * receiver.
@@ -172,7 +172,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
      * UuidIntProcedure condition = new UuidIntProcedure() { // match even values only
      * 		public boolean apply(double key, int value) { return value%2==0; }
      * 	}
-     * 	keys = (8,7,6), values = (1,2,2) --> keyList = (6,8), valueList = (2,1)</tt>
+     * 	keys = (8,7,6), values = (1,2,2) --> keyList = (6,8), valueList = (2,1)</code>
      * </pre>
      *
      * @param condition the condition to be matched. Takes the current key as first and the current value as
@@ -197,8 +197,8 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
     /**
      * Fills all keys and values <i>sorted ascending by key</i> into the specified lists. Fills into the
      * lists, starting at index 0. After this call returns the specified lists both have a new size that
-     * equals <tt>this.size()</tt>. <p> <b>Example:</b> <br> <tt>keys = (8,7,6), values = (1,2,2) --> keyList
-     * = (6,7,8), valueList = (2,2,1)</tt>
+     * equals <code>this.size()</code>. <p> <b>Example:</b> <br> <code>keys = (8,7,6), values = (1,2,2) --> keyList
+     * = (6,7,8), valueList = (2,2,1)</code>
      *
      * @param keyList the list to be filled with keys, can have any size.
      * @param valueList the list to be filled with values, can have any size.
@@ -234,12 +234,12 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
     }
 
     /**
-     * Associates the given key with the given value. Replaces any old <tt>(key,someOtherValue)</tt>
+     * Associates the given key with the given value. Replaces any old <code>(key,someOtherValue)</code>
      * association, if existing.
      *
      * @param key the key the value shall be associated with.
      * @param value the value to be associated.
-     * @return <tt>true</tt> if the receiver did not already contain such a key; <tt>false</tt> if the
+     * @return <code>true</code> if the receiver did not already contain such a key; <code>false</code> if the
      * receiver did already contain such a key - the new value has now replaced the formerly associated value.
      */
     public abstract boolean put(long[] key, int value);
@@ -248,7 +248,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
      * Removes the given key with its associated element from the receiver, if present.
      *
      * @param key the key to be removed from the receiver.
-     * @return <tt>true</tt> if the receiver contained the specified key, <tt>false</tt> otherwise.
+     * @return <code>true</code> if the receiver contained the specified key, <code>false</code> otherwise.
      */
     public abstract boolean removeKey(long[] key);
 
@@ -280,7 +280,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
 
     /**
      * Returns a list filled with all values contained in the receiver. The returned list has a size that
-     * equals <tt>this.size()</tt>. Iteration order is guaranteed to be <i>identical</i> to the order used by
+     * equals <code>this.size()</code>. Iteration order is guaranteed to be <i>identical</i> to the order used by
      * method {@link #forEachKey(UuidProcedure)}. <p> This method can be used to iterate over the values of
      * the receiver.
      *
@@ -294,7 +294,7 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
 
     /**
      * Fills all values contained in the receiver into the specified list. Fills the list, starting at index
-     * 0. After this call returns the specified list has a new size that equals <tt>this.size()</tt>.
+     * 0. After this call returns the specified list has a new size that equals <code>this.size()</code>.
      * Iteration order is guaranteed to be <i>identical</i> to the order used by method
      * {@link #forEachKey(UuidProcedure)}. <p> This method can be used to iterate over the values of the
      * receiver.
