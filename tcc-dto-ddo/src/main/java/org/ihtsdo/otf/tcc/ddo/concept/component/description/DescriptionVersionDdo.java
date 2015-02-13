@@ -42,13 +42,13 @@ public class DescriptionVersionDdo extends TypedComponentVersionDdo<DescriptionC
 
     //~--- methods -------------------------------------------------------------
     /**
-     * Compares this object to the specified object. The result is <code>true</code>
-     * if and only if the argument is not <code>null</code>, is a
-     * <code>EDescriptionVersion</code> object, and contains the same values, field
-     * by field, as this <code>EDescriptionVersion</code>.
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a
+     * {@code EDescriptionVersion} object, and contains the same values, field
+     * by field, as this {@code EDescriptionVersion}.
      *
      * @param obj the object to compare with.
-     * @return <code>true</code> if the objects are the same; <code>false</code>
+     * @return {@code true} if the objects are the same; {@code false}
      * otherwise.
      */
     @Override

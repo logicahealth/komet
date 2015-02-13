@@ -33,7 +33,7 @@ import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
  * byte array type refex member in the eConcept format and contains methods
  * specific for interacting with this version. Further discussion of the
  * eConcept format can be found on
- * <code>TkConcept</code>.
+ * {@code TkConcept}.
  *
  * @see TkConcept
  */
@@ -61,7 +61,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Revision based on the
-     * <code>refexArrayOfBytearrayVersion</code>.
+     * {@code refexArrayOfBytearrayVersion}.
      *
      * @param refexArrayOfBytearrayVersion the refex array of byte array version
      * specifying how to construct this TK Refex Array of Byte Array Revision
@@ -75,7 +75,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
     /**
      * Instantiates a new TK Refex Array of Byte Array Revision based on the
      * specified data input,
-     * <code>in</code>.
+     * {@code in}.
      *
      * @param in in the data input specifying how to construct this TK Refex
      * Array of Byte Array Revision
@@ -90,7 +90,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Revision based on
-     * <code>another</code> TK Refex Array of Byte Array Revision and allows for
+     * {@code another} TK Refex Array of Byte Array Revision and allows for
      * uuid conversion.
      *
      * @param another the TK Refex Array of Byte Array Revision specifying how to
@@ -99,7 +99,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
      * another
      * @param offset the offset to be applied to the time associated with this
      * TK Refex Array of Byte Array Member
-     * @param mapAll set to <code>true</code> to map all the uuids in this TK
+     * @param mapAll set to {@code true} to map all the uuids in this TK
      * Refex Array of Byte Array Revision based on the conversion map
      */
     public TtkRefexArrayOfByteArrayRevision(TtkRefexArrayOfByteArrayRevision another, ComponentTransformerBI transformer) {
@@ -114,13 +114,13 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
     }
 
     /**
-     * Compares this object to the specified object. The result is <code>true</code>
-     * if and only if the argument is not <code>null</code>, is a
-     * <code>ERefsetLongVersion</code> object, and contains the same values, field
-     * by field, as this <code>ERefsetLongVersion</code>.
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a
+     * {@code ERefsetLongVersion} object, and contains the same values, field
+     * by field, as this {@code ERefsetLongVersion}.
      *
      * @param obj the object to compare with.
-     * @return <code>true</code> if the objects are the same; <code>false</code>
+     * @return {@code true} if the objects are the same; {@code false}
      * otherwise.
      */
     @Override
@@ -148,7 +148,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
 
     /**
      * 
-     * @return a hash code value for this <code>ERefsetArrayofByteArrayRevision</code>.
+     * @return a hash code value for this {@code ERefsetArrayofByteArrayRevision}.
      */
     @Override
     public int hashCode() {
@@ -161,7 +161,7 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
      * another
      * @param offset the offset to be applied to the time associated with this
      * TK Refex Array of Byte Array Revision
-     * @param mapAll set to <code>true</code> to map all the uuids in this TK
+     * @param mapAll set to {@code true} to map all the uuids in this TK
      * Refex Array of Bytearray Revision based on the conversion map
      * @return the converted TK Refex Array of Byte Array Revision
      */

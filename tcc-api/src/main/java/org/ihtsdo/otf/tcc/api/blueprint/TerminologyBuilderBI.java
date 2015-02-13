@@ -23,7 +23,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>RefexChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code RefexChronicleBI} if the {@code blueprint}
      * regardless of if the RefexChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -33,7 +33,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>RefexDynamicChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code RefexDynamicChronicleBI} if the {@code blueprint}
      * regardless of if the RefexDynamicChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -43,7 +43,7 @@ public interface TerminologyBuilderBI {
     /**
      *  This method incurs an extra cost to determine if a current version already meets the specification. 
      * @param res
-     * @return A <code>RefexChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code RefexChronicleBI} if the {@code blueprint}
      * regardless of if the RefexChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -53,7 +53,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>RelationshipChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code RelationshipChronicleBI} if the {@code blueprint}
      * regardless of if the RelationshipChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -63,8 +63,8 @@ public interface TerminologyBuilderBI {
     /**
      *  This method incurs an extra cost to determine if a current version already meets the specification. 
      * @param res
-     * @return A <code>RelationshipChronicleBI</code> if the 
-     * <code>blueprint</code> regardless of if the RelationshipChronicleBI was modified. 
+     * @return A {@code RelationshipChronicleBI} if the
+     * {@code blueprint} regardless of if the RelationshipChronicleBI was modified.
      * @throws IOException
      * @throws InvalidAmendmentSpec
      */
@@ -73,7 +73,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>DescriptionChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code DescriptionChronicleBI} if the {@code blueprint}
      * regardless of if the DescriptionChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -83,8 +83,8 @@ public interface TerminologyBuilderBI {
     /**
      *  This method incurs an extra cost to determine if a current version already meets the specification. 
      * @param res
-     * @return A <code>DescriptionChronicleBI</code> if the
-     * <code>blueprint</code> regardless of if the DescriptionChronicleBI was modified. 
+     * @return A {@code DescriptionChronicleBI} if the
+     * {@code blueprint} regardless of if the DescriptionChronicleBI was modified.
      * @throws IOException
      * @throws InvalidAmendmentSpec
      */
@@ -93,7 +93,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>MediaChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code MediaChronicleBI} if the {@code blueprint}
      * regardless of if the MediaChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -103,7 +103,7 @@ public interface TerminologyBuilderBI {
     /**
      *  This method incurs an extra cost to determine if a current version already meets the specification. 
      * @param res
-     * @return A <code>MediaChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code MediaChronicleBI} if the {@code blueprint}
      *         regardless of if the MediaChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -113,7 +113,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>ConceptChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code ConceptChronicleBI} if the {@code blueprint}
      *          regardless of if the ConceptChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -124,7 +124,7 @@ public interface TerminologyBuilderBI {
      *  This method incurs an extra cost to determine if a current version 
      *  already meets the specification. 
      * @param res
-     * @return A <code>ConceptChronicleBI</code> if the <code>blueprint</code> 
+     * @return A {@code ConceptChronicleBI} if the {@code blueprint}
      *          regardless of if the ConceptChronicleBI was modified. 
      * @throws IOException
      * @throws InvalidAmendmentSpec
@@ -134,7 +134,7 @@ public interface TerminologyBuilderBI {
     /**
      *  
      * @param res
-     * @return A <code>ConceptAttributeChronicleBI</code> if the <code>blueprint</code> regardless of if the ConceptAttributeChronicleBI was modified. 
+     * @return A {@code ConceptAttributeChronicleBI} if the {@code blueprint} regardless of if the ConceptAttributeChronicleBI was modified.
      * @throws IOException
      * @throws InvalidAmendmentSpec
      */
@@ -143,7 +143,7 @@ public interface TerminologyBuilderBI {
     /**
      *  This method incurs an extra cost to determine if a current version already meets the specification. 
      * @param res
-     * @return A <code>ConceptAttributeChronicleBI</code> if the <code>blueprint</code> regardless of if the ConceptAttributeChronicleBI was modified. 
+     * @return A {@code ConceptAttributeChronicleBI} if the {@code blueprint} regardless of if the ConceptAttributeChronicleBI was modified.
      * @throws IOException
      * @throws InvalidAmendmentSpec
      */

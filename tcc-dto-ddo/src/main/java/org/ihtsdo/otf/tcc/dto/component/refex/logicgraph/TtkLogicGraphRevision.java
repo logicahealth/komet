@@ -44,7 +44,7 @@ public class TtkLogicGraphRevision extends TtkRevision {
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Revision based on the
-     * <code>logicGraphVersion</code>.
+     * {@code logicGraphVersion}.
      *
      * @param logicGraphVersion the refex array of byte array version
      * specifying how to construct this TK Refex Array of Byte Array Revision
@@ -58,7 +58,7 @@ public class TtkLogicGraphRevision extends TtkRevision {
     /**
      * Instantiates a new TK Refex Array of Byte Array Revision based on the
      * specified data input,
-     * <code>in</code>.
+     * {@code in}.
      *
      * @param in in the data input specifying how to construct this TK Refex
      * Array of Byte Array Revision
@@ -73,7 +73,7 @@ public class TtkLogicGraphRevision extends TtkRevision {
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Revision based on
-     * <code>another</code> TK Refex Array of Byte Array Revision and allows for
+     * {@code another} TK Refex Array of Byte Array Revision and allows for
      * uuid conversion.
      *
      * @param another the TK Refex Array of Byte Array Revision specifying how to
@@ -93,13 +93,13 @@ public class TtkLogicGraphRevision extends TtkRevision {
     }
 
     /**
-     * Compares this object to the specified object. The result is <code>true</code>
-     * if and only if the argument is not <code>null</code>, is a
-     * <code>ERefsetLongVersion</code> object, and contains the same values, field
-     * by field, as this <code>ERefsetLongVersion</code>.
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a
+     * {@code ERefsetLongVersion} object, and contains the same values, field
+     * by field, as this {@code ERefsetLongVersion}.
      *
      * @param obj the object to compare with.
-     * @return <code>true</code> if the objects are the same; <code>false</code>
+     * @return {@code true} if the objects are the same; {@code false}
      * otherwise.
      */
     @Override
@@ -127,7 +127,7 @@ public class TtkLogicGraphRevision extends TtkRevision {
 
     /**
      * 
-     * @return a hash code value for this <code>ERefsetArrayofByteArrayRevision</code>.
+     * @return a hash code value for this {@code ERefsetArrayofByteArrayRevision}.
      */
     @Override
     public int hashCode() {

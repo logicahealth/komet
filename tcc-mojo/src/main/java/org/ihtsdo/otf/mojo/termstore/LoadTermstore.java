@@ -38,7 +38,7 @@ import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 public class LoadTermstore extends AbstractMojo {
 
     /**
-     * <code>eConcept format</code> files to import.
+     * {@code eConcept format} files to import.
      *
      */
     @Parameter(required = true)

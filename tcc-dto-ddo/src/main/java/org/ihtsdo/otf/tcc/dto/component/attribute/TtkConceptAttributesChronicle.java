@@ -74,14 +74,14 @@ public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConc
         // nothing to add
    }
    /**
-    * Compares this object to the specified object. The result is <code>true</code>
-    * if and only if the argument is not <code>null</code>, is a
-    * <code>EConceptAttributes</code> object, and contains the same values, field by field,
-    * as this <code>EConceptAttributes</code>.
+    * Compares this object to the specified object. The result is {@code true}
+    * if and only if the argument is not {@code null}, is a
+    * {@code EConceptAttributes} object, and contains the same values, field by field,
+    * as this {@code EConceptAttributes}.
     *
     * @param obj the object to compare with.
-    * @return <code>true</code> if the objects are the same;
-    *         <code>false</code> otherwise.
+    * @return {@code true} if the objects are the same;
+    *         {@code false} otherwise.
     */
    @Override
    public boolean equals(Object obj) {
@@ -108,9 +108,9 @@ public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConc
    }
 
    /**
-    * Returns a hash code for this <code>EConceptAttributes</code>.
+    * Returns a hash code for this {@code EConceptAttributes}.
     *
-    * @return a hash code value for this <code>EConceptAttributes</code>.
+    * @return a hash code value for this {@code EConceptAttributes}.
     */
    @Override
    public int hashCode() {

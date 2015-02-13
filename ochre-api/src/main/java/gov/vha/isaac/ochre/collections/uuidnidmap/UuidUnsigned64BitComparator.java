@@ -24,11 +24,11 @@ public class UuidUnsigned64BitComparator implements UuidComparatorBI {
     /**
      * This algorithm performs unsigned 64 bit comparison of the msb and lsb of 2 uuids. This method is based
      * on the following routine:
-     * <code>
+     * {@code
      * public static boolean isLessThanUnsigned(long n1, long n2) {
      * return (n1 &lt; n2) ^ ((n1 &lt; 0) != (n2 &lt; 0));
      * }
-     * </code> see: http://www.javamex.com/java_equivalents/unsigned_arithmetic.shtml
+     * } see: http://www.javamex.com/java_equivalents/unsigned_arithmetic.shtml
      */
     @Override
     public int compare(long msb1, long lsb1, long msb2, long lsb2) {

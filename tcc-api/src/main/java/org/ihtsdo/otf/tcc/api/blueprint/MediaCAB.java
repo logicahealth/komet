@@ -30,7 +30,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 /**
  * The Class MediaCAB contains methods for creating a media blueprint. This
  * blueprint can be constructed into a type of
- * <code>MediaChronicleBI</code>. This is the preferred method for updating or
+ * {@code MediaChronicleBI}. This is the preferred method for updating or
  * creating new descriptions.
  *
  * @see TerminologyBuilderBI
@@ -95,7 +95,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new media blueprint using nid values and a given
-     * <code>mediaVersion</code>.
+     * {@code mediaVersion}.
      *
      * @param conceptNid the nid of the enclosing concept
      * @param typeNid the nid representing the type of media
@@ -131,7 +131,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new media blueprint using uuid values and a given
-     * <code>mediaVersion</code>.
+     * {@code mediaVersion}.
      *
      * @param conceptUuid the uuid of the enclosing concept
      * @param typeUuid the uuid representing the type of media
@@ -161,7 +161,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new media blueprint using uuid values and a given
-     * <code>mediaVersion</code>. Can specify a uuid to represent the media
+     * {@code mediaVersion}. Can specify a uuid to represent the media
      * component.
      *
      * @param conceptUuid the uuid of the enclosing concept
@@ -326,11 +326,11 @@ public class MediaCAB extends CreateOrAmendBlueprint {
 
     /**
      * Validates this media blueprint's fields against the given
-     * <code>mediaVersion</code>. Compares the status nid, component nid,
+     * {@code mediaVersion}. Compares the status nid, component nid,
      * enclosing concept nid, media type nid, format, description, and bytes.
      *
      * @param mediaVersion the media version to use for validation
-     * @return <code>true</code>, if this media blueprint's fields are
+     * @return {@code true}, if this media blueprint's fields are
      * equal to the specified media version
      * @throws IOException signals that an I/O exception has occurred
      */

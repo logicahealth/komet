@@ -160,12 +160,12 @@ public class Taxonomy {
          constantName = constantName.replace("/", "_AND");
          out.append("\n\n   /** Java binding for the concept described as <strong><em>"
                  + preferredName
-                 + "</em></strong>;\n    * identified by UUID: <code>\n    * "
+                 + "</em></strong>;\n    * identified by UUID: {@code \n    * "
                  + "<a href=\"http://localhost:8080/terminology/rest/concept/"
                  + concept.getComponentUuid().toString()
                  + "\">\n    * "
                  + concept.getComponentUuid().toString()
-                 + "</a></code>.*/");
+                 + "</a>}.*/");
          
          out.append("\n   public static ConceptSpec " + constantName + " =");
          out.append("\n             new ConceptSpec(\"" + preferredName

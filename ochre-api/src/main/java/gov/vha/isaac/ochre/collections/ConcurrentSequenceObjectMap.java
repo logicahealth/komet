@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  *
  * @author kec
- * @param <E> Type of <class>Object</class> that are the values of the map.
+ * @param <E> Type of {@code Object} that are the values of the map.
  */
 public class ConcurrentSequenceObjectMap<E> {
 

@@ -35,7 +35,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 /**
  * The contract interface for indexing services.
  * <br>
- * <code>IndexerBI</code> implementations
+ * {@code IndexerBI} implementations
  * must not throw exceptions. Throwing exceptions could cause the underlying
  * source data to corrupt. Since indexes can be regenerated, indexes should
  * mark themselves as invalid somehow, and recreate themselves when necessary.
@@ -48,8 +48,8 @@ public interface IndexerBI {
      *
      * @param nid for the component that the caller wished to wait until it's
      * document is added to the index.
-     * @return a <code>Callable&lt;Long&gt;</code> object that will block until this
-     * indexer has added the document to the index. The <code>call()</code> method
+     * @return a {@code Callable&lt;Long&gt;} object that will block until this
+     * indexer has added the document to the index. The {@code call()} method
      * on the object will return the index generation that contains the document,
      * which can be used in search calls to make sure the generation is available
      * to the searcher.
@@ -69,7 +69,7 @@ public interface IndexerBI {
      * @param query The query to apply.
      * @param field The component field to be queried.
      * @param sizeLimit The maximum size of the result list.
-     * @return a List of <code>SearchResult</codes> that contins the nid of the
+     * @return a List of {@code SearchResult</codes> that contins the nid of the
      * component that matched, and the score of that match relative to other
      * matches.
      * @throws IOException
@@ -84,7 +84,7 @@ public interface IndexerBI {
      * @param sizeLimit The maximum size of the result list.
      * @param targetGeneration target generation that must be included in the search
      * or Long.MIN_VALUE if there is no need to wait for a target generation.
-     * @return a List of <code>SearchResult</codes> that contins the nid of the
+     * @return a List of {@code SearchResult</codes> that contins the nid of the
      * component that matched, and the score of that match relative to other
      * matches.
      * @throws IOException
@@ -118,7 +118,7 @@ public interface IndexerBI {
     /**
      * Clear index, resulting in an empty index. Used prior to the
      * environment recreating the index by iterating over all components
-     * and calling the <code>index(ComponentChronicleBI chronicle)</code>
+     * and calling the {@code index(ComponentChronicleBI chronicle)}
      * with each component of the iteration. May be used for initial index
      * creation, or if indexing properties have changed.
      */
@@ -131,10 +131,10 @@ public interface IndexerBI {
      * components will be sent to all indexers for indexing. The implementation
      * must not perform lengthy operations on this thread.
      *
-     * @return a <code>Future<Long></code>for the index generation to which this
+     * @return a {@code Future<Long>}for the index generation to which this
      * chronicle is attached.  If
      * this chronicle is not indexed by this indexer, the Future returns
-     * <code>Long.MIN_VALUE<code>. The generation can be used with searchers
+     * {@code Long.MIN_VALUE{@code . The generation can be used with searchers
      * to make sure that the component's indexing is complete prior to performing
      * a search where the chronicle's results must be included.
      */

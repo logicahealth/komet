@@ -56,14 +56,14 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Appends the part of the specified list between
-     * <code>from</code> (inclusive) and
-     * <code>to</code> (inclusive) to the receiver.
+     * {@code from} (inclusive) and
+     * {@code to} (inclusive) to the receiver.
      *
      * @param other the list to be added to the receiver.
      * @param from the index of the first element to be appended (inclusive).
      * @param to the index of the last element to be appended (inclusive).
-     * @exception IndexOutOfBoundsException index is out of range ( <code>other.size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=other.size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code other.size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=other.size())} ).
      */
     public void addAllOfFromTo(AbstractUuidList other, int from, int to) {
         beforeInsertAllOfFromTo(size, other, from, to);
@@ -75,7 +75,7 @@ public abstract class AbstractUuidList extends AbstractList {
      *
      * @param index index before which the specified element is to be inserted (must be in [0,size]).
      * @param element element to be inserted.
-     * @throws IndexOutOfBoundsException if <code>index &lt; 0 || index &gt; size()</code>.
+     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt; size()}.
      */
     public void beforeInsert(int index, long[] element) {
         beforeInsertDummies(index, 1);
@@ -84,17 +84,17 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Inserts the part of the specified list between
-     * <code>otherFrom</code> (inclusive) and
-     * <code>otherTo</code> (inclusive) before the specified position into the receiver. Shifts the element
+     * {@code otherFrom} (inclusive) and
+     * {@code otherTo} (inclusive) before the specified position into the receiver. Shifts the element
      * currently at that position (if any) and any subsequent elements to the right.
      *
      * @param index index before which to insert first element from the specified list (must be in [0,size])..
      * @param other list of which a part is to be inserted into the receiver.
      * @param from the index of the first element to be inserted (inclusive).
      * @param to the index of the last element to be inserted (inclusive).
-     * @exception IndexOutOfBoundsException index is out of range ( <code>other.size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=other.size())</code> ).
-     * @throws IndexOutOfBoundsException if <code>index &lt; 0 || index &gt; size()</code>.
+     * @exception IndexOutOfBoundsException index is out of range ( {@code other.size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=other.size())} ).
+     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt; size()}.
      */
     public void beforeInsertAllOfFromTo(int index, AbstractUuidList other,
             int from, int to) {
@@ -104,13 +104,13 @@ public abstract class AbstractUuidList extends AbstractList {
     }
 
     /**
-     * Inserts <code>length</code> dummy elements before the specified position into the receiver. Shifts the
+     * Inserts {@code length} dummy elements before the specified position into the receiver. Shifts the
      * element currently at that position (if any) and any subsequent elements to the right. <b>This method
-     * must set the new size to be <code>size()+length</code>.
+     * must set the new size to be {@code size()+length}.
      *
      * @param index index before which to insert dummy elements (must be in [0,size])..
      * @param length number of dummy elements to be inserted.
-     * @throws IndexOutOfBoundsException if <code>index &lt; 0 || index &gt; size()</code>.
+     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt; size()}.
      */
     @Override
     protected void beforeInsertDummies(int index, int length) {
@@ -132,10 +132,10 @@ public abstract class AbstractUuidList extends AbstractList {
      * multiple elements equal to the specified object, there is no guarantee which instance will be found.
      *
      * @param key the value to be searched for.
-     * @return index of the search key, if it is contained in the receiver; otherwise, <code>(-(<i>insertion
-     * point</i>) - 1)</code>. The <i>insertion point</i> is defined as the the point at which the value would
+     * @return index of the search key, if it is contained in the receiver; otherwise, {@code (-(<i>insertion
+     * point</i>) - 1)}. The <i>insertion point</i> is defined as the the point at which the value would
      * be inserted into the receiver: the index of the first element greater than the key, or
-     * <code>receiver.size()</code>, if all elements in the receiver are less than the specified key. Note that
+     * {@code receiver.size()}, if all elements in the receiver are less than the specified key. Note that
      * this guarantees that the return value will be &gt;= 0 if and only if the key is found.
      * @see java.util.Arrays
      */
@@ -152,10 +152,10 @@ public abstract class AbstractUuidList extends AbstractList {
      * @param key the value to be searched for.
      * @param from the leftmost search position, inclusive.
      * @param to the rightmost search position, inclusive.
-     * @return index of the search key, if it is contained in the receiver; otherwise, <code>(-(<i>insertion
-     * point</i>) - 1)</code>. The <i>insertion point</i> is defined as the the point at which the value would
+     * @return index of the search key, if it is contained in the receiver; otherwise, {@code (-(<i>insertion
+     * point</i>) - 1)}. The <i>insertion point</i> is defined as the the point at which the value would
      * be inserted into the receiver: the index of the first element greater than the key, or
-     * <code>receiver.size()</code>, if all elements in the receiver are less than the specified key. Note that
+     * {@code receiver.size()}, if all elements in the receiver are less than the specified key. Note that
      * this guarantees that the return value will be &gt;= 0 if and only if the key is found.
      * @see java.util.Arrays
      */
@@ -265,9 +265,9 @@ public abstract class AbstractUuidList extends AbstractList {
     /**
      * Applies a procedure to each element of the receiver, if any. Starts at index 0, moving rightwards.
      *
-     * @param procedure the procedure to be applied. Stops iteration if the procedure returns <code>false</code>,
+     * @param procedure the procedure to be applied. Stops iteration if the procedure returns {@code false},
      * otherwise continues.
-     * @return <code>false</code> if the procedure stopped before all elements where iterated over, <code>true</code>
+     * @return {@code false} if the procedure stopped before all elements where iterated over, {@code true}
      * otherwise.
      */
     public boolean forEach(UuidProcedure procedure) {
@@ -298,11 +298,11 @@ public abstract class AbstractUuidList extends AbstractList {
      * Returns the element at the specified position in the receiver; <b>WARNING:</b> Does not check
      * preconditions. Provided with invalid parameters this method may return invalid elements without
      * throwing any exception! <b>You should only use this method when you are absolutely sure that the index
-     * is within bounds.</b> Precondition (unchecked): <code>index &gt;= 0 && index &lt; size()</code>.
+     * is within bounds.</b> Precondition (unchecked): {@code index &gt;= 0 && index &lt; size()}.
      *
      * This method is normally only used internally in large loops where bounds are explicitly checked before
      * the loop and need no be rechecked within the loop. However, when desperately, you can give this method
-     * <code>public</code> visibility in subclasses.
+     * {@code public} visibility in subclasses.
      *
      * @param index index of element to return.
      */
@@ -310,10 +310,10 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Returns the index of the first occurrence of the specified element. Returns
-     * <code>-1</code> if the receiver does not contain this element.
+     * {@code -1} if the receiver does not contain this element.
      *
      * @param element the element to be searched for.
-     * @return the index of the first occurrence of the element in the receiver; returns <code>-1</code> if
+     * @return the index of the first occurrence of the element in the receiver; returns {@code -1} if
      * the element is not found.
      */
     public int indexOf(long[] element) { // delta
@@ -322,17 +322,17 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Returns the index of the first occurrence of the specified element. Returns
-     * <code>-1</code> if the receiver does not contain this element. Searches between
-     * <code>from</code>, inclusive and
-     * <code>to</code>, inclusive. Tests for identity.
+     * {@code -1} if the receiver does not contain this element. Searches between
+     * {@code from}, inclusive and
+     * {@code to}, inclusive. Tests for identity.
      *
      * @param element element to search for.
      * @param from the leftmost search position, inclusive.
      * @param to the rightmost search position, inclusive.
-     * @return the index of the first occurrence of the element in the receiver; returns <code>-1</code> if
+     * @return the index of the first occurrence of the element in the receiver; returns {@code -1} if
      * the element is not found.
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     public int indexOfFromTo(long[] element, int from, int to) {
         AbstractList.checkRangeFromTo(from, to, size);
@@ -349,10 +349,10 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Returns the index of the last occurrence of the specified element. Returns
-     * <code>-1</code> if the receiver does not contain this element.
+     * {@code -1} if the receiver does not contain this element.
      *
      * @param element the element to be searched for.
-     * @return the index of the last occurrence of the element in the receiver; returns <code>-1</code> if the
+     * @return the index of the last occurrence of the element in the receiver; returns {@code -1} if the
      * element is not found.
      */
     public int lastIndexOf(long[] element) {
@@ -361,17 +361,17 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Returns the index of the last occurrence of the specified element. Returns
-     * <code>-1</code> if the receiver does not contain this element. Searches beginning at
-     * <code>to</code>, inclusive until
-     * <code>from</code>, inclusive. Tests for identity.
+     * {@code -1} if the receiver does not contain this element. Searches beginning at
+     * {@code to}, inclusive until
+     * {@code from}, inclusive. Tests for identity.
      *
      * @param element element to search for.
      * @param from the leftmost search position, inclusive.
      * @param to the rightmost search position, inclusive.
-     * @return the index of the last occurrence of the element in the receiver; returns <code>-1</code> if the
+     * @return the index of the last occurrence of the element in the receiver; returns {@code -1} if the
      * element is not found.
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     public int lastIndexOfFromTo(long[] element, int from, int to) {
         AbstractList.checkRangeFromTo(from, to, size());
@@ -392,14 +392,14 @@ public abstract class AbstractUuidList extends AbstractList {
      * n*log(n) performance, and can approach linear performance on nearly sorted lists.
      *
      * <p> <b>You should never call this method unless you are sure that this particular sorting algorithm is
-     * the right one for your data set.</b> It is generally better to call <code>sort()</code> or
-     * <code>sortFromTo(...)</code> instead, because those methods automatically choose the best sorting
+     * the right one for your data set.</b> It is generally better to call {@code sort()} or
+     * {@code sortFromTo(...)} instead, because those methods automatically choose the best sorting
      * algorithm.
      *
      * @param from the index of the first element (inclusive) to be sorted.
      * @param to the index of the last element (inclusive) to be sorted.
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     @Override
     public void mergeSortFromTo(int from, int to) {
@@ -414,8 +414,8 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Sorts the receiver according to the order induced by the specified comparator. All elements in the
-     * range must be <i>mutually comparable</i> by the specified comparator (that is, <code>c.compare(e1,
-     * e2)</code> must not throw a <code>ClassCastException</code> for any elements <code>e1</code> and <code>e2</code> in
+     * range must be <i>mutually comparable</i> by the specified comparator (that is, {@code c.compare(e1,
+     * e2)} must not throw a {@code ClassCastException} for any elements {@code e1} and {@code e2} in
      * the range). <p>
      *
      * This sort is guaranteed to be <i>stable</i>: equal elements will not be reordered as a result of the
@@ -430,11 +430,11 @@ public abstract class AbstractUuidList extends AbstractList {
      * @param c the comparator to determine the order of the receiver.
      * @throws ClassCastException if the array contains elements that are not <i>mutually comparable</i> using
      * the specified comparator.
-     * @throws IllegalArgumentException if <code>fromIndex &gt; toIndex</code>
-     * @throws ArrayIndexOutOfBoundsException if <code>fromIndex &lt; 0</code> or <code>toIndex &gt; a.length</code>
+     * @throws IllegalArgumentException if {@code fromIndex &gt; toIndex}
+     * @throws ArrayIndexOutOfBoundsException if {@code fromIndex &lt; 0} or {@code toIndex &gt; a.length}
      * @see Comparator
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     public void mergeSortFromTo(int from, int to, UuidComparatorBI c) {
         int mySize = size();
@@ -448,14 +448,14 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Returns a new list of the part of the receiver between
-     * <code>from</code>, inclusive, and
-     * <code>to</code>, inclusive.
+     * {@code from}, inclusive, and
+     * {@code to}, inclusive.
      *
      * @param from the index of the first element (inclusive).
      * @param to the index of the last element (inclusive).
      * @return a new list
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     public AbstractUuidList partFromTo(int from, int to) {
         AbstractList.checkRangeFromTo(from, to, size);
@@ -473,14 +473,14 @@ public abstract class AbstractUuidList extends AbstractList {
      * n*log(n) performance on many data sets that cause other quicksorts to degrade to quadratic performance.
      *
      * <p> <b>You should never call this method unless you are sure that this particular sorting algorithm is
-     * the right one for your data set.</b> It is generally better to call <code>sort()</code> or
-     * <code>sortFromTo(...)</code> instead, because those methods automatically choose the best sorting
+     * the right one for your data set.</b> It is generally better to call {@code sort()} or
+     * {@code sortFromTo(...)} instead, because those methods automatically choose the best sorting
      * algorithm.
      *
      * @param from the index of the first element (inclusive) to be sorted.
      * @param to the index of the last element (inclusive) to be sorted.
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     @Override
     public void quickSortFromTo(int from, int to) {
@@ -494,8 +494,8 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Sorts the receiver according to the order induced by the specified comparator. All elements in the
-     * range must be <i>mutually comparable</i> by the specified comparator (that is, <code>c.compare(e1,
-     * e2)</code> must not throw a <code>ClassCastException</code> for any elements <code>e1</code> and <code>e2</code> in
+     * range must be <i>mutually comparable</i> by the specified comparator (that is, {@code c.compare(e1,
+     * e2)} must not throw a {@code ClassCastException} for any elements {@code e1} and {@code e2} in
      * the range). <p>
      *
      * The sorting algorithm is a tuned quicksort, adapted from Jon L. Bentley and M. Douglas McIlroy's
@@ -508,11 +508,11 @@ public abstract class AbstractUuidList extends AbstractList {
      * @param c the comparator to determine the order of the receiver.
      * @throws ClassCastException if the array contains elements that are not <i>mutually comparable</i> using
      * the specified comparator.
-     * @throws IllegalArgumentException if <code>fromIndex &gt; toIndex</code>
-     * @throws ArrayIndexOutOfBoundsException if <code>fromIndex &lt; 0</code> or <code>toIndex &gt; a.length</code>
+     * @throws IllegalArgumentException if {@code fromIndex &gt; toIndex}
+     * @throws ArrayIndexOutOfBoundsException if {@code fromIndex &lt; 0} or {@code toIndex &gt; a.length}
      * @see Comparator
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     public void quickSortFromTo(int from, int to, UuidComparatorBI c) {
         int mySize = size();
@@ -528,7 +528,7 @@ public abstract class AbstractUuidList extends AbstractList {
      * Removes from the receiver all elements that are contained in the specified list. Tests for identity.
      *
      * @param other the other list.
-     * @return <code>true</code> if the receiver changed as a result of the call.
+     * @return {@code true} if the receiver changed as a result of the call.
      */
     public boolean removeAll(AbstractUuidList other) {
         if (other.size() == 0) {
@@ -550,14 +550,14 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Removes from the receiver all elements whose index is between
-     * <code>from</code>, inclusive and
-     * <code>to</code>, inclusive. Shifts any succeeding elements to the left (reduces their index). This call
-     * shortens the list by <code>(to - from + 1)</code> elements.
+     * {@code from}, inclusive and
+     * {@code to}, inclusive. Shifts any succeeding elements to the left (reduces their index). This call
+     * shortens the list by {@code (to - from + 1)} elements.
      *
      * @param from index of first element to be removed.
      * @param to index of last element to be removed.
-     * @exception IndexOutOfBoundsException index is out of range ( <code>size()&gt;0 && (from&lt;0 ||
-     * from&gt;to || to&gt;=size())</code> ).
+     * @exception IndexOutOfBoundsException index is out of range ( {@code size()&gt;0 && (from&lt;0 ||
+     * from&gt;to || to&gt;=size())} ).
      */
     @Override
     public void removeFromTo(int from, int to) {
@@ -576,10 +576,10 @@ public abstract class AbstractUuidList extends AbstractList {
     /**
      * Replaces a number of elements in the receiver with the same number of elements of another list.
      * Replaces elements in the receiver, between
-     * <code>from</code> (inclusive) and
-     * <code>to</code> (inclusive), with elements of
-     * <code>other</code>, starting from
-     * <code>otherFrom</code> (inclusive).
+     * {@code from} (inclusive) and
+     * {@code to} (inclusive), with elements of
+     * {@code other}, starting from
+     * {@code otherFrom} (inclusive).
      *
      * @param from the position of the first element to be replaced in the receiver
      * @param to the position of the last element to be replaced in the receiver
@@ -614,7 +614,7 @@ public abstract class AbstractUuidList extends AbstractList {
      * other list.
      *
      * @param other the other list to test against.
-     * @return <code>true</code> if the receiver changed as a result of the call.
+     * @return {@code true} if the receiver changed as a result of the call.
      */
     public boolean retainAll(AbstractUuidList other) {
         if (other.size() == 0) {
@@ -659,7 +659,7 @@ public abstract class AbstractUuidList extends AbstractList {
      *
      * @param index index of element to replace.
      * @param element element to be stored at the specified position.
-     * @throws IndexOutOfBoundsException if <code>index &lt; 0 || index &gt;= size()</code>.
+     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt;= size()}.
      */
     public void set(int index, long[] element) {
         if (index >= size || index < 0) {
@@ -673,12 +673,12 @@ public abstract class AbstractUuidList extends AbstractList {
      * Replaces the element at the specified position in the receiver with the specified element;
      * <b>WARNING:</b> Does not check preconditions. Provided with invalid parameters this method may access
      * invalid indexes without throwing any exception! <b>You should only use this method when you are
-     * absolutely sure that the index is within bounds.</b> Precondition (unchecked): <code>index &gt;= 0 &&
-     * index &lt; size()</code>.
+     * absolutely sure that the index is within bounds.</b> Precondition (unchecked): {@code index &gt;= 0 &&
+     * index &lt; size()}.
      *
      * This method is normally only used internally in large loops where bounds are explicitly checked before
      * the loop and need no be rechecked within the loop. However, when desperately, you can give this method
-     * <code>public</code> visibility in subclasses.
+     * {@code public} visibility in subclasses.
      *
      * @param index index of element to replace.
      * @param element element to be stored at the specified position.
@@ -687,7 +687,7 @@ public abstract class AbstractUuidList extends AbstractList {
 
     /**
      * Sets the size of the receiver without modifying it otherwise. This method should not release or
-     * allocate new memory but simply set some instance variable like <code>size</code>.
+     * allocate new memory but simply set some instance variable like {@code size}.
      *
      * If your subclass overrides and delegates size changing methods to some other object, you must make sure
      * that those overriding methods not only update the size of the delegate but also of this class. For

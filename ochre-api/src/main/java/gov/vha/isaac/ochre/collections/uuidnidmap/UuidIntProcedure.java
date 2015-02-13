@@ -25,7 +25,7 @@ public interface UuidIntProcedure {
      *
      * @param uuid
      * @param second
-     * @return iteration will stop if <code>false</code>, otherwise continues.
+     * @return iteration will stop if {@code false}, otherwise continues.
      *
      */
     boolean apply(long[] uuid, int second);

@@ -18,7 +18,7 @@ public interface LogicGraphAnalogBI<A extends LogicGraphAnalogBI<A>>
 
     /**
      * Sets the array of bytes based on the given
-     * <code>logicGraphBytes</code> for this array .
+     * {@code logicGraphBytes} for this array .
      *
      * @param logicGraphBytes the array of byte array to be associated with this member
      * @throws PropertyVetoException if the new value is not valid

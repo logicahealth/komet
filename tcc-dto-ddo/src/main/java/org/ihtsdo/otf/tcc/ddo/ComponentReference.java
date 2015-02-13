@@ -136,10 +136,10 @@ public class ComponentReference implements Externalizable {
 
     /**
      * Checks to see if the
-     * <code>ComponentVersionBI</code> specified by the
-     * <code>ViewCoordinate</code> is null.
+     * {@code ComponentVersionBI} specified by the
+     * {@code ViewCoordinate} is null.
      *
-     * @return true if the <code>ComponentVersionBI</code> is null
+     * @return true if the {@code ComponentVersionBI} is null
      */
     public boolean componentVersionIsNull() {
         return isNull;

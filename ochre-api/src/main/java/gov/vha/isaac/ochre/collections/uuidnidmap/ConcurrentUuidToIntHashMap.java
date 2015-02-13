@@ -43,8 +43,8 @@ public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
      * @param maxLoadFactor the maximum load factor.
      * @throws IllegalArgumentException if
      *
-     * <code>initialCapacity < 0 || (minLoadFactor < 0.0 || minLoadFactor >= 1.0) || (maxLoadFactor <= 0.0 ||
-     * maxLoadFactor >= 1.0) || (minLoadFactor >= maxLoadFactor)</code> .
+     * {@code initialCapacity < 0 || (minLoadFactor < 0.0 || minLoadFactor >= 1.0) || (maxLoadFactor <= 0.0 ||
+     * maxLoadFactor >= 1.0) || (minLoadFactor >= maxLoadFactor)} .
      */
     public ConcurrentUuidToIntHashMap(int initialCapacity, double minLoadFactor,
                             double maxLoadFactor) {
