@@ -26,7 +26,7 @@ public class UuidUnsigned64BitComparator implements UuidComparatorBI {
      * on the following routine:
      * <code>
      * public static boolean isLessThanUnsigned(long n1, long n2) {
-     * return (n1 < n2) ^ ((n1 < 0) != (n2 < 0));
+     * return (n1 &lt; n2) ^ ((n1 &lt; 0) != (n2 &lt; 0));
      * }
      * </code> see: http://www.javamex.com/java_equivalents/unsigned_arithmetic.shtml
      */

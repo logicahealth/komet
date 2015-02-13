@@ -609,89 +609,6 @@ public abstract class AbstractUuidList extends AbstractList {
     }
 
     /**
-     * Replaces the part between
-     * <code>from</code> (inclusive) and
-     * <code>to</code> (inclusive) with the other list's part between
-     * <code>otherFrom</code> and
-     * <code>otherTo</code>. Powerful (and tricky) method! Both parts need not be of the same size (part A can
-     * both be smaller or larger than part B). Parts may overlap. Receiver and other list may (but most not)
-     * be identical. If
-     * <code>from &gt; to</code>, then inserts other part before
-     * <code>from</code>.
-     *
-     * @param from the first element of the receiver (inclusive)
-     * @param to the last element of the receiver (inclusive)
-     * @param other the other list (may be identical with receiver)
-     * @param otherFrom the first element of the other list (inclusive)
-     * @param otherTo the last element of the other list (inclusive)
-     *
-     * <p> <b>Examples:</b>
-     *
-     * <pre>
-     * a=[0, 1, 2, 3, 4, 5, 6, 7]
-     * b=[50, 60, 70, 80, 90]
-     * a.R(...)=a.replaceFromToWithFromTo(...)
-     * a.R(3,5,b,0,4)-->[0, 1, 2, 50, 60, 70, 80, 90, 6, 7]
-     * a.R(1,6,b,0,4)-->[0, 50, 60, 70, 80, 90, 7]
-     * a.R(0,6,b,0,4)-->[50, 60, 70, 80, 90, 7]
-     * a.R(3,5,b,1,2)-->[0, 1, 2, 60, 70, 6, 7]
-     * a.R(1,6,b,1,2)-->[0, 60, 70, 7]
-     * a.R(0,6,b,1,2)-->[60, 70, 7]
-     * a.R(5,3,b,0,4)-->[0, 1, 2, 3, 4, 50, 60, 70, 80, 90, 5, 6, 7]
-     * a.R(5,0,b,0,4)-->[0, 1, 2, 3, 4, 50, 60, 70, 80, 90, 5, 6, 7]
-     * a.R(5,3,b,1,2)-->[0, 1, 2, 3, 4, 60, 70, 5, 6, 7]
-     * a.R(5,0,b,1,2)-->[0, 1, 2, 3, 4, 60, 70, 5, 6, 7]
-     * Extreme cases:
-     * a.R(5,3,b,0,0)-->[0, 1, 2, 3, 4, 50, 5, 6, 7]
-     * a.R(5,3,b,4,4)-->[0, 1, 2, 3, 4, 90, 5, 6, 7]
-     * a.R(3,5,a,0,1)-->[0, 1, 2, 0, 1, 6, 7]
-     * a.R(3,5,a,3,5)-->[0, 1, 2, 3, 4, 5, 6, 7]
-     * a.R(3,5,a,4,4)-->[0, 1, 2, 4, 6, 7]
-     * a.R(5,3,a,0,4)-->[0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7]
-     * a.R(0,-1,b,0,4)-->[50, 60, 70, 80, 90, 0, 1, 2, 3, 4, 5, 6, 7]
-     * a.R(0,-1,a,0,4)-->[0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7]
-     * a.R(8,0,a,0,4)-->[0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4]
-     * </pre>
-     */
-    public void replaceFromToWithFromTo(int from, int to,
-            AbstractUuidList other, int otherFrom, int otherTo) {
-        if (otherFrom > otherTo) {
-            throw new IndexOutOfBoundsException("otherFrom: " + otherFrom
-                    + ", otherTo: " + otherTo);
-        }
-
-        if (this == other && to - from != otherTo - otherFrom) { // avoid
-            // stumbling
-            // over my
-            // own feet
-            replaceFromToWithFromTo(from, to, partFromTo(otherFrom, otherTo),
-                    0, otherTo - otherFrom);
-            return;
-        }
-
-        int length = otherTo - otherFrom + 1;
-        int diff = length;
-        int theLast = from - 1;
-
-        if (to >= from) {
-            diff -= (to - from + 1);
-            theLast = to;
-        }
-
-        if (diff > 0) {
-            beforeInsertDummies(theLast + 1, diff);
-        } else {
-            if (diff < 0) {
-                removeFromTo(theLast + diff, theLast - 1);
-            }
-        }
-
-        if (length > 0) {
-            replaceFromToWithFrom(from, from + length - 1, other, otherFrom);
-        }
-    }
-
-    /**
      * Retains (keeps) only the elements in the receiver that are contained in the specified other list. In
      * other words, removes from the receiver all of its elements that are not contained in the specified
      * other list.
@@ -791,19 +708,6 @@ public abstract class AbstractUuidList extends AbstractList {
         return size;
     }
 
-    /**
-     * Returns a list which is a concatenation of
-     * <code>times</code> times the receiver.
-     *
-     * @param times the number of times the receiver shall be copied.
-     */
-    public AbstractUuidList times(int times) {
-        AbstractUuidList newList = new UuidArrayList(times * size());
-        for (int i = times; --i >= 0;) {
-            newList.addAllOfFromTo(this, 0, size() - 1);
-        }
-        return newList;
-    }
 
     /**
      * Returns a string representation of the receiver, containing the String representation of each element.
