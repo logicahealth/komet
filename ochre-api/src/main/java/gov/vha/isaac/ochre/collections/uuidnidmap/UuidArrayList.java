@@ -114,7 +114,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	 *            element to be inserted.
 	 * @exception IndexOutOfBoundsException
 	 *                index is out of range (
-	 *                <tt>index &lt; 0 || index &gt; size()</tt>).
+	 *                {@code index &lt; 0 || index &gt; size()}).
 	 */
         @Override
 	public void beforeInsert(int index, long[] element) {
@@ -147,10 +147,10 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * @param to
 	 *            the rightmost search position, inclusive.
 	 * @return index of the search key, if it is contained in the receiver;
-	 *         otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>. The
+	 *         otherwise, {@code (-(<i>insertion point</i>) - 1)}. The
 	 *         <i>insertion point</i> is defined as the the point at which the
 	 *         value would be inserted into the receiver: the index of the first
-	 *         element greater than the key, or <tt>receiver.size()</tt>, if all
+	 *         element greater than the key, or {@code receiver.size()}, if all
 	 *         elements in the receiver are less than the specified key. Note
 	 *         that this guarantees that the return value will be &gt;= 0 if and
 	 *         only if the key is found.
@@ -177,7 +177,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	}
 
 	/**
-	 * Returns a deep copy of the receiver; uses <code>clone()</code> and casts
+	 * Returns a deep copy of the receiver; uses {@code clone()} and casts
 	 * the result.
 	 * 
 	 * @return a deep copy of the receiver.
@@ -276,9 +276,9 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * 
 	 * @param procedure
 	 *            the procedure to be applied. Stops iteration if the procedure
-	 *            returns <tt>false</tt>, otherwise continues.
-	 * @return <tt>false</tt> if the procedure stopped before all elements where
-	 *         iterated over, <tt>true</tt> otherwise.
+	 *            returns {@code false}, otherwise continues.
+	 * @return {@code false} if the procedure stopped before all elements where
+	 *         iterated over, {@code true} otherwise.
 	 */
         @Override
 	public boolean forEach(UuidProcedure procedure) {
@@ -331,7 +331,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * parameters this method may return invalid elements without throwing any
 	 * exception! <b>You should only use this method when you are absolutely
 	 * sure that the index is within bounds.</b> Precondition (unchecked):
-	 * <tt>index &gt;= 0 && index &lt; size()</tt>.
+	 * {@code index &gt;= 0 && index &lt; size()}.
 	 * 
 	 * @param index
 	 *            index of element to return.
@@ -343,8 +343,8 @@ public class UuidArrayList  extends AbstractUuidList {
 
 	/**
 	 * Returns the index of the first occurrence of the specified element.
-	 * Returns <code>-1</code> if the receiver does not contain this element.
-	 * Searches between <code>from</code>, inclusive and <code>to</code>,
+	 * Returns {@code -1} if the receiver does not contain this element.
+	 * Searches between {@code from}, inclusive and {@code to},
 	 * inclusive. Tests for identity.
 	 * 
 	 * @param element
@@ -354,10 +354,10 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * @param to
 	 *            the rightmost search position, inclusive.
 	 * @return the index of the first occurrence of the element in the receiver;
-	 *         returns <code>-1</code> if the element is not found.
+	 *         returns {@code -1} if the element is not found.
 	 * @exception IndexOutOfBoundsException
 	 *                index is out of range (
-	 *                <tt>size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=size())</tt>
+	 *                {@code size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=size())}
 	 *                ).
 	 */
 	public int indexOfFromTo(long element, int from, int to) {
@@ -377,8 +377,8 @@ public class UuidArrayList  extends AbstractUuidList {
 
 	/**
 	 * Returns the index of the last occurrence of the specified element.
-	 * Returns <code>-1</code> if the receiver does not contain this element.
-	 * Searches beginning at <code>to</code>, inclusive until <code>from</code>,
+	 * Returns {@code -1} if the receiver does not contain this element.
+	 * Searches beginning at {@code to}, inclusive until {@code from},
 	 * inclusive. Tests for identity.
 	 * 
 	 * @param element
@@ -388,10 +388,10 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * @param to
 	 *            the rightmost search position, inclusive.
 	 * @return the index of the last occurrence of the element in the receiver;
-	 *         returns <code>-1</code> if the element is not found.
+	 *         returns {@code -1} if the element is not found.
 	 * @exception IndexOutOfBoundsException
 	 *                index is out of range (
-	 *                <tt>size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=size())</tt>
+	 *                {@code size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=size())}
 	 *                ).
 	 */
 	public int lastIndexOfFromTo(long element, int from, int to) {
@@ -410,8 +410,8 @@ public class UuidArrayList  extends AbstractUuidList {
 	}
 
 	/**
-	 * Returns a new list of the part of the receiver between <code>from</code>,
-	 * inclusive, and <code>to</code>, inclusive.
+	 * Returns a new list of the part of the receiver between {@code from},
+	 * inclusive, and {@code to}, inclusive.
 	 * 
 	 * @param from
 	 *            the index of the first element (inclusive).
@@ -420,7 +420,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * @return a new list
 	 * @exception IndexOutOfBoundsException
 	 *                index is out of range (
-	 *                <tt>size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=size())</tt>
+	 *                {@code size()&gt;0 && (from&lt;0 || from&gt;to || to&gt;=size())}
 	 *                ).
 	 */
         @Override
@@ -441,7 +441,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * 
 	 * @param other
 	 *            the other list.
-	 * @return <code>true</code> if the receiver changed as a result of the
+	 * @return {@code true} if the receiver changed as a result of the
 	 *         call.
 	 */
         @Override
@@ -511,8 +511,8 @@ public class UuidArrayList  extends AbstractUuidList {
 	/**
 	 * Replaces a number of elements in the receiver with the same number of
 	 * elements of another list. Replaces elements in the receiver, between
-	 * <code>from</code> (inclusive) and <code>to</code> (inclusive), with
-	 * elements of <code>other</code>, starting from <code>otherFrom</code>
+	 * {@code from} (inclusive) and {@code to} (inclusive), with
+	 * elements of {@code other}, starting from {@code otherFrom}
 	 * (inclusive).
 	 * 
 	 * @param from
@@ -551,7 +551,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * 
 	 * @param other
 	 *            the other list to test against.
-	 * @return <code>true</code> if the receiver changed as a result of the
+	 * @return {@code true} if the receiver changed as a result of the
 	 *         call.
 	 */
         @Override
@@ -665,7 +665,7 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * with invalid parameters this method may access invalid indexes without
 	 * throwing any exception! <b>You should only use this method when you are
 	 * absolutely sure that the index is within bounds.</b> Precondition
-	 * (unchecked): <tt>index &gt;= 0 && index &lt; size()</tt>.
+	 * (unchecked): {@code index &gt;= 0 && index &lt; size()}.
 	 * 
 	 * @param index
 	 *            index of element to replace.
@@ -695,8 +695,8 @@ public class UuidArrayList  extends AbstractUuidList {
 	 * @param to
 	 *            the index of the last element (inclusive) to be sorted.
 	 * @exception IndexOutOfBoundsException
-	 *                index is out of range (<tt>size()&gt;0 && (from&lt;0 ||
-	 *                from&gt;to || to&gt;=size())</tt>).
+	 *                index is out of range ({@code size()&gt;0 && (from&lt;0 ||
+	 *                from&gt;to || to&gt;=size())}).
 	 */
         @Override
 	public void sortFromTo(int from, int to) {

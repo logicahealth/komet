@@ -177,14 +177,14 @@ public abstract class TtkRevision implements ExternalStampBI {
 
 
     /**
-     * Compares this object to the specified object. The result is <tt>true</tt> if and only if the argument
-     * is not <tt>null</tt>, is a <tt>EVersion</tt> object, and contains the same values, field by field, as
-     * this <tt>EVersion</tt>.
+     * Compares this object to the specified object. The result is {@code true} if and only if the argument
+     * is not {@code null}, is a {@code EVersion} object, and contains the same values, field by field, as
+     * this {@code EVersion}.
      *
      * @param obj the object to compare with.
      * @return
-     * <code>true</code> if the objects are the same;
-     * <code>false</code> otherwise.
+     * {@code true} if the objects are the same;
+     * {@code false} otherwise.
      */
     @Override
     public boolean equals(Object obj) {
@@ -235,9 +235,9 @@ public abstract class TtkRevision implements ExternalStampBI {
 
     /**
      * Returns a hash code for this
-     * <code>EVersion</code>.
+     * {@code EVersion}.
      *
-     * @return a hash code value for this <tt>EVersion</tt>.
+     * @return a hash code value for this {@code EVersion}.
      */
     @Override
     public int hashCode() {

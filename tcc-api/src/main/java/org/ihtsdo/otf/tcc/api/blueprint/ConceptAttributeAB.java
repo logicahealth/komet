@@ -28,7 +28,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 /**
  * The Class ConceptAttributeAB contains methods for creating a concept
  * attribute blueprint. This blueprint can be constructed into a type of
- * <code>ConceptAttributeChronicleBI</code>. This is the preferred method for
+ * {@code ConceptAttributeChronicleBI}. This is the preferred method for
  * creating new concepts. This class of blueprint can only be used to amend
  * existing concepts, use ConceptCB to create a new concept.
  *
@@ -45,7 +45,7 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
      * Instantiates a new concept attribute blueprint using nid values.
      *
      * @param conceptNid the enclosing concept nid
-     * @param defined set to <code>true</code> to mark the concept as defined
+     * @param defined set to {@code true} to mark the concept as defined
      * @param refexDirective 
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are
@@ -63,10 +63,10 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
     /**
      * Instantiates a new concept attribute blueprint using nid values and a
      * given
-     * <code>conceptAttributeVersion</code>.
+     * {@code conceptAttributeVersion}.
      *
      * @param conceptNid the enclosing concept nid
-     * @param defined set to <code>true</code> to mark the concept as defined
+     * @param defined set to {@code true} to mark the concept as defined
      * @param conceptAttributeVersion the concept attribute version to use as a
      * pattern
      * @param viewCoordinate the view coordinate specifying which versions are
@@ -92,7 +92,7 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
      * Instantiates a new concept attribute blueprint using uuid values.
      *
      * @param componentUuid the uuid associated with concept
-     * @param defined set to <code>true</code> to mark the concept as defined
+     * @param defined set to {@code true} to mark the concept as defined
      * @param conceptAttributeVersion the concept attribute version to use as a
      * pattern
      * @param viewCoordinate the view coordinate specifying which versions are
@@ -119,12 +119,12 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
 
     /**
      * Validates this concept attribute blueprint's fields against the given
-     * <code>conceptAttributeVersion</code>. Compares the status nid, component
+     * {@code conceptAttributeVersion}. Compares the status nid, component
      * nid, and boolean value for defined.
      *
      * @param conceptAttributeVersion the concept attribute version to use for
      * validation
-     * @return <code>true</code>, if this concept attribute blueprint's fields
+     * @return {@code true}, if this concept attribute blueprint's fields
      * are equal to the specified concept attribute version
      * @throws IOException signals that an I/O exception has occurred
      */
@@ -143,7 +143,7 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
 
     /**
      * The UUID for ConAttrAB is set when the enclosing concept is created. Throws an
-     * <code>InvalidCAB</code> if called.
+     * {@code InvalidCAB} if called.
      *
      * @throws NoSuchAlgorithmException indicates a no such algorithm exception
      * has occurred

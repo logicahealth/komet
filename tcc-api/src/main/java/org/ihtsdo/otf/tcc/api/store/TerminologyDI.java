@@ -82,11 +82,11 @@ public interface TerminologyDI {
     void forget(RelationshipVersionBI rel) throws IOException;
 
     /**
-     * Cause all index generators implementing the <code>IndexerBI</code> to
-     * first <code>clearIndex()</code> then iterate over all chronicles in the
+     * Cause all index generators implementing the {@code IndexerBI} to
+     * first {@code clearIndex()} then iterate over all chronicles in the
      * database and pass those chronicles to
-     * <code>index(ComponentChronicleBI chronicle)</code> and when complete, to
-     * call <code>commitWriter()</code>. <code>IndexerBI</code> services will be
+     * {@code index(ComponentChronicleBI chronicle)} and when complete, to
+     * call {@code commitWriter()}. {@code IndexerBI} services will be
      * discovered using the HK2 dependency injection framework.
      *
      * @return 
@@ -201,7 +201,7 @@ public interface TerminologyDI {
      * Retrieve the concept nid from a specified nid.
      *
      * @param nid
-     * @return the <code>int</code> concept nid of the specified nid
+     * @return the {@code int} concept nid of the specified nid
      */
     int getConceptNidForNid(int nid);
 

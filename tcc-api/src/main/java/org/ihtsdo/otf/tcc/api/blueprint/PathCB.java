@@ -103,9 +103,9 @@ public class PathCB {
     }
     /**
      * Use if making the path created by this
-     * <code>PathCB</code> as an origin of an existing path.
+     * {@code PathCB} as an origin of an existing path.
      *
-     * @return a <code>RefexCAB</code> representing the membership of this path
+     * @return a {@code RefexCAB} representing the membership of this path
      * as an origin of an existing path.
      */
     public RefexCAB getPathAsOriginBp() {
@@ -114,9 +114,9 @@ public class PathCB {
 
     /**
      * Use if making the path created by this
-     * <code>PathCB</code> as an origin of an existing path.
+     * {@code PathCB} as an origin of an existing path.
      *
-     * @param pathOriginRefsetPathAsOriginBp a <code>RefexCAB</code>
+     * @param pathOriginRefsetPathAsOriginBp a {@code RefexCAB}
      * representing the membership of this path as an origin of an existing path
      */
     public void setPathAsOriginBp(RefexCAB pathOriginRefsetPathAsOriginBp) {

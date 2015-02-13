@@ -52,7 +52,7 @@ public class TtkLogicGraphMemberChronicle
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on the
-     * <code>refexChronicle</code>.
+     * {@code refexChronicle}.
      *
      * @param refexChronicle the refex chronicle specifying how to construct
      * this TK Refex Array of Byte Array Member
@@ -64,8 +64,8 @@ public class TtkLogicGraphMemberChronicle
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on the
-     * <code>logicGraphVersion</code> and using the given
-     * <code>revisionHandling</code>.
+     * {@code logicGraphVersion} and using the given
+     * {@code revisionHandling}.
      *
      * @param logicGraphVersion the refex array of byte array version
      * specifying how to construct this TK Refex Array of Byte Array Member
@@ -96,7 +96,7 @@ public class TtkLogicGraphMemberChronicle
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on the
      * specified data input,
-     * <code>in</code>.
+     * {@code in}.
      *
      * @param in the data input specifying how to construct this TK Refex
      * Array of Byte Array Member
@@ -111,7 +111,7 @@ public class TtkLogicGraphMemberChronicle
 
     /**
      * Instantiates a new TK Refex Array of Byte Array Member based on
-     * <code>another</code> TK Refex Array of Byte Array Member and allows for
+     * {@code another} TK Refex Array of Byte Array Member and allows for
      * uuid conversion.
      *
      * @param another the TK Refex Array of Byte Array Member specifying how to
@@ -131,14 +131,14 @@ public class TtkLogicGraphMemberChronicle
     }
 
     /**
-     * Compares this object to the specified object. The result is <tt>true</tt>
-     * if and only if the argument is not <tt>null</tt>, is a
-     * <tt>ERefsetLongMember</tt> object, and contains the same values, field by
-     * field, as this <tt>ERefsetLongMember</tt>.
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a
+     * {@code ERefsetLongMember} object, and contains the same values, field by
+     * field, as this {@code ERefsetLongMember}.
      *
      * @param obj the object to compare with.
-     * @return <code>true</code>, if successful <code>true</code> if the objects
-     * are the same; <code>false</code> otherwise.
+     * @return {@code true}, if successful {@code true} if the objects
+     * are the same; {@code false} otherwise.
      */
     @Override
     public boolean equals(Object obj) {
@@ -166,9 +166,9 @@ public class TtkLogicGraphMemberChronicle
 
     /**
      * Returns a hash code for this
-     * <code>ERefsetArrayofByteArrayMember</code>.
+     * {@code ERefsetArrayofByteArrayMember}.
      *
-     * @return a hash code value for this <tt>ERefsetArrayofByteArrayMember</tt>.
+     * @return a hash code value for this {@code ERefsetArrayofByteArrayMember}.
      */
     @Override
     public int hashCode() {

@@ -76,14 +76,14 @@ public class TtkRefexUuidLongMemberChronicle extends TtkRefexAbstractMemberChron
        references.add(uuid1);
    }
    /**
-    * Compares this object to the specified object. The result is <tt>true</tt>
-    * if and only if the argument is not <tt>null</tt>, is a
-    * <tt>ERefsetCidLongMember</tt> object, and contains the same values,
-    * field by field, as this <tt>ERefsetCidLongMember</tt>.
+    * Compares this object to the specified object. The result is {@code true}
+    * if and only if the argument is not {@code null}, is a
+    * {@code ERefsetCidLongMember} object, and contains the same values,
+    * field by field, as this {@code ERefsetCidLongMember}.
     *
     * @param obj the object to compare with.
-    * @return <code>true</code> if the objects are the same;
-    *         <code>false</code> otherwise.
+    * @return {@code true} if the objects are the same;
+    *         {@code false} otherwise.
     */
    @Override
    public boolean equals(Object obj) {
@@ -115,9 +115,9 @@ public class TtkRefexUuidLongMemberChronicle extends TtkRefexAbstractMemberChron
    }
 
    /**
-    * Returns a hash code for this <code>ERefsetCidLongMember</code>.
+    * Returns a hash code for this {@code ERefsetCidLongMember}.
     *
-    * @return  a hash code value for this <tt>ERefsetCidLongMember</tt>.
+    * @return  a hash code value for this {@code ERefsetCidLongMember}.
     */
    @Override
    public int hashCode() {

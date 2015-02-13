@@ -52,7 +52,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 /**
  * The Class CreateOrAmendBlueprint contains methods for creating a terminology generic blueprint. This
  * blueprint can be constructed into a type of
- * <code>ComonentChronicleBI</code>. This is the preferred method for updating or creating new components or
+ * {@code ComonentChronicleBI}. This is the preferred method for updating or creating new components or
  * concepts.
  *
  * @see TerminologyBuilderBI
@@ -179,7 +179,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     
     /**
      * Adds an additional
-     * <code>UUID</code> ID to the component specified by this component blueprint. This is a UUID in addition
+     * {@code UUID} ID to the component specified by this component blueprint. This is a UUID in addition
      * to the primordial uuid associated with this concept. Use setComponentUuid to set the primordial uuid.
      *
      * @param extraUuid the uuid identifier to add
@@ -192,7 +192,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Adds an additional
-     * <code>long</code> ID to the component specified by this component blueprint. Any SCT IDs to add to this
+     * {@code long} ID to the component specified by this component blueprint. Any SCT IDs to add to this
      * concept should be added using this method.
      *
      * @param longId the long identifier to add
@@ -224,7 +224,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Adds an additional
-     * <code>String</code> ID to the component specified by this component blueprint.
+     * {@code String} ID to the component specified by this component blueprint.
      *
      * @param stringId the string identifier to add
      * @param authorityUuid the authority associated with the identifier
@@ -287,7 +287,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Replace the annotation blueprints associated with this blueprint with the given list of
-     * <code>annoationBlueprints</code>.
+     * {@code annoationBlueprints}.
      *
      * @param annotationBlueprints the annotation blueprints to associate with this component blueprint
      */
@@ -297,7 +297,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     
     /**
      * Replace the annotation blueprints associated with this blueprint with the given list of
-     * <code>annoationBlueprints</code>.
+     * {@code annoationBlueprints}.
      *
      * @param annotationBlueprints the annotation blueprints to associate with this component blueprint
      */
@@ -487,10 +487,10 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Returns a map of IDs as
-     * <code>Objects</code> and their associated authority nids. The supported IDs are currently: long,
+     * {@code Objects} and their associated authority nids. The supported IDs are currently: long,
      * string, and uuid.
      *
-     * @return a map of IDs as <code>Objects</code> and their associated authority nids
+     * @return a map of IDs as {@code Objects} and their associated authority nids
      */
     public HashMap<Object, UUID> getIdMap() {
         return idMap;
@@ -498,7 +498,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Gets a string representing the primordial uuid for the component specified by the
-     * <code>componentNid</code>. This is uuid associated with the first version of the component.
+     * {@code componentNid}. This is uuid associated with the first version of the component.
      *
      * @param componentNid the nid associated with the component in question
      * @return a string representing the primordial uuid of the component in question
@@ -523,7 +523,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Gets a string representing the primordial uuid for the component specified by the
-     * <code>uuid/code>. This is uuid associated with the first version of the component.
+     * {@code uuid/code>. This is uuid associated with the first version of the component.
      *
      * @param uuid the uuid of the component in question
      * @return a string representing the primordial uuid of the component in question
@@ -610,7 +610,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Gets an integer representation of the value associated with the given refex property
-     * <code>key</code>.
+     * {@code key}.
      *
      * @param key the refex property key
      * @return an integer representation of the value associated with the specified refex property
@@ -629,7 +629,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
 
     /**
      * Gets an UUID representation of the value associated with the given refex property
-     * <code>key</code>.
+     * {@code key}.
      *
      * @param key the refex property key
      * @return an integer representation of the value associated with the specified refex property

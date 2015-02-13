@@ -32,7 +32,7 @@ public interface RefexArrayOfBytearrayAnalogBI<A extends RefexArrayOfBytearrayAn
 
     /**
      * Sets the array of byte array based on the given
-     * <code>arrayOfByteArray</code> for this array of byte array refex.
+     * {@code arrayOfByteArray} for this array of byte array refex.
      *
      * @param arrayOfByteArray the array of byte array to be associated with this refex member
      * @throws PropertyVetoException if the new value is not valid

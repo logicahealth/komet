@@ -116,7 +116,7 @@ public class UuidT5Generator {
     
     
     /**
-     * Generates a uuid from the given <code>byteArray</code>.
+     * Generates a uuid from the given {@code byteArray}.
      *
      * @param byteArray the bytes to use for generating the uuid
      * @return the generated uuid

@@ -33,7 +33,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 /**
  * The Class DescriptionCAB contains methods for creating a description
  * blueprint. This blueprint can be constructed into a type of
- * <code>DescriptionChronicleBI</code>. This is the preferred method for
+ * {@code DescriptionChronicleBI}. This is the preferred method for
  * updating or creating new descriptions.
  *
  * @see TerminologyBuilderBI
@@ -58,7 +58,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the
      * description
      * @param text the text of the description
-     * @param initialCaseSignificant set to <code>true</code> to mark the
+     * @param initialCaseSignificant set to {@code true} to mark the
      * description as initial case significant
      * @param idDirective 
      * @throws IOException signals that an I/O exception has occurred
@@ -86,7 +86,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the
      * description
      * @param text the lang code representing the language of the description
-     * @param initialCaseSignificant set to <code>true</code> to mark the
+     * @param initialCaseSignificant set to {@code true} to mark the
      * description as initial case significant
      * @param idDirective 
      * @throws IOException signals that an I/O exception has occurred
@@ -105,14 +105,14 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new description blueprint using nid values and a given
-     * <code>descriptionVersion</code>.
+     * {@code descriptionVersion}.
      *
      * @param conceptNid the nid of the enclosing concept
      * @param typeNid the nid of the description type
      * @param langCode the lang code representing the language of the
      * description
      * @param text the lang code representing the language of the description
-     * @param initialCaseSignificant set to <code>true</code> to mark the
+     * @param initialCaseSignificant set to {@code true} to mark the
      * description as initial case significant
      * @param descriptionVersion the description version to use as a pattern
      * @param viewCoordinate the view coordinate specifying which versions are
@@ -142,14 +142,14 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new description blueprint using uuid values and a given
-     * <code>descriptionVersion</code>.
+     * {@code descriptionVersion}.
      *
      * @param conceptUuid the uuid of the enclosing concept
      * @param typeUuid the uuid of the description type
      * @param langCode the lang code representing the language of the
      * description
      * @param text the lang code representing the language of the description
-     * @param initialCaseSignificant set to <code>true</code> to mark the
+     * @param initialCaseSignificant set to {@code true} to mark the
      * description as initial case significant
      * @param descriptionVersion the description version to use as a pattern
      * @param viewCoordinate the view coordinate specifying which versions are
@@ -178,7 +178,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new description blueprint using uuid values and a given
-     * <code>descriptionVersion</code>. Can specify the uuid to be associated
+     * {@code descriptionVersion}. Can specify the uuid to be associated
      * with the new description.
      *
      * @param conceptUuid the uuid of the enclosing concept
@@ -186,7 +186,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the
      * description
      * @param text the lang code representing the language of the description
-     * @param initialCaseSignificant set to <code>true</code> to mark the
+     * @param initialCaseSignificant set to {@code true} to mark the
      * description as initial case significant
      * @param componentUuid the uuid representing the new description
      * @param descriptionVersion the description version to use as a pattern
@@ -321,7 +321,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
      * Checks if this description blueprint is marked as initial case
      * significant.
      *
-     * @return <code>true</code>, if this description blueprint is initial case
+     * @return {@code true}, if this description blueprint is initial case
      * significant
      */
     public boolean isInitialCaseSignificant() {
@@ -350,7 +350,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
     /**
      * Sets the enclosing concept for this description blueprint based on the
      * given
-     * <code>enclosingConceptUuid</code>.
+     * {@code enclosingConceptUuid}.
      *
      * @param enclosingConceptUuid the uuid of the enclosing concept
      */
@@ -369,11 +369,11 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
 
     /**
      * Validates this description blueprint's fields against the given
-     * <code>descriptionVersion</code>. Compares the status nid, component nid,
+     * {@code descriptionVersion}. Compares the status nid, component nid,
      * enclosing concept nid, description type nid, language, and text.
      *
      * @param descriptionVersion the description version to use for validation
-     * @return <code>true</code>, if this description blueprint's fields are
+     * @return {@code true}, if this description blueprint's fields are
      * equal to the specified description version
      * @throws IOException signals that an I/O exception has occurred
      */

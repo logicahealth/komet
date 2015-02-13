@@ -51,17 +51,17 @@ public interface NativeIdSetBI {
 
     /**
      *
-     * @return the largest possible id in this set,      * or <code>Integer.MAX_VALUE</code> if the largest possible id is
+     * @return the largest possible id in this set,      * or {@code Integer.MAX_VALUE} if the largest possible id is
      * unknown. Knowing the span of identifiers is required to
-     * support <code>not</code> operations and <code>xor</code> operations.
+     * support {@code not} operations and {@code xor} operations.
      */
     int getMaxPossibleId();
 
     /**
      *
-     * @return the smallest possible id in this set,      * or <code>Integer.MIN_VALUE</code> if the smallest possible id is
+     * @return the smallest possible id in this set,      * or {@code Integer.MIN_VALUE} if the smallest possible id is
      * unknown. Knowing the span of identifiers is required to
-     * support <code>not</code> operations and <code>xor</code> operations.
+     * support {@code not} operations and {@code xor} operations.
      */
     int getMinPossibleId();
 
@@ -69,7 +69,7 @@ public interface NativeIdSetBI {
      *
      * @param nid the largest possible id in this set, or Integer.MAX_VALUE if
      * the largest possible id is unknown. Knowing the span of identifiers is
-     * required to support <code>not</code> operations and <code>xor</code>
+     * required to support {@code not} operations and {@code xor}
      * operations.
      */
     void setMaxPossibleId(int nid);
@@ -127,7 +127,7 @@ public interface NativeIdSetBI {
 
     /**
      * Adds all of the
-     * <code>int</code> values from Integer.MIN_VALUE + 1 to (Integer.MIN_VALUE
+     * {@code int} values from Integer.MIN_VALUE + 1 to (Integer.MIN_VALUE
      * + max) to the set
      *
      * @param max

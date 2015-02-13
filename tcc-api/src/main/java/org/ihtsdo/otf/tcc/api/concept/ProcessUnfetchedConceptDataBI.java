@@ -49,7 +49,7 @@ public interface ProcessUnfetchedConceptDataBI extends ContinuationTrackerBI {
 
    /**
     *
-    * @return a <code>NativeIdSetBI</code> of concept nids to iterate over. A null value is allowed
+    * @return a {@code NativeIdSetBI} of concept nids to iterate over. A null value is allowed
     * and will cause all concepts to be iterated over.
     * @throws IOException
     */

@@ -44,8 +44,8 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI {
    
    /**
     *
-    * @return  <code>true</code> if this version is stored in the read-only
-    * database, rather than in the mutable database. <code>false</code> otherwise.
+    * @return  {@code true} if this version is stored in the read-only
+    * database, rather than in the mutable database. {@code false} otherwise.
     */
    boolean isBaselineGeneration();
    
@@ -55,16 +55,16 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI {
     * 
     * @param vc2 ViewCoordinate of the second version
     * 
-    * @param compareAuthoring Set to <code>true</code> to compare the author and path of the 
-    * versions. Otherwise <code>false</code> to disregard author and path.
+    * @param compareAuthoring Set to {@code true} to compare the author and path of the
+    * versions. Otherwise {@code false} to disregard author and path.
     * 
-    * @return <code>true</code> if the versions are equal. <code>false</code> otherwise.
+    * @return {@code true} if the versions are equal. {@code false} otherwise.
     */
    boolean versionsEqual(ViewCoordinate vc1, ViewCoordinate vc2, Boolean compareAuthoring);
 
     /**
      * Makes blueprint of a version of a component as specified by the given
-     * <code>viewCoordinate</code>. The blueprint is a clone of the component
+     * {@code viewCoordinate}. The blueprint is a clone of the component
      * and is the preferred method for editing or creating a new version of a
      * component.
      *

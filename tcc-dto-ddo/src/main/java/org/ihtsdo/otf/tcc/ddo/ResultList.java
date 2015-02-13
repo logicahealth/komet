@@ -32,7 +32,7 @@ public class ResultList {
 
     /**
      * 
-     * @return the <code>theResults</code>
+     * @return the {@code theResults}
      */
     public List<Object> getTheResults() {
         return theResults;
@@ -40,7 +40,7 @@ public class ResultList {
 
     /**
      * 
-     * @param theResults the <code>theResults</code> to set. 
+     * @param theResults the {@code theResults} to set.
      */
     public void setTheResults(List<Object> resultList) {
         this.theResults = resultList;

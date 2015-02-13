@@ -28,11 +28,11 @@ public interface RelativePositionComputerBI {
 
 
     /**
-     * Bypasses the onRoute test of <code>relativePosition</code>
+     * Bypasses the onRoute test of {@code relativePosition}
      * @param v1 the first part of the comparison.
      * @param v2 the second part of the comparison.
      * @param precedencePolicy
-     * @return the <code>RelativePosition</code> of part1 compared to part2
+     * @return the {@code RelativePosition} of part1 compared to part2
      * with respect to the destination position of the class's instance.
      */
     RelativePosition fastRelativePosition(VersionPointBI v1, VersionPointBI v2, Precedence precedencePolicy);
@@ -53,7 +53,7 @@ public interface RelativePositionComputerBI {
      *
      * @param v1 the first part of the comparison.
      * @param v2 the second part of the comparison.
-     * @return the <code>RelativePosition</code> of v1 compared to v2
+     * @return the {@code RelativePosition} of v1 compared to v2
      * with respect to the destination position of the class's instance.
      * @throws IOException
      */

@@ -45,7 +45,7 @@ import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 /**
  * The Class ConceptCB contains methods for creating a concept blueprint. This blueprint can be constructed
  * into a type of
- * <code>ConceptChronicleBI</code>. This is the preferred method for creating new concepts. Use
+ * {@code ConceptChronicleBI}. This is the preferred method for creating new concepts. Use
  * ConceptAttributeAB to amend concept attributes if the concept already exists.
  *
  * @see TerminologyBuilderBI
@@ -99,7 +99,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the description
      * @param isaTypeUuid the uuid representing the relationship type to use for specifying the parent
      * concepts
-     * @param idDirective generally <code><b>IdDirective.GENERATE_HASH</b></code> for new concepts
+     * @param idDirective generally {@code <b>IdDirective.GENERATE_HASH</b>} for new concepts
      * @param moduleUuid
      * @param pathUuid
      * @param parentUuids the uuids of the parent concept
@@ -163,7 +163,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      * @param langCode the lang code representing the language of the description
      * @param isaTypeUuid the uuid representing the relationship type to use for specifying the parent
      * concepts
-     * @param idDirective generally <code><b>IdDirective.GENERATE_HASH</b></code> for new concepts
+     * @param idDirective generally {@code <b>IdDirective.GENERATE_HASH</b>} for new concepts
      * @param parentUuids the uuids of the parent concept
      * @throws IOException signals that an I/O exception has occurred
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
@@ -197,7 +197,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new concept blueprint based on the given
-     * <code>conceptVersion</code>. Can specify a uuid for the new concept.
+     * {@code conceptVersion}. Can specify a uuid for the new concept.
      *
      * @param conceptVersion the concept version to use to create this concept blueprint
      * @param newConceptUuid the uuid representing the new concept
@@ -663,7 +663,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Checks if this concept blueprint is marked as defined.
      *
-     * @return <code>true</code>, if the concept is defined
+     * @return {@code true}, if the concept is defined
      */
     public boolean isDefined() {
         return defined;
@@ -672,7 +672,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Marks this concept blueprint as defined
      *
-     * @param defined set to <code>true</code> if the concept is defined
+     * @param defined set to {@code true} if the concept is defined
      */
     public void setDefined(boolean defined) {
         this.defined = defined;
@@ -681,7 +681,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Checks if the descriptions associated with this concept are marked as initial case sensitive.
      *
-     * @return <code>true</code>, if the descriptions are initial case sensitive
+     * @return {@code true}, if the descriptions are initial case sensitive
      */
     public boolean isInitialCaseSensitive() {
         return initialCaseSensitive;
@@ -690,7 +690,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     /**
      * Marks the descriptions associated with this concept are marked as initial case sensitive.
      *
-     * @param initialCaseSensitive set to <code>true</code> to mark the descriptions as initial case sensitive
+     * @param initialCaseSensitive set to {@code true} to mark the descriptions as initial case sensitive
      */
     public void setInitialCaseSensitive(boolean initialCaseSensitive) {
         this.initialCaseSensitive = initialCaseSensitive;

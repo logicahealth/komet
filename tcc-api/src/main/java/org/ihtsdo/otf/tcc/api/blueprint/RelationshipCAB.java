@@ -31,7 +31,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 /**
  * The Class RelationshipCAB contains methods for creating a relationship
  * blueprint. This blueprint can be constructed into a type of
- * <code>RelationshipChronicleBI</code>. This is the preferred method for
+ * {@code RelationshipChronicleBI}. This is the preferred method for
  * updating or creating new descriptions.
  *
  * @see TerminologyBuilderBI
@@ -114,7 +114,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new relationship blueprint using nid values and a given
-     * <code>relationshipVersion</code>.
+     * {@code relationshipVersion}.
      *
      * @param sourceNid the nid of the source concept
      * @param typeNid the nid of the relationship type
@@ -154,7 +154,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new relationship blueprint using uuid values and a given
-     * <code>relationshipVersion</code>.
+     * {@code relationshipVersion}.
      *
      * @param sourceUuid the uuid of the source concept
      * @param typeUuid the uuid of the relationship type
@@ -196,7 +196,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new relationship blueprint using uuid values and a given
-     * <code>relationshipVersion</code>. Can specify the uuid to be associated
+     * {@code relationshipVersion}. Can specify the uuid to be associated
      * with the new relationship.
      *
      * @param sourceUuid the uuid of the source concept
@@ -323,7 +323,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
      * number.
      *
      * @param o the other relationship blueprint to check for equality
-     * @return <code>true</code> if the specified relationship blueprint is
+     * @return {@code true} if the specified relationship blueprint is
      * equal to this relationship blueprint
      */
     @Override
@@ -456,12 +456,12 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
 
     /**
      * Validates this relationship blueprint's fields against the given
-     * <code>relationhipVersion</code>. Compares the status nid, relationship
+     * {@code relationhipVersion}. Compares the status nid, relationship
      * nid, source concept nid, relationship type nid, relationship refinability
      * nid, relationship characteristic nid, and relationship target nid.
      *
      * @param relationshipVersion the relationship version to use for validation
-     * @return <code>true</code>, if this relationship blueprint's fields are
+     * @return {@code true}, if this relationship blueprint's fields are
      * equal to the specified relationship version
      * @throws IOException signals that an I/O exception has occurred
      */

@@ -202,13 +202,13 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
     }
 
     /**
-     * Compares this object to the specified object. The result is <tt>true</tt>
-     * if and only if the argument is not <tt>null</tt>, is a
-     * <tt>EComponent</tt> object, and contains the same values, field by field,
-     * as this <tt>EComponent</tt>.
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a
+     * {@code EComponent} object, and contains the same values, field by field,
+     * as this {@code EComponent}.
      *
      * @param obj the object to compare with.
-     * @return <code>true</code> if the objects are the same; <code>false</code>
+     * @return {@code true} if the objects are the same; {@code false}
      * otherwise.
      */
     @Override
@@ -270,9 +270,9 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
     }
 
     /**
-     * Returns a hash code for this <code>EComponent</code>.
+     * Returns a hash code for this {@code EComponent}.
      *
-     * @return a hash code value for this <tt>EComponent</tt>.
+     * @return a hash code value for this {@code EComponent}.
      */
     @Override
     public int hashCode() {

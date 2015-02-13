@@ -279,7 +279,7 @@ public enum LanguageCode {
     }
 
     /**
-     * Gets a <code>LanguageCode</code> representing the given <code>name</code>.
+     * Gets a {@code LanguageCode} representing the given {@code name}.
      *
      * @param name the two or six character string representing the language code
      * @return the specified LanguageCode

@@ -192,11 +192,11 @@ public class VersionComputer<V extends Version<?, ?>> {
     /**
      *
      * @param allowedStatus
-     * <code>null</code> is a wildcard.
+     * {@code null} is a wildcard.
      * @param allowedTypes
-     * <code>null</code> is a wildcard.
+     * {@code null} is a wildcard.
      * @param viewPosition
-     * <code>null</code> is a wildcard.
+     * {@code null} is a wildcard.
      * @param specifiedVersions
      * @param addUncommitted
      * @param versions

@@ -70,7 +70,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 /**
  * The Class RefexCAB contains methods for creating a media blueprint. This blueprint can be constructed into
  * a type of
- * <code>MediaChronicleBI</code>. This is the preferred method for updating or creating new descriptions.
+ * {@code MediaChronicleBI}. This is the preferred method for updating or creating new descriptions.
  *
  * @see TerminologyBuilderBI
  * @see RefexChronicleBI
@@ -86,7 +86,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * Computes the uuid of the refex member based on the member type, refex collection, and referenced
      * component. Should be used when there is a 1-1 relationship between the refex collection and the
      * referenced component. Otherwise use
-     * <code>computeMemberContentUuid()</code>.
+     * {@code computeMemberContentUuid()}.
      *
      * @return the uuid of the refex member
      * @throws IOException signals that an I/O exception has occurred
@@ -107,7 +107,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Computes the uuid of the refex member and sets the member uuid property. Uses
-     * <code>computeMemberContentUuid()</code> to compute the uuid.
+     * {@code computeMemberContentUuid()} to compute the uuid.
      *
      * @return the uuid of the refex member
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
@@ -123,7 +123,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * Computes the uuid of a the refex member based on the refex properties. Use when the 1-1 relationship
      * between a refex and a referenced component does not apply.
      *
-     * @return A <code>UUID</code> based on a Type 5 generator that uses the content fields of the refex.
+     * @return A {@code UUID} based on a Type 5 generator that uses the content fields of the refex.
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws IOException signals that an I/O exception has occurred
      */
@@ -199,7 +199,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Gets a string representing the primordial uuid of the specified nid-based
-     * <code>refexProperty</code>.
+     * {@code refexProperty}.
      *
      * @param refexProperty the refexProperty representing the nid-bsed property
      * @return a String representing the primordial uuid of the refex property
@@ -232,9 +232,9 @@ public class RefexCAB extends CreateOrAmendBlueprint {
     /**
      * Instantiates a new refex blueprint using nid values. This constructor creates a refex member uuid that
      * is computed from a type 5 UUID generator that uses a hash of the
-     * <code>memberType</code>,
-     * <code>referencedComponentNid</code>, and
-     * <code>collectionNid</code>. This member ID is suitable for all refex collections where there should be
+     * {@code memberType},
+     * {@code referencedComponentNid}, and
+     * {@code collectionNid}. This member ID is suitable for all refex collections where there should be
      * no more than one refex member per referenced component.
      *
      * @param memberType the refex member type
@@ -286,11 +286,11 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new refex blueprint using nid values and a given
-     * <code>refexVersion</code>. This constructor creates a refex member uuid that is computed from a type 5
+     * {@code refexVersion}. This constructor creates a refex member uuid that is computed from a type 5
      * UUID generator that uses a hash of the
-     * <code>memberType</code>,
-     * <code>referencedComponentNid</code>, and
-     * <code>collectionNid</code>. This member ID is suitable for all refex collections where there should be
+     * {@code memberType},
+     * {@code referencedComponentNid}, and
+     * {@code collectionNid}. This member ID is suitable for all refex collections where there should be
      * no more than one refex member per referenced component.
      *
      * @param memberType the refex member type
@@ -322,8 +322,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Instantiates a new refex blueprint using nid values and a given
-     * <code>refexVersion</code>. Uses the given
-     * <code>memberUuid</code> as the refex member uuid.
+     * {@code refexVersion}. Uses the given
+     * {@code memberUuid} as the refex member uuid.
      *
      * @param memberType the refex member type
      * @param referencedComponentUuid
@@ -385,7 +385,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * Checks if the refex properties contain the specified property.
      *
      * @param key the refex property in question
-     * @return <code>true</code>, if the refex properties contain the specified property
+     * @return {@code true}, if the refex properties contain the specified property
      */
     public boolean containsKey(ComponentProperty key) {
         return properties.containsKey(key);
@@ -411,12 +411,12 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Maps the given Number
-     * <code>value</code> to the specified refex property
-     * <code>key</code>.
+     * {@code value} to the specified refex property
+     * {@code key}.
      *
      * @param key the refex property
      * @param value the value to associate with the refex property
-     * @return the previous value associated with the specified * key, <code>null</code> if no value was
+     * @return the previous value associated with the specified * key, {@code null} if no value was
      * previously associated
      */
     public Object put(ComponentProperty key, Number value) {
@@ -429,13 +429,13 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>stringValue</code> in the
-     * <code>ComponentProperty.STRING1</code>. Will throw an assertion error if a different property is used
+     * {@code stringValue} in the
+     * {@code ComponentProperty.STRING1}. Will throw an assertion error if a different property is used
      * for the key.
      *
      * @param key ComponentProperty.STRING1
      * @param stringValue the string to associate with this refex blueprint
-     * @return the previous value associated with the specified * key, <code>null</code> if no value was
+     * @return the previous value associated with the specified * key, {@code null} if no value was
      * previously associated
      */
     public Object put(ComponentProperty key, String stringValue) {
@@ -445,13 +445,13 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>booleanValue</code> in the
-     * <code>ComponentProperty.BOOLEAN1</code>. Will throw an assertion error if a different property is used
+     * {@code booleanValue} in the
+     * {@code ComponentProperty.BOOLEAN1}. Will throw an assertion error if a different property is used
      * for the key.
      *
      * @param key ComponentProperty.BOOLEAN1
      * @param booleanValue the boolean to associate with this refex blueprint
-     * @return the previous value associated with the specified * key, <code>null</code> if no value was
+     * @return the previous value associated with the specified * key, {@code null} if no value was
      * previously associated
      */
     public Object put(ComponentProperty key, Boolean booleanValue) {
@@ -461,16 +461,16 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>uuidValue</code> in a uuid based refex property. Will throw an assertion error if the property
+     * {@code uuidValue} in a uuid based refex property. Will throw an assertion error if the property
      * used for the key is not one of the following:
-     * <code>ComponentProperty.MEMBER_UUID</code>,
-     * <code>ComponentProperty.UUID1</code>,
-     * <code>ComponentProperty.UUID2</code>, or
-     * <code>ComponentProperty.UUID3</code>.
+     * {@code ComponentProperty.MEMBER_UUID},
+     * {@code ComponentProperty.UUID1},
+     * {@code ComponentProperty.UUID2}, or
+     * {@code ComponentProperty.UUID3}.
      *
      * @param key a uuid based refex property
      * @param uuidValue the uuid to associate with this refex blueprint
-     * @return the previous value associated with the specified * key, <code>null</code> if no value was
+     * @return the previous value associated with the specified * key, {@code null} if no value was
      * previously associated
      */
     public Object put(ComponentProperty key, UUID uuidValue) {
@@ -490,13 +490,13 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>arrayOfByteArray</code> in the
-     * <code>ComponentProperty.ARRAY_BYTEARRAY</code>. Will throw an assertion error if a different property
+     * {@code arrayOfByteArray} in the
+     * {@code ComponentProperty.ARRAY_BYTEARRAY}. Will throw an assertion error if a different property
      * is used for the key.
      *
      * @param key ComponentProperty.ARRAY_BYTEARRAY
      * @param arrayOfByteArray the array of byte array to associate with this refex blueprint
-     * @return the previous value associated with the specified * key, <code>null</code> if no value was
+     * @return the previous value associated with the specified * key, {@code null} if no value was
      * previously associated
      */
     public Object put(ComponentProperty key, byte[][] arrayOfByteArray) {
@@ -538,8 +538,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Maps the given number
-     * <code>value</code> to the specified refex property
-     * <code>key</code>. Returns this refex member with the new property.
+     * {@code value} to the specified refex property
+     * {@code key}. Returns this refex member with the new property.
      *
      * @param key a refex property
      * @param value a number value to associate with this refex member
@@ -552,8 +552,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>stringValue</code> in the
-     * <code>ComponentProperty.STRING1</code>. Will throw an assertion error if a different property is used
+     * {@code stringValue} in the
+     * {@code ComponentProperty.STRING1}. Will throw an assertion error if a different property is used
      * for the key. Returns this refex member blueprint with the new string property.
      *
      * @param key ComponentProperty.STRING1
@@ -568,8 +568,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>booleanValue</code> in the
-     * <code>ComponentProperty.BOOLEAN1</code>. Will throw an assertion error if a different property is used
+     * {@code booleanValue} in the
+     * {@code ComponentProperty.BOOLEAN1}. Will throw an assertion error if a different property is used
      * for the key. Returns this refex member blueprint with the new boolean property.
      *
      * @param key ComponentProperty.BOOLEAN1
@@ -584,8 +584,8 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Puts the given
-     * <code>arrayOfByteArray</code> in the
-     * <code>ComponentProperty.ARRAY_BYTEARRAY</code>. Will throw an assertion error if a different property
+     * {@code arrayOfByteArray} in the
+     * {@code ComponentProperty.ARRAY_BYTEARRAY}. Will throw an assertion error if a different property
      * is used for the key. Returns this refex member blueprint with the new array of byte array property.
      *
      * @param key ComponentProperty.ARRAY_BYTEARRAY
@@ -602,7 +602,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
      * Checks if the refex properties contain the specified property.
      *
      * @param key the refex property in question
-     * @return <code>true</code>, if the refex properties contain the specified property
+     * @return {@code true}, if the refex properties contain the specified property
      */
     public boolean hasProperty(ComponentProperty key) {
         return properties.containsKey(key);
@@ -610,7 +610,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Writes this refex member blueprint to the given
-     * <code>refexAnalog</code>.
+     * {@code refexAnalog}.
      *
      * @param refexAnalog the refex analog to write this refex blueprint to
      * @throws PropertyVetoException if the new value is not valid
@@ -622,7 +622,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Sets the properties in the given
-     * <code>refexAnalog</code> based on the properties of this refex blueprint.
+     * {@code refexAnalog} based on the properties of this refex blueprint.
      *
      * @param refexAnalog the refex analog to write this refex blueprint to
      * @throws PropertyVetoException if the new value is not valid
@@ -694,7 +694,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Sets the properties in the given
-     * <code>refexAnalog</code> based on the properties of this refex blueprint. Does not set the status
+     * {@code refexAnalog} based on the properties of this refex blueprint. Does not set the status
      * property.
      *
      * @param refexAnalog the refex analog to write this refex blueprint to
@@ -773,10 +773,10 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Validates this refex blueprint's properties against the given
-     * <code>refexVersion</code>.
+     * {@code refexVersion}.
      *
      * @param refexVersion the refex version
-     * @return <code>true</code>, if this refex blueprint's properties are equal to the specified refex
+     * @return {@code true}, if this refex blueprint's properties are equal to the specified refex
      * version
      * @see RefexCAB.ComponentProperty
      */
@@ -921,7 +921,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
     /**
      * Gets the string associated with this refex blueprint. Will throw an assertion error if the given key is
      * not
-     * <code>ComponentProperty.STRING1<code>.
+     * {@code ComponentProperty.STRING1{@code .
      *
      * @param key ComponentProperty.STRING1
      * @return the string associated with this refex blueprint
@@ -934,7 +934,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
     /**
      * Gets the boolean associated with this refex blueprint. Will throw an assertion error if the given key
      * is not
-     * <code>ComponentProperty.BOOLEAN1<code>.
+     * {@code ComponentProperty.BOOLEAN1{@code .
      *
      * @param key ComponentProperty.BOOLEAN1
      * @return the boolean associated with this refex blueprint
@@ -961,7 +961,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
     /**
      * Gets the refex member uuid of this refex blueprint. Will throw an assertion error if the given key is
      * not
-     * <code>ComponentProperty.MEMBER_UUID<code>.
+     * {@code ComponentProperty.MEMBER_UUID{@code .
      *
      * @param key ComponentProperty.MEMBER_UUID
      * @return the refex member uuid
@@ -1000,7 +1000,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
 
     /**
      * Computes the uuid of the refex member and sets the member uuid property. Uses
-     * <code>computeMemberContentUuid()</code> to compute the uuid.
+     * {@code computeMemberContentUuid()} to compute the uuid.
      *
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws IOException signals that an I/O exception has occurred

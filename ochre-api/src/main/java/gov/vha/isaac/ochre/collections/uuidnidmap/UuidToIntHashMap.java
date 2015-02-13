@@ -104,8 +104,8 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * @param maxLoadFactor the maximum load factor.
      * @throws IllegalArgumentException if
      *
-     * <tt>initialCapacity < 0 || (minLoadFactor < 0.0 || minLoadFactor >= 1.0) || (maxLoadFactor <= 0.0 ||
-     * maxLoadFactor >= 1.0) || (minLoadFactor >= maxLoadFactor)</tt> .
+     * {@code initialCapacity < 0 || (minLoadFactor < 0.0 || minLoadFactor >= 1.0) || (maxLoadFactor <= 0.0 ||
+     * maxLoadFactor >= 1.0) || (minLoadFactor >= maxLoadFactor)} .
      */
     public UuidToIntHashMap(int initialCapacity, double minLoadFactor,
             double maxLoadFactor) {
@@ -113,7 +113,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
     }
 
     /**
-     * Removes all (key,value) associations from the receiver. Implicitly calls <tt>trimToSize()</tt>.
+     * Removes all (key,value) associations from the receiver. Implicitly calls {@code trimToSize()}.
      */
     @Override
     public void clear() {
@@ -142,10 +142,10 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
     }
 
     /**
-     * Returns <tt>true</tt> if the receiver contains the specified key.
+     * Returns {@code true} if the receiver contains the specified key.
      *
      * @param key
-     * @return <tt>true</tt> if the receiver contains the specified key.
+     * @return {@code true} if the receiver contains the specified key.
      */
     @Override
     public boolean containsKey(long[] key) {
@@ -158,10 +158,10 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
     }
 
     /**
-     * Returns <tt>true</tt> if the receiver contains the specified value.
+     * Returns {@code true} if the receiver contains the specified value.
      *
      * @param value
-     * @return <tt>true</tt> if the receiver contains the specified value.
+     * @return {@code true} if the receiver contains the specified value.
      */
     @Override
     public boolean containsValue(int value) {
@@ -172,7 +172,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * Ensures that the receiver can hold at least the specified number of associations without needing to
      * allocate new internal memory. If necessary, allocates new internal memory and increases the capacity of
      * the receiver. <p> This method never need be called; it is for performance tuning only. Calling this
-     * method before <tt>put()</tt>ing a large number of associations boosts performance, because the receiver
+     * method before {@code put()}ing a large number of associations boosts performance, because the receiver
      * will grow only once instead of potentially many times and hash collisions get less probable.
      *
      * @param minCapacity the desired minimum capacity.
@@ -189,9 +189,9 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * Applies a procedure to each (key,value) pair of the receiver, if any. Iteration order is guaranteed to
      * be <i>identical</i> to the order used by method {@link #forEachKey(DoubleProcedure)}.
      *
-     * @param procedure the procedure to be applied. Stops iteration if the procedure returns <tt>false</tt>,
+     * @param procedure the procedure to be applied. Stops iteration if the procedure returns {@code false},
      * otherwise continues.
-     * @return <tt>false</tt> if the procedure stopped before all keys where iterated over, <tt>true</tt>
+     * @return {@code false} if the procedure stopped before all keys where iterated over, {@code true}
      * otherwise.
      */
     @Override
@@ -215,7 +215,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * exists an association for the given key or not.
      *
      * @param key the key to be searched for.
-     * @return the value associated with the specified key; <tt>0</tt> if no such key is present.
+     * @return the value associated with the specified key; {@code 0} if no such key is present.
      */
     @Override
     public int get(long[] key) {
@@ -393,7 +393,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * is guaranteed to be <i>identical</i> to the order used by method {@link #forEachKey(DoubleProcedure)}.
      *
      * @param value the value to search for.
-     * @return the first key for which holds <tt>get(key) == value</tt>; returns <tt>Double.NaN</tt> if no
+     * @return the first key for which holds {@code get(key) == value}; returns {@code Double.NaN} if no
      * such key exists.
      */
     @Override
@@ -424,7 +424,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
 
     /**
      * Fills all keys contained in the receiver into the specified list. Fills the list, starting at index 0.
-     * After this call returns the specified list has a new size that equals <tt>this.size()</tt>. Iteration
+     * After this call returns the specified list has a new size that equals {@code this.size()}. Iteration
      * order is guaranteed to be <i>identical</i> to the order used by method
      * {@link #forEachKey(DoubleProcedure)}. <p> This method can be used to iterate over the keys of the
      * receiver.
@@ -454,12 +454,12 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
     }
 
     /**
-     * Associates the given key with the given value. Replaces any old <tt>(key,someOtherValue)</tt>
+     * Associates the given key with the given value. Replaces any old {@code (key,someOtherValue)}
      * association, if existing.
      *
      * @param key the key the value shall be associated with.
      * @param value the value to be associated.
-     * @return <tt>true</tt> if the receiver did not already contain such a key; <tt>false</tt> if the
+     * @return {@code true} if the receiver did not already contain such a key; {@code false} if the
      * receiver did already contain such a key - the new value has now replaced the formerly associated value.
      */
     @Override
@@ -541,7 +541,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * Removes the given key with its associated element from the receiver, if present.
      *
      * @param key the key to be removed from the receiver.
-     * @return <tt>true</tt> if the receiver contained the specified key, <tt>false</tt> otherwise.
+     * @return {@code true} if the receiver contained the specified key, {@code false} otherwise.
      */
     @Override
     public boolean removeKey(long[] key) {
@@ -577,8 +577,8 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      * @param maxLoadFactor the maxLoadFactor of the receiver.
      * @throws IllegalArgumentException if
      *
-     * <tt>initialCapacity < 0 || (minLoadFactor < 0.0 || minLoadFactor >= 1.0) || (maxLoadFactor <= 0.0 ||
-     * maxLoadFactor >= 1.0) || (minLoadFactor >= maxLoadFactor)</tt> .
+     * {@code initialCapacity < 0 || (minLoadFactor < 0.0 || minLoadFactor >= 1.0) || (maxLoadFactor <= 0.0 ||
+     * maxLoadFactor >= 1.0) || (minLoadFactor >= maxLoadFactor)} .
      */
     @Override
     protected final void setUp(int initialCapacity, double minLoadFactor,
@@ -633,7 +633,7 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
 
     /**
      * Fills all values contained in the receiver into the specified list. Fills the list, starting at index
-     * 0. After this call returns the specified list has a new size that equals <tt>this.size()</tt>.
+     * 0. After this call returns the specified list has a new size that equals {@code this.size()}.
      * Iteration order is guaranteed to be <i>identical</i> to the order used by method
      * {@link #forEachKey(org.ihtsdo.otf.uuidnidmap.UuidProcedure)}. <p> This method can be used to iterate over the values of the
      * receiver.
