@@ -12,6 +12,8 @@ import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import org.ihtsdo.otf.tcc.dto.JaxbForDto;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -29,6 +31,11 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
+import org.ihtsdo.otf.tcc.dto.Wrapper;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 
 /**
  *
@@ -142,7 +149,32 @@ public class Taxonomy {
       }
    }
 
-   public void exportJavaBinding(Writer out, String packageName,
+    public void exportJaxb(DataOutputStream out) throws Exception {
+        UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(System.currentTimeMillis(),
+                authorSpec.getUuids()[0],
+                pathSpec.getUuids()[0],
+                moduleSpec.getUuids()[0]);
+
+        Marshaller marshaller = JaxbForDto.get().createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "not-generated-yet.xsd");
+
+
+        ArrayList<TtkConceptChronicle> taxonomyList = new ArrayList<>();
+        for (ConceptCB concept : conceptBpsInInsertionOrder) {
+            taxonomyList.add(dtoBuilder.construct(concept));
+        }
+
+
+        QName qName = new QName("taxonomy");
+        Wrapper wrapper = new Wrapper(taxonomyList);
+        JAXBElement<Wrapper> jaxbElement = new JAXBElement<Wrapper>(qName,
+                Wrapper.class, wrapper);
+        marshaller.marshal(jaxbElement, out);
+
+    }
+
+    public void exportJavaBinding(Writer out, String packageName,
                                  String className)
            throws IOException {
       out.append("package " + packageName + ";\n");
