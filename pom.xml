@@ -25,7 +25,7 @@ the specific language governing permissions and limitations under the License. -
         of all changes.
     </description>
     <scm>
-        <developerConnection>fix me...</developerConnection>
+        <developerConnection>scm:git:ssh://csfe.aceworkspace.net:29418/va-ochre</developerConnection>
     </scm>
     <properties>
         <branch>woolsthorpe</branch>
