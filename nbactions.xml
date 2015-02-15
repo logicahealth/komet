@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-stage site</actionName>
+            <displayName>stage site</displayName>
+            <goals>
+                <goal>-e</goal>
+                <goal>org.apache.maven.plugins:maven-site-plugin:3.0:stage-deploy</goal>
+            </goals>
+            <properties>
+                <stagingSiteURL>file:/Sites/tcc</stagingSiteURL>
+            </properties>
+        </action>
+        <action>
+            <actionName>rebuild</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>-e</goal>
+            </goals>
+        </action>
+    </actions>
