@@ -9,10 +9,15 @@ import java.util.UUID;
  * Created by kec on 7/26/14.
  */
 public class TtkStamp {
+    @XmlAttribute
     public long               time                  = Long.MIN_VALUE;
+    @XmlAttribute
     public UUID authorUuid;
+    @XmlAttribute
     public UUID               pathUuid;
+    @XmlAttribute
     public Status status;
+    @XmlAttribute
     public UUID               moduleUuid;
 
     public TtkStamp(Status status, long time, UUID authorUuid, UUID moduleUuid, UUID pathUuid) {

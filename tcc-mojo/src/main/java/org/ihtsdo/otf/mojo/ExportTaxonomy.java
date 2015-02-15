@@ -40,18 +40,22 @@ public class ExportTaxonomy extends AbstractMojo {
             javaDir.mkdirs();
             File metadataDirectory = new File(buildDirectory, "generated-resources");
             metadataDirectory.mkdirs();
-            File metadataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".econ");
+            File metadataBinaryDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".econ");
+            File metadataXmlDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
             String bindingFileDirectory = taxonomyClass.replace('.', '/');
             File bindingFile = new File(javaDir, bindingFileDirectory + "Binding.java");
             bindingFile.getParentFile().mkdirs();
             try (Writer writer = new BufferedWriter(new FileWriter(bindingFile));
-                 DataOutputStream data = new DataOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(metadataFile)))) {
+                 DataOutputStream binaryData = new DataOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(metadataBinaryDataFile)));
+                 DataOutputStream xmlData = new DataOutputStream(
+                         new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)))) {
                 
                 taxonomy.exportJavaBinding(writer, taxonomy.getClass().getPackage().getName(), 
                         taxonomy.getClass().getSimpleName() + "Binding");
                 
-                taxonomy.exportEConcept(data);
+                taxonomy.exportEConcept(binaryData);
+                taxonomy.exportJaxb(xmlData);
             }
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
