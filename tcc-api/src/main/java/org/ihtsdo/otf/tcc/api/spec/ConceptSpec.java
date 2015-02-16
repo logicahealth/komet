@@ -21,6 +21,7 @@ package org.ihtsdo.otf.tcc.api.spec;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.ConceptProxy;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
@@ -46,7 +47,6 @@ import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Class description
@@ -58,18 +58,18 @@ import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "concept-spec")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-public class ConceptSpec implements SpecBI {
+public class ConceptSpec extends ConceptProxy implements SpecBI {
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 79 * hash + Arrays.deepHashCode(this.uuids);
-        hash = 79 * hash + Objects.hashCode(this.description);
-        hash = 79 * hash + Arrays.deepHashCode(this.relSpecs);
-        return hash;
-    }
+   /** dataversion for serialization versioning */
+   protected static final int dataVersion = 1;
+   /**
+    *
+    */
+   private static final long serialVersionUID = 1L;
+   /** Native identifier for the concept proxied by this object  */
+   protected transient int nid = Integer.MAX_VALUE;
 
-    @Override
+   @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -78,10 +78,10 @@ public class ConceptSpec implements SpecBI {
             return false;
         }
         final ConceptSpec other = (ConceptSpec) obj;
-        if (!Arrays.deepEquals(this.uuids, other.uuids)) {
+        if (!Arrays.deepEquals(this.getUuids(), other.getUuids())) {
             return false;
         }
-        if (!Objects.equals(this.description, other.description)) {
+        if (!Objects.equals(this.getDescription(), other.getDescription())) {
             return false;
         }
         if (this.relSpecs != other.relSpecs) {
@@ -93,28 +93,11 @@ public class ConceptSpec implements SpecBI {
         return true;
     }
 
-   /**
-    *
-    */
-   private static final long serialVersionUID = 1L;
-
-   /** Field description */
-   private static final int dataVersion = 1;
-
-   /** Field description */
-   transient private int nid = Integer.MAX_VALUE;
-
    /** Field description */
    transient private ConceptChronicleBI localChronicle;
 
    /** Field description */
    transient private ConceptVersionBI localVersion;
-
-   /** Field description */
-   private UUID[] uuids;
-
-   /** Field description */
-   private String description;
 
    /** Field description */
    private RelSpec[] relSpecs = new RelSpec[0];
@@ -137,14 +120,12 @@ public class ConceptSpec implements SpecBI {
       this(description, uuid, new RelSpec[] {});
    }   
    public ConceptSpec(ConceptSpec conceptSpec) {
-      this(conceptSpec.description, conceptSpec.uuids, new RelSpec[] {});
+      this(conceptSpec.getDescription(), conceptSpec.getUuids(), new RelSpec[] {});
    }
    /**
     * Constructs ...
     *
     *
-    * @param description
-    * @param uuid
     */
    public ConceptSpec(SimpleConceptSpecification simpleSpec) {
       this(simpleSpec.getDescription(), simpleSpec.getUuid(), new RelSpec[] {});
@@ -216,8 +197,7 @@ public class ConceptSpec implements SpecBI {
     * @param relSpecs
     */
    public ConceptSpec(String description, UUID[] uuids, RelSpec... relSpecs) {
-      this.uuids       = uuids;
-      this.description = description;
+      super(description, uuids);
       this.relSpecs    = relSpecs;
    }
 
@@ -234,26 +214,12 @@ public class ConceptSpec implements SpecBI {
       int objDataVersion = in.readInt();
 
       if (objDataVersion == dataVersion) {
-         description = in.readUTF();
-         uuids       = (UUID[]) in.readObject();
+         setDescription(in.readUTF());
+         setUuids((UUID[]) in.readObject());
          relSpecs    = (RelSpec[]) in.readObject();
       } else {
          throw new IOException("Can't handle dataversion: " + objDataVersion);
       }
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   @Override
-   public String toString() {
-       if (uuids != null) {
-          return "ConceptSpec{" + description + "; " + Arrays.asList(uuids) + "}";
-       }
-            return "ConceptSpec{" + description + "; null UUIDs}";
    }
 
    /**
@@ -270,7 +236,7 @@ public class ConceptSpec implements SpecBI {
 
       for (DescriptionChronicleBI desc : local.getDescriptions()) {
          for (DescriptionVersionBI descv : desc.getVersions()) {
-            if (descv.getText().equals(description)) {
+            if (descv.getText().equals(getDescription())) {
                found = true;
 
                break;
@@ -279,7 +245,7 @@ public class ConceptSpec implements SpecBI {
       }
 
       if (found == false) {
-         throw new ValidationException("No description matching: '" + description + "' found for:\n" + local);
+         throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n" + local);
       }
    }
 
@@ -298,7 +264,7 @@ public class ConceptSpec implements SpecBI {
       boolean found = false;
 
       for (DescriptionVersionBI desc : localVersion.getDescriptionsActive()) {
-         if (desc.getText().equals(description)) {
+         if (desc.getText().equals(getDescription())) {
             found = true;
 
             break;
@@ -306,7 +272,7 @@ public class ConceptSpec implements SpecBI {
       }
 
       if (found == false) {
-         throw new ValidationException("No description matching: '" + description + "' found for:\n"
+         throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n"
                                        + localVersion);
       }
    }
@@ -387,19 +353,9 @@ next:
     */
    private void writeObject(ObjectOutputStream out) throws IOException {
       out.writeInt(dataVersion);
-      out.writeUTF(description);
-      out.writeObject(uuids);
+      out.writeUTF(getDescription());
+      out.writeObject(getUuids());
       out.writeObject(relSpecs);
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public String getDescription() {
-      return description;
    }
 
    /**
@@ -420,7 +376,7 @@ next:
 
          boolean found = false;
 
-         for (UUID uuid : uuids) {
+         for (UUID uuid : getUuids()) {
             if (Ts.get().hasUuid(uuid)) {
                found = true;
 
@@ -432,7 +388,7 @@ next:
             throw new ValidationException("No matching ids in db: " + this.toString());
          }
 
-         localChronicle = Ts.get().getConcept(uuids);
+         localChronicle = Ts.get().getConcept(getUuids());
 
          try {
             validateDescription(localChronicle);
@@ -447,25 +403,6 @@ next:
       } catch (ContradictionException e) {
          throw new ValidationException(e);
       }
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @return
-    *
-    * @throws IOException
-    * @throws ValidationException
-    */
-   public int getNid() throws ValidationException, IOException {
-      if (nid == Integer.MAX_VALUE) {
-         ConceptChronicleBI conceptChronicle = getLenient();
-
-         nid = conceptChronicle.getNid();
-      }
-
-      return nid;
    }
 
    /**
@@ -518,7 +455,7 @@ next:
 
          boolean found = false;
 
-         for (UUID uuid : uuids) {
+         for (UUID uuid : getUuids()) {
             if (Ts.get().hasUuid(uuid)) {
                found = true;
 
@@ -530,7 +467,7 @@ next:
             throw new ValidationException("No matching ids in db: " + this.toString());
          }
 
-         localVersion = Ts.get().getConceptVersion(vc, uuids);
+         localVersion = Ts.get().getConceptVersion(vc, getUuids());
 
          try {
             validateDescription(localVersion, vc);
@@ -551,62 +488,6 @@ next:
     * Method description
     *
     *
-    * @return
-    */
-   public String[] getUuidStrs() {
-      String[] results = new String[uuids.length];
-
-      for (int i = 0; i < uuids.length; i++) {
-         results[i] = uuids[i].toString();
-      }
-
-      return results;
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   @XmlTransient
-   public UUID[] getUuids() {
-      return uuids;
-   }
-
-   /**
-    * added as an alternative way to get the uuids as strings rather than UUID
-    * objects
-    * this was done to help with Maven making use of this class
-    *
-    * @return
-    */
-   @XmlTransient
-   public String[] getUuidsAsString() {
-      String[] returnVal = new String[uuids.length];
-      int      i         = 0;
-
-      for (UUID uuid : uuids) {
-         returnVal[i++] = uuid.toString();
-      }
-
-      return returnVal;
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param description
-    */
-   public void setDescription(String description) {
-      this.description = description;
-   }
-
-   /**
-    * Method description
-    *
-    *
     * @param relSpecs
     */
    public void setRelSpecs(RelSpec[] relSpecs) {
@@ -617,44 +498,18 @@ next:
     * Method description
     *
     *
-    * @param uuidStrs
+    * @return
+    *
+    * @throws IOException
+    * @throws ValidationException
     */
-   public void setUuidStrs(String[] uuidStrs) {
-      this.uuids = new UUID[uuidStrs.length];
+   public int getNid() throws ValidationException, IOException {
+      if (nid == Integer.MAX_VALUE) {
+         ConceptChronicleBI conceptChronicle = getLenient();
 
-      for (int i = 0; i < uuidStrs.length; i++) {
-         this.uuids[i] = UUID.fromString(uuidStrs[i]);
+         nid = conceptChronicle.getNid();
       }
-   }
 
-   /**
-    * Method description
-    *
-    *
-    * @param uuids
-    */
-   public void setUuids(UUID[] uuids) {
-      this.uuids = uuids;
-   }
-
-   /**
-    * Added primarily for Maven so that using a String type configuration in
-    * a POM file the UUIDs array could be set.
-    * This allows the ConceptSpec class to be embedded into a object to be configured
-    * by Maven POM configuration. Note that the ConceptDescriptor class also exists
-    * for a similar purpose, however it exists in a dependent project and
-    * cannot
-    * be used in this project.
-    *
-    * @param uuids
-    */
-   public void setUuidsAsString(String[] uuids) {
-      this.uuids = new UUID[uuids.length];
-
-      int i = 0;
-
-      for (String uuid : uuids) {
-         this.uuids[i++] = UUID.fromString(uuid);
-      }
+      return nid;
    }
 }

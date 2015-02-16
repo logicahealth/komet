@@ -12,6 +12,7 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 
@@ -141,6 +142,12 @@ public interface ConceptVersionBI extends ComponentVersionBI, ConceptChronicleBI
     boolean isLeaf() throws IOException;
 
     boolean isMember(int evalRefsetNid) throws IOException;
+
+    /**
+     * Get the annotation style refexes and the member style refexes, filter by active only
+     */
+    Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive() throws IOException;
+
 
     @Override
     ConceptCB makeBlueprint(ViewCoordinate vc, IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB;
