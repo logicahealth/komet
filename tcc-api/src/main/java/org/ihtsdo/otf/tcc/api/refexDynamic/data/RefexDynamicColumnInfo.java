@@ -33,7 +33,6 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
@@ -181,7 +180,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		try
 		{
 			
-			ConceptVersionBI cv = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), columnDescriptionConceptUUID_);
+			ConceptVersionBI cv = Ts.get().getGlobalSnapshot().getConceptVersion(columnDescriptionConceptUUID_);
 			if (cv.getDescriptionsActive() != null)
 			{
 				for (DescriptionVersionBI<?> d : cv.getDescriptionsActive())

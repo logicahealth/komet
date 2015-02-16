@@ -1164,6 +1164,14 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
         return concept.hasCurrentAnnotationMember(vc, refsetNid);
     }
 
+    /**
+     * Get the annotation style refexes and the member style refexes, filter by active only
+     */
+    @Override
+    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive() throws IOException {
+        return this.getRefexesDynamicActive(vc);
+    }
+
     @Override
     public boolean hasChildren() throws IOException, ContradictionException {
         Collection<? extends RelationshipVersionBI> children = this.getRelationshipsIncomingActive();

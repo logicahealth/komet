@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
@@ -95,7 +94,7 @@ public class RefexDynamicUsageDescription
 		//TODO [REFEX] test and see if my cache mechanism is working right (especially stamp check)
 		RefexDynamicUsageDescription temp = cache_.get(assemblageNid);
 		if (temp == null || 
-				Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), assemblageNid).getConceptAttributesActive().getStamp() != temp.stampNid_)
+				Ts.get().getGlobalSnapshot().getConceptVersion(assemblageNid).getConceptAttributesActive().getStamp() != temp.stampNid_)
 		{
 			logger.log(Level.FINEST, "Cache miss on RefexDynamicUsageDescription Cache");
 			temp = new RefexDynamicUsageDescription(assemblageNid);
@@ -120,7 +119,7 @@ public class RefexDynamicUsageDescription
 		
 		TreeMap<Integer, RefexDynamicColumnInfo> allowedColumnInfo = new TreeMap<>();
 		@SuppressWarnings("deprecation")
-		ConceptVersionBI assemblageConcept = Ts.get().getConceptVersion(StandardViewCoordinates.getSnomedInferredThenStatedLatest(), refexUsageDescriptorNid);
+		ConceptVersionBI assemblageConcept = Ts.get().getGlobalSnapshot().getConceptVersion(refexUsageDescriptorNid);
 		stampNid_ = assemblageConcept.getConceptAttributesActive().getStamp();
 		
 		for (DescriptionVersionBI<?> d : assemblageConcept.getDescriptionsActive())
@@ -153,7 +152,7 @@ public class RefexDynamicUsageDescription
 					"RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION");
 		}
 		
-		for (RefexDynamicVersionBI<?> rd : assemblageConcept.getRefexesDynamicActive(StandardViewCoordinates.getSnomedInferredThenStatedLatest()))
+		for (RefexDynamicVersionBI<?> rd : assemblageConcept.getRefexesDynamicActive())
 		{
 			if (rd.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_DEFINITION.getNid())
 			{
