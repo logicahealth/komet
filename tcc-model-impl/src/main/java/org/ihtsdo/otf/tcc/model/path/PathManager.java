@@ -49,8 +49,6 @@ public class PathManager {
     private static Lock l = new ReentrantLock();
     private static PathManager singleton;
     //~--- fields --------------------------------------------------------------
-//   private RefsetHelperGetter       helperGetter = new RefsetHelperGetter();
-    protected Path editPath;
     ConcurrentHashMap<Integer, Path> pathMap;
     private ConceptChronicle pathRefsetConcept;
     private ConceptChronicle refsetPathOriginsConcept;
@@ -58,7 +56,6 @@ public class PathManager {
     //~--- constructors --------------------------------------------------------
     private PathManager() throws IOException {
         try {
-            editPath = new Path(ReferenceConcepts.TERM_AUXILIARY_PATH.getNid(), null);
             setupPathMap();
         } catch (Exception e) {
             throw new IOException("Unable to initialise path management.", e);
@@ -155,14 +152,7 @@ public class PathManager {
                 return p;
             }
         }
-        List<Position> origins = new ArrayList<>();
-        origins.add(new Position(Long.MAX_VALUE, pathMap.get(ReferenceConcepts.TERM_AUXILIARY_PATH.getNid())));
-        Path newPath = new Path(nid, origins);
-        pathMap.put(
-                nid,
-                newPath);
-
-        return newPath;
+        return null;
     }
 
     public Set<Path> getAll() {
