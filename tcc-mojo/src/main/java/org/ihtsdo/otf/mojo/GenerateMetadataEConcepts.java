@@ -459,12 +459,12 @@ public class GenerateMetadataEConcepts extends AbstractMojo
 
 			TtkRefexUuidMemberChronicle conceptRefexMember = new TtkRefexUuidMemberChronicle();
 
-			conceptRefexMember.setComponentUuid(component.getPrimordialComponentUuid());
+			conceptRefexMember.setReferencedComponentUuid(component.getPrimordialComponentUuid());
 			//This aligns with what RefexCAB does
 			conceptRefexMember.setPrimordialComponentUuid(UuidT5Generator.get(RefexCAB.refexSpecNamespace, RefexType.MEMBER.name() + refsetUuid.toString()
 					+ component.getPrimordialComponentUuid().toString()));
 			conceptRefexMember.setUuid1(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept);
-			conceptRefexMember.setRefexExtensionUuid(refsetUuid);
+			conceptRefexMember.setAssemblageUuid(refsetUuid);
 			setRevisionAttributes(conceptRefexMember, Status.ACTIVE, component.getTime());
 
 			annotations.add(conceptRefexMember);

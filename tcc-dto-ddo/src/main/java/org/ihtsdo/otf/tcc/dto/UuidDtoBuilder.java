@@ -294,8 +294,8 @@ public class UuidDtoBuilder {
    private void construct(RefexCAB blueprint, TtkComponentChronicle component)
            throws IOException, InvalidCAB, ContradictionException {
       TtkRefexAbstractMemberChronicle annot = createRefex(blueprint);
-
       component.getAnnotations().add(annot);
+      assert annot.getReferencedComponentUuid().equals(component.getPrimordialComponentUuid()): component;
 
       for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
          construct(childBp, annot);
@@ -589,8 +589,8 @@ public class UuidDtoBuilder {
     */
    private void setStandardFields(TtkRefexAbstractMemberChronicle rm1, RefexCAB blueprint) throws IOException {
       rm1.primordialUuid     = blueprint.getMemberUUID();
-      rm1.componentUuid      = blueprint.getComponentUuid();
-      rm1.refexExtensionUuid = blueprint.getRefexCollectionUuid();
+      rm1.referencedComponentUuid = blueprint.getReferencedComponentUuid();
+      rm1.assemblageUuid = blueprint.getRefexCollectionUuid();
       rm1.status         = blueprint.getStatus();
       rm1.time               = time;
       rm1.authorUuid         = authorUuid;

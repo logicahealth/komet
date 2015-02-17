@@ -46,8 +46,8 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     public RefexMember(TtkRefexAbstractMemberChronicle<?> refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        assemblageNid = PersistentStore.get().getNidForUuids(refsetMember.refexExtensionUuid);
-        referencedComponentNid = PersistentStore.get().getNidForUuids(refsetMember.getComponentUuid());
+        assemblageNid = PersistentStore.get().getNidForUuids(refsetMember.assemblageUuid);
+        referencedComponentNid = PersistentStore.get().getNidForUuids(refsetMember.getReferencedComponentUuid());
         primordialStamp = PersistentStore.get().getStamp(refsetMember);
         assert primordialStamp != Integer.MAX_VALUE;
         assert referencedComponentNid != Integer.MAX_VALUE;

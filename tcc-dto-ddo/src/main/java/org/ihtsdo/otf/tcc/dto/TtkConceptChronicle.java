@@ -66,6 +66,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import java.util.*;
+import java.util.function.Consumer;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.*;
@@ -725,11 +726,13 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
       if (this.refsetMembers == null) {
          buff.append(PADDING + "none\n");
       } else {
-         for (TtkRefexAbstractMemberChronicle<?> r : this.refsetMembers) {
-            buff.append(PADDING);
-            buff.append(r);
-            buff.append("\n");
-         }
+          buff.append("Count: "+ this.refsetMembers.size() + "\n");
+
+          this.refsetMembers.stream().limit(20).forEach(r -> {
+              buff.append(PADDING);
+              buff.append(r);
+              buff.append("\n");
+          });
       }
 
       buff.append("\n   RefsetMembersDynamic: \n");
@@ -737,11 +740,12 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
       if (this.refsetMembersDynamic == null) {
          buff.append(PADDING + "none\n");
       } else {
-         for (TtkRefexDynamicMemberChronicle r : this.refsetMembersDynamic) {
-            buff.append(PADDING);
-            buff.append(r);
-            buff.append("\n");
-         }
+          buff.append("Count: "+ this.refsetMembersDynamic.size() + "\n");
+          this.refsetMembersDynamic.stream().limit(20).forEach(r -> {
+              buff.append(PADDING);
+              buff.append(r);
+              buff.append("\n");
+          });
       }
 
       buff.append("\n   Media: \n");

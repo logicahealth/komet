@@ -57,7 +57,7 @@ public enum ComponentFields {
         
    // REFEX FIELDS
         REFEX_ARRAY_OF_BYTEARRAY,
-        REFEX_COLLECTION_UUID,
+        ASSEMBLAGE_UUID,
         REFEX_REFERENCED_COMPONENT_UUID,
         REFEX_COMPONENT_1_UUID,
         REFEX_COMPONENT_2_UUID,
