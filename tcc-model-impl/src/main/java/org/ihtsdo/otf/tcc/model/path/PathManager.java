@@ -152,14 +152,7 @@ public class PathManager {
                 return p;
             }
         }
-        List<Position> origins = new ArrayList<>();
-        origins.add(new Position(Long.MAX_VALUE, pathMap.get(ReferenceConcepts.TERM_AUXILIARY_PATH.getNid())));
-        Path newPath = new Path(nid, origins);
-        pathMap.put(
-                nid,
-                newPath);
-
-        return newPath;
+        return null;
     }
 
     public Set<Path> getAll() {
