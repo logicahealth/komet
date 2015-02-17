@@ -317,31 +317,6 @@ public abstract class Termstore implements PersistentStoreI {
         return conceptsLoaded;
     }
 
-    public static ViewCoordinate makeMetaViewCoordinate() throws IOException {
-        Path viewPath = new Path();
-        viewPath.setConceptSpec(TermAux.WB_AUX_PATH);
-        Position viewPosition = new Position(Long.MAX_VALUE, viewPath);
-        EnumSet<Status> allowedStatus = EnumSet.of(Status.ACTIVE);
-        ContradictionManagerBI contradictionManager = new IdentifyAllConflict();
-        ViewCoordinate vc = new ViewCoordinate();
-        vc.setAllowedStatus(allowedStatus);
-        vc.setClassifierSpec(TermAux.IHTSDO_CLASSIFIER);
-        vc.setContradictionManager(contradictionManager);
-        vc.setContradictionManagerPolicy(ContradictionManagerPolicy.IDENTIFY_ALL_CONFLICTS);
-        vc.setLanguageSpec(SnomedMetadataRf2.US_ENGLISH_REFSET_RF2);
-        ArrayList<ConceptSpec> langPrefConceptSpecList = new ArrayList<>();
-        langPrefConceptSpecList.add(SnomedMetadataRf2.US_ENGLISH_REFSET_RF2);
-        langPrefConceptSpecList.add(SnomedMetadataRf2.GB_ENGLISH_REFSET_RF2);
-        vc.setLanguagePreferenceList(new LanguagePreferenceList(langPrefConceptSpecList));
-        vc.setLanguageSort(LanguageSort.RF2_LANG_REFEX);
-        vc.setName("meta-vc");
-        vc.setPrecedence(Precedence.PATH);
-        vc.setRelationshipAssertionType(RelAssertionType.INFERRED_THEN_STATED);
-        vc.setVcUuid(UUID.fromString("014ae770-b32a-11e1-afa6-0800200c9a66"));
-        vc.setViewPosition(viewPosition);
-        return vc;
-    }
-
     /**
      * Method description
      *
@@ -350,10 +325,7 @@ public abstract class Termstore implements PersistentStoreI {
      *
      * @throws IOException
      */
-    protected ViewCoordinate makeMetaVc() throws IOException {
-
-        return makeMetaViewCoordinate();
-    }
+    protected abstract ViewCoordinate makeMetaVc() throws IOException;
 
     /**
      * Method description

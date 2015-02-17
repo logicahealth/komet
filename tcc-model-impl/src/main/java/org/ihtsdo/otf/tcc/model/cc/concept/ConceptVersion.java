@@ -8,6 +8,7 @@ import org.ihtsdo.otf.tcc.api.constraint.ConstraintCheckType;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintOutgoing;
 import org.ihtsdo.otf.tcc.api.constraint.DescriptionConstraint;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -367,7 +368,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
     @Override
     public ConceptAttributeVersionBI getConceptAttributesActive() throws IOException, ContradictionException {
-        return concept.getConceptAttributes().getVersion(vc);
+        ConceptAttributeVersionBI version = concept.getConceptAttributes().getVersion(vc);
+        if (version != null && version.getStatus() == Status.ACTIVE) {
+            return version;
+        }
+        return null;
     }
 
     @Override
@@ -1246,7 +1251,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
             return true;
         } catch (ContradictionException ex) {
             for (ConceptAttributeVersionBI version : concept.getConceptAttributes().getVersions(vc)) {
-                if (vc.getAllowedStatus().contains(version.getStatus())) {
+                if (version.getStatus() == Status.ACTIVE) {
                     return true;
                 }
             }
