@@ -104,15 +104,9 @@ public abstract class TtkRevision implements ExternalStampBI {
     public TtkRevision(ComponentVersionBI another) throws IOException {
         super();
         this.status     = another.getStatus();
-        this.authorUuid = Ts.get().getComponent(another.getAuthorNid()).getPrimordialUuid();
-        if (this.authorUuid == null) {
-            System.out.println("opps1");
-        }
-        this.pathUuid   = Ts.get().getComponent(another.getPathNid()).getPrimordialUuid();
-        this.moduleUuid = Ts.get().getComponent(another.getModuleNid()).getPrimordialUuid();
-        if (this.moduleUuid == null) {
-            System.out.println("opps2");
-        }
+        this.authorUuid = Ts.get().getUuidPrimordialForNid(another.getAuthorNid());
+        this.pathUuid   = Ts.get().getUuidPrimordialForNid(another.getPathNid());
+        this.moduleUuid = Ts.get().getUuidPrimordialForNid(another.getModuleNid());
         assert pathUuid != null : another;
         assert authorUuid != null : another;
         assert status != null : another;

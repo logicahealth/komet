@@ -130,6 +130,9 @@ public class TtkRelationshipChronicle extends TtkComponentChronicle<TtkRelations
          }
 
          // Compare c2Uuid
+         if (this.c2Uuid == null) {
+            System.out.println("Null c2: " + this + " other: " + obj);
+         }
          if (!this.c2Uuid.equals(another.c2Uuid)) {
             return false;
          }

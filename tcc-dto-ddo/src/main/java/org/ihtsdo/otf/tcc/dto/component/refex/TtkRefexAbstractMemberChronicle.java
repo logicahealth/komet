@@ -26,9 +26,9 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    //~--- fields --------------------------------------------------------------
 
    @XmlAttribute
-   public UUID componentUuid;
+   public UUID referencedComponentUuid;
    @XmlAttribute
-   public UUID refexExtensionUuid;
+   public UUID assemblageUuid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -38,8 +38,8 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
 
    public TtkRefexAbstractMemberChronicle(RefexVersionBI another) throws IOException {
       super(another);
-      this.componentUuid = Ts.get().getComponent(another.getReferencedComponentNid()).getPrimordialUuid();
-      this.refexExtensionUuid    = Ts.get().getComponent(another.getAssemblageNid()).getPrimordialUuid();
+      this.referencedComponentUuid = Ts.get().getComponent(another.getReferencedComponentNid()).getPrimordialUuid();
+      this.assemblageUuid = Ts.get().getComponent(another.getAssemblageNid()).getPrimordialUuid();
    }
 
    public TtkRefexAbstractMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
@@ -50,8 +50,8 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    public TtkRefexAbstractMemberChronicle(TtkRefexAbstractMemberChronicle another, ComponentTransformerBI transformer) {
       super(another, transformer);
 
-         this.componentUuid = transformer.transform(another.componentUuid, another, ComponentFields.REFEX_REFERENCED_COMPONENT_UUID);
-         this.refexExtensionUuid    = transformer.transform(another.refexExtensionUuid, another, ComponentFields.REFEX_COLLECTION_UUID);
+         this.referencedComponentUuid = transformer.transform(another.referencedComponentUuid, another, ComponentFields.REFEX_REFERENCED_COMPONENT_UUID);
+         this.assemblageUuid = transformer.transform(another.assemblageUuid, another, ComponentFields.ASSEMBLAGE_UUID);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -79,12 +79,12 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
          // Compare properties of 'this' class to the 'another' class
          // =========================================================
          // Compare refsetUuid
-         if (!this.refexExtensionUuid.equals(another.refexExtensionUuid)) {
+         if (!this.assemblageUuid.equals(another.assemblageUuid)) {
             return false;
          }
 
-         // Compare componentUuid
-         if (!this.componentUuid.equals(another.componentUuid)) {
+         // Compare referencedComponentUuid
+         if (!this.referencedComponentUuid.equals(another.referencedComponentUuid)) {
             return false;
          }
 
@@ -108,8 +108,8 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    @Override
    public void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super.readExternal(in, dataVersion);
-      refexExtensionUuid    = new UUID(in.readLong(), in.readLong());
-      componentUuid = new UUID(in.readLong(), in.readLong());
+      assemblageUuid = new UUID(in.readLong(), in.readLong());
+      referencedComponentUuid = new UUID(in.readLong(), in.readLong());
    }
 
    /**
@@ -119,10 +119,10 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    public String toString() {
       StringBuilder buff = new StringBuilder();
 
-      buff.append(" refex:");
-      buff.append(informAboutUuid(this.refexExtensionUuid));
-      buff.append(" component:");
-      buff.append(informAboutUuid(this.componentUuid));
+      buff.append(" assemblage:");
+      buff.append(informAboutUuid(this.assemblageUuid));
+      buff.append(" referenced component:");
+      buff.append(informAboutUuid(this.referencedComponentUuid));
       buff.append(" ");
       buff.append(super.toString());
 
@@ -132,38 +132,38 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    @Override
    public void writeExternal(DataOutput out) throws IOException {
       super.writeExternal(out);
-      out.writeLong(refexExtensionUuid.getMostSignificantBits());
-      out.writeLong(refexExtensionUuid.getLeastSignificantBits());
-      out.writeLong(componentUuid.getMostSignificantBits());
-      out.writeLong(componentUuid.getLeastSignificantBits());
+      out.writeLong(assemblageUuid.getMostSignificantBits());
+      out.writeLong(assemblageUuid.getLeastSignificantBits());
+      out.writeLong(referencedComponentUuid.getMostSignificantBits());
+      out.writeLong(referencedComponentUuid.getLeastSignificantBits());
    }
 
    //~--- get methods ---------------------------------------------------------
    @Override
    protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
-       references.add(this.refexExtensionUuid);
-       references.add(this.componentUuid);
+       references.add(this.assemblageUuid);
+       references.add(this.referencedComponentUuid);
        addUuidReferencesForRefexRevision(references);
    }
     protected abstract void addUuidReferencesForRefexRevision(Collection<UUID> references);
 
-   public UUID getComponentUuid() {
-      return componentUuid;
+   public UUID getReferencedComponentUuid() {
+      return referencedComponentUuid;
    }
 
-   public UUID getRefexExtensionUuid() {
-      return refexExtensionUuid;
+   public UUID getAssemblageUuid() {
+      return assemblageUuid;
    }
 
    public abstract RefexType getType();
 
    //~--- set methods ---------------------------------------------------------
 
-   public void setComponentUuid(UUID componentUuid) {
-      this.componentUuid = componentUuid;
+   public void setReferencedComponentUuid(UUID referencedComponentUuid) {
+      this.referencedComponentUuid = referencedComponentUuid;
    }
 
-   public void setRefexExtensionUuid(UUID refexExtensionUuid) {
-      this.refexExtensionUuid = refexExtensionUuid;
+   public void setAssemblageUuid(UUID assemblageUuid) {
+      this.assemblageUuid = assemblageUuid;
    }
 }

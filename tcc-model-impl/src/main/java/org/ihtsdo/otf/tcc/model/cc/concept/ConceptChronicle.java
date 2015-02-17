@@ -358,7 +358,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             if (c.isAnnotationStyleRefex()) {
                 for (TtkRefexAbstractMemberChronicle<?> er : eConcept.getRefsetMembers()) {
                     ConceptComponent cc;
-                    Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
+                    Object referencedComponent = PersistentStore.get().getComponent(er.getReferencedComponentUuid());
 
                     if (referencedComponent != null) {
                         if (referencedComponent instanceof ConceptChronicle) {
@@ -574,7 +574,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         for (TtkRefexAbstractMemberChronicle<?> er : unresolvedAnnotations) {
             ConceptComponent cc;
-            Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
+            Object referencedComponent = PersistentStore.get().getComponent(er.getReferencedComponentUuid());
 
             if (referencedComponent != null) {
                 if (referencedComponent instanceof ConceptChronicle) {
