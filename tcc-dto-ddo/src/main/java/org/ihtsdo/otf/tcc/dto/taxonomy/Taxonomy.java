@@ -78,7 +78,7 @@ public class Taxonomy {
    public Taxonomy(String pathName, ConceptSpec author, String moduleName,
                    ConceptSpec isaType, String semanticTag, LanguageCode lang)
            throws NoSuchAlgorithmException, UnsupportedEncodingException {
-      this.pathSpec    = new ConceptSpec(pathName, getUuid(moduleName));
+      this.pathSpec    = new ConceptSpec(pathName, getUuid(pathName));
       this.authorSpec  = author;
       this.moduleSpec  = new ConceptSpec(moduleName, getUuid(moduleName));
       this.isaTypeSpec = isaType;
@@ -90,7 +90,7 @@ public class Taxonomy {
                    ConceptSpec isaType, String semanticTag, LanguageCode lang)
            throws NoSuchAlgorithmException, UnsupportedEncodingException {
       this.pathSpec    = new ConceptSpec(pathName, getUuid(pathName));
-      this.authorSpec  = new ConceptSpec(authorName, getUuid(moduleName));
+      this.authorSpec  = new ConceptSpec(authorName, getUuid(authorName));
       this.moduleSpec  = new ConceptSpec(moduleName, getUuid(moduleName));
       this.isaTypeSpec = isaType;
       this.semanticTag = semanticTag;
@@ -229,7 +229,7 @@ public class Taxonomy {
       return new UUID[] { parentStack.peek().getComponentUuid() };
    }
 
-   private UUID getUuid(String name)
+   protected UUID getUuid(String name)
            throws NoSuchAlgorithmException, UnsupportedEncodingException {
       return UuidT5Generator.get(this.getClass().getName() + name);
    }
