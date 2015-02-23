@@ -60,22 +60,6 @@ public class ConceptProxy {
      *
      * @return
      */
-    public String[] getUuidStrs() {
-       String[] results = new String[uuids.length];
-
-       for (int i = 0; i < uuids.length; i++) {
-          results[i] = uuids[i].toString();
-       }
-
-       return results;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
     @XmlTransient
     public UUID[] getUuids() {
        return uuids;
@@ -88,7 +72,6 @@ public class ConceptProxy {
      *
      * @return
      */
-    @XmlTransient
     public String[] getUuidsAsString() {
        String[] returnVal = new String[uuids.length];
        int      i         = 0;

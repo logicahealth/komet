@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gov.vha.isaac.ochre.api.graph;
+package gov.vha.isaac.ochre.api.tree;
 
 /**
  *

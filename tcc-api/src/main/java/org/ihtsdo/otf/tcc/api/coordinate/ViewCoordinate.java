@@ -1,6 +1,14 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
@@ -9,11 +17,9 @@ import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -35,19 +41,22 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.SimpleConceptSpecification;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 @XmlRootElement(name = "viewCoordinate")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType (propOrder={"allowedStatusAsString","classifierSpec","contradictionManagerPolicy",
-                     "languageSort", "languageSpec", "languagePreferenceList",
-                     "name", "precedence", "relationshipAssertionType", "vcUuid",
-                     "viewPosition"})
-public class ViewCoordinate implements Externalizable {
-    public static final long serialVersionUID = 1;
+@XmlType(propOrder = {"allowedStatusAsString", "classifierSpec", "contradictionManagerPolicy",
+    "languageSort", "languageSpec", "languagePreferenceList",
+    "name", "precedence", "relationshipAssertionType", "vcUuid",
+    "viewPosition"})
+public class ViewCoordinate implements StampCoordinate,
+        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate, Externalizable {
+
+    public static final long serialVersionUID = 2;
 
     private long lastModSequence = Long.MIN_VALUE;
     private EnumSet<Status> allowedStatus;
-    
+
     private ContradictionManagerBI contradictionManager;
     private LanguageSort langSort;
     private int languageNid = Integer.MAX_VALUE;
@@ -57,22 +66,28 @@ public class ViewCoordinate implements Externalizable {
     private RelAssertionType relAssertionType;
     private UUID vcUuid;
     private ViewCoordinate vcWithAllStatusValues;    // transient
-    
+
     private ConceptSpec classifierSpec;
     private ConceptSpec languageSpec;
     private List<ConceptSpec> langPrefSpecs;
-    
+
     private static int isaNid = Integer.MAX_VALUE;
     private int classifierNid = Integer.MAX_VALUE;
     private NidListBI langPrefList = new NidList();
 
-    
+    // version 2
+    private ConceptSpec statedAssemblageSpec;
+    private ConceptSpec inferredAssemblageSpec;
+    private ConceptSpec descriptionLogicProfileSpec;
+    private int statedAssemblageNid = Integer.MAX_VALUE;
+    private int inferredAssemblageNid = Integer.MAX_VALUE;
+    private int descriptionLogicProfileNid = Integer.MAX_VALUE;
+
     //~--- constructors --------------------------------------------------------
     public ViewCoordinate() throws ValidationException {
         super();
     }
-    
-    
+
     public ViewCoordinate(SimpleViewCoordinate another) throws ValidationException {
         super();
         this.vcUuid = another.getCoordinateUuid();
@@ -81,7 +96,7 @@ public class ViewCoordinate implements Externalizable {
         if (another.getViewPosition() != null) {
             this.viewPosition = new Position(another.getViewPosition());
         }
-        
+
         if (another.getAllowedStatus() != null) {
             this.allowedStatus = another.getAllowedStatus().clone();
         }
@@ -90,11 +105,11 @@ public class ViewCoordinate implements Externalizable {
         this.classifierSpec = new ConceptSpec(another.getClassifierSpecification());
         this.relAssertionType = another.getRelAssertionType();
         this.langPrefSpecs = new ArrayList<>();
-        for (SimpleConceptSpecification langSpec: another.getLanguagePreferenceOrderList()) {
+        for (SimpleConceptSpecification langSpec : another.getLanguagePreferenceOrderList()) {
             this.langPrefSpecs.add(new ConceptSpec(langSpec));
         }
         this.langSort = another.getLangSort();
-        
+
     }
 
     protected ViewCoordinate(ViewCoordinate another) {
@@ -122,13 +137,13 @@ public class ViewCoordinate implements Externalizable {
 
         this.langSort = another.langSort;
         this.lastModSequence = another.lastModSequence;
-        
+
         classifierSpec = another.classifierSpec;
         languageSpec = another.languageSpec;
         if (another.langPrefSpecs != null) {
             langPrefSpecs = new ArrayList(another.langPrefSpecs);
         }
- 
+
     }
 
     public ViewCoordinate(UUID vcUuid, String name, ViewCoordinate another) {
@@ -149,7 +164,6 @@ public class ViewCoordinate implements Externalizable {
         this.precedence = precedence;
 
         this.viewPosition = viewPosition;
-
 
         if (allowedStatus != null) {
             this.allowedStatus = allowedStatus.clone();
@@ -226,7 +240,6 @@ public class ViewCoordinate implements Externalizable {
                 }
             }
 
-
             if (classifierNid != Integer.MAX_VALUE && another.classifierNid != Integer.MAX_VALUE) {
                 if (!testEquals(classifierNid, another.classifierNid)) {
                     return false;
@@ -296,22 +309,28 @@ public class ViewCoordinate implements Externalizable {
         classifierSpec = (ConceptSpec) in.readObject();
         languageSpec = (ConceptSpec) in.readObject();
         langPrefSpecs = (ArrayList<ConceptSpec>) in.readObject();
+        statedAssemblageSpec = (ConceptSpec) in.readObject();
+        inferredAssemblageSpec = (ConceptSpec) in.readObject();
+        descriptionLogicProfileSpec = (ConceptSpec) in.readObject();
+        
 
-    
         classifierNid = Integer.MAX_VALUE;
         languageNid = Integer.MAX_VALUE;
+        inferredAssemblageNid = Integer.MAX_VALUE;
+        statedAssemblageNid = Integer.MAX_VALUE;
+        descriptionLogicProfileNid = Integer.MAX_VALUE;
         langPrefList = null;
-        
+
     }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
- 
+
         out.writeLong(lastModSequence);
         out.writeObject(allowedStatus);
         out.writeObject(contradictionManager);
         out.writeObject(langSort);
-       out.writeObject(name);
+        out.writeObject(name);
         out.writeObject(viewPosition);
         out.writeObject(precedence);
         out.writeObject(relAssertionType);
@@ -320,6 +339,9 @@ public class ViewCoordinate implements Externalizable {
         out.writeObject(classifierSpec);
         out.writeObject(languageSpec);
         out.writeObject(langPrefSpecs);
+        out.writeObject(statedAssemblageSpec);
+        out.writeObject(inferredAssemblageSpec);
+        out.writeObject(descriptionLogicProfileSpec);
     }
 
     private static boolean testEquals(Object o1, Object o2) {
@@ -530,7 +552,7 @@ public class ViewCoordinate implements Externalizable {
         }
         return langPrefList;
     }
-    
+
     public LanguagePreferenceList getLanguagePreferenceList() throws IOException {
         if (langPrefSpecs != null) {
             return new LanguagePreferenceList(langPrefSpecs);
@@ -542,16 +564,16 @@ public class ViewCoordinate implements Externalizable {
         for (int nid : langPrefList.getListArray()) {
             langPrefSpecs.add(new ConceptSpec(nid));
         }
-        
+
         return new LanguagePreferenceList(langPrefSpecs);
     }
 
     public void setLanguagePreferenceList(LanguagePreferenceList languagePreferenceList) throws IOException {
         langPrefList.clear();
-        
+
         if (languagePreferenceList != null) {
-            this.langPrefSpecs = languagePreferenceList.getPreferenceList() ;
-            for (ConceptSpec conceptSpec: this.langPrefSpecs) {
+            this.langPrefSpecs = languagePreferenceList.getPreferenceList();
+            for (ConceptSpec conceptSpec : this.langPrefSpecs) {
                 langPrefList.add(conceptSpec.getNid());
             }
         }
@@ -669,5 +691,99 @@ public class ViewCoordinate implements Externalizable {
 
     public TerminologySnapshotDI getCachedSnapshot() {
         return Ts.get().cacheSnapshot(vcUuid, this);
+    }
+
+    @Override
+    public StampPrecedence getStampPrecedence() {
+        return getPrecedence().getStampPrecedence();
+    }
+
+    @Override
+    public StampPosition getStampPosition() {
+        return getViewPosition();
+    }
+
+    @Override
+    public int getStatedAssemblageSequence() {
+        if (this.statedAssemblageNid == Integer.MAX_VALUE) {
+            try {
+                this.statedAssemblageNid = statedAssemblageSpec.getLenient().getConceptNid();
+            } catch (ValidationException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return getSequenceProvider().getConceptSequence(this.statedAssemblageNid);
+    }
+
+    @Override
+    public int getInferredAssemblageSequence() {
+        if (this.inferredAssemblageNid == Integer.MAX_VALUE) {
+            try {
+                this.inferredAssemblageNid = inferredAssemblageSpec.getLenient().getConceptNid();
+            } catch (ValidationException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return getSequenceProvider().getConceptSequence(this.inferredAssemblageNid);
+    }
+
+    @Override
+    public int getDescriptionLogicProfileSequence() {
+        if (this.descriptionLogicProfileNid == Integer.MAX_VALUE) {
+            try {
+                this.descriptionLogicProfileNid = descriptionLogicProfileSpec.getLenient().getConceptNid();
+            } catch (ValidationException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return getSequenceProvider().getConceptSequence(this.descriptionLogicProfileNid);
+    }
+    private static SequenceProvider sequenceProvider;
+
+    private static SequenceProvider getSequenceProvider() {
+        if (sequenceProvider == null) {
+            sequenceProvider = Hk2Looker.getService(SequenceProvider.class);
+        }
+        return sequenceProvider;
+    }
+
+    @Override
+    public int getClassifierSequence() {
+        return getSequenceProvider().getConceptSequence(classifierNid);
+    }
+
+    @Override
+    public TaxonomyType getTaxonomyType() {
+        switch (getRelationshipAssertionType()) {
+            case INFERRED:
+            case INFERRED_THEN_STATED:
+                return TaxonomyType.INFERRED;
+            case STATED:
+                return TaxonomyType.STATED;
+            default:
+                throw new UnsupportedOperationException("Can't handle: " + getRelationshipAssertionType());
+        }
+    }
+
+    public void setStatedAssemblageSpec(ConceptSpec statedAssemblageSpec) {
+        this.statedAssemblageSpec = statedAssemblageSpec;
+    }
+
+    public void setInferredAssemblageSpec(ConceptSpec inferredAssemblageSpec) {
+        this.inferredAssemblageSpec = inferredAssemblageSpec;
+    }
+
+    public void setDescriptionLogicProfileSpec(ConceptSpec descriptionLogicProfileSpec) {
+        this.descriptionLogicProfileSpec = descriptionLogicProfileSpec;
+    }
+    @Override
+    public int[] getDescriptionTypePreferenceList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

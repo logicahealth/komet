@@ -1,5 +1,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -7,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +32,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 @XmlRootElement(name = "position")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 
-public class Position implements Comparable<Position>, Externalizable {
+public class Position implements Comparable<Position>, StampPosition, Externalizable {
 
 
     private static final int dataVersion = 1;
@@ -409,6 +412,16 @@ public class Position implements Comparable<Position>, Externalizable {
             }
         }
         return this.path.conceptNid - o.path.conceptNid;
+    }
+
+    @Override
+    public Instant getInstant() {
+        return Instant.ofEpochMilli(time);
+    }
+
+    @Override
+    public StampPath getStampPath() {
+        return path;
     }
 
 }
