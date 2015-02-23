@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gov.vha.isaac.ochre.api.graph;
+package gov.vha.isaac.ochre.api.tree.hashtree;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -13,13 +13,13 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
  *
  * @author kec
  */
-public class SimpleDirectedGraphBuilder {
+public class HashTreeBuilder {
     private static final AtomicInteger builderCount = new AtomicInteger();
     final OpenIntObjectHashMap<IntStream.Builder> childSequence_ParentSequenceStream_Map = new OpenIntObjectHashMap<>();
     final OpenIntObjectHashMap<IntStream.Builder> parentSequence_ChildSequenceStream_Map = new OpenIntObjectHashMap<>();
     final int builderId;
 
-    public SimpleDirectedGraphBuilder() {
+    public HashTreeBuilder() {
         this.builderId = builderCount.getAndIncrement();
     }
 
@@ -34,7 +34,7 @@ public class SimpleDirectedGraphBuilder {
         parentSequence_ChildSequenceStream_Map.get(parent).add(child);
     }
 
-    public void combine(SimpleDirectedGraphBuilder another) {
+    public void combine(HashTreeBuilder another) {
         
         another.childSequence_ParentSequenceStream_Map.forEachPair((int childSequence, IntStream.Builder parentsFromAnother) -> {
             if (childSequence_ParentSequenceStream_Map.containsKey(childSequence)) {
@@ -57,8 +57,8 @@ public class SimpleDirectedGraphBuilder {
         });
     }
 
-    public SimpleDirectedGraph getSimpleDirectedGraphGraph() {
-        SimpleDirectedGraph graph = new SimpleDirectedGraph(childSequence_ParentSequenceStream_Map.size());
+    public HashTreeWithBitSets getSimpleDirectedGraphGraph() {
+        HashTreeWithBitSets graph = new HashTreeWithBitSets(childSequence_ParentSequenceStream_Map.size());
         childSequence_ParentSequenceStream_Map.forEachPair((int childSequence, IntStream.Builder parentSequenceStreamBuilder) -> {
             int[] parentSequenceArray = parentSequenceStreamBuilder.build().distinct().toArray();
             if (parentSequenceArray.length > 0) {

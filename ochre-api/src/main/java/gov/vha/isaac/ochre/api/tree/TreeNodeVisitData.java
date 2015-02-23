@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gov.vha.isaac.ochre.api.graph;
+package gov.vha.isaac.ochre.api.tree;
 
 import java.util.BitSet;
 
@@ -13,7 +13,7 @@ import org.apache.mahout.math.list.IntArrayList;
  *
  * @author kec
  */
-public class GraphVisitData {
+public class TreeNodeVisitData {
 
 
     protected IntArrayList distanceList = new IntArrayList();
@@ -46,7 +46,7 @@ public class GraphVisitData {
     }
 
 
-    public GraphVisitData(int graphSize) {
+    public TreeNodeVisitData(int graphSize) {
 
         visitStarted = new BitSet(graphSize);
         visitEnded = new BitSet(graphSize);

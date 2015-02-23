@@ -2,6 +2,9 @@ package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -26,11 +29,12 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 import org.ihtsdo.otf.tcc.api.store.Ts;
+import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 @XmlRootElement(name = "path")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 
-public class Path implements Externalizable {
+public class Path implements StampPath, Externalizable {
 
     private static final int dataVersion = 2;
     /**
@@ -303,9 +307,9 @@ public class Path implements Externalizable {
     public String toString() {
         StringBuilder buff = new StringBuilder();
         try {
-            int conceptNid = getConceptNid();
-            if (conceptNid != Integer.MAX_VALUE) {
-                ConceptChronicleBI cb = Ts.get().getConcept(conceptNid);
+            int cNid = getConceptNid();
+            if (cNid != Integer.MAX_VALUE) {
+                ConceptChronicleBI cb = Ts.get().getConcept(cNid);
                 buff.append(cb.toUserString());
             } else {
                 buff.append("not yet defined concept");
@@ -328,5 +332,24 @@ public class Path implements Externalizable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    private static SequenceProvider sequenceProvider;
+    
+    private static SequenceProvider getSequenceProvider() {
+        if (sequenceProvider == null) {
+            sequenceProvider = Hk2Looker.getService(SequenceProvider.class);
+        }
+        return sequenceProvider;
+    }
+
+    @Override
+    public int getPathConceptSequence() {
+        return getSequenceProvider().getConceptSequence(getConceptNid());
+    }
+
+    @Override
+    public Collection<? extends StampPosition> getPathOrigins() {
+        return this.origins;
     }
 }
