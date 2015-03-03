@@ -45,9 +45,6 @@ import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
@@ -406,90 +403,50 @@ public class EConceptUtility
 		return description;
 	}
 
-	public TtkIdentifier addAdditionalIds(TtkConceptChronicle TtkConceptChronicle, Object id, UUID idTypeUuid, Status status)
+	public TtkRefexAbstractMemberChronicle<?> addAdditionalIds(TtkConceptChronicle concept, Object id, UUID idTypeUuid, Status status)
 	{
 		if (id != null)
 		{
-			List<TtkIdentifier> additionalIds = TtkConceptChronicle.getConceptAttributes().getAdditionalIdComponents();
-			if (additionalIds == null)
-			{
-				additionalIds = new ArrayList<TtkIdentifier>();
-				TtkConceptChronicle.getConceptAttributes().setAdditionalIdComponents(additionalIds);
-			}
-
-			// create the identifier and add it to the additional ids list
-			TtkIdentifier cid;
+			//OTF no longer supports an 'identifier' type - so convert to standard annotation type.
+			TtkRefexAbstractMemberChronicle<?> result;
 			if (id instanceof String)
 			{
-				cid = new TtkIdentifierString();
-			}
-			else if (id instanceof Long)
-			{
-				cid = new TtkIdentifierLong();
+				result = addStringAnnotation(concept, (String)id, idTypeUuid, status);
 			}
 			else if (id instanceof UUID)
 			{
-				cid = new TtkIdentifierLong();
+				result = addUuidAnnotation(concept, (UUID)id, idTypeUuid);
 			}
 			else
 			{
-				throw new RuntimeException("Unsupported identifier type - must be String, Long or UUID");
+				throw new RuntimeException("Unsupported identifier type - must be String, or UUID");
 			}
-			additionalIds.add(cid);
-
-			// populate the type
-			cid.setAuthorityUuid(idTypeUuid);
-
-			// populate the actual value of the identifier
-			cid.setDenotation(id);
-
-			setRevisionAttributes(cid, status, TtkConceptChronicle.getConceptAttributes().getTime());
 
 			ls_.addConceptId(getOriginStringForUuid(idTypeUuid));
-			return cid;
+			return result;
 		}
 		return null;
 	}
 
-	public TtkIdentifier addAdditionalIds(TtkComponentChronicle<?> component, Object id, UUID idTypeUuid)
+	public TtkRefexAbstractMemberChronicle<?> addAdditionalIds(TtkComponentChronicle<?> component, Object id, UUID idTypeUuid)
 	{
 		if (id != null)
 		{
-			List<TtkIdentifier> additionalIds = component.getAdditionalIdComponents();
-			if (additionalIds == null)
-			{
-				additionalIds = new ArrayList<TtkIdentifier>();
-				component.setAdditionalIdComponents(additionalIds);
-			}
-
-			// create the identifier and add it to the additional ids list
-			TtkIdentifier cid;
+			//OTF no longer supports an 'identifier' type - so convert to standard annotation type.
+			TtkRefexAbstractMemberChronicle<?> result;
 			if (id instanceof String)
 			{
-				cid = new TtkIdentifierString();
-			}
-			else if (id instanceof Long)
-			{
-				cid = new TtkIdentifierLong();
+				result = addStringAnnotation(component, (String)id, idTypeUuid, Status.ACTIVE);
 			}
 			else if (id instanceof UUID)
 			{
-				cid = new TtkIdentifierLong();
+				result = addUuidAnnotation(component, (UUID)id, idTypeUuid);
 			}
 			else
 			{
-				throw new RuntimeException("Unsupported identifier type - must be String, Long or UUID");
+				throw new RuntimeException("Unsupported identifier type - must be String, UUID");
 			}
-			additionalIds.add(cid);
-
-			// populate the type
-			cid.setAuthorityUuid(idTypeUuid);
-
-			// populate the actual value of the identifier
-			cid.setDenotation(id);
-
-			setRevisionAttributes(cid, Status.ACTIVE, component.getTime());
-
+			
 			String label;
 			if (component instanceof TtkDescriptionChronicle)
 			{
@@ -501,7 +458,7 @@ public class EConceptUtility
 			}
 
 			ls_.addComponentId(label, getOriginStringForUuid(idTypeUuid));
-			return cid;
+			return result;
 		}
 		return null;
 	}

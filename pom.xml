@@ -11,7 +11,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<otf-vs.version>1.1-va-1.11</otf-vs.version>
+		<otf-vs.version>1.1-va-1.12-SNAPSHOT</otf-vs.version>
 	</properties>
 
 	<scm>
