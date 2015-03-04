@@ -288,6 +288,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         if (eAttr != null) {
             if (c.getData().isPrimordial()) {
                 setAttributesFromEConcept(c, eAttr);
+            } else {
+                c.getData().getConceptAttributes().merge(new ConceptAttributes(eAttr, c));
             }
         }
 

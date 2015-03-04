@@ -59,6 +59,7 @@ public class ConceptComponentSerializer {
         assert cc.primordialStamp != 0 && cc.primordialStamp != Integer.MAX_VALUE : "Processing nid: " + cc.nid;
         output.writeInt(cc.nid);
         output.writeInt(cc.enclosingConceptNid);
+        //((PersistentStoreI)Ts.get()).setConceptNidForNid(cc.enclosingConceptNid, cc.nid);
         output.writeLong(cc.primordialMsb);
         output.writeLong(cc.primordialLsb);
         output.writeInt(cc.primordialStamp);

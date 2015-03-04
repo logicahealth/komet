@@ -23,5 +23,7 @@ public interface TaxonomyCoordinate {
     
     TaxonomyType getTaxonomyType();
     
-    int[] getDescriptionTypePreferenceList();
+    StampCoordinate getStampCoordinate();
+    
+    LanguageCoordinate getLanguageCoordinate();
 }

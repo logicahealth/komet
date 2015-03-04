@@ -107,4 +107,9 @@ public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
             w.unlock();
         }
     }
+
+    public String getStats() {
+        return "distinct: " + getDistinct() + " free: " + getFreeEntries()
+                + " utilization: " + getDistinct() * 100 /(getDistinct() + getFreeEntries());
+    }
 }

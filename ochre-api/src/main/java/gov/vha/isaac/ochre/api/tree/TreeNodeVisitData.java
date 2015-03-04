@@ -128,8 +128,8 @@ public class TreeNodeVisitData {
         switch (nodeStatus) {
             case FINISHED:
                 visitEnded.set(nodeSequence);
+                break;
             case PROCESSING:
-
                 visitStarted.set(nodeSequence);
                 break;
             case UNDISCOVERED:

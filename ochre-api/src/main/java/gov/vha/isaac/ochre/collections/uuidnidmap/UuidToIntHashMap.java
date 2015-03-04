@@ -328,34 +328,8 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
     }
 
     protected int indexOfKey(UUID key) {
-        final long tab[] = table;
-        final byte stat[] = state;
-        final int length = stat.length;
-
-        final int hash = HashFunctions.hash(key.getMostSignificantBits() + key.getLeastSignificantBits()) & 0x7FFFFFFF;
-        int i = hash % length;
-        int decrement = hash % (length - 2); // double hashing, see
-        // http://www.eece.unm.edu/faculty/heileman/hash/node4.html
-        // int decrement = (hash / length) % length;
-        if (decrement == 0) {
-            decrement = 1;
-        }
-
-        // stop if we find a free slot, or if we find the key itself.
-        // do skip over removed slots (yes, open addressing is like that...)
-        while (stat[i] != FREE && (stat[i] == REMOVED || (tab[i * 2] != key.getMostSignificantBits()
-                || tab[i * 2 + 1] != key.getLeastSignificantBits()))) {
-            i -= decrement;
-            // hashCollisions++;
-            if (i < 0) {
-                i += length;
-            }
-        }
-
-        if (stat[i] == FREE) {
-            return -1; // not found
-        }
-        return i; // found, return index where key is contained
+        return indexOfKey(new long[] {key.getMostSignificantBits(),
+                                      key.getLeastSignificantBits()});
     }
 
     /**

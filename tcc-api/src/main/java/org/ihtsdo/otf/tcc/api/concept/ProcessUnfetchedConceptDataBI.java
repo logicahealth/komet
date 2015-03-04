@@ -20,7 +20,6 @@ package org.ihtsdo.otf.tcc.api.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.ContinuationTrackerBI;

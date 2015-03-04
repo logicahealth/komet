@@ -45,6 +45,11 @@ public class Position implements Comparable<Position>, StampPosition, Externaliz
         this.time = another.getTime();
         this.path = new Path(another.getPath());
     }
+    
+    public Position(StampPosition another) {
+        this.time = another.getInstant().toEpochMilli();
+        this.path = new Path(another.getStampPath());
+    }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {

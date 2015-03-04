@@ -355,15 +355,16 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
     public int[] toIntArray() {
         int lengthOfBitSet = this.cardinality();
-        int[] intArray = new int[this.cardinality()];
-        int bit = this.nextSetBit(0);
+        int[] intArray = new int[lengthOfBitSet];
+        if (lengthOfBitSet > 0) {
+            int bit = this.nextSetBit(0);
 
-        intArray[0] = bit;
+            intArray[0] = bit;
 
-        for (int i = 1; i < lengthOfBitSet; i++) {
-            intArray[i] = nextSetBit(intArray[i - 1]);
+            for (int i = 1; i < lengthOfBitSet; i++) {
+                intArray[i] = nextSetBit(intArray[i - 1]);
+            } 
         }
-
         return intArray;
     }
 

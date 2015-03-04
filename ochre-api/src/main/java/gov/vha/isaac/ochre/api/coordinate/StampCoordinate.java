@@ -13,4 +13,6 @@ public interface StampCoordinate {
     
     StampPosition getStampPosition();
     
+    int[] getModuleSequences();
+    
 }

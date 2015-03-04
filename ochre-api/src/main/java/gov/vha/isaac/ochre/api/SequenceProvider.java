@@ -5,6 +5,8 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import java.util.BitSet;
+import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -20,4 +22,14 @@ public interface SequenceProvider {
     int getSememeSequence(int nid);
     int getSememeNid(int sememeSequence);
     
+    IntStream getConceptSequenceStream();
+    IntStream getParallelConceptSequenceStream();
+    
+    IntStream getSememeSequenceStream();
+    IntStream getParallelSememeSequenceStream();
+    
+    BitSet getConceptSequencesForNids(int[] conceptNidArray);
+    BitSet getSememeSequencesForNids(int[] sememeNidArray);
+
+
 }

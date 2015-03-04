@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 International Health Terminology Standards Development Organisation.
+ * Copyright 2015 kec.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.lookup;
-
-import gov.vha.isaac.ochre.api.LookupService;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.runlevel.RunLevelController;
+package gov.vha.isaac.ochre.api;
 
 import java.lang.annotation.Annotation;
+import javafx.embed.swing.JFXPanel;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.runlevel.RunLevelController;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 
 /**
  *
- * @author aimeefurber
+ * @author kec
  */
-public class Hk2Looker {
+public class LookupService {
+    private static ServiceLocator looker = null;
     public static ServiceLocator get() {
-        return LookupService.get();
+        if (looker == null) {
+            JFXPanel initFxPanel = new JFXPanel();
+            looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
+        }
+        return looker;
     }
 
     public static <T> T getService(Class<T> contractOrImpl) {
@@ -36,5 +41,5 @@ public class Hk2Looker {
 
     public static RunLevelController getRunLevelController() {
         return getService(RunLevelController.class);
-    }
+    }    
 }

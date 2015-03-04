@@ -8,6 +8,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -101,8 +102,10 @@ public interface TerminologyDI {
     void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception;
 
     Stream<? extends ConceptChronicleBI> getConceptStream() throws IOException;
+    Stream<? extends ConceptChronicleBI> getConceptStream(BitSet conceptSequences) throws IOException;
     
     Stream<? extends ConceptChronicleBI> getParallelConceptStream() throws IOException;
+    Stream<? extends ConceptChronicleBI> getParallelConceptStream(BitSet conceptSequences) throws IOException;
 
     /**
      *

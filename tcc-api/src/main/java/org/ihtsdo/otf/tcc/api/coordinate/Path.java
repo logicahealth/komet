@@ -92,14 +92,24 @@ public class Path implements StampPath, Externalizable {
 
     public Path(SimplePath another) {
         this.conceptSpec = new ConceptSpec(another.getPathConceptSpecification());
-        for (SimplePosition origin: another.getOrigins()) {
+        another.getOrigins().stream().forEach((origin) -> {
             origins.add(new Position(origin));
-        }
+        });
     }
     public Path(Path another) {
         this.conceptSpec = another.getConceptSpec();
-        for (Position origin: another.getOrigins()) {
+        another.getOrigins().stream().forEach((origin) -> {
             origins.add(new Position(origin));
+        });
+    }
+    public Path(StampPath another) {
+        try {
+            this.conceptSpec = new ConceptSpec(another.getPathConceptSequence());
+            another.getPathOrigins().stream().forEach((origin) -> {
+                origins.add(new Position(origin));
+            });
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
