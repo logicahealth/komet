@@ -5,7 +5,7 @@
  */
 package gov.vha.isaac.ochre.api.tree.hashtree;
 
-import java.util.BitSet;
+import gov.vha.isaac.ochre.collections.SequenceSet;
 import java.util.stream.IntStream;
 
 /**
@@ -14,20 +14,20 @@ import java.util.stream.IntStream;
  * @author kec
  */
 public class HashTreeWithBitSets extends AbstractHashTree {
-    final BitSet conceptSequencesWithParents;
-    final BitSet conceptSequencesWithChildren;
-    final BitSet conceptSequences;
+    final SequenceSet conceptSequencesWithParents;
+    final SequenceSet conceptSequencesWithChildren;
+    final SequenceSet conceptSequences;
 
     public HashTreeWithBitSets() {
-        conceptSequencesWithParents = new BitSet();
-        conceptSequencesWithChildren = new BitSet();
-        conceptSequences = new BitSet();
+        conceptSequencesWithParents = new SequenceSet();
+        conceptSequencesWithChildren = new SequenceSet();
+        conceptSequences = new SequenceSet();
     }
 
     public HashTreeWithBitSets(int initialSize) {
-        conceptSequencesWithParents = new BitSet(initialSize);
-        conceptSequencesWithChildren = new BitSet(initialSize);
-        conceptSequences = new BitSet(initialSize);
+        conceptSequencesWithParents = new SequenceSet();
+        conceptSequencesWithChildren = new SequenceSet();
+        conceptSequences = new SequenceSet();
     }
 
 
@@ -36,10 +36,10 @@ public class HashTreeWithBitSets extends AbstractHashTree {
         if (childSequenceArray.length > 0) {
             parentSequence_ChildSequenceArray_Map.put(parentSequence, childSequenceArray);
             IntStream.of(childSequenceArray).forEach((int sequence) -> {
-                conceptSequences.set(sequence);
+                conceptSequences.add(sequence);
             });
             maxSequence = Math.max(IntStream.of(childSequenceArray).max().getAsInt(), maxSequence);
-            conceptSequencesWithChildren.set(parentSequence);
+            conceptSequencesWithChildren.add(parentSequence);
         }
 
     }
@@ -49,17 +49,17 @@ public class HashTreeWithBitSets extends AbstractHashTree {
         if (parentSequenceArray.length > 0) {
             childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
             IntStream.of(parentSequenceArray).forEach((int sequence) -> {
-                conceptSequences.set(sequence);
+                conceptSequences.add(sequence);
             });
             maxSequence = Math.max(IntStream.of(parentSequenceArray).max().getAsInt(), maxSequence);
-            conceptSequencesWithParents.set(childSequence);
+            conceptSequencesWithParents.add(childSequence);
         }
     }
 
 
     @Override
     public int[] getRootSequences() {
-        BitSet rootSet = new BitSet(conceptSequencesWithParents.size());
+        SequenceSet rootSet = new SequenceSet();
         rootSet.or(conceptSequencesWithChildren);
         rootSet.andNot(conceptSequencesWithParents);
         return rootSet.stream().toArray();
@@ -67,32 +67,29 @@ public class HashTreeWithBitSets extends AbstractHashTree {
 
     @Override
     public int size() {
-        return getNodeSequences().cardinality() + 1;
+        return getNodeSequences().size() + 1;
     }
 
     public int getMaxSequence() {
         return maxSequence;
     }
 
-    public BitSet getNodeSequences() {
+    public SequenceSet getNodeSequences() {
         return conceptSequences;
     }
 
     public int[] getLeafSequences() {
-        BitSet leavesSet = new BitSet(conceptSequencesWithParents.size());
+        SequenceSet leavesSet = new SequenceSet();
         leavesSet.or(conceptSequencesWithParents);
         leavesSet.andNot(conceptSequencesWithChildren);
         return leavesSet.stream().toArray();
     }
 
     public int conceptSequencesWithParentsCount() {
-        return conceptSequencesWithParents.cardinality();
+        return conceptSequencesWithParents.size();
     }
 
     public int conceptSequencesWithChildrenCount() {
-        return conceptSequencesWithChildren.cardinality();
+        return conceptSequencesWithChildren.size();
     }
-
-
-
 }

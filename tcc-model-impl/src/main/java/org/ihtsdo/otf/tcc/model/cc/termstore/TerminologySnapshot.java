@@ -40,6 +40,7 @@ import java.beans.VetoableChangeListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.BitSet;
 
 import java.util.Collection;
 import java.util.Map;
@@ -61,7 +62,17 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
 public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminologySnapshotDI {
 
    /** Field description */
-   private PersistentStoreI store;
+   private final PersistentStoreI store;
+
+    @Override
+    public Stream<? extends ConceptChronicleBI> getConceptStream(BitSet conceptSequences) throws IOException {
+        return store.getConceptStream(conceptSequences);
+    }
+
+    @Override
+    public Stream<? extends ConceptChronicleBI> getParallelConceptStream(BitSet conceptSequences) throws IOException {
+        return store.getParallelConceptStream(conceptSequences);
+    }
 
     @Override
     public Stream<? extends ConceptChronicleBI> getConceptStream() throws IOException {

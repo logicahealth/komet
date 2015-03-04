@@ -16,15 +16,11 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  *

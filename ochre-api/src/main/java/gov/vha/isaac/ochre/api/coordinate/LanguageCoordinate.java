@@ -6,5 +6,8 @@ package gov.vha.isaac.ochre.api.coordinate;
  * Created by kec on 2/16/15.
  */
 public interface LanguageCoordinate {
+    int getLanugageConceptSequence();
+    int[] getDialectAssemblagePreferenceList();
+    int[] getDescriptionTypePreferenceList();
     
 }
