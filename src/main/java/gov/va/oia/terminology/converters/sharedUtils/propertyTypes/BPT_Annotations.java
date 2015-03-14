@@ -18,7 +18,7 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 
 
 /**
@@ -29,7 +29,6 @@ public class BPT_Annotations extends PropertyType
 {
 	public BPT_Annotations()
 	{
-		super("Attribute Types");
-		indexRefsetMembers = true;
+		super("Attribute Types", true, RefexDynamicDataType.STRING);
 	}
 }

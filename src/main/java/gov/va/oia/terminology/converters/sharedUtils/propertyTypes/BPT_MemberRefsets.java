@@ -35,7 +35,7 @@ public class BPT_MemberRefsets extends PropertyType
 
 	public BPT_MemberRefsets(String terminologyName)
 	{
-		super("Refsets", terminologyName + " Refsets");
+		super("Refsets", terminologyName + " Refsets", true, null);
 		conceptMap_ = new HashMap<>();
 	}
 	

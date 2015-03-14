@@ -41,6 +41,6 @@ public class BPT_Descriptions extends PropertyType
 
 	public BPT_Descriptions(String terminologyName)
 	{
-		super("Description Types", terminologyName + " Description Type");
+		super("Description Types", terminologyName + " Description Type", false, null);
 	}
 }

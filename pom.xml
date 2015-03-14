@@ -11,7 +11,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<otf-vs.version>1.1-va-1.12</otf-vs.version>
+		<otf-vs.version>1.1-va-1.13-SNAPSHOT</otf-vs.version>
 	</properties>
 
 	<scm>
@@ -55,6 +55,11 @@
 		<dependency>
 			<groupId>org.ihtsdo.otf</groupId>
 			<artifactId>tcc-api</artifactId>
+			<version>${otf-vs.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ihtsdo.otf</groupId>
+			<artifactId>tcc-mojo</artifactId>
 			<version>${otf-vs.version}</version>
 		</dependency>
 		<dependency>
