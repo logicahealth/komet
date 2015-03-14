@@ -67,6 +67,12 @@ public interface ObjectChronicleTaskServer {
      * @return Task that returns an integer reflecting the number of object chronicles verified
      */
     Task<Boolean> startVerifyTask(Path... filePaths);
+    /**
+     *
+     * @param stampPath All object chronicles on this path will be verified
+     * @param filePaths <code>Path</code>s of the input files for the verification
+     * @return Task that returns an integer reflecting the number of object chronicles verified
+     */
     Task<Boolean> startVerifyTask(ConceptProxy stampPath, Path... filePaths);
 
     /**
@@ -75,6 +81,12 @@ public interface ObjectChronicleTaskServer {
      * @return Task that returns an integer reflecting the number of object chronicles exported
      */
     Task<Integer> startExportTask(Path filePath);
+    /**
+     * 
+     * @param stampPath the stampPath to export from (only versions on this path will be exported)
+     * @param filePath <code>Path</code> of the export file
+     * @return Task that returns an integer reflecting the number of object chronicles exported
+     */
     Task<Integer> startExportTask(ConceptProxy stampPath, Path filePath);
 
     /**
@@ -97,5 +109,6 @@ public interface ObjectChronicleTaskServer {
      * @return Task that indicates progress.
      */
     Task<Void> startIndexTask();
+    
 
 }

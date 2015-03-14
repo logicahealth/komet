@@ -1238,7 +1238,14 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 buf.append(" s:");
                 buf.append(getStatus());
                 buf.append(" t: ");
-                buf.append(TimeHelper.formatDate(getTime()));
+                long time = getTime();
+                if (time == Long.MAX_VALUE) {
+                    buf.append("uncommitted");
+                } else if (time == Long.MIN_VALUE) {
+                    buf.append("canceled");
+                } else {
+                    buf.append(TimeHelper.formatDate(time));
+                }
                 buf.append(" ");
                 buf.append(getTime());
                 buf.append(" a:");
@@ -1247,6 +1254,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 ConceptComponent.addNidToBuffer(buf, getModuleNid());
                 buf.append(" p:");
                 ConceptComponent.addNidToBuffer(buf, getPathNid());
+                buf.append(" ms:");
+                buf.append(time);
             } catch (Throwable e) {
                 buf.append(" !!! Invalid stamp. Cannot compute status, time, author, module, path. !!! ");
                 buf.append(e.getLocalizedMessage());

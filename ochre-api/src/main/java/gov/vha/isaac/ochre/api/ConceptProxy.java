@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Created by kec on 2/16/15.
@@ -28,6 +29,22 @@ public class ConceptProxy {
         hash = 79 * hash + Arrays.deepHashCode(this.uuids);
         hash = 79 * hash + Objects.hashCode(this.description);
         return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConceptProxy other = (ConceptProxy) obj;
+        return Arrays.stream(uuids).anyMatch((UUID objUuid) -> {
+            return Arrays.stream(other.uuids).anyMatch((otherUuid) ->{
+                return objUuid.equals(otherUuid);
+            });
+        });
     }
 
     /**

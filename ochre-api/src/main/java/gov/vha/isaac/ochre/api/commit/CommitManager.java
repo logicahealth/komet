@@ -5,6 +5,7 @@
  */
 package gov.vha.isaac.ochre.api.commit;
 
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
 import java.util.Optional;
 import javafx.collections.ObservableList;
@@ -44,5 +45,22 @@ public interface CommitManager {
     void addChangeChecker(ChangeChecker checker);
 
     void removeChangeChecker(ChangeChecker checker);
+    
+    long getSequence();
+
+    long incrementAndGetSequence();
+    
+    int getAuthorSequenceForStamp(int stamp);
+    
+    int getModuleSequenceForStamp(int stamp);
+
+    int getPathSequenceForStamp(int stamp);
+
+    State getStatusForStamp(int stamp);
+
+    long getTimeForStamp(int stamp);
+    
+    int getStamp(State status, long time, 
+            int authorSequence, int moduleSequence, int pathSequence);
 
 }

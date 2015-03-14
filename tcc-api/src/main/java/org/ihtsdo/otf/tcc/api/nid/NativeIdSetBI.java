@@ -15,6 +15,9 @@
  */
 package org.ihtsdo.otf.tcc.api.nid;
 
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 import java.io.IOException;
@@ -142,5 +145,10 @@ public interface NativeIdSetBI {
             returnValues.add(Ts.get().getUuidPrimordialForNid(nativeIdSetItr.nid()));
         }
         return returnValues;
+    }
+    
+    public default ConceptSequenceSet toConceptSequenceSet() {
+        SequenceProvider sp = LookupService.getService(SequenceProvider.class);
+        return sp.getConceptSequencesForNids(getSetValues());
     }
 }

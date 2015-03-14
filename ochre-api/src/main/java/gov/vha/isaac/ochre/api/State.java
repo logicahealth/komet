@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 International Health Terminology Standards Development Organisation.
+ * Copyright 2015 kec.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,47 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.api.coordinate;
-
-import gov.vha.isaac.ochre.api.State;
+package gov.vha.isaac.ochre.api;
 
 /**
  *
  * @author kec
  */
-public enum Status {
-    INACTIVE(false, State.INACTIVE), 
-    ACTIVE(true, State.ACTIVE);
+public enum State {
+       INACTIVE(false), ACTIVE(true);
 
     boolean isActive;
-    State state;
 
-    Status(boolean isActive, State state) {
+    State(boolean isActive) {
         this.isActive = isActive;
-        this.state = state;
     }
     public boolean getBoolean() {
         return isActive;
     }
 
-    public static Status getFromBoolean(boolean isActive) {
+    public static State getFromBoolean(boolean isActive) {
         if (isActive) {
             return ACTIVE;
         }
         return INACTIVE;
     }
-
-    public State getState() {
-        return state;
-    }
-    
-    public static Status getStatusFromState(State state) {
-        switch(state) {
-            case ACTIVE: return ACTIVE;
-            case INACTIVE: return INACTIVE;
-                default: 
-                    throw new UnsupportedOperationException("Can't handle: " + state);
-        }
-    }
 }
+ 
 

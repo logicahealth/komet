@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.api.store;
 
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Path;
@@ -8,7 +9,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
@@ -89,8 +89,7 @@ public interface TerminologyDI {
      * {@code index(ComponentChronicleBI chronicle)} and when complete, to
      * call {@code commitWriter()}. {@code IndexerBI} services will be
      * discovered using the HK2 dependency injection framework.
-     *
-     * @return 
+     * 
      * @throws IOException
      */
     void index() throws IOException;
@@ -102,10 +101,10 @@ public interface TerminologyDI {
     void iterateConceptDataInSequence(ProcessUnfetchedConceptDataBI processor) throws Exception;
 
     Stream<? extends ConceptChronicleBI> getConceptStream() throws IOException;
-    Stream<? extends ConceptChronicleBI> getConceptStream(BitSet conceptSequences) throws IOException;
+    Stream<? extends ConceptChronicleBI> getConceptStream(ConceptSequenceSet conceptSequences) throws IOException;
     
     Stream<? extends ConceptChronicleBI> getParallelConceptStream() throws IOException;
-    Stream<? extends ConceptChronicleBI> getParallelConceptStream(BitSet conceptSequences) throws IOException;
+    Stream<? extends ConceptChronicleBI> getParallelConceptStream(ConceptSequenceSet conceptSequences) throws IOException;
 
     /**
      *
@@ -158,6 +157,8 @@ public interface TerminologyDI {
      * @param conceptNativeIds the
      * {@link org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI} for which the components
      * nids will be retrieved
+     * @return 
+     * @throws java.io.IOException
      */
     NativeIdSetBI getComponentNidsForConceptNids(NativeIdSetBI conceptNativeIds) throws IOException;
 

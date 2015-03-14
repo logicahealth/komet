@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.collections;
 
 import gov.vha.isaac.ochre.api.SequenceProvider;
-import static gov.vha.isaac.ochre.collections.SequenceSet.getSequenceProvider;
+import static gov.vha.isaac.ochre.collections.IntSet.getSequenceProvider;
 import java.util.Collection;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -25,38 +25,38 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class ConceptSequenceSet extends SequenceSet {
+public class StampSequenceSet extends SequenceSet {
     
     
-    public static ConceptSequenceSet of(int... members) {
-        return new ConceptSequenceSet(members);
+    public static StampSequenceSet of(int... members) {
+        return new StampSequenceSet(members);
     }
 
-    public static ConceptSequenceSet of(OpenIntHashSet members) {
-        return new ConceptSequenceSet(members);
+    public static StampSequenceSet of(OpenIntHashSet members) {
+        return new StampSequenceSet(members);
     }
     
-    public static ConceptSequenceSet of(Collection<Integer> members) {
-        return new ConceptSequenceSet(members.stream().mapToInt(i -> i));
+    public static StampSequenceSet of(Collection<Integer> members) {
+        return new StampSequenceSet(members.stream().mapToInt(i -> i));
     }
 
-    public ConceptSequenceSet() {
+    public static StampSequenceSet of(IntStream memberStream) {
+        return new StampSequenceSet(memberStream);
+    }
+
+    public StampSequenceSet() {
     }
     
-    public static ConceptSequenceSet of(NidSet nidSet) {
-        SequenceProvider sp = getSequenceProvider();
-        return new ConceptSequenceSet(nidSet.stream()
-                .map((nid) -> sp.getConceptSequence(nid)));
-    }
-    protected ConceptSequenceSet(IntStream memberStream) {
+
+    protected StampSequenceSet(IntStream memberStream) {
         super(memberStream);
     }
 
-    protected ConceptSequenceSet(int[] members) {
+    protected StampSequenceSet(int[] members) {
         super(members);
     }
 
-    protected ConceptSequenceSet(OpenIntHashSet members) {
+    protected StampSequenceSet(OpenIntHashSet members) {
         super(members);
     }
 }

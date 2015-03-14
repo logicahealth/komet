@@ -19,19 +19,19 @@ import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
 
 public class ChangeSetWriterHandler implements Runnable, ProcessUnfetchedConceptDataBI {
 
-   private static ConcurrentHashMap<String, ChangeSetGeneratorBI> writerMap = new ConcurrentHashMap<>();
+   private static final ConcurrentHashMap<String, ChangeSetGeneratorBI> writerMap = new ConcurrentHashMap<>();
    public static AtomicInteger changeSetWriters = new AtomicInteger();
-   private NativeIdSetBI cNidsToWrite;
-   private long commitTime;
-   private String commitTimeStr;
-   private NidSetBI sapNidsFromCommit;
-   private long startTime = System.currentTimeMillis();
-   private AtomicInteger processedCount = new AtomicInteger();
-   private AtomicInteger processedChangedCount = new AtomicInteger();
+   private final NativeIdSetBI cNidsToWrite;
+   private final long commitTime;
+   private final String commitTimeStr;
+   private final NidSetBI sapNidsFromCommit;
+   private final long startTime = System.currentTimeMillis();
+   private final AtomicInteger processedCount = new AtomicInteger();
+   private final AtomicInteger processedChangedCount = new AtomicInteger();
    private int changedCount = Integer.MIN_VALUE;
-   private ChangeSetWriterThreading changeSetWriterThreading;
-   private ChangeSetGenerationPolicy changeSetPolicy;
-   private List<ChangeSetGeneratorBI> writerListForHandler;
+   private final ChangeSetWriterThreading changeSetWriterThreading;
+   private final ChangeSetGenerationPolicy changeSetPolicy;
+   private final List<ChangeSetGeneratorBI> writerListForHandler;
 
    public ChangeSetWriterHandler(NativeIdSetBI cNidsToWrite,
            long commitTime, NidSetBI sapNidsFromCommit, ChangeSetGenerationPolicy changeSetPolicy,

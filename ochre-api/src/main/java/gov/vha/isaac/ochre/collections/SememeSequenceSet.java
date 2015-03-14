@@ -43,6 +43,9 @@ public class SememeSequenceSet extends SequenceSet {
         return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
     }
     
+    public SememeSequenceSet() {
+    }
+    
     protected SememeSequenceSet(IntStream memberStream) {
         super(memberStream);
     }

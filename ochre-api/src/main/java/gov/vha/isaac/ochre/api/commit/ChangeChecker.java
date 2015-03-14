@@ -12,7 +12,7 @@ import java.util.Collection;
  *
  * @author kec
  */
-public interface ChangeChecker {
+public interface ChangeChecker extends Comparable<ChangeChecker> {
     
     void check(ChronicledConcept cc, 
                Collection<Alert> alertCollection,
