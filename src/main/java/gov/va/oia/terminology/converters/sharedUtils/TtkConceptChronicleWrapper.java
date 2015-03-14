@@ -30,6 +30,8 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChroni
 
 /**
  * {@link TtkConceptChronicleWrapper}
+ * 
+ * A wrapper utility class that ensures that each concept has an FSN, and has a preferred term (creates one if preferred term is missing)
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
