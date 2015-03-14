@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
@@ -65,12 +66,12 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
    private final PersistentStoreI store;
 
     @Override
-    public Stream<? extends ConceptChronicleBI> getConceptStream(BitSet conceptSequences) throws IOException {
+    public Stream<? extends ConceptChronicleBI> getConceptStream(ConceptSequenceSet conceptSequences) throws IOException {
         return store.getConceptStream(conceptSequences);
     }
 
     @Override
-    public Stream<? extends ConceptChronicleBI> getParallelConceptStream(BitSet conceptSequences) throws IOException {
+    public Stream<? extends ConceptChronicleBI> getParallelConceptStream(ConceptSequenceSet conceptSequences) throws IOException {
         return store.getParallelConceptStream(conceptSequences);
     }
 

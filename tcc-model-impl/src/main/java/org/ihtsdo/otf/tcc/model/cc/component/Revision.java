@@ -175,15 +175,23 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         try {
             buf.append(" s:").append(getStatus());
             buf.append(" t: ");
-            buf.append(TimeHelper.formatDate(getTime()));
+            long time = getTime();
+            if (time == Long.MAX_VALUE) {
+                buf.append("uncommitted");
+            } else if (time == Long.MIN_VALUE) {
+                buf.append("canceled");
+            } else {
+                buf.append(TimeHelper.formatDate(time));
+            }
+            
             buf.append(" a:");
             ConceptComponent.addNidToBuffer(buf, getAuthorNid());
             buf.append(" m:");
             ConceptComponent.addNidToBuffer(buf, getModuleNid());
             buf.append(" p:");
             ConceptComponent.addNidToBuffer(buf, getPathNid());
-            buf.append(" ");
-            buf.append(getTime());
+            buf.append(" ms:");
+            buf.append(time);
         } catch (Throwable e) {
             buf.append(" !!! Invalid stamp. !!! ");
             buf.append(e.getLocalizedMessage());

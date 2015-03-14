@@ -16,6 +16,7 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.io.IOException;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import gov.vha.isaac.ochre.collections.NidSet;
 
 /**
  * TODO with Java 8 lambdas, or even without lambda, many of the operations such
@@ -51,6 +53,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
     Boolean moveToNextUnit = false;
     Boolean iterate = false;
 
+
     public ConcurrentBitSet() {
         this(BITS_PER_SET - 1);
     }
@@ -73,6 +76,13 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         }
 
         bitSetList = new CopyOnWriteArrayList<>(initialSets);
+    }
+    
+    public ConcurrentBitSet(NidSet nidSet) {
+        this(nidSet.getReverseIntIterator().next());
+        nidSet.stream().forEach((int value) -> {
+            set(value);
+        });
     }
 
     public ConcurrentBitSet(NativeIdSetBI nativeIdSet) {
@@ -533,9 +543,7 @@ public class ConcurrentBitSet implements NativeIdSetBI {
 
             try {
                 while (iter.next()) {
-                    if (!this.contains(iter.nid())) {
-                        this.add(iter.nid());
-                    }
+                   this.add(iter.nid());
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConcurrentBitSet.class.getName()).log(Level.SEVERE, null, ex);

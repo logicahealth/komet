@@ -22,11 +22,13 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
 /**
  *
  * @author kec
+ * @param <T>
  */
 public abstract class IntSet<T extends IntSet> {
     protected static SequenceProvider sequenceProvider;
@@ -60,6 +62,10 @@ public abstract class IntSet<T extends IntSet> {
         memberStream.forEach((member) -> rbmp.add(member));
     }    
     
+    public void clear() {
+        rbmp.clear();
+    }
+    
     public void or(T otherSet) {
         rbmp.or(otherSet.rbmp);
     }
@@ -69,7 +75,7 @@ public abstract class IntSet<T extends IntSet> {
     }
 
     public void andNot(T otherSet) {
-        rbmp.and(otherSet.rbmp);
+        rbmp.andNot(otherSet.rbmp);
     }
 
     public void xor(T otherSet) {
@@ -130,5 +136,25 @@ public abstract class IntSet<T extends IntSet> {
                 false);
     }
     
+    public OpenIntHashSet asOpenIntHashSet() {
+        OpenIntHashSet set = new OpenIntHashSet();
+        stream().forEach((sequence) -> set.add(sequence));
+        return set;
+    }
+    
     protected abstract Supplier<? extends Spliterator.OfInt> get();
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{" + "rbmp=" + rbmp + '}';
+    }
+    
+    public IntIterator getIntIterator() {
+        return rbmp.getIntIterator();
+    }
+
+    public IntIterator getReverseIntIterator() {
+        return rbmp.getReverseIntIterator();
+    }
+    
 }

@@ -168,7 +168,7 @@ public class Taxonomy {
 
         QName qName = new QName("taxonomy");
         Wrapper wrapper = new Wrapper(taxonomyList);
-        JAXBElement<Wrapper> jaxbElement = new JAXBElement<Wrapper>(qName,
+        JAXBElement<Wrapper> jaxbElement = new JAXBElement<>(qName,
                 Wrapper.class, wrapper);
         marshaller.marshal(jaxbElement, out);
 
@@ -229,7 +229,7 @@ public class Taxonomy {
       return new UUID[] { parentStack.peek().getComponentUuid() };
    }
 
-   protected UUID getUuid(String name)
+   protected final UUID getUuid(String name)
            throws NoSuchAlgorithmException, UnsupportedEncodingException {
       return UuidT5Generator.get(this.getClass().getName() + name);
    }
