@@ -158,14 +158,8 @@ public class Path implements StampPath, Externalizable {
      */
     public int getConceptNid() {
         if (conceptNid == Integer.MAX_VALUE) {
-            try {
-                if (conceptSpec != null) {
-                    conceptNid = conceptSpec.getNid();
-                }
-            } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+            if (conceptSpec != null) {
+                conceptNid = conceptSpec.getNid();
             }
         }
         return conceptNid;
