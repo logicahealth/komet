@@ -4,10 +4,10 @@
     <parent>
         <groupId>gov.vha.isaac</groupId>
         <artifactId>ochre-parent</artifactId>
-        <version>2.13</version>
+        <version>2.14-SNAPSHOT</version>
     </parent>
     <artifactId>ochre-api</artifactId>
-    <version>2.13</version>
+    <version>2.14-SNAPSHOT</version>
     <name>${branch}: OCHRE API</name>
     <url>http://maven.apache.org</url>
     <properties>
