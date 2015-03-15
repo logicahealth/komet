@@ -230,22 +230,16 @@ public class ViewCoordinate implements StampCoordinate,
                     }
                 } else {
 
-                    try {
-                        if (languageNid == Integer.MAX_VALUE) {
-
-                            if (this.languageSpec.getNid() != another.languageNid) {
-                                return false;
-                            }
-
-                        } else {
-                            if (this.languageNid != another.languageSpec.getNid()) {
-                                return false;
-                            }
+                    if (languageNid == Integer.MAX_VALUE) {
+                        
+                        if (this.languageSpec.getNid() != another.languageNid) {
+                            return false;
                         }
-                    } catch (ValidationException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        
+                    } else {
+                        if (this.languageNid != another.languageSpec.getNid()) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -261,22 +255,16 @@ public class ViewCoordinate implements StampCoordinate,
                     }
                 } else {
 
-                    try {
-                        if (classifierNid == Integer.MAX_VALUE) {
-
-                            if (this.classifierSpec.getNid() != another.classifierNid) {
-                                return false;
-                            }
-
-                        } else {
-                            if (this.classifierNid != another.classifierSpec.getNid()) {
-                                return false;
-                            }
+                    if (classifierNid == Integer.MAX_VALUE) {
+                        
+                        if (this.classifierSpec.getNid() != another.classifierNid) {
+                            return false;
                         }
-                    } catch (ValidationException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        
+                    } else {
+                        if (this.classifierNid != another.classifierSpec.getNid()) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -525,13 +513,7 @@ public class ViewCoordinate implements StampCoordinate,
 
     public int getIsaNid() {
         if (isaNid == 0 || isaNid == Integer.MAX_VALUE) {
-            try {
-                isaNid = Snomed.IS_A.getNid();
-            } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            isaNid = Snomed.IS_A.getNid();
         }
         return isaNid;
     }
@@ -541,23 +523,11 @@ public class ViewCoordinate implements StampCoordinate,
             langPrefList = new NidList();
             if (langPrefSpecs != null) {
                 for (ConceptSpec spec : langPrefSpecs) {
-                    try {
-                        langPrefList.add(spec.getNid());
-                    } catch (ValidationException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    langPrefList.add(spec.getNid());
                 }
             } else {
                 if (languageSpec != null) {
-                    try {
-                        langPrefList.add(languageSpec.getNid());
-                    } catch (ValidationException ex) {
-                        Logger.getLogger(ViewCoordinate.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    langPrefList.add(languageSpec.getNid());
                 }
             }
         }
@@ -605,13 +575,7 @@ public class ViewCoordinate implements StampCoordinate,
     @XmlTransient
     public int getLanguageNid() {
         if (languageNid == Integer.MAX_VALUE) {
-            try {
-                this.languageNid = languageSpec.getNid();
-            } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            this.languageNid = languageSpec.getNid();
         }
         return languageNid;
     }
@@ -804,13 +768,7 @@ public class ViewCoordinate implements StampCoordinate,
             descriptionTypePrefList = new NidList();
             if (descriptionTypePrefSpecs != null) {
                 for (ConceptSpec spec : descriptionTypePrefSpecs) {
-                    try {
-                        descriptionTypePrefList.add(spec.getNid());
-                    } catch (ValidationException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    descriptionTypePrefList.add(spec.getNid());
                 }
             } 
         }
