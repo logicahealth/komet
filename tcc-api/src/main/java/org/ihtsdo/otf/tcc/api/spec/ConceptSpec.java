@@ -22,6 +22,8 @@ package org.ihtsdo.otf.tcc.api.spec;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceProvider;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
@@ -68,6 +70,15 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
    private static final long serialVersionUID = 1L;
    /** Native identifier for the concept proxied by this object  */
    protected transient int nid = Integer.MAX_VALUE;
+   protected transient int sequence = Integer.MAX_VALUE;
+   private static SequenceProvider sequenceProvider = null;
+   private static int getConceptSequence(int nid) {
+       if (sequenceProvider == null) {
+           sequenceProvider = LookupService.getService(SequenceProvider.class);
+       }
+       return sequenceProvider.getConceptSequence(nid);
+   }
+    
 
    @Override
     public boolean equals(Object obj) {
@@ -126,6 +137,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     * Constructs ...
     *
     *
+     * @param simpleSpec
     */
    public ConceptSpec(SimpleConceptSpecification simpleSpec) {
       this(simpleSpec.getDescription(), simpleSpec.getUuid(), new RelSpec[] {});
@@ -368,7 +380,7 @@ next:
     * @throws ValidationException
     */
    public ConceptChronicleBI getLenient() throws ValidationException, IOException {
-       assert Ts.get() != null: "Ts not properly set up. Ts.get() is null();";
+      assert Ts.get() != null: "Ts not properly set up. Ts.get() is null();";
       try {
          if (localChronicle != null) {
             return localChronicle;
@@ -511,5 +523,20 @@ next:
       }
 
       return nid;
+   }
+   /**
+    * Method description
+    *
+    *
+    * @return
+    *
+    * @throws IOException
+    * @throws ValidationException
+    */
+   public int getSequence() throws ValidationException, IOException {
+      if (sequence == Integer.MAX_VALUE) {
+         sequence = getConceptSequence(getNid());
+      }
+      return sequence;
    }
 }
