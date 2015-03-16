@@ -15,12 +15,8 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import java.util.Spliterator;
-import java.util.function.IntConsumer;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import org.roaringbitmap.IntIterator;
 
 /**
  *
@@ -42,50 +38,5 @@ public class SequenceSet extends IntSet {
     }
 
     public SequenceSet() {
-    }
-
-    @Override
-    protected Supplier<? extends Spliterator.OfInt> get() {
-        return new SpliteratorSupplier();
-    }
-
-    private class SpliteratorSupplier implements Supplier<Spliterator.OfInt> {
-
-        @Override
-        public Spliterator.OfInt get() {
-            return new BitSetSpliterator();
-        }
-
-    }
-
-    private class BitSetSpliterator implements Spliterator.OfInt {
-
-        IntIterator intIterator = rbmp.getIntIterator();
-
-        @Override
-        public Spliterator.OfInt trySplit() {
-            return null;
-        }
-
-        @Override
-        public boolean tryAdvance(IntConsumer action) {
-            action.accept(intIterator.next());
-            return intIterator.hasNext();
-        }
-
-        @Override
-        public long estimateSize() {
-            return SequenceSet.this.size();
-        }
-
-        @Override
-        public int characteristics() {
-            return Spliterator.DISTINCT
-                    + Spliterator.IMMUTABLE
-                    + Spliterator.NONNULL
-                    + Spliterator.ORDERED
-                    + Spliterator.SIZED
-                    + Spliterator.SORTED;
-        }
     }
 }
