@@ -32,5 +32,7 @@ public interface SequenceProvider {
     ConceptSequenceSet getConceptSequencesForNids(int[] conceptNidArray);
     SememeSequenceSet getSememeSequencesForNids(int[] sememeNidArray);
 
+    IntStream getConceptNidsForSequences(IntStream conceptSequences);
+    IntStream getSememeNidsForSequences(IntStream sememSequences);
 
 }
