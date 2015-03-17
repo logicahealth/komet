@@ -226,7 +226,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         initPermit.acquireUninterruptibly();
         try {
             if (conceptsCRHM == null) {
-                System.out.println("### Starting map initialization.");
                 conceptsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                         ConcurrentReferenceHashMap.ReferenceType.WEAK);
                 componentsCRHM = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
@@ -239,7 +238,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 rf2LangRefexNidSet = new NidSet();
                 rf2LangRefexNidSet.add(ReferenceConcepts.FULLY_SPECIFIED_RF2.getNid());
                 rf2LangRefexNidSet.add(ReferenceConcepts.SYNONYM_RF2.getNid());
-                System.out.println("### Finished map initialization.");
             }
         } finally {
             initPermit.release();
