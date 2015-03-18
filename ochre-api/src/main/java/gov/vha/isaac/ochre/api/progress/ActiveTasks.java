@@ -1,7 +1,5 @@
-package org.ihtsdo.otf.lookup.contracts.contracts;
-
 /*
- * Copyright 2014 Informatics, Inc..
+ * Copyright 2015 kec.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +13,10 @@ package org.ihtsdo.otf.lookup.contracts.contracts;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gov.vha.isaac.ochre.api.progress;
 
-import gov.vha.isaac.ochre.api.progress.ActiveTasks;
+import java.util.Set;
+import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -24,7 +24,6 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface ActiveTaskSet extends ActiveTasks {
-
-
+public interface ActiveTasks {
+    Set<Task> get();
 }

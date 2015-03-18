@@ -15,6 +15,7 @@
 
 package gov.vha.isaac.ochre.api;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.time.Instant;
 
@@ -61,6 +62,14 @@ public interface ObjectChronicleTaskServer {
      */
     Task<Integer> startLoadTask(ConceptProxy stampPath, Path... filePaths);
 
+   /**
+     *
+     * @param stampPath All object chronicles will be placed onto this path
+     * @param filePaths <code>Path</code>s of the input files
+     * @return Task that returns an integer reflecting the number of object chronicles imported
+     */
+    Task<Integer> startLoadTask(StandardPaths stampPath, Path... filePaths);
+
     /**
      *
      * @param filePaths <code>Path</code>s of the input files for the verification
@@ -77,6 +86,14 @@ public interface ObjectChronicleTaskServer {
 
     /**
      *
+     * @param stampPath All object chronicles on this path will be verified
+     * @param filePaths <code>Path</code>s of the input files for the verification
+     * @return Task that returns an integer reflecting the number of object chronicles verified
+     */
+    Task<Boolean> startVerifyTask(StandardPaths stampPath, Path... filePaths);
+
+    /**
+     *
      * @param filePath <code>Path</code> of the export file
      * @return Task that returns an integer reflecting the number of object chronicles exported
      */
@@ -88,6 +105,14 @@ public interface ObjectChronicleTaskServer {
      * @return Task that returns an integer reflecting the number of object chronicles exported
      */
     Task<Integer> startExportTask(ConceptProxy stampPath, Path filePath);
+
+    /**
+     * 
+     * @param stampPath the stampPath to export from (only versions on this path will be exported)
+     * @param filePath <code>Path</code> of the export file
+     * @return Task that returns an integer reflecting the number of object chronicles exported
+     */
+    Task<Integer> startExportTask(StandardPaths stampPath, Path filePath);
 
     /**
      * Removes all relationships from the object chronicle concepts, so that only the logic graph remains.
@@ -105,10 +130,17 @@ public interface ObjectChronicleTaskServer {
     Task<Integer> startLogicGraphExportTask(ConceptProxy stampPath, Path filePath);
 
     /**
+     * Removes all relationships from the object chronicle concepts, so that only the logic graph remains.
+     * @param stampPath All object chronicles will be placed onto this path in the exported file
+     * @param filePath <code>Path</code> of the export file
+     * @return Task that returns an integer reflecting the number of object chronicles exported
+     */
+    Task<Integer> startLogicGraphExportTask(StandardPaths stampPath, Path filePath);
+
+    /**
      * Perform indexing according to all installed indexers.
      * @return Task that indicates progress.
      */
     Task<Void> startIndexTask();
-    
-
+        
 }
