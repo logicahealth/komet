@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api.tree.hashtree;
 import gov.vha.isaac.ochre.api.tree.NodeStatus;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -137,8 +138,8 @@ public abstract class AbstractHashTree implements Tree {
     }
 
     @Override
-    public final BitSet getDescendentSequenceSet(int parentSequence) {
-        BitSet descendentSequences = new BitSet();
+    public final ConceptSequenceSet getDescendentSequenceSet(int parentSequence) {
+        ConceptSequenceSet descendentSequences = new ConceptSequenceSet();
         if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
             getDescendentsRecursive(parentSequence, descendentSequences);
             return descendentSequences;
@@ -146,10 +147,10 @@ public abstract class AbstractHashTree implements Tree {
         return descendentSequences;
     }
 
-    private void getDescendentsRecursive(int parentSequence, BitSet descendentSequences) {
+    private void getDescendentsRecursive(int parentSequence, ConceptSequenceSet descendentSequences) {
         if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
             for (int childSequence : parentSequence_ChildSequenceArray_Map.get(parentSequence)) {
-                descendentSequences.set(childSequence);
+                descendentSequences.add(childSequence);
                 getDescendentsRecursive(childSequence, descendentSequences);
             }
         }
