@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.tree;
 
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.BitSet;
 import java.util.function.ObjIntConsumer;
 
@@ -57,7 +58,7 @@ public interface Tree {
      * descendents. 
      * @return {@code BitSet} of the descendents of the {@code parentSequence}
      */
-    BitSet getDescendentSequenceSet(int parentSequence);
+    ConceptSequenceSet getDescendentSequenceSet(int parentSequence);
     
     /**
      * 

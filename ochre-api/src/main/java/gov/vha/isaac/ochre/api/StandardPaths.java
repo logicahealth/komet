@@ -21,5 +21,4 @@ package gov.vha.isaac.ochre.api;
  */
 public enum StandardPaths {
     DEVELOPMENT, MASTER;
-    
 }
