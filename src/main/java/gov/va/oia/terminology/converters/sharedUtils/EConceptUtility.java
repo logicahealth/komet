@@ -1083,8 +1083,7 @@ public class EConceptUtility
 		return concept;
 	}
 
-	private UUID refsetSynonymNameUUID = null;
-	private UUID refsetValueParentSynonymNameUUID = null;
+	private HashMap<String, UUID> specialSCTMetadataUuidCache = new HashMap<>();
 	
 	private UUID setupWbPropertyMetadata(String refsetSynonymName, String refsetValueParentSynonynmName, PropertyType pt, DataOutputStream dos) throws Exception
 	{
@@ -1094,11 +1093,12 @@ public class EConceptUtility
 		}
 		//Create a concept under "Reference set (foundation metadata concept)"  7e38cd2d-6f1a-3a81-be0b-21e6090573c2
 		//Now create the description type refset bucket.  UUID should always be the same - not terminology specific.  This should come from the WB, eventually.
-		if (refsetSynonymNameUUID == null)
+		if (!specialSCTMetadataUuidCache.containsKey(refsetSynonymName))
 		{
-			refsetSynonymNameUUID = UuidT5Generator.get(refsetSynonymName + " (foundation metadata concept)");
+			UUID refsetSynonymNameUUID = UuidT5Generator.get(refsetSynonymName + " (foundation metadata concept)");
 			createMetaDataSpecialConcept(refsetSynonymNameUUID, refsetSynonymName + " (foundation metadata concept)", refsetSynonymName,
 					UUID.fromString("7e38cd2d-6f1a-3a81-be0b-21e6090573c2"), dos);
+			specialSCTMetadataUuidCache.put(refsetSynonymName, refsetSynonymNameUUID);
 		}
 		
 		//Now create the terminology specific refset type as a child
@@ -1127,7 +1127,7 @@ public class EConceptUtility
 			}
 		};
 		
-		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), refsetSynonymNameUUID, callback, dos);
+		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), specialSCTMetadataUuidCache.get(refsetSynonymName), callback, dos);
 		ConverterUUID.addMapping(pt.getPropertyTypeReferenceSetName(), pt.getPropertyTypeReferenceSetUUID());
 		
 		//TODO we shouldn't have to create this concept in the future - two new concepts have been added to the US extension for this purpose.
@@ -1136,17 +1136,18 @@ public class EConceptUtility
 		//Until then - create our own.....
 		//Finally, create the Reference set attribute children that we will put the actual properties under
 		//Create the concept under "Reference set attribute (foundation metadata concept)"  7e52203e-8a35-3121-b2e7-b783b34d97f2
-		if (refsetValueParentSynonymNameUUID == null)
+		if (!specialSCTMetadataUuidCache.containsKey(refsetValueParentSynonynmName))
 		{
-			refsetValueParentSynonymNameUUID = UuidT5Generator.get(refsetValueParentSynonynmName + " (foundation metadata concept)");
+			UUID refsetValueParentSynonymNameUUID = UuidT5Generator.get(refsetValueParentSynonynmName + " (foundation metadata concept)");
 			createMetaDataSpecialConcept(refsetValueParentSynonymNameUUID, refsetValueParentSynonynmName + " (foundation metadata concept)", refsetValueParentSynonynmName,
 					UUID.fromString("7e52203e-8a35-3121-b2e7-b783b34d97f2"), dos).getPrimordialUuid();
+			specialSCTMetadataUuidCache.put(refsetValueParentSynonynmName, refsetValueParentSynonymNameUUID);
 		}
 		
 		//Now create the terminology specific refset type as a child - very similar to above, but since this isn't the refset concept, just an organization
 		//concept, I add an 's' to make it plural, and use a different UUID (calculated from the new plural)
 		//I have a case in UMLS and RxNorm loaders where this makes a duplicate, but its ok, it should merge.
 		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
-				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParentSynonymNameUUID, null, dos).getPrimordialUuid();
+				pt.getPropertyTypeReferenceSetName() + "s", specialSCTMetadataUuidCache.get(refsetValueParentSynonynmName), null, dos).getPrimordialUuid();
 	}
 }
