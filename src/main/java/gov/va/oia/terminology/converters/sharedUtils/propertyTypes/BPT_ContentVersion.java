@@ -18,6 +18,8 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+
 /**
  * Invented property with special handling for root node in workbench.
  * 
@@ -30,8 +32,7 @@ public class BPT_ContentVersion extends PropertyType
 
 	public BPT_ContentVersion()
 	{
-		super("Content Version");
-		indexRefsetMembers = true;
+		super("Content Version", true, RefexDynamicDataType.STRING);
 		RELEASE = addProperty("Release");
 		LOADER_VERSION = addProperty("Loader Version");
 	}

@@ -123,7 +123,7 @@ public class ConverterUUID
 		UUID uuid;
 		try
 		{
-			uuid = UuidT5Generator .get(namespace, name);
+			uuid = UuidT5Generator.get(namespace, name);
 		}
 		catch (Exception e)
 		{
@@ -181,7 +181,14 @@ public class ConverterUUID
 	 */
 	public static void addMapping(String value, UUID uuid)
 	{
-		masterUUIDMap_.put(uuid, value);
+		if (!disableUUIDMap_)
+		{
+			String putResult = masterUUIDMap_.put(uuid, value);
+			if (putResult != null)
+			{
+				throw new RuntimeException("Just made a duplicate UUID! '" + value + "' -> " + uuid);
+			}
+		}
 	}
 	
 	/**

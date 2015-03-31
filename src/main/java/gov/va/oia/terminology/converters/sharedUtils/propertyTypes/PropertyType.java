@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
@@ -45,7 +47,10 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	private String propertyTypeDescription_;
 	private String propertyTypeReferenceSetName_;
 	private UUID propertyTypeReferenceSetUUID;
-	protected boolean indexRefsetMembers = false;
+	private boolean createAsDynamicRefex_ = false;  //It could make sense to set this at the individual Property level... but in general, everything of the same type 
+	//will be handled in the same way - relationships are not dynamic refexes, assoications are, for example.
+	private RefexDynamicDataType defaultDataColumn_;  //If the property is specified without further column instructions, and createAsDynamicRefex is true, 
+	//use this information to configure the (single) data column.
 
 	private Map<String, Property> properties_;
 	
@@ -58,21 +63,23 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 		srcVersion_ = version;
 	}
 	
-	protected PropertyType(String propertyTypeDescription)
+	protected PropertyType(String propertyTypeDescription, boolean createAsDynamicRefex, RefexDynamicDataType defaultDynamicRefexColumnType)
 	{
-		this.properties_ = new HashMap<String, Property>();
-		this.propertyTypeDescription_ = propertyTypeDescription;
-		propertyTypeReferenceSetName_ = null;
-		propertyTypeReferenceSetUUID = null;
+		this(propertyTypeDescription, null, createAsDynamicRefex, defaultDynamicRefexColumnType);
 	}
-
-	protected PropertyType(String propertyTypeDescription, String propertyTypeRefSetName)
+	
+	protected PropertyType(String propertyTypeDescription, String propertyTypeRefSetName, boolean createAsDynamicRefex, RefexDynamicDataType defaultDynamicRefexColumnType)
 	{
 		this.properties_ = new HashMap<String, Property>();
 		this.propertyTypeDescription_ = propertyTypeDescription;
+		this.createAsDynamicRefex_ = createAsDynamicRefex;
 		propertyTypeReferenceSetName_ = propertyTypeRefSetName;
-		propertyTypeReferenceSetUUID = ConverterUUID.createNamespaceUUIDFromString(propertyTypeReferenceSetName_);
-		ConverterUUID.removeMapping(propertyTypeReferenceSetUUID);  //disable dupe detection for this one (at least, don't let this trigger it)
+		propertyTypeReferenceSetUUID = (propertyTypeReferenceSetName_ == null ? null : ConverterUUID.createNamespaceUUIDFromString(propertyTypeReferenceSetName_));
+		if (propertyTypeReferenceSetUUID != null)
+		{
+			ConverterUUID.removeMapping(propertyTypeReferenceSetUUID);  //disable dupe detection for this one (at least, don't let this trigger it)
+		}
+		this.defaultDataColumn_ = defaultDynamicRefexColumnType;
 	}
 
 	public UUID getPropertyTypeUUID()
@@ -176,7 +183,7 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition)
 	{
-		return addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, sourcePropertyDefinition, false, -1);
+		return addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, sourcePropertyDefinition, false, -1, null);
 	}
 	
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, boolean disabled)
@@ -186,14 +193,14 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, boolean disabled, int propertySubType)
 	{
-		return addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, null, sourcePropertyDefinition, disabled, propertySubType);
+		return addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, null, sourcePropertyDefinition, disabled, propertySubType, null);
 	}
 
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition, 
-			boolean disabled, int propertySubType)
+			boolean disabled, int propertySubType, RefexDynamicColumnInfo[] dataColumnForDynamicRefex)
 	{
 		return addProperty(new Property(this, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, sourcePropertyDefinition, disabled, 
-				propertySubType));
+				propertySubType, dataColumnForDynamicRefex));
 	}
 
 	/**
@@ -239,9 +246,9 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 		return propertyTypeReferenceSetName_;
 	}
 	
-	public boolean getIndexRefsetMembers()
+	public boolean createAsDynamicRefex()
 	{
-		return indexRefsetMembers;
+		return createAsDynamicRefex_;
 	}
 	
 	/**
@@ -259,5 +266,10 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	public void conceptCreated(Property property, TtkConceptChronicle concept)
 	{
 		//default, noop method.
+	}
+	
+	protected RefexDynamicDataType getDefaultColumnInfo()
+	{
+		return defaultDataColumn_;
 	}
 }

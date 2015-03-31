@@ -40,6 +40,7 @@ public class LoadStats
 	private TreeMap<String, TreeMap<String, Integer>> componentIds_ = new TreeMap<String, TreeMap<String, Integer>>();
 	private TreeMap<String, Integer> refsetMembers_ = new TreeMap<String, Integer>();
 	private TreeMap<String, Integer> relationships_ = new TreeMap<String, Integer>();
+	private TreeMap<String, Integer> associations_ = new TreeMap<String, Integer>();
 	private TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String, TreeMap<String, Integer>>();
 	
 	private Object syncLock = new Object();
@@ -108,6 +109,11 @@ public class LoadStats
 	{
 		increment(relationships_, relName);
 	}
+	
+	public void addAssociation(String assnName)
+	{
+		increment(associations_, assnName);
+	}
 
 	public ArrayList<String> getSummary()
 	{
@@ -127,6 +133,14 @@ public class LoadStats
 			result.add("Relationship '" + value.getKey() + "': " + value.getValue());
 		}
 		result.add("Relationships Total: " + sum);
+		
+		sum = 0;
+		for (Map.Entry<String, Integer> value : associations_.entrySet())
+		{
+			sum += value.getValue();
+			result.add("Association '" + value.getKey() + "': " + value.getValue());
+		}
+		result.add("Associations Total: " + sum);
 
 		sum = 0;
 		for (Map.Entry<String, Integer> value : conceptIds_.entrySet())

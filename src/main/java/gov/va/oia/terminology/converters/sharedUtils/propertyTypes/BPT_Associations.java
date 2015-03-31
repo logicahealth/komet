@@ -18,17 +18,22 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
 
-
 /**
- * Fields to treat as IDs
  * @author Daniel Armbrust
+ * 
  */
-public class BPT_IDs extends PropertyType
+public class BPT_Associations extends PropertyType
 {
-	public BPT_IDs()
+	public BPT_Associations(String terminologyName)
 	{
-		super("ID Types");
+		super("Associations Types", terminologyName + " Association Type", true, RefexDynamicDataType.STRING);
+	}
+	
+	public BPT_Associations(String propertyTypeDescription, String terminologyName)
+	{
+		super(propertyTypeDescription, terminologyName + " Association Type", true, RefexDynamicDataType.STRING);
 	}
 }

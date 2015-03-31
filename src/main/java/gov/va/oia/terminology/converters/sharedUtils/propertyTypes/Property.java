@@ -18,8 +18,16 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
+import java.beans.PropertyVetoException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.function.Consumer;
+import org.apache.commons.lang.StringUtils;
+import org.ihtsdo.otf.mojo.GenerateMetadataEConcepts;
+import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
@@ -42,13 +50,18 @@ public class Property
 	private boolean isDisabled_ = false;
 	private int propertySubType_ = Integer.MAX_VALUE;  //Used for subtypes of descriptions, at the moment - FSN, synonym, etc.
 	private PropertyType owner_;
-	private UUID propertyUUID = null;
+	private UUID propertyUUID = null;;
 	private UUID useWBPropertyTypeInstead = null;  //see comments in setter
+	private RefexDynamicColumnInfo[] dataColumnsForDynamicRefex_ = null;
 	
 	private ArrayList<ConceptCreationNotificationListener> listeners_ = new ArrayList<>(1);
 
+	/**
+	 * @param dataTypesForDynamicRefex - if null - will use the default information for the parent {@link PropertyType} - otherwise, 
+	 * uses as provided here (even if empty)
+	 */
 	public Property(PropertyType owner, String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, 
-			String sourcePropertyDefinition, boolean disabled, int propertySubType)
+			String sourcePropertyDefinition, boolean disabled, int propertySubType, RefexDynamicColumnInfo[] columnInforForDynamicRefex)
 	{
 		this.owner_ = owner;
 		this.sourcePropertyNameFSN_ = sourcePropertyNameFSN;
@@ -64,26 +77,45 @@ public class Property
 		this.sourcePropertyDefinition_ = sourcePropertyDefinition;
 		this.isDisabled_ = disabled;
 		this.propertySubType_ = propertySubType;
+		
+		//if owner is null, have to delay this until the setOwner call
+		//leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
+		//at the time this code runs.  We make sure it is set down below, in the getter.
+		if (columnInforForDynamicRefex == null && owner != null && owner_.getDefaultColumnInfo() != null)
+		{
+			//Create a single required column, with the column name just set to 'value'
+			dataColumnsForDynamicRefex_ = new RefexDynamicColumnInfo[] { new RefexDynamicColumnInfo(null, 0, RefexDynamic.REFEX_COLUMN_VALUE.getPrimodialUuid(),
+					owner_.getDefaultColumnInfo(), null, true, null, null)};
+		}
+		else
+		{
+			dataColumnsForDynamicRefex_ = columnInforForDynamicRefex;
+		}
+		
+		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
+		{
+			throw new RuntimeException("Tried to attach dynamic refex data where it isn't allowed.");
+		}
 	}
 
 	public Property(PropertyType owner, String sourcePropertyNameFSN, String sourcePropertyPreferredName, int propertySubType)
 	{
-		this(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, null, null, false, propertySubType);
+		this(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, null, null, false, propertySubType, null);
 	}
 	
 	public Property(PropertyType owner, String sourcePropertyNameFSN, String sourcePropertyPreferredName, boolean disabled)
 	{
-		this(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, null, null, disabled, Integer.MAX_VALUE);
+		this(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, null, null, disabled, Integer.MAX_VALUE, null);
 	}
 
 	public Property(PropertyType owner, String sourcePropertyNameFSN, String sourcePropertyPreferredName)
 	{
-		this(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, null, null, false, Integer.MAX_VALUE);
+		this(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, null, null, false, Integer.MAX_VALUE, null);
 	}
 
 	public Property(PropertyType owner, String sourcePropertyNameFSN)
 	{
-		this(owner, sourcePropertyNameFSN, sourcePropertyNameFSN, null, null, false, Integer.MAX_VALUE);
+		this(owner, sourcePropertyNameFSN, sourcePropertyNameFSN, null, null, false, Integer.MAX_VALUE, null);
 	}
 	
 	/**
@@ -91,7 +123,7 @@ public class Property
 	 */
 	public Property(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, UUID wbRelType)
 	{
-		this(null, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyDefinition, null, false, Integer.MAX_VALUE);
+		this(null, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyDefinition, null, false, Integer.MAX_VALUE, null);
 		setWBPropertyType(wbRelType);
 	}
 	
@@ -100,7 +132,7 @@ public class Property
 	 */
 	public Property(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition, UUID wbRelType)
 	{
-		this(null, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, sourcePropertyDefinition, false, Integer.MAX_VALUE);
+		this(null, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, sourcePropertyDefinition, false, Integer.MAX_VALUE, null);
 		setWBPropertyType(wbRelType);
 	}
 
@@ -142,6 +174,20 @@ public class Property
 	protected void setOwner(PropertyType owner)
 	{
 		this.owner_ = owner;
+		
+		if (dataColumnsForDynamicRefex_ == null && owner_.getDefaultColumnInfo() != null)
+		{
+			//Create a single required column, with the column name concept tied back to the assemblage concept itself.
+			//leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
+			//at the time this code runs.  We make sure it is set down below, in the getter.
+			dataColumnsForDynamicRefex_ = new RefexDynamicColumnInfo[] { new RefexDynamicColumnInfo(null, 0, getUUID(),
+					owner_.getDefaultColumnInfo(), null, true, null, null)};
+		}
+		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
+		{
+			throw new RuntimeException("Tried to attach dynamic refex data where it isn't allowed.");
+		}
+		
 	}
 
 	public UUID getUUID()
@@ -173,6 +219,15 @@ public class Property
 		return owner_;
 	}
 	
+	public RefexDynamicColumnInfo[] getDataColumnsForDynamicRefex()
+	{
+		if (dataColumnsForDynamicRefex_ != null && dataColumnsForDynamicRefex_.length == 1 && dataColumnsForDynamicRefex_[0].getAssemblageConcept() == null)
+		{
+			dataColumnsForDynamicRefex_[0].setAssemblageConcept(getUUID());
+		}
+		return dataColumnsForDynamicRefex_;
+	}
+	
 	/**
 	 * Mechanism to allow registration for notification when the corresponding eConcept has been created for this property.
 	 * Callback occurs before the eConcept is written.  Useful for adding additional attributes to the eConcept.
@@ -189,11 +244,33 @@ public class Property
 	 * Any the created concept will be passed to any registered listeners before the concept is written.
 	 * @param concept
 	 */
-	public void conceptCreated(TtkConceptChronicle concept)
+	public Consumer<TtkConceptChronicle> getCallback()
 	{
-		for (ConceptCreationNotificationListener ccn : listeners_)
+		return new Consumer<TtkConceptChronicle>()
 		{
-			ccn.conceptCreated(this, concept);
-		}
+			@Override
+			public void accept(TtkConceptChronicle concept)
+			{
+				if (Property.this.getPropertyType().createAsDynamicRefex())
+				{
+					try
+					{
+						GenerateMetadataEConcepts.turnConceptIntoDynamicRefexAssemblageConcept(concept, 
+								(Property.this.getPropertyType() instanceof BPT_MemberRefsets ? false :  true),
+								(StringUtils.isNotEmpty(Property.this.getSourcePropertyDefinition()) ? Property.this.getSourcePropertyDefinition() : "Dynamic Sememe"),
+								Property.this.getDataColumnsForDynamicRefex(), null);
+					}
+					catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
+					{
+						throw new RuntimeException("Unexpected");
+					}
+				}
+				
+				for (ConceptCreationNotificationListener ccn : listeners_)
+				{
+					ccn.conceptCreated(Property.this, concept);
+				}
+			}
+		};
 	}
 }

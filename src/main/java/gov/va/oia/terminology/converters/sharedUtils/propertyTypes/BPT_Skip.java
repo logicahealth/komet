@@ -31,7 +31,7 @@ public abstract class BPT_Skip extends PropertyType
 {
 	public BPT_Skip(String description)
 	{
-		super(description);
+		super(description, false, null);
 	}
 	
 	protected void addSkipListEntries(List<String>[] skipLists)
