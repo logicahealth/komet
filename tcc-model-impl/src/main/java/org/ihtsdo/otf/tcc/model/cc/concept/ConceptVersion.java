@@ -1,6 +1,9 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.State;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.ConstraintBI;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraint;
@@ -8,7 +11,6 @@ import org.ihtsdo.otf.tcc.api.constraint.ConstraintCheckType;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintOutgoing;
 import org.ihtsdo.otf.tcc.api.constraint.DescriptionConstraint;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -51,13 +53,12 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -67,9 +68,16 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersion> {
 
     private static NidSetBI classifierCharacteristics;
-
+    private static SequenceService sequenceService = null; 
+    protected static SequenceService getSequenceService() {
+        if (sequenceService == null) {
+            sequenceService = LookupService.getService(SequenceService.class);
+        }
+        return sequenceService;
+    }
    //~--- fields --------------------------------------------------------------
     private ConceptChronicle concept;
+
     NidListBI fsnOrder;
     NidListBI preferredOrder;
     NidListBI synonymOrder;
@@ -88,6 +96,17 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
    //~--- methods -------------------------------------------------------------
+
+    @Override
+    public IntStream getVersionStampSequences() {
+        return concept.getVersionStampSequences();
+    }
+
+    @Override
+    public int getConceptSequence() {
+        return concept.getConceptSequence();
+    }
+    
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         return concept.addAnnotation(annotation);
@@ -100,6 +119,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     @Override
     public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
         return concept.addDynamicAnnotation(annotation);
+    }
+
+    @Override
+    public int getContainerSequence() {
+        return getSequenceService().getConceptSequence(concept.nid);
     }
 
     @Override
@@ -607,6 +631,31 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public int getStampSequence() {
+        return getStamp();
+    }
+
+    @Override
+    public State getState() {
+        return getStatus().getState();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return getSequenceService().getConceptSequence(getAuthorNid());
+    }
+
+    @Override
+    public int getModuleSequence() {
+        return getSequenceService().getConceptSequence(getModuleNid());
+   }
+
+    @Override
+    public int getPathSequence() {
+        return getSequenceService().getConceptSequence(getPathNid());
+   }
 
     @Override
     public Position getPosition() throws IOException {

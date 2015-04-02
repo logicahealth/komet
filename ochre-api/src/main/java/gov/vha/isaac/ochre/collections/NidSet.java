@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.api.SequenceService;
 import static gov.vha.isaac.ochre.collections.IntSet.getSequenceProvider;
 import java.util.Collection;
 import java.util.stream.IntStream;
@@ -39,13 +39,13 @@ public class NidSet extends IntSet {
         return new NidSet(members.stream().mapToInt(i -> i));
     }
     public static NidSet of(ConceptSequenceSet conceptSequenceSet) {
-        SequenceProvider sp = getSequenceProvider();
+        SequenceService sp = getSequenceProvider();
         return new NidSet(conceptSequenceSet.stream()
                 .map((sequence) -> sp.getConceptNid(sequence)));
     }
 
     public static NidSet of(SememeSequenceSet sememeSequenceSet) {
-        SequenceProvider sp = getSequenceProvider();
+        SequenceService sp = getSequenceProvider();
         return new NidSet(sememeSequenceSet.stream()
                 .map((sequence) -> sp.getSememeNid(sequence)));
     }

@@ -60,6 +60,8 @@ public interface CommitManager {
 
     long getTimeForStamp(int stamp);
     
+    boolean isNotCanceled(int stamp);
+    
     int getStamp(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);
 

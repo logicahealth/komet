@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.api.SequenceService;
 import static gov.vha.isaac.ochre.collections.IntSet.getSequenceProvider;
 import java.util.Collection;
 import java.util.stream.IntStream;

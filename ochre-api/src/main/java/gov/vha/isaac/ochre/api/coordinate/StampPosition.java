@@ -22,7 +22,13 @@ import java.time.Instant;
  * @author kec
  */
 public interface StampPosition {
-    Instant getInstant();
-    StampPath getStampPath();
+    
+    long getTime();
+    
+    int getStampPathSequence();
+
+    default Instant getTimeAsInstant() {
+       return Instant.ofEpochMilli(getTime());
+    }
     
 }

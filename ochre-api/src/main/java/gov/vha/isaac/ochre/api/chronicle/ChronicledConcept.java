@@ -8,7 +8,8 @@ package gov.vha.isaac.ochre.api.chronicle;
 /**
  *
  * @author kec
+ * @param <V>
  */
-public interface ChronicledConcept extends ChronicledObjectLocal {
-    
+public interface ChronicledConcept<V extends StampedVersion> extends ChronicledObjectLocal<V> {
+    int getConceptSequence();
 }

@@ -25,7 +25,9 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface TaxonomyProvider {
+public interface TaxonomyService {
+    
+    TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc);
     
     Tree getTaxonomyTree(TaxonomyCoordinate tc);
     

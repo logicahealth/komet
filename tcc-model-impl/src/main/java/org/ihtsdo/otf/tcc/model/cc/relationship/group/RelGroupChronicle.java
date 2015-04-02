@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.collections.SequenceSet;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -27,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 public class RelGroupChronicle implements RelGroupChronicleBI {
@@ -62,6 +64,15 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public boolean addAnnotation(RefexChronicleBI<?> annotation) {
       throw new UnsupportedOperationException("Not supported.");
    }
+
+    @Override
+    public IntStream getVersionStampSequences() {
+        SequenceSet sequences = new SequenceSet();
+        for (RelationshipChronicleBI rel: rels) {
+            sequences.addAll(rel.getVersionStampSequences());
+        }
+        return sequences.stream();
+    }
    
    
 

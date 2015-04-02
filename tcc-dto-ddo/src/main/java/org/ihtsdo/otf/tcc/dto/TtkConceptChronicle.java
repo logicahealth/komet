@@ -1,6 +1,8 @@
 package org.ihtsdo.otf.tcc.dto;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
@@ -66,7 +68,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import java.util.*;
-import java.util.function.Consumer;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.*;
@@ -91,7 +92,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
 
    /** Field description */
    public static final long serialVersionUID = 1;
-
+   
    /** Field description */
    @XmlAttribute
    protected boolean annotationStyleRefex = false;
@@ -1043,4 +1044,14 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
        JAXB.marshal(this, sw);
        return sw.toString().substring("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".length());
    }
+
+    @Override
+    public List<UUID> getUUIDs() {
+        if (getConceptAttributes() != null) {
+            return getConceptAttributes().getUuids();
+        }
+        return Arrays.asList(new UUID[] { getPrimordialUuid() });
+    }
+   
+   
 }

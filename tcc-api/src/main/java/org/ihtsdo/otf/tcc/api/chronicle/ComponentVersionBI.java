@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.api.chronicle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -19,7 +20,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
-public interface ComponentVersionBI extends ComponentBI, VersionPointBI {
+public interface ComponentVersionBI extends ComponentBI, VersionPointBI, StampedVersion {
    boolean stampIsInRange(int min, int max);
 
    String toUserString(TerminologySnapshotDI snapshot) throws IOException, ContradictionException;

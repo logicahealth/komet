@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.api.SequenceService;
 import java.util.Collection;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -39,8 +39,12 @@ public class SememeSequenceSet extends SequenceSet {
     }
     
     public static SememeSequenceSet of(NidSet sememeNidSet) {
-        SequenceProvider sp = getSequenceProvider();
+        SequenceService sp = getSequenceProvider();
         return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
+    }
+    
+    public static SememeSequenceSet of(IntStream sememeSquenceStream) {
+        return new SememeSequenceSet(sememeSquenceStream);
     }
     
     public SememeSequenceSet() {
