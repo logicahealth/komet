@@ -2,6 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -28,10 +32,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 public abstract class Revision<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
         implements ComponentVersionBI, AnalogBI, AnalogGeneratorBI<V> {
 
+    private static SequenceService sequenceService = null; 
+    protected static SequenceService getSequenceService() {
+        if (sequenceService == null) {
+            sequenceService = LookupService.getService(SequenceService.class);
+        }
+        return sequenceService;
+    }
     protected static final Logger logger = Logger.getLogger(ConceptComponent.class.getName());
     public static SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
     //~--- fields --------------------------------------------------------------
@@ -73,6 +85,12 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     }
 
     //~--- methods -------------------------------------------------------------
+    
+    public IntStream getVersionStampSequences() {
+        return this.primordialComponent.getVersionStampSequences();
+    }
+    
+    
     @Override
     public boolean addAnnotation(@SuppressWarnings("rawtypes") RefexChronicleBI annotation)
             throws IOException {
@@ -95,6 +113,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         }
 
         return toString();
+    }
+
+    @Override
+    public int getContainerSequence() {
+        return primordialComponent.getContainerSequence();
     }
 
     @SuppressWarnings("unchecked")
@@ -574,4 +597,31 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     public void setIndexed() {
         primordialComponent.setIndexed();
     }
+
+    @Override
+    public int getStampSequence() {
+        return getStamp();
+    }
+
+    @Override
+    public State getState() {
+        return getStatus().getState();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return getSequenceService().getConceptSequence(getAuthorNid());
+    }
+
+    @Override
+    public int getModuleSequence() {
+        return getSequenceService().getConceptSequence(getModuleNid());
+    }
+
+    @Override
+    public int getPathSequence() {
+       return getSequenceService().getConceptSequence(getPathNid());
+    }
+
+    
 }

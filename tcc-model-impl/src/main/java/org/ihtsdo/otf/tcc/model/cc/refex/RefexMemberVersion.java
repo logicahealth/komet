@@ -16,8 +16,10 @@
 
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
+import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -35,7 +37,7 @@ import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMember<R, C>> 
-    extends Version<R, C> implements RefexAnalogBI<R> {
+    extends Version<R, C> implements RefexAnalogBI<R>, SememeVersion {
    
     public RefexMemberVersion(RefexAnalogBI<R> cv, final RefexMember<R,C> rm, int stamp) {
         super(cv,rm, stamp);
@@ -74,10 +76,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
         if (this.getReferencedComponentNid() != anotherVersion.getReferencedComponentNid()) {
             return false;
         }
-        if (this.refexFieldsEqual(anotherVersion)) {
-            return true;
-        }
-        return false;
+        return this.refexFieldsEqual(anotherVersion);
     }
 
     @Override
@@ -90,6 +89,13 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     public int getAssemblageNid() {
         return ((RefexMember) cc).assemblageNid;
     }
+
+    @Override
+    public int getContainerSequence() {
+        return getSequenceService().getSememeSequence(getNid());
+    }
+    
+    
 
     @Override
     @Deprecated
@@ -158,6 +164,16 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     @Override
     public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
         ((RefexMember) cc).setReferencedComponentNid(componentNid);
+    }
+
+    @Override
+    public int getSememeSequence() {
+       return ((RefexMember) cc).getSememeSequence();
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        return ((RefexMember) cc).getAssemblageSequence();
     }
     
 }

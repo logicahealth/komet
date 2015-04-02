@@ -2,6 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.State;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -30,11 +33,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
 public class RelGroupVersion implements RelGroupVersionBI {
+    
+    private static SequenceService sequenceService = null; 
+    protected static SequenceService getSequenceService() {
+        if (sequenceService == null) {
+            sequenceService = LookupService.getService(SequenceService.class);
+        }
+        return sequenceService;
+    }
+    
    private long                time = Long.MIN_VALUE;
    private int                 authorNid;
    private ViewCoordinate      coordinate;
@@ -59,7 +72,11 @@ public class RelGroupVersion implements RelGroupVersionBI {
    public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
       return rg.addAnnotation(annotation);
    }
-
+   @Override
+    public IntStream getVersionStampSequences() {
+        return this.rg.getVersionStampSequences();
+    }
+  
 
     /**
     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
@@ -168,6 +185,11 @@ public class RelGroupVersion implements RelGroupVersionBI {
 
       return results;
    }
+
+    @Override
+    public int getContainerSequence() {
+        return getSequenceService().getConceptSequence(getConceptNid());
+    }
 
    @Override
    public Collection<? extends IdBI> getAllIds() {
@@ -466,5 +488,30 @@ public class RelGroupVersion implements RelGroupVersionBI {
    public boolean isUncommitted() {
       return false;
    }
+
+    @Override
+    public int getStampSequence() {
+        return getStamp();
+    }
+
+    @Override
+    public State getState() {
+        return getStatus().getState();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return getSequenceService().getConceptSequence(getAuthorNid());
+    }
+
+    @Override
+    public int getModuleSequence() {
+        return getSequenceService().getConceptSequence(getModuleNid());
+    }
+
+    @Override
+    public int getPathSequence() {
+       return getSequenceService().getConceptSequence(getPathNid());
+    }
 
 }

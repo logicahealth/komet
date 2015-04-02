@@ -16,6 +16,9 @@
 
 package org.ihtsdo.otf.tcc.model.cc.component;
 
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.State;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
@@ -42,7 +46,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyDI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 
@@ -55,17 +58,25 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
     private static TerminologyDI terminology;
     private static TerminologyDI getTermService() {
         if (terminology == null) {
-            terminology = Hk2Looker.getService(TerminologyDI.class);
+            terminology = LookupService.getService(TerminologyDI.class);
         }
         return terminology;
     }
     
+    private static SequenceService sequenceService;
+    protected static SequenceService getSequenceService() {
+        if (sequenceService == null) {
+            sequenceService = LookupService.getService(SequenceService.class);
+        }
+        return sequenceService;
+    }    
     
     /**
      * Field description
      */
     protected ComponentVersionBI cv;
     protected ConceptComponent<R, C> cc = null;
+
     protected int stamp;
     
     public Version(){}
@@ -88,7 +99,15 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         this.cv = cv;
         this.stamp = stamp;
     }
-
+    public IntStream getVersionStampSequences() {
+        return this.cc.getVersionStampSequences();
+    }
+  
+    @Override
+    public int getContainerSequence() {
+        return cc.getContainerSequence();
+    }
+    
     public boolean isIndexed() {
         return PersistentStore.get().isIndexed(cc.nid);
     }
@@ -791,5 +810,32 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
     public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
         return cc.addDynamicAnnotation(annotation);
     }
+    
+
+    @Override
+    public int getStampSequence() {
+        return getStamp();
+    }
+
+    @Override
+    public State getState() {
+        return getStatus().getState();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return getSequenceService().getConceptSequence(getAuthorNid());
+    }
+
+    @Override
+    public int getModuleSequence() {
+        return getSequenceService().getConceptSequence(getModuleNid());
+    }
+
+    @Override
+    public int getPathSequence() {
+       return getSequenceService().getConceptSequence(getPathNid());
+    }
+
 }
 

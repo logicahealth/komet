@@ -19,8 +19,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_float.TtkRefexUuidFloatR
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;

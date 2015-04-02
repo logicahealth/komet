@@ -19,7 +19,7 @@ package org.ihtsdo.otf.tcc.api.spec;
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceProvider;
+import gov.vha.isaac.ochre.api.SequenceService;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
@@ -71,11 +71,11 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      */
     protected transient int nid = Integer.MAX_VALUE;
     protected transient int sequence = Integer.MAX_VALUE;
-    private static SequenceProvider sequenceProvider = null;
+    private static SequenceService sequenceProvider = null;
 
     private static int getConceptSequence(int nid) {
         if (sequenceProvider == null) {
-            sequenceProvider = LookupService.getService(SequenceProvider.class);
+            sequenceProvider = LookupService.getService(SequenceService.class);
         }
         return sequenceProvider.getConceptSequence(nid);
     }

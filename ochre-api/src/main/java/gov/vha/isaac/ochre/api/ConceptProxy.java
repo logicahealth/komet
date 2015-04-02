@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 /**
  * Created by kec on 2/16/15.

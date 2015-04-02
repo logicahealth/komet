@@ -16,7 +16,7 @@
 package org.ihtsdo.otf.mojo.termstore;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.ObjectChronicleTaskServer;
+import gov.vha.isaac.ochre.api.ObjectChronicleTaskService;
 import gov.vha.isaac.ochre.api.StandardPaths;
 import gov.vha.isaac.ochre.api.Util;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +46,7 @@ public class LoadOntoMaster extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
         try {
-            ObjectChronicleTaskServer store = LookupService.getService(ObjectChronicleTaskServer.class);
+            ObjectChronicleTaskService store = LookupService.getService(ObjectChronicleTaskService.class);
             Task<Integer> loadTask = store.startLoadTask(StandardPaths.MASTER,
                     Util.stringArrayToPathArray(econFileStrings));
             Util.addToTaskSetAndWaitTillDone(loadTask);

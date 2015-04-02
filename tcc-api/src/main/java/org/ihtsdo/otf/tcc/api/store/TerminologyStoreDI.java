@@ -64,24 +64,24 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     /**
      * Maybe should only be accessible from component? Or {@code PersistentStoreI}
-     * @param sememeNid
+     * @param refexNid
      * @return 
      */
-    RefexChronicleBI<?> getSememe(int sememeNid);
+    RefexChronicleBI<?> getRefex(int refex);
 
     /**
      * Maybe should only be accessible from component? Or {@code PersistentStoreI}
      * @param assemblageNid
      * @return 
      */
-    Collection<? extends RefexChronicleBI<?>> getSememesForAssemblage(int assemblageNid);
+    Collection<? extends RefexChronicleBI<?>> getRefexesForAssemblage(int assemblageNid);
 
     /**
      * Maybe should only be accessible from component? Or {@code PersistentStoreI}
      * @param componentNid
      * @return 
      */
-    public Collection<? extends RefexChronicleBI<?>> getSememesForComponent(int componentNid);
+    public Collection<? extends RefexChronicleBI<?>> getRefexesForComponent(int componentNid);
     /**
      * 
      * @param authorityNid

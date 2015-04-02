@@ -10,6 +10,8 @@ import java.util.Collection;
 
 /**
  * Created by kec on 7/13/14.
+ * @param <C>
+ * @param <R>
  */
 public abstract class AbstractSerializer<C extends ConceptComponent<R, C>, R extends Revision<R, C>> {
 

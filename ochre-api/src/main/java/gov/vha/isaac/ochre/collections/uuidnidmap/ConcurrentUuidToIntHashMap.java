@@ -1,19 +1,17 @@
 package gov.vha.isaac.ochre.collections.uuidnidmap;
 
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 
 /**
  * Created by kec on 7/25/14.
  */
 public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
-    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-    private final Lock r = rwl.readLock();
-    private final Lock w = rwl.writeLock();
+    
+    StampedLock sl = new StampedLock();
 
-    public Lock getWriteLock() {
-        return w;
+    public StampedLock getStampedLock() {
+        return sl;
     }
 
 
@@ -52,22 +50,23 @@ public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
     }
     @Override
     public boolean containsKey(long[] key) {
-        r.lock();
-        try {
-            return indexOfKey(key) >= 0;
-        } finally {
-            r.unlock();
+        long stamp = sl.tryOptimisticRead();
+        boolean containsKey = indexOfKey(key) >= 0;
+        if (!sl.validate(stamp)) {
+            stamp = sl.readLock();
+            try {
+                containsKey = indexOfKey(key) >= 0;
+            } finally {
+                sl.unlockRead(stamp);
+            }
         }
+        return containsKey;
     }
 
     @Override
     public boolean containsKey(UUID key) {
-        r.lock();
-        try {
-            return indexOfKey(key) >= 0;
-        } finally {
-            r.unlock();
-        }
+        return this.containsKey(new long[] {key.getMostSignificantBits(),
+                                      key.getLeastSignificantBits()});
     }
 
     public int getDistinct() {
@@ -77,35 +76,45 @@ public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
     public void setDistinct(int distinct) {
         this.distinct = distinct;
     }
+    public int get(long[] key, long stampLong) {
+        return super.get(key);
+    }
+     
     @Override
     public int get(long[] key) {
-        r.lock();
-        try {
-            return super.get(key);
-        } finally {
-            r.unlock();
+        long stamp = sl.tryOptimisticRead();
+        int value = super.get(key);
+        if (!sl.validate(stamp)) {
+            stamp = sl.readLock();
+            try {
+                value = super.get(key);
+            } finally {
+                sl.unlockRead(stamp);
+            }
         }
+        return value;
     }
 
     @Override
     public int get(UUID key) {
-        r.lock();
-        try {
-            return super.get(key);
-        } finally {
-            r.unlock();
-        }
+        return this.get(new long[] {key.getMostSignificantBits(),
+                                    key.getLeastSignificantBits()});
     }
-
+    
+    public int get(UUID key, long stampSequence) {
+        return this.get(new long[] {key.getMostSignificantBits(),
+                                    key.getLeastSignificantBits()},
+                stampSequence);
+    }
+    
     @Override
     public boolean put(long[] key, int value) {
-        w.lock();
-        try {
-            return super.put(key, value);
+        throw new UnsupportedOperationException("Use put(long[] key, int value, long stamp) instead.");
+    }
 
-        } finally {
-            w.unlock();
-        }
+    public boolean put(long[] key, int value, long stamp) {
+        sl.validate(stamp);
+        return super.put(key, value);
     }
 
     public String getStats() {

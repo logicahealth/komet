@@ -1,5 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.collections.SequenceSet;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -7,6 +12,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
@@ -81,6 +87,13 @@ import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
+   private static SequenceService sequenceService;
+   private static SequenceService getSequenceService() {
+       if (sequenceService == null) {
+           sequenceService = LookupService.getService(SequenceService.class);
+       }
+       return sequenceService;
+   }
 
     protected static final Logger logger = Logger.getLogger(ConceptChronicle.class.getName());
     private static int fsXmlDescNid = Integer.MIN_VALUE;
@@ -214,6 +227,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         } else {
             buff.append("[]");
         }
+    }
+
+    @Override
+    public int getConceptSequence() {
+        return getSequenceService().getConceptSequence(getNid());
     }
 
     @Override
@@ -481,6 +499,21 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
 
         return c;
+    }
+
+
+    @Override
+    public IntStream getVersionStampSequences() {
+       try {
+           SequenceSet stampSet = new SequenceSet();
+           processComponentChronicles((ComponentChronicleBI cc) -> {
+               stampSet.addAll(cc.getVersionStampSequences());
+           });
+           
+           return stampSet.stream();
+       } catch (Exception ex) {
+           throw new RuntimeException(ex);
+       }
     }
 
     private static class SetIndexedProcessor implements ProcessComponentChronicleBI {

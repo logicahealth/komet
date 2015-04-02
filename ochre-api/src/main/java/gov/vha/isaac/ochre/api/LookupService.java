@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import com.sun.javafx.application.PlatformImpl;
 import java.lang.annotation.Annotation;
 import javafx.embed.swing.JFXPanel;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -29,7 +30,9 @@ public class LookupService {
     private static ServiceLocator looker = null;
     public static ServiceLocator get() {
         if (looker == null) {
-            JFXPanel initFxPanel = new JFXPanel();
+            PlatformImpl.startup(() -> {
+                // No need to do anything here
+            });
             looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         }
         return looker;

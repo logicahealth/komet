@@ -47,8 +47,12 @@ public class Position implements Comparable<Position>, StampPosition, Externaliz
     }
     
     public Position(StampPosition another) {
-        this.time = another.getInstant().toEpochMilli();
-        this.path = new Path(another.getStampPath());
+        try {
+            this.time = another.getTime();
+            this.path = Ts.get().getPath(another.getStampPathSequence());
+        } catch (IOException ex) {
+            throw new RuntimeException();
+        }
     }
 
     @Override
@@ -419,14 +423,17 @@ public class Position implements Comparable<Position>, StampPosition, Externaliz
         return this.path.conceptNid - o.path.conceptNid;
     }
 
-    @Override
     public Instant getInstant() {
         return Instant.ofEpochMilli(time);
     }
 
-    @Override
     public StampPath getStampPath() {
         return path;
+    }
+
+    @Override
+    public int getStampPathSequence() {
+        return path.getPathConceptSequence();
     }
 
 }

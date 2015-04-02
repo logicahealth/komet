@@ -1,7 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitManager;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
@@ -9,7 +13,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.IntConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -83,6 +86,14 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             commitManager = Hk2Looker.getService(CommitManager.class);
         }
         return commitManager;
+    }
+    
+    private static SequenceService sequenceService = null;
+    protected static SequenceService getSequenceService() {
+        if (sequenceService == null) {
+            sequenceService = LookupService.getService(SequenceService.class);
+        }
+        return sequenceService;
     }
 
     /**
@@ -224,6 +235,42 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 this.annotationsDynamic.add(annot);
             }
         }
+    }
+
+    @Override
+    public int getStampSequence() {
+        return getStamp();
+    }
+
+    @Override
+    public State getState() {
+        return getStatus().getState();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return getSequenceService().getConceptSequence(getAuthorNid());
+    }
+
+    @Override
+    public int getModuleSequence() {
+        return getSequenceService().getConceptSequence(getModuleNid());
+    }
+
+    @Override
+    public int getPathSequence() {
+       return getSequenceService().getConceptSequence(getPathNid());
+    }
+    
+    public IntStream getVersionStampSequences() {
+        IntStream.Builder builder = IntStream.builder();
+        builder.accept(primordialStamp);
+        if (revisions != null) {
+            revisions.stream().forEach((r) -> {
+                builder.accept(r.getStamp());
+            });
+        }
+        return builder.build();
     }
 
     public boolean isIndexed() {
@@ -1709,6 +1756,13 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return enclosingConceptNid;
     }
 
+    @Override
+    public int getContainerSequence() {
+       return getSequenceService().getConceptSequence(nid);
+    }
+    
+    
+
     /**
      * Method description
      *
@@ -2088,7 +2142,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefexMembers(int refsetNid) throws IOException {
-        return Ts.get().getSememesForAssemblage(refsetNid);
+        return Ts.get().getRefexesForAssemblage(refsetNid);
     }
 
     /**
@@ -2203,7 +2257,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefexes() throws IOException {
-        return Collections.unmodifiableCollection((Ts.get().getSememesForComponent(nid)));
+        return Collections.unmodifiableCollection((Ts.get().getRefexesForComponent(nid)));
     }
 
     /**
@@ -2406,7 +2460,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      * @return
      */
     public abstract List<? extends Version> getVersions(ViewCoordinate c);
-
+    
     /**
      * Method description
      *

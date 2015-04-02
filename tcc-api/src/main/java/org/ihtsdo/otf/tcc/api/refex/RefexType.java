@@ -112,8 +112,8 @@ public enum RefexType {
             throw new UnsupportedOperationException("Can't handle type: " + type);
         }
     }
-    private int externalizedToken;
-    private Class<? extends RefexVersionBI> rxc;
+    private final int externalizedToken;
+    private final Class<? extends RefexVersionBI> rxc;
 
     RefexType(int externalizedToken, Class<? extends RefexVersionBI> rxc) {
         this.externalizedToken = externalizedToken;

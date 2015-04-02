@@ -9,6 +9,6 @@ package gov.vha.isaac.ochre.api.chronicle;
  *
  * @author kec
  */
-public interface ChronicledObjectUniversal {
+public interface ChronicledObjectUniversal extends IdentifiedObjectUniversal {
     
 }

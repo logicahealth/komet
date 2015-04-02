@@ -7,7 +7,6 @@
         <version>2.19-SNAPSHOT</version>
     </parent>
     <artifactId>ochre-api</artifactId>
-    <version>2.19-SNAPSHOT</version>
     <name>${branch}: OCHRE API</name>
     <url>http://maven.apache.org</url>
     <properties>

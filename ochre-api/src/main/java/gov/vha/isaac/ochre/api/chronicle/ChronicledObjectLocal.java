@@ -5,10 +5,18 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import java.util.Collection;
+import java.util.stream.IntStream;
+
 /**
  *
  * @author kec
+ * @param <V> the Version type this chronicled object contains. 
  */
-public interface ChronicledObjectLocal {
+public interface ChronicledObjectLocal<V extends StampedVersion> extends IdentifiedObjectLocal {
+    
+    Collection<? extends V> getVersions();
+    
+    IntStream getVersionStampSequences();
     
 }

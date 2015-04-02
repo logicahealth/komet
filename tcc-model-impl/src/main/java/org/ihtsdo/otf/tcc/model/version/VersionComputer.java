@@ -25,7 +25,6 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
-import org.ihtsdo.otf.tcc.model.version.RelativePosition;
 
 public class VersionComputer<V extends Version<?, ?>> {
 

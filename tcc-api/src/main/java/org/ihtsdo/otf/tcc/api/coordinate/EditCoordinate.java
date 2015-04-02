@@ -1,5 +1,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SequenceService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +14,21 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 
 @XmlRootElement(name = "edit-coordinate")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-public class EditCoordinate {
+public class EditCoordinate implements gov.vha.isaac.ochre.api.coordinate.EditCoordinate {
+    
+    SequenceService ss = LookupService.getService(SequenceService.class);
 
     private int authorNid;
     private int moduleNid;
     private NidSetBI editPaths = new NidSet();
 
     public EditCoordinate() {
+    }
+
+    public EditCoordinate(gov.vha.isaac.ochre.api.coordinate.EditCoordinate another) {
+        this.authorNid = ss.getConceptNid(another.getAuthorSequence());
+        this.moduleNid = ss.getConceptNid(another.getModuleSequence());
+        this.editPaths.add(ss.getConceptNid(another.getPathSequence()));
     }
 
     public EditCoordinate(int authorNid, int moduleNid, NidSetBI editPaths) {
@@ -90,5 +100,20 @@ public class EditCoordinate {
         sb.append("moduleNid: ").append(moduleNid);
         sb.append("editPaths: ").append(editPaths);
         return sb.toString();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return ss.getConceptSequence(authorNid);
+    }
+
+    @Override
+    public int getModuleSequence() {
+       return ss.getConceptSequence(moduleNid);
+    }
+
+    @Override
+    public int getPathSequence() {
+        return ss.getConceptSequence(editPaths.getMin());
     }
 }
