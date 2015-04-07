@@ -46,7 +46,7 @@ public interface CommitManager {
 
     void removeChangeChecker(ChangeChecker checker);
     
-    long getSequence();
+    long getCommitManagerSequence();
 
     long incrementAndGetSequence();
     

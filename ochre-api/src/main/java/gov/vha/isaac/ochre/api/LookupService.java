@@ -17,7 +17,6 @@ package gov.vha.isaac.ochre.api;
 
 import com.sun.javafx.application.PlatformImpl;
 import java.lang.annotation.Annotation;
-import javafx.embed.swing.JFXPanel;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
@@ -28,6 +27,9 @@ import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
  */
 public class LookupService {
     private static ServiceLocator looker = null;
+    public static final int ISAAC_STARTED_RUNLEVEL = 4;
+    public static final int ISAAC_STOPPED_RUNLEVEL = -1;
+    
     public static ServiceLocator get() {
         if (looker == null) {
             PlatformImpl.startup(() -> {
@@ -45,4 +47,11 @@ public class LookupService {
     public static RunLevelController getRunLevelController() {
         return getService(RunLevelController.class);
     }    
+    
+    public static void startupIsaac() {
+        getRunLevelController().proceedTo(ISAAC_STARTED_RUNLEVEL);
+    }
+    public static void shutdownIsaac() {
+        getRunLevelController().proceedTo(ISAAC_STOPPED_RUNLEVEL);        
+    }
 }

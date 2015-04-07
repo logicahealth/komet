@@ -162,8 +162,8 @@ public class LogicGraphRevision
    }
 
    @Override
-   public Collection<LogicGraphMemberVersion> getVersions() {
-      return (Collection<LogicGraphMemberVersion>) ((LogicGraphMember) primordialComponent).getVersions();
+   public List<LogicGraphMemberVersion> getVersions() {
+      return (List<LogicGraphMemberVersion>) ((LogicGraphMember) primordialComponent).getVersions();
    }
 
    @Override

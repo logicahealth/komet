@@ -3,10 +3,9 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
@@ -172,7 +171,7 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
     }
 
     @Override
-    public Collection<NidIntMemberVersion> getVersions() {
+    public List<NidIntMemberVersion> getVersions() {
         return ((NidIntMember) primordialComponent).getVersions();
     }
 

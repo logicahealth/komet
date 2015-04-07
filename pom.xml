@@ -33,7 +33,6 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-dto-ddo</module>
         <module>tcc-lookup</module>
         <module>tcc-model-impl</module>
-        <module>tcc-mojo</module>
         <module>tcc-serializer</module>
         <module>tcc-build-extension</module>
         <module>ochre-api</module>

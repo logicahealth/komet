@@ -17,7 +17,7 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
@@ -63,10 +63,10 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         return terminology;
     }
     
-    private static SequenceService sequenceService;
-    protected static SequenceService getSequenceService() {
+    private static IdentifierService sequenceService;
+    protected static IdentifierService getSequenceService() {
         if (sequenceService == null) {
-            sequenceService = LookupService.getService(SequenceService.class);
+            sequenceService = LookupService.getService(IdentifierService.class);
         }
         return sequenceService;
     }    

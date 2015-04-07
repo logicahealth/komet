@@ -4,9 +4,9 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
@@ -155,7 +155,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    }
 
    @Override
-   public Collection<ConceptAttributesVersion> getVersions() {
+   public List<ConceptAttributesVersion> getVersions() {
       return ((ConceptAttributes) primordialComponent).getVersions();
    }
 

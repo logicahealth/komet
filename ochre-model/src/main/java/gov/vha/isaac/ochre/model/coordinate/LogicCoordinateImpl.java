@@ -55,5 +55,39 @@ public class LogicCoordinateImpl implements LogicCoordinate {
     public int getClassifierSequence() {
         return classifierSequence;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 29 * hash + this.statedAssemblageSequence;
+        hash = 29 * hash + this.inferredAssemblageSequnce;
+        hash = 29 * hash + this.descriptionLogicProfileSequence;
+        hash = 29 * hash + this.classifierSequence;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LogicCoordinateImpl other = (LogicCoordinateImpl) obj;
+        if (this.statedAssemblageSequence != other.statedAssemblageSequence) {
+            return false;
+        }
+        if (this.inferredAssemblageSequnce != other.inferredAssemblageSequnce) {
+            return false;
+        }
+        if (this.descriptionLogicProfileSequence != other.descriptionLogicProfileSequence) {
+            return false;
+        }
+        if (this.classifierSequence != other.classifierSequence) {
+            return false;
+        }
+        return true;
+    }
     
 }

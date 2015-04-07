@@ -12,11 +12,9 @@ import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -128,7 +126,7 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
    }
 
    @Override
-   public Collection<MembershipMemberVersion> getVersions() {
+   public List<MembershipMemberVersion> getVersions() {
       return ((MembershipMember) primordialComponent).getVersions();
    }
 

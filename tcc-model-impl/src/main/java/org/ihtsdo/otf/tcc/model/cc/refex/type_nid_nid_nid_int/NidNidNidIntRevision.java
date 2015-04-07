@@ -20,8 +20,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -200,7 +198,7 @@ public class NidNidNidIntRevision
    }
 
    @Override
-   public Collection<NidNidNidIntMemberVersion> getVersions() {
+   public List<NidNidNidIntMemberVersion> getVersions() {
       return ((NidNidNidIntMember) primordialComponent).getVersions();
    }
 

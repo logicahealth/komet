@@ -47,5 +47,47 @@ public class EditCoordinateImpl implements EditCoordinate {
     public int getPathSequence() {
         return pathSequence;
     }
+
+    public void setAuthorSequence(int authorSequence) {
+        this.authorSequence = authorSequence;
+    }
+
+    public void setModuleSequence(int moduleSequence) {
+        this.moduleSequence = moduleSequence;
+    }
+
+    public void setPathSequence(int pathSequence) {
+        this.pathSequence = pathSequence;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + this.authorSequence;
+        hash = 97 * hash + this.moduleSequence;
+        hash = 97 * hash + this.pathSequence;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final EditCoordinateImpl other = (EditCoordinateImpl) obj;
+        if (this.authorSequence != other.authorSequence) {
+            return false;
+        }
+        if (this.moduleSequence != other.moduleSequence) {
+            return false;
+        }
+        if (this.pathSequence != other.pathSequence) {
+            return false;
+        }
+        return true;
+    }
     
 }

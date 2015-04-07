@@ -3,15 +3,11 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMemberVersion;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -141,7 +137,7 @@ public class LongRevision extends RefexRevision<LongRevision, LongMember>
    }
 
    @Override
-   public Collection<LongMemberVersion> getVersions() {
+   public List<LongMemberVersion> getVersions() {
       return ((LongMember) primordialComponent).getVersions();
    }
 

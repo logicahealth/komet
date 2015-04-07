@@ -438,35 +438,39 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
      */
     @Override
     public boolean put(long[] key, int value) {
-            int i = indexOfInsertion(key);
-            if (i < 0) { // already contained
-                i = -i - 1;
-                this.values[i] = value;
-                return false;
-            }
-            if (this.distinct > this.highWaterMark) {
-                int newCapacity = chooseGrowCapacity(this.distinct + 1,
-                        this.minLoadFactor, this.maxLoadFactor);
-                rehash(newCapacity);
-                return put(key, value);
-            }
+            return privatePut(key, value);
+    }
 
-            int msb = i * 2;
-            this.table[msb] = key[0];
-            this.table[msb + 1] = key[1];
+    protected boolean privatePut(long[] key, int value) {
+        int i = indexOfInsertion(key);
+        if (i < 0) { // already contained
+            i = -i - 1;
             this.values[i] = value;
-            if (this.state[i] == FREE) {
-                this.freeEntries--;
-            }
-            this.state[i] = FULL;
-            this.distinct++;
-
-            if (this.freeEntries < 1) { // delta
-                int newCapacity = chooseGrowCapacity(this.distinct + 1,
-                        this.minLoadFactor, this.maxLoadFactor);
-                rehash(newCapacity);
-            }
-            return true;
+            return false;
+        }
+        if (this.distinct > this.highWaterMark) {
+            int newCapacity = chooseGrowCapacity(this.distinct + 1,
+                    this.minLoadFactor, this.maxLoadFactor);
+            rehash(newCapacity);
+            return privatePut(key, value);
+        }
+        
+        int msb = i * 2;
+        this.table[msb] = key[0];
+        this.table[msb + 1] = key[1];
+        this.values[i] = value;
+        if (this.state[i] == FREE) {
+            this.freeEntries--;
+        }
+        this.state[i] = FULL;
+        this.distinct++;
+        
+        if (this.freeEntries < 1) { // delta
+            int newCapacity = chooseGrowCapacity(this.distinct + 1,
+                    this.minLoadFactor, this.maxLoadFactor);
+            rehash(newCapacity);
+        }
+        return true;
     }
 
     /**

@@ -5,6 +5,8 @@
  */
 package org.ihtsdo.otf.tcc.dto.component.refex.logicgraph;
 
+import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -91,6 +93,20 @@ public class TtkLogicGraphMemberChronicle
 
                 }
             }
+    }
+    public TtkLogicGraphMemberChronicle(SememeChronicleImpl<LogicGraphSememeImpl> logicGraphChronicle) {
+        super(logicGraphChronicle);
+        
+        List<LogicGraphSememeImpl> graphVersions = logicGraphChronicle.getVersions();
+
+        
+        this.logicGraphBytes = graphVersions.get(0).getExternalGraphData();
+
+        for (int index = 1; index < graphVersions.size(); index++) {
+                TtkLogicGraphRevision rev = new TtkLogicGraphRevision(graphVersions.get(index));
+                revisions.add(rev);
+        }
+
     }
 
     /**

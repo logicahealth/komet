@@ -3,6 +3,7 @@ package org.ihtsdo.otf.tcc.api.chronicle;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
@@ -17,7 +18,7 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
     Collection<? extends T> getVersions(ViewCoordinate c);
 
     @Override
-    Collection<? extends T> getVersions();
+    List<? extends T> getVersions();
 
     boolean isUncommitted();
     

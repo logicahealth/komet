@@ -20,10 +20,10 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -218,7 +218,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     @Override
-    public Collection<? extends RefexDynamicMemberVersion> getVersions() {
+    public List<? extends RefexDynamicMemberVersion> getVersions() {
        return ((RefexDynamicMember) primordialComponent).getVersions();
     }
 

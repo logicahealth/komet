@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitManager;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -88,10 +88,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return commitManager;
     }
     
-    private static SequenceService sequenceService = null;
-    protected static SequenceService getSequenceService() {
+    private static IdentifierService sequenceService = null;
+    protected static IdentifierService getSequenceService() {
         if (sequenceService == null) {
-            sequenceService = LookupService.getService(SequenceService.class);
+            sequenceService = LookupService.getService(IdentifierService.class);
         }
         return sequenceService;
     }

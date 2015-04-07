@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import static gov.vha.isaac.ochre.collections.IntSet.getSequenceProvider;
 import java.util.Collection;
 import java.util.stream.IntStream;
@@ -42,7 +42,7 @@ public class RefexSequenceSet extends SequenceSet {
     }
     
     public static RefexSequenceSet of(NidSet refexNidSet) {
-        SequenceService sp = getSequenceProvider();
+        IdentifierService sp = getSequenceProvider();
         return new RefexSequenceSet(refexNidSet.stream().map((nid) -> sp.getRefexSequence(nid)));
     }
     

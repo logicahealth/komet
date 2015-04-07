@@ -20,7 +20,7 @@ import gov.vha.isaac.ochre.api.sememe.version.MutableSememeVersion;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.model.sememe.SememeType;
+import gov.vha.isaac.ochre.api.sememe.SememeType;
 
 /**
  *

@@ -2,8 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.ConstraintBI;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraint;
@@ -59,6 +60,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -68,10 +70,10 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersion> {
 
     private static NidSetBI classifierCharacteristics;
-    private static SequenceService sequenceService = null; 
-    protected static SequenceService getSequenceService() {
+    private static IdentifierService sequenceService = null; 
+    protected static IdentifierService getSequenceService() {
         if (sequenceService == null) {
-            sequenceService = LookupService.getService(SequenceService.class);
+            sequenceService = LookupService.getService(IdentifierService.class);
         }
         return sequenceService;
     }
@@ -1199,7 +1201,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
     @Override
-    public Collection<? extends ConceptVersionBI> getVersions() {
+    public List<? extends ConceptVersionBI> getVersions() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1380,6 +1382,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
     public void setIndexed() {
         concept.setIndexed();
+    }
+
+    @Override
+    public Stream<SememeChronicle> getSememeChronicles() {
+        return concept.getSememeChronicles();
     }
 
 }

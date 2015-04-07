@@ -5,6 +5,7 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -271,7 +272,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
    @Override
-   public Collection<DescriptionVersion> getVersions() {
+   public List<DescriptionVersion> getVersions() {
       return ((Description) primordialComponent).getVersions();
    }
 

@@ -14,11 +14,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntRevision;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -142,7 +140,7 @@ public class IntRevision extends RefexRevision<IntRevision, IntMember>
    }
 
    @Override
-   public Collection<IntMemberVersion> getVersions() {
+   public List<IntMemberVersion> getVersions() {
       return ((IntMember) primordialComponent).getVersions();
    }
 

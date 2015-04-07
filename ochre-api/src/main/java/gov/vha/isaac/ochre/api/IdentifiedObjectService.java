@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.mojo.classifier;
+package gov.vha.isaac.ochre.api;
 
-import gov.vha.isaac.ochre.api.ClassifierService;
-import gov.vha.isaac.ochre.api.LookupService;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Mojo;
+import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
+import java.util.Optional;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
-@Mojo( name = "full-classification")
-public class FullClassification extends AbstractMojo {
-
-    @Override
-    public void execute()
-            throws MojoExecutionException {
-        ClassifierService classifier = LookupService.getService(ClassifierService.class);
-        classifier.fullClassification();
-    }
+@Contract
+public interface IdentifiedObjectService {
+    Optional<IdentifiedObjectLocal> getIdentifiedObject(int nid);
 }

@@ -19,7 +19,7 @@ import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceTimeSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.model.sememe.SememeType;
+import gov.vha.isaac.ochre.api.sememe.SememeType;
 
 /**
  * Used for path origins by path manager. 

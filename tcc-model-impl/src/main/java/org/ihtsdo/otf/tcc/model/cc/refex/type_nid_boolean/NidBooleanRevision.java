@@ -17,8 +17,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -165,7 +163,7 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
    }
 
    @Override
-   public Collection<NidBooleanMemberVersion> getVersions() {
+   public List<NidBooleanMemberVersion> getVersions() {
       return ((NidBooleanMember) primordialComponent).getVersions();
    }
 

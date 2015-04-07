@@ -39,5 +39,31 @@ public class StampPositionImpl implements StampPosition {
     public int getStampPathSequence() {
         return stampPathSequence;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + (int) (this.time ^ (this.time >>> 32));
+        hash = 83 * hash + this.stampPathSequence;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final StampPositionImpl other = (StampPositionImpl) obj;
+        if (this.time != other.time) {
+            return false;
+        }
+        if (this.stampPathSequence != other.stampPathSequence) {
+            return false;
+        }
+        return true;
+    }
     
 }

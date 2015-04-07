@@ -8,6 +8,10 @@ package gov.vha.isaac.ochre.api;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.RefexSequenceSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -16,7 +20,11 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface SequenceService {
+public interface IdentifierService {
+    
+    int getConceptSequenceForComponentNid(int nid);
+    void setConceptSequenceForComponentNid(int conceptSequence, int nid);
+    void resetConceptSequenceForComponentNid(int conceptSequence, int nid);
     
     int getConceptSequence(int nid);
     int getConceptNid(int conceptSequence);
@@ -32,6 +40,7 @@ public interface SequenceService {
     
     ConceptSequenceSet getConceptSequencesForNids(int[] conceptNidArray);
     SememeSequenceSet getSememeSequencesForNids(int[] sememeNidArray);
+    ConceptSequenceSet getConceptSequencesForReferencedComponents(SememeSequenceSet sememeSequences);
 
     IntStream getConceptNidsForSequences(IntStream conceptSequences);
     IntStream getSememeNidsForSequences(IntStream sememSequences);
@@ -51,4 +60,20 @@ public interface SequenceService {
     IntStream getRefexNidsForSequences(IntStream refexSequences);
     @Deprecated
     RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
+    
+    int getNidForUuids(Collection<UUID> uuids);
+    
+    int getNidForUuids(UUID... uuids);
+    
+    void addUuidForNid(UUID uuid, int nid);
+
+    Optional<UUID> getUuidPrimordialForNid(int nid);
+    Optional<UUID> getUuidPrimordialFromConceptSequence(int conceptSequence);
+
+    List<UUID> getUuidsForNid(int nid);
+
+    boolean hasUuid(UUID... uuids);
+
+    boolean hasUuid(Collection<UUID> uuids);
+
 }

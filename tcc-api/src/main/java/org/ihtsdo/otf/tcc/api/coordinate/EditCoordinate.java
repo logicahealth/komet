@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class EditCoordinate implements gov.vha.isaac.ochre.api.coordinate.EditCoordinate {
     
-    SequenceService ss = LookupService.getService(SequenceService.class);
+    IdentifierService ss = LookupService.getService(IdentifierService.class);
 
     private int authorNid;
     private int moduleNid;

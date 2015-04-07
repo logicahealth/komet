@@ -52,7 +52,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_string.NidStringMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
 import java.io.IOException;
 
 //~--- JDK imports ------------------------------------------------------------

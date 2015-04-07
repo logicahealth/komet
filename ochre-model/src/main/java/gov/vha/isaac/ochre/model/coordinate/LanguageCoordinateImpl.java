@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import java.util.Arrays;
 
 /**
  *
@@ -48,6 +49,35 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
     @Override
     public int[] getDescriptionTypePreferenceList() {
         return descriptionTypePreferenceList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + this.languageConceptSequence;
+        hash = 79 * hash + Arrays.hashCode(this.dialectAssemblagePreferenceList);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LanguageCoordinateImpl other = (LanguageCoordinateImpl) obj;
+        if (this.languageConceptSequence != other.languageConceptSequence) {
+            return false;
+        }
+        if (!Arrays.equals(this.dialectAssemblagePreferenceList, other.dialectAssemblagePreferenceList)) {
+            return false;
+        }
+        if (!Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList)) {
+            return false;
+        }
+        return true;
     }
     
 }

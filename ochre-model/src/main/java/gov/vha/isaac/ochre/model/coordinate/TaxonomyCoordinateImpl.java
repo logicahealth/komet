@@ -19,6 +19,7 @@ import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyType;
+import java.util.Objects;
 
 /**
  *
@@ -49,6 +50,36 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
     @Override
     public LanguageCoordinate getLanguageCoordinate() {
         return languageCoordinate;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + Objects.hashCode(this.taxonomyType);
+        hash = 53 * hash + Objects.hashCode(this.stampCoordinate);
+        hash = 53 * hash + Objects.hashCode(this.languageCoordinate);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TaxonomyCoordinateImpl other = (TaxonomyCoordinateImpl) obj;
+        if (this.taxonomyType != other.taxonomyType) {
+            return false;
+        }
+        if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
+            return false;
+        }
+        if (!Objects.equals(this.languageCoordinate, other.languageCoordinate)) {
+            return false;
+        }
+        return true;
     }
     
 }

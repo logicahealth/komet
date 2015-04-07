@@ -30,6 +30,7 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -177,7 +178,7 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
    }
 
    @Override
-   public Collection<ArrayOfByteArrayMemberVersion> getVersions() {
+   public List<ArrayOfByteArrayMemberVersion> getVersions() {
       return ((ArrayOfByteArrayMember) primordialComponent).getVersions();
    }
 
