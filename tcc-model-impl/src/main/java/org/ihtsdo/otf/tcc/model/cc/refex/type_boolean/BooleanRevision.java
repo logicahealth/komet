@@ -14,11 +14,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanRevisi
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -143,7 +141,7 @@ public class BooleanRevision extends RefexRevision<BooleanRevision, BooleanMembe
    }
 
    @Override
-   public Collection<BooleanMemberVersion> getVersions() {
+   public List<BooleanMemberVersion> getVersions() {
       return ((BooleanMember) primordialComponent).getVersions();
    }
 

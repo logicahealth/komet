@@ -18,6 +18,8 @@ package gov.vha.isaac.ochre.model.coordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  *
@@ -48,6 +50,35 @@ public class StampCoordinateImpl implements StampCoordinate {
     @Override
     public int[] getModuleSequences() {
         return moduleSequences;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 11 * hash + Objects.hashCode(this.stampPrecedence);
+        hash = 11 * hash + Objects.hashCode(this.stampPosition);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final StampCoordinateImpl other = (StampCoordinateImpl) obj;
+        if (this.stampPrecedence != other.stampPrecedence) {
+            return false;
+        }
+        if (!Objects.equals(this.stampPosition, other.stampPosition)) {
+            return false;
+        }
+        if (!Arrays.equals(this.moduleSequences, other.moduleSequences)) {
+            return false;
+        }
+        return true;
     }
     
 }

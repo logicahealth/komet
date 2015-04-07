@@ -20,5 +20,8 @@ package gov.vha.isaac.ochre.api.sememe.version;
  * @author kec
  */
 public interface LogicGraphSememe extends SememeVersion {
+    
     byte[][] getGraphData();
+    
+    byte[][] getExternalGraphData();
 }

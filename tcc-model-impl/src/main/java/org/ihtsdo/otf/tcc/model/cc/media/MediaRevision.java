@@ -18,6 +18,7 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
@@ -202,7 +203,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
 
    @Override
-   public Collection<? extends MediaVersionFacade> getVersions() {
+   public List<? extends MediaVersionFacade> getVersions() {
       return ((Media) primordialComponent).getVersions();
    }
 

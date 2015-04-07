@@ -280,7 +280,7 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    }
 
    @Override
-   public Collection<? extends RelGroupVersionBI> getVersions() {
+   public List<? extends RelGroupVersionBI> getVersions() {
       return Arrays.asList(new RelGroupVersionBI[] { new RelGroupVersion(this, null) });
    }
 

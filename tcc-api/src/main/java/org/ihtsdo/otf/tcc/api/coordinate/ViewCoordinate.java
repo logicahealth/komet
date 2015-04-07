@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -723,11 +723,11 @@ public class ViewCoordinate implements StampCoordinate,
         }
         return getSequenceProvider().getConceptSequence(this.descriptionLogicProfileNid);
     }
-    private static SequenceService sequenceProvider;
+    private static IdentifierService sequenceProvider;
 
-    private static SequenceService getSequenceProvider() {
+    private static IdentifierService getSequenceProvider() {
         if (sequenceProvider == null) {
-            sequenceProvider = Hk2Looker.getService(SequenceService.class);
+            sequenceProvider = Hk2Looker.getService(IdentifierService.class);
         }
         return sequenceProvider;
     }

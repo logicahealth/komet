@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import static gov.vha.isaac.ochre.collections.SequenceSet.getSequenceProvider;
 import java.util.Collection;
 import java.util.stream.IntStream;
@@ -44,7 +44,7 @@ public class ConceptSequenceSet extends SequenceSet {
     }
     
     public static ConceptSequenceSet of(NidSet nidSet) {
-        SequenceService sp = getSequenceProvider();
+        IdentifierService sp = getSequenceProvider();
         return new ConceptSequenceSet(nidSet.stream()
                 .map((nid) -> sp.getConceptSequence(nid)));
     }

@@ -30,4 +30,5 @@ public interface SememeChronicle<V extends SememeVersion>
     
     <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec);
     
+    SememeType getSememeType();
 }

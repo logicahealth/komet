@@ -118,6 +118,12 @@ public class DataBuffer {
         }
         return result;
     }
+    
+    public void putByteArrayField(byte[] array) {
+        putInt(array.length);
+        put(array, 0, array.length);
+        
+    }
 
     /**
      *
@@ -125,7 +131,7 @@ public class DataBuffer {
      * data buffer as an array.
      * @see getData()
      */
-    public byte[] getBytes() {
+    public byte[] getByteArrayField() {
         int length = getInt();
         long lockStamp = sl.tryOptimisticRead();
         byte[] results = new byte[length];
@@ -244,6 +250,10 @@ public class DataBuffer {
 
     public int getInt(int position) {
         long lockStamp = sl.tryOptimisticRead();
+        // TODO remove line for debugging. 
+        if (position + 4 > data.length) {
+            System.out.println("Index going to be out of bounds...");
+        }
         int result = (((data[position]) << 24)
                 | ((data[position + 1] & 0xff) << 16)
                 | ((data[position + 2] & 0xff) << 8)

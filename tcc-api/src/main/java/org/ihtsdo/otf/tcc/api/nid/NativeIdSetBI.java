@@ -16,7 +16,7 @@
 package org.ihtsdo.otf.tcc.api.nid;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
@@ -148,7 +148,7 @@ public interface NativeIdSetBI {
     }
     
     public default ConceptSequenceSet toConceptSequenceSet() {
-        SequenceService sp = LookupService.getService(SequenceService.class);
+        IdentifierService sp = LookupService.getService(IdentifierService.class);
         return sp.getConceptSequencesForNids(getSetValues());
     }
 }

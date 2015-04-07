@@ -5,7 +5,7 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
  */
 public interface ChronicledObjectLocal<V extends StampedVersion> extends IdentifiedObjectLocal {
     
-    Collection<? extends V> getVersions();
+    List<? extends V> getVersions();
     
     IntStream getVersionStampSequences();
     

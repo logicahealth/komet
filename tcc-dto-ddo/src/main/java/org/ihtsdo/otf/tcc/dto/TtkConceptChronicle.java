@@ -2,8 +2,11 @@ package org.ihtsdo.otf.tcc.dto;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
@@ -68,10 +71,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import java.util.*;
+import java.util.function.Consumer;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.*;
 import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
+import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
 
 /**
  * Class description
@@ -84,206 +89,246 @@ import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
 @XmlRootElement(name = "concept")
 public class TtkConceptChronicle implements ChronicledObjectUniversal {
 
-   /** Field description */
-   public static final String PADDING = "     ";
+    /**
+     * Field description
+     */
+    public static final String PADDING = "     ";
 
-   /** Field description */
-   public static final int dataVersion = 11;
+    /**
+     * Field description
+     */
+    public static final int dataVersion = 11;
 
-   /** Field description */
-   public static final long serialVersionUID = 1;
-   
-   /** Field description */
-   @XmlAttribute
-   protected boolean annotationStyleRefex = false;
+    /**
+     * Field description
+     */
+    public static final long serialVersionUID = 1;
 
-   /** Field description */
-   @XmlAttribute
-   @Deprecated
-   protected boolean annotationIndexStyleRefex = false;
+    /**
+     * Field description
+     */
+    @XmlAttribute
+    protected boolean annotationStyleRefex = false;
 
-   /** Field description */
-   protected TtkConceptAttributesChronicle conceptAttributes;
+    /**
+     * Field description
+     */
+    @XmlAttribute
+    @Deprecated
+    protected boolean annotationIndexStyleRefex = false;
 
-   /** Field description */
-   @XmlElementWrapper(name = "description-collection")
-   @XmlElement(name = "description")
-   protected List<TtkDescriptionChronicle> descriptions;
+    /**
+     * Field description
+     */
+    protected TtkConceptAttributesChronicle conceptAttributes;
 
-   /** Field description */
-   @XmlElementWrapper(name = "media-collection")
-   @XmlElement(name = "media")
-   protected List<TtkMediaChronicle> media;
+    /**
+     * Field description
+     */
+    @XmlElementWrapper(name = "description-collection")
+    @XmlElement(name = "description")
+    protected List<TtkDescriptionChronicle> descriptions;
 
-   /** Field description */
-   @XmlAttribute
-   protected UUID primordialUuid;
+    /**
+     * Field description
+     */
+    @XmlElementWrapper(name = "media-collection")
+    @XmlElement(name = "media")
+    protected List<TtkMediaChronicle> media;
 
-   /** Field description */
-   @XmlElementWrapper(name = "refex-member-collection")
-   @XmlElement(name = "refex")
-   protected List<TtkRefexAbstractMemberChronicle<?>> refsetMembers;
+    /**
+     * Field description
+     */
+    @XmlAttribute
+    protected UUID primordialUuid;
 
-   /** Field description */
-   @XmlElementWrapper(name = "refex-member-dynamic-collection")
-   @XmlElement(name = "refexDynamic")
-   protected List<TtkRefexDynamicMemberChronicle> refsetMembersDynamic;
+    /**
+     * Field description
+     */
+    @XmlElementWrapper(name = "refex-member-collection")
+    @XmlElement(name = "refex")
+    protected List<TtkRefexAbstractMemberChronicle<?>> refsetMembers;
 
-   /** Field description */
-   @XmlElementWrapper(name = "relationship-collection")
-   @XmlElement(name = "relationship")
-   protected List<TtkRelationshipChronicle> relationships;
+    /**
+     * Field description
+     */
+    @XmlElementWrapper(name = "refex-member-dynamic-collection")
+    @XmlElement(name = "refexDynamic")
+    protected List<TtkRefexDynamicMemberChronicle> refsetMembersDynamic;
 
-   /**
-    * Constructs ...
-    *
-    */
-   public TtkConceptChronicle() {
-      super();
-   }
+    /**
+     * Field description
+     */
+    @XmlElementWrapper(name = "relationship-collection")
+    @XmlElement(name = "relationship")
+    protected List<TtkRelationshipChronicle> relationships;
 
-   /**
-    * Constructs ...
-    *
-    *
-    * @param c
-    *
-    * @throws IOException
-    */
-   public TtkConceptChronicle(ConceptChronicleBI c) throws IOException {
-      annotationStyleRefex      = c.isAnnotationStyleRefex();
-      annotationIndexStyleRefex = false;
-      conceptAttributes         = new TtkConceptAttributesChronicle(c.getConceptAttributes());
-      primordialUuid            = conceptAttributes.primordialUuid;
-      relationships             = new ArrayList<>(c.getRelationshipsOutgoing().size());
+    /**
+     * Constructs ...
+     *
+     */
+    public TtkConceptChronicle() {
+        super();
+    }
 
-      for (RelationshipChronicleBI rel : c.getRelationshipsOutgoing()) {
-         relationships.add(new TtkRelationshipChronicle(rel));
-      }
+    /**
+     * Constructs ...
+     *
+     *
+     * @param c
+     *
+     * @throws IOException
+     */
+    public TtkConceptChronicle(ConceptChronicleBI c) throws IOException {
+        annotationStyleRefex = c.isAnnotationStyleRefex();
+        annotationIndexStyleRefex = false;
+        conceptAttributes = new TtkConceptAttributesChronicle(c.getConceptAttributes());
+        primordialUuid = conceptAttributes.primordialUuid;
+        relationships = new ArrayList<>(c.getRelationshipsOutgoing().size());
 
-      descriptions = new ArrayList<>(c.getDescriptions().size());
+        for (RelationshipChronicleBI rel : c.getRelationshipsOutgoing()) {
+            relationships.add(new TtkRelationshipChronicle(rel));
+        }
 
-      for (DescriptionChronicleBI desc : c.getDescriptions()) {
-         descriptions.add(new TtkDescriptionChronicle(desc));
-      }
+        descriptions = new ArrayList<>(c.getDescriptions().size());
 
-      media = new ArrayList<>(c.getMedia().size());
+        for (DescriptionChronicleBI desc : c.getDescriptions()) {
+            descriptions.add(new TtkDescriptionChronicle(desc));
+        }
 
-      for (MediaChronicleBI mediaChronicle : c.getMedia()) {
-         TtkMediaChronicle tkMedia = new TtkMediaChronicle(mediaChronicle);
+        media = new ArrayList<>(c.getMedia().size());
 
-         media.add(tkMedia);
-      }
+        for (MediaChronicleBI mediaChronicle : c.getMedia()) {
+            TtkMediaChronicle tkMedia = new TtkMediaChronicle(mediaChronicle);
 
-      if (!c.isAnnotationStyleRefex()) {
-         Collection<? extends RefexChronicleBI> members = c.getRefsetMembers();
+            media.add(tkMedia);
+        }
 
-         if (members != null) {
-            refsetMembers = new ArrayList<>(members.size());
-
-            for (RefexChronicleBI<?> m : members) {
-               TtkRefexAbstractMemberChronicle<?> member = convertRefex(m);
-
-               if (member != null) {
-                  refsetMembers.add(member);
-               } else {
-                  throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
-               }
+        c.getSememeChronicles().forEach((SememeChronicle sc) -> {
+            if (refsetMembers == null) {
+                refsetMembers = new ArrayList<>();
             }
-         }
-         Collection<? extends RefexDynamicChronicleBI<?>> membersDynamic = c.getRefsetDynamicMembers();
-
-         if (membersDynamic != null) {
-            refsetMembersDynamic = new ArrayList<>(membersDynamic.size());
-
-            for (RefexDynamicChronicleBI<?> m : membersDynamic) {
-               TtkRefexDynamicMemberChronicle member = convertRefex(m);
-
-               if (member != null) {
-                  refsetMembersDynamic.add(member);
-               } else {
-                  throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
-               }
+            switch (sc.getSememeType()) {
+                case LOGIC_GRAPH:
+                    TtkLogicGraphMemberChronicle lgmc = new TtkLogicGraphMemberChronicle((SememeChronicleImpl<LogicGraphSememeImpl>) sc);
+                    refsetMembers.add(lgmc);
+                    break;
+                default:
+                    throw new UnsupportedOperationException(sc.getSememeType() + " not supported yet.");
             }
-         }
-      }
-   }
+        });
 
-   /**
-    * Constructs ...
-    *
-    *
-    * @param in
-    *
-    * @throws ClassNotFoundException
-    * @throws IOException
-    */
-   public TtkConceptChronicle(DataInput in) throws IOException, ClassNotFoundException {
-      super();
-      readExternal(in);
-   }
+        if (!c.isAnnotationStyleRefex()) {
+            Collection<? extends RefexChronicleBI> members = c.getRefsetMembers();
 
-   /**
-    * Constructs ...
-    *
-    *
-    * @param another
-    * @param transformer
-    */
-   public TtkConceptChronicle(TtkConceptChronicle another, ComponentTransformerBI transformer) {
-      super();
-      this.annotationStyleRefex = transformer.transform(another.annotationStyleRefex, another,
-          ComponentFields.ANNOTATION_REFEX);
-      this.annotationIndexStyleRefex = transformer.transform(another.annotationIndexStyleRefex, another,
-          ComponentFields.ANNOTATION_INDEX_REFEX);
+            if (members != null) {
+                if (refsetMembers == null) {
+                    refsetMembers = new ArrayList<>(members.size());
+                }
 
-      if (another.conceptAttributes != null) {
-         this.conceptAttributes = another.conceptAttributes.makeTransform(transformer);
-      }
+                for (RefexChronicleBI<?> m : members) {
+                    TtkRefexAbstractMemberChronicle<?> member = convertRefex(m);
 
-      if (another.descriptions != null) {
-         this.descriptions = new ArrayList<>(another.descriptions.size());
+                    if (member != null) {
+                        refsetMembers.add(member);
+                    } else {
+                        throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
+                    }
+                }
+            }
+            Collection<? extends RefexDynamicChronicleBI<?>> membersDynamic = c.getRefsetDynamicMembers();
 
-         for (TtkDescriptionChronicle d : another.descriptions) {
-            this.descriptions.add(d.makeTransform(transformer));
-         }
-      }
+            if (membersDynamic != null) {
+                refsetMembersDynamic = new ArrayList<>(membersDynamic.size());
 
-      if (another.media != null) {
-         this.media = new ArrayList<>(another.media.size());
+                for (RefexDynamicChronicleBI<?> m : membersDynamic) {
+                    TtkRefexDynamicMemberChronicle member = convertRefex(m);
 
-         for (TtkMediaChronicle d : another.media) {
-            this.media.add(d.makeTransform(transformer));
-         }
-      }
+                    if (member != null) {
+                        refsetMembersDynamic.add(member);
+                    } else {
+                        throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
+                    }
+                }
+            }
+        }
+    }
 
-      this.primordialUuid = transformer.transform(another.primordialUuid, another,
-          ComponentFields.PRIMORDIAL_UUID);
+    /**
+     * Constructs ...
+     *
+     *
+     * @param in
+     *
+     * @throws ClassNotFoundException
+     * @throws IOException
+     */
+    public TtkConceptChronicle(DataInput in) throws IOException, ClassNotFoundException {
+        super();
+        readExternal(in);
+    }
 
-      if (another.refsetMembers != null) {
-         this.refsetMembers = new ArrayList<>(another.refsetMembers.size());
+    /**
+     * Constructs ...
+     *
+     *
+     * @param another
+     * @param transformer
+     */
+    public TtkConceptChronicle(TtkConceptChronicle another, ComponentTransformerBI transformer) {
+        super();
+        this.annotationStyleRefex = transformer.transform(another.annotationStyleRefex, another,
+                ComponentFields.ANNOTATION_REFEX);
+        this.annotationIndexStyleRefex = transformer.transform(another.annotationIndexStyleRefex, another,
+                ComponentFields.ANNOTATION_INDEX_REFEX);
 
-         for (TtkRefexAbstractMemberChronicle<?> d : another.refsetMembers) {
-            this.refsetMembers.add((TtkRefexAbstractMemberChronicle<?>) d.makeTransform(transformer));
-         }
-      }
+        if (another.conceptAttributes != null) {
+            this.conceptAttributes = another.conceptAttributes.makeTransform(transformer);
+        }
 
-      if (another.refsetMembersDynamic != null) {
-          this.refsetMembersDynamic = new ArrayList<>(another.refsetMembersDynamic.size());
+        if (another.descriptions != null) {
+            this.descriptions = new ArrayList<>(another.descriptions.size());
 
-          for (TtkRefexDynamicMemberChronicle d : another.refsetMembersDynamic) {
-             this.refsetMembersDynamic.add((TtkRefexDynamicMemberChronicle) d.makeTransform(transformer));
-          }
-       }
+            for (TtkDescriptionChronicle d : another.descriptions) {
+                this.descriptions.add(d.makeTransform(transformer));
+            }
+        }
 
-      if (another.relationships != null) {
-         this.relationships = new ArrayList<>(another.relationships.size());
+        if (another.media != null) {
+            this.media = new ArrayList<>(another.media.size());
 
-         for (TtkRelationshipChronicle d : another.relationships) {
-            this.relationships.add(d.makeTransform(transformer));
-         }
-      }
-   }
+            for (TtkMediaChronicle d : another.media) {
+                this.media.add(d.makeTransform(transformer));
+            }
+        }
+
+        this.primordialUuid = transformer.transform(another.primordialUuid, another,
+                ComponentFields.PRIMORDIAL_UUID);
+
+        if (another.refsetMembers != null) {
+            this.refsetMembers = new ArrayList<>(another.refsetMembers.size());
+
+            for (TtkRefexAbstractMemberChronicle<?> d : another.refsetMembers) {
+                this.refsetMembers.add((TtkRefexAbstractMemberChronicle<?>) d.makeTransform(transformer));
+            }
+        }
+
+        if (another.refsetMembersDynamic != null) {
+            this.refsetMembersDynamic = new ArrayList<>(another.refsetMembersDynamic.size());
+
+            for (TtkRefexDynamicMemberChronicle d : another.refsetMembersDynamic) {
+                this.refsetMembersDynamic.add((TtkRefexDynamicMemberChronicle) d.makeTransform(transformer));
+            }
+        }
+
+        if (another.relationships != null) {
+            this.relationships = new ArrayList<>(another.relationships.size());
+
+            for (TtkRelationshipChronicle d : another.relationships) {
+                this.relationships.add(d.makeTransform(transformer));
+            }
+        }
+    }
 
     public void processComponentChronicles(TtkChronicleProcessor processor) {
         processChronicle(this.conceptAttributes, processor);
@@ -342,716 +387,725 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         }
     }
 
-   /**
-    * Method description
-    *
-    *
-    * @param m
-    *
-    * @return
-    *
-    * @throws IOException
-    */
-   public static TtkRefexAbstractMemberChronicle<?> convertRefex(RefexChronicleBI<?> m) throws IOException {
-      if (m.getPrimordialVersion() instanceof RefexNidNidNidVersionBI) {
-         return new TtkRefexUuidUuidUuidMemberChronicle((RefexNidNidNidVersionBI) m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidNidStringVersionBI) {
-         return new TtkRefexUuidUuidStringMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidNidVersionBI) {
-         return new TtkRefexUuidUuidMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidFloatVersionBI) {
-         return new TtkRefexUuidFloatMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidIntVersionBI) {
-         return new TtkRefexUuidIntMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidLongVersionBI) {
-         return new TtkRefexUuidLongMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidStringVersionBI) {
-         return new TtkRefexUuidStringMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexNidVersionBI) {
-         return new TtkRefexUuidMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexIntVersionBI) {
-         return new TtkRefexIntMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexStringVersionBI) {
-         return new TtkRefexStringMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexLongVersionBI) {
-         return new TtkRefexLongMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexBooleanVersionBI) {
-         return new TtkRefexBooleanMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexArrayOfBytearrayVersionBI) {
-         return new TtkRefexArrayOfByteArrayMemberChronicle(m);
-      } else if (m.getPrimordialVersion() instanceof RefexMemberVersionBI) {
-         return new TtkRefexMemberChronicle(m);
-      } else {
-         throw new UnsupportedOperationException("Cannot handle: " + m);
-      }
-   }
+    public static TtkRefexAbstractMemberChronicle<?> convertSememeChronicle(SememeChronicle<?> sc) {
+        SememeChronicleImpl<LogicGraphSememeImpl> sci = (SememeChronicleImpl<LogicGraphSememeImpl>) sc;
+        switch (sci.getSememeType()) {
+            case LOGIC_GRAPH:
+                return new TtkLogicGraphMemberChronicle(sci);
+            case COMPONENT_NID:
+            case CONCEPT_SEQUENCE:
+            case CONCEPT_SEQUENCE_TIME:
+            case DYNAMIC:
+            case MEMBER:
+            default:
+                throw new UnsupportedOperationException("Can't handle: " + sci.getSememeType());
+        }
 
-   public static TtkRefexDynamicMemberChronicle convertRefex(RefexDynamicChronicleBI<?> m) throws IOException {
-       return new TtkRefexDynamicMemberChronicle(m);
-   }
+    }
 
-   /**
-    * Compares this object to the specified object. The result is {@code true}
-    * if and only if the argument is not {@code null}, is a {@code EConcept}
-    * object, and contains the same values, field by field, as this
-    * {@code EConcept}.
-    *
-    * @param obj the object to compare with.
-    * @return {@code true} if the objects are the same; {@code false}
-    * otherwise.
-    */
-   @Override
-   public boolean equals(Object obj) {
-      if (obj == null) {
-         return false;
-      }
+    /**
+     * Method description
+     *
+     *
+     * @param m
+     *
+     * @return
+     *
+     * @throws IOException
+     */
+    public static TtkRefexAbstractMemberChronicle<?> convertRefex(RefexChronicleBI<?> m) throws IOException {
+        if (m.getPrimordialVersion() instanceof RefexNidNidNidVersionBI) {
+            return new TtkRefexUuidUuidUuidMemberChronicle((RefexNidNidNidVersionBI) m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidNidStringVersionBI) {
+            return new TtkRefexUuidUuidStringMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidNidVersionBI) {
+            return new TtkRefexUuidUuidMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidFloatVersionBI) {
+            return new TtkRefexUuidFloatMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidIntVersionBI) {
+            return new TtkRefexUuidIntMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidLongVersionBI) {
+            return new TtkRefexUuidLongMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidStringVersionBI) {
+            return new TtkRefexUuidStringMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexNidVersionBI) {
+            return new TtkRefexUuidMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexIntVersionBI) {
+            return new TtkRefexIntMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexStringVersionBI) {
+            return new TtkRefexStringMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexLongVersionBI) {
+            return new TtkRefexLongMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexBooleanVersionBI) {
+            return new TtkRefexBooleanMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexArrayOfBytearrayVersionBI) {
+            return new TtkRefexArrayOfByteArrayMemberChronicle(m);
+        } else if (m.getPrimordialVersion() instanceof RefexMemberVersionBI) {
+            return new TtkRefexMemberChronicle(m);
+        } else {
+            throw new UnsupportedOperationException("Cannot handle: " + m);
+        }
+    }
 
-      if (TtkConceptChronicle.class.isAssignableFrom(obj.getClass())) {
-         TtkConceptChronicle another = (TtkConceptChronicle) obj;
+    public static TtkRefexDynamicMemberChronicle convertRefex(RefexDynamicChronicleBI<?> m) throws IOException {
+        return new TtkRefexDynamicMemberChronicle(m);
+    }
 
-         // =========================================================
-         // Compare properties of 'this' class to the 'another' class
-         // =========================================================
-         // Compare ConceptAttributes
-         if (this.conceptAttributes == null) {
-            if (another.conceptAttributes != null) {
-               return false;
-            }
-         } else if (!this.conceptAttributes.equals(another.conceptAttributes)) {
+    /**
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a {@code EConcept}
+     * object, and contains the same values, field by field, as this
+     * {@code EConcept}.
+     *
+     * @param obj the object to compare with.
+     * @return {@code true} if the objects are the same; {@code false}
+     * otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
             return false;
-         }
+        }
 
-         // Compare Descriptions
-         if (!ListCompareHelper.equals(this.descriptions, another.descriptions)) {
-             return false;
-         }
+        if (TtkConceptChronicle.class.isAssignableFrom(obj.getClass())) {
+            TtkConceptChronicle another = (TtkConceptChronicle) obj;
 
-         // Compare Relationships
-         if (!ListCompareHelper.equals(this.relationships, another.relationships)) {
-             return false;
-         }
+            // =========================================================
+            // Compare properties of 'this' class to the 'another' class
+            // =========================================================
+            // Compare ConceptAttributes
+            if (this.conceptAttributes == null) {
+                if (another.conceptAttributes != null) {
+                    return false;
+                }
+            } else if (!this.conceptAttributes.equals(another.conceptAttributes)) {
+                return false;
+            }
 
-         // Compare Images
-         if (!ListCompareHelper.equals(this.media, another.media)) {
-             return false;
-         }
+            // Compare Descriptions
+            if (!ListCompareHelper.equals(this.descriptions, another.descriptions)) {
+                return false;
+            }
 
+            // Compare Relationships
+            if (!ListCompareHelper.equals(this.relationships, another.relationships)) {
+                return false;
+            }
 
-         // Compare Refset Members
-         if (!ListCompareHelper.equals(this.refsetMembers, another.refsetMembers)) {
-             return false;
-         }
+            // Compare Images
+            if (!ListCompareHelper.equals(this.media, another.media)) {
+                return false;
+            }
 
-         // Compare Refset Members
-         if (!ListCompareHelper.equals(this.refsetMembersDynamic, another.refsetMembersDynamic)) {
-             return false;
-         }
+            // Compare Refset Members
+            if (!ListCompareHelper.equals(this.refsetMembers, another.refsetMembers)) {
+                return false;
+            }
 
+            // Compare Refset Members
+            if (!ListCompareHelper.equals(this.refsetMembersDynamic, another.refsetMembersDynamic)) {
+                return false;
+            }
 
-         // If none of the previous comparisons fail, the objects must be equal
-         return true;
-      }
+            // If none of the previous comparisons fail, the objects must be equal
+            return true;
+        }
 
-      return false;
-   }
+        return false;
+    }
 
-   /**
-    * Returns a hash code for this
-    * {@code EConcept}.
-    *
-    * @return a hash code value for this {@code EConcept}.
-    */
-   @Override
-   public int hashCode() {
-      return this.conceptAttributes.getPrimordialComponentUuid().hashCode();
-   }
+    /**
+     * Returns a hash code for this {@code EConcept}.
+     *
+     * @return a hash code value for this {@code EConcept}.
+     */
+    @Override
+    public int hashCode() {
+        return this.conceptAttributes.getPrimordialComponentUuid().hashCode();
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param in
-    *
-    * @throws ClassNotFoundException
-    * @throws IOException
-    */
-   public final void readExternal(DataInput in) throws IOException, ClassNotFoundException {
-      int readDataVersion = in.readInt();
+    /**
+     * Method description
+     *
+     *
+     * @param in
+     *
+     * @throws ClassNotFoundException
+     * @throws IOException
+     */
+    public final void readExternal(DataInput in) throws IOException, ClassNotFoundException {
+        int readDataVersion = in.readInt();
 
-      if (readDataVersion > dataVersion) {
-         throw new IOException("Unsupported dataVersion: " + readDataVersion);
-      }
+        if (readDataVersion > dataVersion) {
+            throw new IOException("Unsupported dataVersion: " + readDataVersion);
+        }
 
-      if (readDataVersion == 1) {
-         conceptAttributes = new TtkConceptAttributesChronicle(in, readDataVersion);
-         primordialUuid    = conceptAttributes.getPrimordialComponentUuid();
-      } else {
-         primordialUuid = new UUID(in.readLong(), in.readLong());
-
-         int attributeCount = in.readByte();
-
-         if (attributeCount == 1) {
+        if (readDataVersion == 1) {
             conceptAttributes = new TtkConceptAttributesChronicle(in, readDataVersion);
-         }
-      }
+            primordialUuid = conceptAttributes.getPrimordialComponentUuid();
+        } else {
+            primordialUuid = new UUID(in.readLong(), in.readLong());
 
-      int descCount = in.readInt();
+            int attributeCount = in.readByte();
 
-      if (descCount > 0) {
-         descriptions = new ArrayList<>(descCount);
-
-         for (int i = 0; i < descCount; i++) {
-            descriptions.add(new TtkDescriptionChronicle(in, readDataVersion));
-         }
-      }
-
-      int relCount = in.readInt();
-
-      if (relCount > 0) {
-         relationships = new ArrayList<>(relCount);
-
-         for (int i = 0; i < relCount; i++) {
-            relationships.add(new TtkRelationshipChronicle(in, readDataVersion));
-         }
-      }
-
-      int imgCount = in.readInt();
-
-      if (imgCount > 0) {
-         media = new ArrayList<>(imgCount);
-
-         for (int i = 0; i < imgCount; i++) {
-            media.add(new TtkMediaChronicle(in, readDataVersion));
-         }
-      }
-
-      int refsetMemberCount = in.readInt();
-
-      if (refsetMemberCount > 0) {
-         refsetMembers = new ArrayList<>(refsetMemberCount);
-
-         for (int i = 0; i < refsetMemberCount; i++) {
-            RefexType type = RefexType.readType(in);
-
-            switch (type) {
-            case CID :
-               refsetMembers.add(new TtkRefexUuidMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_CID :
-               refsetMembers.add(new TtkRefexUuidUuidMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case MEMBER :
-               refsetMembers.add(new TtkRefexMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_CID_CID :
-               refsetMembers.add(new TtkRefexUuidUuidUuidMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_CID_STR :
-               refsetMembers.add(new TtkRefexUuidUuidStringMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case INT :
-               refsetMembers.add(new TtkRefexIntMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case STR :
-               refsetMembers.add(new TtkRefexStringMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_INT :
-               refsetMembers.add(new TtkRefexUuidIntMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case BOOLEAN :
-               refsetMembers.add(new TtkRefexBooleanMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_FLOAT :
-               refsetMembers.add(new TtkRefexUuidFloatMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_LONG :
-               refsetMembers.add(new TtkRefexUuidLongMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_STR :
-               refsetMembers.add(new TtkRefexUuidStringMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case LONG :
-               refsetMembers.add(new TtkRefexLongMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case ARRAY_BYTEARRAY :
-               refsetMembers.add(new TtkRefexArrayOfByteArrayMemberChronicle(in, readDataVersion));
-
-               break;
-
-            case CID_CID_CID_FLOAT :
-               refsetMembers.add(new TtkRefexUuidUuidUuidFloatMemberChronicle(in, dataVersion));
-
-               break;
-
-            case CID_CID_CID_INT :
-               refsetMembers.add(new TtkRefexUuidUuidUuidIntMemberChronicle(in, dataVersion));
-
-               break;
-
-            case CID_CID_CID_LONG :
-               refsetMembers.add(new TtkRefexUuidUuidUuidLongMemberChronicle(in, dataVersion));
-
-               break;
-
-            case CID_CID_CID_STRING :
-               refsetMembers.add(new TtkRefexUuidUuidUuidStringMemberChronicle(in, dataVersion));
-
-               break;
-
-            case CID_BOOLEAN :
-               refsetMembers.add(new TtkRefexUuidBooleanMemberChronicle(in, dataVersion));
-
-               break;
-
-            default :
-               throw new UnsupportedOperationException("Can't handle refset type: " + type);
+            if (attributeCount == 1) {
+                conceptAttributes = new TtkConceptAttributesChronicle(in, readDataVersion);
             }
-         }
-      }
+        }
 
-      if (readDataVersion < 4) {
-         in.readInt();    // destRelNidTypeNidsCount
-         in.readInt();    // refsetUuidMemberUuidForConceptCount
-         in.readInt();    // refsetUuidMemberUuidForDescsCount
-         in.readInt();    // refsetUuidMemberUuidForRelsCount
-         in.readInt();    // refsetUuidMemberUuidForImagesCount
-         in.readInt();    // refsetUuidMemberUuidForRefsetMembersCount
-      }
+        int descCount = in.readInt();
 
-      if (readDataVersion >= 5) {
-         annotationStyleRefex = in.readBoolean();
-      } else {
-         annotationStyleRefex = false;
-      }
+        if (descCount > 0) {
+            descriptions = new ArrayList<>(descCount);
 
-      if (readDataVersion >= 9) {
-         annotationIndexStyleRefex = in.readBoolean();
-      } else {
-         annotationIndexStyleRefex = false;
-      }
-      
-      if (readDataVersion >= 11)
-      {
-         int refsetDynamicMemberCount = in.readInt();
-
-         if (refsetDynamicMemberCount > 0)
-         {
-            refsetMembersDynamic = new ArrayList<>(refsetDynamicMemberCount);
-
-            for (int i = 0; i < refsetDynamicMemberCount; i++)
-            {
-               refsetMembersDynamic.add(new TtkRefexDynamicMemberChronicle(in, readDataVersion));
+            for (int i = 0; i < descCount; i++) {
+                descriptions.add(new TtkDescriptionChronicle(in, readDataVersion));
             }
-         }
-      }
-   }
+        }
 
-   /**
-    * Returns a string representation of the object.
-    *
-    * @return
-    */
-   @Override
-   public String toString() {
-      StringBuilder buff = new StringBuilder();
+        int relCount = in.readInt();
 
-      buff.append(this.getClass().getSimpleName());
-      buff.append(": \n   primordial UUID: ");
-      buff.append(TtkRevision.informAboutUuid(this.primordialUuid));
-      buff.append(": \n   annotation refex: ");
-      buff.append(this.annotationStyleRefex);
-      buff.append(": \n   indexed annotation: ");
-      buff.append(this.annotationIndexStyleRefex);
-      buff.append("\n   ConceptAttributes: \n");
-      buff.append(PADDING);
+        if (relCount > 0) {
+            relationships = new ArrayList<>(relCount);
 
-      if (this.conceptAttributes == null) {
-         buff.append(PADDING + "none\n");
-      } else {
-         buff.append(this.conceptAttributes);
-         buff.append("\n");
-      }
+            for (int i = 0; i < relCount; i++) {
+                relationships.add(new TtkRelationshipChronicle(in, readDataVersion));
+            }
+        }
 
-      buff.append("\n   Descriptions: \n");
+        int imgCount = in.readInt();
 
-      if (this.descriptions == null) {
-         buff.append(PADDING + "none\n");
-      } else {
-         for (TtkDescriptionChronicle d : this.descriptions) {
-            buff.append(PADDING);
-            buff.append(d);
+        if (imgCount > 0) {
+            media = new ArrayList<>(imgCount);
+
+            for (int i = 0; i < imgCount; i++) {
+                media.add(new TtkMediaChronicle(in, readDataVersion));
+            }
+        }
+
+        int refsetMemberCount = in.readInt();
+
+        if (refsetMemberCount > 0) {
+            refsetMembers = new ArrayList<>(refsetMemberCount);
+
+            for (int i = 0; i < refsetMemberCount; i++) {
+                RefexType type = RefexType.readType(in);
+
+                switch (type) {
+                    case CID:
+                        refsetMembers.add(new TtkRefexUuidMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_CID:
+                        refsetMembers.add(new TtkRefexUuidUuidMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case MEMBER:
+                        refsetMembers.add(new TtkRefexMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_CID_CID:
+                        refsetMembers.add(new TtkRefexUuidUuidUuidMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_CID_STR:
+                        refsetMembers.add(new TtkRefexUuidUuidStringMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case INT:
+                        refsetMembers.add(new TtkRefexIntMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case STR:
+                        refsetMembers.add(new TtkRefexStringMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_INT:
+                        refsetMembers.add(new TtkRefexUuidIntMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case BOOLEAN:
+                        refsetMembers.add(new TtkRefexBooleanMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_FLOAT:
+                        refsetMembers.add(new TtkRefexUuidFloatMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_LONG:
+                        refsetMembers.add(new TtkRefexUuidLongMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_STR:
+                        refsetMembers.add(new TtkRefexUuidStringMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case LONG:
+                        refsetMembers.add(new TtkRefexLongMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case ARRAY_BYTEARRAY:
+                        refsetMembers.add(new TtkRefexArrayOfByteArrayMemberChronicle(in, readDataVersion));
+
+                        break;
+
+                    case CID_CID_CID_FLOAT:
+                        refsetMembers.add(new TtkRefexUuidUuidUuidFloatMemberChronicle(in, dataVersion));
+
+                        break;
+
+                    case CID_CID_CID_INT:
+                        refsetMembers.add(new TtkRefexUuidUuidUuidIntMemberChronicle(in, dataVersion));
+
+                        break;
+
+                    case CID_CID_CID_LONG:
+                        refsetMembers.add(new TtkRefexUuidUuidUuidLongMemberChronicle(in, dataVersion));
+
+                        break;
+
+                    case CID_CID_CID_STRING:
+                        refsetMembers.add(new TtkRefexUuidUuidUuidStringMemberChronicle(in, dataVersion));
+
+                        break;
+
+                    case CID_BOOLEAN:
+                        refsetMembers.add(new TtkRefexUuidBooleanMemberChronicle(in, dataVersion));
+
+                        break;
+
+                    default:
+                        throw new UnsupportedOperationException("Can't handle refset type: " + type);
+                }
+            }
+        }
+
+        if (readDataVersion < 4) {
+            in.readInt();    // destRelNidTypeNidsCount
+            in.readInt();    // refsetUuidMemberUuidForConceptCount
+            in.readInt();    // refsetUuidMemberUuidForDescsCount
+            in.readInt();    // refsetUuidMemberUuidForRelsCount
+            in.readInt();    // refsetUuidMemberUuidForImagesCount
+            in.readInt();    // refsetUuidMemberUuidForRefsetMembersCount
+        }
+
+        if (readDataVersion >= 5) {
+            annotationStyleRefex = in.readBoolean();
+        } else {
+            annotationStyleRefex = false;
+        }
+
+        if (readDataVersion >= 9) {
+            annotationIndexStyleRefex = in.readBoolean();
+        } else {
+            annotationIndexStyleRefex = false;
+        }
+
+        if (readDataVersion >= 11) {
+            int refsetDynamicMemberCount = in.readInt();
+
+            if (refsetDynamicMemberCount > 0) {
+                refsetMembersDynamic = new ArrayList<>(refsetDynamicMemberCount);
+
+                for (int i = 0; i < refsetDynamicMemberCount; i++) {
+                    refsetMembersDynamic.add(new TtkRefexDynamicMemberChronicle(in, readDataVersion));
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a string representation of the object.
+     *
+     * @return
+     */
+    @Override
+    public String toString() {
+        StringBuilder buff = new StringBuilder();
+
+        buff.append(this.getClass().getSimpleName());
+        buff.append(": \n   primordial UUID: ");
+        buff.append(TtkRevision.informAboutUuid(this.primordialUuid));
+        buff.append(": \n   annotation refex: ");
+        buff.append(this.annotationStyleRefex);
+        buff.append(": \n   indexed annotation: ");
+        buff.append(this.annotationIndexStyleRefex);
+        buff.append("\n   ConceptAttributes: \n");
+        buff.append(PADDING);
+
+        if (this.conceptAttributes == null) {
+            buff.append(PADDING + "none\n");
+        } else {
+            buff.append(this.conceptAttributes);
             buff.append("\n");
-         }
-      }
+        }
 
-      buff.append("\n   Relationships: \n");
+        buff.append("\n   Descriptions: \n");
 
-      if (this.relationships == null) {
-         buff.append(PADDING + "none\n");
-      } else {
-         for (TtkRelationshipChronicle r : this.relationships) {
-            buff.append(PADDING);
-            buff.append(r);
-            buff.append("\n");
-         }
-      }
+        if (this.descriptions == null) {
+            buff.append(PADDING + "none\n");
+        } else {
+            for (TtkDescriptionChronicle d : this.descriptions) {
+                buff.append(PADDING);
+                buff.append(d);
+                buff.append("\n");
+            }
+        }
 
-      buff.append("\n   RefsetMembers: \n");
+        buff.append("\n   Relationships: \n");
 
-      if (this.refsetMembers == null) {
-         buff.append(PADDING + "none\n");
-      } else {
-          buff.append("Count: "+ this.refsetMembers.size() + "\n");
+        if (this.relationships == null) {
+            buff.append(PADDING + "none\n");
+        } else {
+            for (TtkRelationshipChronicle r : this.relationships) {
+                buff.append(PADDING);
+                buff.append(r);
+                buff.append("\n");
+            }
+        }
 
-          this.refsetMembers.stream().limit(20).forEach(r -> {
-              buff.append(PADDING);
-              buff.append(r);
-              buff.append("\n");
-          });
-      }
+        buff.append("\n   RefsetMembers: \n");
 
-      buff.append("\n   RefsetMembersDynamic: \n");
+        if (this.refsetMembers == null) {
+            buff.append(PADDING + "none\n");
+        } else {
+            buff.append("Count: " + this.refsetMembers.size() + "\n");
 
-      if (this.refsetMembersDynamic == null) {
-         buff.append(PADDING + "none\n");
-      } else {
-          buff.append("Count: "+ this.refsetMembersDynamic.size() + "\n");
-          this.refsetMembersDynamic.stream().limit(20).forEach(r -> {
-              buff.append(PADDING);
-              buff.append(r);
-              buff.append("\n");
-          });
-      }
+            this.refsetMembers.stream().limit(20).forEach(r -> {
+                buff.append(PADDING);
+                buff.append(r);
+                buff.append("\n");
+            });
+        }
 
-      buff.append("\n   Media: \n");
+        buff.append("\n   RefsetMembersDynamic: \n");
 
-      if (this.media == null) {
-         buff.append(PADDING + "none");
-      } else {
-         for (TtkMediaChronicle m : this.media) {
-            buff.append(PADDING);
-            buff.append(m);
-            buff.append("\n");
-         }
-      }
+        if (this.refsetMembersDynamic == null) {
+            buff.append(PADDING + "none\n");
+        } else {
+            buff.append("Count: " + this.refsetMembersDynamic.size() + "\n");
+            this.refsetMembersDynamic.stream().limit(20).forEach(r -> {
+                buff.append(PADDING);
+                buff.append(r);
+                buff.append("\n");
+            });
+        }
 
-      return buff.toString();
-   }
+        buff.append("\n   Media: \n");
 
-   /**
-    * Method description
-    *
-    *
-    * @param out
-    *
-    * @throws IOException
-    */
-   public void writeExternal(DataOutput out) throws IOException {
-      out.writeInt(dataVersion);
+        if (this.media == null) {
+            buff.append(PADDING + "none");
+        } else {
+            for (TtkMediaChronicle m : this.media) {
+                buff.append(PADDING);
+                buff.append(m);
+                buff.append("\n");
+            }
+        }
 
-      if (primordialUuid == null) {
-         primordialUuid = conceptAttributes.getPrimordialComponentUuid();
-      }
+        return buff.toString();
+    }
 
-      out.writeLong(primordialUuid.getMostSignificantBits());
-      out.writeLong(primordialUuid.getLeastSignificantBits());
+    /**
+     * Method description
+     *
+     *
+     * @param out
+     *
+     * @throws IOException
+     */
+    public void writeExternal(DataOutput out) throws IOException {
+        out.writeInt(dataVersion);
 
-      if (conceptAttributes == null) {
-         out.writeByte(0);
-      } else {
-         out.writeByte(1);
-         conceptAttributes.writeExternal(out);
-      }
+        if (primordialUuid == null) {
+            primordialUuid = conceptAttributes.getPrimordialComponentUuid();
+        }
 
-      if (descriptions == null) {
-         out.writeInt(0);
-      } else {
-         out.writeInt(descriptions.size());
+        out.writeLong(primordialUuid.getMostSignificantBits());
+        out.writeLong(primordialUuid.getLeastSignificantBits());
 
-         for (TtkDescriptionChronicle d : descriptions) {
-            d.writeExternal(out);
-         }
-      }
+        if (conceptAttributes == null) {
+            out.writeByte(0);
+        } else {
+            out.writeByte(1);
+            conceptAttributes.writeExternal(out);
+        }
 
-      if (relationships == null) {
-         out.writeInt(0);
-      } else {
-         out.writeInt(relationships.size());
+        if (descriptions == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(descriptions.size());
 
-         for (TtkRelationshipChronicle r : relationships) {
-            r.writeExternal(out);
-         }
-      }
+            for (TtkDescriptionChronicle d : descriptions) {
+                d.writeExternal(out);
+            }
+        }
 
-      if (media == null) {
-         out.writeInt(0);
-      } else {
-         out.writeInt(media.size());
+        if (relationships == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(relationships.size());
 
-         for (TtkMediaChronicle img : media) {
-            img.writeExternal(out);
-         }
-      }
+            for (TtkRelationshipChronicle r : relationships) {
+                r.writeExternal(out);
+            }
+        }
 
-      if (refsetMembers == null) {
-         out.writeInt(0);
-      } else {
-         out.writeInt(refsetMembers.size());
+        if (media == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(media.size());
 
-         for (TtkRefexAbstractMemberChronicle<?> r : refsetMembers) {
-            r.getType().writeType(out);
-            r.writeExternal(out);
-         }
-      }
-      
-      out.writeBoolean(annotationStyleRefex);
-      out.writeBoolean(annotationIndexStyleRefex);
-      
-      if (refsetMembersDynamic == null) {
-          out.writeInt(0);
-       } else {
-          out.writeInt(refsetMembersDynamic.size());
+            for (TtkMediaChronicle img : media) {
+                img.writeExternal(out);
+            }
+        }
 
-          for (TtkRefexDynamicMemberChronicle r : refsetMembersDynamic) {
-             r.writeExternal(out);
-          }
-       }
-   }
+        if (refsetMembers == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(refsetMembers.size());
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public TtkConceptAttributesChronicle getConceptAttributes() {
-      return conceptAttributes;
-   }
+            for (TtkRefexAbstractMemberChronicle<?> r : refsetMembers) {
+                r.getType().writeType(out);
+                r.writeExternal(out);
+            }
+        }
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public List<TtkDescriptionChronicle> getDescriptions() {
-      if (descriptions == null) {
-         descriptions = new ArrayList<>();
-      }
+        out.writeBoolean(annotationStyleRefex);
+        out.writeBoolean(annotationIndexStyleRefex);
 
-      return descriptions;
-   }
+        if (refsetMembersDynamic == null) {
+            out.writeInt(0);
+        } else {
+            out.writeInt(refsetMembersDynamic.size());
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public List<TtkMediaChronicle> getMedia() {
-      if (media == null) {
-         media = new ArrayList<>();
-      }
+            for (TtkRefexDynamicMemberChronicle r : refsetMembersDynamic) {
+                r.writeExternal(out);
+            }
+        }
+    }
 
-      return media;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public TtkConceptAttributesChronicle getConceptAttributes() {
+        return conceptAttributes;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public UUID getPrimordialUuid() {
-      return primordialUuid;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public List<TtkDescriptionChronicle> getDescriptions() {
+        if (descriptions == null) {
+            descriptions = new ArrayList<>();
+        }
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public List<TtkRefexAbstractMemberChronicle<?>> getRefsetMembers() {
-      if (refsetMembers == null) {
-         refsetMembers = new ArrayList<>();
-      }
+        return descriptions;
+    }
 
-      return refsetMembers;
-   }
-   
-   /**
-    * Will not return null
-    */
-   public List<TtkRefexDynamicMemberChronicle> getRefsetMembersDynamic() {
-      if (refsetMembersDynamic == null) {
-         refsetMembersDynamic = new ArrayList<>();
-      }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public List<TtkMediaChronicle> getMedia() {
+        if (media == null) {
+            media = new ArrayList<>();
+        }
 
-      return refsetMembersDynamic;
-   }
+        return media;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public List<TtkRelationshipChronicle> getRelationships() {
-      if (relationships == null) {
-         relationships = new ArrayList<>();
-      }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public UUID getPrimordialUuid() {
+        return primordialUuid;
+    }
 
-      return relationships;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public List<TtkRefexAbstractMemberChronicle<?>> getRefsetMembers() {
+        if (refsetMembers == null) {
+            refsetMembers = new ArrayList<>();
+        }
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    * @deprecated no longer supported. 
-    */
-   @Deprecated
-   public boolean isAnnotationIndexStyleRefex() {
-      return annotationIndexStyleRefex;
-   }
+        return refsetMembers;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @return
-    */
-   public boolean isAnnotationStyleRefex() {
-      return annotationStyleRefex;
-   }
+    /**
+     * Will not return null
+     */
+    public List<TtkRefexDynamicMemberChronicle> getRefsetMembersDynamic() {
+        if (refsetMembersDynamic == null) {
+            refsetMembersDynamic = new ArrayList<>();
+        }
 
-   /**
-    * Method description
-    *
-    *
-    * @param annotationIndexStyleRefex
-    * @deprecated No longer used. 
-    */
-   @Deprecated
-   public void setAnnotationIndexStyleRefex(boolean annotationIndexStyleRefex) {
-      this.annotationIndexStyleRefex = annotationIndexStyleRefex;
-   }
+        return refsetMembersDynamic;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param annotationStyleRefex
-    */
-   public void setAnnotationStyleRefex(boolean annotationStyleRefex) {
-      this.annotationStyleRefex = annotationStyleRefex;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public List<TtkRelationshipChronicle> getRelationships() {
+        if (relationships == null) {
+            relationships = new ArrayList<>();
+        }
 
-   /**
-    * Method description
-    *
-    *
-    * @param conceptAttributes
-    */
-   public void setConceptAttributes(TtkConceptAttributesChronicle conceptAttributes) {
-      this.conceptAttributes = conceptAttributes;
-   }
+        return relationships;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param descriptions
-    */
-   public void setDescriptions(List<TtkDescriptionChronicle> descriptions) {
-      this.descriptions = descriptions;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     * @deprecated no longer supported.
+     */
+    @Deprecated
+    public boolean isAnnotationIndexStyleRefex() {
+        return annotationIndexStyleRefex;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param images
-    */
-   public void setImages(List<TtkMediaChronicle> images) {
-      this.media = images;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public boolean isAnnotationStyleRefex() {
+        return annotationStyleRefex;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param primordialUuid
-    */
-   public void setPrimordialUuid(UUID primordialUuid) {
-      this.primordialUuid = primordialUuid;
-   }
+    /**
+     * Method description
+     *
+     *
+     * @param annotationIndexStyleRefex
+     * @deprecated No longer used.
+     */
+    @Deprecated
+    public void setAnnotationIndexStyleRefex(boolean annotationIndexStyleRefex) {
+        this.annotationIndexStyleRefex = annotationIndexStyleRefex;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param refsetMembers
-    */
-   public void setRefsetMembers(List<TtkRefexAbstractMemberChronicle<?>> refsetMembers) {
-      this.refsetMembers = refsetMembers;
-   }
-   
-   public void setRefsetDynamicMembers(List<TtkRefexDynamicMemberChronicle> refsetMembersDynamic) {
-         this.refsetMembersDynamic = refsetMembersDynamic;
-      }
+    /**
+     * Method description
+     *
+     *
+     * @param annotationStyleRefex
+     */
+    public void setAnnotationStyleRefex(boolean annotationStyleRefex) {
+        this.annotationStyleRefex = annotationStyleRefex;
+    }
 
-   /**
-    * Method description
-    *
-    *
-    * @param relationships
-    */
-   public void setRelationships(List<TtkRelationshipChronicle> relationships) {
-      this.relationships = relationships;
-   }
-   
-   public String toXml() {
-       StringWriter sw = new StringWriter();
-       JAXB.marshal(this, sw);
-       return sw.toString().substring("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".length());
-   }
+    /**
+     * Method description
+     *
+     *
+     * @param conceptAttributes
+     */
+    public void setConceptAttributes(TtkConceptAttributesChronicle conceptAttributes) {
+        this.conceptAttributes = conceptAttributes;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param descriptions
+     */
+    public void setDescriptions(List<TtkDescriptionChronicle> descriptions) {
+        this.descriptions = descriptions;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param images
+     */
+    public void setImages(List<TtkMediaChronicle> images) {
+        this.media = images;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param primordialUuid
+     */
+    public void setPrimordialUuid(UUID primordialUuid) {
+        this.primordialUuid = primordialUuid;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param refsetMembers
+     */
+    public void setRefsetMembers(List<TtkRefexAbstractMemberChronicle<?>> refsetMembers) {
+        this.refsetMembers = refsetMembers;
+    }
+
+    public void setRefsetDynamicMembers(List<TtkRefexDynamicMemberChronicle> refsetMembersDynamic) {
+        this.refsetMembersDynamic = refsetMembersDynamic;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param relationships
+     */
+    public void setRelationships(List<TtkRelationshipChronicle> relationships) {
+        this.relationships = relationships;
+    }
+
+    public String toXml() {
+        StringWriter sw = new StringWriter();
+        JAXB.marshal(this, sw);
+        return sw.toString().substring("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".length());
+    }
 
     @Override
     public List<UUID> getUUIDs() {
         if (getConceptAttributes() != null) {
             return getConceptAttributes().getUuids();
         }
-        return Arrays.asList(new UUID[] { getPrimordialUuid() });
+        return Arrays.asList(new UUID[]{getPrimordialUuid()});
     }
-   
-   
+
 }

@@ -167,7 +167,7 @@ public class NidFloatRevision extends RefexRevision<NidFloatRevision, NidFloatMe
    }
 
    @Override
-   public Collection<NidFloatMemberVersion> getVersions() {
+   public List<NidFloatMemberVersion> getVersions() {
       return ((NidFloatMember) primordialComponent).getVersions();
    }
 

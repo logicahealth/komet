@@ -3,7 +3,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -40,10 +40,10 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
 public class RelGroupVersion implements RelGroupVersionBI {
     
-    private static SequenceService sequenceService = null; 
-    protected static SequenceService getSequenceService() {
+    private static IdentifierService sequenceService = null; 
+    protected static IdentifierService getSequenceService() {
         if (sequenceService == null) {
-            sequenceService = LookupService.getService(SequenceService.class);
+            sequenceService = LookupService.getService(IdentifierService.class);
         }
         return sequenceService;
     }

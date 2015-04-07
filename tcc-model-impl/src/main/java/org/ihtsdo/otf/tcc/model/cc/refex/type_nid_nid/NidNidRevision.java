@@ -16,10 +16,9 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public class NidNidRevision extends RefexRevision<NidNidRevision, NidNidMember>
@@ -171,7 +170,7 @@ public class NidNidRevision extends RefexRevision<NidNidRevision, NidNidMember>
    }
 
    @Override
-   public Collection<NidNidMemberVersion> getVersions() {
+   public List<NidNidMemberVersion> getVersions() {
       return ((NidNidMember) primordialComponent).getVersions();
    }
 

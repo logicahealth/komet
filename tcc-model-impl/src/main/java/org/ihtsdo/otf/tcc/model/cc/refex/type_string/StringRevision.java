@@ -14,11 +14,9 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringRevision
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -155,7 +153,7 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
    }
 
    @Override
-   public Collection<StringMemberVersion> getVersions() {
+   public List<StringMemberVersion> getVersions() {
       return ((StringMember) primordialComponent).getVersions();
    }
 

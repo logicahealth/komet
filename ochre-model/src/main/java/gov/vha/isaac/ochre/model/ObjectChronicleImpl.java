@@ -117,6 +117,11 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
     }
     
 
+    public byte[] getDataToWrite() {
+        return mergeData(this.writeSequence, null);
+    }
+    
+
     public byte[] getDataToWrite(int writeSequence) {
         return mergeData(writeSequence, null);
     }
@@ -198,16 +203,18 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
     }
 
     @Override
-    public Collection<V> getVersions() {
+    public List<V> getVersions() {
         ArrayList<V> results = null;
         if (versionListReference != null) {
             results = versionListReference.get();
         }
         while (results == null) {
             results = new ArrayList<>();
-            DataBuffer bb = new DataBuffer(writtenData);
-            bb.setPosition(versionStartPosition);
-            makeVersions(bb, results);
+            if (writtenData != null) {
+                DataBuffer bb = new DataBuffer(writtenData);
+                bb.setPosition(versionStartPosition);
+                makeVersions(bb, results);
+            }
             if (unwrittenData != null) {
                 results.addAll(unwrittenData.values());
             }
@@ -226,6 +233,8 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
                 if (stampSequence >= 0) {
                     results.add(makeVersion(stampSequence, bb));
                 }
+            } else {
+                nextPosition = Integer.MAX_VALUE;
             }
         }
     }
@@ -244,11 +253,18 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
     }
 
     protected void getVersionStampSequences(int index, DataBuffer bb, IntStream.Builder builder) {
-        while (index < bb.getLimit()) {
+        int limit = bb.getLimit();
+        while (index < limit) {
+            bb.setPosition(index);
             int versionLength = bb.getInt();
-            int stampSequence = bb.getInt();
-            builder.accept(stampSequence);
-            index = index + versionLength;
+            if (versionLength > 0) {
+                int stampSequence = bb.getInt();
+                builder.accept(stampSequence);
+                index = index + versionLength;
+            } else {
+                index = Integer.MAX_VALUE;
+            }
+             
         }
     }
 

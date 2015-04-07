@@ -1,10 +1,9 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -235,7 +234,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public Collection<? extends RelationshipVersion> getVersions() {
+    public List<? extends RelationshipVersion> getVersions() {
         return ((Relationship) primordialComponent).getVersions();
     }
 

@@ -19,7 +19,7 @@ package org.ihtsdo.otf.tcc.api.spec;
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
@@ -71,13 +71,17 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      */
     protected transient int nid = Integer.MAX_VALUE;
     protected transient int sequence = Integer.MAX_VALUE;
-    private static SequenceService sequenceProvider = null;
+    private static IdentifierService identifierProvider = null;
+
+    public static IdentifierService getIdentifierProvider() {
+        if (identifierProvider == null) {
+            identifierProvider = LookupService.getService(IdentifierService.class);
+        }
+        return identifierProvider;
+    }
 
     private static int getConceptSequence(int nid) {
-        if (sequenceProvider == null) {
-            sequenceProvider = LookupService.getService(SequenceService.class);
-        }
-        return sequenceProvider.getConceptSequence(nid);
+        return getIdentifierProvider().getConceptSequence(nid);
     }
 
     @Override
@@ -388,7 +392,6 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws ValidationException
      */
     public ConceptChronicleBI getLenient() throws ValidationException {
-        assert Ts.get() != null : "Ts not properly set up. Ts.get() is null();";
 
         if (localChronicle != null) {
             return localChronicle;
@@ -397,7 +400,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
         boolean found = false;
 
         for (UUID uuid : getUuids()) {
-            if (Ts.get().hasUuid(uuid)) {
+            if (getIdentifierProvider().hasUuid(uuid)) {
                 found = true;
 
                 break;
