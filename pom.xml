@@ -37,5 +37,6 @@ the specific language governing permissions and limitations under the License. -
         <module>tcc-build-extension</module>
         <module>ochre-api</module>
     <module>ochre-model</module>
-  </modules>
+        <module>ochre-mojo</module>
+    </modules>
 </project>
