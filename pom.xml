@@ -7,19 +7,25 @@
         <artifactId>isaac-parent</artifactId>
         <version>1.4-SNAPSHOT</version>
     </parent>
+    
+    <groupId>gov.vha.isaac.ochre</groupId>
     <artifactId>ochre-parent</artifactId>
     <version>2.22-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${branch}: (MMP) ISAAC Object Chronicle Project</name>
+    
     <description>ISAAC's Object Chronicle (OCHRE) project provides the ability to
         store, retrieve, and edit identified objects, and maintains a complete chronicle
         of all changes.
     </description>
+    
     <scm>
         <developerConnection>scm:git:ssh://csfe.aceworkspace.net:29418/va-ochre</developerConnection>
     </scm>
+    
     <properties>
         <branch>woolsthorpe</branch>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
