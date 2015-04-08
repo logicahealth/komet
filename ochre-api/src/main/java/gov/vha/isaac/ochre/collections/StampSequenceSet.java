@@ -15,8 +15,6 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.SequenceService;
-import static gov.vha.isaac.ochre.collections.IntSet.getSequenceProvider;
 import java.util.Collection;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -44,6 +42,10 @@ public class StampSequenceSet extends SequenceSet {
         return new StampSequenceSet(memberStream);
     }
 
+    public static StampSequenceSet of(StampSequenceSet other) {
+        return new StampSequenceSet(other.stream());
+    }
+
     public StampSequenceSet() {
     }
     
@@ -59,4 +61,5 @@ public class StampSequenceSet extends SequenceSet {
     protected StampSequenceSet(OpenIntHashSet members) {
         super(members);
     }
+    
 }

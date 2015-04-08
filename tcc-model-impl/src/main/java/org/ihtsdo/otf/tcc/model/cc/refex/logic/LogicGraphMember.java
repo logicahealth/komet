@@ -7,6 +7,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
 import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.LookupService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -210,7 +211,7 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
     }
     @Override
     public byte[][] getExternalLogicGraphBytes() {
-        LogicByteArrayConverter converter = Hk2Looker.get().getService(LogicByteArrayConverter.class);
+        LogicByteArrayConverter converter = LookupService.get().getService(LogicByteArrayConverter.class);
         return converter.convertLogicGraphForm(logicGraphBytes, DataTarget.EXTERNAL);
     }
 

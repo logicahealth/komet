@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ihtsdo.otf.mojo;
+package gov.vha.isaac.ochre.mojo;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -11,7 +11,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.Writer;
+import java.io.Writer;import java.lang.Class;import java.lang.Exception;import java.lang.Override;import java.lang.String;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

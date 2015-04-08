@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
@@ -156,7 +157,7 @@ public class NidRevision extends RefexRevision<NidRevision, NidMember>
     }
 
     @Override
-    public Collection<NidMemberVersion> getVersions() {
+    public List<NidMemberVersion> getVersions() {
         return ((NidMember) primordialComponent).getVersions();
     }
 

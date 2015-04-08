@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.collections;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
@@ -32,11 +32,11 @@ import org.roaringbitmap.RoaringBitmap;
  * @param <T>
  */
 public abstract class IntSet<T extends IntSet> {
-    protected static SequenceService sequenceProvider;
+    protected static IdentifierService sequenceProvider;
 
-    protected static SequenceService getSequenceProvider() {
+    protected static IdentifierService getSequenceProvider() {
         if (SequenceSet.sequenceProvider == null) {
-            SequenceSet.sequenceProvider = LookupService.getService(SequenceService.class);
+            SequenceSet.sequenceProvider = LookupService.getService(IdentifierService.class);
         }
         return SequenceSet.sequenceProvider;
     }

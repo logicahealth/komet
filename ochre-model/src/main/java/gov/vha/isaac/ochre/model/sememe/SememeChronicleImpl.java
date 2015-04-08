@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.sememe;
 
+import gov.vha.isaac.ochre.api.sememe.SememeType;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
@@ -60,7 +61,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
             int referencedComponentNid, 
             int containerSequence) {
         super(primoridalUuid, nid, containerSequence);
-        this.sememeTypeToken = sememeType.sememeToken;
+        this.sememeTypeToken = sememeType.getSememeToken();
         this.assemblageSequence = assemblageSequence;
         this.referencedComponentNid = referencedComponentNid;
     }
@@ -79,7 +80,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
 
     @Override
     protected V makeVersion(int stampSequence, DataBuffer db) {
-        return (V) SememeType.createSememe(sememeTypeToken, this, stampSequence, db);
+        return (V) createSememe(sememeTypeToken, this, stampSequence, db);
     }
 
     @Override
@@ -102,7 +103,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
     protected <M extends V> M createMutableVersionInternal(Class<M> type, State status, EditCoordinate ec) throws UnsupportedOperationException {
         switch (getSememeType()) {
             case COMPONENT_NID:
-                if (type.isAssignableFrom(MutableComponentNidSememe.class)) {
+                if (MutableComponentNidSememe.class.isAssignableFrom(type)) {
                     return (M) new ComponentNidSememeImpl((SememeChronicleImpl<ComponentNidSememeImpl>) this,
                             status,
                             Long.MAX_VALUE,
@@ -112,7 +113,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 }
                 break;
             case CONCEPT_SEQUENCE:
-                if (type.isAssignableFrom(MutableConceptSequenceSememe.class)) {
+                if (MutableConceptSequenceSememe.class.isAssignableFrom(type)) {
                     return (M) new ConceptSequenceSememeImpl((SememeChronicleImpl<? extends ConceptSequenceSememeImpl>) this,
                             status,
                             Long.MAX_VALUE,
@@ -122,7 +123,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 }
                 break;
             case CONCEPT_SEQUENCE_TIME:
-                if (type.isAssignableFrom(MutableConceptSequenceTimeSememe.class)) {
+                if (MutableConceptSequenceTimeSememe.class.isAssignableFrom(type)) {
                     return (M) new ConceptSequenceTimeSememeImpl((SememeChronicleImpl<ConceptSequenceTimeSememeImpl>) this,
                             status,
                             Long.MAX_VALUE,
@@ -132,7 +133,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 }
                 break;
             case DYNAMIC:
-                if (type.isAssignableFrom(MutableDynamicSememe.class)) {
+                if (MutableDynamicSememe.class.isAssignableFrom(type)) {
                     return (M) new DynamicSememeImpl((SememeChronicleImpl<DynamicSememeImpl>) this,
                             status,
                             Long.MAX_VALUE,
@@ -142,7 +143,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 }
                 break;
             case LOGIC_GRAPH:
-                if (type.isAssignableFrom(MutableLogicGraphSememe.class)) {
+                if (MutableLogicGraphSememe.class.isAssignableFrom(type)) {
                     return (M) new LogicGraphSememeImpl((SememeChronicleImpl<LogicGraphSememeImpl>) this,
                             status,
                             Long.MAX_VALUE,
@@ -153,7 +154,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 break;
                 
             case MEMBER:
-                if (type.isAssignableFrom(SememeVersion.class)) {
+                if (SememeVersion.class.isAssignableFrom(type)) {
                     return (M) new SememeVersionImpl(this,
                             status,
                             Long.MAX_VALUE,
@@ -166,7 +167,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 throw new UnsupportedOperationException("Can't handle: " + getSememeType()); 
         }
         throw new UnsupportedOperationException("Chronicle is of type: " +
-                getSememeType() + " cannot create version of type" + type.getCanonicalName());
+                getSememeType() + " cannot create version of type: " + type.getCanonicalName());
     }
 
     @Override
@@ -174,5 +175,28 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
         return referencedComponentNid;
     }
     
+
+    public static SememeVersionImpl createSememe(byte token, SememeChronicleImpl container, 
+            int stampSequence, DataBuffer bb) {
+        
+        SememeType st = SememeType.getFromToken(token);
+        switch (st) {
+            case MEMBER:
+                return new SememeVersionImpl(container, stampSequence, bb);
+            case COMPONENT_NID:
+                return new ComponentNidSememeImpl(container, stampSequence, bb);
+            case CONCEPT_SEQUENCE:
+                return new ConceptSequenceSememeImpl(container, stampSequence, bb);
+            case CONCEPT_SEQUENCE_TIME:
+                return new ConceptSequenceSememeImpl(container, stampSequence, bb);
+            case LOGIC_GRAPH:
+                return new LogicGraphSememeImpl(container, stampSequence, bb);
+            case DYNAMIC:
+                return new DynamicSememeImpl(container, stampSequence, bb);
+            default:
+                throw new UnsupportedOperationException("Can't handle: " + token);
+        }
+        
+    }
     
 }

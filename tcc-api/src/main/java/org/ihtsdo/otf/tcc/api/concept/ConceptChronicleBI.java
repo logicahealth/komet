@@ -4,6 +4,7 @@ package org.ihtsdo.otf.tcc.api.concept;
 
 import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
@@ -23,6 +24,7 @@ import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 import java.io.IOException;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
 public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI>, ChronicledConcept<ConceptVersionBI> {
@@ -70,6 +72,8 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    Collection<? extends MediaChronicleBI> getMedia() throws IOException;
 
    RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException;
+   
+   Stream<SememeChronicle> getSememeChronicles();
 
    Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException;
    

@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.dto.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
@@ -15,6 +16,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
@@ -38,8 +41,25 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
 
    public TtkRefexAbstractMemberChronicle(RefexVersionBI another) throws IOException {
       super(another);
-      this.referencedComponentUuid = Ts.get().getComponent(another.getReferencedComponentNid()).getPrimordialUuid();
-      this.assemblageUuid = Ts.get().getComponent(another.getAssemblageNid()).getPrimordialUuid();
+      Optional<UUID> optionalPrimordialUuid = getIdService().getUuidPrimordialForNid(another.getReferencedComponentNid());
+      if (optionalPrimordialUuid.isPresent()) {
+          this.referencedComponentUuid = optionalPrimordialUuid.get();
+      } else {
+          throw new NoSuchElementException("No object for referenced component: " + another.getReferencedComponentNid());
+      }
+      
+      optionalPrimordialUuid = getIdService().getUuidPrimordialForNid(another.getAssemblageNid());
+      if (optionalPrimordialUuid.isPresent()) {
+          this.assemblageUuid = optionalPrimordialUuid.get();
+      } else {
+          throw new NoSuchElementException("No object for assemblage: " + another.getAssemblageNid());
+      }
+   }
+
+   public TtkRefexAbstractMemberChronicle(SememeChronicleImpl<?> another) {
+      super(another);
+      this.referencedComponentUuid = another.getPrimordialUuid();
+      this.assemblageUuid = getIdService().getUuidPrimordialFromConceptSequence(another.getAssemblageSequence()).get();
    }
 
    public TtkRefexAbstractMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

@@ -19,7 +19,6 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitManager;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 

@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.model.sememe;
-
-import gov.vha.isaac.ochre.model.DataBuffer;
-import gov.vha.isaac.ochre.model.sememe.version.ComponentNidSememeImpl;
-import gov.vha.isaac.ochre.model.sememe.version.ConceptSequenceSememeImpl;
-import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
-import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
-import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
+package gov.vha.isaac.ochre.api.sememe;
 
 /**
  *
@@ -41,9 +34,10 @@ public enum SememeType {
         this.sememeToken = sememeToken;
     }
 
-    public static SememeType getFromDataBuffer(DataBuffer buff) {
-        return getFromToken(buff.getByte());
+    public byte getSememeToken() {
+        return sememeToken;
     }
+
     
     public static SememeType getFromToken(byte token) {
         switch (token) {
@@ -62,26 +56,5 @@ public enum SememeType {
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }
-    }
-
-    public static SememeVersionImpl createSememe(byte token, SememeChronicleImpl container, 
-            int stampSequence, DataBuffer bb) {
-        switch (token) {
-            case 0:
-                return new SememeVersionImpl(container, stampSequence, bb);
-            case 1:
-                return new ComponentNidSememeImpl(container, stampSequence, bb);
-            case 2:
-                return new ConceptSequenceSememeImpl(container, stampSequence, bb);
-            case 3:
-                return new ConceptSequenceSememeImpl(container, stampSequence, bb);
-            case 4:
-                return new LogicGraphSememeImpl(container, stampSequence, bb);
-            case 5:
-                return new DynamicSememeImpl(container, stampSequence, bb);
-            default:
-                throw new UnsupportedOperationException("Can't handle: " + token);
-        }
-        
     }
 }

@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.Externalizable;
@@ -337,11 +337,11 @@ public class Path implements StampPath, Externalizable {
         }
     }
     
-    private static SequenceService sequenceProvider;
+    private static IdentifierService sequenceProvider;
     
-    private static SequenceService getSequenceProvider() {
+    private static IdentifierService getSequenceProvider() {
         if (sequenceProvider == null) {
-            sequenceProvider = Hk2Looker.getService(SequenceService.class);
+            sequenceProvider = Hk2Looker.getService(IdentifierService.class);
         }
         return sequenceProvider;
     }

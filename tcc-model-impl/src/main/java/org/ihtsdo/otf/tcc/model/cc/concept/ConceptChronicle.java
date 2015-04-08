@@ -1,9 +1,9 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SequenceService;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.api.sememe.SememeService;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import java.io.*;
 import java.util.*;
@@ -13,6 +13,7 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
@@ -44,6 +45,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
@@ -61,6 +63,7 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
+import org.ihtsdo.otf.tcc.dto.component.sememe.SememeFromDtoFactory;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.*;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
@@ -87,12 +90,20 @@ import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
-   private static SequenceService sequenceService;
-   private static SequenceService getSequenceService() {
-       if (sequenceService == null) {
-           sequenceService = LookupService.getService(SequenceService.class);
+   private static IdentifierService identifierProvider;
+   private static IdentifierService getIdentifierService() {
+       if (identifierProvider == null) {
+           identifierProvider = LookupService.getService(IdentifierService.class);
        }
-       return sequenceService;
+       return identifierProvider;
+   }
+
+   private static SememeService sememeService;
+   private static SememeService getSememeService() {
+       if (sememeService == null) {
+           sememeService = LookupService.getService(SememeService.class);
+       }
+       return sememeService;
    }
 
     protected static final Logger logger = Logger.getLogger(ConceptChronicle.class.getName());
@@ -231,7 +242,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public int getConceptSequence() {
-        return getSequenceService().getConceptSequence(getNid());
+        return getIdentifierService().getConceptSequence(getNid());
     }
 
     @Override
@@ -1669,7 +1680,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Collection<? extends ConceptVersionBI> getVersions() {
+    public List<? extends ConceptVersionBI> getVersions() {
         try {
             for (Position p: getPositions()) {
                // need to know if stated or inferred...   
@@ -1825,9 +1836,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     private static void setRefsetMembersFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
         for (TtkRefexAbstractMemberChronicle<?> eRefsetMember : eConcept.getRefsetMembers()) {
-            RefexMember<?, ?> refsetMember = RefexMemberFactory.create(eRefsetMember, c.getConceptNid());
-
-            c.data.add(refsetMember);
+            if (eRefsetMember.getType() == RefexType.LOGIC) {
+                SememeChronicle<?> sememe = SememeFromDtoFactory.create(eRefsetMember);
+                getSememeService().writeSememe(sememe);
+            } else {
+                RefexMember<?, ?> refsetMember = RefexMemberFactory.create(eRefsetMember, c.getConceptNid());
+                c.data.add(refsetMember);
+            }
         }
     }
 
@@ -1891,5 +1906,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             return getConceptAttributes().getRefexesDynamicActive(viewCoordinate);
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public Stream<SememeChronicle> getSememeChronicles() {
+        return getSememeService().getSememesFromAssemblage(getIdentifierService().getConceptSequence(nid));
     }
 }

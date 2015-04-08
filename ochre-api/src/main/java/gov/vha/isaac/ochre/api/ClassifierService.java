@@ -15,6 +15,9 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -24,9 +27,13 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface ClassifierService {
     
-    void initialize();
+    void initialize(LogicCoordinate logicCoordinate);
     
-    void fullClassification();
+    void fullClassification(StampCoordinate stampCoordinate, 
+            LogicCoordinate logicCoordinate, 
+            EditCoordinate editCoordinate);
     
-    void incrementalClassification();
+    void incrementalClassification(StampCoordinate stampCoordinate, 
+            LogicCoordinate logicCoordinate, 
+            EditCoordinate editCoordinate);
 }

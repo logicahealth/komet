@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.dto.component;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.model.ObjectChronicleImpl;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
@@ -41,6 +42,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.*;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
@@ -131,6 +134,25 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
         this.primordialUuid = another.getPrimordialUuid();
     }
 
+    public TtkComponentChronicle(ObjectChronicleImpl<?> another) {
+        super(another.getVersions().get(0));
+        try {
+            List<UUID> allUuids = another.getUUIDs();
+            if (allUuids.size() > 1) {
+                this.additionalIds = new ArrayList<>(allUuids.size() - 1);
+                for (int i = 1; i < allUuids.size(); i++) {
+                    this.additionalIds.add(new TtkIdentifierUuid(allUuids.get(i)));
+                }
+            }
+            
+            processAnnotations(null);
+            processDynamicAnnotations(null);
+            this.primordialUuid = another.getPrimordialUuid();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     /**
      * Constructs ...
      *
@@ -203,9 +225,9 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
 
     /**
      * Compares this object to the specified object. The result is {@code true}
-     * if and only if the argument is not {@code null}, is a
-     * {@code EComponent} object, and contains the same values, field by field,
-     * as this {@code EComponent}.
+     * if and only if the argument is not {@code null}, is a {@code EComponent}
+     * object, and contains the same values, field by field, as this
+     * {@code EComponent}.
      *
      * @param obj the object to compare with.
      * @return {@code true} if the objects are the same; {@code false}
@@ -255,7 +277,7 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
         }
         List<TtkIdentifier> thisAlternateList = removeNonUuidIdentifiers(thisComponent.additionalIds);
         List<TtkIdentifier> anotherAlternateList = removeNonUuidIdentifiers(anotherComponent.additionalIds);
-        return  ListCompareHelper.equals(thisAlternateList, anotherAlternateList);
+        return ListCompareHelper.equals(thisAlternateList, anotherAlternateList);
     }
 
     private List<TtkIdentifier> removeNonUuidIdentifiers(List<TtkIdentifier> additionalIds) {

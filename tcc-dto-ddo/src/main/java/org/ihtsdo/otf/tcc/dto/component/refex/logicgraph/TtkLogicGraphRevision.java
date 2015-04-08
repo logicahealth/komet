@@ -5,6 +5,7 @@
  */
 package org.ihtsdo.otf.tcc.dto.component.refex.logicgraph;
 
+import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -53,6 +54,11 @@ public class TtkLogicGraphRevision extends TtkRevision {
     public TtkLogicGraphRevision(LogicGraphVersionBI logicGraphVersion) throws IOException {
         super(logicGraphVersion);
         this.logicGraphBytes = logicGraphVersion.getExternalLogicGraphBytes();
+    }
+
+    public TtkLogicGraphRevision(LogicGraphSememeImpl logicGraphVersion) {
+        super(logicGraphVersion);
+        this.logicGraphBytes = logicGraphVersion.getExternalGraphData();
     }
 
     /**

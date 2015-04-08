@@ -18,8 +18,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_string.TtkRefexUuid
 
 import java.beans.PropertyVetoException;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
@@ -185,7 +183,7 @@ public class NidNidStringRevision extends RefexRevision<NidNidStringRevision, Ni
    }
 
    @Override
-   public Collection<NidNidStringMemberVersion> getVersions() {
+   public List<NidNidStringMemberVersion> getVersions() {
       return ((NidNidStringMember) primordialComponent).getVersions();
    }
 

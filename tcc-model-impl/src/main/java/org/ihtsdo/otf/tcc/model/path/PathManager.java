@@ -19,7 +19,7 @@ package org.ihtsdo.otf.tcc.model.path;
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
-import gov.vha.isaac.ochre.api.SequenceService;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import java.io.IOException;
 import java.util.*;
@@ -63,10 +63,10 @@ public class PathManager implements PathService {
     private static final Logger logger = Logger.getLogger(PathManager.class.getName());
     private static Lock l = new ReentrantLock();
     private static PathManager singleton;
-    private static SequenceService sequenceProvider;
-    private static SequenceService getSequenceService() {
+    private static IdentifierService sequenceProvider;
+    private static IdentifierService getSequenceService() {
         if (sequenceProvider == null) {
-            sequenceProvider = LookupService.getService(SequenceService.class);
+            sequenceProvider = LookupService.getService(IdentifierService.class);
         }
         return sequenceProvider;
     }

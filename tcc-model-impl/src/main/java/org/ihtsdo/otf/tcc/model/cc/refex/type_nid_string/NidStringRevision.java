@@ -165,7 +165,7 @@ public class NidStringRevision extends RefexRevision<NidStringRevision, NidStrin
    }
 
    @Override
-   public Collection<NidStringMemberVersion> getVersions() {
+   public List<NidStringMemberVersion> getVersions() {
       return ((NidStringMember) primordialComponent).getVersions();
    }
 
