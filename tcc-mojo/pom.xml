@@ -7,7 +7,7 @@
         <artifactId>ochre-parent</artifactId>
         <version>2.22-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>tcc-mojo</artifactId>
     <packaging>maven-plugin</packaging>
