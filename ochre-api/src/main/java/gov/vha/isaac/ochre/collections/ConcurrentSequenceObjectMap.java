@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -82,5 +83,19 @@ public class ConcurrentSequenceObjectMap<E> {
         }
         return objectListList.get(segmentIndex).get(indexInSegment);
     }
+
+    public IntStream getSequences() {
+        int maxSize = maxSequence.get();
+        IntStream.Builder builder = IntStream.builder();
+        for (int i = 0; i < maxSize; i++) {
+            int segmentIndex = i / SEGMENT_SIZE;
+            int indexInSegment = i % SEGMENT_SIZE;
+            if (objectListList.get(segmentIndex).get(indexInSegment) != null) {
+                builder.accept(i);
+            }
+        }
+        return builder.build();
+    }
+
 
 }
