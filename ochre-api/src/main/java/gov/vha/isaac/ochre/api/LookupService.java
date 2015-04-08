@@ -15,11 +15,12 @@
  */
 package gov.vha.isaac.ochre.api;
 
-import com.sun.javafx.application.PlatformImpl;
+import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import com.sun.javafx.application.PlatformImpl;
 
 /**
  *
@@ -32,9 +33,13 @@ public class LookupService {
     
     public static ServiceLocator get() {
         if (looker == null) {
-            PlatformImpl.startup(() -> {
-                // No need to do anything here
-            });
+            //TODO Dan notes, I have no clue why this is being done... but it is fatal if you are on a headless environment, so I disabled it when headless
+            if (!GraphicsEnvironment.isHeadless())
+            {
+                PlatformImpl.startup(() -> {
+                    // No need to do anything here
+                });
+            }
             looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         }
         return looker;
