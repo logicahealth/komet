@@ -22,11 +22,10 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.text.SimpleDateFormat;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 
 /**
