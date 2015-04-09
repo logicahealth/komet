@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.util.HeadlessToolkit;
 import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -33,13 +34,13 @@ public class LookupService {
     
     public static ServiceLocator get() {
         if (looker == null) {
-            //TODO Dan notes, I have no clue why this is being done... but it is fatal if you are on a headless environment, so I disabled it when headless
-            if (!GraphicsEnvironment.isHeadless())
+            if (GraphicsEnvironment.isHeadless())
             {
-                PlatformImpl.startup(() -> {
-                    // No need to do anything here
-                });
+                HeadlessToolkit.installToolkit();
             }
+            PlatformImpl.startup(() -> {
+                // No need to do anything here
+            });
             looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         }
         return looker;
