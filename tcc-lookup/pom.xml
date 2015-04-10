@@ -18,11 +18,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.reactfx</groupId>
-            <artifactId>reactfx</artifactId>
-            <version>1.4.1</version>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ochre-api</artifactId>
             <version>${project.version}</version>
