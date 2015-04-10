@@ -38,6 +38,13 @@ public class LookupService {
             {
                 HeadlessToolkit.installToolkit();
             }
+//            if (GraphicsEnvironment.isHeadless()) {
+//                System.setProperty("javafx.toolkit", "gov.vha.isaac.ochre.api.HeadlessToolkit");
+//            }
+//            String toolkitClass = System.getProperty("javafx.toolkit");
+//            if (toolkitClass != null && toolkitClass.equals("gov.vha.isaac.ochre.api.HeadlessToolkit")) {
+//                HeadlessToolkit.setupToolkit();
+//            }
             PlatformImpl.startup(() -> {
                 // No need to do anything here
             });
