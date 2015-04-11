@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import com.sun.javafx.geom.Path2D;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.perf.PerformanceTracker;
+import com.sun.javafx.runtime.VersionInfo;
 import com.sun.javafx.runtime.async.AsyncOperation;
 import com.sun.javafx.runtime.async.AsyncOperationListener;
 import com.sun.javafx.scene.text.HitInfo;
@@ -96,13 +99,23 @@ public class HeadlessToolkit extends Toolkit
             f.setAccessible(true);
             if (f.get(null) == null)
             {
-            	f.set(null, new HeadlessToolkit());
+                f.set(null, new HeadlessToolkit());
             }
+            else
+            {
+                throw new RuntimeException("Toolkit is already configured");
+            }
+            
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                // Get the javafx.version and javafx.runtime.version from a preconstructed
+                // java class, VersionInfo, created at build time.
+                VersionInfo.setupSystemProperties();
+                return null;
+            });
         }
         catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e)
         {
-            System.err.println("Failed trying to hack JavaFX for Headless!");
-            e.printStackTrace();
+            throw new RuntimeException("Failed trying to hack JavaFX for Headless!", e);
         }
     }
 
@@ -231,7 +244,7 @@ public class HeadlessToolkit extends Toolkit
 
     @Override
     public void setAnimationRunnable(DelayedRunnable animationRunnable) {
-        //don't care
+        tasks.add(animationRunnable);
     }
 
     @Override
