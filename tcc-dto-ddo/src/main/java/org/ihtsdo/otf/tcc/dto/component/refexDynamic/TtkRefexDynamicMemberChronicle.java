@@ -119,7 +119,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		super(another, transformer);
 
 		this.componentUuid = transformer.transform(another.componentUuid, another, ComponentFields.REFEX_REFERENCED_COMPONENT_UUID);
-		this.refexAssemblageUuid = transformer.transform(another.refexAssemblageUuid, another, ComponentFields.REFEX_COLLECTION_UUID);
+		this.refexAssemblageUuid = transformer.transform(another.refexAssemblageUuid, another, ComponentFields.ASSEMBLAGE_UUID);
 		//TODO (artf231854) [REFEX] do I need a transformer?
 		this.data_ = new TtkRefexDynamicData[another.getData().length];
 		for (int i = 0; i < data_.length; i++)
@@ -341,5 +341,12 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 	public List<TtkRefexDynamicRevision> getRevisionList()
 	{
 		return revisions;
+	}
+
+	//TODO Dan hack - whats this?
+	@Override
+	protected void addUuidReferencesForRevisionComponent(Collection<UUID> references)
+	{
+		throw new UnsupportedOperationException();
 	}
 }

@@ -66,7 +66,6 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeT
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("deprecation")
 public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicChronicleBI<RefexDynamicRevision>, 
     RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
@@ -437,30 +436,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return Arrays.deepEquals(getData(), another);
     }
 
-    protected void readMemberFields(DataInputStream input) throws IOException {
-
-        //read the following format - 
-        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        int colCount = input.readInt();
-        data_ = new RefexDynamicDataBI[colCount];
-        for (int i = 0; i < colCount; i++)
-        {
-            RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());
-            if (dt == RefexDynamicDataType.UNKNOWN)
-            {
-                data_[i] = null;
-            }
-            else
-            {
-                int dataLength = input.readInt();
-                byte[] data = new byte[dataLength];
-                input.readFully(data);
-                
-                data_[i] = RefexDynamicTypeToClassUtility.typeToClass(dt, data, getAssemblageNid(), i);
-            }
-        }
-    }
-
     protected final RefexDynamicRevision readMemberRevision(DataInputStream input) throws IOException {
        return new RefexDynamicRevision(input, this);
     }
@@ -495,11 +470,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         {
             output.writeInt(0);
         }
-    }
-
-    @Override
-    protected IntArrayList getVariableVersionNids() {
-       return new IntArrayList(2);
     }
 
     protected VersionComputer<RefexDynamicMemberVersion> getVersionComputer() {

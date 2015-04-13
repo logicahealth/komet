@@ -34,7 +34,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.StandardViewCoordinates;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.ComponentType;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
@@ -67,7 +67,6 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicUUID;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
-@SuppressWarnings("deprecation")
 public class RefexDynamicUsageDescriptionBuilder
 {
 	
@@ -96,6 +95,7 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or 
 	 * UUID that is set for the referenced component in an instance of this refex.  If {@link ComponentType#UNKNOWN} is passed, it is ignored, as 
 	 * if it were null.
+	 * @param vc view coordinate -  highly recommended that you use ViewCoodinates.getMetadataViewCoordinate()
 	 * @return a reference to the newly created refex item
 	 * @throws IOException
 	 * @throws ContradictionException
@@ -103,8 +103,8 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * @throws PropertyVetoException
 	 */
 	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexPreferredTerm, 
-			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, boolean annotationStyle, ComponentType referencedComponentRestriction) throws 
-			IOException, ContradictionException, InvalidCAB, PropertyVetoException
+			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, boolean annotationStyle, ComponentType referencedComponentRestriction,
+			ViewCoordinate vc) throws IOException, ContradictionException, InvalidCAB, PropertyVetoException
 	{
 		LanguageCode lc = LanguageCode.EN_US;
 		UUID isA = Snomed.IS_A.getUuids()[0];
@@ -177,7 +177,7 @@ public class RefexDynamicUsageDescriptionBuilder
 				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
 						TermAux.TERM_AUX_MODULE.getLenient().getNid(), 
 						TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
-				StandardViewCoordinates.getWbAuxiliary()).construct(cab);
+				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit(newCon);
 		

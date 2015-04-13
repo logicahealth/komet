@@ -3,8 +3,7 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.model.cc.component.AbstractSerializer;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
-
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeToClassUtility;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -27,19 +26,26 @@ public class RefexDynamicSerializer extends AbstractSerializer<RefexDynamicMembe
         output.writeInt(cc.referencedComponentNid);
         //Write with the following format -
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        output.writeInt(cc.getData().length);
-        for (RefexDynamicDataBI column : cc.getData())
+        if (cc.getData() != null)
         {
-            if (column == null)
+            output.writeInt(cc.getData().length);
+            for (RefexDynamicDataBI column : cc.getData())
             {
-                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+                if (column == null)
+                {
+                    output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+                }
+                else
+                {
+                    output.writeInt(column.getRefexDataType().getTypeToken());
+                    output.writeInt(column.getData().length);
+                    output.write(column.getData());
+                }
             }
-            else
-            {
-                output.writeInt(column.getRefexDataType().getTypeToken());
-                output.writeInt(column.getData().length);
-                output.write(column.getData());
-            }
+        }
+        else
+        {
+            output.writeInt(0);
         }
     }
 
@@ -47,20 +53,28 @@ public class RefexDynamicSerializer extends AbstractSerializer<RefexDynamicMembe
     protected void serializeRevision(DataOutput output, RefexDynamicRevision r) throws IOException {
         //Write with the following format -
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        output.writeInt(r.getData().length);
-        for (RefexDynamicDataBI column : r.getData())
+        if (r.getData() != null)
         {
-            if (column == null)
+            output.writeInt(r.getData().length);
+            for (RefexDynamicDataBI column : r.getData())
             {
-                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
-            }
-            else
-            {
-                output.writeInt(column.getRefexDataType().getTypeToken());
-                output.writeInt(column.getData().length);
-                output.write(column.getData());
+                if (column == null)
+                {
+                    output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+                }
+                else
+                {
+                    output.writeInt(column.getRefexDataType().getTypeToken());
+                    output.writeInt(column.getData().length);
+                    output.write(column.getData());
+                }
             }
         }
+        else
+        {
+            output.writeInt(0);
+        }
+        
     }
 
     @Override
@@ -87,7 +101,7 @@ public class RefexDynamicSerializer extends AbstractSerializer<RefexDynamicMembe
                 byte[] data = new byte[dataLength];
                 input.readFully(data);
 
-                cc.data_[i] = RefexDynamicData.typeToClass(dt, data, cc.assemblageNid, i);
+                cc.data_[i] = RefexDynamicTypeToClassUtility.typeToClass(dt, data, cc.assemblageNid, i);
             }
         }
     }
@@ -117,7 +131,7 @@ public class RefexDynamicSerializer extends AbstractSerializer<RefexDynamicMembe
                 int dataLength = input.readInt();
                 byte[] data = new byte[dataLength];
                 input.readFully(data);
-                r.data_[i] = RefexDynamicData.typeToClass(dt, data, r.getAssemblageNid(), i);
+                r.data_[i] = RefexDynamicTypeToClassUtility.typeToClass(dt, data, r.getAssemblageNid(), i);
             }
         }
     }

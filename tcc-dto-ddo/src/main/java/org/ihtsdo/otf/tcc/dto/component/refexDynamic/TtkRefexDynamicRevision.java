@@ -5,6 +5,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlElement;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
@@ -164,5 +166,12 @@ public class TtkRefexDynamicRevision extends TtkRevision
 	public void setData(TtkRefexDynamicData[] data)
 	{
 		data_ = data;
+	}
+	
+	//TODO Dan hack - whats this?
+	@Override
+	protected void addUuidReferencesForRevisionComponent(Collection<UUID> references)
+	{
+		throw new UnsupportedOperationException();
 	}
 }

@@ -32,6 +32,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
@@ -420,11 +421,12 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	 *     )
 	 * 
 	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
+	 * * @param vc view coordinate -  highly recommended that you use ViewCoodinates.getMetadataViewCoordinate()
 	 * @throws ContradictionException 
 	 * @throws InvalidCAB 
 	 * @throws IOException 
 	 */
-	public static ConceptChronicleBI createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription) 
+	public static ConceptChronicleBI createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription, ViewCoordinate vc) 
 			throws IOException, InvalidCAB, ContradictionException
 	{
 		if (columnName == null || columnName.length() == 0 || columnDescription == null || columnDescription.length() == 0)
@@ -458,7 +460,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
 					TermAux.TERM_AUX_MODULE.getLenient().getNid(), 
 					TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
-				StandardViewCoordinates.getWbAuxiliary()).construct(cab);
+					vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit(newCon);
 		

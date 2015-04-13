@@ -51,7 +51,6 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeT
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("deprecation")
 
 public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
@@ -207,7 +206,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
        return true;
     }
 
-    protected void readMemberFields(DataInputStream input) {
+    protected void readMemberFields(DataInputStream input) throws IOException {
 
         //read the following format - 
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
@@ -231,7 +230,6 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         }
     }
 
-    @Override
     public IntArrayList getVariableVersionNids() {
         //No idea what this is for.  It doesn't seem to be used...
        //return new IntArrayList(0);
