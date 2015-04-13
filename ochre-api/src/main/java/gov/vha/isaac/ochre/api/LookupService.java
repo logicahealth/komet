@@ -16,7 +16,12 @@
 package gov.vha.isaac.ochre.api;
 
 import com.sun.javafx.application.PlatformImpl;
+
+import java.awt.*;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
+import com.sun.javafx.tk.*;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
@@ -32,6 +37,13 @@ public class LookupService {
     
     public static ServiceLocator get() {
         if (looker == null) {
+            if (GraphicsEnvironment.isHeadless()) {
+                System.setProperty("javafx.toolkit", "gov.vha.isaac.ochre.api.HeadlessToolkit");
+            }
+            String toolkitClass = System.getProperty("javafx.toolkit");
+            if (toolkitClass != null && toolkitClass.equals("gov.vha.isaac.ochre.api.HeadlessToolkit")) {
+                HeadlessToolkit.setupToolkit();
+            }
             PlatformImpl.startup(() -> {
                 // No need to do anything here
             });
