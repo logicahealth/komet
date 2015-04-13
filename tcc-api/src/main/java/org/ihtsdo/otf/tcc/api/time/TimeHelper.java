@@ -36,7 +36,7 @@ public class TimeHelper {
    //~--- methods -------------------------------------------------------------
 
    private static String FormatDateForFile(Date date) {
-      return localDateFormat.format(date);
+      return localLongFileFormat.format(date);
    }
 
    private static String formatDate(Date date) {

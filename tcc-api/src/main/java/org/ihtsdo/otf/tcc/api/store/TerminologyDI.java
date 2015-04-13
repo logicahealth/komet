@@ -22,6 +22,7 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.jvnet.hk2.annotations.Contract;
@@ -38,6 +39,8 @@ public interface TerminologyDI {
     void addChangeSetGenerator(String key, ChangeSetGeneratorBI writer);
 
     void addPropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, PropertyChangeListener l);
+    
+    void removePropertyChangeListener( PropertyChangeListener l) ;
 
     void addTermChangeListener(TermChangeListener cl);
 
@@ -63,11 +66,11 @@ public interface TerminologyDI {
 
     void cancel(ConceptVersionBI cv) throws IOException;
 
-    void commit() throws IOException;
+    boolean commit() throws IOException;
 
-    void commit(ConceptChronicleBI cc) throws IOException;
+    boolean commit(ConceptChronicleBI cc) throws IOException;
 
-    void commit(ConceptVersionBI cv) throws IOException;
+    boolean commit(ConceptVersionBI cv) throws IOException;
 
     ChangeSetGeneratorBI createDtoChangeSetGenerator(File changeSetFileName, File changeSetTempFileName,
             ChangeSetGenerationPolicy policy);
@@ -79,6 +82,8 @@ public interface TerminologyDI {
     void forget(DescriptionVersionBI desc) throws IOException;
 
     void forget(RefexChronicleBI extension) throws IOException;
+    
+    void forget(RefexDynamicChronicleBI extension) throws IOException;
 
     void forget(RelationshipVersionBI rel) throws IOException;
 
@@ -89,10 +94,14 @@ public interface TerminologyDI {
      * {@code index(ComponentChronicleBI chronicle)} and when complete, to
      * call {@code commitWriter()}. {@code IndexerBI} services will be
      * discovered using the HK2 dependency injection framework.
+     * @param indexesToRebuild - if null or empty - all indexes found via HK2 will be cleared and
+     * reindexed.  Otherwise, only clear and reindex the instances of IndexerBI which match the specified
+     * class list.  Classes passed in should be an extension of IndexerBI (but I don't have the type here to 
+     * be able to enforce that)
      * 
      * @throws IOException
      */
-    void index() throws IOException;
+    void index(Class<?> ... indexesToRebuild) throws IOException;
 
     @Deprecated
     void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;
@@ -199,7 +208,7 @@ public interface TerminologyDI {
 
     Collection<Integer> getNidCollection(Collection<UUID> uuids) throws IOException;
 
-    int getNidForUuids(UUID... uuids) throws IOException;
+    int getNidForUuids(UUID... uuids);
 
     /**
      * Retrieve the concept nid from a specified nid.

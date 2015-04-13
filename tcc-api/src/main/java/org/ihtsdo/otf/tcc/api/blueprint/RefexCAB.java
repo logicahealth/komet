@@ -705,13 +705,9 @@ public class RefexCAB extends CreateOrAmendBlueprint {
         for (Entry<ComponentProperty, Object> entry : properties.entrySet()) {
             switch (entry.getKey()) {
                 case COMPONENT_ID:
-                    try {
-                        int nid = Ts.get().getNidForUuids((UUID) entry.getValue());
-                        if (refexAnalog.getNid() != nid) {
-                            refexAnalog.setNid(nid);
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    int nid = Ts.get().getNidForUuids((UUID) entry.getValue());
+                    if (refexAnalog.getNid() != nid) {
+                        refexAnalog.setNid(nid);
                     }
                     break;
                 case BOOLEAN_EXTENSION_1:

@@ -18,13 +18,13 @@ package org.ihtsdo.otf.tcc.api.refex;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 
 /**
  *
  * @author kec
  */
+@SuppressWarnings("deprecation")
 public interface RefexAnalogBI <A extends RefexAnalogBI<A>>
         extends RefexVersionBI<A>, AnalogBI {
 	

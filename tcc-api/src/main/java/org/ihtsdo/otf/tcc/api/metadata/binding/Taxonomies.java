@@ -20,10 +20,9 @@ public class Taxonomies {
 	
 	public static ConceptSpec SNOMED = 
 		new ConceptSpec("SNOMED CT Concept", 
-				         UUID.fromString("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8"));
+				UUID.fromString("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8"));
 
-        public static ConceptSpec SNOMED_ROLE_ROOT = 
+	public static ConceptSpec SNOMED_ROLE_ROOT = 
 		new ConceptSpec("Concept model attribute (attribute)", 
-				         UUID.fromString("6155818b-09ed-388e-82ce-caa143423e99"));
-        
+				UUID.fromString("6155818b-09ed-388e-82ce-caa143423e99"));
 }

@@ -30,19 +30,21 @@ import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 
@@ -54,6 +56,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
+@SuppressWarnings("deprecation")
 public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo>
 {
 	private UUID columnDescriptionConceptUUID_;
@@ -62,14 +65,26 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	private int columnOrder_;
 	private UUID assemblageConcept_;
 	private RefexDynamicDataType columnDataType_;
-	private Object defaultData_;
+	private RefexDynamicDataBI defaultData_;
+	private boolean columnRequired_;
+	private RefexDynamicValidatorType validatorType_;
+	private RefexDynamicDataBI validatorData_;
 
 	/**
-	 * calls {@link #RefexDynamicColumnInfo(UUID, int, UUID, RefexDynamicDataType, Object) with a null assemblage concept
+	 * Useful for building up a new one step by step
 	 */
-	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, Object defaultData)
+	public RefexDynamicColumnInfo()
 	{
-		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData);
+	}
+	
+	/**
+	 * calls {@link #RefexDynamicColumnInfo(UUID, int, UUID, RefexDynamicDataType, RefexDynamicDataBI, Boolean, RefexDynamicValidatorType, RefexDynamicDataBI)
+	 * with a null assemblage concept
+	 */
+	public RefexDynamicColumnInfo(int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, RefexDynamicDataBI defaultData, Boolean columnRequired,
+			RefexDynamicValidatorType validatorType, RefexDynamicDataBI validatorData)
+	{
+		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, validatorType, validatorData);
 	}
 	
 	/**
@@ -82,18 +97,93 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	 * 
 	 * @param assemblageConcept - the assemblage concept that this was read from (or null, if not yet part of an assemblage)
 	 * @param columnOrder - the column order as defined in the assemblage concept
-	 * @param columnDescriptionConceptNid - The concept where columnName and columnDescription should be read from
+	 * @param columnDescriptionConcept - The concept where columnName and columnDescription should be read from
 	 * @param columnDataType - the data type as defined in the assemblage concept
 	 * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example, 
-	 * if columnDataType is set to {@link RefexDynamicDataType#FLOAT} then this field must be a Float.
+	 * if columnDataType is set to {@link RefexDynamicDataType#FLOAT} then this field must be a {@link RefexDynamicFloatBI}.
+	 * @param columnRequired - Is this column required when creating an instance of the refex?  True for yes, false or null for no.
+	 * @param validatorType - The Validator to use when creating an instance of this Refex.  Null for no validator
+	 * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the 
+	 * validatorType field.  See {@link RefexDynamicValidatorType} for details on the valid data for this field.  Should be null when validatorType is null. 
 	 */
-	public RefexDynamicColumnInfo(UUID assemblageConcept, int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, Object defaultData)
+	public RefexDynamicColumnInfo(UUID assemblageConcept, int columnOrder, UUID columnDescriptionConcept, RefexDynamicDataType columnDataType, RefexDynamicDataBI defaultData,
+			Boolean columnRequired, RefexDynamicValidatorType validatorType, RefexDynamicDataBI validatorData)
 	{
 		assemblageConcept_ = assemblageConcept;
 		columnOrder_ = columnOrder;
 		columnDescriptionConceptUUID_ = columnDescriptionConcept;
 		columnDataType_ = columnDataType;
 		defaultData_ = defaultData;
+		columnRequired_ = (columnRequired == null ? false : columnRequired);
+		validatorType_ = validatorType;
+		validatorData_ = validatorData;
+	}
+	
+	/**
+	 * @param assemblageConcept - the assemblage concept that this was read from (or null, if not yet part of an assemblage)
+	 */
+	public void setAssemblageConcept(UUID assemblageConcept)
+	{
+		assemblageConcept_ = assemblageConcept;
+	}
+	
+	/**
+	 * @param columnOrder - the column order as defined in the assemblage concept
+	 */
+	public void setColumnOrder(int columnOrder)
+	{
+		columnOrder_ = columnOrder;
+	}
+	
+	/**
+	 @param columnDescriptionConcept - The concept where columnName and columnDescription should be read from
+	 */
+	public void setColumnDescriptionConcept(UUID columnDescriptionConcept)
+	{
+		columnDescriptionConceptUUID_ = columnDescriptionConcept;
+		columnName_ = null;
+		columnDescription_ = null;
+	}
+	
+	/**
+	 * @param columnDataType - the data type as defined in the assemblage concept
+	 */
+	public void setColumnDataType(RefexDynamicDataType columnDataType)
+	{
+		columnDataType_ = columnDataType;
+	}
+	
+	/**
+	 * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example, 
+	 * if columnDataType is set to {@link RefexDynamicDataType#FLOAT} then this field must be a {@link RefexDynamicFloatBI}.
+	 */
+	public void setColumnDefaultData(RefexDynamicDataBI defaultData)
+	{
+		defaultData_ = defaultData;
+	}
+	
+	/**
+	 * @param columnRequired - Is this column required when creating an instance of the refex?  True for yes, false or null for no.
+	 */
+	public void setColumnRequired(boolean columnRequired)
+	{
+		columnRequired_ = columnRequired;
+	}
+	
+	/**
+	 * @param validatorType - The Validator to use when creating an instance of this Refex.  Null for no validator
+	 */
+	public void setValidatorType(RefexDynamicValidatorType validatorType)
+	{
+		validatorType_ = validatorType;
+	}
+	
+	/**
+	 * @param validatorType - The Validator to use when creating an instance of this Refex.  Null for no validator
+	 */
+	public void setValidatorData(RefexDynamicDataBI validatorData)
+	{
+		validatorData_ = validatorData;
 	}
 	
 	/**
@@ -154,14 +244,39 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	/**
 	 * @return the default value to use for this column, if no value is specified in a refex that is created using this column info
 	 */
-	public Object getDefaultColumnValue()
+	public RefexDynamicDataBI getDefaultColumnValue()
 	{
 		//Handle folks sending empty strings gracefully
-		if (defaultData_ != null && defaultData_ instanceof String && ((String)defaultData_).length() == 0)
+		if (defaultData_ != null && defaultData_ instanceof RefexDynamicStringBI && ((RefexDynamicStringBI)defaultData_).getDataString().length() == 0)
 		{
 			return null;
 		}
 		return defaultData_;
+	}
+
+	/**
+	 * @return When creating this refex, must this column be provided?
+	 */
+	public boolean isColumnRequired()
+	{
+		return columnRequired_;
+	}
+	
+	/**
+	 * @return The type of the validator (if any) which must be used to validate user data before accepting the refex
+	 */
+	public RefexDynamicValidatorType getValidator()
+	{
+		return validatorType_;
+	}
+	
+	/**
+	 * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the 
+	 * validatorType field.  See {@link RefexDynamicValidatorType} for details on the valid data for this field.  Should be null when validatorType is null. 
+	 */
+	public RefexDynamicDataBI getValidatorData()
+	{
+		return validatorData_;
 	}
 	
 	/**
@@ -174,17 +289,25 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	
 	private void read()
 	{
-		//TODO [REFEX] figure out language details
+		//TODO (artf231856) [REFEX] figure out language details
 		String fsn = null;
-		String unknownSynonym = null;
+		String acceptableSynonym = null;
+		String acceptableDefinition = null;
 		try
 		{
-			
-			ConceptVersionBI cv = Ts.get().getGlobalSnapshot().getConceptVersion(columnDescriptionConceptUUID_);
-			if (cv.getDescriptionsActive() != null)
+			ConceptChronicleBI cc = Ts.get().getConcept(columnDescriptionConceptUUID_);
+			for (DescriptionChronicleBI dc : cc.getDescriptions())
 			{
-				for (DescriptionVersionBI<?> d : cv.getDescriptionsActive())
+				if (columnName_ != null && columnDescription_ != null)
 				{
+					break;
+				}
+				for (DescriptionVersionBI<?> d : RefexDynamicUsageDescription.getAllActive(dc))
+				{
+					if (columnName_ != null && columnDescription_ != null)
+					{
+						break;
+					}
 					if (d.getTypeNid() == Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getNid())
 					{
 						fsn = d.getText();
@@ -206,28 +329,47 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 								}
 							}
 						}
-						if (isPreferred != null)
+						if (isPreferred != null && isPreferred)
 						{
-							if (isPreferred)
-							{
-								columnName_ = d.getText();
-							}
-							else
-							{
-								columnDescription_ = d.getText();
-							}
+							columnName_ = d.getText();
 						}
 						else
 						{
-							unknownSynonym = d.getText();
+							acceptableSynonym = d.getText();
+						}
+					}
+					else if (d.getTypeNid() == Snomed.DEFINITION_DESCRIPTION_TYPE.getNid())
+					{
+						Boolean isPreferred = null;
+						for (RefexChronicleBI<?> refex : d.getRefexes())
+						{
+							if (refex instanceof RefexNidVersionBI)
+							{
+								if (((RefexNidVersionBI<?>)refex).getNid1() == SnomedMetadataRf2.PREFERRED_RF2.getNid())
+								{
+									isPreferred = true;
+								}
+								else if (((RefexNidVersionBI<?>)refex).getNid1() == SnomedMetadataRf2.ACCEPTABLE_RF2.getNid())
+								{
+									isPreferred = false;
+								}
+							}
+						}
+						if (isPreferred != null && isPreferred)
+						{
+							columnDescription_ = d.getText();
+						}
+						else
+						{
+							acceptableDefinition = d.getText();
 						}
 					}
 				}
 			}
 		}
-		catch (IOException | ContradictionException e)
+		catch (Exception e)
 		{
-			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failure reading RefexDynamicColumnInfo", e);
+			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Failure reading RefexDynamicColumnInfo '" + columnDescriptionConceptUUID_ + "'", e);
 		}
 		if (columnName_ == null)
 		{
@@ -236,12 +378,21 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 			columnName_ = (fsn == null ? "ERROR - see log" : fsn);
 		}
 		
+		if (columnDescription_ == null && acceptableDefinition != null)
+		{
+			columnDescription_ = acceptableDefinition;
+		}
+		
+		if (columnDescription_ == null && acceptableSynonym != null)
+		{
+			columnDescription_ = acceptableSynonym;
+		}
+		
 		if (columnDescription_ == null)
 		{
-			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "No acceptable synonym found on '" + columnDescriptionConceptUUID_ + "' to use "
-					+ "for the column description- using arbitrary synonym, if one was found");
-			columnDescription_ = (unknownSynonym == null ? "There was an error reading the column info from the concept '" + columnDescriptionConceptUUID_ + "'."
-					: unknownSynonym);
+			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "No preferred or acceptable definition or acceptable synonym found on '" 
+					+ columnDescriptionConceptUUID_ + "' to use for the column description- re-using the the columnName, instead.");
+			columnDescription_ = columnName_;
 		}
 	}
 	
@@ -268,13 +419,12 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	 *         )}
 	 *     )
 	 * 
-	 * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
+	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
 	 * @throws ContradictionException 
 	 * @throws InvalidCAB 
 	 * @throws IOException 
 	 */
-	@SuppressWarnings("deprecation")
-	public static ConceptChronicleBI createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription, EditCoordinate ec, ViewCoordinate vc) 
+	public static ConceptChronicleBI createNewRefexDynamicColumnInfoConcept(String columnName, String columnDescription) 
 			throws IOException, InvalidCAB, ContradictionException
 	{
 		if (columnName == null || columnName.length() == 0 || columnDescription == null || columnDescription.length() == 0)
@@ -288,24 +438,27 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = Snomed.CORE_MODULE.getUuids()[0];
 		UUID parents[] = new UUID[] { RefexDynamic.REFEX_DYNAMIC_COLUMNS.getUuids()[0] };
-                UUID path = null; // If this is not to be deprecated, we need to fix up the paths. 
 
-		ConceptCB cab = new ConceptCB(columnName, columnName, lc, isA, idDir, module, path, parents);
+		ConceptCB cab = new ConceptCB(columnName, columnName, lc, isA, idDir, module, null, parents);
 		
-		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(),  Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], LanguageCode.EN, 
+		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(),  Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0], LanguageCode.EN, 
 				columnDescription, false, IdDirective.GENERATE_HASH);
 		dCab.getProperties().put(ComponentProperty.MODULE_ID, module);
 		
 		RefexCAB rCab = new RefexCAB(RefexType.CID, dCab.getComponentUuid(), 
 				Snomed.US_LANGUAGE_REFEX.getUuids()[0], IdDirective.GENERATE_HASH, RefexDirective.EXCLUDE);
-		rCab.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0]);
+		rCab.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
 		rCab.getProperties().put(ComponentProperty.MODULE_ID, module);
 		
 		dCab.addAnnotationBlueprint(rCab);
 		
 		cab.addDescriptionCAB(dCab);
 		
-		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(ec, vc).construct(cab);
+		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
+				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
+					TermAux.TERM_AUX_MODULE.getLenient().getNid(), 
+					TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
+				StandardViewCoordinates.getWbAuxiliary()).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit(newCon);
 		
