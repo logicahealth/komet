@@ -45,4 +45,10 @@ public interface SememeService {
     
     void writeSememe(SememeChronicle sememeChronicle);
     
+    Stream<SememeChronicle> getSememeStream();
+    
+    Stream<SememeChronicle> getParallelSememeStream();
+
+
+    
 }

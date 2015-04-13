@@ -20,6 +20,7 @@ package org.ihtsdo.otf.tcc.model.index.service;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -131,6 +132,7 @@ public interface IndexerBI {
      * components will be sent to all indexers for indexing. The implementation
      * must not perform lengthy operations on this thread.
      *
+     * @param chronicle
      * @return a {@code Future<Long>}for the index generation to which this
      * chronicle is attached.  If
      * this chronicle is not indexed by this indexer, the Future returns
@@ -139,6 +141,23 @@ public interface IndexerBI {
      * a search where the chronicle's results must be included.
      */
     public Future<Long> index(ComponentChronicleBI chronicle);
+    
+    /**
+     * Index the chronicle in a manner appropriate to the
+     * indexer implementation. The implementation is responsible to
+     * determine if the component is appropriate for indexing. All changed
+     * components will be sent to all indexers for indexing. The implementation
+     * must not perform lengthy operations on this thread.
+     *
+     * @param chronicle
+     * @return a {@code Future<Long>}for the index generation to which this
+     * chronicle is attached.  If
+     * this chronicle is not indexed by this indexer, the Future returns
+     * {@code Long.MIN_VALUE{@code . The generation can be used with searchers
+     * to make sure that the component's indexing is complete prior to performing
+     * a search where the chronicle's results must be included.
+     */
+    public Future<Long> index(SememeChronicle chronicle);
     
     /**
      * Enables or disables an indexer. A disabled indexer will take
