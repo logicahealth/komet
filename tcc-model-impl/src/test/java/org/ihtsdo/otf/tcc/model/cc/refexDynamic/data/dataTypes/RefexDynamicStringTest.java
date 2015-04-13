@@ -21,38 +21,39 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 import static org.junit.Assert.assertEquals;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexUUID;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicString;
 import org.junit.Test;
 
 /**
- * {@link RefexUUIDTest}
+ * {@link RefexDynamicStringTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexUUIDTest
+public class RefexDynamicStringTest
 {
 	@Test
 	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
-		UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
+		String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
 
-		for (UUID uuid : testValues)
+		for (String i : testValues)
 		{
-			test(uuid);
+			test(i);
 		}
 	}
 
-	private void test(UUID value) throws PropertyVetoException, IOException, ContradictionException
+	private void test(String value) throws PropertyVetoException, IOException, ContradictionException
 	{
-		RefexUUID uuid = new RefexUUID(value, "foo");
+		RefexDynamicString i = new RefexDynamicString(value);
+		i.setNameIfAbsent("foo");
 
-		assertEquals(value, uuid.getDataUUID());
-		assertEquals(value, (UUID) uuid.getDataObject());
-		assertEquals(value, (UUID) uuid.getDataObjectProperty().get());
-		assertEquals(uuid.getRefexDataType(), RefexDynamicDataType.UUID);
+		assertEquals(value, i.getDataString());
+		assertEquals(value, (String) i.getDataObject());
+		assertEquals(value, (String) i.getDataObjectProperty().get());
+		assertEquals(i.getRefexDataType(), RefexDynamicDataType.STRING);
+		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
 }

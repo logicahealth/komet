@@ -27,21 +27,26 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
- * {@link RefexBoolean}
+ * {@link RefexDynamicBoolean}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexBoolean extends RefexDynamicData implements RefexDynamicBooleanBI {
+public class RefexDynamicBoolean extends RefexDynamicData implements RefexDynamicBooleanBI {
 
 	private ObjectProperty<Boolean> property_;
 
-	public RefexBoolean(byte[] data, int assemblageNid, int columnNumber)
+	protected RefexDynamicBoolean(byte[] data)
+	{
+		super(data);
+	}
+	
+	protected RefexDynamicBoolean(byte[] data, int assemblageNid, int columnNumber)
 	{
 		super(data, assemblageNid, columnNumber);
 	}
 	
-	public RefexBoolean(boolean b, String name) throws PropertyVetoException {
-		super(name);
+	public RefexDynamicBoolean(boolean b) throws PropertyVetoException {
+		super();
 		data_ = (b ? new byte[] { 1 } : new byte[] { 0 });
 	}
 

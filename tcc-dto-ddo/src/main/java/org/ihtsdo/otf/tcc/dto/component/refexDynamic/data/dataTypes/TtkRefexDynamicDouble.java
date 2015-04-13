@@ -18,37 +18,31 @@ package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
-import java.util.UUID;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexUUID}
+ * {@link TtkRefexDynamicDouble}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexUUID extends TtkRefexDynamicData
+public class TtkRefexDynamicDouble extends TtkRefexDynamicData
 {
-	public TtkRefexUUID(byte[] data)
+
+	public TtkRefexDynamicDouble(byte[] data)
 	{
 		super(data);
 	}
 
-	public TtkRefexUUID(UUID uuid) throws PropertyVetoException
+	public TtkRefexDynamicDouble(double d) throws PropertyVetoException
 	{
 		super();
-		ByteBuffer b = ByteBuffer.allocate(16);
-		b.putLong(uuid.getMostSignificantBits());
-		b.putLong(uuid.getLeastSignificantBits());
-		data_ = b.array();
+		data_ = ByteBuffer.allocate(8).putDouble(d).array();
 	}
 
-	public UUID getDataUUID()
+	public double getDataDouble()
 	{
-		ByteBuffer b = ByteBuffer.wrap(data_);
-		long most = b.getLong();
-		long least = b.getLong();
-		return new UUID(most, least);
+		return ByteBuffer.wrap(data_).getDouble();
 	}
 
 	/**
@@ -57,6 +51,6 @@ public class TtkRefexUUID extends TtkRefexDynamicData
 	@Override
 	public Object getDataObject()
 	{
-		return getDataUUID();
+		return getDataDouble();
 	}
 }

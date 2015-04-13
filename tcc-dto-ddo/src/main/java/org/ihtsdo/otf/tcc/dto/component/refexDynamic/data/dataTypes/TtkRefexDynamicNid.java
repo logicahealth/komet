@@ -21,26 +21,27 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexInteger}
+ * {@link TtkRefexDynamicNid}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexInteger extends TtkRefexDynamicData
+public class TtkRefexDynamicNid extends TtkRefexDynamicData
 {
-	public TtkRefexInteger(byte[] data)
+
+	public TtkRefexDynamicNid(byte[] data)
 	{
 		super(data);
 	}
 
-	public TtkRefexInteger(int integer) throws PropertyVetoException
+	public TtkRefexDynamicNid(int nid) throws PropertyVetoException
 	{
 		super();
-		data_ = intToByteArray(integer);
+		data_ = TtkRefexDynamicInteger.intToByteArray(nid);
 	}
 
-	public int getDataInteger()
+	public int getDataNid()
 	{
-		return getIntFromByteArray(data_);
+		return TtkRefexDynamicInteger.getIntFromByteArray(data_);
 	}
 
 	/**
@@ -49,21 +50,6 @@ public class TtkRefexInteger extends TtkRefexDynamicData
 	@Override
 	public Object getDataObject()
 	{
-		return getDataInteger();
-	}
-
-	protected static byte[] intToByteArray(int integer)
-	{
-		byte[] bytes = new byte[4];
-		bytes[0] = (byte) (integer >> 24);
-		bytes[1] = (byte) (integer >> 16);
-		bytes[2] = (byte) (integer >> 8);
-		bytes[3] = (byte) (integer >> 0);
-		return bytes;
-	}
-
-	protected static int getIntFromByteArray(byte[] bytes)
-	{
-		return ((bytes[0] << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8) | ((bytes[3] & 0xFF) << 0));
+		return getDataNid();
 	}
 }

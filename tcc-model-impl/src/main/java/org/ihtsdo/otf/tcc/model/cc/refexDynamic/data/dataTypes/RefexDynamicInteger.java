@@ -27,21 +27,26 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
- * {@link RefexInteger}
+ * {@link RefexDynamicInteger}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexInteger extends RefexDynamicData implements RefexDynamicIntegerBI {
+public class RefexDynamicInteger extends RefexDynamicData implements RefexDynamicIntegerBI {
 
 	private ObjectProperty<Integer> property_;
+	
+	protected RefexDynamicInteger(byte[] data)
+	{
+		super(data);
+	}
 
-	public RefexInteger(byte[] data, int assemblageNid, int columnNumber)
+	protected RefexDynamicInteger(byte[] data, int assemblageNid, int columnNumber)
 	{
 		super(data, assemblageNid, columnNumber);
 	}
 	
-	public RefexInteger(int integer, String name) throws PropertyVetoException {
-		super(name);
+	public RefexDynamicInteger(int integer) throws PropertyVetoException {
+		super();
 		data_ = intToByteArray(integer);
 	}
 
@@ -84,6 +89,9 @@ public class RefexInteger extends RefexDynamicData implements RefexDynamicIntege
 		return property_;
 	}
 
+	/**
+	 * Returns a 4 byte array
+	 */
 	protected static byte[] intToByteArray(int integer) {
 		byte[] bytes = new byte[4];
 		bytes[0] = (byte) (integer >> 24);

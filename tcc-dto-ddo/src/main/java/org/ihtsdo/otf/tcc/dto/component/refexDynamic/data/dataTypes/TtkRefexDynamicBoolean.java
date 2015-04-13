@@ -16,32 +16,36 @@
 
 package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes;
 
+import java.beans.PropertyVetoException;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexByteArray}
+ * {@link TtkRefexDynamicBoolean}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexByteArray extends TtkRefexDynamicData
-{
-	public TtkRefexByteArray(byte[] data)
+public class TtkRefexDynamicBoolean extends TtkRefexDynamicData {
+
+	public TtkRefexDynamicBoolean(byte[] data)
 	{
 		super(data);
 	}
+	
+	public TtkRefexDynamicBoolean(boolean b) throws PropertyVetoException {
+		super();
+		data_ = (b ? new byte[] { 1 } : new byte[] { 0 });
+	}
 
-	public byte[] getDataByteArray()
-	{
-		return data_;
+	public boolean getDataBoolean() {
+		return data_[0] == 1 ? true : false;
 	}
 
 	/**
 	 * @see org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData#getDataObject()
 	 */
 	@Override
-	public Object getDataObject()
-	{
-		return getDataByteArray();
+	public Object getDataObject() {
+		return getDataBoolean();
 	}
 }

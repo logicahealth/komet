@@ -22,35 +22,35 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexDouble}
+ * {@link TtkRefexDynamicLong}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexDouble extends TtkRefexDynamicData
+public class TtkRefexDynamicLong extends TtkRefexDynamicData
 {
-
-	public TtkRefexDouble(byte[] data)
+	public TtkRefexDynamicLong(byte[] data)
 	{
 		super(data);
 	}
 
-	public TtkRefexDouble(double d) throws PropertyVetoException
+	public TtkRefexDynamicLong(long l) throws PropertyVetoException
 	{
 		super();
-		data_ = ByteBuffer.allocate(8).putDouble(d).array();
+		data_ = ByteBuffer.allocate(8).putLong(l).array();
 	}
 
-	public double getDataDouble()
+	public long getDataLong()
 	{
-		return ByteBuffer.wrap(data_).getDouble();
+		return ByteBuffer.wrap(data_).getLong();
 	}
 
 	/**
+	 * 
 	 * @see org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData#getDataObject()
 	 */
 	@Override
 	public Object getDataObject()
 	{
-		return getDataDouble();
+		return getDataLong();
 	}
 }

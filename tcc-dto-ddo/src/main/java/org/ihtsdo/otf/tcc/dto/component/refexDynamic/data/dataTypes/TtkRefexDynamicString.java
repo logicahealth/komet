@@ -21,24 +21,26 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexPolymorphic}
+ * {@link TtkRefexDynamicString}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexPolymorphic extends TtkRefexDynamicData
+public class TtkRefexDynamicString extends TtkRefexDynamicData
 {
-	public TtkRefexPolymorphic(byte[] data)
+	public TtkRefexDynamicString(byte[] data)
 	{
-		super();
-		if (data != null && data.length > 0)
-		{
-			throw new RuntimeException("Instances of polymorphic cannot have data");
-		}
+		super(data);
 	}
 
-	public TtkRefexPolymorphic() throws PropertyVetoException
+	public TtkRefexDynamicString(String string) throws PropertyVetoException
 	{
 		super();
+		data_ = string.getBytes();
+	}
+
+	public String getDataString()
+	{
+		return new String(data_);
 	}
 
 	/**
@@ -47,6 +49,6 @@ public class TtkRefexPolymorphic extends TtkRefexDynamicData
 	@Override
 	public Object getDataObject()
 	{
-		return null;
+		return getDataString();
 	}
 }

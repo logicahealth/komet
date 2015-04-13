@@ -21,31 +21,35 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexBoolean}
+ * {@link TtkRefexDynamicFloat}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexBoolean extends TtkRefexDynamicData {
+public class TtkRefexDynamicFloat extends TtkRefexDynamicData
+{
 
-	public TtkRefexBoolean(byte[] data)
+	public TtkRefexDynamicFloat(byte[] data)
 	{
 		super(data);
 	}
-	
-	public TtkRefexBoolean(boolean b) throws PropertyVetoException {
+
+	public TtkRefexDynamicFloat(float f) throws PropertyVetoException
+	{
 		super();
-		data_ = (b ? new byte[] { 1 } : new byte[] { 0 });
+		data_ = TtkRefexDynamicInteger.intToByteArray(Float.floatToIntBits(f));
 	}
 
-	public boolean getDataBoolean() {
-		return data_[0] == 1 ? true : false;
+	public float getDataFloat()
+	{
+		return Float.intBitsToFloat(TtkRefexDynamicInteger.getIntFromByteArray(data_));
 	}
 
 	/**
 	 * @see org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData#getDataObject()
 	 */
 	@Override
-	public Object getDataObject() {
-		return getDataBoolean();
+	public Object getDataObject()
+	{
+		return getDataFloat();
 	}
 }

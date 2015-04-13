@@ -21,27 +21,24 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexFloat}
+ * {@link TtkRefexDynamicPolymorphic}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexFloat extends TtkRefexDynamicData
+public class TtkRefexDynamicPolymorphic extends TtkRefexDynamicData
 {
-
-	public TtkRefexFloat(byte[] data)
-	{
-		super(data);
-	}
-
-	public TtkRefexFloat(float f) throws PropertyVetoException
+	public TtkRefexDynamicPolymorphic(byte[] data)
 	{
 		super();
-		data_ = TtkRefexInteger.intToByteArray(Float.floatToIntBits(f));
+		if (data != null && data.length > 0)
+		{
+			throw new RuntimeException("Instances of polymorphic cannot have data");
+		}
 	}
 
-	public float getDataFloat()
+	public TtkRefexDynamicPolymorphic() throws PropertyVetoException
 	{
-		return Float.intBitsToFloat(TtkRefexInteger.getIntFromByteArray(data_));
+		super();
 	}
 
 	/**
@@ -50,6 +47,6 @@ public class TtkRefexFloat extends TtkRefexDynamicData
 	@Override
 	public Object getDataObject()
 	{
-		return getDataFloat();
+		return null;
 	}
 }

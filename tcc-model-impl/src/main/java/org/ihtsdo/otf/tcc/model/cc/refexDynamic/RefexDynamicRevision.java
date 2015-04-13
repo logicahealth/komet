@@ -43,6 +43,7 @@ import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeToClassUtility;
 
 /**
  * {@link RefexDynamicRevision}
@@ -71,6 +72,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
 
     public RefexDynamicRevision(DataInputStream input, RefexDynamicMember primordialComponent) throws IOException {
         super(input, primordialComponent);
+        readMemberFields(input);
     }
 
     public RefexDynamicRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, RefexDynamicMember primordialComponent) {
@@ -161,12 +163,12 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         RefexDynamicCAB rdc = new RefexDynamicCAB(
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
-                getVersion(vc), 
+                this, 
                 vc, 
                 idDirective, 
                 refexDirective);
 
-        rdc.setData(getData());
+        rdc.setData(getData(), vc);
         return rdc;
     }
 
@@ -205,7 +207,31 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
        return true;
     }
 
+    protected void readMemberFields(DataInputStream input) {
 
+        //read the following format - 
+        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+        int colCount = input.readInt();
+        data_ = new RefexDynamicDataBI[colCount];
+        for (int i = 0; i < colCount; i++)
+        {
+            RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());
+            if (dt == RefexDynamicDataType.UNKNOWN)
+            {
+                data_[i] = null;
+            }
+            else
+            {
+                int dataLength = input.readInt();
+                byte[] data = new byte[dataLength];
+                input.read(data);
+                
+                data_[i] = RefexDynamicTypeToClassUtility.typeToClass(dt, data, getAssemblageNid(), i);
+            }
+        }
+    }
+
+    @Override
     public IntArrayList getVariableVersionNids() {
         //No idea what this is for.  It doesn't seem to be used...
        //return new IntArrayList(0);
@@ -309,6 +335,7 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         {
             data_ = data;
         }
+        modified();
     }
 
     /**
@@ -323,5 +350,6 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
             throw new IndexOutOfBoundsException("Data size is " + temp.length + " columns.  Can't set column " + columnNumber);
         }
         temp[columnNumber] = data;
+        modified();
     }
 }

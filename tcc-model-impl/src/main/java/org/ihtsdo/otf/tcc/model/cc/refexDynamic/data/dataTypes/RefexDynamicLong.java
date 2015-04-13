@@ -18,39 +18,45 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
- * {@link RefexFloat}
+ * {@link RefexDynamicLong}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexFloat extends RefexDynamicData implements RefexDynamicFloatBI {
+public class RefexDynamicLong extends RefexDynamicData implements RefexDynamicLongBI {
 
-	private ObjectProperty<Float> property_;
+	private ObjectProperty<Long> property_;
+	
+	protected RefexDynamicLong(byte[] data)
+	{
+		super(data);
+	}
 
-	public RefexFloat(byte[] data, int assemblageNid, int columnNumber)
+	protected RefexDynamicLong(byte[] data, int assemblageNid, int columnNumber)
 	{
 		super(data, assemblageNid, columnNumber);
 	}
 	
-	public RefexFloat(float f, String name) throws PropertyVetoException {
-		super(name);
-		data_ = RefexInteger.intToByteArray(Float.floatToIntBits(f));
+	public RefexDynamicLong(long l) throws PropertyVetoException {
+		super();
+		data_ = ByteBuffer.allocate(8).putLong(l).array();
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloat()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLong()
 	 */
 	@Override
-	public float getDataFloat() {
-		return Float.intBitsToFloat(RefexInteger.getIntFromByteArray(data_));
+	public long getDataLong() {
+		return ByteBuffer.wrap(data_).getLong();
 	}
 
 	/**
@@ -58,7 +64,7 @@ public class RefexFloat extends RefexDynamicData implements RefexDynamicFloatBI 
 	 */
 	@Override
 	public Object getDataObject() {
-		return getDataFloat();
+		return getDataLong();
 	}
 
 	/**
@@ -68,18 +74,18 @@ public class RefexFloat extends RefexDynamicData implements RefexDynamicFloatBI 
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
-		return getDataFloatProperty();
+		return getDataLongProperty();
 	}
 
 	/**
 	 * @throws ContradictionException 
 	 * @throws IOException 
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloatProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLongProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Float> getDataFloatProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<Long> getDataLongProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(null, getName(), getDataFloat());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
 		}
 		return property_;
 	}

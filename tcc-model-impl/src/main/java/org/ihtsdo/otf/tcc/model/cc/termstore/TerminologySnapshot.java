@@ -23,6 +23,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -38,11 +39,9 @@ import org.ihtsdo.otf.tcc.ddo.store.FxTerminologySnapshotDI;
 
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.BitSet;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -123,6 +122,16 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
    @Override
    public void addPropertyChangeListener(CONCEPT_EVENT pce, PropertyChangeListener l) {
       store.addPropertyChangeListener(pce, l);
+   }
+   
+   /**
+    * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#removePropertyChangeListener(java.beans.PropertyChangeListener)
+    */
+   @Override
+   public void removePropertyChangeListener(PropertyChangeListener l)
+   {
+       store.removePropertyChangeListener(l);
+       
    }
 
    /**
@@ -341,6 +350,11 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public void forget(RefexChronicleBI extension) throws IOException {
+      store.forget(extension);
+   }
+   
+   @Override
+   public void forget(RefexDynamicChronicleBI extension) throws IOException {
       store.forget(extension);
    }
 
@@ -881,7 +895,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public int getNidForUuids(UUID... uuids) throws IOException {
+   public int getNidForUuids(UUID... uuids) {
       return PersistentStore.get().getNidForUuids(uuids);
    }
 
@@ -1083,9 +1097,12 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
         return store.getAllComponentNids();
     }
 
+    /**
+     * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#index(java.lang.Class[])
+     */
     @Override
-    public void index() throws IOException {
-        store.index();
+    public void index(Class<?> ... indexesToRebuild) throws IOException {
+        store.index(indexesToRebuild);
     }
 
     @Override

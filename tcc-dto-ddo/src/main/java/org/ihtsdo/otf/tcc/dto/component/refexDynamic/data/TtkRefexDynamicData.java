@@ -21,16 +21,16 @@ package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data;
 import java.util.Arrays;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexBoolean;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexByteArray;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDouble;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexFloat;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexInteger;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexLong;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexNid;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexPolymorphic;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexString;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexUUID;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicBoolean;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicByteArray;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicDouble;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicFloat;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicInteger;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicLong;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicNid;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicPolymorphic;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
 
 /**
  * {@link TtkRefexDynamicData}
@@ -55,34 +55,34 @@ public abstract class TtkRefexDynamicData
 	 */
 	public RefexDynamicDataType getRefexDataType()
 	{
-		if (this instanceof TtkRefexNid) {
+		if (this instanceof TtkRefexDynamicNid) {
 			return RefexDynamicDataType.NID;
 		}
-		if (this instanceof TtkRefexString) {
+		if (this instanceof TtkRefexDynamicString) {
 			return RefexDynamicDataType.STRING;
 		}
-		if (this instanceof TtkRefexInteger) {
+		if (this instanceof TtkRefexDynamicInteger) {
 			return RefexDynamicDataType.INTEGER;
 		}
-		if (this instanceof TtkRefexBoolean) {
+		if (this instanceof TtkRefexDynamicBoolean) {
 			return RefexDynamicDataType.BOOLEAN;
 		}
-		if (this instanceof TtkRefexLong) {
+		if (this instanceof TtkRefexDynamicLong) {
 			return RefexDynamicDataType.LONG;
 		}
-		if (this instanceof TtkRefexByteArray) {
+		if (this instanceof TtkRefexDynamicByteArray) {
 			return RefexDynamicDataType.BYTEARRAY;
 		}
-		if (this instanceof TtkRefexFloat) {
+		if (this instanceof TtkRefexDynamicFloat) {
 			return RefexDynamicDataType.FLOAT;
 		}
-		if (this instanceof TtkRefexDouble) {
+		if (this instanceof TtkRefexDynamicDouble) {
 			return RefexDynamicDataType.DOUBLE;
 		}
-		if (this instanceof TtkRefexUUID) {
+		if (this instanceof TtkRefexDynamicUUID) {
 			return RefexDynamicDataType.UUID;
 		}
-		if (this instanceof TtkRefexPolymorphic) {
+		if (this instanceof TtkRefexDynamicPolymorphic) {
 			return RefexDynamicDataType.POLYMORPHIC;
 		}
 		return RefexDynamicDataType.UNKNOWN;
@@ -150,43 +150,43 @@ public abstract class TtkRefexDynamicData
 	{
 		if (RefexDynamicDataType.NID == type)
 		{
-			return new TtkRefexNid(data);
+			return new TtkRefexDynamicNid(data);
 		}
 		else if (RefexDynamicDataType.STRING == type)
 		{
-			return new TtkRefexString(data);
+			return new TtkRefexDynamicString(data);
 		}
 		else if (RefexDynamicDataType.INTEGER == type)
 		{
-			return new TtkRefexInteger(data);
+			return new TtkRefexDynamicInteger(data);
 		}
 		else if (RefexDynamicDataType.BOOLEAN == type)
 		{
-			return new TtkRefexBoolean(data);
+			return new TtkRefexDynamicBoolean(data);
 		}
 		else if (RefexDynamicDataType.LONG == type)
 		{
-			return new TtkRefexLong(data);
+			return new TtkRefexDynamicLong(data);
 		}
 		else if (RefexDynamicDataType.BYTEARRAY == type)
 		{
-			return new TtkRefexByteArray(data);
+			return new TtkRefexDynamicByteArray(data);
 		}
 		else if (RefexDynamicDataType.FLOAT == type)
 		{
-			return new TtkRefexFloat(data);
+			return new TtkRefexDynamicFloat(data);
 		}
 		else if (RefexDynamicDataType.DOUBLE == type)
 		{
-			return new TtkRefexDouble(data);
+			return new TtkRefexDynamicDouble(data);
 		}
 		else if (RefexDynamicDataType.UUID == type)
 		{
-			return new TtkRefexUUID(data);
+			return new TtkRefexDynamicUUID(data);
 		}
 		else if (RefexDynamicDataType.POLYMORPHIC == type)
 		{
-			return new TtkRefexPolymorphic(data);
+			return new TtkRefexDynamicPolymorphic(data);
 		}
 		else if (RefexDynamicDataType.UNKNOWN == type)
 		{

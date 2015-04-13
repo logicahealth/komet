@@ -290,6 +290,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
         ec.setPathUuid(PersistentStore.get().getUuidPrimordialForNid(v.getPathNid()));
         ec.setStatus(v.getStatus());
         ec.setAuthorUuid(PersistentStore.get().getUuidPrimordialForNid(v.getAuthorNid()));
+        ec.setModuleUuid(PersistentStore.get().getUuidPrimordialForNid(v.getModuleNid()));
         ec.setTime(v.getTime());
 
         if (v.getAdditionalIdentifierParts() != null) {
@@ -307,6 +308,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
                     eIdv.setPathUuid(PersistentStore.get().getUuidPrimordialForNid(idv.getPathNid()));
                     eIdv.setStatus(idv.getStatus());
                     eIdv.setAuthorUuid(PersistentStore.get().getUuidPrimordialForNid(idv.getAuthorNid()));
+                    eIdv.setModuleUuid(PersistentStore.get().getUuidPrimordialForNid(idv.getModuleNid()));
                     eIdv.setTime(idv.getTime());
                 }
             }
@@ -397,6 +399,7 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
         ev.setPathUuid(PersistentStore.get().getUuidPrimordialForNid(v.getPathNid()));
         ev.setStatus(v.getStatus());
         ev.setAuthorUuid(PersistentStore.get().getUuidPrimordialForNid(v.getAuthorNid()));
+        ev.setModuleUuid(PersistentStore.get().getUuidPrimordialForNid(v.getModuleNid()));
         ev.setTime(v.getTime());
         ec.revisions.add(ev);
     }

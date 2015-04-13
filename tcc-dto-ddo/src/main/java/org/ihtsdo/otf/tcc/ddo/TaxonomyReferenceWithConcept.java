@@ -68,21 +68,27 @@ public class TaxonomyReferenceWithConcept {
 
    @Override
    public String toString() {
-      if (relationshipVersionProperty.get() != null) {
-         switch (whichConcept) {
-         case ORIGIN :
-            return relationshipVersionProperty.get().getOriginReference().getText();
+       ComponentReference ref = getConceptFromRelationshipOrConceptProperties();
+       
+       return ref != null ? ref.getText() : "root";
+   }
+   
+   public ComponentReference getConceptFromRelationshipOrConceptProperties() {
+       if (relationshipVersionProperty.get() != null) {
+           switch (whichConcept) {
+           case ORIGIN :
+               return relationshipVersionProperty.get().getOriginReference();
 
-         case DESTINATION :
-            return relationshipVersionProperty.get().getDestinationReference().getText();
-         }
-      }
+           case DESTINATION :
+               return relationshipVersionProperty.get().getDestinationReference();
+           }
+       }
 
-      if (conceptProperty.get() != null) {
-         return conceptProperty.get().getConceptReference().getText();
-      }
+       if (conceptProperty.get() != null) {
+           return conceptProperty.get().getConceptReference();
+       }
 
-      return "root";
+       return null;
    }
 
    public SimpleObjectProperty<ComponentReference> typeReferenceProperty() {

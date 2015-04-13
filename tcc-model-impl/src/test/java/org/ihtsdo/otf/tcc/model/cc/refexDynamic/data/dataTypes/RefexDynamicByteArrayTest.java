@@ -22,34 +22,38 @@ import static org.junit.Assert.assertEquals;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexLong;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicByteArray;
 import org.junit.Test;
 
 /**
- * {@link RefexLongTest}
+ * {@link RefexDynamicByteArrayTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexLongTest
+public class RefexDynamicByteArrayTest
 {
 	@Test
 	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
-		long[] testValues = new long[] { Long.MIN_VALUE, Long.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532, 3289402830942309l, -9128934721874891l };
+		byte[][] testValues = new byte[][] { "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes() };
 
-		for (long l : testValues)
+		for (byte[] i : testValues)
 		{
-			test(l);
+			test(i);
 		}
 	}
 
-	private void test(long value) throws PropertyVetoException, IOException, ContradictionException
+	private void test(byte[] value) throws PropertyVetoException, IOException, ContradictionException
 	{
-		RefexLong l = new RefexLong(value, "foo");
+		RefexDynamicByteArray i = new RefexDynamicByteArray(value);
+		i.setNameIfAbsent("foo");
 
-		assertEquals(value, l.getDataLong());
-		assertEquals(value, ((Long) l.getDataObject()).longValue());
-		assertEquals(value, ((Long) l.getDataObjectProperty().get()).longValue());
+		assertEquals(value, i.getDataByteArray());
+		assertEquals(value, (byte[]) i.getDataObject());
+		assertEquals(value, (byte[]) i.getDataObjectProperty().get());
+		assertEquals(i.getRefexDataType(), RefexDynamicDataType.BYTEARRAY);
+		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
 }

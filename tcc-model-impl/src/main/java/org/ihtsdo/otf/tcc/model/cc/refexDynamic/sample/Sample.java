@@ -27,8 +27,8 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexBoolean;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexString;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicBoolean;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicString;
 
 /**
  * {@link Sample}
@@ -100,17 +100,17 @@ public class Sample {
             
             if (data.getRefexDataType() == RefexDynamicDataType.STRING)
             {
-                RefexString rs = (RefexString) data;
+                RefexDynamicString rs = (RefexDynamicString) data;
                 System.out.println(rs.getDataString());
             }
             //Another variation
-            if (data.getRefexDataType().getRefexMemberClass().isAssignableFrom(RefexBoolean.class))
+            if (data.getRefexDataType().getRefexMemberClass().isAssignableFrom(RefexDynamicBoolean.class))
             {
-                RefexBoolean rs = (RefexBoolean) data;
+                RefexDynamicBoolean rs = (RefexDynamicBoolean) data;
                 System.out.println(rs.getDataBoolean());
             }
             
-            //And, you can also get back propeties...
+            //And, you can also get back properties...
             
             System.out.println(data.getDataObjectProperty());
             

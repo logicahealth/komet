@@ -18,40 +18,44 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
- * {@link RefexDouble}
+ * {@link RefexDynamicFloat}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexDouble extends RefexDynamicData implements RefexDynamicDoubleBI {
+public class RefexDynamicFloat extends RefexDynamicData implements RefexDynamicFloatBI {
 
-	private ObjectProperty<Double> property_;
+	private ObjectProperty<Float> property_;
 
-	public RefexDouble(byte[] data, int assemblageNid, int columnNumber)
+	protected RefexDynamicFloat(byte[] data)
+	{
+		super(data);
+	}
+
+	protected RefexDynamicFloat(byte[] data, int assemblageNid, int columnNumber)
 	{
 		super(data, assemblageNid, columnNumber);
 	}
 	
-	public RefexDouble(double d, String name) throws PropertyVetoException {
-		super(name);
-		data_ = ByteBuffer.allocate(8).putDouble(d).array();
+	public RefexDynamicFloat(float f) throws PropertyVetoException {
+		super();
+		data_ = RefexDynamicInteger.intToByteArray(Float.floatToIntBits(f));
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDouble()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloat()
 	 */
 	@Override
-	public double getDataDouble() {
-		return ByteBuffer.wrap(data_).getDouble();
+	public float getDataFloat() {
+		return Float.intBitsToFloat(RefexDynamicInteger.getIntFromByteArray(data_));
 	}
 
 	/**
@@ -59,7 +63,7 @@ public class RefexDouble extends RefexDynamicData implements RefexDynamicDoubleB
 	 */
 	@Override
 	public Object getDataObject() {
-		return getDataDouble();
+		return getDataFloat();
 	}
 
 	/**
@@ -69,18 +73,18 @@ public class RefexDouble extends RefexDynamicData implements RefexDynamicDoubleB
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
-		return getDataDoubleProperty();
+		return getDataFloatProperty();
 	}
 
 	/**
 	 * @throws ContradictionException 
 	 * @throws IOException 
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloatProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<Float> getDataFloatProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataFloat());
 		}
 		return property_;
 	}

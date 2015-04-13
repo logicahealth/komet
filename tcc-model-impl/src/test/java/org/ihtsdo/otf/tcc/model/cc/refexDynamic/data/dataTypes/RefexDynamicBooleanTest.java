@@ -23,15 +23,15 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexBoolean;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicBoolean;
 import org.junit.Test;
 
 /**
- * {@link RefexBooleanTest}
+ * {@link RefexDynamicBooleanTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexBooleanTest
+public class RefexDynamicBooleanTest
 {
 	@Test
 	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
@@ -47,7 +47,8 @@ public class RefexBooleanTest
 
 	private void test(boolean value) throws PropertyVetoException, IOException, ContradictionException
 	{
-		RefexBoolean i = new RefexBoolean(value, "foo");
+		RefexDynamicBoolean i = new RefexDynamicBoolean(value);
+		i.setNameIfAbsent("foo");
 
 		assertEquals(value, i.getDataBoolean());
 		assertEquals(value, (Boolean) i.getDataObject());

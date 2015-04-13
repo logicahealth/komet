@@ -22,35 +22,44 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * 
- * {@link RefexNid}
+ * {@link RefexDynamicString}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexNid extends RefexDynamicData implements RefexDynamicNidBI {
-	
-	private ObjectProperty<Integer> property_;
+public class RefexDynamicString extends RefexDynamicData implements RefexDynamicStringBI {
 
-	public RefexNid(byte[] data, int assemblageNid, int columnNumber)
+	private ObjectProperty<String> property_;
+
+	protected RefexDynamicString(byte[] data)
+	{
+		super(data);
+	}
+
+	protected RefexDynamicString(byte[] data, int assemblageNid, int columnNumber)
 	{
 		super(data, assemblageNid, columnNumber);
 	}
 	
-	public RefexNid(int nid, String name) throws PropertyVetoException {
-		super(name);
-		data_ = RefexInteger.intToByteArray(nid);
+	public RefexDynamicString(String string) throws PropertyVetoException {
+		super();
+		if (string == null)
+		{
+			throw new PropertyVetoException("The string value cannot be null", null);
+		}
+		data_ = string.getBytes();
 	}
 
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNid()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI#getDataString()
 	 */
 	@Override
-	public int getDataNid() {
-		return RefexInteger.getIntFromByteArray(data_);
+	public String getDataString() {
+		return new String(data_);
 	}
 
 	/**
@@ -58,7 +67,7 @@ public class RefexNid extends RefexDynamicData implements RefexDynamicNidBI {
 	 */
 	@Override
 	public Object getDataObject() {
-		return getDataNid();
+		return getDataString();
 	}
 
 	/**
@@ -68,19 +77,20 @@ public class RefexNid extends RefexDynamicData implements RefexDynamicNidBI {
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
-		return getDataNidProperty();
+		return getDataStringProperty();
 	}
 
 	/**
 	 * @throws ContradictionException 
 	 * @throws IOException 
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNidProperty()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI#getDataStringProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Integer> getDataNidProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<String> getDataStringProperty() throws IOException, ContradictionException {
 		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(null, getName(), getDataNid());
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
 		}
 		return property_;
 	}
+
 }

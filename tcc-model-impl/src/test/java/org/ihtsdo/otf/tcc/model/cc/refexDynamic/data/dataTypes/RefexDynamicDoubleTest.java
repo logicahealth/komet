@@ -23,36 +23,37 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexString;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicDouble;
 import org.junit.Test;
 
 /**
- * {@link RefexStringTest}
+ * {@link RefexDynamicDoubleTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexStringTest
+public class RefexDynamicDoubleTest
 {
 	@Test
 	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
-		String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
+		double[] testValues = new double[] { Double.MIN_VALUE, Double.MAX_VALUE, 0, 4, 6, 4.56, 4.292732, 984, -234, -29837, 4532, 3289402830942309d, -9128934721874891d };
 
-		for (String i : testValues)
+		for (double l : testValues)
 		{
-			test(i);
+			test(l);
 		}
 	}
 
-	private void test(String value) throws PropertyVetoException, IOException, ContradictionException
+	private void test(double value) throws PropertyVetoException, IOException, ContradictionException
 	{
-		RefexString i = new RefexString(value, "foo");
+		RefexDynamicDouble l = new RefexDynamicDouble(value);
+		l.setNameIfAbsent("foo");
 
-		assertEquals(value, i.getDataString());
-		assertEquals(value, (String) i.getDataObject());
-		assertEquals(value, (String) i.getDataObjectProperty().get());
-		assertEquals(i.getRefexDataType(), RefexDynamicDataType.STRING);
-		assertEquals(i.getDataObjectProperty().getName(), "foo");
+		assertEquals(value, l.getDataDouble(), 0);
+		assertEquals(value, (Double) l.getDataObject(), 0);
+		assertEquals(value, (Double) l.getDataObjectProperty().get(), 0);
+		assertEquals(l.getRefexDataType(), RefexDynamicDataType.DOUBLE);
+		assertEquals(l.getDataObjectProperty().getName(), "foo");
 	}
 }

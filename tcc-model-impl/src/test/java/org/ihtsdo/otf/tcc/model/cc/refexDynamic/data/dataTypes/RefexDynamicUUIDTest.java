@@ -21,38 +21,40 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 import static org.junit.Assert.assertEquals;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexInteger;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicUUID;
 import org.junit.Test;
 
 /**
- * {@link RefexIntegerTest}
+ * {@link RefexDynamicUUIDTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexIntegerTest
+public class RefexDynamicUUIDTest
 {
 	@Test
 	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
 	{
 
-		int[] testValues = new int[] { Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532 };
+		UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()};
 
-		for (int i : testValues)
+		for (UUID uuid : testValues)
 		{
-			test(i);
+			test(uuid);
 		}
 	}
 
-	private void test(int value) throws PropertyVetoException, IOException, ContradictionException
+	private void test(UUID value) throws PropertyVetoException, IOException, ContradictionException
 	{
-		RefexInteger i = new RefexInteger(value, "foo");
+		RefexDynamicUUID uuid = new RefexDynamicUUID(value);
+		uuid.setNameIfAbsent("foo");
 
-		assertEquals(value, i.getDataInteger());
-		assertEquals(value, ((Integer) i.getDataObject()).intValue());
-		assertEquals(value, ((Integer) i.getDataObjectProperty().get()).intValue());
-		assertEquals(i.getRefexDataType(), RefexDynamicDataType.INTEGER);
-		assertEquals(i.getDataObjectProperty().getName(), "foo");
+		assertEquals(value, uuid.getDataUUID());
+		assertEquals(value, (UUID) uuid.getDataObject());
+		assertEquals(value, (UUID) uuid.getDataObjectProperty().get());
+		assertEquals(uuid.getRefexDataType(), RefexDynamicDataType.UUID);
+		assertEquals(uuid.getDataObjectProperty().getName(), "foo");
 	}
 }

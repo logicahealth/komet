@@ -18,39 +18,45 @@ package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
+import java.util.UUID;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
 /**
  * 
- * {@link TtkRefexLong}
+ * {@link TtkRefexDynamicUUID}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class TtkRefexLong extends TtkRefexDynamicData
+public class TtkRefexDynamicUUID extends TtkRefexDynamicData
 {
-	public TtkRefexLong(byte[] data)
+	public TtkRefexDynamicUUID(byte[] data)
 	{
 		super(data);
 	}
 
-	public TtkRefexLong(long l) throws PropertyVetoException
+	public TtkRefexDynamicUUID(UUID uuid) throws PropertyVetoException
 	{
 		super();
-		data_ = ByteBuffer.allocate(8).putLong(l).array();
+		ByteBuffer b = ByteBuffer.allocate(16);
+		b.putLong(uuid.getMostSignificantBits());
+		b.putLong(uuid.getLeastSignificantBits());
+		data_ = b.array();
 	}
 
-	public long getDataLong()
+	public UUID getDataUUID()
 	{
-		return ByteBuffer.wrap(data_).getLong();
+		ByteBuffer b = ByteBuffer.wrap(data_);
+		long most = b.getLong();
+		long least = b.getLong();
+		return new UUID(most, least);
 	}
 
 	/**
-	 * 
 	 * @see org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData#getDataObject()
 	 */
 	@Override
 	public Object getDataObject()
 	{
-		return getDataLong();
+		return getDataUUID();
 	}
 }

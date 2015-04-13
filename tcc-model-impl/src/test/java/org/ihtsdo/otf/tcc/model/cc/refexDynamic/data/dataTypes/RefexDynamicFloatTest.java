@@ -23,15 +23,15 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexFloat;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicFloat;
 import org.junit.Test;
 
 /**
- * {@link RefexFloatTest}
+ * {@link RefexDynamicFloatTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class RefexFloatTest
+public class RefexDynamicFloatTest
 {
 	@Test
 	public void testSerialization() throws PropertyVetoException, IOException, ContradictionException
@@ -47,11 +47,13 @@ public class RefexFloatTest
 
 	private void test(float value) throws PropertyVetoException, IOException, ContradictionException
 	{
-		RefexFloat l = new RefexFloat(value, "foo");
+		RefexDynamicFloat l = new RefexDynamicFloat(value);
+		l.setNameIfAbsent("foo");
 
 		assertEquals(value, l.getDataFloat(), 0);
 		assertEquals(value, (Float) l.getDataObject(), 0);
 		assertEquals(value, (Float) l.getDataObjectProperty().get(), 0);
 		assertEquals(l.getRefexDataType(), RefexDynamicDataType.FLOAT);
+		assertEquals(l.getDataObjectProperty().getName(), "foo");
 	}
 }

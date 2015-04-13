@@ -66,11 +66,11 @@ public interface TerminologyDI {
 
     void cancel(ConceptVersionBI cv) throws IOException;
 
-    boolean commit() throws IOException;
+    void commit() throws IOException;
 
-    boolean commit(ConceptChronicleBI cc) throws IOException;
+    void commit(ConceptChronicleBI cc) throws IOException;
 
-    boolean commit(ConceptVersionBI cv) throws IOException;
+    void commit(ConceptVersionBI cv) throws IOException;
 
     ChangeSetGeneratorBI createDtoChangeSetGenerator(File changeSetFileName, File changeSetTempFileName,
             ChangeSetGenerationPolicy policy);

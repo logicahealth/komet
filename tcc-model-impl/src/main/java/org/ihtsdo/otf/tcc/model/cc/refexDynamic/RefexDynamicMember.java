@@ -56,6 +56,8 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeToClassUtility;
+
 
 
 /**
@@ -100,7 +102,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 }
                 else
                 {
-                    data_[i] = RefexDynamicData.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
+                    data_[i] = RefexDynamicTypeToClassUtility.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
                         assemblageNid, i);
                 }
             }
@@ -194,7 +196,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        buf.append(" refset:");
+        buf.append(" refex:");
         addNidToBuffer(buf, assemblageNid);
         buf.append(" rcNid:");
         addNidToBuffer(buf, referencedComponentNid);
@@ -217,7 +219,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return "refex: " + c1Component.toUserString(snapshot);
     }
 
-    //TODO [REFEX] no idea what this is for, or if we need it
+    //TODO (artf231857) [REFEX] no idea what this is for, or if we need it
 //    /**
 //     * Test method to check to see if two objects are equal in all respects.
 //     *
@@ -273,7 +275,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 idDirective, 
                 refexDirective);
 
-        rdc.setData(getData());
+        rdc.setData(getData(), vc);
         return rdc;
     }
 
@@ -454,7 +456,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 byte[] data = new byte[dataLength];
                 input.readFully(data);
                 
-                data_[i] = RefexDynamicData.typeToClass(dt, data, getAssemblageNid(), i);
+                data_[i] = RefexDynamicTypeToClassUtility.typeToClass(dt, data, getAssemblageNid(), i);
             }
         }
     }
@@ -472,23 +474,30 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
         //Write with the following format - 
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        output.writeInt(getData().length);
-        for (RefexDynamicDataBI column : getData())
+        if (getData() != null)
         {
-            if (column == null)
+            output.writeInt(getData().length);
+            for (RefexDynamicDataBI column : getData())
             {
-                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+                if (column == null)
+                {
+                    output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+                }
+                else
+                {
+                    output.writeInt(column.getRefexDataType().getTypeToken());
+                    output.writeInt(column.getData().length);
+                    output.write(column.getData());
+                }
             }
-            else
-            {
-                output.writeInt(column.getRefexDataType().getTypeToken());
-                output.writeInt(column.getData().length);
-                output.write(column.getData());
-            }
+        }
+        else
+        {
+            output.writeInt(0);
         }
     }
 
-
+    @Override
     protected IntArrayList getVariableVersionNids() {
        return new IntArrayList(2);
     }
@@ -567,6 +576,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         {
             data_ = data;
         }
+        modified();
     }
 
     /**
@@ -581,5 +591,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             throw new IndexOutOfBoundsException("Data size is " + temp.length + " columns.  Can't set column " + columnNumber);
         }
         temp[columnNumber] = data;
+        modified();
     }
 }

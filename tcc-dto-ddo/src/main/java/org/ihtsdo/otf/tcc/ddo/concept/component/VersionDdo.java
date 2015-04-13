@@ -11,6 +11,7 @@ import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
+import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.TimeReference;
 import org.ihtsdo.otf.tcc.ddo.concept.component.attribute.ConceptAttributesVersionDdo;
@@ -47,8 +48,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 })
 public abstract class VersionDdo implements Serializable {
    private static final long                          serialVersionUID    = 1;
-   public static UUID                                 unspecifiedUserUuid =
-      UUID.fromString("f7495b58-6630-3499-a44e-2052b5fcf06c");
+   public static UUID                                 unspecifiedUserUuid = TermAux.USER.getUuids()[0];
    private ComponentReference                       authorReference;
    private SimpleObjectProperty<ComponentReference> authorReferenceProperty;
    private TimeReference                                     fxTime;
