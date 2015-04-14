@@ -102,6 +102,7 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * @throws InvalidCAB
 	 * @throws PropertyVetoException
 	 */
+	//TODO dan hacking - try to get the VC back out as a parameter (here and one other place)
 	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexPreferredTerm, 
 			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, boolean annotationStyle, ComponentType referencedComponentRestriction,
 			ViewCoordinate vc) throws IOException, ContradictionException, InvalidCAB, PropertyVetoException
