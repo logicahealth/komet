@@ -1,7 +1,6 @@
 package gov.vha.isaac.ochre.api.progress;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.memory.MemoryUtil;
 import gov.vha.isaac.ochre.api.ticker.Ticker;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;

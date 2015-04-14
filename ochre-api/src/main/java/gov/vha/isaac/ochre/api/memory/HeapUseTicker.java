@@ -1,11 +1,6 @@
 package gov.vha.isaac.ochre.api.memory;
 
 import gov.vha.isaac.ochre.api.ticker.Ticker;
-import org.reactfx.EventStreams;
-import org.reactfx.Subscription;
-
-import java.time.Duration;
-import java.util.function.Consumer;
 
 /**
  * Created by kec on 4/9/15.
