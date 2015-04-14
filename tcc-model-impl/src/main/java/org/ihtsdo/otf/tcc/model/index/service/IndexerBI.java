@@ -157,7 +157,7 @@ public interface IndexerBI {
      * to make sure that the component's indexing is complete prior to performing
      * a search where the chronicle's results must be included.
      */
-    public Future<Long> index(SememeChronicle chronicle);
+    public Future<Long> index(SememeChronicle<?> chronicle);
     
     /**
      * Enables or disables an indexer. A disabled indexer will take
