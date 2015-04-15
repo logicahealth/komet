@@ -25,6 +25,9 @@ public class Snomed {
     public static ConceptSpec NEUROLOGICAL_FINDING =
             new ConceptSpec("Neurological finding (finding)",
             UUID.fromString("1e83c008-4be0-32e9-9224-a8af0237c5bb"));
+    public static ConceptSpec BLEEDING_FINDING =
+            new ConceptSpec("Bleeding (finding)",
+            UUID.fromString("89ce6b87-545b-3138-82c7-aafa76f8f9a0"));
     public static ConceptSpec BODY_STRUCTURE_REFSET =
             new ConceptSpec("Body structure (domain) refset",
             UUID.fromString("0acd09e5-a5f1-4880-82b2-2a5c273dca29"));

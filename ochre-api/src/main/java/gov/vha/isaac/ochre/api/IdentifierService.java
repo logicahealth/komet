@@ -6,6 +6,7 @@
 package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.RefexSequenceSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
 import java.util.Collection;
@@ -21,6 +22,10 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface IdentifierService {
+    
+    NidSet getComponentNidsForConceptNids(ConceptSequenceSet conceptSequenceSet);
+    
+    IntStream getComponentNidStream();
     
     int getConceptSequenceForComponentNid(int nid);
     void setConceptSequenceForComponentNid(int conceptSequence, int nid);
@@ -62,8 +67,10 @@ public interface IdentifierService {
     RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
     
     int getNidForUuids(Collection<UUID> uuids);
-    
     int getNidForUuids(UUID... uuids);
+    
+    int getConceptSequenceForUuids(Collection<UUID> uuids);
+    int getConceptSequenceForUuids(UUID... uuids);
     
     void addUuidForNid(UUID uuid, int nid);
 

@@ -26,7 +26,8 @@ public enum SememeType {
     CONCEPT_SEQUENCE((byte) 2),
     CONCEPT_SEQUENCE_TIME((byte) 3),
     LOGIC_GRAPH((byte) 4),
-    DYNAMIC((byte) 5);
+    STRING((byte) 5),
+    DYNAMIC((byte) 6);
 
     final byte sememeToken;
 
@@ -52,6 +53,8 @@ public enum SememeType {
             case 4:
                 return LOGIC_GRAPH;
             case 5:
+                return STRING;
+            case 6:
                 return DYNAMIC;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);

@@ -366,12 +366,12 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     @Override
     public int getSememeSequence() {
-        return getSequenceService().getSememeSequence(nid);
+        return getIdService().getSememeSequence(nid);
     }
 
     @Override
     public int getAssemblageSequence() {
-       return getSequenceService().getConceptSequence(getAssemblageNid());
+       return getIdService().getConceptSequence(getAssemblageNid());
     }
 
 }

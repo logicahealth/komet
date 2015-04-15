@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.sememe.version.StringSememe;
+import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import org.ihtsdo.otf.tcc.dto.UtfHelper;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
@@ -35,6 +37,11 @@ public class TtkRefexStringRevision extends TtkRevision {
    public TtkRefexStringRevision(RefexStringVersionBI another) throws IOException {
       super(another);
       this.string1 = another.getString1();
+   }
+
+   public TtkRefexStringRevision(StringSememe another) {
+      super(another);
+      this.string1 = another.getString();
    }
 
    public TtkRefexStringRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
