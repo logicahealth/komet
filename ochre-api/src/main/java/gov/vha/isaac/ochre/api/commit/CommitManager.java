@@ -18,13 +18,13 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface CommitManager {
     // should the change set get generated here?
-    void addAlias(int stamp, int stampAlias, String aliasCommitComment);
+    void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
     
-    int[] getAliases(int stamp);
+    int[] getAliases(int stampSequence);
     
-    void setComment(int stamp, String comment);
+    void setComment(int stampSequence, String comment);
     
-    Optional<String> getComment(int stamp);
+    Optional<String> getComment(int stampSequence);
     
     void addUncommitted(ChronicledConcept cc);
 
@@ -50,19 +50,21 @@ public interface CommitManager {
 
     long incrementAndGetSequence();
     
-    int getAuthorSequenceForStamp(int stamp);
+    int getAuthorSequenceForStamp(int stampSequence);
     
-    int getModuleSequenceForStamp(int stamp);
+    int getModuleSequenceForStamp(int stampSequence);
 
-    int getPathSequenceForStamp(int stamp);
+    int getPathSequenceForStamp(int stampSequence);
 
-    State getStatusForStamp(int stamp);
+    State getStatusForStamp(int stampSequence);
 
-    long getTimeForStamp(int stamp);
+    long getTimeForStamp(int stampSequence);
     
-    boolean isNotCanceled(int stamp);
+    boolean isNotCanceled(int stampSequence);
     
     int getStamp(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);
+    
+    String describeStampSequence(int stampSequence);
 
 }

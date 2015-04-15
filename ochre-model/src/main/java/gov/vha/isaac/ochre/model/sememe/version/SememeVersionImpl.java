@@ -61,6 +61,12 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
     public int getReferencedComponentNid() {
         return chronicle.getReferencedComponentNid();
     }
+
+    @Override
+    public String toString() {
+        return getSememeType().toString();
+    }
+
     
 
 }

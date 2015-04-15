@@ -298,4 +298,11 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
         return Arrays.asList(new UUID[] {getPrimordialUuid()});
     }
 
+    @Override
+    public String toString() {
+        return "ObjectChronicleImpl{" + "writeSequence=" + writeSequence + ", primordialUuid=" + new UUID(primordialUuidMsb, primordialUuidLsb) + 
+                ",\n  nid=" + nid + ", containerSequence=" + containerSequence + ", versionStartPosition=" + versionStartPosition + 
+                ",\n  versions" + getVersions() + '}';
+    }
+
 }

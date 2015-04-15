@@ -25,6 +25,7 @@ import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceTimeSememe;
 import gov.vha.isaac.ochre.api.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.api.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectChronicleImpl;
@@ -33,6 +34,7 @@ import gov.vha.isaac.ochre.model.sememe.version.ConceptSequenceSememeImpl;
 import gov.vha.isaac.ochre.model.sememe.version.ConceptSequenceTimeSememeImpl;
 import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
+import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.util.UUID;
 
 /**
@@ -74,6 +76,7 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
         data.putInt(referencedComponentNid);
     }
     
+    @Override
     public SememeType getSememeType() {
         return SememeType.getFromToken(sememeTypeToken);
     }
@@ -153,6 +156,17 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 }
                 break;
                 
+            case STRING:
+                if (StringSememe.class.isAssignableFrom(type)) {
+                    return (M) new StringSememeImpl((SememeChronicleImpl<StringSememeImpl>) this,
+                            status,
+                            Long.MAX_VALUE,
+                            ec.getAuthorSequence(),
+                            ec.getModuleSequence(), 
+                            ec.getPathSequence());
+                }
+                break;
+
             case MEMBER:
                 if (SememeVersion.class.isAssignableFrom(type)) {
                     return (M) new SememeVersionImpl(this,
@@ -193,10 +207,20 @@ public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChro
                 return new LogicGraphSememeImpl(container, stampSequence, bb);
             case DYNAMIC:
                 return new DynamicSememeImpl(container, stampSequence, bb);
+            case STRING:
+                return new StringSememeImpl(container, stampSequence, bb);
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }
         
+    }
+
+    @Override
+    public String toString() {
+        return "SememeChronicleImpl{" + 
+                "sememeType=" + SememeType.getFromToken(sememeTypeToken) + ", assemblageSequence=" + assemblageSequence + 
+                ", referencedComponentNid=" + referencedComponentNid + 
+                "\n " + super.toString() + '}';
     }
     
 }

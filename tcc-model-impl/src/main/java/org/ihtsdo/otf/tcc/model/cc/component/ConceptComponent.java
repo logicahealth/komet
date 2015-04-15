@@ -5,7 +5,11 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitManager;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.sememe.SememeService;
+import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +34,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
@@ -42,8 +47,6 @@ import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierString;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
@@ -58,8 +61,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_long.LongMember;
-import org.ihtsdo.otf.tcc.model.cc.refex.type_string.StringMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberVersion;
@@ -78,6 +79,14 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 public abstract class ConceptComponent<R extends Revision<R, C>, C extends ConceptComponent<R, C>>
         implements ComponentBI, ComponentVersionBI, IdBI, AnalogBI, AnalogGeneratorBI<R>,
         Comparable<ConceptComponent> {
+    
+    private static SememeService sememeService;
+    protected static SememeService getSememeService() {
+        if (sememeService == null) {
+            sememeService = LookupService.getService(SememeService.class);
+        }
+        return sememeService;
+    }
 
     private static CommitManager commitManager;
 
@@ -89,7 +98,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     }
     
     private static IdentifierService sequenceService = null;
-    protected static IdentifierService getSequenceService() {
+    protected static IdentifierService getIdService() {
         if (sequenceService == null) {
             sequenceService = LookupService.getService(IdentifierService.class);
         }
@@ -247,17 +256,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
     @Override
     public int getAuthorSequence() {
-        return getSequenceService().getConceptSequence(getAuthorNid());
+        return getIdService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getSequenceService().getConceptSequence(getModuleNid());
+        return getIdService().getConceptSequence(getModuleNid());
     }
 
     @Override
     public int getPathSequence() {
-       return getSequenceService().getConceptSequence(getPathNid());
+       return getIdService().getConceptSequence(getPathNid());
     }
     
     public IntStream getVersionStampSequences() {
@@ -816,63 +825,41 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 // Use the algorithm for member content UUIDs. 
                 // See method computeMemberContentUuid() in RefexCAB
                 switch (IDENTIFIER_PART_TYPES.getType(denotation.getClass())) {
+                    case STRING:
                     case LONG:
-                        TtkIdentifierLong longId = (TtkIdentifierLong) idv;
-                        UUID longMemberUuid = UuidT5Generator.get(refexSpecNamespace,
-                                RefexType.LONG.name()
+                        UUID strMemberUuid = UuidT5Generator.get(refexSpecNamespace,
+                                RefexType.STR.name()
                                 + idv.authorityUuid
                                 + new UUID(primordialMsb, primordialLsb).toString()
-                                + longId.denotation);
-
-                        StringMember longIdMember = new StringMember();
-                        longIdMember.enclosingConceptNid = this.enclosingConceptNid;
-                        longIdMember.setPrimordialUuid(longMemberUuid);
-                        longIdMember.nid = (PersistentStore.get().getNidForUuids(longMemberUuid));
-
-                        longIdMember.assemblageNid = PersistentStore.get().getNidForUuids(idv.authorityUuid);
-                        longIdMember.setReferencedComponentNid(nid);
-                        longIdMember.setString1(longId.getDenotation().toString());
-
-                        longIdMember.setSTAMP(
-                                PersistentStore.get().getStamp(idv.getStatus(),
-                                        idv.getTime(),
-                                        PersistentStore.get().getNidForUuids(idv.authorUuid),
-                                        PersistentStore.get().getNidForUuids(idv.moduleUuid),
-                                        PersistentStore.get().getNidForUuids(idv.pathUuid)));
-                        addAnnotation(longIdMember);
-
-                        break;
-
-                    case STRING:
-                        if (false) {
-                            TtkIdentifierString ids = (TtkIdentifierString) idv;
-                            UUID stringMemberUuid = UuidT5Generator.get(refexSpecNamespace,
-                                    RefexType.LONG.name()
-                                    + idv.authorityUuid
-                                    + new UUID(primordialMsb, primordialLsb).toString()
-                                    + ids.denotation);
-                            StringMember stringMember = new StringMember();
-
-                            stringMember.enclosingConceptNid = this.enclosingConceptNid;
-                            stringMember.setPrimordialUuid(stringMemberUuid);
-                            stringMember.nid = PersistentStore.get().getNidForUuids(stringMemberUuid);
-
-                            stringMember.assemblageNid = PersistentStore.get().getNidForUuids(idv.authorityUuid);
-                            stringMember.setReferencedComponentNid(nid);
-                            stringMember.setString1(ids.getDenotation());
-
-                            stringMember.setSTAMP(PersistentStore.get().getStamp(idv.getStatus(),
-                                    idv.getTime(),
-                                    PersistentStore.get().getNidForUuids(idv.authorUuid),
-                                    PersistentStore.get().getNidForUuids(idv.moduleUuid),
-                                    PersistentStore.get().getNidForUuids(idv.pathUuid)));
-                            addAnnotation(stringMember);
-                        } else {
-                            // TODO add back in conversions for string identifiers after 
-                            // we have other ways to remove them from SNOMED. 
+                                + denotation.toString());
+                        int sememeNid = PersistentStore.get().getNidForUuids(strMemberUuid);
+                        int containerSequence = getIdService().getSememeSequence(sememeNid);
+                        int assemblageSequence = getIdService().
+                                getConceptSequence(PersistentStore.get().
+                                        getNidForUuids(idv.authorityUuid));
+                        
+                        SememeChronicleImpl<StringSememeImpl> sememeChronicle =
+                                        new SememeChronicleImpl<>(
+                                            SememeType.STRING,
+                                            strMemberUuid,
+                                            sememeNid,
+                                            assemblageSequence,
+                                            nid, // referenced component
+                                            containerSequence
+                                    );                        
+                        EditCoordinateImpl editCoordinate = new EditCoordinateImpl(
+                                getIdService().getConceptSequenceForUuids(idv.authorUuid), 
+                                getIdService().getConceptSequenceForUuids(idv.moduleUuid), 
+                                getIdService().getConceptSequenceForUuids(idv.pathUuid));
+                        StringSememeImpl stringVersion = sememeChronicle.createMutableVersion(StringSememeImpl.class, State.ACTIVE, editCoordinate);
+                        stringVersion.setString(denotation.toString());
+                        stringVersion.setTime(idv.time);
+                        getSememeService().writeSememe(sememeChronicle);
+                        if (getPrimordialUuid().equals(Snomed.BLEEDING_FINDING.getUuids()[0])) {
+                            System.out.println("Bleeding-finding id sememe: " + sememeChronicle);
                         }
-
                         break;
+
 
                     case UUID:
                         additionalIdVersions.add(new IdentifierVersionUuid((TtkIdentifierUuid) idv));
@@ -1746,7 +1733,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
     @Override
     public int getContainerSequence() {
-       return getSequenceService().getConceptSequence(nid);
+       return getIdService().getConceptSequence(nid);
     }
     
     
