@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.api;
 
 import java.awt.GraphicsEnvironment;
+import com.sun.javafx.application.PlatformImpl;
 import java.lang.annotation.Annotation;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;

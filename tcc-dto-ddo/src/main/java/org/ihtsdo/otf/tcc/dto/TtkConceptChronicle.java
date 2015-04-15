@@ -7,6 +7,7 @@ import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
 import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
+import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
@@ -203,20 +204,24 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
 
             media.add(tkMedia);
         }
-
-        c.getSememeChronicles().forEach((SememeChronicle sc) -> {
-            if (refsetMembers == null) {
-                refsetMembers = new ArrayList<>();
-            }
-            switch (sc.getSememeType()) {
-                case LOGIC_GRAPH:
-                    TtkLogicGraphMemberChronicle lgmc = new TtkLogicGraphMemberChronicle((SememeChronicleImpl<LogicGraphSememeImpl>) sc);
-                    refsetMembers.add(lgmc);
-                    break;
-                default:
-                    throw new UnsupportedOperationException(sc.getSememeType() + " not supported yet.");
-            }
-        });
+//TODO need seperate change set entries for sememes
+//        c.getSememeChronicles().forEach((SememeChronicle sc) -> {
+//            if (refsetMembers == null) {
+//                refsetMembers = new ArrayList<>();
+//            }
+//            switch (sc.getSememeType()) {
+//                case LOGIC_GRAPH:
+//                    TtkLogicGraphMemberChronicle lgmc = new TtkLogicGraphMemberChronicle((SememeChronicleImpl<LogicGraphSememeImpl>) sc);
+//                    refsetMembers.add(lgmc);
+//                    break;
+//                case STRING:
+//                    TtkRefexStringMemberChronicle smc = new TtkRefexStringMemberChronicle((SememeChronicleImpl<StringSememeImpl>) sc);
+//                    refsetMembers.add(smc);
+//                    break;
+//                default:
+//                    throw new UnsupportedOperationException(sc.getSememeType() + " not supported yet.");
+//            }
+//        });
 
         if (!c.isAnnotationStyleRefex()) {
             Collection<? extends RefexChronicleBI> members = c.getRefsetMembers();

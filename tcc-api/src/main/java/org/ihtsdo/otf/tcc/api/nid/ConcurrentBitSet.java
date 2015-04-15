@@ -78,13 +78,6 @@ public class ConcurrentBitSet implements NativeIdSetBI {
         bitSetList = new CopyOnWriteArrayList<>(initialSets);
     }
     
-    public ConcurrentBitSet(NidSet nidSet) {
-        this(nidSet.getReverseIntIterator().next());
-        nidSet.stream().forEach((int value) -> {
-            set(value);
-        });
-    }
-
     public ConcurrentBitSet(NativeIdSetBI nativeIdSet) {
         this(nativeIdSet.getMaxPossibleId());
 

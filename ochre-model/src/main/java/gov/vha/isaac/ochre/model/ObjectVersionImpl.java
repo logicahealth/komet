@@ -172,5 +172,10 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     public List<UUID> getUUIDs() {
         return chronicle.getUUIDs();
     }
+
+    @Override
+    public String toString() {
+        return ", stampSequence=" + stampSequence + " " + getCommitManager().describeStampSequence(stampSequence);
+    }
     
 }

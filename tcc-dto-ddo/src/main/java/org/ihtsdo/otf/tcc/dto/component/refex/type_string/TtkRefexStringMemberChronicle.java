@@ -2,6 +2,9 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
+import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
@@ -17,6 +20,7 @@ import java.io.IOException;
 
 import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
+import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
 import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
@@ -53,6 +57,19 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
          }
       }
    }
+
+    public TtkRefexStringMemberChronicle(SememeChronicleImpl<StringSememeImpl> another) {
+      super(another);
+      List<StringSememeImpl> stringVersions = another.getVersions();
+        
+      this.string1 = stringVersions.get(0).getString();
+
+      for (int index = 1; index < stringVersions.size(); index++) {
+         TtkRefexStringRevision rev = new TtkRefexStringRevision(stringVersions.get(index));
+         revisions.add(rev);
+      }
+   }
+
 
    public TtkRefexStringMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
