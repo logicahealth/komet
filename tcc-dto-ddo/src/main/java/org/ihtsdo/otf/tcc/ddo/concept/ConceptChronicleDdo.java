@@ -13,6 +13,7 @@ import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
@@ -180,12 +181,12 @@ public class ConceptChronicleDdo implements Serializable {
 
         if (((refexPolicy == RefexPolicy.ANNOTATION_MEMBERS_AND_REFSET_MEMBERS)
                 || (refexPolicy == RefexPolicy.REFEX_MEMBERS_AND_REFSET_MEMBERS)) && !c.isAnnotationStyleRefex()) {
-            Collection<? extends RefexChronicleBI> members = c.getRefsetMembers();
+            Collection<? extends RefexChronicleBI<?>> members = c.getRefsetMembers();
 
             if (members != null) {
                 _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(members.size()));
 
-                for (RefexChronicleBI m : members) {
+                for (RefexChronicleBI<?> m : members) {
                     RefexChronicleDdo<?, ?> member = convertRefex(ss, m);
 
                     if ((member != null) && !member.getVersions().isEmpty()) {
@@ -227,7 +228,7 @@ public class ConceptChronicleDdo implements Serializable {
 
         NEXT_REL:
         for (RelationshipChronicleBI rel : relsIncoming) {
-            RelationshipVersionBI relVersion = rel.getPrimordialVersion();
+            RelationshipVersionBI<?> relVersion = rel.getPrimordialVersion();
 
             switch (ss.getViewCoordinate().getRelationshipAssertionType()) {
                 case INFERRED:
@@ -254,7 +255,7 @@ public class ConceptChronicleDdo implements Serializable {
 
             boolean foundType = false;
 
-            for (RelationshipVersionBI rv : rel.getVersions(ss.getViewCoordinate())) {
+            for (RelationshipVersionBI<?> rv : rel.getVersions(ss.getViewCoordinate())) {
                 if (isaNid == rv.getTypeNid()) {
                     foundType = true;
 
@@ -275,13 +276,13 @@ public class ConceptChronicleDdo implements Serializable {
                 && (ss.getViewCoordinate().getRelationshipAssertionType()
                 == RelAssertionType.INFERRED_THEN_STATED)) {
             for (RelationshipChronicleBI rel : relsIncoming) {
-                RelationshipVersionBI relVersion = rel.getPrimordialVersion();
+                RelationshipVersionBI<?> relVersion = rel.getPrimordialVersion();
 
                 if (relVersion.isStated()) {
                     boolean foundType = false;
 
-                    for (RelationshipVersionBI rv : rel.getVersions(ss.getViewCoordinate())) {
-                        if (isaNid != rv.getTypeNid()) {
+                    for (RelationshipVersionBI<?> rv : rel.getVersions(ss.getViewCoordinate())) {
+                        if (isaNid == rv.getTypeNid()) {
                             foundType = true;
 
                             break;
@@ -332,17 +333,19 @@ public class ConceptChronicleDdo implements Serializable {
 
                 switch (ss.getViewCoordinate().getRelationshipAssertionType()) {
                     case INFERRED:
-                        if (!(fxv.getAuthorReference().getNid() == ss.getViewCoordinate().getClassifierNid())) {
+                        if (fxv.getCharacteristicReference().getNid() != SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid()) {
                             toRemove.add(fxv);
                         }
 
                         break;
 
                     case STATED:
-                        if (fxv.getAuthorReference().getNid() == ss.getViewCoordinate().getClassifierNid()) {
+                        if (fxv.getCharacteristicReference().getNid() != SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid()) {
                             toRemove.add(fxv);
                         }
 
+                        break;
+                    case INFERRED_THEN_STATED:
                         break;
                 }
             }

@@ -36,6 +36,7 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.metadata.ComponentType;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
@@ -45,16 +46,21 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicArrayBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexBoolean;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexByteArray;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDouble;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexFloat;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexInteger;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexLong;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexNid;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexString;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexUUID;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicBoolean;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicInteger;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicString;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicUUID;
 
 /**
  * {@link RefexDynamicUsageDescriptionBuilder}
@@ -77,37 +83,50 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * 
 	 * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Refex.
 	 * 
-	 * The concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_TYPES} if a parent is not specified
+	 * The concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_IDENTITY} if a parent is not specified
 	 * 
-	 * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
-	 * @param parentConcept - option - if null, uses {@link RefexDynamic#REFEX_DYNAMIC_TYPES}
-	 * @throws InvalidCAB 
-	 * @throws PropertyVetoException 
+	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
+	 * @param refexFSN - The FSN for this refex concept that will be created.
+	 * @param refexPreferredTerm - The preferred term for this refex concept that will be created.
+	 * @param refexDescription - A user friendly string the explains the overall intended purpose of this refex (what it means, what it stores)
+	 * @param columns - The column information for this new refex.  May be an empty list or null.
+	 * @param parentConcept  - optional - if null, uses {@link RefexDynamic#REFEX_DYNAMIC_IDENTITY}
+	 * @param annotationStyle - true for annotation style storage, false for memberset storage
+	 * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or 
+	 * UUID that is set for the referenced component in an instance of this refex.  If {@link ComponentType#UNKNOWN} is passed, it is ignored, as 
+	 * if it were null.
+	 * @param vc view coordinate -  highly recommended that you use ViewCoodinates.getMetadataViewCoordinate()
+	 * @return a reference to the newly created refex item
+	 * @throws IOException
+	 * @throws ContradictionException
+	 * @throws InvalidCAB
+	 * @throws PropertyVetoException
 	 */
+	//TODO dan hacking - try to get the VC back out as a parameter (here and one other place)
 	public static RefexDynamicUsageDescription createNewRefexDynamicUsageDescriptionConcept(String refexFSN, String refexPreferredTerm, 
-			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, boolean annotationStyle, EditCoordinate ec, ViewCoordinate vc) throws 
-			IOException, ContradictionException, InvalidCAB, PropertyVetoException
+			String refexDescription, RefexDynamicColumnInfo[] columns, UUID parentConcept, boolean annotationStyle, ComponentType referencedComponentRestriction,
+			ViewCoordinate vc) throws IOException, ContradictionException, InvalidCAB, PropertyVetoException
 	{
 		LanguageCode lc = LanguageCode.EN_US;
 		UUID isA = Snomed.IS_A.getUuids()[0];
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = TermAux.TERM_AUX_MODULE.getUuids()[0];
 		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.REFEX_DYNAMIC_IDENTITY.getUuids()[0] : parentConcept };
-                UUID path = null; // TODO get the path set right...
+		UUID path = null; // TODO get the path set right...
 
 		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, path, parents);
 		cab.setAnnotationRefexExtensionIdentity(annotationStyle);
 		
-		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(), Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0], lc, refexDescription, false,
+		DescriptionCAB dCab = new DescriptionCAB(cab.getComponentUuid(), Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0], lc, refexDescription, true,
 				IdDirective.GENERATE_HASH);
 		dCab.getProperties().put(ComponentProperty.MODULE_ID, module);
 		
-		//Mark it as acceptable
-		RefexCAB rCabAcceptable = new RefexCAB(RefexType.CID, dCab.getComponentUuid(), 
+		//Mark it as preferred
+		RefexCAB rCabPreferred = new RefexCAB(RefexType.CID, dCab.getComponentUuid(), 
 				Snomed.US_LANGUAGE_REFEX.getUuids()[0], IdDirective.GENERATE_HASH, RefexDirective.EXCLUDE);
-		rCabAcceptable.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0]);
-		rCabAcceptable.getProperties().put(ComponentProperty.MODULE_ID, module);
-		dCab.addAnnotationBlueprint(rCabAcceptable);
+		rCabPreferred.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
+		rCabPreferred.getProperties().put(ComponentProperty.MODULE_ID, module);
+		dCab.addAnnotationBlueprint(rCabPreferred);
 		
 		RefexDynamicCAB descriptionMarker = new RefexDynamicCAB(dCab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0]);
 		dCab.addAnnotationBlueprint(descriptionMarker);
@@ -118,85 +137,121 @@ public class RefexDynamicUsageDescriptionBuilder
 		{
 			//Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right order.
 			TreeSet<RefexDynamicColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
-			RefexDynamicUsageDescription descriptorForADescriptor = RefexDynamicUsageDescription.read(RefexDynamic.REFEX_DYNAMIC_DEFINITION.getNid());
 			
 			for (RefexDynamicColumnInfo ci : sortedColumns)
 			{
 				RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0]);
 				
-				RefexDynamicDataBI[] data = new RefexDynamicDataBI[4];
+				RefexDynamicDataBI[] data = new RefexDynamicDataBI[7];
 				
-				data[0] = new RefexInteger(ci.getColumnOrder(), descriptorForADescriptor.getColumnInfo()[0].getColumnName());
-				data[1] = new RefexUUID(ci.getColumnDescriptionConcept(), descriptorForADescriptor.getColumnInfo()[1].getColumnName());
+				data[0] = new RefexDynamicInteger(ci.getColumnOrder());
+				data[1] = new RefexDynamicUUID(ci.getColumnDescriptionConcept());
 				if (RefexDynamicDataType.UNKNOWN == ci.getColumnDataType())
 				{
 					throw new InvalidCAB("Error in column - if default value is provided, the type cannot be polymorphic");
 				}
-				data[2] = new RefexString(ci.getColumnDataType().name(), descriptorForADescriptor.getColumnInfo()[2].getColumnName());
-				if (ci.getDefaultColumnValue() != null)
-				{
-					try
-					{
-						if (RefexDynamicDataType.BOOLEAN == ci.getColumnDataType())
-						{
-							data[3] = new RefexBoolean((Boolean)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.BYTEARRAY == ci.getColumnDataType())
-						{
-							data[3] = new RefexByteArray((byte[])ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.DOUBLE == ci.getColumnDataType())
-						{
-							data[3] = new RefexDouble((Double)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.FLOAT == ci.getColumnDataType())
-						{
-							data[3] = new RefexFloat((Float)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.INTEGER == ci.getColumnDataType())
-						{
-							data[3] = new RefexInteger((Integer)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.LONG == ci.getColumnDataType())
-						{
-							data[3] = new RefexLong((Long)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.NID == ci.getColumnDataType())
-						{
-							data[3] = new RefexNid((Integer)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.STRING == ci.getColumnDataType())
-						{
-							data[3] = new RefexString((String)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.UUID == ci.getColumnDataType())
-						{
-							data[3] = new RefexUUID((UUID)ci.getDefaultColumnValue(), descriptorForADescriptor.getColumnInfo()[3].getColumnName());
-						}
-						else if (RefexDynamicDataType.POLYMORPHIC == ci.getColumnDataType())
-						{
-							throw new InvalidCAB("Error in column - if default value is provided, the type cannot be polymorphic");
-						}
-					}
-					catch (ClassCastException e)
-					{
-						throw new InvalidCAB("Error in column - if default value is provided, the type must be compatible with the the column descriptor type");
-					}
-				}
-				else
-				{
-					data[3] = null;
-				}
-				rCab.setData(data);
+				data[2] = new RefexDynamicString(ci.getColumnDataType().name());
+				data[3] = convertPolymorphicDataColumn(ci.getDefaultColumnValue(), ci.getColumnDataType());
+				data[4] = new RefexDynamicBoolean(ci.isColumnRequired());
+				data[5] = (ci.getValidator() == null ? null : new RefexDynamicString(ci.getValidator().name()));
+				data[6] = (ci.getValidatorData() == null ? null : convertPolymorphicDataColumn(ci.getValidatorData(), ci.getValidatorData().getRefexDataType()));
+				rCab.setData(data, null);  //View Coordinate is only used to evaluate validators - but there are no validators assigned to the RefexDefinition refex
+				//so we can get away with passing null
 				//TODO file a another bug, this API is atrocious.  If you put the annotation on the concept, it gets silently ignored.
 				cab.getConceptAttributeAB().addAnnotationBlueprint(rCab);
 			}
 		}
 		
-		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(ec, vc).construct(cab);
+		if (referencedComponentRestriction != null && ComponentType.UNKNOWN != referencedComponentRestriction)
+		{
+			RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getUuids()[0]);
+			
+			RefexDynamicDataBI[] data = new RefexDynamicDataBI[1];
+			data[0] = new RefexDynamicString(referencedComponentRestriction.name());
+			rCab.setData(data, null);  //View Coordinate is only used to evaluate validators - but there are no validators assigned to the RefexDefinition refex
+			//so we can get away with passing null
+			cab.getConceptAttributeAB().addAnnotationBlueprint(rCab);
+		}
+		
+		//Build this on the lowest level path, otherwise, other code that references this will fail (as it doesn't know about custom paths)
+		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
+				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
+						TermAux.TERM_AUX_MODULE.getLenient().getNid(), 
+						TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
+				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit(newCon);
 		
 		return new RefexDynamicUsageDescription(newCon.getConceptNid());
+	}
+	
+	private static RefexDynamicDataBI convertPolymorphicDataColumn(RefexDynamicDataBI defaultValue, RefexDynamicDataType columnType) 
+			throws PropertyVetoException, InvalidCAB
+	{
+		RefexDynamicDataBI result;
+		
+		if (defaultValue != null)
+		{
+			try
+			{
+				if (RefexDynamicDataType.BOOLEAN == columnType)
+				{
+					result = (RefexDynamicBooleanBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.BYTEARRAY == columnType)
+				{
+					result = (RefexDynamicByteArrayBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.DOUBLE == columnType)
+				{
+					result = (RefexDynamicDoubleBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.FLOAT == columnType)
+				{
+					result = (RefexDynamicFloatBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.INTEGER == columnType)
+				{
+					result = (RefexDynamicIntegerBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.LONG == columnType)
+				{
+					result = (RefexDynamicLongBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.NID == columnType)
+				{
+					result = (RefexDynamicNidBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.STRING == columnType)
+				{
+					result = (RefexDynamicStringBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.UUID == columnType)
+				{
+					result = (RefexDynamicUUIDBI)defaultValue;
+				}
+				else if (RefexDynamicDataType.ARRAY == columnType)
+				{
+					result = (RefexDynamicArrayBI<?>)defaultValue;
+				}
+				else if (RefexDynamicDataType.POLYMORPHIC == columnType)
+				{
+					throw new InvalidCAB("Error in column - if default value is provided, the type cannot be polymorphic");
+				}
+				else
+				{
+					throw new InvalidCAB("Actually, the implementation is broken.  Ooops.");
+				}
+			}
+			catch (ClassCastException e)
+			{
+				throw new InvalidCAB("Error in column - if default value is provided, the type must be compatible with the the column descriptor type");
+			}
+		}
+		else
+		{
+			result = null;
+		}
+		return result;
 	}
 }

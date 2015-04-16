@@ -208,9 +208,38 @@ public interface TerminologyStoreDI extends TerminologyDI {
     boolean hasPath(int nid) throws IOException;
 
     boolean hasUncommittedChanges();
+    
+    /**
+     * Returns true or false based on whether the data store contains a concept with the specified UUID.  A UUID must be provided, passing
+     * null will result in a runtime exception, not false.
+     * @throws IllegalArgumentException if the memberUUID is null
+     */
+    boolean hasConcept(UUID cUUID);
+    
+    boolean hasConcept(int cNid);
 
+    /**
+     * Returns true or false based on whether the data store contains the specified UUID.  A UUID must be provided, passing null will 
+     * result in a runtime exception, not false.
+     * 
+     * Note that this returns true, if any caller has ever called getComponent(...) for this particular UUID... so, this method is pretty much 
+     * pointless.  It only tells you if the DB has a mapping from NID to UUID.  It doesn't tell you if the DB actually contains anything 
+     * interesting associated with this UUID.
+     * 
+     * @throws IllegalArgumentException if the memberUUID is null
+     */
     boolean hasUuid(UUID memberUUID);
 
+    /**
+     * Returns true or false based on whether the data store contains the specified UUID.  A UUID must be provided, passing null will 
+     * result in a runtime exception, not false.
+     * 
+     * Note that this returns true, if any caller has ever called getComponent(...) for this particular UUID... so, this method is pretty much 
+     * pointless.  It only tells you if the DB has a mapping from NID to UUID.  It doesn't tell you if the DB actually contains anything 
+     * interesting associated with this UUID.
+     * 
+     * @throws IllegalArgumentException if the memberUUIDs is null
+     */
     boolean hasUuid(List<UUID> memberUUIDs);
 
     long getSequence();

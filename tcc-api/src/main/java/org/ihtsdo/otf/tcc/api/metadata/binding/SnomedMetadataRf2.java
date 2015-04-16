@@ -226,4 +226,12 @@ public class SnomedMetadataRf2 {
     public static ConceptSpec NON_HUMAN_RF2 =
             new ConceptSpec("Non-human simple reference set",
             UUID.fromString("b1b1e773-3eb6-3bcc-a6c7-52ac5d0a53be"));
+    
+    public static ConceptSpec DESCRIPTION_SOURCE_TYPE_RF2 =
+            new ConceptSpec("Description source type reference set (foundation metadata concept)",
+            UUID.fromString("7a7ea0e1-b244-5328-8b8a-3f61c1719db0"));
+    
+    public static ConceptSpec DESCRIPTION_NAME_IN_SOURCE_TERM_RF2 =
+            new ConceptSpec("Description name in source terminology (foundation metadata concept)",
+            UUID.fromString("6900356b-edf5-56e1-9bb1-40efe9bec403"));
 }

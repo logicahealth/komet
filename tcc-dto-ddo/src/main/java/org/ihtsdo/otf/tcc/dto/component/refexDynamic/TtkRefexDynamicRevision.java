@@ -17,7 +17,7 @@ import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 public class TtkRefexDynamicRevision extends TtkRevision
 {
 	public static final long serialVersionUID = 1;
-	//TODO [REFEX] the XML tags are not yet tested - may not be correct
+	//TODO (artf231861) [REFEX] the XML tags are not yet tested - may not be correct
 	@XmlElement private TtkRefexDynamicData[] data_;
 
 	public TtkRefexDynamicRevision()
@@ -44,14 +44,11 @@ public class TtkRefexDynamicRevision extends TtkRevision
 	public TtkRefexDynamicRevision(TtkRefexDynamicRevision another, ComponentTransformerBI transformer)
 	{
 		super(another, transformer);
-		this.data_ = another.data_;  //TODO [REFEX] do we need transformer support for the data?  No idea what it is used for.
+		this.data_ = another.data_;  //TODO (artf231855) [REFEX] do we need transformer support for the data?  No idea what it is used for.
 	}
 
 	//~--- methods -------------------------------------------------------------
-    @Override
-    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
-        throw new UnsupportedOperationException();
-    }
+
 	/**
 	 * Compares this object to the specified object. The result is {@code true} if and only if the argument is not {@code null}, is a
 	 * {@code ERefsetLongVersion} object, and contains the same values, field by field,
@@ -138,19 +135,26 @@ public class TtkRefexDynamicRevision extends TtkRevision
 	{
 		super.writeExternal(output);
 		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-		output.writeInt(getData().length);
-		for (TtkRefexDynamicData column : getData())
+		if (getData() != null)
 		{
-			if (column == null)
+			output.writeInt(getData().length);
+			for (TtkRefexDynamicData column : getData())
 			{
-				output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+				if (column == null)
+				{
+					output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+				}
+				else
+				{
+					output.writeInt(column.getRefexDataType().getTypeToken());
+					output.writeInt(column.getData().length);
+					output.write(column.getData());
+				}
 			}
-			else
-			{
-				output.writeInt(column.getRefexDataType().getTypeToken());
-				output.writeInt(column.getData().length);
-				output.write(column.getData());
-			}
+		}
+		else
+		{
+			output.writeInt(0);
 		}
 	}
 
@@ -162,5 +166,12 @@ public class TtkRefexDynamicRevision extends TtkRevision
 	public void setData(TtkRefexDynamicData[] data)
 	{
 		data_ = data;
+	}
+	
+	//TODO Dan hack - whats this?
+	@Override
+	protected void addUuidReferencesForRevisionComponent(Collection<UUID> references)
+	{
+		throw new UnsupportedOperationException();
 	}
 }

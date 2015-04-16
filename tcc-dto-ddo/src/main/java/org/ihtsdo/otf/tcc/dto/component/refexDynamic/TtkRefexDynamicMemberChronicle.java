@@ -28,7 +28,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 
 	@XmlAttribute public UUID componentUuid;
 	@XmlAttribute public UUID refexAssemblageUuid;
-	//TODO [REFEX] the XML tags are not yet tested - may not be correct
+	//TODO (artf231861) [REFEX] the XML tags are not yet tested - may not be correct
 	@XmlElement private TtkRefexDynamicData[] data_;
 
 	public TtkRefexDynamicMemberChronicle()
@@ -45,7 +45,14 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		this.data_ = new TtkRefexDynamicData[another.getData().length];
 		for (int i = 0; i < data_.length; i++)
 		{
-			data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getRefexDataType(), another.getData()[i].getData());
+			if (another.getData()[i] == null)
+			{
+				data_[i] = null;
+			}
+			else
+			{
+				data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getRefexDataType(), another.getData()[i].getData());
+			}
 		}
 
 		Collection<? extends RefexDynamicVersionBI<?>> refexes = another.getVersions();
@@ -75,10 +82,18 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		Iterator<? extends RefexDynamicVersionBI<?>> itr = refexes.iterator();
 		RefexDynamicVersionBI<?> rv = itr.next();
 
+		//TODO (artf231859) [REFEX] seems to be duplicating work done in the other constructor called above... look at this closer.
 		this.data_ = new TtkRefexDynamicData[rv.getData().length];
 		for (int i = 0; i < data_.length; i++)
 		{
-			data_[i] = TtkRefexDynamicData.typeToClass(rv.getData()[i].getRefexDataType(), rv.getData()[i].getData());
+			if (rv.getData()[i] == null)
+			{
+				data_[i] = null;
+			}
+			else
+			{
+				data_[i] = TtkRefexDynamicData.typeToClass(rv.getData()[i].getRefexDataType(), rv.getData()[i].getData());
+			}
 		}
 
 		if (partCount > 1)
@@ -105,7 +120,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 
 		this.componentUuid = transformer.transform(another.componentUuid, another, ComponentFields.REFEX_REFERENCED_COMPONENT_UUID);
 		this.refexAssemblageUuid = transformer.transform(another.refexAssemblageUuid, another, ComponentFields.ASSEMBLAGE_UUID);
-		//TODO [REFEX] do I need a transformer?
+		//TODO (artf231854) [REFEX] do I need a transformer?
 		this.data_ = new TtkRefexDynamicData[another.getData().length];
 		for (int i = 0; i < data_.length; i++)
 		{
@@ -120,12 +135,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		}
 	}
 
-    @Override
-    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
+	/**
 	 * Returns a hash code for this {@code ERefset}.
 	 *
 	 * @return a hash code value for this {@code ERefset}.
@@ -186,19 +196,26 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		out.writeLong(componentUuid.getLeastSignificantBits());
 
 		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-		out.writeInt(getData().length);
-		for (TtkRefexDynamicData column : getData())
+		if (getData() != null)
 		{
-			if (column == null)
+			out.writeInt(getData().length);
+			for (TtkRefexDynamicData column : getData())
 			{
-				out.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+				if (column == null)
+				{
+					out.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+				}
+				else
+				{
+					out.writeInt(column.getRefexDataType().getTypeToken());
+					out.writeInt(column.getData().length);
+					out.write(column.getData());
+				}
 			}
-			else
-			{
-				out.writeInt(column.getRefexDataType().getTypeToken());
-				out.writeInt(column.getData().length);
-				out.write(column.getData());
-			}
+		}
+		else
+		{
+			out.writeInt(0);
 		}
 
 		if (revisions == null)
@@ -275,7 +292,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 				return false;
 			}
 
-			// Compare referencedComponentUuid
+			// Compare componentUuid
 			if (!this.componentUuid.equals(another.componentUuid))
 			{
 				return false;
@@ -324,5 +341,12 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 	public List<TtkRefexDynamicRevision> getRevisionList()
 	{
 		return revisions;
+	}
+
+	//TODO Dan hack - whats this?
+	@Override
+	protected void addUuidReferencesForRevisionComponent(Collection<UUID> references)
+	{
+		throw new UnsupportedOperationException();
 	}
 }

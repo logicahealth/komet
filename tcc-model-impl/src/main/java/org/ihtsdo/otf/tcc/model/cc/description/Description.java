@@ -184,6 +184,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         buf.append(" lang:").append(this.getLang());
         buf.append(" ");
         buf.append(super.toString());
+        buf.append("}");
 
         return buf.toString();
     }

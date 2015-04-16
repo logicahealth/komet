@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.UUID;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -56,11 +57,13 @@ public class ComponentReference implements Externalizable {
         nid = concept.getNid();
         uuidMsb = concept.getPrimordialUuid().getMostSignificantBits();
         uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
-        DescriptionVersionBI description = concept.getPreferredDescription();
+        DescriptionVersionBI<?> description = concept.getPreferredDescription();
         if (description == null) {
-            System.out.println("Concept with no preferred description: " + concept);
+            text = concept.getPrimordialUuid().toString();
+            Logger.getLogger(ComponentReference.class.getName()).warning("Concept with no preferred description: " + concept.getPrimordialUuid() 
+                + " nid(" + concept.getNid() + ")");
         } else {
-            text = concept.getPreferredDescription().getText();
+            text = description.getText();
             if (concept.getConceptAttributesActive() != null
                     && concept.getConceptAttributesActive().isDefined()) {
                 definitionalState = DefinitionalState.NECESSARY_AND_SUFFICIENT;

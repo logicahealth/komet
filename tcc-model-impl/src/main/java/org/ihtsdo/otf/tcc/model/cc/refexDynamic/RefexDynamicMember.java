@@ -56,6 +56,8 @@ import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeToClassUtility;
+
 
 
 /**
@@ -64,7 +66,6 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("deprecation")
 public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, RefexDynamicMember> implements RefexDynamicChronicleBI<RefexDynamicRevision>, 
     RefexDynamicVersionBI<RefexDynamicRevision>, RefexDynamicBuilderBI
 {
@@ -100,7 +101,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 }
                 else
                 {
-                    data_[i] = RefexDynamicData.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
+                    data_[i] = RefexDynamicTypeToClassUtility.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
                         assemblageNid, i);
                 }
             }
@@ -194,7 +195,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        buf.append(" refset:");
+        buf.append(" refex:");
         addNidToBuffer(buf, assemblageNid);
         buf.append(" rcNid:");
         addNidToBuffer(buf, referencedComponentNid);
@@ -217,7 +218,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return "refex: " + c1Component.toUserString(snapshot);
     }
 
-    //TODO [REFEX] no idea what this is for, or if we need it
+    //TODO (artf231857) [REFEX] no idea what this is for, or if we need it
 //    /**
 //     * Test method to check to see if two objects are equal in all respects.
 //     *
@@ -273,7 +274,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 idDirective, 
                 refexDirective);
 
-        rdc.setData(getData());
+        rdc.setData(getData(), vc);
         return rdc;
     }
 
@@ -435,30 +436,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         return Arrays.deepEquals(getData(), another);
     }
 
-    protected void readMemberFields(DataInputStream input) throws IOException {
-
-        //read the following format - 
-        //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        int colCount = input.readInt();
-        data_ = new RefexDynamicDataBI[colCount];
-        for (int i = 0; i < colCount; i++)
-        {
-            RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());
-            if (dt == RefexDynamicDataType.UNKNOWN)
-            {
-                data_[i] = null;
-            }
-            else
-            {
-                int dataLength = input.readInt();
-                byte[] data = new byte[dataLength];
-                input.readFully(data);
-                
-                data_[i] = RefexDynamicData.typeToClass(dt, data, getAssemblageNid(), i);
-            }
-        }
-    }
-
     protected final RefexDynamicRevision readMemberRevision(DataInputStream input) throws IOException {
        return new RefexDynamicRevision(input, this);
     }
@@ -472,25 +449,27 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
         //Write with the following format - 
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
-        output.writeInt(getData().length);
-        for (RefexDynamicDataBI column : getData())
+        if (getData() != null)
         {
-            if (column == null)
+            output.writeInt(getData().length);
+            for (RefexDynamicDataBI column : getData())
             {
-                output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
-            }
-            else
-            {
-                output.writeInt(column.getRefexDataType().getTypeToken());
-                output.writeInt(column.getData().length);
-                output.write(column.getData());
+                if (column == null)
+                {
+                    output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+                }
+                else
+                {
+                    output.writeInt(column.getRefexDataType().getTypeToken());
+                    output.writeInt(column.getData().length);
+                    output.write(column.getData());
+                }
             }
         }
-    }
-
-
-    protected IntArrayList getVariableVersionNids() {
-       return new IntArrayList(2);
+        else
+        {
+            output.writeInt(0);
+        }
     }
 
     protected VersionComputer<RefexDynamicMemberVersion> getVersionComputer() {
@@ -567,6 +546,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         {
             data_ = data;
         }
+        modified();
     }
 
     /**
@@ -581,5 +561,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             throw new IndexOutOfBoundsException("Data size is " + temp.length + " columns.  Can't set column " + columnNumber);
         }
         temp[columnNumber] = data;
+        modified();
     }
 }

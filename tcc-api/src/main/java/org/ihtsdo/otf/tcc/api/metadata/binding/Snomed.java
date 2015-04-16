@@ -123,7 +123,9 @@ public class Snomed {
     public static ConceptSpec GB_LANGUAGE_REFEX =
             new ConceptSpec("Great Britain English language reference set (foundation metadata concept)",
             UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
-    
+    public static ConceptSpec LANGUAGE_REFEX =
+            new ConceptSpec("Language type reference set (foundation metadata concept)",
+            UUID.fromString("84a0b03b-220c-3d69-8487-2e019c933687"));
     
     //Concept Specs for context sensitive role relationships
     public static ConceptSpec ACCESS =

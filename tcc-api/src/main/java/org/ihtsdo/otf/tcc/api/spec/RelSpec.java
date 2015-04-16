@@ -31,25 +31,30 @@ import org.ihtsdo.otf.tcc.api.constraint.RelConstraintOutgoing;
 public class RelSpec implements SpecBI {
 
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = 1L;
 
-    private static final int dataVersion = 1;
+    private static final int dataVersion = 2;
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeInt(dataVersion);
         out.writeObject(originSpec);
         out.writeObject(relTypeSpec);
         out.writeObject(destinationSpec);
+        out.writeObject(characteristicSpec);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         int objDataVersion = in.readInt();
-        if (objDataVersion == dataVersion) {
-        	originSpec = (ConceptSpec) in.readObject();
-        	relTypeSpec = (ConceptSpec) in.readObject();
-        	destinationSpec = (ConceptSpec) in.readObject();
+        if (objDataVersion <= dataVersion && objDataVersion > 0) {
+            originSpec = (ConceptSpec) in.readObject();
+            relTypeSpec = (ConceptSpec) in.readObject();
+            destinationSpec = (ConceptSpec) in.readObject();
+            if (objDataVersion >= 2)
+            {
+                characteristicSpec = (ConceptSpec) in.readObject();
+            }
         } else {
             throw new IOException("Can't handle dataversion: " + objDataVersion);
         }
@@ -59,6 +64,7 @@ public class RelSpec implements SpecBI {
     private ConceptSpec originSpec;
     private ConceptSpec relTypeSpec;
     private ConceptSpec destinationSpec;
+    private ConceptSpec characteristicSpec;
 
     /**
      * No arg constructor for jaxb
@@ -66,18 +72,21 @@ public class RelSpec implements SpecBI {
     public RelSpec() {
     }
     
-    
-
     public RelSpec(ConceptSpec originSpec, ConceptSpec relTypeSpec, ConceptSpec destinationSpec) {
+        this(originSpec, relTypeSpec, destinationSpec, null);
+    }
+
+    public RelSpec(ConceptSpec originSpec, ConceptSpec relTypeSpec, ConceptSpec destinationSpec, ConceptSpec characteristicSpec) {
         super();
         this.originSpec = originSpec;
         this.relTypeSpec = relTypeSpec;
         this.destinationSpec = destinationSpec;
+        this.characteristicSpec = characteristicSpec;
     }
 
     public ConceptSpec getOriginSpec() {
-		return originSpec;
-	}
+        return originSpec;
+    }
 
     public ConceptSpec getRelTypeSpec() {
         return relTypeSpec;
@@ -87,23 +96,31 @@ public class RelSpec implements SpecBI {
         return destinationSpec;
     }
     
+    public ConceptSpec getCharacteristicSpec() {
+        return characteristicSpec;
+    }
+    
     public RelConstraintOutgoing getOriginatingRelConstraint() {
-    	return new RelConstraintOutgoing(originSpec, relTypeSpec, destinationSpec);
+        return new RelConstraintOutgoing(originSpec, relTypeSpec, destinationSpec);
     }
     public RelConstraintIncoming getDestinationRelConstraint() {
-    	return new RelConstraintIncoming(originSpec, relTypeSpec, destinationSpec);
+        return new RelConstraintIncoming(originSpec, relTypeSpec, destinationSpec);
     }
 
-	public void setOriginSpec(ConceptSpec originSpec) {
-		this.originSpec = originSpec;
-	}
+    public void setOriginSpec(ConceptSpec originSpec) {
+        this.originSpec = originSpec;
+    }
 
-	public void setRelTypeSpec(ConceptSpec relTypeSpec) {
-		this.relTypeSpec = relTypeSpec;
-	}
+    public void setRelTypeSpec(ConceptSpec relTypeSpec) {
+        this.relTypeSpec = relTypeSpec;
+    }
 
-	public void setDestinationSpec(ConceptSpec destinationSpec) {
-		this.destinationSpec = destinationSpec;
-	}
+    public void setDestinationSpec(ConceptSpec destinationSpec) {
+        this.destinationSpec = destinationSpec;
+    }
+    
+    public void setCharacteristicSpec(ConceptSpec characteristicSpec) {
+        this.characteristicSpec = characteristicSpec;
+    }
 
 }

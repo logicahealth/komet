@@ -1,18 +1,18 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>gov.vha.isaac</groupId>
+        <groupId>gov.vha.isaac.ochre</groupId>
         <artifactId>ochre-parent</artifactId>
-        <version>2.24</version>
+        <version>2.25</version>
     </parent>
+
+    <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>tcc-model-impl</artifactId>
     <name>${branch}: Model implementation</name>
-    <description>Classes that provide state and behaviour to implement the concepts and 
-        concept components defined by the API. </description>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    
+    <description>Classes that provide state and behaviour to implement the concepts and concept components defined by the API. </description>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

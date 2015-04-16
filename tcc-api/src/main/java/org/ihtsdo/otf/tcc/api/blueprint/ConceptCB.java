@@ -57,8 +57,8 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
 
     public static final UUID conceptSpecNamespace =
             UUID.fromString("620d1f30-5285-11e0-b8af-0800200c9a66");
-    private static final UUID usRefexUuid = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
-    private static final UUID gbRefexUuid = SnomedMetadataRf2.GB_ENGLISH_REFSET_RF2.getUuids()[0];
+    public static final UUID usRefexUuid = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
+    public static final UUID gbRefexUuid = SnomedMetadataRf2.GB_ENGLISH_REFSET_RF2.getUuids()[0];
     private Object lastPropigationId = Long.MIN_VALUE;
 
     private String fullySpecifiedName;
@@ -268,13 +268,17 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
 
     }
 
+    private UUID computeComponentUuid() {
+        return computeComponentUuid(idDirective, fsns, prefNames, getComponentUuid());
+    }
+    
     /**
      * Computes the uuid for the concept represented by this concept blueprint based on the fully specified
      * names and preferred terms.
      *
      * @throws RuntimeException indicates a runtime exception has occurred
      */
-    private UUID computeComponentUuid() throws RuntimeException {
+    public static UUID computeComponentUuid(IdDirective idDirective, List<String> fsns, List<String> prefNames, UUID defaultValue) throws RuntimeException {
         switch (idDirective) {
             case GENERATE_HASH:
             case GENERATE_REFEX_CONTENT_HASH:
@@ -299,8 +303,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             case PRESERVE_CONCEPT_REST_HASH:
             case PRESERVE:
             default:
-            return getComponentUuid();
-
+            return defaultValue;
         }
     }
 
@@ -464,7 +467,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         fsns.add(newFullySpecifiedName);
         this.recomputeUuid();
         fullySpecifiedNameBlueprint.setText(newFullySpecifiedName);
-        //TODO [REFEX] add handling for new Refex here, but only when we move how the languages are specified
+        //TODO (artf231853) [REFEX] add handling for new Refex here, but only when we move how the languages are specified
         if (dialect != null) {
             List<RefexCAB> annotationBlueprints = fullySpecifiedNameBlueprint.getAnnotationBlueprints();
             for (RefexCAB annot : annotationBlueprints) {
@@ -563,66 +566,9 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         addPreferredNameDialectRefexes(perferredNameBlueprint, dialect);
     }
 
-    /**
-     * Adds the appropriate dialect refexes to the preferred name description blueprint.
-     *
-     * @param preferredBlueprint the preferred name description blueprint
-     * @param dialect the dialect of the preferred name, only supports en-gb and en-us
-     * @throws UnsupportedEncodingException indicates an unsupported encoding exception has occurred
-     * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
-     * @throws ContradictionException if more than one version is found for a given position or view
-     * coordinate
-     */
     private void addPreferredNameDialectRefexes(DescriptionCAB preferredBlueprint, LanguageCode dialect) throws 
-            UnsupportedEncodingException, IOException, InvalidCAB, ContradictionException, NoSuchAlgorithmException {
-        RefexCAB usAnnot;
-        RefexCAB gbAnnot;
-        if (dialect == LanguageCode.EN) {
-            usAnnot = new RefexCAB(RefexType.CID,
-                    preferredBlueprint.getComponentUuid(),
-                    usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
-            if (moduleUuid != null) {
-                usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
-            }
-
-            gbAnnot = new RefexCAB(RefexType.CID,
-                    preferredBlueprint.getComponentUuid(),
-                    gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
-            if (moduleUuid != null) {
-                gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
-            }
-            if (pathUuid != null) {
-                gbAnnot.properties.put(ComponentProperty.PATH_ID, pathUuid);
-            }
-            preferredBlueprint.addAnnotationBlueprint(usAnnot);
-            preferredBlueprint.addAnnotationBlueprint(gbAnnot);
-        } else if (dialect == LanguageCode.EN_US) {
-            usAnnot = new RefexCAB(RefexType.CID,
-                    preferredBlueprint.getComponentUuid(),
-                    usRefexUuid, idDirective, refexDirective);
-            usAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
-            if (moduleUuid != null) {
-                usAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
-            }
-            if (pathUuid != null) {
-                usAnnot.properties.put(ComponentProperty.PATH_ID, pathUuid);
-            }
-            preferredBlueprint.addAnnotationBlueprint(usAnnot);
-        } else if (dialect == LanguageCode.EN_GB) {
-            gbAnnot = new RefexCAB(RefexType.CID,
-                    preferredBlueprint.getComponentUuid(),
-                    gbRefexUuid, idDirective, refexDirective);
-            gbAnnot.put(ComponentProperty.COMPONENT_EXTENSION_1_ID, SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0]);
-            if (moduleUuid != null) {
-                gbAnnot.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
-            }
-            preferredBlueprint.addAnnotationBlueprint(gbAnnot);
-        } else {
-            throw new InvalidCAB("Dialect not supported: " + dialect.getFormatedLanguageCode());
-        }
+        UnsupportedEncodingException, IOException, InvalidCAB, ContradictionException, NoSuchAlgorithmException {
+        preferredBlueprint.makePreferredNameDialectRefexes(dialect, moduleUuid, pathUuid);
     }
 
     /**
@@ -648,7 +594,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         this.recomputeUuid();
         preferredNameBlueprint.setText(newPreferredName);
         if (dialect != null) {
-            //TODO [REFEX] add handling for new Refex here, but only when we move how the languages are specified
+            //TODO (artf231853) [REFEX] add handling for new Refex here, but only when we move how the languages are specified
             List<RefexCAB> annotationBlueprints = preferredNameBlueprint.getAnnotationBlueprints();
             for (RefexCAB annot : annotationBlueprints) {
                 if (annot.getRefexCollectionUuid().equals(usRefexUuid) || annot.getRefexCollectionUuid().equals(gbRefexUuid)) {

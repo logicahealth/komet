@@ -84,7 +84,7 @@ public class ChangeSetWriter implements ChangeSetGeneratorBI {
         this.commitSapNids = commitSapNids;
         computer = new ChangeSetComputer(policy, commitSapNids);
         if (changeSetFile.exists() == false) {
-            changeSetFile.getParentFile().mkdirs();
+            changeSetFile.getCanonicalFile().getParentFile().mkdirs();
             changeSetFile.createNewFile();
         }
         FileIO.copyFile(changeSetFile.getCanonicalPath(), tempFile.getCanonicalPath());

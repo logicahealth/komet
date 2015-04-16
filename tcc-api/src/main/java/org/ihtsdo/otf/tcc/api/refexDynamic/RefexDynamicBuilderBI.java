@@ -81,5 +81,10 @@ public interface RefexDynamicBuilderBI {
     void setModuleNid(int nid) throws PropertyVetoException;
     void setPathNid(int nid) throws PropertyVetoException;
     void setTime(long time) throws PropertyVetoException;
+    
+    /**
+     * Something else we appear to need....
+     */
+    int getNid();
 
 }

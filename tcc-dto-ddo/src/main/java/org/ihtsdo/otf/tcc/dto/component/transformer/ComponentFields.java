@@ -21,7 +21,6 @@ package org.ihtsdo.otf.tcc.dto.component.transformer;
  */
 public enum ComponentFields {
     // REVISION_FIELDS
-// REVISION_FIELDS
         STATUS_UUID,
         TIME,
         AUTHOR_UUID,

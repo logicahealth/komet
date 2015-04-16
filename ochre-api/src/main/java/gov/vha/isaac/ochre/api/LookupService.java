@@ -15,37 +15,50 @@
  */
 package gov.vha.isaac.ochre.api;
 
-import com.sun.javafx.application.PlatformImpl;
 import java.awt.GraphicsEnvironment;
-
+import com.sun.javafx.application.PlatformImpl;
 import java.lang.annotation.Annotation;
-
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import com.sun.javafx.application.PlatformImpl;
+import gov.vha.isaac.ochre.util.HeadlessToolkit;
 
 /**
  *
  * @author kec
  */
 public class LookupService {
-    private static ServiceLocator looker = null;
+    private static volatile ServiceLocator looker = null;
     public static final int ISAAC_STARTED_RUNLEVEL = 4;
     public static final int ISAAC_STOPPED_RUNLEVEL = -1;
+    private static final Object lock = new Object();
     
     public static ServiceLocator get() {
-        if (looker == null) {
-            if (GraphicsEnvironment.isHeadless()) {
-                System.setProperty("javafx.toolkit", "gov.vha.isaac.ochre.api.HeadlessToolkit");
+        if (looker == null)
+        {
+            synchronized (lock)
+            {
+                if (looker == null)
+                {
+
+                    if (GraphicsEnvironment.isHeadless())
+                    {
+                        HeadlessToolkit.installToolkit();
+                    }
+//                    if (GraphicsEnvironment.isHeadless()) {
+//                        System.setProperty("javafx.toolkit", "gov.vha.isaac.ochre.api.HeadlessToolkit");
+//                    }
+//                    String toolkitClass = System.getProperty("javafx.toolkit");
+//                    if (toolkitClass != null && toolkitClass.equals("gov.vha.isaac.ochre.api.HeadlessToolkit")) {
+//                        HeadlessToolkit.setupToolkit();
+//                    }
+                    PlatformImpl.startup(() -> {
+                        // No need to do anything here
+                        });
+                    looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
+                }
             }
-            String toolkitClass = System.getProperty("javafx.toolkit");
-            if (toolkitClass != null && toolkitClass.equals("gov.vha.isaac.ochre.api.HeadlessToolkit")) {
-                HeadlessToolkit.setupToolkit();
-            }
-            PlatformImpl.startup(() -> {
-                // No need to do anything here
-            });
-            looker = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         }
         return looker;
     }

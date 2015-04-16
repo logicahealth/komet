@@ -1243,7 +1243,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        buf.append("nid:");
+        buf.append("{nid:");
         buf.append(nid);
         buf.append(" pUuid:");
         buf.append(new UUID(primordialMsb, primordialLsb));
@@ -1663,6 +1663,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     public ConcurrentSkipListSet<? extends RefexChronicleBI<?>> getAnnotationsMod() {
         return annotations;
+    }
+    
+    public ConcurrentSkipListSet<RefexDynamicMember> getAnnotationsDynamicMod() {
+        return annotationsDynamic;
     }
 
     /**

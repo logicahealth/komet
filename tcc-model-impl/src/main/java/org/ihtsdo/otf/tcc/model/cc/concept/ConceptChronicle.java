@@ -597,6 +597,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             ProcessComponentChronicleBI processor) throws Exception {
         processor.process(cc);
         processComponentList(cc.getAnnotations(), processor);
+        processComponentList(cc.getRefexDynamicAnnotations(), processor);
     }
 
     public boolean readyToWrite() {
@@ -746,7 +747,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    //TODO [REFEX] why are there no calls to this method anywhere?
+    //TODO (artf231862) [REFEX] why are there no calls to this method anywhere?
     public void updateXrefs() throws IOException {
         for (RefexMember<?, ?> m : getRefsetMembers()) {
             NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());

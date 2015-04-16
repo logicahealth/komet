@@ -244,7 +244,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public boolean isInferred() throws IOException {
+    public boolean isInferred()  {
         if (Relationship.inferredNid == Integer.MAX_VALUE) {
             Relationship.inferredNid  = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
         }

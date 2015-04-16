@@ -29,15 +29,25 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
+import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
+import org.ihtsdo.otf.tcc.api.metadata.ComponentType;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
+import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicBuilderBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
@@ -53,11 +63,9 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
  * 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
+@SuppressWarnings("deprecation")
 public class RefexDynamicCAB extends CreateOrAmendBlueprint
 {
-	//TODO [REFEX] QUESTION - Should we require them to specify whether or not a column is optional?  Or treat all columns as optional?
-	//TODO [REFEX] QUESTION - Jesse had  desire to further specify what sort of item a refex can be used on (Concept/desc/rels)
-	//But that doesn't really cover all the cases, as you can also nest annotations... 
 	public static final UUID refexDynamicNamespace = RefexDynamic.REFEX_DYNAMIC_NAMESPACE.getUuids()[0];
 
 	/**
@@ -97,8 +105,8 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 				{
 					if (data != null)
 					{
-						sb.append(data.getRefexDataType());
-						sb.append(data.getData());
+						sb.append(data.getRefexDataType().getDisplayName());
+						sb.append(new String(data.getData()));
 					}
 					else
 					{
@@ -168,7 +176,6 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * @throws IOException signals that an I/O exception has occurred
 	 * @throws InvalidCAB if the any of the values in blueprint to make are invalid
 	 */
-	@SuppressWarnings("deprecation")
 	private String getPrimordialUuidStringForNidProp(ComponentProperty refexProperty) throws IOException, InvalidCAB
 	{
 		Object idObj = properties.get(refexProperty);
@@ -216,7 +223,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	public RefexDynamicCAB(UUID referencedComponentUuid, int assemblageNid, RefexDynamicVersionBI<?> refexVersion, ViewCoordinate viewCoordinate,
 			IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException
 	{
-		super(null, refexVersion, viewCoordinate, idDirective, refexDirective);
+		super((refexVersion == null ? null : refexVersion.getPrimordialUuid()), refexVersion, viewCoordinate, idDirective, refexDirective);
 		setReferencedComponentUuid(referencedComponentUuid);
 		setAssemblageNid(assemblageNid);
 		setStatus(Status.ACTIVE);
@@ -234,7 +241,6 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * @throws InvalidCAB if the any of the values in blueprint to make are invalid
 	 * @throws ContradictionException if more than one version is found for a given position or view
 	 */
-	@SuppressWarnings("deprecation")
 	public RefexDynamicCAB(UUID referencedComponentUUID, UUID assemblageUuid) throws IOException,
 			InvalidCAB, ContradictionException
 	{
@@ -254,7 +260,6 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * @throws ContradictionException if more than one version is found for a given position or view
 	 * coordinate
 	 */
-	@SuppressWarnings("deprecation")
 	public RefexDynamicCAB(int referencedComponentNid, int assemblageNid) throws IOException,
 			InvalidCAB, ContradictionException
 	{
@@ -305,7 +310,6 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 		sb.append(this.getClass().getSimpleName());
 		sb.append(" COMPONENT_ID: ");
 		sb.append(properties.get(COMPONENT_ID));
-		@SuppressWarnings("deprecation")
 		TerminologyStoreDI s = Ts.get();
 		for (Entry<ComponentProperty, Object> entry : properties.entrySet())
 		{
@@ -356,7 +360,13 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 			{
 				case COMPONENT_ID:
 				{
-					refexAnalog.setNid(getInt(ComponentProperty.COMPONENT_ID));
+					int newNid = getInt(ComponentProperty.COMPONENT_ID);
+					if (refexAnalog.getNid() != newNid)
+					{
+						//Dan notes - this call is unimplemented, and throws a property veto exception in the cases I've seen - don't think 
+						//this would (should?) ever change?
+						refexAnalog.setNid(newNid);
+					}
 					break;
 				}
 				case REFERENCED_COMPONENT_ID:
@@ -536,11 +546,12 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	/**
 	 * returns true, if the RefexDynamicCAB as currently specified can be turned into a valid {@link RefexDynamicVersionBI}
 	 * otherwise 
+	 * @param vc - used during the evaluation of some validators.  
 	 * throws @InvalidCAB
 	 * @throws IOException 
 	 * @throws ContradictionException 
 	 */
-	public void validate() throws InvalidCAB, IOException, ContradictionException
+	public void validate(ViewCoordinate vc) throws InvalidCAB, IOException, ContradictionException
 	{
 		if (getMemberUUID() == null)
 		{
@@ -555,20 +566,23 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 			throw new InvalidCAB("The Referenced Component ID is required");
 		}
 		
-		validateData((RefexDynamicDataBI[])properties.get(ComponentProperty.DYNAMIC_REFEX_DATA));
+		validateData((RefexDynamicDataBI[])properties.get(ComponentProperty.DYNAMIC_REFEX_DATA), vc);
 	}
 	
 	/**
 	 * The data (if any) that is to be stored with this Refex.  The data columns and types _must_ align with the definition 
 	 * within the assemblage concept.  See the class description for more details
 	 * @param data
+	 * @param vc - used during the evaluation of some validators.  Can be passed null, if the columns of data you are creating
+	 * are known to not have any validators, or only have validators that don't require a view coordinate (validators that only 
+	 * involve math, or regexp checks, for example)
 	 * @throws IOException 
 	 * @throws InvalidCAB 
 	 * @throws ContradictionException 
 	 */
-	public void setData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB, ContradictionException
+	public void setData(RefexDynamicDataBI[] data, ViewCoordinate vc) throws IOException, InvalidCAB, ContradictionException
 	{
-		validateData(data);
+		validateData(data, vc);
 		properties.put(ComponentProperty.DYNAMIC_REFEX_DATA, data);
 		recomputeUuid();
 	}
@@ -581,21 +595,91 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	
 	/**
 	 * Validate the supplied data against the Refex Definition.  Throws in InvalidCAB exception
-	 * if the data is invalid.
+	 * if the data is invalid.  
+	 * As a side effect, this sets the name field inside each of the supplied data elements
+	 * to correspond to the correct value from the assemblage nid.
+	 * 
+	 * @param vc - required for evaulating certain types of validators.  Unused, if no validators are present on the refex.
 	 * @throws ContradictionException 
 	 */
-	private void validateData(RefexDynamicDataBI[] data) throws IOException, InvalidCAB, ContradictionException
+	private void validateData(RefexDynamicDataBI[] data, ViewCoordinate vc) throws IOException, InvalidCAB, ContradictionException
 	{
 		RefexDynamicUsageDescription rdud = RefexDynamicUsageDescription.read(getRefexAssemblageNid());
 		
-		//Note, this could be done before the code above, but I'd rather ensure that the Assemblage concept is properly configured, 
-		//even if they are not providing data.
+		//Make sure the referenced component meets the ref component restrictions, if any are present.
+		if (rdud.getReferencedComponentTypeRestriction() != null && rdud.getReferencedComponentTypeRestriction() != ComponentType.UNKNOWN)
+		{
+			//Once again, blueprint is in the entire wrong code package, and I can't reuse the {@link RefexDynamicValidatorType#passesValidator(...)} 
+			//implementation.  So I have to do copy/paste code inheritance for this.... all because I can't construct an instance of the validator data to pass in.
+			ComponentChronicleBI<?> cc = getReferencedComponent();
+			if (cc == null)
+			{
+				cc =  Ts.get().getComponent(getReferencedComponentUuid());
+			}
+			ComponentType ct = rdud.getReferencedComponentTypeRestriction(); 
+			switch (ct)
+			{
+				//In the strange land of Workbench, concept attributes have the same NID as concepts....
+				case CONCEPT: case CONCEPT_ATTRIBUTES:
+				{
+					if (!(cc instanceof ConceptChronicleBI) && !(cc instanceof ConceptAttributeChronicleBI))
+					{
+						throw new InvalidCAB("The specified component must be of type " + ct.toString());
+					}
+					break;
+				}
+				case DESCRIPTION:
+				{
+					if (!(cc instanceof DescriptionChronicleBI))
+					{
+						throw new InvalidCAB("The specified component must be of type " + ct.toString());
+					}
+					break;
+				}
+				case MEDIA:
+				{
+					if (!(cc instanceof MediaChronicleBI))
+					{
+						throw new InvalidCAB("The specified component must be of type " + ct.toString());
+					}
+					break;
+				}
+				case RELATIONSHIP:
+				{
+					if (!(cc instanceof RelationshipChronicleBI))
+					{
+						throw new InvalidCAB("The specified component must be of type " + ct.toString());
+					}
+					break;
+				}
+				case SEMEME:
+				{
+					if (!(cc instanceof RefexChronicleBI<?>))
+					{
+						throw new InvalidCAB("The specified component must be of type " + ct.toString());
+					}
+					break;
+				}
+				case SEMEME_DYNAMIC:
+				{
+					if (!(cc instanceof RefexDynamicChronicleBI<?>))
+					{
+						throw new InvalidCAB("The specified component must be of type " + ct.toString());
+					}
+					break;
+				}
+				default:
+					throw new InvalidCAB("Unexpected error");
+			}
+		}
+
 		if (data == null)
 		{
 			return;
 		}
 		
-		if (data.length != rdud.getColumnInfo().length)
+		//specifically allow < - we don't need the columns, if they were defined as optional.
+		if (data.length > rdud.getColumnInfo().length)
 		{
 			throw new InvalidCAB("The Assemblage concept: " + getRefexAssemblageNid() + " specifies " + rdud.getColumnInfo().length + 
 					" columns of data, while the provided data contains " + data.length + " columns.  The data size array must match (but null values are allowed"
@@ -604,11 +688,49 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 		
 		for (int dataColumn = 0; dataColumn < data.length; dataColumn++)
 		{
-			RefexDynamicDataType allowedDT = rdud.getColumnInfo()[dataColumn].getColumnDataType();
-			if (data[dataColumn] != null && allowedDT != RefexDynamicDataType.POLYMORPHIC && data[dataColumn].getRefexDataType() != allowedDT)
+			RefexDynamicColumnInfo rdci = rdud.getColumnInfo()[dataColumn];
+			
+			if (data[dataColumn] == null)
 			{
-				throw new InvalidCAB("The supplied data for column " + dataColumn + " is of type " + data[dataColumn].getRefexDataType() + 
-						" but the assemblage concept declares that it must be " + allowedDT);
+				if (rdci.isColumnRequired())
+				{
+					throw new InvalidCAB("No data was supplied for column " + (dataColumn + 1) + " but the column is specified as a required column");
+				}
+			}
+			else
+			{
+				data[dataColumn].setNameIfAbsent(rdci.getColumnName());
+				
+				RefexDynamicDataType allowedDT = rdci.getColumnDataType();
+				if (data[dataColumn] != null && allowedDT != RefexDynamicDataType.POLYMORPHIC && data[dataColumn].getRefexDataType() != allowedDT)
+				{
+					throw new InvalidCAB("The supplied data for column " + dataColumn + " is of type " + data[dataColumn].getRefexDataType() + 
+							" but the assemblage concept declares that it must be " + allowedDT);
+				}
+				
+				if (rdci.getValidator() != null)
+				{
+					try
+					{
+						if (!rdci.getValidator().passesValidator(data[dataColumn], rdci.getValidatorData(), vc))
+						{
+							throw new InvalidCAB("The supplied data for column " + dataColumn + " does not pass the assigned validator for this refex");
+						}
+					}
+					catch (RuntimeException e)
+					{
+						throw new InvalidCAB(e.getMessage());
+					}
+				}
+			}
+		}
+		
+		//If they provided less columns, make sure the remaining columns are all optional
+		for (int i = data.length; i < rdud.getColumnInfo().length; i++)
+		{
+			if (rdud.getColumnInfo()[i].isColumnRequired())
+			{
+				throw new InvalidCAB("No data was supplied for column " + (i + 1) + " but the column is specified as a required column");
 			}
 		}
 	}

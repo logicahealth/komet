@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement()
 public class RelationshipChronicleDdo
-        extends ComponentChronicleDdo<RelationshipVersionDdo, RelationshipVersionBI> {
+        extends ComponentChronicleDdo<RelationshipVersionDdo, RelationshipVersionBI<?>> {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------

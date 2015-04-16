@@ -19,6 +19,7 @@
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
 import java.io.IOException;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
@@ -57,4 +58,11 @@ public interface RefexDynamicDataBI {
      * @return The type information of the data
      */
     public RefexDynamicDataType getRefexDataType();
+    
+    /**
+     * This is only intended to be used by {@link RefexDynamicCAB}. 
+     * Please ignore.
+     * @param name
+     */
+    public void setNameIfAbsent(String name);
 }
