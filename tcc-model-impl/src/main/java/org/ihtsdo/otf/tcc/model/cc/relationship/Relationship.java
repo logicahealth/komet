@@ -418,7 +418,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
     protected static int inferredNid = Integer.MAX_VALUE;
     protected static int statedNid = Integer.MAX_VALUE;
     @Override
-    public boolean isInferred() throws IOException {
+    public boolean isInferred()  {
         if (inferredNid == Integer.MAX_VALUE) {
             inferredNid = PersistentStore.get().getNidForUuids(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getUuids());
         }

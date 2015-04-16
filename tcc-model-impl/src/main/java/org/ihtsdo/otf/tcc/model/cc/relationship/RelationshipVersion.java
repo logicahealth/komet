@@ -148,7 +148,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     @Override
-    public boolean isInferred() throws IOException {
+    public boolean isInferred()  {
         return getCv().isInferred();
     }
 
