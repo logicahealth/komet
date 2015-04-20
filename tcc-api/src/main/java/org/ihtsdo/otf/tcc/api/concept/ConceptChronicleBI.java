@@ -89,6 +89,8 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    boolean hasCurrentRefsetMemberForComponent(ViewCoordinate vc, int componentNid) throws IOException;
 
    boolean isAnnotationStyleRefex() throws IOException;
+   
+   boolean isCanceled() throws IOException;
 
    //~--- set methods ---------------------------------------------------------
 

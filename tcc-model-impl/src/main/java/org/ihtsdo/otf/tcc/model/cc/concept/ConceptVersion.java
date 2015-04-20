@@ -1310,8 +1310,16 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
         return false;
     }
+    
+    
 
     @Override
+	public boolean isCanceled() throws IOException
+	{
+		return concept.isCanceled();
+	}
+
+	@Override
     public boolean isAnnotationStyleRefex() throws IOException {
         return concept.isAnnotationStyleRefex();
     }
