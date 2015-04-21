@@ -855,9 +855,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                         stringVersion.setString(denotation.toString());
                         stringVersion.setTime(idv.time);
                         getSememeService().writeSememe(sememeChronicle);
-                        if (getPrimordialUuid().equals(Snomed.BLEEDING_FINDING.getUuids()[0])) {
-                            System.out.println("Bleeding-finding id sememe: " + sememeChronicle);
-                        }
                         break;
 
 
