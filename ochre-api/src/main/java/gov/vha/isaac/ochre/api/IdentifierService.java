@@ -68,9 +68,11 @@ public interface IdentifierService {
     
     int getNidForUuids(Collection<UUID> uuids);
     int getNidForUuids(UUID... uuids);
+    int getNidForProxy(ConceptProxy conceptProxy);
     
     int getConceptSequenceForUuids(Collection<UUID> uuids);
     int getConceptSequenceForUuids(UUID... uuids);
+    int getConceptSequenceForProxy(ConceptProxy conceptProxy);
     
     void addUuidForNid(UUID uuid, int nid);
 
