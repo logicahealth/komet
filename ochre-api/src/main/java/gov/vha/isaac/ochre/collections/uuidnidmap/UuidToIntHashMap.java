@@ -492,27 +492,78 @@ public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidTo
         int newValues[] = new int[newCapacity];
         byte newState[] = new byte[newCapacity];
 
-        this.lowWaterMark = chooseLowWaterMark(newCapacity, this.minLoadFactor);
-        this.highWaterMark = chooseHighWaterMark(newCapacity,
-                this.maxLoadFactor);
-
-        this.table = newTable;
-        this.values = newValues;
-        this.state = newState;
-        this.freeEntries = newCapacity - this.distinct; // delta
 
         for (int i = oldCapacity; i-- > 0;) {
             long[] element = new long[2];
             if (oldState[i] == FULL) {
                 element[0] = oldTable[i * 2];
                 element[1] = oldTable[i * 2 + 1];
-                int index = indexOfInsertion(element);
+                int index = indexOfInsertionForRehash(element, newTable, newState);
                 newTable[index * 2] = element[0];
                 newTable[index * 2 + 1] = element[1];
                 newValues[index] = oldValues[i];
                 newState[index] = FULL;
             }
         }
+        updateAfterRehash(newCapacity, newTable, newValues, newState);
+    }
+
+    protected void updateAfterRehash(int newCapacity, long[] newTable, int[] newValues, byte[] newState) {
+        this.lowWaterMark = chooseLowWaterMark(newCapacity, this.minLoadFactor);
+        this.highWaterMark = chooseHighWaterMark(newCapacity,
+                this.maxLoadFactor);
+        this.table = newTable;
+        this.values = newValues;
+        this.state = newState;
+        this.freeEntries = newCapacity - this.distinct; // delta
+    }
+    protected int indexOfInsertionForRehash(long[] key, long[] tab, byte[] stat) {
+        final int length = stat.length;
+
+        final int hash = HashFunctions.hash(key[0] + key[1]) & 0x7FFFFFFF;
+        int i = hash % length;
+        int decrement = hash % (length - 2); // double hashing, see
+        // http://www.eece.unm.edu/faculty/heileman/hash/node4.html
+        // int decrement = (hash / length) % length;
+        if (decrement == 0) {
+            decrement = 1;
+        }
+
+        // stop if we find a removed or free slot, or if we find the key itself
+        // do NOT skip over removed slots (yes, open addressing is like that...)
+        while (stat[i] == FULL && (tab[i * 2] != key[0] || tab[i * 2 + 1] != key[1])) {
+            i -= decrement;
+            // hashCollisions++;
+            if (i < 0) {
+                i += length;
+            }
+        }
+
+        if (stat[i] == REMOVED) {
+            // stop if we find a free slot, or if we find the key itself.
+            // do skip over removed slots (yes, open addressing is like that...)
+            // assertion: there is at least one FREE slot.
+            int j = i;
+            while (stat[i] != FREE && (stat[i] == REMOVED || (tab[i * 2] != key[0] || tab[i * 2 + 1] != key[1]))) {
+                i -= decrement;
+                // hashCollisions++;
+                if (i < 0) {
+                    i += length;
+                }
+            }
+            if (stat[i] == FREE) {
+                i = j;
+            }
+        }
+
+        if (stat[i] == FULL) {
+            // key already contained at slot i.
+            // return a negative number identifying the slot.
+            return -i - 1;
+        }
+        // not already contained, should be inserted at slot i.
+        // return a number >= 0 identifying the slot.
+        return i;
     }
 
     /**

@@ -95,7 +95,7 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or 
 	 * UUID that is set for the referenced component in an instance of this refex.  If {@link ComponentType#UNKNOWN} is passed, it is ignored, as 
 	 * if it were null.
-	 * @param vc view coordinate -  highly recommended that you use ViewCoodinates.getMetadataViewCoordinate()
+	 * @param vc view coordinate -  highly recommended that you use ViewCoordinates.getMetadataViewCoordinate()
 	 * @return a reference to the newly created refex item
 	 * @throws IOException
 	 * @throws ContradictionException

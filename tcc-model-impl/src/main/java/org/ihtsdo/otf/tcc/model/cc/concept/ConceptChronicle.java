@@ -1765,6 +1765,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.isAnnotationStyleRefex();
     }
 
+    @Override
     public boolean isCanceled() throws IOException {
         return data.isConceptForgotten();
     }
@@ -1787,7 +1788,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.isUncommitted();
     }
 
-    public boolean isUnwritten() {
+	public boolean isUnwritten() {
         return data.isUnwritten();
     }
 

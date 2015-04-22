@@ -421,7 +421,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	 *     )
 	 * 
 	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
-	 * * @param vc view coordinate -  highly recommended that you use ViewCoodinates.getMetadataViewCoordinate()
+	 * * @param vc view coordinate -  highly recommended that you use ViewCoordinates.getMetadataViewCoordinate()
 	 * @throws ContradictionException 
 	 * @throws InvalidCAB 
 	 * @throws IOException 
