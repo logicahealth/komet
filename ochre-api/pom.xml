@@ -32,12 +32,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-        <!--Bridge slf4j into log4j-->
-        <dependency>  <!-- TODO for Dan - this is going to be a problem with our GUI, we used SLF4j, not Log4j... have to figure out what to do. -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.2</version>
-        </dependency>
         <dependency>
             <groupId>org.roaringbitmap</groupId>
             <artifactId>RoaringBitmap</artifactId>
