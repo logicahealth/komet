@@ -43,7 +43,7 @@ public class TermAux {
             new ConceptSpec("optional (refinability type)",
             UUID.fromString("c3d997d3-b0a4-31f8-846f-03fa874f5479"));
      public static ConceptSpec WB_AUX_PATH =
-            new ConceptSpec("Workbench Auxiliary",
+            new ConceptSpec("master", //new name from isaacmetadata
             UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));
      public static ConceptSpec IHTSDO_CLASSIFIER  =
             new ConceptSpec("IHTSDO Classifier",
