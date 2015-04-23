@@ -715,7 +715,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                     booleanPart.setBoolean1((Boolean) entry.getValue());
                     break;
                 case ASSEMBLAGE_ID:
-                    refexAnalog.setAssemblageNid((Integer) entry.getValue());
+                    refexAnalog.setAssemblageNid(Ts.get().getNidForUuids((UUID) entry.getValue()));
                     break;
                 case REFERENCED_COMPONENT_ID:
                     refexAnalog.setReferencedComponentNid(Ts.get().getNidForUuids((UUID) entry.getValue()));
