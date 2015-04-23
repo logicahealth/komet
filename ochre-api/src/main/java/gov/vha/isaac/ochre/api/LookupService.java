@@ -59,7 +59,7 @@ public class LookupService {
                         // No need to do anything here
                         });
                     
-                    ArrayList<String> packagesToSearch = new ArrayList<String>(Arrays.asList("gov.vha", "org.ihtsdo", "org.glassfish"));
+                    ArrayList<String> packagesToSearch = new ArrayList<String>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
 
                     boolean readInhabitantFiles = Boolean.getBoolean(System.getProperty(Constants.READ_INHABITANT_FILES, "false"));
                     if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
