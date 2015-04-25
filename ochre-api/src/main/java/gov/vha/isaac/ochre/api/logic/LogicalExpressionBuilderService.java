@@ -22,6 +22,6 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface LogicalDefinitionBuilderService {
-    LogicalDefinitionBuilder getBuilder();
+public interface LogicalExpressionBuilderService {
+        LogicalExpressionBuilder getLogicalExpressionBuilder();
 }

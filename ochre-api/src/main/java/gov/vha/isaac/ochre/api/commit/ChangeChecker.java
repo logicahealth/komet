@@ -6,6 +6,7 @@
 package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import java.util.Collection;
 
 /**
@@ -15,6 +16,10 @@ import java.util.Collection;
 public interface ChangeChecker extends Comparable<ChangeChecker> {
     
     void check(ChronicledConcept cc, 
+               Collection<Alert> alertCollection,
+               CheckPhase checkPhase);
+    
+    void check(SememeChronicle sc, 
                Collection<Alert> alertCollection,
                CheckPhase checkPhase);
     

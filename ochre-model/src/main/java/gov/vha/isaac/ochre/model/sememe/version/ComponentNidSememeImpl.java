@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.sememe.version.MutableComponentNidSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
@@ -28,16 +27,12 @@ import gov.vha.isaac.ochre.api.sememe.SememeType;
  */
 public class ComponentNidSememeImpl extends SememeVersionImpl implements MutableComponentNidSememe {
 
-    int componentNid;
+    int componentNid = Integer.MAX_VALUE;
 
     public ComponentNidSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
-            State status, 
-            long time, 
-            int authorSequence, 
-            int moduleSequence, 
-            int pathSequence) {
+            int stampSequence) {
         super(container, 
-                status, time, authorSequence, moduleSequence, pathSequence);
+                stampSequence);
     }
 
     public ComponentNidSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
@@ -58,9 +53,6 @@ public class ComponentNidSememeImpl extends SememeVersionImpl implements Mutable
         return SememeType.COMPONENT_NID;
     }
 
-    ;
-  
-
     @Override
     public int getComponentNid() {
         return componentNid;
@@ -68,7 +60,9 @@ public class ComponentNidSememeImpl extends SememeVersionImpl implements Mutable
 
     @Override
     public void setComponentNid(int componentNid) {
-        checkUncommitted();
+        if (this.componentNid != Integer.MAX_VALUE) {
+            checkUncommitted();
+        }
         this.componentNid = componentNid;
     }
 

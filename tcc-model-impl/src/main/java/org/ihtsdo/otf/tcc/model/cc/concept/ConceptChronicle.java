@@ -1166,12 +1166,16 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Collection<Description> getDescriptions() throws IOException {
-        if (isCanceled()) {
-            return new ConcurrentSkipListSet<>(new ComponentComparator());
-        }
-
-        return data.getDescriptions();
+    public Collection<Description> getDescriptions() {
+       try {
+           if (isCanceled()) {
+               return new ConcurrentSkipListSet<>(new ComponentComparator());
+           }
+           
+           return data.getDescriptions();
+       } catch (IOException ex) {
+           throw new RuntimeException(ex);
+       }
     }
 
     public Collection<Relationship> getDestRels(NidSetBI allowedTypes) throws IOException {
@@ -1576,39 +1580,31 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public String getText() {
-        try {
-            if (getDescriptions().size() > 0) {
-                return getDescriptions().iterator().next().getText();
-            }
-
-            if (fsDescNid == Integer.MIN_VALUE) {
-                fsDescNid = Ts.get().getNidForUuids(SnomedMetadataRf2.PREFERRED_RF2.getUuids());
-            }
-
-            if (getDescriptions().size() > 0) {
-                Description desc = getDescriptions().iterator().next();
-
-                for (Description d : getDescriptions()) {
-                    for (DescriptionVersion part : d.getVersions()) {
-                        if ((part.getTypeNid() == fsDescNid) || (part.getTypeNid() == fsXmlDescNid)) {
-                            return part.getText();
-                        }
+        if (getDescriptions().size() > 0) {
+            return getDescriptions().iterator().next().getText();
+        }
+        if (fsDescNid == Integer.MIN_VALUE) {
+            fsDescNid = Ts.get().getNidForUuids(SnomedMetadataRf2.PREFERRED_RF2.getUuids());
+        }
+        if (getDescriptions().size() > 0) {
+            Description desc = getDescriptions().iterator().next();
+            
+            for (Description d : getDescriptions()) {
+                for (DescriptionVersion part : d.getVersions()) {
+                    if ((part.getTypeNid() == fsDescNid) || (part.getTypeNid() == fsXmlDescNid)) {
+                        return part.getText();
                     }
                 }
-
-                return desc.getText();
-            } else {
-                int sequence = nid + Integer.MIN_VALUE;
-                String errString = nid + " (" + sequence + ") " + " has no descriptions " + getUUIDs();
-
-                getDescriptions();
-
-                return errString;
             }
-        } catch (IOException ex) {
-            logger.log(Level.WARNING, "Exception getting text", ex);
-
-            return ex.getLocalizedMessage();
+            
+            return desc.getText();
+        } else {
+            int sequence = nid + Integer.MIN_VALUE;
+            String errString = nid + " (" + sequence + ") " + " has no descriptions " + getUUIDs();
+            
+            getDescriptions();
+            
+            return errString;
         }
     }
 

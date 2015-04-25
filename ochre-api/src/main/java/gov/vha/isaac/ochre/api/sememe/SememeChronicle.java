@@ -28,7 +28,9 @@ import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 public interface SememeChronicle<V extends SememeVersion> 
     extends ChronicledObjectLocal<V>, SememeObject {
     
-    <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec);
+    <M extends V> M createMutableUncommittedVersion(Class<M> type, State status, EditCoordinate ec);
+    
+    <M extends V> M createMutableStampedVersion(Class<M> type, int stampSequence);
     
     SememeType getSememeType();
 }

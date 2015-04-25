@@ -358,6 +358,24 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         processChronicle(chronicle.getAnnotationsDynamic(), processor);
     }
 
+    @Override
+    public boolean isUncommitted() {
+        UncommittedTestProcessor uncommittedTestProcessor = new UncommittedTestProcessor();
+        processComponentRevisions(uncommittedTestProcessor);
+        return uncommittedTestProcessor.uncommitted;
+    }
+    
+    private static class UncommittedTestProcessor implements TtkRevisionProcessorBI {
+        boolean uncommitted = false;
+        @Override
+        public void process(TtkRevision r) {
+            if (r.time == Long.MAX_VALUE) {
+                uncommitted = true;
+            }
+        }
+        
+    }
+
     public void processComponentRevisions(TtkRevisionProcessorBI processor) {
         processChronicleRevisions(this.conceptAttributes, processor);
         processChronicleRevisions(this.descriptions, processor);

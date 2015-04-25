@@ -4,7 +4,7 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.commit.CommitManager;
+import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.sememe.SememeService;
 import gov.vha.isaac.ochre.api.sememe.SememeType;
 import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
@@ -61,6 +61,7 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexService;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberVersion;
@@ -79,6 +80,15 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 public abstract class ConceptComponent<R extends Revision<R, C>, C extends ConceptComponent<R, C>>
         implements ComponentBI, ComponentVersionBI, IdBI, AnalogBI, AnalogGeneratorBI<R>,
         Comparable<ConceptComponent> {
+    private static RefexService refexService;
+    protected static RefexService getRefexService() {
+        if (refexService == null) {
+            refexService = LookupService.getService(RefexService.class);
+        }
+        return refexService;
+    }
+    
+    
     
     private static SememeService sememeService;
     protected static SememeService getSememeService() {
@@ -88,11 +98,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return sememeService;
     }
 
-    private static CommitManager commitManager;
+    private static CommitService commitManager;
 
-    protected static CommitManager getCommitManager() {
+    protected static CommitService getCommitManager() {
         if (commitManager == null) {
-            commitManager = Hk2Looker.getService(CommitManager.class);
+            commitManager = Hk2Looker.getService(CommitService.class);
         }
         return commitManager;
     }
@@ -242,6 +252,19 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 addDynamicAnnotation(annot);
             }
         }
+    }
+    
+    public void setAdditionalUuids(List<UUID> uuids) {
+        additionalUuidParts = new long[uuids.size() * 2];
+        for (int i = 0; i < uuids.size(); i++) {
+            UUID uuid = uuids.get(i);
+            additionalUuidParts[2*i] = uuid.getMostSignificantBits();
+            additionalUuidParts[2*i+1] = uuid.getLeastSignificantBits();
+        }
+    }
+
+    public void setEnclosingConceptNid(int enclosingConceptNid) {
+        this.enclosingConceptNid = enclosingConceptNid;
     }
 
     @Override
@@ -846,14 +869,15 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                             assemblageSequence,
                                             nid, // referenced component
                                             containerSequence
-                                    );                        
-                        EditCoordinateImpl editCoordinate = new EditCoordinateImpl(
-                                getIdService().getConceptSequenceForUuids(idv.authorUuid), 
-                                getIdService().getConceptSequenceForUuids(idv.moduleUuid), 
-                                getIdService().getConceptSequenceForUuids(idv.pathUuid));
-                        StringSememeImpl stringVersion = sememeChronicle.createMutableVersion(StringSememeImpl.class, State.ACTIVE, editCoordinate);
+                                    );    
+                        int stampSequence = getCommitManager().
+                                getStamp(State.ACTIVE, 
+                                        idv.time, 
+                                        getIdService().getConceptSequenceForUuids(idv.authorUuid), 
+                                        getIdService().getConceptSequenceForUuids(idv.moduleUuid), 
+                                        getIdService().getConceptSequenceForUuids(idv.pathUuid));
+                        StringSememeImpl stringVersion = sememeChronicle.createMutableStampedVersion(StringSememeImpl.class, stampSequence);
                         stringVersion.setString(denotation.toString());
-                        stringVersion.setTime(idv.time);
                         getSememeService().writeSememe(sememeChronicle);
                         break;
 
@@ -2126,6 +2150,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException {
+//        getRefexService().
         List<NidPairForRefex> pairs = PersistentStore.get().getRefexPairs(nid);
         List<RefexDynamicChronicleBI<?>> returnValues = new ArrayList<>(pairs.size());
         HashSet<Integer> addedMembers = new HashSet<>();
@@ -2348,6 +2373,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         List<UUID> returnValues = new ArrayList<>();
 
         returnValues.add(new UUID(primordialMsb, primordialLsb));
+        if (additionalUuidParts != null) {
+            for (int i = 0; i < additionalUuidParts.length; i = i + 2) {
+                returnValues.add(new UUID(additionalUuidParts[i], additionalUuidParts[i+1]));
+            }
+        }
 
         if (additionalIdVersions != null) {
             for (IdentifierVersion idv : additionalIdVersions) {

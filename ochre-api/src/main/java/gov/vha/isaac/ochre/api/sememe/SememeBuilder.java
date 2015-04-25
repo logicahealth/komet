@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.sememe;
+
+import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 
 /**
  *
  * @author kec
- * @param <T>
  */
-public interface Builder<T> {
-    T build() throws IllegalStateException;
+public interface SememeBuilder extends IdentifiedComponentBuilder<SememeChronicle>{
+    
 }

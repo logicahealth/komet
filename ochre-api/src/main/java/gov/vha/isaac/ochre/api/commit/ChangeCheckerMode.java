@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.logic;
+package gov.vha.isaac.ochre.api.commit;
 
 /**
  *
  * @author kec
  */
-public interface LogicalDefinition {
-    
+public enum ChangeCheckerMode {
+    ACTIVE, INACTIVE
 }

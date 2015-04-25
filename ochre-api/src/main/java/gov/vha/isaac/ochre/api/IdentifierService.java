@@ -39,6 +39,8 @@ public interface IdentifierService {
     
     int getSememeSequence(int nid);
     int getSememeNid(int sememeSequence);
+    int getSememeSequenceForUuids(Collection<UUID> uuids);
+    int getSememeSequenceForUuids(UUID... uuids);
     
     IntStream getSememeSequenceStream();
     IntStream getParallelSememeSequenceStream();

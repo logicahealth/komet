@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.description;
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
-import java.util.Optional;
+import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.concept.ConceptBuilder;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -24,9 +24,15 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface IdentifiedObjectService {
+public interface DescriptionBuilderService {
     
-    Optional<IdentifiedObjectLocal> getIdentifiedObject(int nid);
+    DescriptionBuilder getDescriptionBuilder(String descriptionText, 
+            int conceptSequence,
+            ConceptProxy descriptionType, 
+            ConceptProxy languageForDescription);
     
-    CharSequence informAboutObject(int nid);
+    DescriptionBuilder getDescriptionBuilder(String descriptionText, 
+            ConceptBuilder conceptBuilder,
+            ConceptProxy descriptionType, 
+            ConceptProxy languageForDescription);
 }

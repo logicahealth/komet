@@ -15,10 +15,33 @@
  */
 package gov.vha.isaac.ochre.api.concept;
 
+import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
+import org.jvnet.hk2.annotations.Contract;
+
 /**
  *
  * @author kec
  */
+@Contract
 public interface ConceptBuilderService {
-    ConceptBuilder getBuilder(String conceptName, String semanticTag);
+    
+    ConceptBuilder getDefaultConceptBuilder(String conceptName, 
+            String semanticTag, LogicalExpression logicalExpression);
+    
+    ConceptBuilderService setDefaultLanguageForDescriptions(ConceptProxy languageForDescriptions);
+    ConceptProxy getDefaultLanguageForDescriptions();
+    
+    ConceptBuilderService setDefaultDialectAssemblageForDescriptions(ConceptProxy dialectForDescriptions);
+    ConceptProxy getDefaultDialectForDescriptions();
+    
+    ConceptBuilderService setDefaultLogicCoordinate(LogicCoordinate logicCoordinate);
+    LogicCoordinate getDefaultLogicCoordinate();
+    
+    ConceptBuilder getConceptBuilder(String conceptName, String semanticTag, 
+            LogicalExpression logicalExpression,
+            ConceptProxy languageForDescriptions, 
+            ConceptProxy dialectForDescriptions,
+            LogicCoordinate logicCoordinate);
 }

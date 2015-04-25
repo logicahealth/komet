@@ -17,10 +17,12 @@ package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -38,17 +40,25 @@ public interface CommitService {
     
     Optional<String> getComment(int stampSequence);
     
-    void addUncommitted(ChronicledConcept cc);
+    Task<Void> addUncommitted(ChronicledConcept cc);
 
-    void addUncommittedNoChecks(ChronicledConcept cc);
+    Task<Void> addUncommittedNoChecks(ChronicledConcept cc);
 
-    void cancel();
+    Task<Void> addUncommitted(SememeChronicle sc);
 
-    void cancel(ChronicledConcept cc);
+    Task<Void> addUncommittedNoChecks(SememeChronicle sc);
 
-    void commit(String commitComment);
+    Task<Void> cancel();
 
-    void commit(ChronicledConcept cc, String commitComment);
+    Task<Void> cancel(ChronicledConcept chronicledConcept);
+
+    Task<Void> cancel(SememeChronicle sememeChronicle);
+
+    Task<Optional<CommitRecord>> commit(String commitComment);
+
+    Task<Optional<CommitRecord>> commit(ChronicledConcept chronicledConcept, String commitComment);
+    
+    Task<Optional<CommitRecord>> commit(SememeChronicle sememeChronicle, String commitComment);
     
     ObservableList<Integer> getUncommittedConceptNids();
     
@@ -73,6 +83,8 @@ public interface CommitService {
     long getTimeForStamp(int stampSequence);
     
     boolean isNotCanceled(int stampSequence);
+    
+    boolean isUncommitted(int stampSequence);
     
     int getStamp(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);

@@ -16,6 +16,8 @@
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
@@ -26,26 +28,17 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
-import org.ihtsdo.otf.tcc.api.contradiction.strategy.IdentifyAllConflict;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
-import org.ihtsdo.otf.tcc.api.coordinate.LanguageSort;
 import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
@@ -63,14 +56,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
-import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerPolicy;
-import org.ihtsdo.otf.tcc.api.coordinate.LanguagePreferenceList;
-import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
-import org.ihtsdo.otf.tcc.model.index.service.IndexerBI;
 import org.ihtsdo.otf.tcc.model.path.PathManager;
 
 /**
@@ -79,6 +64,14 @@ import org.ihtsdo.otf.tcc.model.path.PathManager;
  */
 public abstract class Termstore implements PersistentStoreI {
 
+    private static IdentifierService identifierService = null;
+    private static IdentifierService getIdentifierService() {
+        if (identifierService == null) {
+            identifierService = LookupService.getService(IdentifierService.class);
+        }
+        return identifierService;
+    }
+    
     protected static ViewCoordinate metadataVC = null;
 
     /**
@@ -190,6 +183,9 @@ public abstract class Termstore implements PersistentStoreI {
      */
     @Override
     public CharSequence informAboutNid(int nid) {
+        if (nid > -1) {
+            nid = getIdentifierService().getConceptNid(nid);
+        }
         StringBuilder sb = new StringBuilder();
 
         try {
@@ -218,7 +214,9 @@ public abstract class Termstore implements PersistentStoreI {
                 sb.append("' ");
                 sb.append(nid);
                 sb.append(" ");
-                sb.append(component.getPrimordialUuid());
+                if (component != null) {
+                    sb.append(component.getPrimordialUuid());
+                }
             }
         } catch (IOException ex) {
             Logger.getLogger(Termstore.class.getName()).log(Level.SEVERE, null, ex);

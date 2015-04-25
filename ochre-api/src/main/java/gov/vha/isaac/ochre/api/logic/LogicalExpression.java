@@ -15,20 +15,13 @@
  */
 package gov.vha.isaac.ochre.api.logic;
 
-import static gov.vha.isaac.ochre.api.logic.LogicalDefinitionBuilder.*;
+import gov.vha.isaac.ochre.api.DataTarget;
+
 /**
  *
  * @author kec
  */
-public class Example {
-
-    static {
-        LogicalDefinitionBuilder b = null;
-        
-        NecessarySet(And(ConceptAssertion(null, b)));
-        
-
-        b.build();
-    }
-
+public interface LogicalExpression {
+    byte[][] getData(DataTarget dataTarget);
+    
 }

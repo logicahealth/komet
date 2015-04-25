@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api.sememe;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
@@ -36,12 +37,14 @@ public interface SememeService {
     Stream<SememeChronicle> getSememesFromAssemblage(int assemblageSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence);
     SememeSequenceSet getSememeSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence, StampPosition position);
+    SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageSequence, StampPosition position);
     
     Stream<SememeChronicle> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
     Stream<SememeChronicle> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
+    SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
     
     void writeSememe(SememeChronicle sememeChronicle);
     

@@ -66,7 +66,7 @@ public class SememeFromDtoFactory {
                             referencedComponentNid, containerSequence);    
                 
                 // primordial version
-                LogicGraphSememeImpl graphVersion = chronicle.createMutableVersion(LogicGraphSememeImpl.class, 
+                LogicGraphSememeImpl graphVersion = chronicle.createMutableUncommittedVersion(LogicGraphSememeImpl.class, 
                         eRefsetMember.status.getState(), 
                         ec);
                 TtkLogicGraphMemberChronicle logicGraphMember = (TtkLogicGraphMemberChronicle) eRefsetMember;
@@ -79,7 +79,7 @@ public class SememeFromDtoFactory {
                     ec.setAuthorSequence(ids.getNidForUuids(r.authorUuid));
                     ec.setModuleSequence(ids.getNidForUuids(r.moduleUuid));
                     ec.setPathSequence(ids.getNidForUuids(r.pathUuid));
-                    graphVersion = chronicle.createMutableVersion(LogicGraphSememeImpl.class, 
+                    graphVersion = chronicle.createMutableUncommittedVersion(LogicGraphSememeImpl.class, 
                         eRefsetMember.status.getState(), 
                         ec);
                     graphVersion.setGraphData(getLogicByteArrayConverter().

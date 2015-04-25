@@ -18,7 +18,6 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
@@ -30,19 +29,20 @@ import org.glassfish.hk2.api.MultiException;
  * @author kec
  */
 public class LogicGraphSememeImpl extends SememeVersionImpl
-    implements MutableLogicGraphSememe {
-    
+        implements MutableLogicGraphSememe {
+
     private static LogicByteArrayConverter converter;
+
     private static LogicByteArrayConverter getExternalDataConverter() throws MultiException {
         if (converter == null) {
             converter = LookupService.get().getService(LogicByteArrayConverter.class);
         }
         return converter;
     }
-    
-    byte[][] graphData;
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, int stampSequence, 
+    byte[][] graphData = null;
+
+    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, int stampSequence,
             DataBuffer data) {
         super(container, stampSequence, data);
         int graphNodes = data.getInt();
@@ -52,9 +52,8 @@ public class LogicGraphSememeImpl extends SememeVersionImpl
         }
     }
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        super(container, 
-                status, time, authorSequence, moduleSequence, pathSequence);
+    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, int stampSequence) {
+        super(container, stampSequence);
     }
 
     @Override
@@ -81,11 +80,11 @@ public class LogicGraphSememeImpl extends SememeVersionImpl
         return getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.EXTERNAL);
     }
 
-
-    
     @Override
     public void setGraphData(byte[][] graphData) {
-        checkUncommitted();
+        if (this.graphData != null) {
+            checkUncommitted();
+        }
         this.graphData = graphData;
     }
 

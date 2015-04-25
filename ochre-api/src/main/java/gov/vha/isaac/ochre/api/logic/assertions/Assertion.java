@@ -15,12 +15,12 @@
  */
 package gov.vha.isaac.ochre.api.logic.assertions;
 
-import gov.vha.isaac.ochre.api.logic.LogicalDefinitionBuilder;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 
 /**
  *
  * @author kec
  */
 public interface Assertion {
-    LogicalDefinitionBuilder getBuilder();
+    LogicalExpressionBuilder getBuilder();
 }

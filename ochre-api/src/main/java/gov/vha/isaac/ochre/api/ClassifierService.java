@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -35,5 +36,6 @@ public interface ClassifierService {
     
     void incrementalClassification(StampCoordinate stampCoordinate, 
             LogicCoordinate logicCoordinate, 
-            EditCoordinate editCoordinate);
+            EditCoordinate editCoordinate, 
+            ConceptSequenceSet newConcepts);
 }

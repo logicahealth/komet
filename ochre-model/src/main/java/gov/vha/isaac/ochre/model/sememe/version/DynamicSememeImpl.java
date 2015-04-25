@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
@@ -34,12 +33,10 @@ public class DynamicSememeImpl extends SememeVersionImpl implements MutableDynam
     }
 
     public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, 
-            State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        super(container, 
-                status, time, authorSequence, moduleSequence, pathSequence);
+            int stampSequence) {
+        super(container, stampSequence);
         throw new UnsupportedOperationException();
     }
-    
     
     @Override
     protected void writeVersionData(DataBuffer data) {

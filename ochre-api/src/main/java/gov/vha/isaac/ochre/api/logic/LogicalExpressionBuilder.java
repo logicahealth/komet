@@ -15,19 +15,19 @@
  */
 package gov.vha.isaac.ochre.api.logic;
 
-import gov.vha.isaac.ochre.api.Builder;
 import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.logic.assertions.AllRole;
 import gov.vha.isaac.ochre.api.logic.assertions.Assertion;
 import gov.vha.isaac.ochre.api.logic.assertions.ConceptAssertion;
 import gov.vha.isaac.ochre.api.logic.assertions.Feature;
-import gov.vha.isaac.ochre.api.logic.assertions.connectors.DisjointWith;
 import gov.vha.isaac.ochre.api.logic.assertions.NecessarySet;
 import gov.vha.isaac.ochre.api.logic.assertions.SomeRole;
 import gov.vha.isaac.ochre.api.logic.assertions.SufficientSet;
 import gov.vha.isaac.ochre.api.logic.assertions.Template;
 import gov.vha.isaac.ochre.api.logic.assertions.connectors.And;
 import gov.vha.isaac.ochre.api.logic.assertions.connectors.Connector;
+import gov.vha.isaac.ochre.api.logic.assertions.connectors.DisjointWith;
 import gov.vha.isaac.ochre.api.logic.assertions.connectors.Or;
 import gov.vha.isaac.ochre.api.logic.assertions.literal.BooleanLiteral;
 import gov.vha.isaac.ochre.api.logic.assertions.literal.FloatLiteral;
@@ -48,7 +48,9 @@ import java.time.Instant;
  *
  * @author kec
  */
-public interface LogicalDefinitionBuilder extends Builder<LogicalDefinition> {
+public interface LogicalExpressionBuilder {
+
+    LogicalExpression build() throws IllegalStateException;
 
     NecessarySet necessarySet(Connector... connector);
 
@@ -65,7 +67,7 @@ public interface LogicalDefinitionBuilder extends Builder<LogicalDefinition> {
     DisjointWith disjointWith(ConceptProxy conceptProxy);
     
     static DisjointWith DisjointWith(ConceptProxy conceptProxy, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.disjointWith(conceptProxy);
     }
 
@@ -78,7 +80,7 @@ public interface LogicalDefinitionBuilder extends Builder<LogicalDefinition> {
     ConceptAssertion conceptAssertion(ConceptProxy conceptProxy);
 
     static ConceptAssertion ConceptAssertion(ConceptProxy conceptProxy, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.conceptAssertion(conceptProxy);
     }
 
@@ -105,7 +107,7 @@ public interface LogicalDefinitionBuilder extends Builder<LogicalDefinition> {
 
     static Template Template(ConceptProxy templateConcept, 
             ConceptProxy assemblageToPopulateTemplateConcept, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.template(templateConcept, assemblageToPopulateTemplateConcept);
     }
 
@@ -118,80 +120,79 @@ public interface LogicalDefinitionBuilder extends Builder<LogicalDefinition> {
     BooleanLiteral booleanLiteral(boolean booleanLiteral);
 
     static BooleanLiteral BooleanLiteral(boolean literal, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.booleanLiteral(literal);
     }
 
     FloatLiteral floatLiteral(float floatLiteral);
 
     static FloatLiteral FloatLiteral(float literal, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.floatLiteral(literal);
     }
 
     InstantLiteral instantLiteral(Instant instantLiteral);
 
     static InstantLiteral InstantLiteral(Instant literal, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.instantLiteral(literal);
     }
 
     IntegerLiteral integerLiteral(int integerLiteral);
 
     static IntegerLiteral IntegerLiteral(int literal, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.integerLiteral(literal);
     }
 
     StringLiteral stringLiteral(String stringLiteral);
     
     static StringLiteral StringLiteral(String literal, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.stringLiteral(literal);
     }
-
     
     BooleanSubstitution booleanSubstitution(SubstitutionFieldSpecification fieldSpecification);
     
     static BooleanSubstitution BooleanSubstitution(SubstitutionFieldSpecification fieldSpecification, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.booleanSubstitution(fieldSpecification);
     }
 
     ConceptSubstitution conceptSubstitution(SubstitutionFieldSpecification fieldSpecification);
     
     static ConceptSubstitution ConceptSubstitution(SubstitutionFieldSpecification fieldSpecification, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.conceptSubstitution(fieldSpecification);
     }
 
     FloatSubstitution floatSubstitution(SubstitutionFieldSpecification fieldSpecification);
     
     static FloatSubstitution FloatSubstitution(SubstitutionFieldSpecification fieldSpecification, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.floatSubstitution(fieldSpecification);
     }
 
     InstantSubstitution instantSubstitution(SubstitutionFieldSpecification fieldSpecification);
     
     static InstantSubstitution InstantSubstitution(SubstitutionFieldSpecification fieldSpecification, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.instantSubstitution(fieldSpecification);
     }
 
     IntegerSubstitution integerSubstitution(SubstitutionFieldSpecification fieldSpecification);
     
     static IntegerSubstitution IntegerSubstitution(SubstitutionFieldSpecification fieldSpecification, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.integerSubstitution(fieldSpecification);
     }
 
     StringSubstitution stringSubstitution(SubstitutionFieldSpecification fieldSpecification);
     
     static StringSubstitution StringSubstitution(SubstitutionFieldSpecification fieldSpecification, 
-            LogicalDefinitionBuilder builder) {
+            LogicalExpressionBuilder builder) {
         return builder.stringSubstitution(fieldSpecification);
     }
 
-
+    
 }

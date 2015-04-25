@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.sememe.version.MutableSememeVersion;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
@@ -34,8 +33,8 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
         super(container, stampSequence);
     }
 
-    public SememeVersionImpl(SememeChronicleImpl<V> container, State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        super(container, status, time, authorSequence, moduleSequence, pathSequence);
+    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence) {
+        super(container, stampSequence);
     }
     
     public SememeType getSememeType() {
@@ -64,9 +63,8 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
 
     @Override
     public String toString() {
-        return getSememeType().toString();
+        
+        return getSememeType().toString() + super.toString();
     }
-
-    
 
 }

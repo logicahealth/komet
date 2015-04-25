@@ -15,14 +15,28 @@
  */
 package gov.vha.isaac.ochre.api.concept;
 
-import gov.vha.isaac.ochre.api.Builder;
+import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
-import java.util.UUID;
+import gov.vha.isaac.ochre.api.description.DescriptionBuilder;
+import gov.vha.isaac.ochre.api.sememe.SememeBuilder;
 
 /**
  *
  * @author kec
  */
-public interface ConceptBuilder extends Builder<ChronicledConcept> {
-    ConceptBuilder setUuids(UUID[] uuids);
+public interface ConceptBuilder extends IdentifiedComponentBuilder<ChronicledConcept> {
+    
+    DescriptionBuilder getFullySpecifiedDescriptionBuilder();
+    
+    DescriptionBuilder getPreferredDescriptionBuilder();
+    
+    ConceptBuilder addDescription(DescriptionBuilder descriptionBuilder);
+    
+    /**
+     * Use when adding a secondary definition in a different description logic 
+     * profile. 
+     * @param logicalDefinitionBuilder
+     * @return a ConceptBuilder for use in method chaining/fluent api. 
+     */
+    ConceptBuilder addLogicalDefinition(SememeBuilder logicalDefinitionBuilder);
 }

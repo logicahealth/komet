@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.chronicle;
+package gov.vha.isaac.ochre.api.description;
 
-import java.util.List;
-import java.util.UUID;
+import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
+import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
 
 /**
  *
  * @author kec
  */
-public interface IdentifiedObjectUniversal {
-    UUID getPrimordialUuid();
-    List<UUID> getUUIDs();
-    boolean isUncommitted();
+public interface DescriptionBuilder extends IdentifiedComponentBuilder<ChronicledObjectLocal> {
+    DescriptionBuilder setPreferredInDialectAssemblage(ConceptProxy dialectAssemblage);
+    DescriptionBuilder setAcceptableInDialectAssemblage(ConceptProxy dialectAssemblage);
 }
