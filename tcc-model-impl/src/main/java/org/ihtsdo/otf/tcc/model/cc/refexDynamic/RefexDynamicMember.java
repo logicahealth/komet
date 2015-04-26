@@ -128,7 +128,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     @Override

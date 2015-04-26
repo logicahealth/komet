@@ -69,7 +69,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     // TODO Verify this is a correct implementation

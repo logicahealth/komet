@@ -64,7 +64,6 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     @Override

@@ -466,7 +466,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                         if (currentMemberNids.contains(rNid) && (r != null)) {
                             r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, c.getNid()));
                         } else {
-                            c.getRefsetDynamicMembers().add(RefexDynamicMemberFactory.create(er, c.getNid()));
+                            c.getData().add(RefexDynamicMemberFactory.create(er, c.getNid()));
                         }
                     }
                 }
@@ -1382,6 +1382,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return getConceptAttributes().getRefexes();
     }
 
+    /**
+     * 
+     * @param memberNid
+     * @return may return null
+     * @throws IOException 
+     */
     public RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException {
         return data.getRefsetMember(memberNid);
     }

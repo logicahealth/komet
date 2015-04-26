@@ -71,7 +71,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     @Override

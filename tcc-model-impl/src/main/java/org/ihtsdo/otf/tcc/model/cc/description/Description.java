@@ -76,7 +76,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     @Override
