@@ -19,7 +19,7 @@
     </description>
     
     <scm>
-        <developerConnection>scm:git:ssh://csfe.aceworkspace.net:29418/va-ochre</developerConnection>
+        <url>https://github.com/Apelon-VA/va-ochre.git</url>
     </scm>
     
     <properties>
