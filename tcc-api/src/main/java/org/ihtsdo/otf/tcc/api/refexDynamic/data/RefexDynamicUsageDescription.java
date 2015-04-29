@@ -51,7 +51,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  * <br>
  * The assemblage concept must define the combination of data columns being used within this Refex. 
  * To do this, the assemblage concept must itself contain 0 or more {@link RefexDynamicVersionBI} annotation(s) with
- * an assemblage concept that is {@link RefexDynamic#REFEX_DYNAMIC_DEFINITION} and the attached data is<br>
+ * an assemblage concept that is {@link RefexDynamic#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
  * [{@link RefexDynamicIntegerBI}, {@link RefexDynamicUUIDBI}, {@link RefexDynamicStringBI}, {@link RefexDynamicPolymorphicBI},
  * {@link RefexBooleanBI}, {@link RefexDynamicStringBI}, {@link RefexDynamicPolymorphicBI}] 
  * 
@@ -77,11 +77,11 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
  * Note that while 0 rows of attached data is allowed, this would not allow the attachment of any data on the refex.
  * <br>
  * The assemblage concept must also contain a description of type {@link Snomed#DEFINITION_DESCRIPTION_TYPE} which 
- * itself has a refex extension of type {@link RefexDynamic#REFEX_DYNAMIC_DEFINITION_DESCRIPTION} - the value of 
+ * itself has a refex extension of type {@link RefexDynamic#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
  * this description should explain the the overall purpose of this Refex.
  * <br>
  * <br>
- * The assemblage concept may also contain a single {@link RefexDynamicVersionBI} annotation of type {@link RefexDynamic#REFEX_DYNAMIC_REFERENCED_COMPONENT_RESTRICTION}
+ * The assemblage concept may also contain a single {@link RefexDynamicVersionBI} annotation of type {@link RefexDynamic#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION}
  * with a single string column which can be parsed as a {@link ComponentType} - which will restrict the type of nid that can be placed 
  * into the referenced component field when creating an instance of the assemblage.
  * <br>
@@ -150,7 +150,7 @@ public class RefexDynamicUsageDescription
 					boolean hasCorrectAnnotation = false;
 					for (RefexDynamicChronicleBI<?> descriptionAnnotation : d.getRefexesDynamic())
 					{
-						if (descriptionAnnotation.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getNid())
+						if (descriptionAnnotation.getAssemblageNid() == RefexDynamic.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getNid())
 						{
 							hasCorrectAnnotation = true;
 						}
@@ -186,7 +186,7 @@ public class RefexDynamicUsageDescription
 		{
 			for (RefexDynamicVersionBI<?> rd : getAllActive(rdc))
 			{
-				if (rd.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_DEFINITION.getNid())
+				if (rd.getAssemblageNid() == RefexDynamic.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getNid())
 				{
 					RefexDynamicDataBI[] refexDefinitionData = rd.getData();
 					if (refexDefinitionData == null || refexDefinitionData.length < 3 || refexDefinitionData.length > 7)
@@ -246,13 +246,13 @@ public class RefexDynamicUsageDescription
 								+ "that is parseable as a RefexDynamicDataType");
 					}
 				}
-				else if (rd.getAssemblageNid() == RefexDynamic.REFEX_DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid())
+				else if (rd.getAssemblageNid() == RefexDynamic.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getNid())
 				{
 					RefexDynamicDataBI[] refexDefinitionData = rd.getData();
 					if (refexDefinitionData == null || refexDefinitionData.length < 1)
 					{
 						throw new IOException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
-								+ "a RefexDynamicData Refex Type.  If it contains a " + RefexDynamic.REFEX_DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getFsn()
+								+ "a RefexDynamicData Refex Type.  If it contains a " + RefexDynamic.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getFsn()
 								+ " then it must contain a single column of data, of type string, parseable as a " + ComponentType.class.getName());
 					}
 					

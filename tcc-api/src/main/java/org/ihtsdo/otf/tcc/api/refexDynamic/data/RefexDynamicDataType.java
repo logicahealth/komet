@@ -109,18 +109,18 @@ public enum RefexDynamicDataType {
 		 */
 		switch (this)
 		{
-			case BOOLEAN: return RefexDynamic.REFEX_DT_BOOLEAN.getUuids()[0];
-			case BYTEARRAY: return RefexDynamic.REFEX_DT_BYTE_ARRAY.getUuids()[0];
-			case DOUBLE: return RefexDynamic.REFEX_DT_DOUBLE.getUuids()[0];
-			case FLOAT: return RefexDynamic.REFEX_DT_FLOAT.getUuids()[0];
-			case INTEGER: return RefexDynamic.REFEX_DT_INTEGER.getUuids()[0];
-			case LONG: return RefexDynamic.REFEX_DT_LONG.getUuids()[0];
-			case NID: return RefexDynamic.REFEX_DT_NID.getUuids()[0];
-			case POLYMORPHIC: return RefexDynamic.REFEX_DT_POLYMORPHIC.getUuids()[0];
-			case STRING: return RefexDynamic.REFEX_DT_STRING.getUuids()[0];
+			case BOOLEAN: return RefexDynamic.DYNAMIC_SEMEME_DT_BOOLEAN.getUuids()[0];
+			case BYTEARRAY: return RefexDynamic.DYNAMIC_SEMEME_DT_BYTE_ARRAY.getUuids()[0];
+			case DOUBLE: return RefexDynamic.DYNAMIC_SEMEME_DT_DOUBLE.getUuids()[0];
+			case FLOAT: return RefexDynamic.DYNAMIC_SEMEME_DT_FLOAT.getUuids()[0];
+			case INTEGER: return RefexDynamic.DYNAMIC_SEMEME_DT_INTEGER.getUuids()[0];
+			case LONG: return RefexDynamic.DYNAMIC_SEMEME_DT_LONG.getUuids()[0];
+			case NID: return RefexDynamic.DYNAMIC_SEMEME_DT_NID.getUuids()[0];
+			case POLYMORPHIC: return RefexDynamic.DYNAMIC_SEMEME_DT_POLYMORPHIC.getUuids()[0];
+			case STRING: return RefexDynamic.DYNAMIC_SEMEME_DT_STRING.getUuids()[0];
 			case UNKNOWN: return RefexDynamic.UNKNOWN_CONCEPT.getUuids()[0];
-			case UUID: return RefexDynamic.REFEX_DT_UUID.getUuids()[0];
-			case ARRAY: return RefexDynamic.REFEX_DT_ARRAY.getUuids()[0];
+			case UUID: return RefexDynamic.DYNAMIC_SEMEME_DT_UUID.getUuids()[0];
+			case ARRAY: return RefexDynamic.DYNAMIC_SEMEME_DT_ARRAY.getUuids()[0];
 
 			default: throw new RuntimeException("Implementation error");
 		}

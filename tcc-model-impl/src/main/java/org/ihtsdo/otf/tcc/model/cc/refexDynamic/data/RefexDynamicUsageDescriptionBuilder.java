@@ -83,14 +83,14 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * 
 	 * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Refex.
 	 * 
-	 * The concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_IDENTITY} if a parent is not specified
+	 * The concept will be created under the concept {@link RefexDynamic#DYNAMIC_SEMEME_IDENTITY} if a parent is not specified
 	 * 
 	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
 	 * @param refexFSN - The FSN for this refex concept that will be created.
 	 * @param refexPreferredTerm - The preferred term for this refex concept that will be created.
 	 * @param refexDescription - A user friendly string the explains the overall intended purpose of this refex (what it means, what it stores)
 	 * @param columns - The column information for this new refex.  May be an empty list or null.
-	 * @param parentConcept  - optional - if null, uses {@link RefexDynamic#REFEX_DYNAMIC_IDENTITY}
+	 * @param parentConcept  - optional - if null, uses {@link RefexDynamic#DYNAMIC_SEMEME_IDENTITY}
 	 * @param annotationStyle - true for annotation style storage, false for memberset storage
 	 * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or 
 	 * UUID that is set for the referenced component in an instance of this refex.  If {@link ComponentType#UNKNOWN} is passed, it is ignored, as 
@@ -111,7 +111,7 @@ public class RefexDynamicUsageDescriptionBuilder
 		UUID isA = Snomed.IS_A.getUuids()[0];
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = TermAux.TERM_AUX_MODULE.getUuids()[0];
-		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.REFEX_DYNAMIC_IDENTITY.getUuids()[0] : parentConcept };
+		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.DYNAMIC_SEMEME_IDENTITY.getUuids()[0] : parentConcept };
 		UUID path = null; // TODO get the path set right...
 
 		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, path, parents);
@@ -128,7 +128,7 @@ public class RefexDynamicUsageDescriptionBuilder
 		rCabPreferred.getProperties().put(ComponentProperty.MODULE_ID, module);
 		dCab.addAnnotationBlueprint(rCabPreferred);
 		
-		RefexDynamicCAB descriptionMarker = new RefexDynamicCAB(dCab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION.getUuids()[0]);
+		RefexDynamicCAB descriptionMarker = new RefexDynamicCAB(dCab.getComponentUuid(), RefexDynamic.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUuids()[0]);
 		dCab.addAnnotationBlueprint(descriptionMarker);
 	
 		cab.addDescriptionCAB(dCab);
@@ -140,7 +140,7 @@ public class RefexDynamicUsageDescriptionBuilder
 			
 			for (RefexDynamicColumnInfo ci : sortedColumns)
 			{
-				RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_DEFINITION.getUuids()[0]);
+				RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUuids()[0]);
 				
 				RefexDynamicDataBI[] data = new RefexDynamicDataBI[7];
 				
@@ -164,7 +164,7 @@ public class RefexDynamicUsageDescriptionBuilder
 		
 		if (referencedComponentRestriction != null && ComponentType.UNKNOWN != referencedComponentRestriction)
 		{
-			RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.REFEX_DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getUuids()[0]);
+			RefexDynamicCAB rCab = new RefexDynamicCAB(cab.getComponentUuid(), RefexDynamic.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUuids()[0]);
 			
 			RefexDynamicDataBI[] data = new RefexDynamicDataBI[1];
 			data[0] = new RefexDynamicString(referencedComponentRestriction.name());
