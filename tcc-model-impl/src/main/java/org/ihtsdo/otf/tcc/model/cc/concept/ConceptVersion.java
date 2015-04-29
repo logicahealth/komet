@@ -949,27 +949,16 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
         switch (vc.getRelationshipAssertionType()) {
             case INFERRED:
-                for (RelationshipChronicleBI rc : allRels) {
-                    for (RelationshipVersionBI<?> rv : rc.getVersions()) {
-                        if (classifierCharacteristics.contains(rv.getCharacteristicNid())) {
-                            try {
-                                results.add(rc.getVersion(vc.getVcWithAllStatusValues()));
-                                break;
-                            } catch (ContradictionException ex) {
-                                throw new IOException(ex);
-                            }
-                        }
-                    }
-                }
-
-                return results;
-
             case INFERRED_THEN_STATED:
                 for (RelationshipChronicleBI rc : allRels) {
                     for (RelationshipVersionBI<?> rv : rc.getVersions()) {
                         if (classifierCharacteristics.contains(rv.getCharacteristicNid())) {
                             try {
-                                results.add(rc.getVersion(vc.getVcWithAllStatusValues()));
+                                RelationshipVersionBI<?> ver = rc.getVersion(vc.getVcWithAllStatusValues());
+                                if (ver != null)
+                                {
+                                    results.add(ver);
+                                }
                                 break;
                             } catch (ContradictionException ex) {
                                 throw new IOException(ex);
@@ -984,7 +973,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
                 for (RelationshipChronicleBI rc : allRels) {
                     for (RelationshipVersionBI<?> rv : rc.getVersions()) {
                         try {
-                            results.add(rc.getVersion(vc.getVcWithAllStatusValues()));
+                            RelationshipVersionBI<?> ver = rc.getVersion(vc.getVcWithAllStatusValues());
+                            if (ver != null)
+                            {
+                                results.add(ver);
+                            }
 
                             break;
                         } catch (ContradictionException ex) {
@@ -1314,12 +1307,12 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     
 
     @Override
-	public boolean isCanceled() throws IOException
-	{
-		return concept.isCanceled();
-	}
+    public boolean isCanceled() throws IOException
+    {
+        return concept.isCanceled();
+    }
 
-	@Override
+    @Override
     public boolean isAnnotationStyleRefex() throws IOException {
         return concept.isAnnotationStyleRefex();
     }
