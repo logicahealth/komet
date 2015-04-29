@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.classifier;
 
+import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -30,11 +31,11 @@ public interface ClassifierService {
     
     void initialize(LogicCoordinate logicCoordinate);
     
-    void fullClassification(StampCoordinate stampCoordinate, 
+    ClassifierResults fullClassification(StampCoordinate stampCoordinate, 
             LogicCoordinate logicCoordinate, 
             EditCoordinate editCoordinate);
     
-    void incrementalClassification(StampCoordinate stampCoordinate, 
+    ClassifierResults incrementalClassification(StampCoordinate stampCoordinate, 
             LogicCoordinate logicCoordinate, 
             EditCoordinate editCoordinate, 
             ConceptSequenceSet newConcepts);

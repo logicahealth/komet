@@ -9,6 +9,21 @@ import java.util.UUID;
  * Created by kec on 2/16/15.
  */
 public class ConceptProxy {
+    protected transient int nid = Integer.MAX_VALUE;
+    protected transient int sequence = Integer.MAX_VALUE;
+    private static IdentifierService identifierProvider = null;
+
+    public static IdentifierService getIdentifierProvider() {
+        if (identifierProvider == null) {
+            identifierProvider = LookupService.getService(IdentifierService.class);
+        }
+        return identifierProvider;
+    }
+
+    protected static int getConceptSequence(int nid) {
+        return getIdentifierProvider().getConceptSequence(nid);
+    }
+    
     /** Universal identifiers for the concept proxied by the is object */
     protected UUID[] uuids;
     /** Description of the concept proxied by this object */
@@ -153,5 +168,20 @@ public class ConceptProxy {
        for (String uuid : uuids) {
           this.uuids[i++] = UUID.fromString(uuid);
        }
+    }
+    
+    public int getNid() {
+        if (nid == Integer.MAX_VALUE) {
+            nid = getIdentifierProvider().getNidForUuids(uuids);
+        }
+
+        return nid;
+    }
+    
+    public int getSequence() {
+        if (sequence == Integer.MAX_VALUE) {
+            sequence = getConceptSequence(getNid());
+        }
+        return sequence;
     }
 }

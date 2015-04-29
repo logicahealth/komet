@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javafx.beans.InvalidationListener;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
@@ -70,7 +71,6 @@ import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
-import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.concept.processor.AdjudicationAnalogCreator;
 import org.ihtsdo.otf.tcc.model.cc.concept.processor.VersionFlusher;
@@ -89,7 +89,8 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
 
-public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
+public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle>, 
+        InvalidationListener {
    private static IdentifierService identifierProvider;
    private static IdentifierService getIdentifierService() {
        if (identifierProvider == null) {
@@ -116,14 +117,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private static List<TtkRefexDynamicMemberChronicle> unresolvedAnnotationsDynamic;
 
     //~--- fields --------------------------------------------------------------
-    private boolean canceled = false;
-    NidSetBI allowedStatus;
-    NidSetBI allowedTypes;
-    ContradictionManagerBI contradictionManager;
     private I_ManageConceptData data;
     protected int hashCode;
     protected int nid;
-    Precedence precedencePolicy;
 
     //~--- constructors --------------------------------------------------------
     public ConceptChronicle() {
@@ -155,6 +151,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     //~--- methods -------------------------------------------------------------
+
+    @Override
+    public void invalidated(javafx.beans.Observable observable) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+        
+        
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addAnnotation(annotation);
@@ -167,12 +170,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public void cancel() throws IOException {
-        LastChange.touchComponents(getConceptNidsAffectedByCommit());
         data.cancel();
-
-        if (PersistentStore.get().forget(getConceptAttributes())) {
-            canceled = true;
-        }
     }
 
     private void collectPossibleKindOf(NidSetBI isATypes, NativeIdSetBI possibleKindOfConcepts, int cNid)
@@ -610,10 +608,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public static void reset() {
         init();
     }
-
-//    public void resetNidData() {  //TODO-AKF-KEC: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
-//        data.resetNidData();
-//    }
     public static void resolveUnresolvedAnnotations(Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException {
         List<TtkRefexAbstractMemberChronicle<?>> cantResolve = new ArrayList<>();
 
@@ -747,21 +741,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    //TODO (artf231862) [REFEX] why are there no calls to this method anywhere?
-    public void updateXrefs() throws IOException {
-        for (RefexMember<?, ?> m : getRefsetMembers()) {
-            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
-
-            PersistentStore.get().addXrefPair(m.referencedComponentNid, npr);
-        }
-
-        for (RefexDynamicMember m : getRefsetDynamicMembers()) {
-            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
-
-            PersistentStore.get().addXrefPair(m.referencedComponentNid, npr);
-        }
-    }
-
     public static ConceptChronicle get(int nid, I_ManageConceptData data) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
         lazyInit();
@@ -776,8 +755,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 c = newC;
             }
         }
-
-        conceptsCRHM.put(nid, c);
 
         return c;
     }
@@ -796,8 +773,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 c = newC;
             }
         }
-
-        conceptsCRHM.put(nid, c);
 
         return c;
     }
@@ -1832,10 +1807,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
             c.data.add(img);
         }
-    }
-
-    public void setIsCanceled(boolean isCanceled) {
-        canceled = isCanceled;
     }
 
     private static void setRefsetMembersFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {

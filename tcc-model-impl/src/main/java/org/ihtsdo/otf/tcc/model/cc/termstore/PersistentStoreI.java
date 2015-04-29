@@ -44,8 +44,6 @@ public interface PersistentStoreI extends TerminologyStoreDI, FxTerminologyStore
 
     int getMaxReadOnlyStamp();
 
-    boolean hasConcept(int cNid);
-
     long getLastCancel();
 
     long getLastCommit();

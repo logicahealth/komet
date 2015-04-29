@@ -68,6 +68,10 @@ public interface CommitService {
 
     void removeChangeChecker(ChangeChecker checker);
     
+    void addChangeListener(ChangeListener changeListener);
+
+    void removeChangeListener(ChangeListener changeListener);
+    
     long getCommitManagerSequence();
 
     long incrementAndGetSequence();

@@ -1318,11 +1318,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
     @Override
-    public boolean isBaselineGeneration() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isChildOf(ConceptVersionBI possibleParent) throws IOException {
         for (int nid : getRelationshipsOutgoingDestinationsNidsActiveIsa()) {
             if (nid == possibleParent.getNid()) {

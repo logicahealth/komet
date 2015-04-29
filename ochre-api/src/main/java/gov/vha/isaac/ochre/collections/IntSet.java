@@ -193,7 +193,7 @@ public abstract class IntSet<T extends IntSet> {
     }
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{" + "rbmp=" + rbmp + '}';
+        return this.getClass().getSimpleName() + rbmp;
     }
     
     public IntIterator getIntIterator() {

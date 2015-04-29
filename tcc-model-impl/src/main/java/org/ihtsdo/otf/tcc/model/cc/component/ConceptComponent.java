@@ -871,7 +871,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         if (versions.size() == 1) {
             for (Version cv : versions) {
-                if (!cv.isBaselineGeneration() && (cv.getPathNid() != pathNid)
+                if ((cv.getPathNid() != pathNid)
                         && (cv.getTime() != Long.MAX_VALUE)) {
                     changed = true;
                     cv.makeAnalog(cv.getStatus(), Long.MAX_VALUE, ec.getModuleNid(), ec.getAuthorNid(),
@@ -2208,16 +2208,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return revisions.contains(r);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    @Override
-    public boolean isBaselineGeneration() {
-        return primordialStamp <= PersistentStore.get().getMaxReadOnlyStamp();
-    }
 
     /**
      * Method description

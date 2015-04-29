@@ -471,18 +471,6 @@ public class RelGroupVersion implements RelGroupVersionBI {
       return coordinate.getAllowedStatus().contains(status);
    }
 
-   @Override
-   public boolean isBaselineGeneration() {
-      for (RelationshipChronicleBI rc : getRels()) {
-         for (RelationshipVersionBI rv : rc.getVersions()) {
-            if (!rv.isBaselineGeneration()) {
-               return false;
-            }
-         }
-      }
-
-      return true;
-   }
 
    @Override
    public boolean isUncommitted() {

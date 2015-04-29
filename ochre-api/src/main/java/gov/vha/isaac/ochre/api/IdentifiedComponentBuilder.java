@@ -15,8 +15,10 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,7 +26,7 @@ import java.util.UUID;
  * @author kec
  * @param <T>
  */
-public interface IdentifiedComponentBuilder<T> {
+public interface IdentifiedComponentBuilder<T extends IdentifiedObjectLocal> {
     
     /**
      * If not set, a randomly generated UUID will be automatically used. 
@@ -40,6 +42,11 @@ public interface IdentifiedComponentBuilder<T> {
     IdentifiedComponentBuilder<T> setIdentifierForAuthority(String identifier, 
             ConceptProxy identifierAuthority);
     
-    T build(EditCoordinate editCoordinate, ChangeCheckerMode changeCheckerMode) throws IllegalStateException;
+    T build(EditCoordinate editCoordinate, 
+            ChangeCheckerMode changeCheckerMode) throws IllegalStateException;
+    
+    T build(EditCoordinate editCoordinate, 
+            ChangeCheckerMode changeCheckerMode,
+            List builtObjects) throws IllegalStateException;
     
 }

@@ -41,15 +41,6 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI, Stamped
 
    Status getStatus();
    
-   public boolean isUncommitted();
-   
-   /**
-    *
-    * @return  {@code true} if this version is stored in the read-only
-    * database, rather than in the mutable database. {@code false} otherwise.
-    */
-   boolean isBaselineGeneration();
-   
    /**
     *
     * @param vc1 ViewCoordinate of the first version

@@ -24,13 +24,13 @@ import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 public class LogicCoordinateImpl implements LogicCoordinate {
     
     int statedAssemblageSequence;
-    int inferredAssemblageSequnce;
+    int inferredAssemblageSequence;
     int descriptionLogicProfileSequence;
     int classifierSequence;
 
     public LogicCoordinateImpl(int statedAssemblageSequence, int inferredAssemblageSequnce, int descriptionLogicProfileSequence, int classifierSequence) {
         this.statedAssemblageSequence = statedAssemblageSequence;
-        this.inferredAssemblageSequnce = inferredAssemblageSequnce;
+        this.inferredAssemblageSequence = inferredAssemblageSequnce;
         this.descriptionLogicProfileSequence = descriptionLogicProfileSequence;
         this.classifierSequence = classifierSequence;
     }
@@ -43,7 +43,7 @@ public class LogicCoordinateImpl implements LogicCoordinate {
 
     @Override
     public int getInferredAssemblageSequence() {
-        return inferredAssemblageSequnce;
+        return inferredAssemblageSequence;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class LogicCoordinateImpl implements LogicCoordinate {
     public int hashCode() {
         int hash = 3;
         hash = 29 * hash + this.statedAssemblageSequence;
-        hash = 29 * hash + this.inferredAssemblageSequnce;
+        hash = 29 * hash + this.inferredAssemblageSequence;
         hash = 29 * hash + this.descriptionLogicProfileSequence;
         hash = 29 * hash + this.classifierSequence;
         return hash;
@@ -78,16 +78,13 @@ public class LogicCoordinateImpl implements LogicCoordinate {
         if (this.statedAssemblageSequence != other.statedAssemblageSequence) {
             return false;
         }
-        if (this.inferredAssemblageSequnce != other.inferredAssemblageSequnce) {
+        if (this.inferredAssemblageSequence != other.inferredAssemblageSequence) {
             return false;
         }
         if (this.descriptionLogicProfileSequence != other.descriptionLogicProfileSequence) {
             return false;
         }
-        if (this.classifierSequence != other.classifierSequence) {
-            return false;
-        }
-        return true;
+        return this.classifierSequence == other.classifierSequence;
     }
     
 }

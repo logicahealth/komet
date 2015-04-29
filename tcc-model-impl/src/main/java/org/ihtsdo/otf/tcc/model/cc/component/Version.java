@@ -682,17 +682,6 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      * @return
      */
     @Override
-    public boolean isBaselineGeneration() {
-        return cv == cc;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    @Override
     public boolean isUncommitted() {
         return getTime() == Long.MAX_VALUE;
     }

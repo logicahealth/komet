@@ -20,7 +20,7 @@ import gov.vha.isaac.ochre.api.PathService;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.commit.CommitManager;
+import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
@@ -38,8 +38,6 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
-import org.apache.mahout.math.set.AbstractIntSet;
-import org.apache.mahout.math.set.OpenIntHashSet;
 import org.roaringbitmap.RoaringBitmap;
 
 /**
@@ -59,11 +57,11 @@ public class RelativePositionCalculator {
         return pathService;
     }
 
-    private static CommitManager commitManager;
+    private static CommitService commitManager;
 
-    private static CommitManager getCommitManager() {
+    private static CommitService getCommitService() {
         if (commitManager == null) {
-            commitManager = LookupService.getService(CommitManager.class);
+            commitManager = LookupService.getService(CommitService.class);
         }
         return commitManager;
     }
@@ -218,10 +216,10 @@ public class RelativePositionCalculator {
         return RelativePosition.CONTRADICTION;
     }
     public RelativePosition fastRelativePosition(int stampSequence1, int stampSequence2, StampPrecedence precedencePolicy) {
-        long ss1Time = getCommitManager().getTimeForStamp(stampSequence1);
-        int ss1PathSequence = getCommitManager().getPathSequenceForStamp(stampSequence1);
-        long ss2Time = getCommitManager().getTimeForStamp(stampSequence2);
-        int ss2PathSequence = getCommitManager().getPathSequenceForStamp(stampSequence2);
+        long ss1Time = getCommitService().getTimeForStamp(stampSequence1);
+        int ss1PathSequence = getCommitService().getPathSequenceForStamp(stampSequence1);
+        long ss2Time = getCommitService().getTimeForStamp(stampSequence2);
+        int ss2PathSequence = getCommitService().getPathSequenceForStamp(stampSequence2);
         
         if (ss1PathSequence == ss2PathSequence) {
             Segment seg = (Segment) pathNidSegmentMap.get(ss1PathSequence);
@@ -283,9 +281,8 @@ public class RelativePositionCalculator {
     public boolean onRoute(int stampSequence) {
         Segment seg = (Segment) pathNidSegmentMap.get(stampSequence);
         if (seg != null) {
-            return seg.containsPosition(
-                    getCommitManager().getPathSequenceForStamp(stampSequence), 
-                    getCommitManager().getTimeForStamp(stampSequence));
+            return seg.containsPosition(getCommitService().getPathSequenceForStamp(stampSequence), 
+                    getCommitService().getTimeForStamp(stampSequence));
         }
         return false;
     }

@@ -33,13 +33,11 @@ import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
 import org.ihtsdo.otf.tcc.model.cs.ChangeSetWriter;
@@ -93,17 +91,6 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public void addChangeSetGenerator(String key, ChangeSetGeneratorBI writer) {
         ChangeSetWriterHandler.addWriter(key, writer);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param cl
-     */
-    @Override
-    public void addTermChangeListener(TermChangeListener cl) {
-        LastChange.addTermChangeListener(cl);
     }
 
     /**
@@ -309,9 +296,7 @@ public abstract class Termstore implements PersistentStoreI {
             econFiles.add(new File(fileString));
         }
 
-        LastChange.suspendChangeNotifications();
         int conceptsLoaded = loadEconFiles(econFiles.toArray(new File[econFiles.size()]));
-        LastChange.resumeChangeNotifications();
         return conceptsLoaded;
     }
 
@@ -350,17 +335,6 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public void removeChangeSetGenerator(String key) {
         ChangeSetWriterHandler.removeWriter(key);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param cl
-     */
-    @Override
-    public void removeTermChangeListener(TermChangeListener cl) {
-        LastChange.removeTermChangeListener(cl);
     }
 
     /**

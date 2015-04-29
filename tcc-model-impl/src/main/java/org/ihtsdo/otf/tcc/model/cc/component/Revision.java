@@ -479,11 +479,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     }
 
     @Override
-    public boolean isBaselineGeneration() {
-        return stamp <= PersistentStore.get().getMaxReadOnlyStamp();
-    }
-
-    @Override
     public boolean isUncommitted() {
         return getTime() == Long.MAX_VALUE;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 kec.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.concept;
+package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import org.jvnet.hk2.annotations.Contract;
+import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import java.util.UUID;
 
 /**
  *
  * @author kec
  */
-@Contract
-public interface ConceptService {
+public interface ChangeListener {
     
-    ChronicledConcept getConcept(int conceptSequence);
+    UUID getListenerUuid();
     
-    boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
+    void handleChange(ChronicledConcept cc);
     
-    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate);
+    void handleChange(SememeChronicle sc);
+    
 }
