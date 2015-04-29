@@ -83,14 +83,14 @@ public class RefexDynamicUsageDescriptionBuilder
 	 * 
 	 * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Refex.
 	 * 
-	 * The concept will be created under the concept {@link RefexDynamic#DYNAMIC_SEMEME_IDENTITY} if a parent is not specified
+	 * The concept will be created under the concept {@link RefexDynamic#DYNAMIC_SEMEME_ASSEMBLAGES} if a parent is not specified
 	 * 
 	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
 	 * @param refexFSN - The FSN for this refex concept that will be created.
 	 * @param refexPreferredTerm - The preferred term for this refex concept that will be created.
 	 * @param refexDescription - A user friendly string the explains the overall intended purpose of this refex (what it means, what it stores)
 	 * @param columns - The column information for this new refex.  May be an empty list or null.
-	 * @param parentConcept  - optional - if null, uses {@link RefexDynamic#DYNAMIC_SEMEME_IDENTITY}
+	 * @param parentConcept  - optional - if null, uses {@link RefexDynamic#DYNAMIC_SEMEME_ASSEMBLAGES}
 	 * @param annotationStyle - true for annotation style storage, false for memberset storage
 	 * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or 
 	 * UUID that is set for the referenced component in an instance of this refex.  If {@link ComponentType#UNKNOWN} is passed, it is ignored, as 
@@ -110,8 +110,8 @@ public class RefexDynamicUsageDescriptionBuilder
 		LanguageCode lc = LanguageCode.EN_US;
 		UUID isA = Snomed.IS_A.getUuids()[0];
 		IdDirective idDir = IdDirective.GENERATE_HASH;
-		UUID module = TermAux.TERM_AUX_MODULE.getUuids()[0];
-		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.DYNAMIC_SEMEME_IDENTITY.getUuids()[0] : parentConcept };
+		UUID module = TermAux.ISAAC_MODULE.getPrimodialUuid();
+		UUID parents[] = new UUID[] { parentConcept == null ? RefexDynamic.DYNAMIC_SEMEME_ASSEMBLAGES.getUuids()[0] : parentConcept };
 		UUID path = null; // TODO get the path set right...
 
 		ConceptCB cab = new ConceptCB(refexFSN, refexPreferredTerm, lc, isA, idDir, module, path, parents);
@@ -176,7 +176,7 @@ public class RefexDynamicUsageDescriptionBuilder
 		//Build this on the lowest level path, otherwise, other code that references this will fail (as it doesn't know about custom paths)
 		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
 				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
-						TermAux.TERM_AUX_MODULE.getLenient().getNid(), 
+						TermAux.ISAAC_MODULE.getLenient().getNid(), 
 						TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
 				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);

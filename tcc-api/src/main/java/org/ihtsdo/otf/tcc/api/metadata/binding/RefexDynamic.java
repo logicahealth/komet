@@ -137,9 +137,9 @@ public class RefexDynamic
 	
 	//An organizational concept which serves as a parent concept for dynamic refexes defined in the system
 	//(unless they choose to put them some where else, this isn't required, is only for convenience)
-	public static ConceptSpecWithDescriptions DYNAMIC_SEMEME_IDENTITY = new ConceptSpecWithDescriptions("Dynamic Sememes", 
-			UUID.fromString("645578ca-8e61-588e-9b53-7becf4cf0b9d"),
-			new String[] {"Dynamic Sememes", "Dynamic Refexes"},
+	public static ConceptSpecWithDescriptions DYNAMIC_SEMEME_ASSEMBLAGES = new ConceptSpecWithDescriptions("dynamic sememe assemblages", 
+			UUID.fromString("e18265b7-5406-52b6-baf0-4cfb867829b4"),
+			new String[] {"dynamic sememe assemblages", "dynamic refex assemblages"},
 			new String[] {},
 			ASSEMBLAGE);
 	
@@ -155,7 +155,7 @@ public class RefexDynamic
 				+ "assemblage concept for a Dynamic Sememe.  The description annotated with this type describes the intent of "
 				+ "using the concept containing the description as an assemblage concept.", 
 			new RefexDynamicColumnInfo[0],
-			DYNAMIC_SEMEME_IDENTITY, 
+			DYNAMIC_SEMEME_ASSEMBLAGES, 
 			ComponentType.DESCRIPTION, 
 			new Integer[] {});  //Require an index on this
 	
@@ -177,7 +177,7 @@ public class RefexDynamic
 				new RefexDynamicColumnInfo(4, RefexDynamic.DYNAMIC_SEMEME_COLUMN_REQUIRED.getPrimodialUuid(), RefexDynamicDataType.BOOLEAN, null, false, null, null),
 				new RefexDynamicColumnInfo(5, RefexDynamic.DYNAMIC_SEMEME_COLUMN_VALIDATOR.getPrimodialUuid(), RefexDynamicDataType.STRING, null, false, null, null),
 				new RefexDynamicColumnInfo(6, RefexDynamic.DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getPrimodialUuid(), RefexDynamicDataType.POLYMORPHIC, null, false, null, null)},
-			DYNAMIC_SEMEME_IDENTITY);
+			DYNAMIC_SEMEME_ASSEMBLAGES);
 	
 	//This is the assemblage type that is optionally attached to an assemblage itself, to declare type restrictions on the referenced component
 	//of the refex
