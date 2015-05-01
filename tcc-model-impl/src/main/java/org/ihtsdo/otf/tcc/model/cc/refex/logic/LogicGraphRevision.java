@@ -5,11 +5,10 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
-import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;

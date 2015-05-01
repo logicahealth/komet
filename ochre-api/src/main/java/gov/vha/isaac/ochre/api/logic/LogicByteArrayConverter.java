@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.logic;
 
+import gov.vha.isaac.ochre.api.DataTarget;
 import org.jvnet.hk2.annotations.Contract;
 
 /**

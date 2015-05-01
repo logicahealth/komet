@@ -17,8 +17,8 @@ package org.ihtsdo.otf.tcc.dto.component.sememe;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
 import gov.vha.isaac.ochre.api.sememe.SememeType;
 import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
