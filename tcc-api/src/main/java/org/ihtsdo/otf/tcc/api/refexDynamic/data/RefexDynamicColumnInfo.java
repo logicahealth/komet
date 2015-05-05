@@ -462,7 +462,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 					TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
 					vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
-		Ts.get().commit(newCon);
+		Ts.get().commit(/* newCon */);
 		
 		return newCon;
 	}

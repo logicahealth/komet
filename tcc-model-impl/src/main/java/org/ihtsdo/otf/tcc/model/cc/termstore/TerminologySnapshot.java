@@ -234,7 +234,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public void commit(ConceptVersionBI cv) throws IOException {
-      commit(cv);
+      store.commit(cv);
    }
 
    /**

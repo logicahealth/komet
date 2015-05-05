@@ -180,7 +180,7 @@ public class RefexDynamicUsageDescriptionBuilder
 						TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
 				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
-		Ts.get().commit(newCon);
+		Ts.get().commit();
 		
 		return new RefexDynamicUsageDescription(newCon.getConceptNid());
 	}
