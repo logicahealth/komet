@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api;
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import gov.vha.isaac.ochre.api.constants.Constants;
 import gov.vha.isaac.ochre.util.HeadlessToolkit;
+import gov.vha.isaac.ochre.util.WorkExecutors;
 import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -126,23 +127,36 @@ public class LookupService {
             return service;
         }
     }
+    
+    public static int getCurrentRunLevel() {
+        return getService(RunLevelController.class).getCurrentRunLevel();
+    }
 
-    public static RunLevelController getRunLevelController() {
-        return getService(RunLevelController.class);
+    public static void setRunLevel(int runLevel) {
+        getService(RunLevelController.class).proceedTo(runLevel);
+        /*
+         * Stop the thread pools - these are handled as a singleton, rather than a runlevel, as other code that reuses these
+         * wants to make use of the thread pools before the DB has been started.  With them configured as a singleton, they will
+         * be started automatically, when needed - and this hook (which is the only obvious path to change the runlevel) will 
+         * ensure they are stopped during an isaac shutdown sequence.
+         */
+        if (runLevel <= ISAAC_STOPPED_RUNLEVEL) {
+            get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
+        }
     }
     
     /**
      * Start all core isaac services, blocking until started (or failed)
      */
     public static void startupIsaac() {
-        getRunLevelController().proceedTo(ISAAC_STARTED_RUNLEVEL);
+        setRunLevel(ISAAC_STARTED_RUNLEVEL);
     }
     
     /**
      * Stop all core isaac service, blocking until stopped (or failed)
      */
     public static void shutdownIsaac() {
-        getRunLevelController().proceedTo(ISAAC_STOPPED_RUNLEVEL);
+        setRunLevel(ISAAC_STOPPED_RUNLEVEL);
     }
     
     /**
@@ -156,13 +170,13 @@ public class LookupService {
         {
             try {
                 startupIsaac();
-                log.info("Background start complete - runlevel now " + getRunLevelController().getCurrentRunLevel());
+                log.info("Background start complete - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel());
                 if (callWhenStartComplete != null) {
                     callWhenStartComplete.accept(isIssacStarted(), null);
                 }
             }
             catch (Exception e) {
-                log.warn("Background start failed - runlevel now " + getRunLevelController().getCurrentRunLevel(), e);
+                log.warn("Background start failed - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel(), e);
                 if (callWhenStartComplete != null) {
                     callWhenStartComplete.accept(false, e);
                 }
@@ -172,6 +186,12 @@ public class LookupService {
     }
     
     public static boolean isIssacStarted() {
-        return getRunLevelController().getCurrentRunLevel() == ISAAC_STARTED_RUNLEVEL;
+        return getService(RunLevelController.class).getCurrentRunLevel() == ISAAC_STARTED_RUNLEVEL;
+    }
+    
+    public static boolean hasIssacBeenStartedAtLeastOnce() {
+        //The starting runlevel of HK2 is -2, before you do anything.  The stop level of isaac 
+        //is -1, so we will never go back to -2.
+        return getCurrentRunLevel() != -2;
     }
 }
