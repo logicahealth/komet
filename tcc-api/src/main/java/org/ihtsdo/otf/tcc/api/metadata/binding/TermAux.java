@@ -55,7 +55,7 @@ public class TermAux {
             new ConceptSpec("Path origin reference set",
             UUID.fromString("1239b874-41b4-32a1-981f-88b448829b4b"));
     public static ConceptSpec PATH_REFSET  =
-            new ConceptSpec("Path reference set",
+            new ConceptSpec("paths",
             UUID.fromString("fd9d47b7-c0a4-3eea-b3ab-2b5a3f9e888f"));
     public static ConceptSpec GENERATED_UUID  =
             new ConceptSpec("generated UUID",
