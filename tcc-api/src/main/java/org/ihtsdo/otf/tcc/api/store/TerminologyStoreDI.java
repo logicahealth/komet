@@ -195,6 +195,7 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     TerminologyBuilderBI getTerminologyBuilder(EditCoordinate ec, ViewCoordinate vc);
 
+    // TODO getUncommittedConcepts() is unsupported.  Should be implemented or removed.
     Collection<? extends ConceptChronicleBI> getUncommittedConcepts();
 
     /**

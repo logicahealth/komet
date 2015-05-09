@@ -84,6 +84,30 @@ public class LookupService {
         }
         return looker;
     }
+    
+    /**
+     * Return true if and only if any service implements the requested contract or implementation class.
+     * @see ServiceLocator#getService(Class, Annotation...) 
+     */
+    public static boolean hasService(Class<?> contractOrImpl) {
+        return get().getServiceHandle(contractOrImpl, new Annotation[0]) != null;
+    }
+
+    /**
+     * Return true if and only if there is a service with the specified name.  If no service with the specified name is available, 
+     * this returns false (even if there is a service with another name [or no name] which would meet the contract)
+     * 
+     * @see ServiceLocator#getService(Class, String, Annotation...)
+     * 
+     * @param contractOrService May not be null, and is the contract or concrete implementation to get the best instance of
+     * @param name May not be null or empty
+     */
+    public static boolean hasService(Class<?> contractOrService, String name) {
+        if (StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("You must specify a service name to use this method");
+        }
+        return get().getServiceHandle(contractOrService, name, new Annotation[0]) != null;
+    }
 
     /**
      * Return the highest ranked service that implements the requested contract or implementation class.
