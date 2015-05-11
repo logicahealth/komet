@@ -791,8 +791,12 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
             for (RelationshipVersionBI<?> rv : rc.getVersions()) {
                if (classifierCharacteristics.contains(rv.getCharacteristicNid())) {
                    try {
-                       results.add(rc.getVersion(vc.getVcWithAllStatusValues()));
-                       break;
+                	   RelationshipVersionBI rvForVc = rc.getVersion(vc.getVcWithAllStatusValues());
+                	   if (rvForVc != null) {
+                		   results.add(rvForVc);
+
+                           break;
+                	   }
                    } catch (ContradictionException ex) {
                        throw new IOException(ex);
                    }
