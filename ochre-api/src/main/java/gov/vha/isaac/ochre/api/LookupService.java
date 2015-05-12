@@ -196,7 +196,7 @@ public class LookupService {
                 startupIsaac();
                 log.info("Background start complete - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel());
                 if (callWhenStartComplete != null) {
-                    callWhenStartComplete.accept(isIssacStarted(), null);
+                    callWhenStartComplete.accept(isIsaacStarted(), null);
                 }
             }
             catch (Exception e) {
@@ -209,11 +209,11 @@ public class LookupService {
         backgroundLoad.start();
     }
     
-    public static boolean isIssacStarted() {
+    public static boolean isIsaacStarted() {
         return getService(RunLevelController.class).getCurrentRunLevel() == ISAAC_STARTED_RUNLEVEL;
     }
     
-    public static boolean hasIssacBeenStartedAtLeastOnce() {
+    public static boolean hasIsaacBeenStartedAtLeastOnce() {
         //The starting runlevel of HK2 is -2, before you do anything.  The stop level of isaac 
         //is -1, so we will never go back to -2.
         return getCurrentRunLevel() != -2;
