@@ -34,23 +34,23 @@ public interface SememeService {
     
     SememeChronology getSememe(int sememeSequence);
     
-    Stream<SememeChronology> getSememesFromAssemblage(int assemblageSequence);
+    Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence);
     SememeSequenceSet getSememeSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence, StampPosition position);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageSequence, StampPosition position);
     
-    Stream<SememeChronology> getSememesForComponent(int componentNid);
+    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
-    Stream<SememeChronology> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
+    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
     
     void writeSememe(SememeChronology sememeChronicle);
     
-    Stream<SememeChronology> getSememeStream();
+    Stream<SememeChronology<? extends SememeVersion>> getSememeStream();
     
-    Stream<SememeChronology> getParallelSememeStream();
+    Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream();
 
 
     

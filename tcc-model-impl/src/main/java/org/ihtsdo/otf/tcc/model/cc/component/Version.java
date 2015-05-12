@@ -21,6 +21,8 @@ import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -834,6 +836,10 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
     @Override
     public int getPathSequence() {
        return getSequenceService().getConceptSequence(getPathNid());
+    }
+
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        return cc.getSememeList();
     }
 
 }

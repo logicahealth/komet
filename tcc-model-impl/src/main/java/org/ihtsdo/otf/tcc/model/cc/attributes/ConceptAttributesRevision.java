@@ -3,6 +3,8 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 //~--- non-JDK imports --------------------------------------------------------
 
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;

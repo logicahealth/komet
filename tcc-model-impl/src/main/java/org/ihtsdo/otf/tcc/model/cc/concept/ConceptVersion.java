@@ -6,6 +6,7 @@ import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.ConstraintBI;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraint;
@@ -1393,8 +1394,13 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
     @Override
-    public Stream<SememeChronology> getSememeChronicles() {
+    public Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles() {
         return concept.getSememeChronicles();
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        return concept.getSememeList();
     }
 
 }

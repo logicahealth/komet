@@ -16,6 +16,7 @@
 
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
@@ -164,6 +165,11 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     @Override
     public void setReferencedComponentNid(int componentNid) throws PropertyVetoException, IOException {
         ((RefexMember) cc).setReferencedComponentNid(componentNid);
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

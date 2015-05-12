@@ -5,6 +5,7 @@ import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import java.io.*;
 import java.util.*;
@@ -523,6 +524,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
        } catch (Exception ex) {
            throw new RuntimeException(ex);
        }
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private static class SetIndexedProcessor implements ProcessComponentChronicleBI {
@@ -1897,7 +1903,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Stream<SememeChronology> getSememeChronicles() {
+    public Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles() {
         return getSememeService().getSememesFromAssemblage(getIdentifierService().getConceptSequence(nid));
     }
 }

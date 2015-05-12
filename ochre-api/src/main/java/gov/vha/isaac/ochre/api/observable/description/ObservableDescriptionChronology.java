@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 kec.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.chronicle;
+package gov.vha.isaac.ochre.api.observable.description;
+
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronicle;
+import gov.vha.isaac.ochre.api.observable.ObservableChronology;
+import javafx.beans.property.IntegerProperty;
 
 /**
  *
  * @author kec
  */
-public interface IdentifiedObjectLocal extends IdentifiedObjectUniversal {
+public interface ObservableDescriptionChronology extends ObservableChronology<ObservableDescription>, 
+        ConceptDescriptionChronicle<ObservableDescription> {
     
-    int getNid();
-    
-    String toUserString();
+    IntegerProperty conceptSequenceProperty();
+
 }

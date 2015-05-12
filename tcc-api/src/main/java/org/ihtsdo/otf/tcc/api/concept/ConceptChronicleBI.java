@@ -5,6 +5,7 @@ package org.ihtsdo.otf.tcc.api.concept;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
@@ -73,7 +74,7 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
 
    RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException;
    
-   Stream<SememeChronology> getSememeChronicles();
+   Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles();
 
    Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException;
    

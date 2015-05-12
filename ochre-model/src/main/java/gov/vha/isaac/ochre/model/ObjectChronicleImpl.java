@@ -19,6 +19,9 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.StampedLock;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -45,6 +49,15 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
             commitManager = LookupService.getService(CommitService.class);
         }
         return commitManager;
+    }
+    
+    private static SememeService sememeService;
+    
+    protected static SememeService getSememeService() {
+        if (sememeService == null) {
+            sememeService = LookupService.getService(SememeService.class);
+        }
+        return sememeService;
     }
 
     private static final StampedLock[] stampedLocks = new StampedLock[256];
@@ -381,4 +394,10 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
     public String toUserString() {
         return toString();
     }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        return getSememeService().getSememesForComponent(nid).collect(Collectors.toList());
+    }
+    
 }

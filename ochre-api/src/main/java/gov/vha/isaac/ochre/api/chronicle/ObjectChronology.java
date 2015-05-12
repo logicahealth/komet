@@ -5,6 +5,8 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -18,6 +20,8 @@ public interface ObjectChronology<V extends StampedVersion> extends IdentifiedOb
     List<? extends V> getVersionList();
     
     IntStream getVersionStampSequences();
+    
+    List<? extends SememeChronology<? extends SememeVersion>> getSememeList();
     
     @Deprecated
     default public List<? extends V> getVersions() {

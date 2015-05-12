@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 kec.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.chronicle;
+package gov.vha.isaac.ochre.api.observable.sememe.version;
+
+import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
+import gov.vha.isaac.ochre.api.observable.ObservableVersion;
+import javafx.beans.property.IntegerProperty;
 
 /**
  *
  * @author kec
  */
-public interface IdentifiedObjectLocal extends IdentifiedObjectUniversal {
+public interface ObservableComponentNidSememe extends ComponentNidSememe, ObservableVersion {
     
-    int getNid();
+    IntegerProperty componentNidProperty();
     
-    String toUserString();
 }

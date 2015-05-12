@@ -6,6 +6,8 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -628,5 +630,8 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
        return getSequenceService().getConceptSequence(getPathNid());
     }
 
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        return primordialComponent.getSememeList();
+    }
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 kec.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ package gov.vha.isaac.ochre.api.chronicle;
  *
  * @author kec
  */
-public interface IdentifiedObjectLocal extends IdentifiedObjectUniversal {
-    
-    int getNid();
-    
-    String toUserString();
+public enum ObjectChronologyType {
+    CONCEPT, DESCRIPTION, SEMEME;
 }
