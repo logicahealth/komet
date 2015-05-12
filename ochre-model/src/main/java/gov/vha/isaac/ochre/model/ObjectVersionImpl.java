@@ -19,8 +19,7 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitService;
-import java.util.List;
-import java.util.UUID;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 
 /**
  *
@@ -80,15 +79,6 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
         return getCommitService().getPathSequenceForStamp(stampSequence);
     }
 
-    @Override
-    public int getNid() {
-        return chronicle.getNid();
-    }
-
-    @Override
-    public int getContainerSequence() {
-        return chronicle.getContainerSequence();
-    }
 
     @Override
     public void setState(State state) {
@@ -150,26 +140,19 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     public boolean isUncommitted() {
         return this.getTime() == Long.MAX_VALUE;
     }
-    
-   
-    @Override
-    public UUID getPrimordialUuid() {
-        return chronicle.getPrimordialUuid();
-    }
 
     @Override
-    public List<UUID> getUUIDs() {
-        return chronicle.getUUIDs();
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
     }
+    
 
     @Override
     public String toString() {
         return ", stampSequence=" + stampSequence + " " + getCommitService().describeStampSequence(stampSequence);
     }
 
-    @Override
-    public String toUserString() {
-        return toString();
-    }
-    
 }

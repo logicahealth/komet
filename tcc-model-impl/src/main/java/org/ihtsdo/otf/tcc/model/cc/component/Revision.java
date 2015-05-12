@@ -5,7 +5,7 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -115,10 +115,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return toString();
     }
 
-    @Override
-    public int getContainerSequence() {
-        return primordialComponent.getContainerSequence();
-    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -460,6 +456,12 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     }
 
     @Override
+    public List<UUID> getUuidList() {
+        return primordialComponent.getUuidList();
+    }
+
+    
+    @Override
     public final List<UUID> getUUIDs() {
         return primordialComponent.getUUIDs();
     }
@@ -478,11 +480,19 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.hasCurrentRefexMember(xyz, refsetNid);
     }
 
-    @Override
     public boolean isUncommitted() {
         return getTime() == Long.MAX_VALUE;
     }
 
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
+
+    
     @Override
     public boolean isActive() throws IOException {
         return getStatus() == Status.ACTIVE;

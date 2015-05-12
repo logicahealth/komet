@@ -97,7 +97,7 @@ public class TtkLogicGraphMemberChronicle
     public TtkLogicGraphMemberChronicle(SememeChronicleImpl<LogicGraphSememeImpl> logicGraphChronicle) {
         super(logicGraphChronicle);
         
-        List<LogicGraphSememeImpl> graphVersions = logicGraphChronicle.getVersions();
+        List<LogicGraphSememeImpl> graphVersions = (List<LogicGraphSememeImpl>) logicGraphChronicle.getVersions();
 
         
         this.logicGraphBytes = graphVersions.get(0).getExternalGraphData();

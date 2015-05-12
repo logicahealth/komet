@@ -4,7 +4,8 @@ package org.ihtsdo.otf.tcc.dto;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
@@ -205,7 +206,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
             media.add(tkMedia);
         }
 //TODO need seperate change set entries for sememes
-//        c.getSememeChronicles().forEach((SememeChronicle sc) -> {
+//        c.getSememeChronicles().forEach((SememeChronology sc) -> {
 //            if (refsetMembers == null) {
 //                refsetMembers = new ArrayList<>();
 //            }
@@ -358,11 +359,18 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         processChronicle(chronicle.getAnnotationsDynamic(), processor);
     }
 
-    @Override
     public boolean isUncommitted() {
         UncommittedTestProcessor uncommittedTestProcessor = new UncommittedTestProcessor();
         processComponentRevisions(uncommittedTestProcessor);
         return uncommittedTestProcessor.uncommitted;
+    }
+
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
     }
     
     private static class UncommittedTestProcessor implements TtkRevisionProcessorBI {
@@ -410,7 +418,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         }
     }
 
-    public static TtkRefexAbstractMemberChronicle<?> convertSememeChronicle(SememeChronicle<?> sc) {
+    public static TtkRefexAbstractMemberChronicle<?> convertSememeChronicle(SememeChronology<?> sc) {
         SememeChronicleImpl<LogicGraphSememeImpl> sci = (SememeChronicleImpl<LogicGraphSememeImpl>) sc;
         switch (sci.getSememeType()) {
             case LOGIC_GRAPH:
@@ -1124,11 +1132,12 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
     }
 
     @Override
-    public List<UUID> getUUIDs() {
+    public List<UUID> getUuidList() {
         if (getConceptAttributes() != null) {
             return getConceptAttributes().getUuids();
         }
         return Arrays.asList(new UUID[]{getPrimordialUuid()});
     }
+
 
 }

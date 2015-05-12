@@ -5,8 +5,9 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitService;
-import gov.vha.isaac.ochre.api.sememe.SememeService;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
@@ -51,6 +52,7 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChroni
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
 import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
@@ -1502,10 +1504,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return enclosingConceptNid;
     }
 
-    @Override
-    public int getContainerSequence() {
-        return getIdService().getConceptSequence(nid);
-    }
 
     /**
      * Method description
@@ -2041,14 +2039,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return PersistentStore.get().getTimeForStamp(primordialStamp);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
     @Override
-    public final List<UUID> getUUIDs() {
+    public List<UUID> getUuidList() {
         List<UUID> returnValues = new ArrayList<>();
 
         returnValues.add(new UUID(primordialMsb, primordialLsb));
@@ -2235,7 +2227,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @return
      */
-    @Override
+
     public boolean isUncommitted() {
         if (this.getTime() == Long.MAX_VALUE) {
             return true;
@@ -2258,6 +2250,14 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         return false;
+    }
+
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
     }
 
     /**

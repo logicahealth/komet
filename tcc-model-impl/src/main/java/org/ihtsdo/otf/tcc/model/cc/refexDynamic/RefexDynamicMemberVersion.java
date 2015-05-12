@@ -122,6 +122,11 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
         return ((RefexDynamicMember) cc).getVersions();
     }
 
+   @Override
+    public List<? extends RefexDynamicMemberVersion> getVersionList() {
+        return ((RefexDynamicMember) cc).getVersions();
+    }
+
     @Override
     public Collection<RefexDynamicMemberVersion> getVersions(ViewCoordinate c) {
         return ((RefexDynamicMember) cc).getVersions(c);

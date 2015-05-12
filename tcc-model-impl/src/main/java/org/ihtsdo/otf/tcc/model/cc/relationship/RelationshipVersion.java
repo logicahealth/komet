@@ -143,6 +143,11 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     @Override
+    public List<? extends RelationshipVersion> getVersionList() {
+        return ((Relationship) cc).getVersions();
+    }
+
+    @Override
     public Collection<RelationshipVersion> getVersions(ViewCoordinate c) {
         return ((Relationship) cc).getVersions(c);
     }

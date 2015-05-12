@@ -15,10 +15,10 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.sememe.version.MutableComponentNidSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableComponentNidSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  * Used for description dialect preferences

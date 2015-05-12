@@ -279,6 +279,10 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
+    public List<MediaVersion> getVersionList() {
+        return getVersions();
+    }
+    @Override
     public List<MediaVersion> getVersions() {
         if (versions == null) {
             int count = 1;

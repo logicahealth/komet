@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,8 +23,14 @@ import java.util.UUID;
  *
  * @author kec
  */
-public interface IdentifiedObjectUniversal {
+public interface IdentifiedObjectUniversal extends CommittableComponent {
     UUID getPrimordialUuid();
-    List<UUID> getUUIDs();
-    boolean isUncommitted();
+    
+    List<UUID> getUuidList();
+
+    @Deprecated
+    default public List<UUID> getUUIDs() {
+        return getUuidList();
+    }
+
 }

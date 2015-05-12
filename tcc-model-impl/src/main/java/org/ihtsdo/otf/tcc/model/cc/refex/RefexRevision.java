@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -21,6 +21,7 @@ import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -63,11 +64,6 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     @Override
     public RefexType getRefexType() {
         return getTkRefsetType();
-    }
-
-    @Override
-    public int getContainerSequence() {
-        return primordialComponent.getContainerSequence();
     }
 
     @Override
@@ -180,14 +176,10 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
         primordialComponent.setReferencedComponentNid(componentNid);
     }
 
-    @Override
-    public int getSememeSequence() {
-        return getSequenceService().getSememeSequence(getNid());
-    }
 
     @Override
-    public int getAssemblageSequence() {
-        return getSequenceService().getConceptSequence(getAssemblageNid());
+    public List<? extends RefexVersionBI<V>> getVersionList() {
+        return getVersions();
     }
     
     

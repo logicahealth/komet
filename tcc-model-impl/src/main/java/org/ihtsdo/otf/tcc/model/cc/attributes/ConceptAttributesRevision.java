@@ -158,6 +158,13 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    public List<ConceptAttributesVersion> getVersions() {
       return ((ConceptAttributes) primordialComponent).getVersions();
    }
+   
+
+   @Override
+   public List<ConceptAttributesVersion> getVersionList() {
+      return ((ConceptAttributes) primordialComponent).getVersionList();
+   }
+   
 
    @Override
    public Collection<ConceptAttributesVersion> getVersions(ViewCoordinate c) {

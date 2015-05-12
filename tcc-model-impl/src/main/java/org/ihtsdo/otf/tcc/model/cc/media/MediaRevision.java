@@ -2,8 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.media;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 
@@ -204,6 +202,11 @@ public class MediaRevision extends Revision<MediaRevision, Media>
 
    @Override
    public List<? extends MediaVersionFacade> getVersions() {
+      return ((Media) primordialComponent).getVersions();
+   }
+
+   @Override
+   public List<? extends MediaVersionFacade> getVersionList() {
       return ((Media) primordialComponent).getVersions();
    }
 

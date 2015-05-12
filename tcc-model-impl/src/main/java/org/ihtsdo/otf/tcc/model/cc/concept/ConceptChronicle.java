@@ -2,8 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
-import gov.vha.isaac.ochre.api.sememe.SememeService;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import java.io.*;
 import java.util.*;
@@ -87,7 +88,7 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipVersion;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
-import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
+import gov.vha.isaac.ochre.collections.jsr166y.ConcurrentReferenceHashMap;
 
 public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle>, 
         InvalidationListener {
@@ -238,7 +239,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    @Override
     public int getConceptSequence() {
         return getIdentifierService().getConceptSequence(getNid());
     }
@@ -1625,7 +1625,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<UUID> getUUIDs() {
+    public List<UUID> getUuidList() {
         try {
             if (getConceptAttributes() != null) {
                 return getConceptAttributes().getUUIDs();
@@ -1655,6 +1655,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public ConceptVersion getVersion(ViewCoordinate c) {
         return new ConceptVersion(this, c);
+    }
+
+    @Override
+    public List<? extends ConceptVersionBI> getVersionList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -1761,6 +1766,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
+
+    @Override
     public boolean isUncommitted() {
         return data.isUncommitted();
     }
@@ -1812,7 +1825,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private static void setRefsetMembersFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
         for (TtkRefexAbstractMemberChronicle<?> eRefsetMember : eConcept.getRefsetMembers()) {
             if (eRefsetMember.getType() == RefexType.LOGIC) {
-                SememeChronicle<?> sememe = SememeFromDtoFactory.create(eRefsetMember);
+                SememeChronology<?> sememe = SememeFromDtoFactory.create(eRefsetMember);
                 getSememeService().writeSememe(sememe);
             } else {
                 RefexMember<?, ?> refsetMember = RefexMemberFactory.create(eRefsetMember, c.getConceptNid());
@@ -1884,7 +1897,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Stream<SememeChronicle> getSememeChronicles() {
+    public Stream<SememeChronology> getSememeChronicles() {
         return getSememeService().getSememesFromAssemblage(getIdentifierService().getConceptSequence(nid));
     }
 }

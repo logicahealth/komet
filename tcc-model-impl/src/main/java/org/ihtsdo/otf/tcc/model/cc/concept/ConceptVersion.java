@@ -4,7 +4,8 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
 import org.ihtsdo.otf.tcc.api.constraint.ConstraintBI;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraint;
@@ -104,7 +105,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
         return concept.getVersionStampSequences();
     }
 
-    @Override
     public int getConceptSequence() {
         return concept.getConceptSequence();
     }
@@ -121,11 +121,6 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     @Override
     public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
         return concept.addDynamicAnnotation(annotation);
-    }
-
-    @Override
-    public int getContainerSequence() {
-        return getSequenceService().getConceptSequence(concept.nid);
     }
 
     @Override
@@ -1189,12 +1184,22 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
     @Override
+    public List<UUID> getUuidList() {
+        return concept.getUuidList();
+    }
+
+    @Override
     public ConceptVersionBI getVersion(ViewCoordinate c) {
         return concept.getVersion(c);
     }
 
     @Override
     public List<? extends ConceptVersionBI> getVersions() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<? extends ConceptVersionBI> getVersionList() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1365,6 +1370,13 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     public boolean isUncommitted() {
         return concept.isUncommitted();
     }
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
 
    //~--- set methods ---------------------------------------------------------
     @Override
@@ -1381,7 +1393,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
     @Override
-    public Stream<SememeChronicle> getSememeChronicles() {
+    public Stream<SememeChronology> getSememeChronicles() {
         return concept.getSememeChronicles();
     }
 

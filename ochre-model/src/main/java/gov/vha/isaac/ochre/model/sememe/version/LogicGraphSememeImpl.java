@@ -18,10 +18,10 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
-import gov.vha.isaac.ochre.api.sememe.version.MutableLogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import org.glassfish.hk2.api.MultiException;
 
 /**

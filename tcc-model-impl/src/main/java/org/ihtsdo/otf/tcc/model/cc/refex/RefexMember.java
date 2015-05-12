@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
 //import org.dwfa.ace.api.I_IntSet;
-import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -24,7 +24,6 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import java.util.*;
 
@@ -256,6 +255,10 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     protected abstract VersionComputer<RefexMemberVersion<R, C>> getVersionComputer();
 
+    @Override
+    public List<? extends RefexMemberVersion<R, C>> getVersionList() {
+        return getVersions();
+    }
     @SuppressWarnings("unchecked")
     @Override
     public List<? extends RefexMemberVersion<R, C>> getVersions() {
@@ -361,16 +364,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     @Override
     public RefexType getRefexType() {
         return getTkRefsetType();
-    }
-
-    @Override
-    public int getSememeSequence() {
-        return getIdService().getSememeSequence(nid);
-    }
-
-    @Override
-    public int getAssemblageSequence() {
-       return getIdService().getConceptSequence(getAssemblageNid());
     }
 
 }

@@ -15,11 +15,11 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.sememe.version.MutableSememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableSememeVersion;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  *
@@ -47,23 +47,7 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
     }
 
     @Override
-    public int getSememeSequence() {
-       return getContainerSequence();
-    }
-
-    @Override
-    public int getAssemblageSequence() {
-        return getContainerSequence();
-    }
-
-    @Override
-    public int getReferencedComponentNid() {
-        return chronicle.getReferencedComponentNid();
-    }
-
-    @Override
     public String toString() {
-        
         return getSememeType().toString() + super.toString();
     }
 

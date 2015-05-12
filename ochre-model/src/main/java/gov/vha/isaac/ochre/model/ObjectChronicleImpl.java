@@ -16,8 +16,9 @@
 package gov.vha.isaac.ochre.model;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @param <V>
  */
 public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
-        implements ChronicledObjectLocal<V>, WaitFreeComparable {
+        implements ObjectChronology<V>, WaitFreeComparable {
 
     private static CommitService commitManager;
 
@@ -200,7 +201,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public List<V> getVersions() {
+    public List<? extends V> getVersionList() {
         ArrayList<V> results = null;
         if (versionListReference != null) {
             results = versionListReference.get();
@@ -287,9 +288,12 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public boolean isUncommitted() {
-        return getVersionStampSequences().anyMatch((stampSequence)
-                -> getCommitService().isUncommitted(stampSequence));
+    public CommitStates getCommitState() {
+        if (getVersionStampSequences().anyMatch((stampSequence)
+                -> getCommitService().isUncommitted(stampSequence))) {
+             return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
     }
 
     protected void getVersionStampSequences(int index, DataBuffer bb,
@@ -334,7 +338,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public List<UUID> getUUIDs() {
+    public List<UUID> getUuidList() {
         List<UUID> uuids = new ArrayList();
         uuids.add(getPrimordialUuid());
         if (additionalUuidParts != null) {

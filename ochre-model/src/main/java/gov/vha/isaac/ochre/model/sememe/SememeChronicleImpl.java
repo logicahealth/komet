@@ -17,17 +17,17 @@ package gov.vha.isaac.ochre.model.sememe;
 
 import gov.vha.isaac.ochre.api.IdentifiedObjectService;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
-import gov.vha.isaac.ochre.api.sememe.version.MutableComponentNidSememe;
-import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceSememe;
-import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceTimeSememe;
-import gov.vha.isaac.ochre.api.sememe.version.MutableDynamicSememe;
-import gov.vha.isaac.ochre.api.sememe.version.MutableLogicGraphSememe;
-import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.api.sememe.version.StringSememe;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableComponentNidSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableConceptSequenceSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableConceptSequenceTimeSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectChronicleImpl;
@@ -44,7 +44,7 @@ import java.util.UUID;
  * @author kec
  * @param <V>
  */
-public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChronicleImpl<V> implements SememeChronicle<V> {
+public class SememeChronicleImpl<V extends SememeVersionImpl> extends ObjectChronicleImpl<V> implements SememeChronology<V> {
 
     private static IdentifiedObjectService identifiedObjectService;
 

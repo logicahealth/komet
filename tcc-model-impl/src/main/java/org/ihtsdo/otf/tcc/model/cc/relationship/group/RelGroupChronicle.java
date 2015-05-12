@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -273,6 +274,10 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public List<UUID> getUUIDs() {
       return Arrays.asList(new UUID[] { uuid });
    }
+   @Override
+   public List<UUID> getUuidList() {
+      return Arrays.asList(new UUID[] { uuid });
+   }
 
    @Override
    public RelGroupVersionBI getVersion(ViewCoordinate c) throws ContradictionException {
@@ -281,6 +286,11 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
 
    @Override
    public List<? extends RelGroupVersionBI> getVersions() {
+      return Arrays.asList(new RelGroupVersionBI[] { new RelGroupVersion(this, null) });
+   }
+
+   @Override
+   public List<? extends RelGroupVersionBI> getVersionList() {
       return Arrays.asList(new RelGroupVersionBI[] { new RelGroupVersion(this, null) });
    }
 
@@ -303,4 +313,13 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public boolean isUncommitted() {
       return false;
    }
+   
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
+   
 }
