@@ -71,6 +71,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
 public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersion> {
 
+	private final static Object _classifierCharacteristicsLock = new Object();
     private static NidSetBI classifierCharacteristics;
     private static IdentifierService sequenceService = null; 
     protected static IdentifierService getSequenceService() {
@@ -249,19 +250,19 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
     private static void setupClassifierCharacteristics() {
-        if (classifierCharacteristics == null) {
-            NidSetBI temp = new NidSet();
+    	synchronized (_classifierCharacteristicsLock) {
+    		if (classifierCharacteristics == null) {
+    			NidSetBI temp = new NidSet();
 
-            try {
-                temp.add(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getConceptNid());
-            } catch (ValidationException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+    			try {
+    				temp.add(SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getConceptNid());
+    			} catch (ValidationException e) {
+    				throw new RuntimeException(e);
+    			}
 
-            classifierCharacteristics = temp;
-        }
+    			classifierCharacteristics = temp;
+    		}
+    	}
     }
 
     private void setupFsnOrder() {
@@ -779,13 +780,19 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
     @Override
     public Collection<? extends RelationshipVersionBI> getRelationshipsIncoming() throws IOException {
+    	setupClassifierCharacteristics();
+    	
         ArrayList<RelationshipVersionBI> results = new ArrayList<>();
         for (RelationshipChronicleBI rc : concept.getRelationshipsIncoming()) {
             for (RelationshipVersionBI<?> rv : rc.getVersions()) {
                if (classifierCharacteristics.contains(rv.getCharacteristicNid())) {
                    try {
-                       results.add(rc.getVersion(vc.getVcWithAllStatusValues()));
-                       break;
+                	   RelationshipVersionBI rvForVc = rc.getVersion(vc.getVcWithAllStatusValues());
+                	   if (rvForVc != null) {
+                		   results.add(rvForVc);
+
+                           break;
+                	   }
                    } catch (ContradictionException ex) {
                        throw new IOException(ex);
                    }
