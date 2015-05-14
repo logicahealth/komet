@@ -22,7 +22,7 @@ import gov.vha.isaac.ochre.api.commit.CommittableComponent;
  *
  * @author kec
  */
-public interface StampedVersion extends CommittableComponent {
+public interface StampedVersion extends CommittableComponent, IdentifiedObjectLocal {
     
     int getStampSequence();
     

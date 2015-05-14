@@ -366,4 +366,14 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         return getTkRefsetType();
     }
 
+    @Override
+    public int getSememeSequence() {
+        return getIdService().getSememeSequence(getNid());
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        return getIdService().getConceptSequence(assemblageNid);
+    }
+
 }

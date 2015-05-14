@@ -28,13 +28,8 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
  */
 public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersionImpl<SememeChronicleImpl<V>, V> implements MutableSememeVersion {
 
-
-    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence, DataBuffer db) {
-        super(container, stampSequence);
-    }
-
-    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence) {
-        super(container, stampSequence);
+    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
     
     public SememeType getSememeType() {
@@ -49,6 +44,21 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
     @Override
     public String toString() {
         return getSememeType().toString() + super.toString();
+    }
+
+    @Override
+    public int getSememeSequence() {
+        return chronicle.getSememeSequence();
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        return chronicle.getAssemblageSequence();
+    }
+
+    @Override
+    public int getReferencedComponentNid() {
+       return chronicle.getReferencedComponentNid();
     }
 
 }

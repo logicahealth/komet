@@ -15,16 +15,18 @@
  */
 package gov.vha.isaac.ochre.api.observable.description;
 
-import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronicle;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import javafx.beans.property.IntegerProperty;
 
 /**
  *
  * @author kec
+ * @param <V>
  */
-public interface ObservableDescriptionChronology extends ObservableChronology<ObservableDescription>, 
-        ConceptDescriptionChronicle<ObservableDescription> {
+public interface ObservableDescriptionChronology<V extends ObservableDescription>
+    extends ObservableChronology<V>, 
+        ConceptDescriptionChronology<V> {
     
     IntegerProperty conceptSequenceProperty();
 

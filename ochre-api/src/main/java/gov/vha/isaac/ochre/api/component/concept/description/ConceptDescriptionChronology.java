@@ -22,6 +22,7 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
  * @author kec
  * @param <V>
  */
-public interface ConceptDescriptionChronicle<V extends ConceptDescription> extends ObjectChronology<V> {
+public interface ConceptDescriptionChronology<V extends ConceptDescription> 
+    extends ObjectChronology<V> {
     int getConceptSequence();
 }

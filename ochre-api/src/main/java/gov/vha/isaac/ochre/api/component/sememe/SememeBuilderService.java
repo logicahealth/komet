@@ -17,67 +17,69 @@ package gov.vha.isaac.ochre.api.component.sememe;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
+ * @param <C>
  */
 @Contract
-public interface SememeBuilderService {
+public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion>> {
     
-    SememeBuilder getComponentSememeBuilder(int memeComponentNid,
+    SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
             IdentifiedComponentBuilder referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder getComponentSememeBuilder(int memeComponentNid,
+    SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
             int referencedComponentNid, 
             int assemblageConceptSequence);
     
     
-    SememeBuilder getConceptSememeBuilder(ConceptProxy memeConceptProxy,
+    SememeBuilder<C> getConceptSememeBuilder(ConceptProxy memeConceptProxy,
             IdentifiedComponentBuilder referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder getConceptSememeBuilder(ConceptProxy memeConceptProxy,
+    SememeBuilder<C> getConceptSememeBuilder(ConceptProxy memeConceptProxy,
             int referencedComponentNid, 
             int assemblageConceptSequence);
     
     
-    SememeBuilder getConceptTimeSememeBuilder(ConceptProxy memeConceptProxy,
+    SememeBuilder<C> getConceptTimeSememeBuilder(ConceptProxy memeConceptProxy,
             long memeTime,
             IdentifiedComponentBuilder referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder getConceptTimeSememeBuilder(ConceptProxy memeConceptProxy,
+    SememeBuilder<C> getConceptTimeSememeBuilder(ConceptProxy memeConceptProxy,
             long memeTime,
             int referencedComponentNid, 
             int assemblageConceptSequence);
     
     
-    SememeBuilder getLogicalExpressionSememeBuilder(LogicalExpression expression,
+    SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
             IdentifiedComponentBuilder referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder getLogicalExpressionSememeBuilder(LogicalExpression expression,
+    SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
             int referencedComponentNid, 
             int assemblageConceptSequence);
     
-    SememeBuilder getMembershipSememeBuilder(
+    SememeBuilder<C> getMembershipSememeBuilder(
             IdentifiedComponentBuilder referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder getMembershipSememeBuilder(
+    SememeBuilder<C> getMembershipSememeBuilder(
             int referencedComponentNid, 
             int assemblageConceptSequence);
     
     
-    SememeBuilder getStringSememeBuilder(String memeString,
+    SememeBuilder<C> getStringSememeBuilder(String memeString,
             IdentifiedComponentBuilder referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder getStringSememeBuilder(String memeString,
+    SememeBuilder<C> getStringSememeBuilder(String memeString,
             int referencedComponentNid, 
             int assemblageConceptSequence);
 }

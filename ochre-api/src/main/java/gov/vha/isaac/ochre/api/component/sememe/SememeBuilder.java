@@ -16,11 +16,13 @@
 package gov.vha.isaac.ochre.api.component.sememe;
 
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 
 /**
  *
  * @author kec
+ * @param <C>
  */
-public interface SememeBuilder extends IdentifiedComponentBuilder<SememeChronology>{
+public interface SememeBuilder<C extends SememeChronology<? extends SememeVersion>> extends IdentifiedComponentBuilder<C>{
     
 }

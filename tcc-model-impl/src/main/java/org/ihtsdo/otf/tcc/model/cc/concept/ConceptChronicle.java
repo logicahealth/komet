@@ -3,6 +3,8 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -153,6 +155,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     //~--- methods -------------------------------------------------------------
+
+    @Override
+    public List<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList() {
+        throw new UnsupportedOperationException("Not supported in OTF model, must use OCHRE model instead"); 
+    }
 
     @Override
     public void invalidated(javafx.beans.Observable observable) {

@@ -78,7 +78,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
     protected long[] additionalUuidParts;
     private final int nid;
     private final int containerSequence;
-
+    private short versionSequence = 0;
     private int versionStartPosition;
 
     private byte[] writtenData;
@@ -111,6 +111,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
 
         this.nid = data.getInt();
         this.containerSequence = data.getInt();
+        this.versionSequence = data.getShort();
         constructorEnd(data);
     }
 
@@ -127,13 +128,18 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
         }
         data.putInt(nid);
         data.putInt(containerSequence);
+        data.putShort(versionSequence);
+    }
+    
+    protected short nextVersionSequence() {
+        return versionSequence++;
     }
 
     protected final void constructorEnd(DataBuffer data) {
         versionStartPosition = data.getPosition();
     }
 
-    public void addVersion(V version) {
+    protected void addVersion(V version) {
         if (unwrittenData == null) {
             long lockStamp = getLock(nid).writeLock();
             try {

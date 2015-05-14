@@ -16,6 +16,8 @@
 package gov.vha.isaac.ochre.api.observable.concept;
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 import gov.vha.isaac.ochre.api.observable.description.ObservableDescriptionChronology;
@@ -26,16 +28,17 @@ import javafx.collections.ObservableList;
 /**
  *
  * @author kec
+ * @param <V>
  */
-public interface ObservableConceptChronology 
-        extends ConceptChronology<ObservableVersion>, 
-                ObservableChronology<ObservableVersion> {
+public interface ObservableConceptChronology<V extends ObservableVersion> 
+        extends ConceptChronology<V>, 
+                ObservableChronology<V> {
     
     IntegerProperty conceptSequenceProperty();
     
     ListProperty<ObservableDescriptionChronology> conceptDescriptionListProperty();
 
     @Override
-    ObservableList<ObservableDescriptionChronology> getConceptDescriptionList();
+    ObservableList<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList();
     
 }

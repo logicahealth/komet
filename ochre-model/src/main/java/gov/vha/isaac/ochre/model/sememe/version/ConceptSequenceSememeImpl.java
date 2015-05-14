@@ -29,12 +29,14 @@ public class ConceptSequenceSememeImpl extends SememeVersionImpl implements Muta
 
     int conceptSequence = -1;
 
-    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, int stampSequence) {
-        super(container, stampSequence);
+    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, 
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
     
-    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, int stampSequence, DataBuffer data) {
-        super(container, stampSequence, data);
+    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, 
+            int stampSequence, short versionSequence, DataBuffer data) {
+        super(container, stampSequence, versionSequence);
         this.conceptSequence = data.getInt();
     }
     @Override

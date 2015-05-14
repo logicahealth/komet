@@ -171,5 +171,15 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public int getSememeSequence() {
+        return ((RefexMember) cc).getSememeSequence();
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        return ((RefexMember) cc).getAssemblageSequence();
+    }
     
 }

@@ -20,6 +20,8 @@ import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -39,14 +41,21 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     
     protected final C chronicle;   
     private int stampSequence;
+    private final short versionSequence;
 
-    public ObjectVersionImpl(C chronicle, int stampSequence) {
+    public ObjectVersionImpl(C chronicle, int stampSequence, short versionSequence) {
         this.chronicle = chronicle;
         this.stampSequence = stampSequence;
+        this.versionSequence = versionSequence;
     }
 
     protected void writeVersionData(DataBuffer data) {
          data.putInt(stampSequence);
+         data.putShort(versionSequence);
+    }
+
+    public short getVersionSequence() {
+        return versionSequence;
     }
         
     @Override
@@ -77,17 +86,6 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     @Override
     public int getPathSequence() {
         return getCommitService().getPathSequenceForStamp(stampSequence);
-    }
-
-
-    @Override
-    public void setState(State state) {
-        checkUncommitted();
-        this.stampSequence = getCommitService().getStamp(state, 
-                getTime(), 
-                getAuthorSequence(), 
-                getModuleSequence(), 
-                getPathSequence());
     }
 
     @Override
@@ -153,6 +151,26 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     @Override
     public String toString() {
         return ", stampSequence=" + stampSequence + " " + getCommitService().describeStampSequence(stampSequence);
+    }
+
+    @Override
+    public String toUserString() {
+        return toString();
+    }
+
+    @Override
+    public int getNid() {
+        return chronicle.getNid();
+    }
+
+    @Override
+    public UUID getPrimordialUuid() {
+        return chronicle.getPrimordialUuid();
+    }
+
+    @Override
+    public List<UUID> getUuidList() {
+        return chronicle.getUuidList();
     }
 
 }

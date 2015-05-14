@@ -20,7 +20,6 @@ import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
@@ -180,6 +179,16 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     @Override
     public List<? extends RefexVersionBI<V>> getVersionList() {
         return getVersions();
+    }
+
+    @Override
+    public int getSememeSequence() {
+        return primordialComponent.getSememeSequence();
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+       return primordialComponent.getAssemblageSequence();
     }
     
     

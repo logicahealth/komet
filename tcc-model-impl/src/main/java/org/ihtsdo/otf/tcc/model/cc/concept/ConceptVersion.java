@@ -5,6 +5,8 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.constraint.RelConstraintIncoming;
@@ -101,6 +103,10 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     }
 
    //~--- methods -------------------------------------------------------------
+
+    public List<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList() {
+        return concept.getConceptDescriptionList();
+    }
 
     @Override
     public IntStream getVersionStampSequences() {

@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api.observable;
 
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -26,7 +26,7 @@ import javafx.beans.property.ObjectProperty;
  *
  * @author kec
  */
-public interface ObservableVersion extends StampedVersion {
+public interface ObservableVersion extends MutableStampedVersion {
     
     ObjectProperty<State> stateProperty();
     
@@ -41,6 +41,5 @@ public interface ObservableVersion extends StampedVersion {
     IntegerProperty stampSequenceProperty();
     
     ObjectProperty<CommitStates> commitStateProperty();
-
     
 }

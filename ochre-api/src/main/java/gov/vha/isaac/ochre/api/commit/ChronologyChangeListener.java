@@ -15,8 +15,10 @@
  */
 package gov.vha.isaac.ochre.api.commit;
 
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.util.UUID;
 
 /**
@@ -49,8 +51,8 @@ public interface ChronologyChangeListener {
     
     UUID getListenerUuid();
     
-    void handleChange(ConceptChronology cc);
+    void handleChange(ConceptChronology<? extends StampedVersion> cc);
     
-    void handleChange(SememeChronology sc);
+    void handleChange(SememeChronology<? extends SememeVersion> sc);
     
 }

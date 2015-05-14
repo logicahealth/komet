@@ -15,10 +15,43 @@
  */
 package gov.vha.isaac.ochre.model.concept;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
+import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ObjectChronicleImpl;
+import gov.vha.isaac.ochre.model.ObjectVersionImpl;
+import java.util.List;
+import java.util.UUID;
+
 /**
  *
  * @author kec
  */
-public class ConceptChronicleImpl {
-    
+public class ConceptChronicleImpl 
+    extends ObjectChronicleImpl<ObjectVersionImpl> 
+    implements ConceptChronology<ObjectVersionImpl> {
+
+    public ConceptChronicleImpl(UUID primoridalUuid, int nid, int containerSequence) {
+        super(primoridalUuid, nid, containerSequence);
+    }
+
+    public ConceptChronicleImpl(DataBuffer data) {
+        super(data);
+    }
+
+    @Override
+    protected ObjectVersionImpl makeVersion(int stampSequence, DataBuffer bb) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getConceptSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

@@ -15,7 +15,8 @@ import java.util.stream.IntStream;
  * @author kec
  * @param <V> the Version type this chronicled object contains. 
  */
-public interface ObjectChronology<V extends StampedVersion> extends IdentifiedObjectLocal {
+public interface ObjectChronology<V extends StampedVersion> 
+    extends IdentifiedObjectLocal {
     
     List<? extends V> getVersionList();
     

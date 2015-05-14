@@ -7,7 +7,8 @@ package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronicle;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
 import java.util.List;
 
 /**
@@ -19,5 +20,6 @@ public interface ConceptChronology<V extends StampedVersion> extends ObjectChron
     
     int getConceptSequence();
     
-    List<? extends ConceptDescriptionChronicle> getConceptDescriptionList();
+    List<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList();
+
 }

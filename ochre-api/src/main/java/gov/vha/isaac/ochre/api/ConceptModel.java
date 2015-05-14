@@ -13,25 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.observable.description;
-
-import gov.vha.isaac.ochre.api.component.concept.description.MutableConceptDescription;
-import gov.vha.isaac.ochre.api.observable.ObservableVersion;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
+package gov.vha.isaac.ochre.api;
 
 /**
  *
  * @author kec
  */
-public interface ObservableDescription extends ObservableVersion, MutableConceptDescription {
-    
-    IntegerProperty caseSignificanceConceptSequenceProperty();
-    
-    IntegerProperty languageConceptSequenceProperty();
-    
-    StringProperty textProperty();
-    
-    IntegerProperty descriptionTypeConceptSequenceProperty();
-    
+public enum ConceptModel {
+    OCHRE_CONCEPT_MODEL, OTF_CONCEPT_MODEL;
 }

@@ -28,7 +28,8 @@ import java.util.Collection;
 import java.util.stream.Stream;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
-public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI> {
+public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI>,
+        ConceptChronology<ConceptVersionBI> {
    void cancel() throws IOException;
 
    boolean commit(ChangeSetGenerationPolicy changeSetPolicy,

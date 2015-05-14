@@ -28,7 +28,7 @@ import org.glassfish.hk2.api.MultiException;
  *
  * @author kec
  */
-public class LogicGraphSememeImpl extends SememeVersionImpl
+public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl>
         implements MutableLogicGraphSememe {
 
     private static LogicByteArrayConverter converter;
@@ -42,18 +42,24 @@ public class LogicGraphSememeImpl extends SememeVersionImpl
 
     byte[][] graphData = null;
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, int stampSequence,
+    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, 
+            int stampSequence, short versionSequence,
             DataBuffer data) {
-        super(container, stampSequence, data);
+        super(container, stampSequence, versionSequence);
         int graphNodes = data.getInt();
         this.graphData = new byte[graphNodes][];
         for (int i = 0; i < graphNodes; i++) {
-            this.graphData[i] = data.getByteArrayField();
+            try {
+                this.graphData[i] = data.getByteArrayField();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println(e);
+            }
         }
     }
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, int stampSequence) {
-        super(container, stampSequence);
+    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, 
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     @Override

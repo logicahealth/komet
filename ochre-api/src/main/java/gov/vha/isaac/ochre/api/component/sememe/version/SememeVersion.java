@@ -16,11 +16,12 @@
 package gov.vha.isaac.ochre.api.component.sememe.version;
 
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeObject;
 
 /**
  *
  * @author kec
  */
-public interface SememeVersion extends StampedVersion {
+public interface SememeVersion extends StampedVersion, SememeObject {
     
 }

@@ -30,15 +30,15 @@ public class ComponentNidSememeImpl extends SememeVersionImpl implements Mutable
     int componentNid = Integer.MAX_VALUE;
 
     public ComponentNidSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
-            int stampSequence) {
+            int stampSequence, short versionSequence) {
         super(container, 
-                stampSequence);
+                stampSequence, versionSequence);
     }
 
     public ComponentNidSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
-            int stampSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
-                stampSequence, data);
+                stampSequence, versionSequence);
         this.componentNid = data.getInt();
     }
 

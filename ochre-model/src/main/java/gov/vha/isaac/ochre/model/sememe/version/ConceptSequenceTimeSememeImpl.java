@@ -29,14 +29,15 @@ public class ConceptSequenceTimeSememeImpl extends ConceptSequenceSememeImpl
 
     long sememeTime = Long.MAX_VALUE;
     
-    public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  int stampSequence, DataBuffer data) {
-        super(container, stampSequence, data);
+    public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  
+            int stampSequence, short versionSequence, DataBuffer data) {
+        super(container, stampSequence, versionSequence);
         this.sememeTime = data.getLong();
     }
 
     public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  
-            int stampSequence) {
-        super(container, stampSequence);
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     
