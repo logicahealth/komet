@@ -5,6 +5,7 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.stream.IntStream;
  * @param <V> the Version type this chronicled object contains. 
  */
 public interface ObjectChronology<V extends StampedVersion> 
-    extends IdentifiedObjectLocal {
+    extends IdentifiedObjectLocal, CommittableComponent {
     
     List<? extends V> getVersionList();
     

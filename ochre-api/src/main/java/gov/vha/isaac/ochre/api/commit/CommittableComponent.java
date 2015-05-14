@@ -21,4 +21,8 @@ package gov.vha.isaac.ochre.api.commit;
  */
 public interface CommittableComponent {
     CommitStates getCommitState();
+    
+    default boolean isUncommitted() {
+        return getCommitState() == CommitStates.UNCOMMITTED;
+    }
 }
