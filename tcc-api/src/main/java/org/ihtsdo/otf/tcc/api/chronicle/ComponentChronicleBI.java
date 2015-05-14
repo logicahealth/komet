@@ -19,9 +19,6 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
 
     @Override
     List<? extends T> getVersions();
-
-    boolean isUncommitted();
-    
     
     /**
      * 

@@ -311,7 +311,6 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
-   @Override
    public boolean isUncommitted() {
       return false;
    }

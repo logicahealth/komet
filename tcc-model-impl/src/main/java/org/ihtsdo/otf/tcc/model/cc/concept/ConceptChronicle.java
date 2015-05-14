@@ -1786,7 +1786,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return CommitStates.COMMITTED;
     }
 
-    @Override
     public boolean isUncommitted() {
         return data.isUncommitted();
     }
