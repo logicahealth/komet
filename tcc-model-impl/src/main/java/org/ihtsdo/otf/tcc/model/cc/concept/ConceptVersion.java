@@ -300,11 +300,11 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
     private boolean testRels(ConstraintBI constraint, ConstraintCheckType subjectCheck,
             ConstraintCheckType propertyCheck, ConstraintCheckType valueCheck,
-            Collection<? extends RelationshipVersionBI> rels)
+            Collection<? extends RelationshipVersionBI<?>> rels)
             throws IOException, ContradictionException {
         RelConstraint rc = (RelConstraint) constraint;
 
-        for (RelationshipVersionBI rel : rels) {
+        for (RelationshipVersionBI<?> rel : rels) {
             if (checkConceptVersionConstraint(rel.getOriginNid(), rc.getOriginSpec(), subjectCheck)
                     && checkConceptVersionConstraint(rel.getTypeNid(), rc.getRelTypeSpec(), propertyCheck)
                     && checkConceptVersionConstraint(rel.getDestinationNid(), rc.getDestinationSpec(),
@@ -519,9 +519,9 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
     @Override
     public Collection<? extends DescriptionVersionBI> getDescriptionsFullySpecifiedActive(NidSetBI typeNids) throws IOException {
-        Collection<DescriptionVersionBI> results = new ArrayList<>();
+        Collection<DescriptionVersionBI<?>> results = new ArrayList<>();
 
-        for (DescriptionVersionBI d : getDescriptionsActive()) {
+        for (DescriptionVersionBI<?> d : getDescriptionsActive()) {
             if (d != null && typeNids.contains(d.getTypeNid())) {
                 results.add(d);
             }
@@ -826,10 +826,10 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     @Override
     public Collection<? extends RelationshipVersionBI> getRelationshipsIncomingActiveIsa()
             throws IOException, ContradictionException {
-        Collection<RelationshipVersionBI> returnValues = new ArrayList<>();
+        Collection<RelationshipVersionBI<?>> returnValues = new ArrayList<>();
 
         for (RelationshipChronicleBI rel : getRelationshipsIncoming()) {
-            for (RelationshipVersionBI rv : rel.getVersions(vc)) {
+            for (RelationshipVersionBI<?> rv : rel.getVersions(vc)) {
                 if (rv != null && vc.getIsaNid() == rv.getTypeNid()) {
                     returnValues.add(rv);
                 }
@@ -1244,6 +1244,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    // TODO this method calls ConceptChronicle.getVersions() which always returns UnsupportedOperationException.  If a different implementation getting called, it's probably wrong anyway
     @Override
     public Collection<? extends ConceptVersionBI> getVersions(ViewCoordinate c) {
         return concept.getVersions();
