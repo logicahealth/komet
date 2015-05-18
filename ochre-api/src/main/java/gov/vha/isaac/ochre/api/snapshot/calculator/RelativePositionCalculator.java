@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.api.snapshot.calculator;
 
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitService;
@@ -334,7 +334,7 @@ public class RelativePositionCalculator {
     }
 
     public <V extends StampedVersion> Optional<LatestVersion<V>>
-        getLatestVersion(ChronicledObjectLocal<V> chronicle) {
+        getLatestVersion(ObjectChronology<V> chronicle) {
 
         HashSet<V> latestVersionSet = new HashSet<>();
 

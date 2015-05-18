@@ -361,6 +361,11 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
     @Override
+    public List<RelationshipVersion> getVersionList() {
+        return getVersions();
+    }
+
+    @Override
     public List<RelationshipVersion> getVersions() {
         if (versions == null) {
             int count = 1;

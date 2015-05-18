@@ -229,7 +229,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public List<ConceptAttributesVersion> getVersions() {
+    public List<ConceptAttributesVersion> getVersionList() {
         List<ConceptAttributesVersion> list = versions;
 
         if (list == null) {
@@ -263,6 +263,11 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         }
 
         return list;
+    }
+    
+    @Override
+    public List<ConceptAttributesVersion> getVersions() {
+        return getVersionList();
     }
 
     @Override

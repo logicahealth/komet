@@ -16,7 +16,8 @@
 
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
-import gov.vha.isaac.ochre.api.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -90,11 +91,6 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
         return ((RefexMember) cc).assemblageNid;
     }
 
-    @Override
-    public int getContainerSequence() {
-        return getSequenceService().getSememeSequence(getNid());
-    }
-    
     
 
     @Override
@@ -145,6 +141,11 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
+    public List<? extends RefexMemberVersion<R,C>> getVersionList() {
+        return ((RefexMember) cc).getVersions();
+    }
+
+    @Override
     public Collection<RefexMemberVersion<R, C>> getVersions(ViewCoordinate c) {
         return ((RefexMember) cc).getVersions(c);
     }
@@ -167,8 +168,13 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
     public int getSememeSequence() {
-       return ((RefexMember) cc).getSememeSequence();
+        return ((RefexMember) cc).getSememeSequence();
     }
 
     @Override

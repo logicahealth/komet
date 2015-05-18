@@ -246,6 +246,12 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
        return ((RefexDynamicMember) primordialComponent).getVersions();
     }
 
+
+    @Override
+    public List<? extends RefexDynamicMemberVersion> getVersionList() {
+       return ((RefexDynamicMember) primordialComponent).getVersions();
+    }
+
     @Override
     public Collection<? extends RefexDynamicVersionBI<RefexDynamicRevision>> getVersions(ViewCoordinate c) {
        return ((RefexDynamicMember) primordialComponent).getVersions(c);

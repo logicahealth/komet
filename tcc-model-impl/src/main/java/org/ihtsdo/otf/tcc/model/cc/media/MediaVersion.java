@@ -114,6 +114,10 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     public List<? extends MediaVersion> getVersions() {
         return ((Media) cc).getVersions();
     }
+    @Override
+    public List<? extends MediaVersion> getVersionList() {
+        return ((Media) cc).getVersions();
+    }
 
     @Override
     public Collection<MediaVersion> getVersions(ViewCoordinate c) {

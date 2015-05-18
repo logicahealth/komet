@@ -307,6 +307,10 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         }
         return null;
     }
+    @Override
+    public List<DescriptionVersion> getVersionList() {
+        return getVersions();
+    }
 
     @Override
     public List<DescriptionVersion> getVersions() {

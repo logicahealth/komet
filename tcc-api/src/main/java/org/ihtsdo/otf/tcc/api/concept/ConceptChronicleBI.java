@@ -2,9 +2,10 @@ package org.ihtsdo.otf.tcc.api.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
@@ -27,7 +28,8 @@ import java.util.Collection;
 import java.util.stream.Stream;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 
-public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI>, ChronicledConcept<ConceptVersionBI> {
+public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionBI>,
+        ConceptChronology<ConceptVersionBI> {
    void cancel() throws IOException;
 
    boolean commit(ChangeSetGenerationPolicy changeSetPolicy,
@@ -73,7 +75,7 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
 
    RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException;
    
-   Stream<SememeChronicle> getSememeChronicles();
+   Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles();
 
    Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException;
    

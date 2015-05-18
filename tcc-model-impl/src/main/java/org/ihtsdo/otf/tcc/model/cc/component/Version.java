@@ -19,6 +19,10 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +57,8 @@ import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
  * @param <R>
  * @param <C>
  */
-public abstract class Version<R extends Revision<R, C>, C extends ConceptComponent<R, C>> implements ComponentVersionBI, AnalogGeneratorBI<R> {
+public abstract class Version<R extends Revision<R, C>, C extends ConceptComponent<R, C>> 
+implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
 
     private static TerminologyDI terminology;
     private static TerminologyDI getTermService() {
@@ -102,12 +107,7 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
     public IntStream getVersionStampSequences() {
         return this.cc.getVersionStampSequences();
     }
-  
-    @Override
-    public int getContainerSequence() {
-        return cc.getContainerSequence();
-    }
-    
+
     public boolean isIndexed() {
         return PersistentStore.get().isIndexed(cc.nid);
     }
@@ -623,6 +623,11 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
         return getTermService().getTimeForStamp(stamp);
     }
 
+    @Override
+    public List<UUID> getUuidList() {
+        return cc.getUuidList();
+    }
+
     /**
      * Method description
      *
@@ -681,9 +686,16 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
      *
      * @return
      */
-    @Override
     public boolean isUncommitted() {
         return getTime() == Long.MAX_VALUE;
+    }
+
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
     }
 
     /**
@@ -824,6 +836,10 @@ public abstract class Version<R extends Revision<R, C>, C extends ConceptCompone
     @Override
     public int getPathSequence() {
        return getSequenceService().getConceptSequence(getPathNid());
+    }
+
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        return cc.getSememeList();
     }
 
 }

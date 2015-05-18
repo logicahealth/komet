@@ -1,7 +1,9 @@
 package gov.vha.isaac.ochre.api;
 
+import java.util.ArrayList;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -9,6 +11,7 @@ import java.util.UUID;
  * Created by kec on 2/16/15.
  */
 public class ConceptProxy {
+    public static final String FIELD_SEPERATOR="⦙";
     protected transient int nid = Integer.MAX_VALUE;
     protected transient int sequence = Integer.MAX_VALUE;
     private static IdentifierService identifierProvider = null;
@@ -26,7 +29,7 @@ public class ConceptProxy {
     
     /** Universal identifiers for the concept proxied by the is object */
     protected UUID[] uuids;
-    /** Description of the concept proxied by this object */
+    /** A description of the concept proxied by this object */
     protected String description;
 
     public ConceptProxy() {
@@ -35,6 +38,30 @@ public class ConceptProxy {
     public ConceptProxy(String description, UUID... uuids) {
         this.uuids       = uuids;
         this.description = description;
+    }
+    public ConceptProxy(String externalString) {
+        String[] parts = externalString.split(FIELD_SEPERATOR);
+        this.description = parts[0];
+        List<UUID> uuidList = new ArrayList(parts.length - 1);
+        for (int i = 1; i < parts.length; i++) {
+            uuidList.add(UUID.fromString(parts[i]));
+        }
+        if (uuidList.size() < 1) {
+            throw new IllegalStateException("No uuids specified in: " 
+                    + externalString);
+        }
+        this.uuids = uuidList.toArray(new UUID[uuidList.size()]);
+    }
+    
+    
+    public String toExternalString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(description);
+        for (UUID uuid: uuids) {
+            sb.append(FIELD_SEPERATOR).append(uuid.toString());
+        }
+        
+        return sb.toString();
     }
 
     @Override

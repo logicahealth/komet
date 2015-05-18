@@ -32,7 +32,8 @@ import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 
-public class ConceptAttributesVersion extends Version<ConceptAttributesRevision, ConceptAttributes> implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
+public class ConceptAttributesVersion extends Version<ConceptAttributesRevision, ConceptAttributes> 
+    implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
 
     
     public ConceptAttributesVersion(){}
@@ -91,6 +92,11 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
     @Override
     public List<? extends ConceptAttributesVersion> getVersions() {
         return ((ConceptAttributes)cc).getVersions();
+    }
+
+    @Override
+    public List<? extends ConceptAttributesVersion> getVersionList() {
+        return ((ConceptAttributes)cc).getVersionList();
     }
 
     @Override

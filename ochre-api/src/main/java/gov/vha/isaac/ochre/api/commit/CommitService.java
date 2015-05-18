@@ -16,8 +16,8 @@
 package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -40,25 +40,25 @@ public interface CommitService {
     
     Optional<String> getComment(int stampSequence);
     
-    Task<Void> addUncommitted(ChronicledConcept cc);
+    Task<Void> addUncommitted(ConceptChronology cc);
 
-    Task<Void> addUncommittedNoChecks(ChronicledConcept cc);
+    Task<Void> addUncommittedNoChecks(ConceptChronology cc);
 
-    Task<Void> addUncommitted(SememeChronicle sc);
+    Task<Void> addUncommitted(SememeChronology sc);
 
-    Task<Void> addUncommittedNoChecks(SememeChronicle sc);
+    Task<Void> addUncommittedNoChecks(SememeChronology sc);
 
     Task<Void> cancel();
 
-    Task<Void> cancel(ChronicledConcept chronicledConcept);
+    Task<Void> cancel(ConceptChronology chronicledConcept);
 
-    Task<Void> cancel(SememeChronicle sememeChronicle);
+    Task<Void> cancel(SememeChronology sememeChronicle);
 
     Task<Optional<CommitRecord>> commit(String commitComment);
 
-    Task<Optional<CommitRecord>> commit(ChronicledConcept chronicledConcept, String commitComment);
+    Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
     
-    Task<Optional<CommitRecord>> commit(SememeChronicle sememeChronicle, String commitComment);
+    Task<Optional<CommitRecord>> commit(SememeChronology sememeChronicle, String commitComment);
     
     ObservableList<Integer> getUncommittedConceptNids();
     
@@ -68,9 +68,9 @@ public interface CommitService {
 
     void removeChangeChecker(ChangeChecker checker);
     
-    void addChangeListener(ChangeListener changeListener);
+    void addChangeListener(ChronologyChangeListener changeListener);
 
-    void removeChangeListener(ChangeListener changeListener);
+    void removeChangeListener(ChronologyChangeListener changeListener);
     
     long getCommitManagerSequence();
 

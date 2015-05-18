@@ -176,7 +176,10 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
     protected VersionComputer<RefexMemberVersion<LogicGraphRevision, LogicGraphMember>> getVersionComputer() {
         return computer;
     }
-
+    @Override
+    public List<LogicGraphMemberVersion> getVersionList() {
+        return getVersions();
+    }
     @Override
     public List<LogicGraphMemberVersion> getVersions() {
         if (versions == null) {

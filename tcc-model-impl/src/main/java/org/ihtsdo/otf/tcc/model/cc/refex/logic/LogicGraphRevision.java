@@ -166,9 +166,15 @@ public class LogicGraphRevision
    }
 
    @Override
+   public List<LogicGraphMemberVersion> getVersionList() {
+      return (List<LogicGraphMemberVersion>) ((LogicGraphMember) primordialComponent).getVersions();
+   }
+
+   @Override
    public List<RefexMemberVersion<LogicGraphRevision, LogicGraphMember>> getVersions(ViewCoordinate c) {
       return ((LogicGraphMember) primordialComponent).getVersions(c);
    }
+
 
    
     @Override

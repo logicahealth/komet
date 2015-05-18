@@ -15,15 +15,11 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
-import gov.vha.isaac.ochre.api.State;
-
 /**
  *
  * @author kec
  */
 public interface MutableStampedVersion extends StampedVersion {
-    
-    void setState(State state);
     
     void setTime(long time);
     

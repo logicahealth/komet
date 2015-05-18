@@ -15,11 +15,11 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.sememe.version.MutableSememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableSememeVersion;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  *
@@ -28,13 +28,8 @@ import gov.vha.isaac.ochre.api.sememe.SememeType;
  */
 public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersionImpl<SememeChronicleImpl<V>, V> implements MutableSememeVersion {
 
-
-    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence, DataBuffer db) {
-        super(container, stampSequence);
-    }
-
-    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence) {
-        super(container, stampSequence);
+    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
     
     public SememeType getSememeType() {
@@ -47,24 +42,23 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
     }
 
     @Override
+    public String toString() {
+        return getSememeType().toString() + super.toString();
+    }
+
+    @Override
     public int getSememeSequence() {
-       return getContainerSequence();
+        return chronicle.getSememeSequence();
     }
 
     @Override
     public int getAssemblageSequence() {
-        return getContainerSequence();
+        return chronicle.getAssemblageSequence();
     }
 
     @Override
     public int getReferencedComponentNid() {
-        return chronicle.getReferencedComponentNid();
-    }
-
-    @Override
-    public String toString() {
-        
-        return getSememeType().toString() + super.toString();
+       return chronicle.getReferencedComponentNid();
     }
 
 }

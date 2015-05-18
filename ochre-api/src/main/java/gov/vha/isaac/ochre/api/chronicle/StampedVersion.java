@@ -16,12 +16,13 @@
 package gov.vha.isaac.ochre.api.chronicle;
 
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 
 /**
  *
  * @author kec
  */
-public interface StampedVersion extends IdentifiedObjectLocal {
+public interface StampedVersion extends CommittableComponent, IdentifiedObjectLocal {
     
     int getStampSequence();
     
@@ -35,6 +36,4 @@ public interface StampedVersion extends IdentifiedObjectLocal {
     
     int getPathSequence();
     
-    int getContainerSequence();
-      
 }

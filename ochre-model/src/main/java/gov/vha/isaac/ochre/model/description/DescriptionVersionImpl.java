@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.description;
 
+import gov.vha.isaac.ochre.api.component.concept.description.MutableConceptDescription;
 import gov.vha.isaac.ochre.model.ObjectChronicleImpl;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
 
@@ -22,14 +23,58 @@ import gov.vha.isaac.ochre.model.ObjectVersionImpl;
  *
  * @author kec
  */
-public class DescriptionVersionImpl extends ObjectVersionImpl<ObjectChronicleImpl<DescriptionVersionImpl>, DescriptionVersionImpl>{
+public class DescriptionVersionImpl 
+    extends ObjectVersionImpl<ObjectChronicleImpl<DescriptionVersionImpl>, DescriptionVersionImpl>
+    implements MutableConceptDescription {
+
     protected int caseSignificanceConceptSequence;
     protected int languageConceptSequence;
     protected String text;
     protected int descriptionTypeConceptSequence;
 
-    public DescriptionVersionImpl(ObjectChronicleImpl<DescriptionVersionImpl> chronicle, int stampSequence) {
-        super(chronicle, stampSequence);
+    public DescriptionVersionImpl(ObjectChronicleImpl<DescriptionVersionImpl> chronicle, 
+            int stampSequence, short versionSequence) {
+        super(chronicle, stampSequence, versionSequence);
+    }
+
+    @Override
+    public int getCaseSignificanceConceptSequence() {
+        return caseSignificanceConceptSequence;
+    }
+
+    @Override
+    public void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence) {
+        this.caseSignificanceConceptSequence = caseSignificanceConceptSequence;
+    }
+
+    @Override
+    public int getLanguageConceptSequence() {
+        return languageConceptSequence;
+    }
+
+    @Override
+    public void setLanguageConceptSequence(int languageConceptSequence) {
+        this.languageConceptSequence = languageConceptSequence;
+    }
+
+    @Override
+    public String getText() {
+        return text;
+    }
+
+    @Override
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public int getDescriptionTypeConceptSequence() {
+        return descriptionTypeConceptSequence;
+    }
+
+    @Override
+    public void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence) {
+        this.descriptionTypeConceptSequence = descriptionTypeConceptSequence;
     }
     
 }

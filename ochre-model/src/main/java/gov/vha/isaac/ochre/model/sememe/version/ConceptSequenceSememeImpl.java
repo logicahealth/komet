@@ -16,10 +16,10 @@
 package gov.vha.isaac.ochre.model.sememe.version;
 
 
-import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableConceptSequenceSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  * 
@@ -29,12 +29,14 @@ public class ConceptSequenceSememeImpl extends SememeVersionImpl implements Muta
 
     int conceptSequence = -1;
 
-    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, int stampSequence) {
-        super(container, stampSequence);
+    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, 
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
     
-    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, int stampSequence, DataBuffer data) {
-        super(container, stampSequence, data);
+    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, 
+            int stampSequence, short versionSequence, DataBuffer data) {
+        super(container, stampSequence, versionSequence);
         this.conceptSequence = data.getInt();
     }
     @Override

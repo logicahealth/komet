@@ -15,10 +15,10 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.sememe.version.MutableDynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  *
@@ -26,15 +26,16 @@ import gov.vha.isaac.ochre.api.sememe.SememeType;
  */
 public class DynamicSememeImpl extends SememeVersionImpl implements MutableDynamicSememe {
 
-    public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, int stampSequence, 
+    public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, 
+            int stampSequence, short versionSequence, 
             DataBuffer db) {
-        super(container, stampSequence, db);
+        super(container, stampSequence, versionSequence);
         throw new UnsupportedOperationException();
     }
 
     public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, 
-            int stampSequence) {
-        super(container, stampSequence);
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
         throw new UnsupportedOperationException();
     }
     

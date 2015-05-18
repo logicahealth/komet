@@ -15,8 +15,8 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.sememe.SememeType;
-import gov.vha.isaac.ochre.api.sememe.version.MutableStringSememe;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableStringSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 
@@ -29,14 +29,14 @@ public class StringSememeImpl extends SememeVersionImpl implements MutableString
     private String string = null;
 
     public StringSememeImpl(SememeChronicleImpl<StringSememeImpl> container, 
-            int stampSequence) {
-        super(container, stampSequence);
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     public StringSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
-            int stampSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
-                stampSequence, data);
+                stampSequence, versionSequence);
         this.string = data.readUTF();
     }
 

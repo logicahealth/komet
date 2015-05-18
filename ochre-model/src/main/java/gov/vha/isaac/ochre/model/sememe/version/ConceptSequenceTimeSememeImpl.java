@@ -15,10 +15,10 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceTimeSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableConceptSequenceTimeSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  * Used for path origins by path manager. 
@@ -29,14 +29,15 @@ public class ConceptSequenceTimeSememeImpl extends ConceptSequenceSememeImpl
 
     long sememeTime = Long.MAX_VALUE;
     
-    public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  int stampSequence, DataBuffer data) {
-        super(container, stampSequence, data);
+    public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  
+            int stampSequence, short versionSequence, DataBuffer data) {
+        super(container, stampSequence, versionSequence);
         this.sememeTime = data.getLong();
     }
 
     public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  
-            int stampSequence) {
-        super(container, stampSequence);
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     

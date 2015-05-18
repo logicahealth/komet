@@ -277,6 +277,11 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
    @Override
+   public List<DescriptionVersion> getVersionList() {
+      return ((Description) primordialComponent).getVersionList();
+   }
+
+   @Override
    public Collection<DescriptionVersion> getVersions(ViewCoordinate c) {
       return primordialComponent.getVersions(c);
    }

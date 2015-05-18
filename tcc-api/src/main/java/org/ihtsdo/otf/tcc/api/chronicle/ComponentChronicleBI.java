@@ -1,6 +1,6 @@
 package org.ihtsdo.otf.tcc.api.chronicle;
 
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 public interface ComponentChronicleBI<T extends ComponentVersionBI>
-        extends ComponentBI, ChronicledObjectLocal<T> {
+        extends ComponentBI, ObjectChronology<T> {
 
     T getVersion(ViewCoordinate c) throws ContradictionException;
 
@@ -19,9 +19,6 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
 
     @Override
     List<? extends T> getVersions();
-
-    boolean isUncommitted();
-    
     
     /**
      * 

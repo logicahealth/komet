@@ -3,6 +3,8 @@ package org.ihtsdo.otf.tcc.model.cc.attributes;
 //~--- non-JDK imports --------------------------------------------------------
 
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -158,6 +160,13 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    public List<ConceptAttributesVersion> getVersions() {
       return ((ConceptAttributes) primordialComponent).getVersions();
    }
+   
+
+   @Override
+   public List<ConceptAttributesVersion> getVersionList() {
+      return ((ConceptAttributes) primordialComponent).getVersionList();
+   }
+   
 
    @Override
    public Collection<ConceptAttributesVersion> getVersions(ViewCoordinate c) {

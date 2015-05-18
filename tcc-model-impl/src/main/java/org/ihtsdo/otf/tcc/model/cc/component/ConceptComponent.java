@@ -5,8 +5,11 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitService;
-import gov.vha.isaac.ochre.api.sememe.SememeService;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
@@ -1502,10 +1505,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return enclosingConceptNid;
     }
 
-    @Override
-    public int getContainerSequence() {
-        return getIdService().getConceptSequence(nid);
-    }
 
     /**
      * Method description
@@ -2041,14 +2040,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return PersistentStore.get().getTimeForStamp(primordialStamp);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
     @Override
-    public final List<UUID> getUUIDs() {
+    public List<UUID> getUuidList() {
         List<UUID> returnValues = new ArrayList<>();
 
         returnValues.add(new UUID(primordialMsb, primordialLsb));
@@ -2235,7 +2228,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @return
      */
-    @Override
+
     public boolean isUncommitted() {
         if (this.getTime() == Long.MAX_VALUE) {
             return true;
@@ -2258,6 +2251,14 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
 
         return false;
+    }
+
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
     }
 
     /**
@@ -2401,6 +2402,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                     getPathNid());
             assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         }
+    }
+
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

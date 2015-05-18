@@ -60,7 +60,7 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
 
     public TtkRefexStringMemberChronicle(SememeChronicleImpl<StringSememeImpl> another) {
       super(another);
-      List<StringSememeImpl> stringVersions = another.getVersions();
+      List<StringSememeImpl> stringVersions = (List<StringSememeImpl>) another.getVersions();
         
       this.string1 = stringVersions.get(0).getString();
 

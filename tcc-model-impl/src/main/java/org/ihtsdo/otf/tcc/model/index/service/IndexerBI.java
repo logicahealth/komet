@@ -20,7 +20,7 @@ package org.ihtsdo.otf.tcc.model.index.service;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -157,7 +157,7 @@ public interface IndexerBI {
      * to make sure that the component's indexing is complete prior to performing
      * a search where the chronicle's results must be included.
      */
-    public Future<Long> index(SememeChronicle<?> chronicle);
+    public Future<Long> index(SememeChronology<?> chronicle);
     
     /**
      * Enables or disables an indexer. A disabled indexer will take

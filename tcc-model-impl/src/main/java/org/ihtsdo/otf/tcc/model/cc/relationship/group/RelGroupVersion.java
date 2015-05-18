@@ -5,13 +5,15 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.blueprint.CreateOrAmendBlueprint;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
@@ -185,11 +187,6 @@ public class RelGroupVersion implements RelGroupVersionBI {
 
       return results;
    }
-
-    @Override
-    public int getContainerSequence() {
-        return getSequenceService().getConceptSequence(getConceptNid());
-    }
 
    @Override
    public Collection<? extends IdBI> getAllIds() {
@@ -442,12 +439,22 @@ public class RelGroupVersion implements RelGroupVersionBI {
    }
 
    @Override
+   public List<UUID> getUuidList() {
+      return rg.getUuidList();
+   }
+
+   @Override
    public RelGroupVersionBI getVersion(ViewCoordinate c) throws ContradictionException {
       return rg.getVersion(c);
    }
 
    @Override
    public List<RelGroupVersion> getVersions() {
+      return Arrays.asList(new RelGroupVersion[] { new RelGroupVersion(this, null) });
+   }
+
+   @Override
+   public List<RelGroupVersion> getVersionList() {
       return Arrays.asList(new RelGroupVersion[] { new RelGroupVersion(this, null) });
    }
 
@@ -478,6 +485,11 @@ public class RelGroupVersion implements RelGroupVersionBI {
    }
 
     @Override
+    public CommitStates getCommitState() {
+        return CommitStates.COMMITTED;
+    }
+
+    @Override
     public int getStampSequence() {
         return getStamp();
     }
@@ -500,6 +512,11 @@ public class RelGroupVersion implements RelGroupVersionBI {
     @Override
     public int getPathSequence() {
        return getSequenceService().getConceptSequence(getPathNid());
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

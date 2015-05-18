@@ -473,6 +473,10 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
 
             localVersion = Ts.get().getConceptVersion(vc, getUuids());
 
+            if (localVersion == null) {
+            	throw new ValidationException("No ConceptVersion for " + getUuids() + " on ViewCoordinate " + vc.getName());
+            }
+            
             try {
                 validateDescription(localVersion, vc);
                 validateRelationships(localVersion, vc);
