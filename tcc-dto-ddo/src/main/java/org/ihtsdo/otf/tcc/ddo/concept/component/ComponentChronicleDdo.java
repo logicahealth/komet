@@ -85,12 +85,6 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
          for (T v : another.getVersions(ss.getViewCoordinate())) {
             this.versions.add(makeVersion(ss, v));
          }
-         
-         for (RefexChronicleBI<?> annotation: another.getAnnotations()) {
-             for (RefexVersionBI av: annotation.getVersions(ss.getViewCoordinate())) {
-                 
-             }
-         }
 
          break;
 
@@ -188,8 +182,6 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
          log.error("Unhandled case in process Refexes!");
          break;
       }
-      
-      
 
       for (RefexChronicleBI<?> r : refexesToProcess) {
             RefexChronicleDdo<?, ?> fxRefexMember = ConceptChronicleDdo.convertRefex(ss, concept, r);
