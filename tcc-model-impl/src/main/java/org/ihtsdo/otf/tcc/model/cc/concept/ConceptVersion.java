@@ -972,6 +972,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
             case STATED:
                 for (RelationshipChronicleBI rc : allRels) {
+                	//TODO why isn't this checking for char type != classifier characteristics?
                     for (RelationshipVersionBI<?> rv : rc.getVersions()) {
                         try {
                             RelationshipVersionBI<?> ver = rc.getVersion(vc.getVcWithAllStatusValues());
