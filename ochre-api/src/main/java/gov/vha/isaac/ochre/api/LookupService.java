@@ -114,7 +114,11 @@ public class LookupService {
      * @see ServiceLocator#getService(Class, Annotation...) 
      */
     public static <T> T getService(Class<T> contractOrImpl) {
-        return get().getService(contractOrImpl, new Annotation[0]);
+    	T service = get().getService(contractOrImpl, new Annotation[0]);
+    	
+		log.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
+
+        return service;
     }
     
     /**
@@ -130,7 +134,11 @@ public class LookupService {
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("You must specify a service name to use this method");
         }
-        return get().getService(contractOrService, name, new Annotation[0]);
+        T service = get().getService(contractOrService, name, new Annotation[0]);
+        
+		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+
+        return service;
     }
     
     /**
@@ -140,16 +148,20 @@ public class LookupService {
      * @param name May be null (to indicate any name is ok), and is the name of the implementation to be returned
      */
     public static <T> T getNamedServiceIfPossible(Class<T> contractOrService, String name) {
+    	T service = null;
         if (StringUtils.isEmpty(name)) {
-            return get().getService(contractOrService);
+            service = get().getService(contractOrService);
         }
         else {
-            T service = get().getService(contractOrService, name);
+            service = get().getService(contractOrService, name);
             if (service == null) {
                 service = get().getService(contractOrService);
             }
-            return service;
         }
+        
+		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+
+        return service;
     }
     
     public static int getCurrentRunLevel() {
