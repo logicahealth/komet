@@ -114,9 +114,8 @@ public class LookupService {
      * @see ServiceLocator#getService(Class, Annotation...) 
      */
     public static <T> T getService(Class<T> contractOrImpl) {
-    	T service = get().getService(contractOrImpl, new Annotation[0]);
-    	
-		log.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
+        T service = get().getService(contractOrImpl, new Annotation[0]);
+        log.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
 
         return service;
     }
