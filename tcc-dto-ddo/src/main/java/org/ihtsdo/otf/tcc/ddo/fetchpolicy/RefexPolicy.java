@@ -23,4 +23,4 @@ package org.ihtsdo.otf.tcc.ddo.fetchpolicy;
  * @author kec
  */
 public enum RefexPolicy { ANNOTATION_MEMBERS, ANNOTATION_MEMBERS_AND_REFSET_MEMBERS, REFEX_MEMBERS,
-                          REFEX_MEMBERS_AND_REFSET_MEMBERS }
+                          REFEX_MEMBERS_AND_REFSET_MEMBERS, NONE }
