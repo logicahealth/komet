@@ -695,7 +695,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
+   public ConceptChronicleDdo getFxConcept(UUID conceptUUID)
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 

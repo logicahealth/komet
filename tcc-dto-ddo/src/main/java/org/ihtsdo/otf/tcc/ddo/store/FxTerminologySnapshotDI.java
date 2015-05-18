@@ -31,7 +31,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
  */
 public interface FxTerminologySnapshotDI extends TerminologySnapshotDI {
    
-   ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc) throws IOException, ContradictionException;
+   ConceptChronicleDdo getFxConcept(UUID conceptUUID) throws IOException, ContradictionException;
 
    ConceptChronicleDdo getFxConcept(ComponentReference ref, RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
