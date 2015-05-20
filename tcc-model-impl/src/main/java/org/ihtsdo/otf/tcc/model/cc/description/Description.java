@@ -262,7 +262,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
         DescriptionCAB descBp = new DescriptionCAB(getConceptNid(), getTypeNid(),
                 LanguageCode.getLangCode(lang), getText(), initialCaseSignificant,
-                getVersion(vc), vc, idDirective, refexDirective);
+                getVersion(vc), Optional.of(vc), idDirective, refexDirective);
         return descBp;
     }
 
@@ -287,11 +287,11 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<DescriptionVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         List<DescriptionVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         if (vForC.size() > 1) {
@@ -303,7 +303,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         }
 
         if (!vForC.isEmpty()) {
-            return vForC.get(0);
+            return Optional.of(vForC.get(0));
         }
         return null;
     }

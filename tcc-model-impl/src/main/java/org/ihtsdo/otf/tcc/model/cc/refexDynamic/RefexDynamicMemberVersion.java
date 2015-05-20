@@ -1,5 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import javax.naming.InvalidNameException;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -16,12 +22,6 @@ import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
-
-import javax.naming.InvalidNameException;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by kec on 7/12/14.
@@ -113,7 +113,7 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
     }
 
     @Override
-    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RefexDynamicMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((RefexDynamicMember) cc).getVersion(c);
     }
 

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -162,8 +163,8 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         RefexDynamicCAB rdc = new RefexDynamicCAB(
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
-                this, 
-                vc, 
+                Optional.of(this), 
+                Optional.of(vc), 
                 idDirective, 
                 refexDirective);
 
@@ -237,8 +238,8 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     @Override
-    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-       return (RefexDynamicMemberVersion) ((RefexDynamicMember) primordialComponent).getVersion(c);
+    public Optional<RefexDynamicMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+       return ((RefexDynamicMember) primordialComponent).getVersion(c);
     }
 
     @Override

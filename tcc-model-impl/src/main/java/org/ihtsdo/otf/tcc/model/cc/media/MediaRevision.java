@@ -1,29 +1,22 @@
 package org.ihtsdo.otf.tcc.model.cc.media;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import java.io.IOException;
-
-
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
+import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.component.Revision;
 
 public class MediaRevision extends Revision<MediaRevision, Media>
         implements MediaVersionFacade {
@@ -113,7 +106,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
                 getTextDescription(),
                 getMedia(),
                 getVersion(vc),
-                vc, idDirective, refexDirective);
+                Optional.of(vc), idDirective, refexDirective);
         return mediaBp;
     }
 
@@ -196,7 +189,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
    
    @Override
-   public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
+   public Optional<MediaVersion> getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }
 

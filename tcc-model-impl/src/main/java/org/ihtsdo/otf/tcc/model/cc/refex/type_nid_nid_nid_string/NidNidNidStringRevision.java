@@ -1,7 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_string;
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -13,15 +17,8 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_string.RefexNidNidNidString
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-//~--- JDK imports ------------------------------------------------------------
 
 public class NidNidNidStringRevision
         extends RefexRevision<NidNidNidStringRevision, NidNidNidStringMember>
@@ -188,9 +185,9 @@ public class NidNidNidStringRevision
    }
 
    @Override
-   public NidNidNidStringMemberVersion getVersion(ViewCoordinate c)
-           throws ContradictionException {
-      return (NidNidNidStringMemberVersion) ((NidNidNidStringMember) primordialComponent).getVersion(c);
+   public Optional<NidNidNidStringMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<NidNidNidStringRevision, NidNidNidStringMember>> temp =  ((NidNidNidStringMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (NidNidNidStringMemberVersion)temp.get() : null);
    }
 
    @Override

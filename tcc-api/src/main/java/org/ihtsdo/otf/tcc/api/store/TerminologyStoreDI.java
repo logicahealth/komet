@@ -1,30 +1,26 @@
 package org.ihtsdo.otf.tcc.api.store;
 
-//~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.db.DbDependency;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
+import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.db.DbDependency;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -45,10 +41,6 @@ public interface TerminologyStoreDI extends TerminologyDI {
 
     public NativeIdSetBI relationshipSet(int parentNid, ViewCoordinate viewCoordinate);
 
-//    public Collection<Integer> searchLucene(String luceneMatch, SearchType searchType) throws IOException, ParseException;
-
-/*    public Collection<Integer> searchLuceneRefset(String query, SearchType searchType)
-            throws IOException, ParseException;*/
     enum DatabaseOptionPreferences {
 
         DB_LOCATION, BASELINE_FILES;
@@ -93,27 +85,27 @@ public interface TerminologyStoreDI extends TerminologyDI {
     @Deprecated
     ComponentChronicleBI<?> getComponentFromAlternateId(int authorityNid, String altId) throws IOException;
 
-    ComponentVersionBI getComponentVersion(ViewCoordinate vc, Collection<UUID> uuids)
+    Optional<? extends ComponentVersionBI> getComponentVersion(ViewCoordinate vc, Collection<UUID> uuids)
             throws IOException, ContradictionException;
 
-    ComponentVersionBI getComponentVersion(ViewCoordinate vc, int nid)
+    Optional<? extends ComponentVersionBI> getComponentVersion(ViewCoordinate vc, int nid)
             throws IOException, ContradictionException;
 
-    ComponentVersionBI getComponentVersion(ViewCoordinate vc, UUID... uuids)
-            throws IOException, ContradictionException;
-
-    /**
-     * @deprecated use query service for alternative ids. 
-     */
-    @Deprecated
-    ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId)
+    Optional<? extends ComponentVersionBI> getComponentVersion(ViewCoordinate vc, UUID... uuids)
             throws IOException, ContradictionException;
 
     /**
      * @deprecated use query service for alternative ids. 
      */
     @Deprecated
-    ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUuid, String altId)
+    Optional<? extends ComponentVersionBI> getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId)
+            throws IOException, ContradictionException;
+
+    /**
+     * @deprecated use query service for alternative ids. 
+     */
+    @Deprecated
+    Optional<? extends ComponentVersionBI> getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUuid, String altId)
             throws IOException, ContradictionException;
 
     ConceptChronicleBI getConcept(Collection<UUID> uuids) throws IOException;

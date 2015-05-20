@@ -21,15 +21,16 @@ package org.ihtsdo.otf.tcc.api.blueprint;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 /**
@@ -101,7 +102,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
             UUID conceptUuid, UUID typeUuid, LanguageCode langCode, String text, boolean initialCaseSignificant, IdDirective idDirective)
             throws IOException, InvalidCAB, ContradictionException {
         this(conceptUuid, typeUuid, langCode, text, initialCaseSignificant,
-                null, null, null, idDirective,
+                Optional.empty(), Optional.empty(), Optional.empty(), idDirective,
                 RefexDirective.EXCLUDE);
     }
 
@@ -130,8 +131,8 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
     public DescriptionCAB(
             int conceptNid, int typeNid, LanguageCode langCode, String text, 
             boolean initialCaseSignificant,
-            DescriptionVersionBI descriptionVersion, 
-            ViewCoordinate viewCoordinate,
+            Optional<? extends DescriptionVersionBI> descriptionVersion, 
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) 
             throws IOException, InvalidCAB, ContradictionException {
@@ -167,8 +168,8 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
     public DescriptionCAB(
             UUID conceptUuid, UUID typeUuid, LanguageCode langCode, String text,
             boolean initialCaseSignificant, 
-            DescriptionVersionBI descriptionVersion, 
-            ViewCoordinate viewCoordinate,
+            Optional<? extends DescriptionVersionBI> descriptionVersion, 
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) throws
             IOException, InvalidCAB, ContradictionException {
@@ -203,9 +204,9 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
     public DescriptionCAB(
             UUID conceptUuid, UUID typeUuid, LanguageCode langCode, String text,
             boolean initialCaseSignificant, 
-            UUID componentUuid,
-            DescriptionVersionBI descriptionVersion, 
-            ViewCoordinate viewCoordinate,
+            Optional<UUID> componentUuid,
+            Optional<? extends DescriptionVersionBI> descriptionVersion, 
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) 
             throws IOException, InvalidCAB, ContradictionException {

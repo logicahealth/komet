@@ -4,16 +4,17 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 public interface ComponentChronicleBI<T extends ComponentVersionBI>
         extends ComponentBI, ObjectChronology<T> {
 
-    T getVersion(ViewCoordinate c) throws ContradictionException;
+    Optional<? extends T> getVersion(ViewCoordinate c) throws ContradictionException;
 
     Collection<? extends T> getVersions(ViewCoordinate c);
 

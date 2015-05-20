@@ -15,6 +15,12 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -25,13 +31,8 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayAnalogBI;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -173,8 +174,9 @@ public class ArrayOfByteArrayRevision extends RefexRevision<ArrayOfByteArrayRevi
    }
 
    @Override
-   public ArrayOfByteArrayMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-      return (ArrayOfByteArrayMemberVersion) ((ArrayOfByteArrayMember) primordialComponent).getVersion(c);
+   public Optional<ArrayOfByteArrayMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+     Optional<RefexMemberVersion<ArrayOfByteArrayRevision, ArrayOfByteArrayMember>> temp =  ((ArrayOfByteArrayMember) primordialComponent).getVersion(c);
+     return Optional.ofNullable(temp.isPresent() ? (ArrayOfByteArrayMemberVersion)temp.get() : null);
    }
 
    @Override

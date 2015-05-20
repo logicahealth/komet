@@ -1,7 +1,5 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -20,13 +18,11 @@ import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
-//~--- JDK imports ------------------------------------------------------------
 
 public class NidMember extends RefexMember<NidRevision, NidMember>
         implements RefexNidAnalogBI<NidRevision> {
@@ -151,9 +147,9 @@ public class NidMember extends RefexMember<NidRevision, NidMember>
 
    @Override
    public String toUserString(TerminologySnapshotDI snapshot) throws IOException, ContradictionException {
-      ComponentVersionBI c1Component = snapshot.getComponentVersion(c1Nid);
+      Optional<? extends ComponentVersionBI> c1Component = snapshot.getComponentVersion(c1Nid);
 
-      return super.toUserString(snapshot) + " c1: " + c1Component.toUserString(snapshot);
+      return super.toUserString(snapshot) + " c1: " + (c1Component.isPresent() ? c1Component.get().toUserString(snapshot) : "null");
    }
 
    //~--- get methods ---------------------------------------------------------

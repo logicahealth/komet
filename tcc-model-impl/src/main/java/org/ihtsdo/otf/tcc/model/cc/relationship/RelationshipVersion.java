@@ -20,7 +20,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -133,7 +133,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     @Override
-    public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RelationshipVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((Relationship) cc).getVersion(c);
     }
 

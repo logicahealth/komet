@@ -1,35 +1,32 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
-//import org.dwfa.ace.api.I_IntSet;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
-import org.ihtsdo.otf.tcc.model.version.VersionComputer;
-import org.ihtsdo.otf.tcc.model.cc.NidPair;
-import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
-
-//~--- JDK imports ------------------------------------------------------------
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-
-import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.model.cc.NidPair;
+import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>>
         extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R>, SememeVersion {
@@ -222,7 +219,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         RefexCAB rcs = new RefexCAB(getTkRefsetType(),
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
-                getVersion(vc), vc, idDirective, refexDirective);
+                getVersion(vc), Optional.of(vc), idDirective, refexDirective);
 
         addSpecProperties(rcs);
 
@@ -232,11 +229,11 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     protected abstract RefexType getTkRefsetType();
 
     @Override
-    public RefexMemberVersion<R, C> getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RefexMemberVersion<R, C>> getVersion(ViewCoordinate c) throws ContradictionException {
         List<RefexMemberVersion<R, C>> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
-            return null;
+            Optional.empty();
         }
 
         if (vForC.size() > 1) {
@@ -248,9 +245,9 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
         }
 
         if (!vForC.isEmpty()) {
-            return vForC.get(0);
+            Optional.of(vForC.get(0));
         }
-        return null;
+        return Optional.empty();
     }
 
     protected abstract VersionComputer<RefexMemberVersion<R, C>> getVersionComputer();

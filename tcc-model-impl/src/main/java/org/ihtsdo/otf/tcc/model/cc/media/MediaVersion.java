@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
@@ -106,7 +107,7 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     }
 
     @Override
-    public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<MediaVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((Media) cc).getVersion(c);
     }
 

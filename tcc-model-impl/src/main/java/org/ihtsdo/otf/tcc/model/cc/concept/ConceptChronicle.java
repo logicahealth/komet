@@ -290,7 +290,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     public ConceptCB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
-        ConceptCB cab = new ConceptCB(getVersion(vc), idDirective, refexDirective);
+        ConceptCB cab = new ConceptCB(getVersion(vc).get(), idDirective, refexDirective);
 
         return cab;
     }
@@ -1666,8 +1666,8 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public ConceptVersion getVersion(ViewCoordinate c) {
-        return new ConceptVersion(this, c);
+    public Optional<ConceptVersionBI> getVersion(ViewCoordinate c) {
+        return Optional.of(new ConceptVersion(this, c));
     }
 
     @Override

@@ -1,16 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -152,7 +147,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
    }
 
    @Override
-   public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
+   public Optional<ConceptAttributesVersion> getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }
 
@@ -189,7 +184,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
     @Override
     public ConceptAttributeAB makeBlueprint(ViewCoordinate vc, 
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
-        ConceptAttributeAB conAttrBp = new ConceptAttributeAB(primordialComponent.getConceptNid(), defined, getVersion(vc), vc,
+        ConceptAttributeAB conAttrBp = new ConceptAttributeAB(primordialComponent.getConceptNid(), defined, getVersion(vc), Optional.of(vc),
                 refexDirective, idDirective);
         return conAttrBp;
     }
