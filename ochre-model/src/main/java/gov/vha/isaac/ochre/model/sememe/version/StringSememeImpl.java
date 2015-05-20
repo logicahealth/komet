@@ -15,9 +15,8 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
-import gov.vha.isaac.ochre.api.sememe.version.MutableStringSememe;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableStringSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 
@@ -25,24 +24,19 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
  *
  * @author kec
  */
-public class StringSememeImpl extends SememeVersionImpl implements MutableStringSememe{
+public class StringSememeImpl extends SememeVersionImpl implements MutableStringSememe {
     
-    private String string;
+    private String string = null;
 
     public StringSememeImpl(SememeChronicleImpl<StringSememeImpl> container, 
-            State status, 
-            long time, 
-            int authorSequence, 
-            int moduleSequence, 
-            int pathSequence) {
-        super(container, 
-                status, time, authorSequence, moduleSequence, pathSequence);
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     public StringSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
-            int stampSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
-                stampSequence, data);
+                stampSequence, versionSequence);
         this.string = data.readUTF();
     }
 
@@ -59,7 +53,9 @@ public class StringSememeImpl extends SememeVersionImpl implements MutableString
 
     @Override
     public void setString(String string) {
-        checkUncommitted();
+        if (this.string != null) {
+            checkUncommitted();
+        } 
         this.string = string;
     }
 
@@ -72,6 +68,5 @@ public class StringSememeImpl extends SememeVersionImpl implements MutableString
     public String toString() {
         return "string=" + string + ',' + super.toString();
     }
-    
     
 }

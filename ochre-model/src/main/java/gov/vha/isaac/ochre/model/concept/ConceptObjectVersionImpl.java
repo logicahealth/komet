@@ -24,8 +24,9 @@ import gov.vha.isaac.ochre.model.ObjectVersionImpl;
  */
 public class ConceptObjectVersionImpl<V extends ConceptObjectVersionImpl>  extends ObjectVersionImpl<ConceptObjectChronicleImpl<V>, V> {
 
-    public ConceptObjectVersionImpl(ConceptObjectChronicleImpl<V> container, int stampSequence) {
-        super(container, stampSequence);
+    public ConceptObjectVersionImpl(ConceptObjectChronicleImpl<V> container, 
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
     
 }

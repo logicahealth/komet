@@ -66,7 +66,7 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 @SuppressWarnings("deprecation")
 public class RefexDynamicCAB extends CreateOrAmendBlueprint
 {
-	public static final UUID refexDynamicNamespace = RefexDynamic.REFEX_DYNAMIC_NAMESPACE.getUuids()[0];
+	public static final UUID refexDynamicNamespace = RefexDynamic.DYNAMIC_SEMEME_NAMESPACE.getUuids()[0];
 
 	/**
 	 * Computes the uuid of the refex member and sets the member uuid property.

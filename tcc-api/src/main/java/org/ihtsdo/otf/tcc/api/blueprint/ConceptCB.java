@@ -796,6 +796,22 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         }
         return relCABs;
     }
+    @Override
+    public final void setComponentUuidNoRecompute(UUID componentUuid) {
+        properties.put(ComponentProperty.COMPONENT_ID, componentUuid);
+        if (relCABs != null) {
+            relCABs.forEach((relCAB) -> { relCAB.setSourceUuid(componentUuid);});
+        }
+        if (fsnCABs != null) {
+            fsnCABs.forEach((descCAB) -> {descCAB.setConceptUuid(componentUuid);});
+        }
+        if (prefCABs != null) {
+            prefCABs.forEach((descCAB) -> {descCAB.setConceptUuid(componentUuid);});
+        }
+        if (descCABs != null) {
+            descCABs.forEach((descCAB) -> {descCAB.setConceptUuid(componentUuid);});
+        }
+    }
 
     /**
      * Gets the media blueprints associated with this concept blueprint.
@@ -929,6 +945,11 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
 
     public List<RefexDynamicCAB> getSememeCABsDynamic() {
         return sememeCABsDynamic;
+    }
+
+    @Override
+    public String toString() {
+        return "ConceptCB{" + "fullySpecifiedName=" + fullySpecifiedName + '}';
     }
 
 }

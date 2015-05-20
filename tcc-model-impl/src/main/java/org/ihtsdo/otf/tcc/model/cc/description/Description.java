@@ -25,7 +25,6 @@ import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.version.VersionComputer;
@@ -77,7 +76,6 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     @Override
@@ -308,6 +306,10 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
             return vForC.get(0);
         }
         return null;
+    }
+    @Override
+    public List<DescriptionVersion> getVersionList() {
+        return getVersions();
     }
 
     @Override

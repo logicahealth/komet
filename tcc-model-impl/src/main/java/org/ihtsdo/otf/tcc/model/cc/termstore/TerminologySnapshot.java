@@ -10,7 +10,6 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
-import org.ihtsdo.otf.tcc.api.store.TermChangeListener;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
@@ -116,39 +115,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * Method description
     *
     *
-    * @param pce
-    * @param l
-    */
-   @Override
-   public void addPropertyChangeListener(CONCEPT_EVENT pce, PropertyChangeListener l) {
-      store.addPropertyChangeListener(pce, l);
-   }
-   
-   /**
-    * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#removePropertyChangeListener(java.beans.PropertyChangeListener)
-    */
-   @Override
-   public void removePropertyChangeListener(PropertyChangeListener l)
-   {
-       store.removePropertyChangeListener(l);
-       
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param cl
-    */
-   @Override
-   public void addTermChangeListener(TermChangeListener cl) {
-      store.addTermChangeListener(cl);
-   }
-
-   /**
-    * Method description
-    *
-    *
     * @param concept
     *
     * @throws IOException
@@ -195,18 +161,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
    @Override
    public void addUncommittedNoChecks(ConceptVersionBI cv) throws IOException {
       store.addUncommittedNoChecks(cv);
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param pce
-    * @param l
-    */
-   @Override
-   public void addVetoablePropertyChangeListener(CONCEPT_EVENT pce, VetoableChangeListener l) {
-      store.addVetoablePropertyChangeListener(pce, l);
    }
 
    /**
@@ -280,7 +234,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public void commit(ConceptVersionBI cv) throws IOException {
-      commit(cv);
+      store.commit(cv);
    }
 
    /**
@@ -485,26 +439,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * Method description
     *
     *
-    * @param cl
-    */
-   @Override
-   public void removeTermChangeListener(TermChangeListener cl) {
-      store.removeTermChangeListener(cl);
-   }
-
-   /**
-    * Method description
-    *
-    */
-   @Override
-   public void resumeChangeNotifications() {
-      store.resumeChangeNotifications();
-   }
-
-   /**
-    * Method description
-    *
-    *
     * @param dependencies
     *
     * @return
@@ -512,15 +446,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
    @Override
    public boolean satisfiesDependencies(Collection<DbDependency> dependencies) {
       return store.satisfiesDependencies(dependencies);
-   }
-
-   /**
-    * Method description
-    *
-    */
-   @Override
-   public void suspendChangeNotifications() {
-      store.suspendChangeNotifications();
    }
 
    /**
@@ -770,7 +695,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
+   public ConceptChronicleDdo getFxConcept(UUID conceptUUID)
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 

@@ -97,13 +97,19 @@ public class HeadlessToolkit extends Toolkit
         {
             Field f = Toolkit.class.getDeclaredField("TOOLKIT");
             f.setAccessible(true);
-            if (f.get(null) == null)
+            Object currentToolkit = f.get(null);
+            if (currentToolkit == null)
             {
                 f.set(null, new HeadlessToolkit());
             }
+            else if (currentToolkit.getClass().getCanonicalName().equals(HeadlessToolkit.class.getCanonicalName()))
+            {
+                //Just do nothing, if this code gets called twice
+                return;
+            }
             else
             {
-                throw new RuntimeException("Toolkit is already configured");
+                throw new RuntimeException("A real Toolkit is already configured");
             }
             
             AccessController.doPrivileged((PrivilegedAction<Object>) () -> {

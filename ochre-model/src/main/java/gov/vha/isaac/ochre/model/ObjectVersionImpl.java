@@ -18,7 +18,8 @@ package gov.vha.isaac.ochre.model;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
-import gov.vha.isaac.ochre.api.commit.CommitManager;
+import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,36 +30,32 @@ import java.util.UUID;
  * @param <V>
  */
 public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends ObjectVersionImpl> implements MutableStampedVersion {
-    private static CommitManager commitManager;
+    private static CommitService commitManager;
     
-    private static CommitManager getCommitManager() {
+    protected static CommitService getCommitService() {
         if (commitManager == null) {
-            commitManager = LookupService.getService(CommitManager.class);
+            commitManager = LookupService.getService(CommitService.class);
         }
         return commitManager;
     }
     
     protected final C chronicle;   
     private int stampSequence;
+    private final short versionSequence;
 
-    public ObjectVersionImpl(C chronicle, int stampSequence) {
+    public ObjectVersionImpl(C chronicle, int stampSequence, short versionSequence) {
         this.chronicle = chronicle;
         this.stampSequence = stampSequence;
+        this.versionSequence = versionSequence;
     }
-    
-    public ObjectVersionImpl(C chronicle, 
-            State status, 
-            long time,
-            int authorSequence,
-            int moduleSequence,
-            int pathSequence) {
-        this.chronicle = chronicle;
-        this.stampSequence = getCommitManager().getStamp(status, time, 
-                authorSequence, moduleSequence, pathSequence);
-    }
-    
+
     protected void writeVersionData(DataBuffer data) {
          data.putInt(stampSequence);
+         data.putShort(versionSequence);
+    }
+
+    public short getVersionSequence() {
+        return versionSequence;
     }
         
     @Override
@@ -68,53 +65,33 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
 
     @Override
     public State getState() {
-        return getCommitManager().getStatusForStamp(stampSequence);
+        return getCommitService().getStatusForStamp(stampSequence);
     }
 
     @Override
     public long getTime() {
-        return getCommitManager().getTimeForStamp(stampSequence);
+        return getCommitService().getTimeForStamp(stampSequence);
     }
 
     @Override
     public int getAuthorSequence() {
-       return getCommitManager().getAuthorSequenceForStamp(stampSequence);
+       return getCommitService().getAuthorSequenceForStamp(stampSequence);
     }
 
     @Override
     public int getModuleSequence() {
-        return getCommitManager().getModuleSequenceForStamp(stampSequence);
+        return getCommitService().getModuleSequenceForStamp(stampSequence);
     }
 
     @Override
     public int getPathSequence() {
-        return getCommitManager().getPathSequenceForStamp(stampSequence);
-    }
-
-    @Override
-    public int getNid() {
-        return chronicle.getNid();
-    }
-
-    @Override
-    public int getContainerSequence() {
-        return chronicle.getContainerSequence();
-    }
-
-    @Override
-    public void setState(State state) {
-        checkUncommitted();
-        this.stampSequence = getCommitManager().getStamp(state, 
-                getTime(), 
-                getAuthorSequence(), 
-                getModuleSequence(), 
-                getPathSequence());
+        return getCommitService().getPathSequenceForStamp(stampSequence);
     }
 
     @Override
     public void setTime(long time) {
         checkUncommitted();
-        this.stampSequence = getCommitManager().getStamp(getState(), 
+        this.stampSequence = getCommitService().getStamp(getState(), 
                 time, 
                 getAuthorSequence(), 
                 getModuleSequence(), 
@@ -124,7 +101,7 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     @Override
     public void setAuthorSequence(int authorSequence) {
         checkUncommitted();
-        this.stampSequence = getCommitManager().getStamp(getState(), 
+        this.stampSequence = getCommitService().getStamp(getState(), 
                 getTime(), 
                 authorSequence, 
                 getModuleSequence(), 
@@ -134,7 +111,7 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     @Override
     public void setModuleSequence(int moduleSequence) {
         checkUncommitted();
-        this.stampSequence = getCommitManager().getStamp(getState(), 
+        this.stampSequence = getCommitService().getStamp(getState(), 
                 getTime(), 
                 getAuthorSequence(), 
                 moduleSequence, 
@@ -144,7 +121,7 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     @Override
     public void setPathSequence(int pathSequence) {
         checkUncommitted();
-        this.stampSequence = getCommitManager().getStamp(getState(), 
+        this.stampSequence = getCommitService().getStamp(getState(), 
                 getTime(), 
                 getAuthorSequence(), 
                 getModuleSequence(), 
@@ -161,21 +138,39 @@ public class ObjectVersionImpl<C extends ObjectChronicleImpl<V>, V extends Objec
     public boolean isUncommitted() {
         return this.getTime() == Long.MAX_VALUE;
     }
+
+    @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
     
-   
+
+    @Override
+    public String toString() {
+        return ", stampSequence=" + stampSequence + " " + getCommitService().describeStampSequence(stampSequence);
+    }
+
+    @Override
+    public String toUserString() {
+        return toString();
+    }
+
+    @Override
+    public int getNid() {
+        return chronicle.getNid();
+    }
+
     @Override
     public UUID getPrimordialUuid() {
         return chronicle.getPrimordialUuid();
     }
 
     @Override
-    public List<UUID> getUUIDs() {
-        return chronicle.getUUIDs();
+    public List<UUID> getUuidList() {
+        return chronicle.getUuidList();
     }
 
-    @Override
-    public String toString() {
-        return ", stampSequence=" + stampSequence + " " + getCommitManager().describeStampSequence(stampSequence);
-    }
-    
 }

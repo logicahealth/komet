@@ -25,5 +25,8 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface IdentifiedObjectService {
+    
     Optional<IdentifiedObjectLocal> getIdentifiedObject(int nid);
+    
+    CharSequence informAboutObject(int nid);
 }

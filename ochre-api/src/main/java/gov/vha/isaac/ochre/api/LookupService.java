@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api;
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import gov.vha.isaac.ochre.api.constants.Constants;
 import gov.vha.isaac.ochre.util.HeadlessToolkit;
+import gov.vha.isaac.ochre.util.WorkExecutors;
 import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class LookupService {
                         // No need to do anything here
                         });
                     
-                    ArrayList<String> packagesToSearch = new ArrayList<String>(Arrays.asList("gov.vha", "org.ihtsdo", "org.glassfish"));
+                    ArrayList<String> packagesToSearch = new ArrayList<String>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
 
                     boolean readInhabitantFiles = Boolean.getBoolean(System.getProperty(Constants.READ_INHABITANT_FILES, "false"));
                     if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
@@ -83,13 +84,40 @@ public class LookupService {
         }
         return looker;
     }
+    
+    /**
+     * Return true if and only if any service implements the requested contract or implementation class.
+     * @see ServiceLocator#getService(Class, Annotation...) 
+     */
+    public static boolean hasService(Class<?> contractOrImpl) {
+        return get().getServiceHandle(contractOrImpl, new Annotation[0]) != null;
+    }
+
+    /**
+     * Return true if and only if there is a service with the specified name.  If no service with the specified name is available, 
+     * this returns false (even if there is a service with another name [or no name] which would meet the contract)
+     * 
+     * @see ServiceLocator#getService(Class, String, Annotation...)
+     * 
+     * @param contractOrService May not be null, and is the contract or concrete implementation to get the best instance of
+     * @param name May not be null or empty
+     */
+    public static boolean hasService(Class<?> contractOrService, String name) {
+        if (StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("You must specify a service name to use this method");
+        }
+        return get().getServiceHandle(contractOrService, name, new Annotation[0]) != null;
+    }
 
     /**
      * Return the highest ranked service that implements the requested contract or implementation class.
      * @see ServiceLocator#getService(Class, Annotation...) 
      */
     public static <T> T getService(Class<T> contractOrImpl) {
-        return get().getService(contractOrImpl, new Annotation[0]);
+        T service = get().getService(contractOrImpl, new Annotation[0]);
+        log.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
+
+        return service;
     }
     
     /**
@@ -105,7 +133,11 @@ public class LookupService {
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("You must specify a service name to use this method");
         }
-        return get().getService(contractOrService, name, new Annotation[0]);
+        T service = get().getService(contractOrService, name, new Annotation[0]);
+        
+		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+
+        return service;
     }
     
     /**
@@ -115,34 +147,51 @@ public class LookupService {
      * @param name May be null (to indicate any name is ok), and is the name of the implementation to be returned
      */
     public static <T> T getNamedServiceIfPossible(Class<T> contractOrService, String name) {
+    	T service = null;
         if (StringUtils.isEmpty(name)) {
-            return get().getService(contractOrService);
+            service = get().getService(contractOrService);
         }
         else {
-            T service = get().getService(contractOrService, name);
+            service = get().getService(contractOrService, name);
             if (service == null) {
                 service = get().getService(contractOrService);
             }
-            return service;
         }
+        
+		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+
+        return service;
+    }
+    
+    public static int getCurrentRunLevel() {
+        return getService(RunLevelController.class).getCurrentRunLevel();
     }
 
-    public static RunLevelController getRunLevelController() {
-        return getService(RunLevelController.class);
+    public static void setRunLevel(int runLevel) {
+        getService(RunLevelController.class).proceedTo(runLevel);
+        /*
+         * Stop the thread pools - these are handled as a singleton, rather than a runlevel, as other code that reuses these
+         * wants to make use of the thread pools before the DB has been started.  With them configured as a singleton, they will
+         * be started automatically, when needed - and this hook (which is the only obvious path to change the runlevel) will 
+         * ensure they are stopped during an isaac shutdown sequence.
+         */
+        if (runLevel <= ISAAC_STOPPED_RUNLEVEL) {
+            get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
+        }
     }
     
     /**
      * Start all core isaac services, blocking until started (or failed)
      */
     public static void startupIsaac() {
-        getRunLevelController().proceedTo(ISAAC_STARTED_RUNLEVEL);
+        setRunLevel(ISAAC_STARTED_RUNLEVEL);
     }
     
     /**
      * Stop all core isaac service, blocking until stopped (or failed)
      */
     public static void shutdownIsaac() {
-        getRunLevelController().proceedTo(ISAAC_STOPPED_RUNLEVEL);
+        setRunLevel(ISAAC_STOPPED_RUNLEVEL);
     }
     
     /**
@@ -156,13 +205,13 @@ public class LookupService {
         {
             try {
                 startupIsaac();
-                log.info("Background start complete - runlevel now " + getRunLevelController().getCurrentRunLevel());
+                log.info("Background start complete - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel());
                 if (callWhenStartComplete != null) {
-                    callWhenStartComplete.accept(isIssacStarted(), null);
+                    callWhenStartComplete.accept(isIsaacStarted(), null);
                 }
             }
             catch (Exception e) {
-                log.warn("Background start failed - runlevel now " + getRunLevelController().getCurrentRunLevel(), e);
+                log.warn("Background start failed - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel(), e);
                 if (callWhenStartComplete != null) {
                     callWhenStartComplete.accept(false, e);
                 }
@@ -171,7 +220,13 @@ public class LookupService {
         backgroundLoad.start();
     }
     
-    public static boolean isIssacStarted() {
-        return getRunLevelController().getCurrentRunLevel() == ISAAC_STARTED_RUNLEVEL;
+    public static boolean isIsaacStarted() {
+        return getService(RunLevelController.class).getCurrentRunLevel() == ISAAC_STARTED_RUNLEVEL;
+    }
+    
+    public static boolean hasIsaacBeenStartedAtLeastOnce() {
+        //The starting runlevel of HK2 is -2, before you do anything.  The stop level of isaac 
+        //is -1, so we will never go back to -2.
+        return getCurrentRunLevel() != -2;
     }
 }

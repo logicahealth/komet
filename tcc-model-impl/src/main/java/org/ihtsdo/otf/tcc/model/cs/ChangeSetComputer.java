@@ -76,12 +76,6 @@ public class ChangeSetComputer implements ComputeEConceptForChangeSetI {
 
                 break;
 
-            case MUTABLE_ONLY:
-                maxSapNid = Integer.MAX_VALUE;
-                minSapNid = PersistentStore.get().getMaxReadOnlyStamp() + 1;
-
-                break;
-
             default:
                 throw new RuntimeException("Can't handle policy: " + policy);
         }

@@ -43,7 +43,7 @@ public class TermAux {
             new ConceptSpec("optional (refinability type)",
             UUID.fromString("c3d997d3-b0a4-31f8-846f-03fa874f5479"));
      public static ConceptSpec WB_AUX_PATH =
-            new ConceptSpec("Workbench Auxiliary",
+            new ConceptSpec("master", //new name from isaacmetadata
             UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));
      public static ConceptSpec IHTSDO_CLASSIFIER  =
             new ConceptSpec("IHTSDO Classifier",
@@ -55,7 +55,7 @@ public class TermAux {
             new ConceptSpec("Path origin reference set",
             UUID.fromString("1239b874-41b4-32a1-981f-88b448829b4b"));
     public static ConceptSpec PATH_REFSET  =
-            new ConceptSpec("Path reference set",
+            new ConceptSpec("paths",
             UUID.fromString("fd9d47b7-c0a4-3eea-b3ab-2b5a3f9e888f"));
     public static ConceptSpec GENERATED_UUID  =
             new ConceptSpec("generated UUID",
@@ -69,10 +69,10 @@ public class TermAux {
     public static ConceptSpec REFSET_IDENTITY = 
             new ConceptSpec("refset identity",
             UUID.fromString("3e0cd740-2cc6-3d68-ace7-bad2eb2621da"));
-    public static ConceptSpec TERM_AUX_MODULE = 
-            new ConceptSpec("terminology auxiliary module (module concept)",
-            UUID.fromString("dacb22ed-b2df-3667-88b8-2c17a545d37e"));
     public static ConceptSpec UNSPECIFIED_MODULE = 
             new ConceptSpec("Module (core metadata concept)",
             UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67"));
+    public static ConceptSpec ISAAC_MODULE =
+            new ConceptSpec("ISAAC Module",
+            UUID.fromString("f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
 }

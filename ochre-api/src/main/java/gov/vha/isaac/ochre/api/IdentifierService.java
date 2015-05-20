@@ -5,6 +5,7 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.RefexSequenceSet;
@@ -23,11 +24,14 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface IdentifierService {
     
+    ObjectChronologyType getChronologyTypeForNid(int nid);
+    
     NidSet getComponentNidsForConceptNids(ConceptSequenceSet conceptSequenceSet);
     
     IntStream getComponentNidStream();
     
-    int getConceptSequenceForComponentNid(int nid);
+    int getConceptNidForDescriptionNid(int nid);
+    int getConceptSequenceForDescriptionNid(int nid);
     void setConceptSequenceForComponentNid(int conceptSequence, int nid);
     void resetConceptSequenceForComponentNid(int conceptSequence, int nid);
     
@@ -39,6 +43,8 @@ public interface IdentifierService {
     
     int getSememeSequence(int nid);
     int getSememeNid(int sememeSequence);
+    int getSememeSequenceForUuids(Collection<UUID> uuids);
+    int getSememeSequenceForUuids(UUID... uuids);
     
     IntStream getSememeSequenceStream();
     IntStream getParallelSememeSequenceStream();
@@ -49,22 +55,6 @@ public interface IdentifierService {
 
     IntStream getConceptNidsForSequences(IntStream conceptSequences);
     IntStream getSememeNidsForSequences(IntStream sememSequences);
-    
-    
-    @Deprecated
-    int getRefexSequence(int nid);
-    @Deprecated
-    int getRefexNid(int refexSequence);
-
-    @Deprecated
-    IntStream getRefexSequenceStream();
-    @Deprecated
-    IntStream getParallelRefexSequenceStream();
-
-    @Deprecated
-    IntStream getRefexNidsForSequences(IntStream refexSequences);
-    @Deprecated
-    RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
     
     int getNidForUuids(Collection<UUID> uuids);
     int getNidForUuids(UUID... uuids);
@@ -84,5 +74,24 @@ public interface IdentifierService {
     boolean hasUuid(UUID... uuids);
 
     boolean hasUuid(Collection<UUID> uuids);
+
+    @Deprecated
+    int getConceptSequenceForComponentNid(int nid);
+    
+    @Deprecated
+    int getRefexSequence(int nid);
+    @Deprecated
+    int getRefexNid(int refexSequence);
+
+    @Deprecated
+    IntStream getRefexSequenceStream();
+    @Deprecated
+    IntStream getParallelRefexSequenceStream();
+
+    @Deprecated
+    IntStream getRefexNidsForSequences(IntStream refexSequences);
+    @Deprecated
+    RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
+    
 
 }

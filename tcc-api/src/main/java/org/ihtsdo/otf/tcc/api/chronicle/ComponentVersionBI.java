@@ -3,6 +3,7 @@ package org.ihtsdo.otf.tcc.api.chronicle;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -29,10 +30,6 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI, Stamped
 
    Set<Integer> getAllNidsForVersion() throws IOException;
 
-   int getAuthorNid();
-   
-   int getModuleNid();
-
    ComponentChronicleBI getChronicle();
 
    Position getPosition() throws IOException;
@@ -40,15 +37,6 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI, Stamped
    int getStamp();
 
    Status getStatus();
-   
-   public boolean isUncommitted();
-   
-   /**
-    *
-    * @return  {@code true} if this version is stored in the read-only
-    * database, rather than in the mutable database. {@code false} otherwise.
-    */
-   boolean isBaselineGeneration();
    
    /**
     *
@@ -83,4 +71,8 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI, Stamped
             throws IOException, ContradictionException, InvalidCAB;
     
     boolean isActive() throws IOException;
+    
+    default boolean isUncommitted() {
+        return getCommitState() == CommitStates.UNCOMMITTED;
+    }
 }

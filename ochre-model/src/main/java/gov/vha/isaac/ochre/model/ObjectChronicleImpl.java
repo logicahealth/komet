@@ -16,18 +16,22 @@
 package gov.vha.isaac.ochre.model;
 
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectLocal;
-import gov.vha.isaac.ochre.api.commit.CommitManager;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.StampedLock;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
@@ -35,17 +39,26 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @author kec
  * @param <V>
  */
-public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implements ChronicledObjectLocal<V>,
-        WaitFreeComparable {
+public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl>
+        implements ObjectChronology<V>, WaitFreeComparable {
 
-    private static CommitManager commitManager;
+    private static CommitService commitManager;
 
-    private static CommitManager getCommitManager() {
+    protected static CommitService getCommitService() {
         if (commitManager == null) {
-            commitManager = LookupService.getService(CommitManager.class);
+            commitManager = LookupService.getService(CommitService.class);
         }
         return commitManager;
-    } 
+    }
+    
+    private static SememeService sememeService;
+    
+    protected static SememeService getSememeService() {
+        if (sememeService == null) {
+            sememeService = LookupService.getService(SememeService.class);
+        }
+        return sememeService;
+    }
 
     private static final StampedLock[] stampedLocks = new StampedLock[256];
 
@@ -62,9 +75,10 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
     private int writeSequence;
     private final long primordialUuidMsb;
     private final long primordialUuidLsb;
+    protected long[] additionalUuidParts;
     private final int nid;
     private final int containerSequence;
-
+    private short versionSequence = 0;
     private int versionStartPosition;
 
     private byte[] writtenData;
@@ -73,7 +87,8 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
 
     private SoftReference<ArrayList<V>> versionListReference;
 
-    public ObjectChronicleImpl(UUID primoridalUuid, int nid, int containerSequence) {
+    public ObjectChronicleImpl(UUID primoridalUuid, int nid,
+            int containerSequence) {
         this.writeSequence = Integer.MIN_VALUE;
         this.primordialUuidMsb = primoridalUuid.getMostSignificantBits();
         this.primordialUuidLsb = primoridalUuid.getLeastSignificantBits();
@@ -86,8 +101,17 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
         this.writtenData = data.getData();
         this.primordialUuidMsb = data.getLong();
         this.primordialUuidLsb = data.getLong();
+        int additionalUuidPartsSize = data.getInt();
+        if (additionalUuidPartsSize > 0) {
+            additionalUuidParts = new long[additionalUuidPartsSize];
+            for (int i = 0; i < additionalUuidPartsSize; i++) {
+                additionalUuidParts[i] = data.getLong();
+            }
+        }
+
         this.nid = data.getInt();
         this.containerSequence = data.getInt();
+        this.versionSequence = data.getShort();
         constructorEnd(data);
     }
 
@@ -95,15 +119,27 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
         data.putInt(writeSequence);
         data.putLong(primordialUuidMsb);
         data.putLong(primordialUuidLsb);
+        if (additionalUuidParts == null) {
+            data.putInt(0);
+        } else {
+            data.putInt(additionalUuidParts.length);
+            LongStream.of(additionalUuidParts).forEach(
+                    (uuidPart) -> data.putLong(uuidPart));
+        }
         data.putInt(nid);
         data.putInt(containerSequence);
+        data.putShort(versionSequence);
+    }
+    
+    protected short nextVersionSequence() {
+        return versionSequence++;
     }
 
     protected final void constructorEnd(DataBuffer data) {
         versionStartPosition = data.getPosition();
     }
 
-    public void addVersion(V version) {
+    protected void addVersion(V version) {
         if (unwrittenData == null) {
             long lockStamp = getLock(nid).writeLock();
             try {
@@ -115,17 +151,15 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
         unwrittenData.put(version.getStampSequence(), version);
         versionListReference = null;
     }
-    
 
     public byte[] getDataToWrite() {
         return mergeData(this.writeSequence, null);
     }
-    
 
     public byte[] getDataToWrite(int writeSequence) {
         return mergeData(writeSequence, null);
     }
-    
+
     public byte[] mergeData(int writeSequence, byte[] dataToMerge) {
         setWriteSequence(writeSequence);
         if (unwrittenData == null) {
@@ -146,7 +180,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
         OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
-            if (getCommitManager().isNotCanceled(stampSequenceForVersion)) {
+            if (getCommitService().isNotCanceled(stampSequenceForVersion)) {
                 writtenStamps.add(stampSequenceForVersion);
                 int startWritePosition = db.getPosition();
                 db.putInt(0); // placeholder for length
@@ -161,14 +195,15 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
             mergeData(writtenData, writtenStamps, db);
         }
         if (dataToMerge != null) {
-             mergeData(dataToMerge, writtenStamps, db);
+            mergeData(dataToMerge, writtenStamps, db);
         }
         db.putInt(0); // last data is a zero length version record
         db.trimToSize();
         return db.getData();
     }
 
-    protected void mergeData(byte[] dataToMerge, OpenIntHashSet writtenStamps, DataBuffer db) {
+    protected void mergeData(byte[] dataToMerge,
+            OpenIntHashSet writtenStamps, DataBuffer db) {
         DataBuffer writtenBuffer = new DataBuffer(dataToMerge);
         int nextPosition = versionStartPosition;
         while (nextPosition < writtenBuffer.getLimit()) {
@@ -176,7 +211,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
             int versionLength = writtenBuffer.getInt();
             int stampSequenceForVersion = writtenBuffer.getInt();
             if ((!writtenStamps.contains(stampSequenceForVersion))
-                    && getCommitManager().isNotCanceled(stampSequenceForVersion)) {
+                    && getCommitService().isNotCanceled(stampSequenceForVersion)) {
                 writtenStamps.add(stampSequenceForVersion);
                 db.append(writtenBuffer, nextPosition, versionLength);
             }
@@ -184,26 +219,8 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
         }
     }
 
-    public Optional<V> getVersionForStamp(int stampSequence) {
-        if (unwrittenData != null && unwrittenData.containsKey(stampSequence)) {
-            return Optional.of(unwrittenData.get(stampSequence));
-        }
-        DataBuffer bb = new DataBuffer(writtenData);
-        bb.setPosition(versionStartPosition);
-        int nextPosition = bb.getPosition();
-        while (nextPosition < bb.getLimit()) {
-            int versionLength = bb.getInt();
-            nextPosition = nextPosition + versionLength;
-            int stampSequenceForVersion = bb.getInt();
-            if (stampSequence == stampSequenceForVersion) {
-                return Optional.of(makeVersion(stampSequence, bb));
-            }
-        }
-        return Optional.empty();
-    }
-
     @Override
-    public List<V> getVersions() {
+    public List<? extends V> getVersionList() {
         ArrayList<V> results = null;
         if (versionListReference != null) {
             results = versionListReference.get();
@@ -221,6 +238,35 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
             versionListReference = new SoftReference<>(results);
         }
         return results;
+    }
+
+    public Optional<V> getVersionForStamp(int stampSequence) {
+        if (versionListReference != null) {
+            List<V> versions = versionListReference.get();
+            if (versions != null) {
+                for (V v : versions) {
+                    if (v.getStampSequence() == stampSequence) {
+                        return Optional.of(v);
+                    }
+                }
+            }
+        }
+        if (unwrittenData != null && unwrittenData.containsKey(stampSequence)) {
+            return Optional.of(unwrittenData.get(stampSequence));
+        }
+        DataBuffer bb = new DataBuffer(writtenData);
+        bb.setPosition(versionStartPosition);
+        int nextPosition = bb.getPosition();
+        while (nextPosition < bb.getLimit()) {
+            int versionLength = bb.getInt();
+            nextPosition = nextPosition + versionLength;
+            int stampSequenceForVersion = bb.getInt();
+            if (stampSequence == stampSequenceForVersion) {
+                return Optional.of(makeVersion(stampSequence, bb));
+            }
+            bb.setPosition(nextPosition);
+        }
+        return Optional.empty();
     }
 
     protected void makeVersions(DataBuffer bb, ArrayList<V> results) {
@@ -244,15 +290,33 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
     @Override
     public IntStream getVersionStampSequences() {
         IntStream.Builder builder = IntStream.builder();
-        DataBuffer bb = new DataBuffer(writtenData);
-        getVersionStampSequences(versionStartPosition, bb, builder);
+        List<V> versions = null;
+        if (versionListReference != null) {
+            versions = versionListReference.get();
+        }
+        if (versions != null) {
+            versions.forEach((version) -> builder.accept(version.getStampSequence()));
+        } else if (writtenData != null) {
+            DataBuffer bb = new DataBuffer(writtenData);
+            getVersionStampSequences(versionStartPosition, bb, builder);
+        }
         if (unwrittenData != null) {
             unwrittenData.keySet().forEach((stamp) -> builder.accept(stamp));
         }
         return builder.build();
     }
 
-    protected void getVersionStampSequences(int index, DataBuffer bb, IntStream.Builder builder) {
+    @Override
+    public CommitStates getCommitState() {
+        if (getVersionStampSequences().anyMatch((stampSequence)
+                -> getCommitService().isUncommitted(stampSequence))) {
+             return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
+
+    protected void getVersionStampSequences(int index, DataBuffer bb,
+            IntStream.Builder builder) {
         int limit = bb.getLimit();
         while (index < limit) {
             bb.setPosition(index);
@@ -264,7 +328,7 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
             } else {
                 index = Integer.MAX_VALUE;
             }
-             
+
         }
     }
 
@@ -286,23 +350,60 @@ public abstract class ObjectChronicleImpl<V extends ObjectVersionImpl> implement
     public int getContainerSequence() {
         return containerSequence;
     }
-    
-    
+
     @Override
     public UUID getPrimordialUuid() {
         return new UUID(primordialUuidMsb, primordialUuidLsb);
     }
 
     @Override
-    public List<UUID> getUUIDs() {
-        return Arrays.asList(new UUID[] {getPrimordialUuid()});
+    public List<UUID> getUuidList() {
+        List<UUID> uuids = new ArrayList();
+        uuids.add(getPrimordialUuid());
+        if (additionalUuidParts != null) {
+            for (int i = 0; i < additionalUuidParts.length; i = i + 2) {
+                uuids.add(
+                        new UUID(additionalUuidParts[i], additionalUuidParts[i + 1]));
+            }
+        }
+        return uuids;
+    }
+
+    public void setAdditionalUuids(List<UUID> uuids) {
+        additionalUuidParts = new long[uuids.size() * 2];
+        for (int i = 0; i < uuids.size(); i++) {
+            UUID uuid = uuids.get(i);
+            additionalUuidParts[2 * i] = uuid.getMostSignificantBits();
+            additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
+        }
     }
 
     @Override
     public String toString() {
-        return "ObjectChronicleImpl{" + "writeSequence=" + writeSequence + ", primordialUuid=" + new UUID(primordialUuidMsb, primordialUuidLsb) + 
-                ",\n  nid=" + nid + ", containerSequence=" + containerSequence + ", versionStartPosition=" + versionStartPosition + 
-                ",\n  versions" + getVersions() + '}';
+        StringBuilder builder = new StringBuilder();
+        builder.append("ObjectChronicleImpl{");
+        toString(builder);
+        builder.append('}');
+        return builder.toString();
     }
 
+    public void toString(StringBuilder builder) {
+        builder.append("writeSequence=").append(writeSequence)
+                .append(", primordialUuid=").append(new UUID(primordialUuidMsb, primordialUuidLsb))
+                .append(",\n  nid=").append(nid)
+                .append(", containerSequence=").append(containerSequence)
+                .append(", versionStartPosition=").append(versionStartPosition)
+                .append(",\n  versions").append(getVersions());
+    }
+
+    @Override
+    public String toUserString() {
+        return toString();
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        return getSememeService().getSememesForComponent(nid).collect(Collectors.toList());
+    }
+    
 }

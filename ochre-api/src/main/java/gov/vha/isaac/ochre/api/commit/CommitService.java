@@ -16,11 +16,13 @@
 package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.ChronicledConcept;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -38,17 +40,25 @@ public interface CommitService {
     
     Optional<String> getComment(int stampSequence);
     
-    void addUncommitted(ChronicledConcept cc);
+    Task<Void> addUncommitted(ConceptChronology cc);
 
-    void addUncommittedNoChecks(ChronicledConcept cc);
+    Task<Void> addUncommittedNoChecks(ConceptChronology cc);
 
-    void cancel();
+    Task<Void> addUncommitted(SememeChronology sc);
 
-    void cancel(ChronicledConcept cc);
+    Task<Void> addUncommittedNoChecks(SememeChronology sc);
 
-    void commit(String commitComment);
+    Task<Void> cancel();
 
-    void commit(ChronicledConcept cc, String commitComment);
+    Task<Void> cancel(ConceptChronology chronicledConcept);
+
+    Task<Void> cancel(SememeChronology sememeChronicle);
+
+    Task<Optional<CommitRecord>> commit(String commitComment);
+
+    Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
+    
+    Task<Optional<CommitRecord>> commit(SememeChronology sememeChronicle, String commitComment);
     
     ObservableList<Integer> getUncommittedConceptNids();
     
@@ -57,6 +67,10 @@ public interface CommitService {
     void addChangeChecker(ChangeChecker checker);
 
     void removeChangeChecker(ChangeChecker checker);
+    
+    void addChangeListener(ChronologyChangeListener changeListener);
+
+    void removeChangeListener(ChronologyChangeListener changeListener);
     
     long getCommitManagerSequence();
 
@@ -73,6 +87,8 @@ public interface CommitService {
     long getTimeForStamp(int stampSequence);
     
     boolean isNotCanceled(int stampSequence);
+    
+    boolean isUncommitted(int stampSequence);
     
     int getStamp(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);

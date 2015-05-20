@@ -2,8 +2,12 @@ package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
-import gov.vha.isaac.ochre.api.sememe.SememeService;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
+import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import java.io.*;
 import java.util.*;
@@ -14,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javafx.beans.InvalidationListener;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
@@ -70,7 +75,6 @@ import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
-import org.ihtsdo.otf.tcc.model.cc.change.LastChange;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.concept.processor.AdjudicationAnalogCreator;
 import org.ihtsdo.otf.tcc.model.cc.concept.processor.VersionFlusher;
@@ -87,9 +91,10 @@ import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipVersion;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupChronicle;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupVersion;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
-import org.ihtsdo.otf.tcc.model.jsr166y.ConcurrentReferenceHashMap;
+import gov.vha.isaac.ochre.collections.jsr166y.ConcurrentReferenceHashMap;
 
-public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle> {
+public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptChronicle>, 
+        InvalidationListener {
    private static IdentifierService identifierProvider;
    private static IdentifierService getIdentifierService() {
        if (identifierProvider == null) {
@@ -116,14 +121,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     private static List<TtkRefexDynamicMemberChronicle> unresolvedAnnotationsDynamic;
 
     //~--- fields --------------------------------------------------------------
-    private boolean canceled = false;
-    NidSetBI allowedStatus;
-    NidSetBI allowedTypes;
-    ContradictionManagerBI contradictionManager;
     private I_ManageConceptData data;
     protected int hashCode;
     protected int nid;
-    Precedence precedencePolicy;
 
     //~--- constructors --------------------------------------------------------
     public ConceptChronicle() {
@@ -155,6 +155,18 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     //~--- methods -------------------------------------------------------------
+
+    @Override
+    public List<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList() {
+        throw new UnsupportedOperationException("Not supported in OTF model, must use OCHRE model instead"); 
+    }
+
+    @Override
+    public void invalidated(javafx.beans.Observable observable) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+        
+        
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addAnnotation(annotation);
@@ -167,12 +179,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public void cancel() throws IOException {
-        LastChange.touchComponents(getConceptNidsAffectedByCommit());
         data.cancel();
-
-        if (PersistentStore.get().forget(getConceptAttributes())) {
-            canceled = true;
-        }
     }
 
     private void collectPossibleKindOf(NidSetBI isATypes, NativeIdSetBI possibleKindOfConcepts, int cNid)
@@ -240,7 +247,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    @Override
     public int getConceptSequence() {
         return getIdentifierService().getConceptSequence(getNid());
     }
@@ -466,7 +472,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                         if (currentMemberNids.contains(rNid) && (r != null)) {
                             r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, c.getNid()));
                         } else {
-                            c.getRefsetDynamicMembers().add(RefexDynamicMemberFactory.create(er, c.getNid()));
+                            c.getData().add(RefexDynamicMemberFactory.create(er, c.getNid()));
                         }
                     }
                 }
@@ -525,6 +531,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
        } catch (Exception ex) {
            throw new RuntimeException(ex);
        }
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private static class SetIndexedProcessor implements ProcessComponentChronicleBI {
@@ -610,10 +621,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public static void reset() {
         init();
     }
-
-//    public void resetNidData() {  //TODO-AKF-KEC: I think this is just for BDB implementation, ConceptDataSimpleReference has a resetNidData method
-//        data.resetNidData();
-//    }
     public static void resolveUnresolvedAnnotations(Set<ConceptChronicleBI> indexedAnnotationConcepts) throws IOException {
         List<TtkRefexAbstractMemberChronicle<?>> cantResolve = new ArrayList<>();
 
@@ -747,21 +754,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    //TODO (artf231862) [REFEX] why are there no calls to this method anywhere?
-    public void updateXrefs() throws IOException {
-        for (RefexMember<?, ?> m : getRefsetMembers()) {
-            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
-
-            PersistentStore.get().addXrefPair(m.referencedComponentNid, npr);
-        }
-
-        for (RefexDynamicMember m : getRefsetDynamicMembers()) {
-            NidPairForRefex npr = NidPair.getRefexNidMemberNidPair(m.getAssemblageNid(), m.getNid());
-
-            PersistentStore.get().addXrefPair(m.referencedComponentNid, npr);
-        }
-    }
-
     public static ConceptChronicle get(int nid, I_ManageConceptData data) throws IOException {
         assert nid != Integer.MAX_VALUE : "nid == Integer.MAX_VALUE";
         lazyInit();
@@ -776,8 +768,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 c = newC;
             }
         }
-
-        conceptsCRHM.put(nid, c);
 
         return c;
     }
@@ -796,8 +786,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 c = newC;
             }
         }
-
-        conceptsCRHM.put(nid, c);
 
         return c;
     }
@@ -1166,12 +1154,16 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Collection<Description> getDescriptions() throws IOException {
-        if (isCanceled()) {
-            return new ConcurrentSkipListSet<>(new ComponentComparator());
-        }
-
-        return data.getDescriptions();
+    public Collection<Description> getDescriptions() {
+       try {
+           if (isCanceled()) {
+               return new ConcurrentSkipListSet<>(new ComponentComparator());
+           }
+           
+           return data.getDescriptions();
+       } catch (IOException ex) {
+           throw new RuntimeException(ex);
+       }
     }
 
     public Collection<Relationship> getDestRels(NidSetBI allowedTypes) throws IOException {
@@ -1378,6 +1370,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return getConceptAttributes().getRefexes();
     }
 
+    /**
+     * 
+     * @param memberNid
+     * @return may return null
+     * @throws IOException 
+     */
     public RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException {
         return data.getRefsetMember(memberNid);
     }
@@ -1576,39 +1574,31 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     public String getText() {
-        try {
-            if (getDescriptions().size() > 0) {
-                return getDescriptions().iterator().next().getText();
-            }
-
-            if (fsDescNid == Integer.MIN_VALUE) {
-                fsDescNid = Ts.get().getNidForUuids(SnomedMetadataRf2.PREFERRED_RF2.getUuids());
-            }
-
-            if (getDescriptions().size() > 0) {
-                Description desc = getDescriptions().iterator().next();
-
-                for (Description d : getDescriptions()) {
-                    for (DescriptionVersion part : d.getVersions()) {
-                        if ((part.getTypeNid() == fsDescNid) || (part.getTypeNid() == fsXmlDescNid)) {
-                            return part.getText();
-                        }
+        if (getDescriptions().size() > 0) {
+            return getDescriptions().iterator().next().getText();
+        }
+        if (fsDescNid == Integer.MIN_VALUE) {
+            fsDescNid = Ts.get().getNidForUuids(SnomedMetadataRf2.PREFERRED_RF2.getUuids());
+        }
+        if (getDescriptions().size() > 0) {
+            Description desc = getDescriptions().iterator().next();
+            
+            for (Description d : getDescriptions()) {
+                for (DescriptionVersion part : d.getVersions()) {
+                    if ((part.getTypeNid() == fsDescNid) || (part.getTypeNid() == fsXmlDescNid)) {
+                        return part.getText();
                     }
                 }
-
-                return desc.getText();
-            } else {
-                int sequence = nid + Integer.MIN_VALUE;
-                String errString = nid + " (" + sequence + ") " + " has no descriptions " + getUUIDs();
-
-                getDescriptions();
-
-                return errString;
             }
-        } catch (IOException ex) {
-            logger.log(Level.WARNING, "Exception getting text", ex);
-
-            return ex.getLocalizedMessage();
+            
+            return desc.getText();
+        } else {
+            int sequence = nid + Integer.MIN_VALUE;
+            String errString = nid + " (" + sequence + ") " + " has no descriptions " + getUUIDs();
+            
+            getDescriptions();
+            
+            return errString;
         }
     }
 
@@ -1648,7 +1638,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<UUID> getUUIDs() {
+    public List<UUID> getUuidList() {
         try {
             if (getConceptAttributes() != null) {
                 return getConceptAttributes().getUUIDs();
@@ -1678,6 +1668,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public ConceptVersion getVersion(ViewCoordinate c) {
         return new ConceptVersion(this, c);
+    }
+
+    @Override
+    public List<? extends ConceptVersionBI> getVersionList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -1784,6 +1779,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
+    public CommitStates getCommitState() {
+        if (isUncommitted()) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
+
     public boolean isUncommitted() {
         return data.isUncommitted();
     }
@@ -1832,14 +1834,10 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    public void setIsCanceled(boolean isCanceled) {
-        canceled = isCanceled;
-    }
-
     private static void setRefsetMembersFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
         for (TtkRefexAbstractMemberChronicle<?> eRefsetMember : eConcept.getRefsetMembers()) {
             if (eRefsetMember.getType() == RefexType.LOGIC) {
-                SememeChronicle<?> sememe = SememeFromDtoFactory.create(eRefsetMember);
+                SememeChronology<?> sememe = SememeFromDtoFactory.create(eRefsetMember);
                 getSememeService().writeSememe(sememe);
             } else {
                 RefexMember<?, ?> refsetMember = RefexMemberFactory.create(eRefsetMember, c.getConceptNid());
@@ -1911,7 +1909,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Stream<SememeChronicle> getSememeChronicles() {
+    public Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles() {
         return getSememeService().getSememesFromAssemblage(getIdentifierService().getConceptSequence(nid));
     }
 }

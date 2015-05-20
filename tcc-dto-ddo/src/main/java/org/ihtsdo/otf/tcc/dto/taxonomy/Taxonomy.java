@@ -36,6 +36,8 @@ import org.ihtsdo.otf.tcc.dto.Wrapper;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 
 /**
  *
@@ -145,9 +147,14 @@ public class Taxonomy {
                                  moduleSpec.getUuids()[0]);
 
       for (ConceptCB concept : conceptBpsInInsertionOrder) {
-         dtoBuilder.construct(concept).writeExternal(out);
+            constructAndWrite(dtoBuilder, concept, out);
       }
    }
+
+    private void constructAndWrite(UuidDtoBuilder dtoBuilder, ConceptCB concept, DataOutputStream out) throws ContradictionException, InvalidCAB, IOException {
+        TtkConceptChronicle ttkConcept = dtoBuilder.construct(concept);
+        ttkConcept.writeExternal(out);
+    }
 
     public void exportJaxb(DataOutputStream out) throws Exception {
         UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(System.currentTimeMillis(),

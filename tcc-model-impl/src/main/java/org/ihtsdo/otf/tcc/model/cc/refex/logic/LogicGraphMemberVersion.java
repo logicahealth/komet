@@ -5,8 +5,8 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
-import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;

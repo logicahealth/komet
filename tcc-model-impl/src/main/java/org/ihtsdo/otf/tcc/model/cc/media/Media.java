@@ -69,7 +69,6 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     // TODO Verify this is a correct implementation
@@ -279,6 +278,10 @@ public class Media extends ConceptComponent<MediaRevision, Media>
         return vForC.get(0);
     }
 
+    @Override
+    public List<MediaVersion> getVersionList() {
+        return getVersions();
+    }
     @Override
     public List<MediaVersion> getVersions() {
         if (versions == null) {

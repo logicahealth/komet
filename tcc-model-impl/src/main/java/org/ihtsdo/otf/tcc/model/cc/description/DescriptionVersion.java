@@ -118,6 +118,11 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
     }
 
     @Override
+    public List<? extends DescriptionVersion> getVersionList() {
+        return ((Description)cc).getVersionList();
+    }
+
+    @Override
     public Collection<DescriptionVersion> getVersions(ViewCoordinate c) {
         return ((Description)cc).getVersions(c);
     }

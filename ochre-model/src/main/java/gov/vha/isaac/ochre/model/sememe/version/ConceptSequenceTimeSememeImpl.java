@@ -15,11 +15,10 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceTimeSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableConceptSequenceTimeSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  * Used for path origins by path manager. 
@@ -28,16 +27,17 @@ import gov.vha.isaac.ochre.api.sememe.SememeType;
 public class ConceptSequenceTimeSememeImpl extends ConceptSequenceSememeImpl
         implements MutableConceptSequenceTimeSememe {
 
-    long sememeTime;
+    long sememeTime = Long.MAX_VALUE;
     
-    public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  int stampSequence, DataBuffer data) {
-        super(container, stampSequence, data);
+    public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  
+            int stampSequence, short versionSequence, DataBuffer data) {
+        super(container, stampSequence, versionSequence);
         this.sememeTime = data.getLong();
     }
 
     public ConceptSequenceTimeSememeImpl(SememeChronicleImpl<ConceptSequenceTimeSememeImpl> container,  
-            State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        super(container, status, time, authorSequence, moduleSequence, pathSequence);
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     
@@ -59,7 +59,9 @@ public class ConceptSequenceTimeSememeImpl extends ConceptSequenceSememeImpl
 
     @Override
     public void setSememeTime(long time) {
-        checkUncommitted();
+        if (this.sememeTime != Long.MAX_VALUE) {
+            checkUncommitted();
+        }
         this.sememeTime = time;
     }
     

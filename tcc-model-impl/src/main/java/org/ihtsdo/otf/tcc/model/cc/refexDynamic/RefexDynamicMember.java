@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -128,7 +127,6 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     @Override
     public void clearVersions() {
         versions = null;
-        clearAnnotationVersions();
     }
 
     @Override
@@ -298,6 +296,11 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             return vForC.get(0);
         }
         return null;
+    }
+
+    @Override
+    public List<? extends RefexDynamicVersionBI<RefexDynamicRevision>> getVersionList() {
+        return getVersions();
     }
 
     @SuppressWarnings("unchecked")

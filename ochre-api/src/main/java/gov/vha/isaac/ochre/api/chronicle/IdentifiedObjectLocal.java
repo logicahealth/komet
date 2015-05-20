@@ -20,5 +20,8 @@ package gov.vha.isaac.ochre.api.chronicle;
  * @author kec
  */
 public interface IdentifiedObjectLocal extends IdentifiedObjectUniversal {
+    
     int getNid();
+    
+    String toUserString();
 }

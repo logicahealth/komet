@@ -15,6 +15,9 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.IdentifiedObjectService;
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 
 /**
@@ -22,12 +25,30 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
  * @author kec
  */
 public class StampPositionImpl implements StampPosition {
+    
+    private static IdentifiedObjectService identifiedObjectService;
+    private static IdentifiedObjectService getIdentifiedObjectService() {
+        if (identifiedObjectService == null) {
+            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
+        }
+        return identifiedObjectService;
+    }
+    
+    private static IdentifierService identifierService;
+    private static IdentifierService getIdentifierService() {
+        if (identifierService == null) {
+            identifierService = LookupService.getService(IdentifierService.class);
+        }
+        return identifierService;
+    }
+    
+    
     long time;
     int stampPathSequence;
 
     public StampPositionImpl(long time, int stampPathSequence) {
         this.time = time;
-        this.stampPathSequence = stampPathSequence;
+        this.stampPathSequence = getIdentifierService().getConceptSequence(stampPathSequence);
     }
 
     @Override
@@ -60,10 +81,14 @@ public class StampPositionImpl implements StampPosition {
         if (this.time != other.time) {
             return false;
         }
-        if (this.stampPathSequence != other.stampPathSequence) {
-            return false;
-        }
-        return true;
+        return this.stampPathSequence == other.stampPathSequence;
+    }
+
+    @Override
+    public String toString() {
+        return "StampPosition:{" + "time=" + getTimeAsInstant() + 
+                ", stampPathSequence=" + stampPathSequence + 
+                " " + getIdentifiedObjectService().informAboutObject(stampPathSequence) + '}';
     }
     
 }

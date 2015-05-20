@@ -16,45 +16,50 @@
 package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.sememe.version.MutableLogicGraphSememe;
+import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import org.glassfish.hk2.api.MultiException;
 
 /**
  *
  * @author kec
  */
-public class LogicGraphSememeImpl extends SememeVersionImpl
-    implements MutableLogicGraphSememe {
-    
+public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl>
+        implements MutableLogicGraphSememe {
+
     private static LogicByteArrayConverter converter;
+
     private static LogicByteArrayConverter getExternalDataConverter() throws MultiException {
         if (converter == null) {
             converter = LookupService.get().getService(LogicByteArrayConverter.class);
         }
         return converter;
     }
-    
-    byte[][] graphData;
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, int stampSequence, 
+    byte[][] graphData = null;
+
+    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, 
+            int stampSequence, short versionSequence,
             DataBuffer data) {
-        super(container, stampSequence, data);
+        super(container, stampSequence, versionSequence);
         int graphNodes = data.getInt();
         this.graphData = new byte[graphNodes][];
         for (int i = 0; i < graphNodes; i++) {
-            this.graphData[i] = data.getByteArrayField();
+            try {
+                this.graphData[i] = data.getByteArrayField();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println(e);
+            }
         }
     }
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        super(container, 
-                status, time, authorSequence, moduleSequence, pathSequence);
+    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, 
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
 
     @Override
@@ -81,11 +86,11 @@ public class LogicGraphSememeImpl extends SememeVersionImpl
         return getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.EXTERNAL);
     }
 
-
-    
     @Override
     public void setGraphData(byte[][] graphData) {
-        checkUncommitted();
+        if (this.graphData != null) {
+            checkUncommitted();
+        }
         this.graphData = graphData;
     }
 

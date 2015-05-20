@@ -4,7 +4,8 @@ package org.ihtsdo.otf.tcc.ddo.concept.component;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IdentifierDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IdentifierUuidDdo;
@@ -20,9 +21,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 
 import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.*;
-
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -32,6 +31,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T extends ComponentVersionBI>
         implements Serializable {
    private static final long serialVersionUID = 1;
+   private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -84,12 +84,6 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
 
          for (T v : another.getVersions(ss.getViewCoordinate())) {
             this.versions.add(makeVersion(ss, v));
-         }
-         
-         for (RefexChronicleBI<?> annotation: another.getAnnotations()) {
-             for (RefexVersionBI av: annotation.getVersions(ss.getViewCoordinate())) {
-                 
-             }
          }
 
          break;
@@ -179,6 +173,14 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
       case ANNOTATION_MEMBERS :
       case ANNOTATION_MEMBERS_AND_REFSET_MEMBERS :
          refexesToProcess.addAll(another.getAnnotations());
+         break;
+	
+      case NONE:
+         //noop
+         break;
+      default :
+         log.error("Unhandled case in process Refexes!");
+         break;
       }
 
       for (RefexChronicleBI<?> r : refexesToProcess) {

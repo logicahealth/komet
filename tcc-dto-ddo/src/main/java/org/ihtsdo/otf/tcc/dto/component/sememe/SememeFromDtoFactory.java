@@ -17,10 +17,10 @@ package org.ihtsdo.otf.tcc.dto.component.sememe;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LogicByteArrayConverter;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.sememe.SememeChronicle;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
@@ -48,7 +48,7 @@ public class SememeFromDtoFactory {
         return identifierProvider;
     }
 
-    public static SememeChronicle<?> create(TtkRefexAbstractMemberChronicle<?> eRefsetMember) {
+    public static SememeChronology<?> create(TtkRefexAbstractMemberChronicle<?> eRefsetMember) {
         IdentifierService ids = getIdentifierService();
         int nid = getIdentifierService().getNidForUuids(eRefsetMember.primordialUuid);
         int assemblageSequence = ids.getConceptSequence(ids.getNidForUuids(eRefsetMember.assemblageUuid));
@@ -66,7 +66,7 @@ public class SememeFromDtoFactory {
                             referencedComponentNid, containerSequence);    
                 
                 // primordial version
-                LogicGraphSememeImpl graphVersion = chronicle.createMutableVersion(LogicGraphSememeImpl.class, 
+                LogicGraphSememeImpl graphVersion = chronicle.createMutableUncommittedVersion(LogicGraphSememeImpl.class, 
                         eRefsetMember.status.getState(), 
                         ec);
                 TtkLogicGraphMemberChronicle logicGraphMember = (TtkLogicGraphMemberChronicle) eRefsetMember;
@@ -79,7 +79,7 @@ public class SememeFromDtoFactory {
                     ec.setAuthorSequence(ids.getNidForUuids(r.authorUuid));
                     ec.setModuleSequence(ids.getNidForUuids(r.moduleUuid));
                     ec.setPathSequence(ids.getNidForUuids(r.pathUuid));
-                    graphVersion = chronicle.createMutableVersion(LogicGraphSememeImpl.class, 
+                    graphVersion = chronicle.createMutableUncommittedVersion(LogicGraphSememeImpl.class, 
                         eRefsetMember.status.getState(), 
                         ec);
                     graphVersion.setGraphData(getLogicByteArrayConverter().

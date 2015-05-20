@@ -401,7 +401,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 	 * Create a new concept using the provided columnName and columnDescription values which is suitable 
 	 * for use as a column descriptor within {@link RefexDynamicUsageDescription}.
 	 * 
-	 * The new concept will be created under the concept {@link RefexDynamic#REFEX_DYNAMIC_COLUMNS}
+	 * The new concept will be created under the concept {@link RefexDynamic#DYNAMIC_SEMEME_COLUMNS}
 	 * 
 	 * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
 	 * to be created) would look roughly like this:
@@ -439,7 +439,7 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		UUID isA = Snomed.IS_A.getUuids()[0];
 		IdDirective idDir = IdDirective.GENERATE_HASH;
 		UUID module = Snomed.CORE_MODULE.getUuids()[0];
-		UUID parents[] = new UUID[] { RefexDynamic.REFEX_DYNAMIC_COLUMNS.getUuids()[0] };
+		UUID parents[] = new UUID[] { RefexDynamic.DYNAMIC_SEMEME_COLUMNS.getUuids()[0] };
 
 		ConceptCB cab = new ConceptCB(columnName, columnName, lc, isA, idDir, module, null, parents);
 		
@@ -458,11 +458,11 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		
 		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
 				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
-					TermAux.TERM_AUX_MODULE.getLenient().getNid(), 
+					TermAux.ISAAC_MODULE.getLenient().getNid(), 
 					TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
 					vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
-		Ts.get().commit(newCon);
+		Ts.get().commit(/* newCon */);
 		
 		return newCon;
 	}

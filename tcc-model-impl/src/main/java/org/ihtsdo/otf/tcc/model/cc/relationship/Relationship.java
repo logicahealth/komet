@@ -84,7 +84,6 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    @Override
    public void clearVersions() {
       versions = null;
-      clearAnnotationVersions();
    }
 
    @Override
@@ -360,6 +359,11 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
 
       return null;
    }
+
+    @Override
+    public List<RelationshipVersion> getVersionList() {
+        return getVersions();
+    }
 
     @Override
     public List<RelationshipVersion> getVersions() {

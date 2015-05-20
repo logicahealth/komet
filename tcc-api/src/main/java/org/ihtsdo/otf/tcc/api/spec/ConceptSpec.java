@@ -41,8 +41,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -69,20 +67,6 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     /**
      * Native identifier for the concept proxied by this object
      */
-    protected transient int nid = Integer.MAX_VALUE;
-    protected transient int sequence = Integer.MAX_VALUE;
-    private static IdentifierService identifierProvider = null;
-
-    public static IdentifierService getIdentifierProvider() {
-        if (identifierProvider == null) {
-            identifierProvider = LookupService.getService(IdentifierService.class);
-        }
-        return identifierProvider;
-    }
-
-    private static int getConceptSequence(int nid) {
-        return getIdentifierProvider().getConceptSequence(nid);
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -489,6 +473,10 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
 
             localVersion = Ts.get().getConceptVersion(vc, getUuids());
 
+            if (localVersion == null) {
+                throw new ValidationException("No ConceptVersion for " + getUuids() + " on ViewCoordinate " + vc.getName());
+            }
+            
             try {
                 validateDescription(localVersion, vc);
                 validateRelationships(localVersion, vc);
@@ -521,6 +509,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @return
      *
      */
+    @Override
     public int getNid() {
         if (nid == Integer.MAX_VALUE) {
             ConceptChronicleBI conceptChronicle;
@@ -543,6 +532,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @return
      *
      */
+    @Override
     public int getSequence() {
         if (sequence == Integer.MAX_VALUE) {
             sequence = getConceptSequence(getNid());

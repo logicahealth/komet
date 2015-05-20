@@ -15,11 +15,11 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.sememe.version.MutableConceptSequenceSememe;
+
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableConceptSequenceSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.api.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
  * 
@@ -27,15 +27,16 @@ import gov.vha.isaac.ochre.api.sememe.SememeType;
  */
 public class ConceptSequenceSememeImpl extends SememeVersionImpl implements MutableConceptSequenceSememe {
 
-    int conceptSequence;
+    int conceptSequence = -1;
 
-    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        super(container, 
-                status, time, authorSequence, moduleSequence, pathSequence);
+    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, 
+            int stampSequence, short versionSequence) {
+        super(container, stampSequence, versionSequence);
     }
     
-    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, int stampSequence, DataBuffer data) {
-        super(container, stampSequence, data);
+    public ConceptSequenceSememeImpl(SememeChronicleImpl<? extends ConceptSequenceSememeImpl> container, 
+            int stampSequence, short versionSequence, DataBuffer data) {
+        super(container, stampSequence, versionSequence);
         this.conceptSequence = data.getInt();
     }
     @Override
@@ -56,7 +57,9 @@ public class ConceptSequenceSememeImpl extends SememeVersionImpl implements Muta
 
     @Override
     public void setConceptSequence(int conceptSequence) {
-        checkUncommitted();
+        if (this.conceptSequence != -1) {
+            checkUncommitted();
+        }
         this.conceptSequence = conceptSequence;
     }
     

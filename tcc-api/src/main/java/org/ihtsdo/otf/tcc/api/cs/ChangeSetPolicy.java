@@ -7,19 +7,15 @@ public enum ChangeSetPolicy {
      * Don't generate change sets. 
      */
     OFF("no changeset"), 
+    
     /**
      * Only include changes that represent the sapNids from the current commit. 
      */
     INCREMENTAL("incremental changeset"),
     /**
-     * Only include sapNids that are written to the mutable database. 
-     */
-    MUTABLE_ONLY("mutable-only changeset"),
-    /**
      * Include all changes. 
      */
     COMPREHENSIVE("comprehensive changeset");
-    ;
 
     String displayString;
 
@@ -38,8 +34,6 @@ public enum ChangeSetPolicy {
 			return COMPREHENSIVE;
 		case INCREMENTAL:
 			return INCREMENTAL;
-		case MUTABLE_ONLY: 
-			return MUTABLE_ONLY;
 		case OFF:
 			return OFF;
 		default:
@@ -53,8 +47,6 @@ public enum ChangeSetPolicy {
 			return ChangeSetGenerationPolicy.COMPREHENSIVE;
 		case INCREMENTAL:
 			return ChangeSetGenerationPolicy.INCREMENTAL;
-		case MUTABLE_ONLY: 
-			return ChangeSetGenerationPolicy.MUTABLE_ONLY;
 		case OFF:
 			return ChangeSetGenerationPolicy.OFF;
 		default:

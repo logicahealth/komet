@@ -38,12 +38,6 @@ public interface TerminologyDI {
     //~--- methods -------------------------------------------------------------
     void addChangeSetGenerator(String key, ChangeSetGeneratorBI writer);
 
-    void addPropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, PropertyChangeListener l);
-    
-    void removePropertyChangeListener( PropertyChangeListener l) ;
-
-    void addTermChangeListener(TermChangeListener cl);
-
     void addUncommitted(ConceptChronicleBI cc) throws IOException;
 
     void addUncommitted(ConceptVersionBI cv) throws IOException;
@@ -51,14 +45,6 @@ public interface TerminologyDI {
     void addUncommittedNoChecks(ConceptChronicleBI cc) throws IOException;
 
     void addUncommittedNoChecks(ConceptVersionBI cv) throws IOException;
-
-    /**
-     * Only CONCEPT_EVENT.PRE_COMMIT is a vetoable change
-     *
-     * @param pce
-     * @param l
-     */
-    void addVetoablePropertyChangeListener(TerminologyStoreDI.CONCEPT_EVENT pce, VetoableChangeListener l);
 
     void cancel() throws IOException;
 
@@ -143,13 +129,7 @@ public interface TerminologyDI {
 
     void removeChangeSetGenerator(String key);
 
-    void removeTermChangeListener(TermChangeListener cl);
-
-    void resumeChangeNotifications();
-
     boolean satisfiesDependencies(Collection<DbDependency> dependencies);
-
-    void suspendChangeNotifications();
 
     //~--- get methods ---------------------------------------------------------
     NativeIdSetBI getAllConceptNids() throws IOException;

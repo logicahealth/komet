@@ -585,7 +585,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      *
      * @param componentUuid the new component uuid no recompute
      */
-    public final void setComponentUuidNoRecompute(UUID componentUuid) {
+    public void setComponentUuidNoRecompute(UUID componentUuid) {
         properties.put(ComponentProperty.COMPONENT_ID, componentUuid);
     }
 

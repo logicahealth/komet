@@ -6,13 +6,10 @@ public enum ChangeSetGenerationPolicy {
      */
     OFF("no changeset"),
     /**
-     * Only include changes that represent the sapNids from the current commit.
+     * Only include changes that represent the stampSequences from the current commit.
      */
     INCREMENTAL("incremental changeset"),
-    /**
-     * Only include sapNids that are written to the mutable database.
-     */
-    MUTABLE_ONLY("mutable-only changeset"),
+
     /**
      * Include all changes.
      */

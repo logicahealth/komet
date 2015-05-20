@@ -239,6 +239,11 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
+    public List<? extends RelationshipVersion> getVersionList() {
+        return ((Relationship) primordialComponent).getVersions();
+    }
+
+    @Override
     public Collection<RelationshipVersion> getVersions(ViewCoordinate c) {
         return primordialComponent.getVersions(c);
     }
