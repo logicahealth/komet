@@ -463,14 +463,14 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                 if (c.getRefsetDynamicMembers().isEmpty()) {
                     setRefsetMembersDynamicFromEConcept(eConcept, c);
                 } else {
-                    Set<Integer> currentMemberNids = c.data.getMemberNids();
+                    Set<Integer> currentMemberNids = c.data.getDynamicMemberNids();
 
                     for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
                         int rNid = PersistentStore.get().getNidForUuids(er.primordialUuid);
-                        RefexDynamicMember r = c.getRefsetDynamicMember(rNid);
+                        Optional<RefexDynamicMember> r = c.getRefsetDynamicMember(rNid);
 
-                        if (currentMemberNids.contains(rNid) && (r != null)) {
-                            r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, c.getNid()));
+                        if (currentMemberNids.contains(rNid) && (r.isPresent())) {
+                            r.get().merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, c.getNid()));
                         } else {
                             c.getData().add(RefexDynamicMemberFactory.create(er, c.getNid()));
                         }
@@ -1380,7 +1380,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.getRefsetMember(memberNid);
     }
 
-    public RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException {
+    public Optional<RefexDynamicMember> getRefsetDynamicMember(int memberNid) throws IOException {
         return data.getRefsetDynamicMember(memberNid);
     }
 
