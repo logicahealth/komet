@@ -1,0 +1,42 @@
+#Abbreviation (RRF name)	expansion	description [optional]
+
+#RxNorm attribute types
+AMBIGUITY_FLAG	Source atom ambiguity flag	
+NDC	National Drug Code	National Drug Code corresponding to a clinical drug (e.g. 000023082503)
+ORIG_CODE	Original Code	Original code associated with this string
+ORIG_SOURCE	Original Source	Original source associated with this string
+RXN_ACTIVATED	RxNorm Activation Date	Date the RxNorm atom was reactivated
+RXN_AVAILABLE_STRENGTH	RxNorm Available Drug Strengths	Available drug strengths listed in the order of ingredients from the drug
+RXN_BN_CARDINALITY	RxNorm Brand Name Cardinality	Cardinality of RxNorm Brand Name Atom
+RXN_HUMAN_DRUG	Human Drug	Drug available for use in Humans
+RXN_IN_EXPRESSED_FLAG	Strength Expressed As Precise Flag	
+RXN_OBSOLETED	RxNorm Obsolete Date	Date the RxNorm atom became obsolete
+RXN_QUANTITY	Normal Form quantity factor	
+RXN_STRENGTH	Strength plus unit of SCDC	
+RXN_VET_DRUG	Animal Drug	Drug available for use in animals
+RXTERM_FORM	RxTerm Dose Form Name	The RxTerm dose form name for this drug
+UMLSCUI	UMLS concept unique identifier	
+UMLSAUI	UMLS atom unique identifier	
+UNII_CODE	FDA Unique Ingredient Identifier (UNII) Code	
+
+#RxNorm desc types
+BN	Brand Name	Fully-specified drug brand name that can not be prescribed
+BPCK	Branded Drug Delivery Device	
+DF	Dose Form	
+DFG	Dose Form Group	
+ET	Entry Term	
+GPCK	Generic Drug Delivery Device	
+IN	Name for an Ingredient	
+MIN	Name for a Multi-Ingredient	
+PIN	Name from a Precise Ingredient	
+PSN	Prescribable Name	Prescribable Name for many drugs with topical dose forms, including some ointments, gels, and foams
+SBD	Semantic Branded Drug	
+SBDC	Semantic Branded Drug Component	
+SBDF	Semantic Branded Drug and Form	
+SBDG	Semantic Branded Drug Group	
+SCD	Semantic Clinical Drug	
+SCDC	Semantic Drug Component	
+SCDF	Semantic Clinical Drug and Form	
+SCDG	Semantic Clinical Drug Group	
+SY	Designated Synonym	
+TMSY	Tall Man synonym	
