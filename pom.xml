@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>gov.vha.isaac</groupId>
 		<artifactId>isaac-parent</artifactId>
-		<version>1.7-SNAPSHOT</version>
+		<version>1.6</version>
 	</parent>
 	
 	<groupId>gov.vha.isaac.terminology.converters</groupId>
@@ -15,7 +15,7 @@
 	<name>Converters Common Code</name>
 
 	<properties>
-		<isaac-gui.version>1.7-SNAPSHOT</isaac-gui.version>
+		<isaac-gui.version>1.6</isaac-gui.version>
 	</properties>
 
 	<scm>
