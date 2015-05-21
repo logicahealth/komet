@@ -88,12 +88,12 @@ public class TtkConceptChronicleWrapper extends TtkConceptChronicle
 		
 		if (!havePreferredFSN)
 		{
-			//These two UUIDs are special cases - we are just writing out a skeleton concept of them - so that it merges - so we don't 
-			//actually include the FSN, or anything else about them (just a new refset entry)
-			if (!getPrimordialUuid().equals(EConceptUtility.pathOriginRefSetUUID_) && !getPrimordialUuid().equals(EConceptUtility.pathRefSetUUID_))
-			{
-				throw new RuntimeException("The concept " + this + " was created without an FSN");
-			}
+//			//These two UUIDs are special cases - we are just writing out a skeleton concept of them - so that it merges - so we don't 
+//			//actually include the FSN, or anything else about them (just a new refset entry)
+//			if (!getPrimordialUuid().equals(EConceptUtility.pathOriginRefSetUUID_) && !getPrimordialUuid().equals(EConceptUtility.pathRefSetUUID_))
+//			{
+//				throw new RuntimeException("The concept " + this + " was created without an FSN");
+//			}
 		}
 		else if (!havePreferredSynonym)
 		{
@@ -108,15 +108,15 @@ public class TtkConceptChronicleWrapper extends TtkConceptChronicle
 				{
 					//Skip en-us - that is done automatically during the desc build.
 					TtkRefexUuidMemberChronicle member = (TtkRefexUuidMemberChronicle)nestedAnnotation;
-					if (!member.getRefexExtensionUuid().equals(EConceptUtility.usEnRefsetUuid_))
+					if (!member.getAssemblageUuid().equals(EConceptUtility.usEnRefsetUuid_))
 					{
-						econUtil_.addUuidAnnotation(desc, member.getUuid1(), member.getRefexExtensionUuid());
+						econUtil_.addUuidAnnotation(desc, member.getUuid1(), member.getAssemblageUuid());
 					}
 				}
 				else if (nestedAnnotation instanceof TtkRefexStringMemberChronicle)
 				{
 					TtkRefexStringMemberChronicle member = (TtkRefexStringMemberChronicle)nestedAnnotation;
-					econUtil_.addStringAnnotation(desc, member.getString1(), member.getRefexExtensionUuid(), member.getStatus());
+					econUtil_.addStringAnnotation(desc, member.getString1(), member.getAssemblageUuid(), member.getStatus());
 				}
 				else
 				{
@@ -132,7 +132,7 @@ public class TtkConceptChronicleWrapper extends TtkConceptChronicle
 	{
 		for (TtkRefexAbstractMemberChronicle<?> annotation: annotations)
 		{
-			if (annotation.getRefexExtensionUuid().equals(EConceptUtility.usEnRefsetUuid_)
+			if (annotation.getAssemblageUuid().equals(EConceptUtility.usEnRefsetUuid_)
 					&& annotation instanceof TtkRefexUuidMemberChronicle 
 					&& ((TtkRefexUuidMemberChronicle)annotation).getUuid1().equals(EConceptUtility.descriptionPreferredUuid_))
 			{

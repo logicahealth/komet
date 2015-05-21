@@ -27,6 +27,8 @@ import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
+import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
+import gov.vha.isaac.mojo.GenerateMetadataEConcepts;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -40,16 +42,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.apache.commons.lang.StringUtils;
-import org.ihtsdo.otf.mojo.GenerateMetadataEConcepts;
+import org.apache.commons.lang3.StringUtils;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
-import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
@@ -58,7 +57,6 @@ import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_int.TtkRefexUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
@@ -79,29 +77,24 @@ import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 public class EConceptUtility
 {
 	public static enum DescriptionType{FSN, SYNONYM, DEFINITION};
-	public final static UUID isARelUuid_ = Snomed.IS_A.getUuids()[0];
-	public final static UUID authorUuid_ = TermAux.USER.getUuids()[0];
-	public final static UUID synonymUuid_ = Snomed.SYNONYM_DESCRIPTION_TYPE.getUuids()[0];
-	public final static UUID definitionUuid_ = Snomed.DEFINITION_DESCRIPTION_TYPE.getUuids()[0];
-	public final static UUID fullySpecifiedNameUuid_ = Snomed.FULLY_SPECIFIED_DESCRIPTION_TYPE.getUuids()[0];
-	public final static UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getUuids()[0];
-	public final static UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getUuids()[0];
-	public final static UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getUuids()[0];
-	public final static UUID definingCharacteristicUuid_ = SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getUuids()[0];
-	public final static UUID notRefinableUuid = SnomedMetadataRf2.NOT_REFINABLE_RF2.getUuids()[0];
-	public final static UUID moduleUuid_ = TtkRevision.unspecifiedModuleUuid;
-	public final static UUID refsetMemberTypeNormalMemberUuid_ = UUID.fromString("cc624429-b17d-4ac5-a69e-0b32448aaf3c"); //normal member
-	public final static String PROJECT_REFSETS_NAME = "Project Refsets";
-	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7fe3e31f-a969-53ff-8702-f7837e4a03d9");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "Project Refsets")
-	public final static UUID pathOriginRefSetUUID_ = TermAux.PATH_ORIGIN_REFSET.getUuids()[0];
-	public final static UUID pathRefSetUUID_ = TermAux.PATH_REFSET.getUuids()[0];
-	public final static UUID pathUUID_ = TermAux.PATH.getUuids()[0];
-	public final static UUID pathReleaseUUID_ =  UUID.fromString("88f89cc0-1d94-34a4-85ed-aa1949079314");
-	public final static UUID workbenchAuxilary = TermAux.WB_AUX_PATH.getUuids()[0];
+	public final static UUID isARelUuid_ = IsaacMetadataAuxiliaryBinding.IS_A.getPrimodialUuid();
+	public final static UUID authorUuid_ = IsaacMetadataAuxiliaryBinding.USER.getPrimodialUuid();
+	public final static UUID synonymUuid_ = IsaacMetadataAuxiliaryBinding.SYNONYM.getPrimodialUuid();
+	public final static UUID definitionUuid_ = IsaacMetadataAuxiliaryBinding.DEFINITION.getPrimodialUuid();
+	public final static UUID fullySpecifiedNameUuid_ = IsaacMetadataAuxiliaryBinding.FULLY_SPECIFIED_NAME.getPrimodialUuid();
+	public final static UUID descriptionAcceptableUuid_ = IsaacMetadataAuxiliaryBinding.ACCEPTABLE.getPrimodialUuid();
+	public final static UUID descriptionPreferredUuid_ = IsaacMetadataAuxiliaryBinding.PREFERRED.getPrimodialUuid();
+	public final static UUID usEnRefsetUuid_ = IsaacMetadataAuxiliaryBinding.US_ENGLISH_DIALECT.getPrimodialUuid();
+	public final static UUID definingCharacteristicUuid_ = IsaacMetadataAuxiliaryBinding.STATED.getPrimodialUuid();
+	public final static UUID notRefinableUuid = SnomedMetadataRf2.NOT_REFINABLE_RF2.getPrimodialUuid();  //TODO missing from ochre metadata
+	public final static UUID terminologyPathUUID_ = IsaacMetadataAuxiliaryBinding.MASTER.getPrimodialUuid();
+	public final static UUID refsetMemberTypeNormalMemberUuid_ = IsaacMetadataAuxiliaryBinding.NORMAL_MEMBER.getPrimodialUuid();
+	public final static String PROJECT_REFSETS_NAME = "SOLOR Refsets";
+	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7a9b495e-69c1-53e5-a2d5-41be2429c146");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "SOLOR Refsets")
 	
 	public final long defaultTime_;
 	private final String lang_ = "en";
-	private UUID terminologyPathUUID_ = workbenchAuxilary;  //start with this.
+	public UUID moduleUuid_ = null;
 	private HashMap<UUID, RefexDynamicColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();;
 
 	private LoadStats ls_ = new LoadStats();
@@ -109,45 +102,25 @@ public class EConceptUtility
 	/**
 	 * Creates and stores the path concept - sets up the various namespace details.
 	 * @param namespaceSeed The string to use for seeding the UUID generator for this namespace
-	 * @param pathName The name to use for the concept that will be created as the 'path' concept
+	 * @param moduleName The name to use for the concept that will be created as the 'module' concept
 	 * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
 	 * @param dos - location to write the output
 	 * @throws Exception
 	 */
-	public EConceptUtility(String namespaceSeed, String pathName, DataOutputStream dos, long defaultTime) throws Exception
+	public EConceptUtility(UUID module, DataOutputStream dos, long defaultTime) throws Exception
 	{
 		ConverterUUID.addMapping("isA", isARelUuid_);
 		ConverterUUID.addMapping("Synonym", synonymUuid_);
 		ConverterUUID.addMapping("Fully Specified Name", fullySpecifiedNameUuid_);
 		ConverterUUID.addMapping("US English Refset", usEnRefsetUuid_);
-		ConverterUUID.addMapping("Path reference set", pathRefSetUUID_);
-		ConverterUUID.addMapping("Path origin reference set", pathOriginRefSetUUID_);
 		
 		defaultTime_ = defaultTime;
 		
-		UUID namespace = ConverterUUID.createNamespaceUUIDFromString(null, namespaceSeed);
-		ConverterUUID.configureNamespace(namespace);
+		//Just use the module as the namespace
+		ConverterUUID.configureNamespace(module);
 		
-		//Start our creating our path concept, by hanging it under path/release
-		//Note, this concept gets created on WorkbenchAuxiliary path.
-		//need to gen the UUID on the special namespace, so it can be targeted from assembly pom
-		TtkConceptChronicle c = createConcept(ConverterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, pathName), pathName, pathReleaseUUID_);  
-		addDescription(c, pathName, DescriptionType.SYNONYM, true, null, null, Status.ACTIVE);  //Need a synonym as well, to be able to target from assembly pom
-		c.writeExternal(dos);
-		
-		//Add it to the pathOriginRefSet, done on workbenchAux path.
-		TtkConceptChronicle pathOriginRefsetConcept = createConcept(pathOriginRefSetUUID_);
-		//Max value will be displayed as 'latest'.  Why on earth we are using an int for a time value, I have no idea.
-		addLegacyRefsetMember(pathOriginRefsetConcept, c.getPrimordialUuid(), workbenchAuxilary, Integer.MAX_VALUE, Status.ACTIVE, null);
-		pathOriginRefsetConcept.writeExternal(dos);
-		
-		//Also, add it to the pathRefset.  Also done on WorkbenchAux path.
-		TtkConceptChronicle pathRefsetConcept = createConcept(pathRefSetUUID_);
-		addLegacyRefsetMember(pathRefsetConcept, pathUUID_, c.getPrimordialUuid(), null, Status.ACTIVE, null);
-		pathRefsetConcept.writeExternal(dos);
-		
-		terminologyPathUUID_ = c.getPrimordialUuid();  //Now change the path to our new path concept
-		ConsoleUtil.println("The path to be specified in the workbench baseline pom (or assembly pom) is '" + pathName + "' - " + terminologyPathUUID_);
+		moduleUuid_ = module;
+		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on MASTER path");
 	}
 
 	/**
@@ -622,7 +595,7 @@ public class EConceptUtility
 
 		TtkRefexUuidMemberChronicle conceptRefexMember = new TtkRefexUuidMemberChronicle();
 
-		conceptRefexMember.setComponentUuid(component.getPrimordialComponentUuid());
+		conceptRefexMember.setReferencedComponentUuid(component.getPrimordialComponentUuid());
 		if (annotationPrimordialUuid == null)
 		{
 			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromStrings(component.getPrimordialComponentUuid().toString(), 
@@ -630,7 +603,7 @@ public class EConceptUtility
 		}
 		conceptRefexMember.setPrimordialComponentUuid(annotationPrimordialUuid);
 		conceptRefexMember.setUuid1(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept);
-		conceptRefexMember.setRefexExtensionUuid(refsetUuid);
+		conceptRefexMember.setAssemblageUuid(refsetUuid);
 		setRevisionAttributes(conceptRefexMember, status, (time == null ? component.getTime() : time));
 
 		annotations.add(conceptRefexMember);
@@ -655,11 +628,11 @@ public class EConceptUtility
 		}
 		else if (component instanceof TtkRefexStringMemberChronicle)
 		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getRefexExtensionUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkRefexUuidMemberChronicle)
 		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexUuidMemberChronicle) component).getRefexExtensionUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexUuidMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkRefexDynamicMemberChronicle)
 		{
@@ -708,79 +681,6 @@ public class EConceptUtility
 		members.add(member);
 		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
 		return member;
-	}
-
-	/**
-	 * @param time = if null, set to refsetConcept time
-	 * @param refsetMemberType - if null, is set to "normal member"
-	 * @param refsetMemberPrimordial - if null, computed from refset type, target, member type
-	 */
-	private TtkRefexUuidMemberChronicle addLegacyRefsetMember(TtkConceptChronicle refsetConcept, UUID targetUuid, UUID refsetMemberType, UUID refsetMemberPrimordial, 
-			Status status, Long time)
-	{
-		List<TtkRefexAbstractMemberChronicle<?>> refsetMembers = refsetConcept.getRefsetMembers();
-		if (refsetMembers == null)
-		{
-			refsetMembers = new ArrayList<TtkRefexAbstractMemberChronicle<?>>();
-			refsetConcept.setRefsetMembers(refsetMembers);
-			/*
-			 * These settings could be used to convert member lists - but it requires painful conversion at load time
-			 * where concepts must be manually listed in the pom file.  So, don't bother.
-			 */
-			refsetConcept.setAnnotationStyleRefex(false);  //put the annotations on the target (when true)
-		}
-		
-		TtkRefexUuidMemberChronicle refsetMember = new TtkRefexUuidMemberChronicle();
-		if (refsetMemberPrimordial == null)
-		{
-			refsetMemberPrimordial = ConverterUUID.createNamespaceUUIDFromStrings(refsetConcept.getPrimordialUuid().toString(), 
-					targetUuid.toString(), (refsetMemberType == null ? refsetMemberTypeNormalMemberUuid_.toString() : refsetMemberType.toString()));
-		}
-		refsetMember.setPrimordialComponentUuid(refsetMemberPrimordial);
-		refsetMember.setComponentUuid(targetUuid);  // ComponentUuid and refsetUuid seem like they are reversed at first glance, but this is right.
-		refsetMember.setRefexExtensionUuid(refsetConcept.getPrimordialUuid());
-		refsetMember.setUuid1(refsetMemberType == null ? refsetMemberTypeNormalMemberUuid_ : refsetMemberType);
-		setRevisionAttributes(refsetMember, status, (time == null ? refsetConcept.getConceptAttributes().getTime() : time));
-		refsetMembers.add(refsetMember);
-
-		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
-		
-		return refsetMember;
-	}
-	
-	/**
-	 * @param time = if null, set to refsetConcept time
-	 * @param refsetMemberType - if null, is set to "normal member"
-	 */
-	private TtkRefexUuidIntMemberChronicle addLegacyRefsetMember(TtkConceptChronicle refsetConcept, UUID targetUuid, UUID refsetMemberType, int refsetMemberIntValue, 
-			Status status, Long time)
-	{
-		List<TtkRefexAbstractMemberChronicle<?>> refsetMembers = refsetConcept.getRefsetMembers();
-		if (refsetMembers == null)
-		{
-			refsetMembers = new ArrayList<TtkRefexAbstractMemberChronicle<?>>();
-			refsetConcept.setRefsetMembers(refsetMembers);
-			/*
-			 * These settings could be used to convert member lists - but it requires painful conversion at load time
-			 * where concepts must be manually listed in the pom file.  So, don't bother.
-			 */
-			refsetConcept.setAnnotationStyleRefex(false);  //put the annotations on the target (when true)
-		}
-		
-		TtkRefexUuidIntMemberChronicle refsetMember = new TtkRefexUuidIntMemberChronicle();
-		
-		refsetMember.setPrimordialComponentUuid(ConverterUUID.createNamespaceUUIDFromStrings(
-				refsetConcept.getPrimordialUuid().toString(), targetUuid.toString(), refsetMemberIntValue + ""));
-		refsetMember.setComponentUuid(targetUuid);  // ComponentUuid and refsetUuid seem like they are reversed at first glance, but this is right.
-		refsetMember.setRefexExtensionUuid(refsetConcept.getPrimordialUuid());
-		refsetMember.setUuid1(refsetMemberType == null ? refsetMemberTypeNormalMemberUuid_ : refsetMemberType);
-		refsetMember.setInt1(refsetMemberIntValue);
-		setRevisionAttributes(refsetMember, status, (time == null ? refsetConcept.getConceptAttributes().getTime() : time));
-		refsetMembers.add(refsetMember);
-
-		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
-		
-		return refsetMember;
 	}
 	
 	//TODO write addAssociation methods
@@ -1005,12 +905,14 @@ public class EConceptUtility
 			else if (pt instanceof BPT_Descriptions)
 			{
 				//only do this once, in case we see a BPT_Descriptions more than once
-				secondParent = setupWbPropertyMetadata("Description source type reference set", "Description name in source terminology", pt, dos);
+				secondParent = setupWbPropertyMetadata(IsaacMetadataAuxiliaryBinding.DESCRIPTION_SOURCE_TYPE_REFERENCE_SETS.getPrimodialUuid(),
+						IsaacMetadataAuxiliaryBinding.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimodialUuid(), pt, dos);
 			}
 			
 			else if (pt instanceof BPT_Relations)
 			{
-				secondParent = setupWbPropertyMetadata("Relation source type reference set", "Relation name in source terminology", pt, dos);
+				secondParent = setupWbPropertyMetadata(IsaacMetadataAuxiliaryBinding.RELATIONSHIP_SOURCE_TYPE_REFERENCE_SETS.getPrimodialUuid(),
+						IsaacMetadataAuxiliaryBinding.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimodialUuid(), pt, dos);
 			}
 			
 			for (Property p : pt.getProperties())
@@ -1063,46 +965,14 @@ public class EConceptUtility
 		refsets.clearConcepts();
 	}
 	
-	/**
-	 * This is just used by the setupWbPropertyMetadata method, which requires the UUIDs to be specified in a certain way.
-	 */
-	private TtkConceptChronicle createMetaDataSpecialConcept(UUID primordial, String fsnName, String preferredName, UUID relParentPrimordial, DataOutputStream dos)
-			throws Exception
-	{
-		TtkConceptChronicle concept = createConcept(primordial);
-		//UUID needs to always be the same per description, so things merge properly when this gets created by multiple loaders
-		addDescription(concept, UuidT5Generator.get("FSN:" + fsnName), fsnName, DescriptionType.FSN, true, null, null, Status.ACTIVE);
-		concept.setAnnotationStyleRefex(false);
-		addRelationship(concept, relParentPrimordial);
-		if (preferredName != null)
-		{
-			//UUID needs to always be the same per description, so things merge properly when this gets created by multiple loaders
-			addDescription(concept, UuidT5Generator.get("preferredName:" +preferredName), preferredName, DescriptionType.SYNONYM, true, null, null, Status.ACTIVE);
-		}
-		concept.writeExternal(dos);
-		return concept;
-	}
-
-	private HashMap<String, UUID> specialSCTMetadataUuidCache = new HashMap<>();
-	
-	private UUID setupWbPropertyMetadata(String refsetSynonymName, String refsetValueParentSynonynmName, PropertyType pt, DataOutputStream dos) throws Exception
+	private UUID setupWbPropertyMetadata(UUID refsetSynonymParent, UUID refsetValueParent, PropertyType pt, DataOutputStream dos) throws Exception
 	{
 		if (pt.getPropertyTypeReferenceSetName() == null || pt.getPropertyTypeReferenceSetUUID() == null)
 		{
 			throw new RuntimeException("Unhandled case!");
 		}
-		//Create a concept under "Reference set (foundation metadata concept)"  7e38cd2d-6f1a-3a81-be0b-21e6090573c2
-		//Now create the description type refset bucket.  UUID should always be the same - not terminology specific.  This should come from the WB, eventually.
-		if (!specialSCTMetadataUuidCache.containsKey(refsetSynonymName))
-		{
-			UUID refsetSynonymNameUUID = UuidT5Generator.get(refsetSynonymName + " (foundation metadata concept)");
-			createMetaDataSpecialConcept(refsetSynonymNameUUID, refsetSynonymName + " (foundation metadata concept)", refsetSynonymName,
-					UUID.fromString("7e38cd2d-6f1a-3a81-be0b-21e6090573c2"), dos);
-			specialSCTMetadataUuidCache.put(refsetSynonymName, refsetSynonymNameUUID);
-		}
 		
-		//Now create the terminology specific refset type as a child
-		
+		//Create the terminology specific refset type
 		Consumer<TtkConceptChronicle> callback = new Consumer<TtkConceptChronicle>()
 		{
 			@Override
@@ -1111,7 +981,7 @@ public class EConceptUtility
 				try
 				{
 					RefexDynamicColumnInfo[] colInfo = new RefexDynamicColumnInfo[] {
-							new RefexDynamicColumnInfo(0, RefexDynamic.REFEX_COLUMN_VALUE.getPrimodialUuid(), RefexDynamicDataType.UUID, null, true, null, null)};
+							new RefexDynamicColumnInfo(0, RefexDynamic.DYNAMIC_SEMEME_COLUMN_VALUE.getPrimodialUuid(), RefexDynamicDataType.UUID, null, true, null, null)};
 					GenerateMetadataEConcepts.turnConceptIntoDynamicRefexAssemblageConcept(concept, true, "Carries the source description type information",
 							colInfo,
 							null);
@@ -1127,27 +997,13 @@ public class EConceptUtility
 			}
 		};
 		
-		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), specialSCTMetadataUuidCache.get(refsetSynonymName), callback, dos);
+		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), refsetSynonymParent, callback, dos);
 		ConverterUUID.addMapping(pt.getPropertyTypeReferenceSetName(), pt.getPropertyTypeReferenceSetUUID());
-		
-		//TODO we shouldn't have to create this concept in the future - two new concepts have been added to the US extension for this purpose.
-		//Should eventually be changed to "Semantic Description Type" and "Semantic Relationship Type" - so don't create this intermediate concept, 
-		//just hang our concept under the appropriate one which will already exist.
-		//Until then - create our own.....
-		//Finally, create the Reference set attribute children that we will put the actual properties under
-		//Create the concept under "Reference set attribute (foundation metadata concept)"  7e52203e-8a35-3121-b2e7-b783b34d97f2
-		if (!specialSCTMetadataUuidCache.containsKey(refsetValueParentSynonynmName))
-		{
-			UUID refsetValueParentSynonymNameUUID = UuidT5Generator.get(refsetValueParentSynonynmName + " (foundation metadata concept)");
-			createMetaDataSpecialConcept(refsetValueParentSynonymNameUUID, refsetValueParentSynonynmName + " (foundation metadata concept)", refsetValueParentSynonynmName,
-					UUID.fromString("7e52203e-8a35-3121-b2e7-b783b34d97f2"), dos).getPrimordialUuid();
-			specialSCTMetadataUuidCache.put(refsetValueParentSynonynmName, refsetValueParentSynonymNameUUID);
-		}
 		
 		//Now create the terminology specific refset type as a child - very similar to above, but since this isn't the refset concept, just an organization
 		//concept, I add an 's' to make it plural, and use a different UUID (calculated from the new plural)
 		//I have a case in UMLS and RxNorm loaders where this makes a duplicate, but its ok, it should merge.
 		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
-				pt.getPropertyTypeReferenceSetName() + "s", specialSCTMetadataUuidCache.get(refsetValueParentSynonynmName), null, dos).getPrimordialUuid();
+				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParent, null, dos).getPrimordialUuid();
 	}
 }
