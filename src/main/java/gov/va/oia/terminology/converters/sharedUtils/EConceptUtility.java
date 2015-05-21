@@ -57,7 +57,6 @@ import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_int.TtkRefexUuidIntMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
@@ -92,15 +91,9 @@ public class EConceptUtility
 	public final static UUID refsetMemberTypeNormalMemberUuid_ = IsaacMetadataAuxiliaryBinding.NORMAL_MEMBER.getPrimodialUuid();
 	public final static String PROJECT_REFSETS_NAME = "SOLOR Refsets";
 	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7a9b495e-69c1-53e5-a2d5-41be2429c146");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "SOLOR Refsets")
-//	public final static UUID pathOriginRefSetUUID_ = TermAux.PATH_ORIGIN_REFSET.getUuids()[0];
-//	public final static UUID pathRefSetUUID_ = TermAux.PATH_REFSET.getUuids()[0];
-//	public final static UUID pathUUID_ = TermAux.PATH.getUuids()[0];
-//	public final static UUID pathReleaseUUID_ =  UUID.fromString("88f89cc0-1d94-34a4-85ed-aa1949079314");
-//	public final static UUID workbenchAuxilary = TermAux.WB_AUX_PATH.getUuids()[0];
 	
 	public final long defaultTime_;
 	private final String lang_ = "en";
-	//Start with t his
 	public UUID moduleUuid_ = null;
 	private HashMap<UUID, RefexDynamicColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();;
 
@@ -120,36 +113,13 @@ public class EConceptUtility
 		ConverterUUID.addMapping("Synonym", synonymUuid_);
 		ConverterUUID.addMapping("Fully Specified Name", fullySpecifiedNameUuid_);
 		ConverterUUID.addMapping("US English Refset", usEnRefsetUuid_);
-//		ConverterUUID.addMapping("Path reference set", pathRefSetUUID_);
-//		ConverterUUID.addMapping("Path origin reference set", pathOriginRefSetUUID_);
 		
 		defaultTime_ = defaultTime;
 		
 		//Just use the module as the namespace
 		ConverterUUID.configureNamespace(module);
 		
-		//Start our creating our module concept, by hanging it under module
-		//Note - this concept gets created on the 'ISAAC module' path
-		//need to gen the UUID on the special namespace, so it can be targeted from assembly pom
-//		TtkConceptChronicle c = createConcept(ConverterUUID.createNamespaceUUIDFromString(UuidT5Generator.PATH_ID_FROM_FS_DESC, moduleName), moduleName, 
-//				IsaacMetadataAuxiliaryBinding.MODULE.getPrimodialUuid());  
-//		addDescription(c, moduleName, DescriptionType.SYNONYM, true, null, null, Status.ACTIVE);  //Need a synonym as well, to be able to target from assembly pom
-//		c.writeExternal(dos);
-		
-		//Add it to the pathOriginRefSet, done on workbenchAux path.
-//		TtkConceptChronicle pathOriginRefsetConcept = createConcept(pathOriginRefSetUUID_);
-//		//Max value will be displayed as 'latest'.  Why on earth we are using an int for a time value, I have no idea.
-//		addLegacyRefsetMember(pathOriginRefsetConcept, c.getPrimordialUuid(), workbenchAuxilary, Integer.MAX_VALUE, Status.ACTIVE, null);
-//		pathOriginRefsetConcept.writeExternal(dos);
-//		
-//		//Also, add it to the pathRefset.  Also done on WorkbenchAux path.
-//		TtkConceptChronicle pathRefsetConcept = createConcept(pathRefSetUUID_);
-//		addLegacyRefsetMember(pathRefsetConcept, pathUUID_, c.getPrimordialUuid(), null, Status.ACTIVE, null);
-//		pathRefsetConcept.writeExternal(dos);
-		
 		moduleUuid_ = module;
-		
-		//terminologyPathUUID_ = c.getPrimordialUuid();  //Now change the path to our new path concept
 		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on MASTER path");
 	}
 
@@ -711,79 +681,6 @@ public class EConceptUtility
 		members.add(member);
 		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
 		return member;
-	}
-
-	/**
-	 * @param time = if null, set to refsetConcept time
-	 * @param refsetMemberType - if null, is set to "normal member"
-	 * @param refsetMemberPrimordial - if null, computed from refset type, target, member type
-	 */
-	private TtkRefexUuidMemberChronicle addLegacyRefsetMember(TtkConceptChronicle refsetConcept, UUID targetUuid, UUID refsetMemberType, UUID refsetMemberPrimordial, 
-			Status status, Long time)
-	{
-		List<TtkRefexAbstractMemberChronicle<?>> refsetMembers = refsetConcept.getRefsetMembers();
-		if (refsetMembers == null)
-		{
-			refsetMembers = new ArrayList<TtkRefexAbstractMemberChronicle<?>>();
-			refsetConcept.setRefsetMembers(refsetMembers);
-			/*
-			 * These settings could be used to convert member lists - but it requires painful conversion at load time
-			 * where concepts must be manually listed in the pom file.  So, don't bother.
-			 */
-			refsetConcept.setAnnotationStyleRefex(false);  //put the annotations on the target (when true)
-		}
-		
-		TtkRefexUuidMemberChronicle refsetMember = new TtkRefexUuidMemberChronicle();
-		if (refsetMemberPrimordial == null)
-		{
-			refsetMemberPrimordial = ConverterUUID.createNamespaceUUIDFromStrings(refsetConcept.getPrimordialUuid().toString(), 
-					targetUuid.toString(), (refsetMemberType == null ? refsetMemberTypeNormalMemberUuid_.toString() : refsetMemberType.toString()));
-		}
-		refsetMember.setPrimordialComponentUuid(refsetMemberPrimordial);
-		refsetMember.setReferencedComponentUuid(targetUuid);  // ComponentUuid and refsetUuid seem like they are reversed at first glance, but this is right.
-		refsetMember.setAssemblageUuid(refsetConcept.getPrimordialUuid());
-		refsetMember.setUuid1(refsetMemberType == null ? refsetMemberTypeNormalMemberUuid_ : refsetMemberType);
-		setRevisionAttributes(refsetMember, status, (time == null ? refsetConcept.getConceptAttributes().getTime() : time));
-		refsetMembers.add(refsetMember);
-
-		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
-		
-		return refsetMember;
-	}
-	
-	/**
-	 * @param time = if null, set to refsetConcept time
-	 * @param refsetMemberType - if null, is set to "normal member"
-	 */
-	private TtkRefexUuidIntMemberChronicle addLegacyRefsetMember(TtkConceptChronicle refsetConcept, UUID targetUuid, UUID refsetMemberType, int refsetMemberIntValue, 
-			Status status, Long time)
-	{
-		List<TtkRefexAbstractMemberChronicle<?>> refsetMembers = refsetConcept.getRefsetMembers();
-		if (refsetMembers == null)
-		{
-			refsetMembers = new ArrayList<TtkRefexAbstractMemberChronicle<?>>();
-			refsetConcept.setRefsetMembers(refsetMembers);
-			/*
-			 * These settings could be used to convert member lists - but it requires painful conversion at load time
-			 * where concepts must be manually listed in the pom file.  So, don't bother.
-			 */
-			refsetConcept.setAnnotationStyleRefex(false);  //put the annotations on the target (when true)
-		}
-		
-		TtkRefexUuidIntMemberChronicle refsetMember = new TtkRefexUuidIntMemberChronicle();
-		
-		refsetMember.setPrimordialComponentUuid(ConverterUUID.createNamespaceUUIDFromStrings(
-				refsetConcept.getPrimordialUuid().toString(), targetUuid.toString(), refsetMemberIntValue + ""));
-		refsetMember.setReferencedComponentUuid(targetUuid);  // ComponentUuid and refsetUuid seem like they are reversed at first glance, but this is right.
-		refsetMember.setAssemblageUuid(refsetConcept.getPrimordialUuid());
-		refsetMember.setUuid1(refsetMemberType == null ? refsetMemberTypeNormalMemberUuid_ : refsetMemberType);
-		refsetMember.setInt1(refsetMemberIntValue);
-		setRevisionAttributes(refsetMember, status, (time == null ? refsetConcept.getConceptAttributes().getTime() : time));
-		refsetMembers.add(refsetMember);
-
-		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
-		
-		return refsetMember;
 	}
 	
 	//TODO write addAssociation methods

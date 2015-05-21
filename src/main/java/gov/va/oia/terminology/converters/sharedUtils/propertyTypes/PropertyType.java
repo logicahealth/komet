@@ -56,7 +56,7 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	
 	private Map<String, String> altNamePropertyMap_ = null;
 	
-	protected List<String> skipList = null;
+	protected List<String> skipList_ = null;
 	
 	public static void setSourceVersion(int version)
 	{
@@ -141,9 +141,9 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 
 	public Property addProperty(Property property)
 	{
-		if (skipList != null)
+		if (skipList_ != null)
 		{
-			for (String s : skipList)
+			for (String s : skipList_)
 			{
 				if (property.getSourcePropertyNameFSN().equals(s))
 				{
