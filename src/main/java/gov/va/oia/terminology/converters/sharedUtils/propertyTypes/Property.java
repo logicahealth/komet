@@ -18,14 +18,14 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
+import gov.vha.isaac.mojo.GenerateMetadataEConcepts;
 import java.beans.PropertyVetoException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Consumer;
-import org.apache.commons.lang.StringUtils;
-import org.ihtsdo.otf.mojo.GenerateMetadataEConcepts;
+import org.apache.commons.lang3.StringUtils;
 import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
@@ -84,7 +84,7 @@ public class Property
 		if (columnInforForDynamicRefex == null && owner != null && owner_.getDefaultColumnInfo() != null)
 		{
 			//Create a single required column, with the column name just set to 'value'
-			dataColumnsForDynamicRefex_ = new RefexDynamicColumnInfo[] { new RefexDynamicColumnInfo(null, 0, RefexDynamic.REFEX_COLUMN_VALUE.getPrimodialUuid(),
+			dataColumnsForDynamicRefex_ = new RefexDynamicColumnInfo[] { new RefexDynamicColumnInfo(null, 0, RefexDynamic.DYNAMIC_SEMEME_COLUMN_VALUE.getPrimodialUuid(),
 					owner_.getDefaultColumnInfo(), null, true, null, null)};
 		}
 		else
