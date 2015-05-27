@@ -87,7 +87,7 @@ public class EConceptUtility
 	public final static UUID usEnRefsetUuid_ = IsaacMetadataAuxiliaryBinding.US_ENGLISH_DIALECT.getPrimodialUuid();
 	public final static UUID definingCharacteristicUuid_ = IsaacMetadataAuxiliaryBinding.STATED.getPrimodialUuid();
 	public final static UUID notRefinableUuid = SnomedMetadataRf2.NOT_REFINABLE_RF2.getPrimodialUuid();  //TODO missing from ochre metadata
-	public final static UUID terminologyPathUUID_ = IsaacMetadataAuxiliaryBinding.MASTER.getPrimodialUuid();
+	public final static UUID terminologyPathUUID_ = IsaacMetadataAuxiliaryBinding.DEVELOPMENT.getPrimodialUuid();
 	public final static UUID refsetMemberTypeNormalMemberUuid_ = IsaacMetadataAuxiliaryBinding.NORMAL_MEMBER.getPrimodialUuid();
 	public final static String PROJECT_REFSETS_NAME = "SOLOR Refsets";
 	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7a9b495e-69c1-53e5-a2d5-41be2429c146");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "SOLOR Refsets")
