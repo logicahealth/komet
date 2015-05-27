@@ -60,6 +60,8 @@ public interface RefexService {
 
     Stream<RefexDynamicChronicleBI<?>> getDynamicRefexesFromAssemblage(int assemblageSequence);
     
+    RefexDynamicChronicleBI<?> getRefexDynamic(int refexSequence);
+    
     void writeDynamicRefex(RefexDynamicChronicleBI<?> refex);
 
 }
