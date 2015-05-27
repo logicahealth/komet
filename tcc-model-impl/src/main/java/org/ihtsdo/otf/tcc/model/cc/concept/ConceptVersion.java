@@ -63,7 +63,9 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
@@ -799,9 +801,12 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
     @Override
     public Collection<? extends RelationshipVersionBI> getRelationshipsIncoming() throws IOException {
         ArrayList<RelationshipVersionBI<?>> results = new ArrayList<>();
+        
         for (RelationshipChronicleBI rc : concept.getRelationshipsIncoming()) {
             for (RelationshipVersionBI<?> rv : rc.getVersions()) {
-                if (getClassifierCharacteristics().contains(rv.getCharacteristicNid())) {
+                if (((vc.getRelationshipAssertionType() == RelAssertionType.INFERRED || vc.getRelationshipAssertionType() == RelAssertionType.INFERRED_THEN_STATED)
+                            && (getClassifierCharacteristics().contains(rv.getCharacteristicNid())))
+                        || (vc.getRelationshipAssertionType() == RelAssertionType.STATED && !getClassifierCharacteristics().contains(rv.getCharacteristicNid()))) {
                     try {
                         Optional<? extends RelationshipVersionBI<?>> rvForVc = rc.getVersion(vc.getVcWithAllStatusValues());
                         if (rvForVc.isPresent()) {
@@ -814,7 +819,7 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
                 }
             }
         }
-         return results;
+        return results;
     }
 
     @Override
@@ -972,54 +977,26 @@ public class ConceptVersion implements ConceptVersionBI, Comparable<ConceptVersi
 
     @Override
     public Collection<? extends RelationshipVersionBI> getRelationshipsOutgoing() throws IOException {
-        Collection<? extends RelationshipChronicleBI> allRels = concept.getRelationshipsOutgoing();
-        Collection<RelationshipVersionBI<?>> results = new ArrayList<>(allRels.size());
-
-        switch (vc.getRelationshipAssertionType()) {
-            case INFERRED:
-            case INFERRED_THEN_STATED:
-                for (RelationshipChronicleBI rc : allRels) {
-                    for (RelationshipVersionBI<?> rv : rc.getVersions()) {
-                        if (getClassifierCharacteristics().contains(rv.getCharacteristicNid())) {
-                            try {
-                                Optional<? extends RelationshipVersionBI<?>> ver = rc.getVersion(vc.getVcWithAllStatusValues());
-                                if (ver.isPresent())
-                                {
-                                    results.add(ver.get());
-                                    break;
-                                }
-                            } catch (ContradictionException ex) {
-                                throw new IOException(ex);
-                            }
+        Collection<RelationshipVersionBI<?>> results = new ArrayList<>();
+        
+        for (RelationshipChronicleBI rc : concept.getRelationshipsOutgoing()) {
+            for (RelationshipVersionBI<?> rv : rc.getVersions()) {
+                if (((vc.getRelationshipAssertionType() == RelAssertionType.INFERRED || vc.getRelationshipAssertionType() == RelAssertionType.INFERRED_THEN_STATED)
+                            && (getClassifierCharacteristics().contains(rv.getCharacteristicNid())))
+                        || (vc.getRelationshipAssertionType() == RelAssertionType.STATED && !getClassifierCharacteristics().contains(rv.getCharacteristicNid()))) {
+                    try {
+                        Optional<? extends RelationshipVersionBI<?>> rvForVc = rc.getVersion(vc.getVcWithAllStatusValues());
+                        if (rvForVc.isPresent()) {
+                            results.add(rvForVc.get());
+                            break;
                         }
+                    } catch (ContradictionException ex) {
+                        throw new IOException(ex);
                     }
                 }
-
-                return results;
-
-            case STATED:
-                for (RelationshipChronicleBI rc : allRels) {
-                //TODO why isn't this checking for char type != classifier characteristics? resolve this unused variable warning for rv
-                    for (RelationshipVersionBI<?> rv : rc.getVersions()) {
-                        try {
-                            Optional<? extends RelationshipVersionBI<?>> ver = rc.getVersion(vc.getVcWithAllStatusValues());
-                            if (ver.isPresent())
-                            {
-                                results.add(ver.get());
-                                break;
-                            }
-                        } catch (ContradictionException ex) {
-                            throw new IOException(ex);
-                        }
-
-                    }
-                }
-
-                return results;
-
-            default:
-                throw new RuntimeException("Can't handle: " + vc.getRelationshipAssertionType());
+            }
         }
+        return results;
     }
 
     @Override
