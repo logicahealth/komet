@@ -1,16 +1,22 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.collections.SequenceSet;
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.IntStream;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
@@ -20,19 +26,9 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.IntStream;
 import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 public class RelGroupChronicle implements RelGroupChronicleBI {
    private int                                 conceptNid;
@@ -282,8 +278,8 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    }
 
    @Override
-   public RelGroupVersionBI getVersion(ViewCoordinate c) throws ContradictionException {
-      return new RelGroupVersion(this, c);
+   public Optional<RelGroupVersionBI> getVersion(ViewCoordinate c) throws ContradictionException {
+      return Optional.of(new RelGroupVersion(this, c));
    }
 
    @Override

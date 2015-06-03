@@ -10,6 +10,7 @@ import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -156,8 +157,9 @@ public class LogicGraphRevision
    }
 
    @Override
-   public LogicGraphMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-      return (LogicGraphMemberVersion) ((LogicGraphMember) primordialComponent).getVersion(c);
+   public Optional<LogicGraphMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<LogicGraphRevision, LogicGraphMember>> temp =  ((LogicGraphMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (LogicGraphMemberVersion)temp.get() : null);
    }
 
    @Override

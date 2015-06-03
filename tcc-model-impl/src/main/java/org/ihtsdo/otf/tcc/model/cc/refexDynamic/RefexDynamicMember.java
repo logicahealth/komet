@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -53,9 +53,9 @@ import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeToClassUtility;
+import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 
 
@@ -268,7 +268,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), 
-                vc, 
+                Optional.of(vc), 
                 idDirective, 
                 refexDirective);
 
@@ -277,11 +277,11 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     }
 
     @Override
-    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RefexDynamicMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         List<RefexDynamicMemberVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         if (vForC.size() > 1) {
@@ -293,9 +293,9 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         }
 
         if (!vForC.isEmpty()) {
-            return vForC.get(0);
+            return Optional.of(vForC.get(0));
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

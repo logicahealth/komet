@@ -454,7 +454,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersion(ViewCoordinate c, Collection<UUID> uuids)
+    public Optional<? extends ComponentVersionBI> getComponentVersion(ViewCoordinate c, Collection<UUID> uuids)
             throws IOException, ContradictionException {
         return getComponentVersion(c, getNidForUuids(uuids));
     }
@@ -472,12 +472,12 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersion(ViewCoordinate coordinate, int nid)
+    public Optional<? extends ComponentVersionBI> getComponentVersion(ViewCoordinate coordinate, int nid)
             throws IOException, ContradictionException {
         ComponentBI component = getComponent(nid);
         if (component != null) {
             if (ConceptChronicle.class.isAssignableFrom(component.getClass())) {
-                return new ConceptVersion((ConceptChronicle) component, coordinate);
+                return Optional.of(new ConceptVersion((ConceptChronicle) component, coordinate));
             }
 
             return ((ComponentChronicleBI<?>) component).getVersion(coordinate);
@@ -498,7 +498,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersion(ViewCoordinate c, UUID... uuids)
+    public Optional<? extends ComponentVersionBI> getComponentVersion(ViewCoordinate c, UUID... uuids)
             throws IOException, ContradictionException {
         return getComponentVersion(c, getNidForUuids(uuids));
     }
@@ -517,7 +517,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId)
+    public Optional<? extends ComponentVersionBI> getComponentVersionFromAlternateId(ViewCoordinate vc, int authorityNid, String altId)
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(
@@ -541,7 +541,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public ComponentVersionBI getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUUID, String altId)
+    public Optional<? extends ComponentVersionBI> getComponentVersionFromAlternateId(ViewCoordinate vc, UUID authorityUUID, String altId)
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUUID, altId)));

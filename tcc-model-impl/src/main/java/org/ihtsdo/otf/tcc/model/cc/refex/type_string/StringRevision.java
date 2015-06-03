@@ -1,7 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_string;
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -11,15 +15,8 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-//~--- JDK imports ------------------------------------------------------------
 
 public class StringRevision extends RefexRevision<StringRevision, StringMember>
         implements RefexStringAnalogBI<StringRevision> {
@@ -148,8 +145,9 @@ public class StringRevision extends RefexRevision<StringRevision, StringMember>
    }
 
    @Override
-   public StringMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-      return (StringMemberVersion) ((StringMember) primordialComponent).getVersion(c);
+   public Optional<StringMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<StringRevision, StringMember>> temp =  ((StringMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (StringMemberVersion)temp.get() : null);
    }
 
    @Override

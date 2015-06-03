@@ -30,12 +30,9 @@ import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyChangeEvent;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.security.NoSuchAlgorithmException;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -127,7 +124,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             UUID pathUuid,
             UUID conceptUuid,
             UUID... parentUuids) throws IOException, InvalidCAB, ContradictionException {
-        super(conceptUuid, null, null, idDirective, RefexDirective.EXCLUDE);
+        super(conceptUuid, Optional.empty(), Optional.empty(), idDirective, RefexDirective.EXCLUDE);
         this.fsns.add(fullySpecifiedName);
         this.fullySpecifiedName = fullySpecifiedName; //@akf todo: these should be removed when NewConcept, etc. is upated
         this.prefNames.add(preferredName);
@@ -175,7 +172,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             UUID isaTypeUuid,
             IdDirective idDirective,
             UUID... parentUuids) throws IOException, InvalidCAB, ContradictionException {
-        super(null, null, null, idDirective, RefexDirective.EXCLUDE);
+        super(null, Optional.empty(), Optional.empty(), idDirective, RefexDirective.EXCLUDE);
         this.fsns = fullySpecifiedNames;
         this.prefNames = preferredNames;
         this.lang = langCode;
@@ -184,7 +181,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             this.parents.addAll(Arrays.asList(parentUuids));
         }
         pcs.addPropertyChangeListener(this);
-            setComponentUuid(computeComponentUuid());
+        setComponentUuid(computeComponentUuid());
     }
 
     public ConceptCB(ConceptVersionBI conceptVersion,
@@ -213,9 +210,9 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, ContradictionException, InvalidCAB {
-        super(newConceptUuid, conceptVersion, conceptVersion.getViewCoordinate(), idDirective, refexDirective);
+        super(newConceptUuid, Optional.of(conceptVersion), Optional.of(conceptVersion.getViewCoordinate()), idDirective, refexDirective);
         pcs.addPropertyChangeListener(this);
-        conAttrAB = conceptVersion.getConceptAttributesActive().makeBlueprint(conceptVersion.getViewCoordinate(),
+        conAttrAB = conceptVersion.getConceptAttributesActive().get().makeBlueprint(conceptVersion.getViewCoordinate(),
                 idDirective, refexDirective);
         for (DescriptionVersionBI dv : conceptVersion.getDescriptionsFullySpecifiedActive()) {
             fsns.add(dv.getText());
@@ -830,7 +827,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     public ConceptAttributeAB getConceptAttributeAB() {
         if (conAttrAB == null) {
             try {
-                conAttrAB = new ConceptAttributeAB(getComponentUuid(), defined, null, null, refexDirective, idDirective);
+                conAttrAB = new ConceptAttributeAB(getComponentUuid(), defined, Optional.empty(), Optional.empty(), refexDirective, idDirective);
             } catch (IOException | InvalidCAB | ContradictionException ex) {
                 throw new RuntimeException(ex);
             }

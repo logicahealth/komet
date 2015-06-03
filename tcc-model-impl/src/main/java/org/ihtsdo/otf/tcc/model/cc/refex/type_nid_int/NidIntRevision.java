@@ -1,25 +1,24 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_int.RefexNidIntAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_int.TtkRefexUuidIntRevision;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
         implements RefexNidIntAnalogBI<NidIntRevision> {
@@ -166,8 +165,9 @@ public class NidIntRevision extends RefexRevision<NidIntRevision, NidIntMember>
     }
 
     @Override
-    public NidIntMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-        return (NidIntMemberVersion) ((NidIntMember) primordialComponent).getVersion(c);
+    public Optional<NidIntMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+        Optional<RefexMemberVersion<NidIntRevision, NidIntMember>> temp =  ((NidIntMember) primordialComponent).getVersion(c);
+        return Optional.ofNullable(temp.isPresent() ? (NidIntMemberVersion)temp.get() : null);
     }
 
     @Override

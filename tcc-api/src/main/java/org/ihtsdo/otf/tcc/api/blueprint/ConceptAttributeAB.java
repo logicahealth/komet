@@ -18,12 +18,14 @@ package org.ihtsdo.otf.tcc.api.blueprint;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.Ts;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeChronicleBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  * The Class ConceptAttributeAB contains methods for creating a concept
@@ -57,7 +59,7 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
             int conceptNid, boolean defined, RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
         this(Ts.get().getComponent(conceptNid).getPrimordialUuid(),
-                defined, null, null, refexDirective, IdDirective.PRESERVE);
+                defined, Optional.empty(), Optional.empty(), refexDirective, IdDirective.PRESERVE);
     }
 
     /**
@@ -80,8 +82,8 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
      */
     public ConceptAttributeAB(
             int conceptNid, boolean defined, 
-            ConceptAttributeVersionBI conceptAttributeVersion,
-            ViewCoordinate viewCoordinate, RefexDirective refexDirective, 
+            Optional<? extends ConceptAttributeVersionBI> conceptAttributeVersion,
+            Optional<ViewCoordinate> viewCoordinate, RefexDirective refexDirective, 
             IdDirective idDirective) 
             throws IOException, InvalidCAB, ContradictionException {
         this(Ts.get().getComponent(conceptNid).getPrimordialUuid(),
@@ -107,8 +109,8 @@ public class ConceptAttributeAB extends CreateOrAmendBlueprint {
     public ConceptAttributeAB(
             UUID componentUuid, 
             boolean defined, 
-            ConceptAttributeVersionBI conceptAttributeVersion,
-            ViewCoordinate viewCoordinate,
+            Optional<? extends ConceptAttributeVersionBI> conceptAttributeVersion,
+            Optional<ViewCoordinate> viewCoordinate,
             RefexDirective refexDirective, 
             IdDirective idDirective) 
             throws IOException, InvalidCAB, ContradictionException {

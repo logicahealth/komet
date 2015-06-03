@@ -1,8 +1,12 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import java.beans.PropertyVetoException;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -16,14 +20,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-
-import java.beans.PropertyVetoException;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-//~--- JDK imports ------------------------------------------------------------
 
 public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends RefexMember<V, C>>
         extends Revision<V, C> implements RefexAnalogBI<V>, SememeVersion {
@@ -147,7 +143,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), 
-                vc, 
+                Optional.of(vc), 
                 idDirective, 
                 refexDirective);
 

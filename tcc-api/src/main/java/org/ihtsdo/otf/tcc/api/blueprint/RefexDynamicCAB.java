@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -220,10 +221,10 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	 * @throws ContradictionException if more than one version is found for a given position or view
 	 * coordinate
 	 */
-	public RefexDynamicCAB(UUID referencedComponentUuid, int assemblageNid, RefexDynamicVersionBI<?> refexVersion, ViewCoordinate viewCoordinate,
+	public RefexDynamicCAB(UUID referencedComponentUuid, int assemblageNid, Optional<? extends RefexDynamicVersionBI<?>> refexVersion, Optional<ViewCoordinate> viewCoordinate,
 			IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException
 	{
-		super((refexVersion == null ? null : refexVersion.getPrimordialUuid()), refexVersion, viewCoordinate, idDirective, refexDirective);
+		super((refexVersion.isPresent() ? refexVersion.get().getPrimordialUuid() : null), refexVersion, viewCoordinate, idDirective, refexDirective);
 		setReferencedComponentUuid(referencedComponentUuid);
 		setAssemblageNid(assemblageNid);
 		setStatus(Status.ACTIVE);
@@ -244,7 +245,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	public RefexDynamicCAB(UUID referencedComponentUUID, UUID assemblageUuid) throws IOException,
 			InvalidCAB, ContradictionException
 	{
-		this(referencedComponentUUID, Ts.get().getNidForUuids(assemblageUuid), null, null, IdDirective.GENERATE_REFEX_CONTENT_HASH, null);
+		this(referencedComponentUUID, Ts.get().getNidForUuids(assemblageUuid), Optional.empty(), Optional.empty(), IdDirective.GENERATE_REFEX_CONTENT_HASH, null);
 	}
 	
 	/**
@@ -263,7 +264,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	public RefexDynamicCAB(int referencedComponentNid, int assemblageNid) throws IOException,
 			InvalidCAB, ContradictionException
 	{
-		this(Ts.get().getUuidPrimordialForNid(referencedComponentNid), assemblageNid, null, null, IdDirective.GENERATE_REFEX_CONTENT_HASH, null);
+		this(Ts.get().getUuidPrimordialForNid(referencedComponentNid), assemblageNid, Optional.empty(), Optional.empty(), IdDirective.GENERATE_REFEX_CONTENT_HASH, null);
 	}
 	
 	/**

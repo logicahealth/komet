@@ -1,30 +1,24 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-
-
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidAnalogBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid.TtkRefexUuidUuidUuidRevision;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.beans.PropertyVetoException;
-
-import java.io.IOException;
-
-import java.util.*;
-
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 public class NidNidNidRevision extends RefexRevision<NidNidNidRevision, NidNidNidMember>
         implements RefexNidNidNidAnalogBI<NidNidNidRevision> {
@@ -188,8 +182,9 @@ public class NidNidNidRevision extends RefexRevision<NidNidNidRevision, NidNidNi
    }
 
    @Override
-   public NidNidNidMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-      return (NidNidNidMemberVersion) ((NidNidNidMember) primordialComponent).getVersion(c);
+   public Optional<NidNidNidMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<NidNidNidRevision, NidNidNidMember>> temp =  ((NidNidNidMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (NidNidNidMemberVersion)temp.get() : null);
    }
 
    @Override

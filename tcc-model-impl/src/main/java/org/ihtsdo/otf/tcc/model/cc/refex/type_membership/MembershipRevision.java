@@ -1,7 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
@@ -10,14 +13,8 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_member.TtkRefexRevision;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-//~--- JDK imports ------------------------------------------------------------
 
 public class MembershipRevision extends RefexRevision<MembershipRevision, MembershipMember> 
     implements RefexMemberAnalogBI<MembershipRevision> {
@@ -121,8 +118,9 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
    }
 
    @Override
-   public MembershipMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-      return (MembershipMemberVersion) ((MembershipMember) primordialComponent).getVersion(c);
+   public Optional<MembershipMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<MembershipRevision, MembershipMember>> temp =  ((MembershipMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (MembershipMemberVersion)temp.get() : null);
    }
 
    @Override

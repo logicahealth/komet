@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -108,7 +109,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
     }
 
     @Override
-    public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<DescriptionVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((Description)cc).getVersion(c);
     }
 

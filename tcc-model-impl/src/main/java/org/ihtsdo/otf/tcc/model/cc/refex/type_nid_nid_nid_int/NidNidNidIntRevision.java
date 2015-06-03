@@ -1,29 +1,24 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_int;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int
-   .RefexNidNidNidIntAnalogBI;
+import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int.RefexNidNidNidIntAnalogBI;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int
-   .TtkRefexUuidUuidUuidIntRevision;
-
-//~--- JDK imports ------------------------------------------------------------
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_float.NidNidNidFloatMember;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_float.NidNidNidFloatMemberVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_float.NidNidNidFloatRevision;
+import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUuidUuidUuidIntRevision;
 
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
-
 import java.util.*;
-
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 public class NidNidNidIntRevision
@@ -192,9 +187,9 @@ public class NidNidNidIntRevision
    }
 
    @Override
-   public NidNidNidIntMemberVersion getVersion(ViewCoordinate c)
-           throws ContradictionException {
-      return (NidNidNidIntMemberVersion) ((NidNidNidIntMember) primordialComponent).getVersion(c);
+   public Optional<NidNidNidIntMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<NidNidNidIntRevision, NidNidNidIntMember>> temp =  ((NidNidNidIntMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (NidNidNidIntMemberVersion)temp.get() : null);
    }
 
    @Override

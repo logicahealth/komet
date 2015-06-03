@@ -49,12 +49,18 @@ public interface RefexService {
     Stream<RefexMember<?, ?>> getRefexStream();
     
     Stream<RefexMember<?, ?>> getParallelRefexStream();
+    
+    Stream<RefexDynamicChronicleBI<?>> getDynamicRefexStream();
+    
+    Stream<RefexDynamicChronicleBI<?>> getParallelDynamicRefexStream();
 
     void forgetXrefPair(int referencedComponentNid, NidPairForRefex nidPairForRefex);
     
     Stream<RefexDynamicChronicleBI<?>> getDynamicRefexesForComponent(int componentNid);
 
     Stream<RefexDynamicChronicleBI<?>> getDynamicRefexesFromAssemblage(int assemblageSequence);
+    
+    RefexDynamicChronicleBI<?> getRefexDynamic(int refexSequence);
     
     void writeDynamicRefex(RefexDynamicChronicleBI<?> refex);
 

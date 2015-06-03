@@ -4,8 +4,8 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
@@ -140,7 +140,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
         }
 
         RelationshipCAB relBp = new RelationshipCAB(getOriginNid(), getTypeNid(), getDestinationNid(), getGroup(), relType,
-                getVersion(vc), vc,
+                getVersion(vc), Optional.of(vc),
                 idDirective, refexDirective);
 
         return relBp;
@@ -229,7 +229,7 @@ public class RelationshipRevision extends Revision<RelationshipRevision, Relatio
     }
 
     @Override
-    public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RelationshipVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return primordialComponent.getVersion(c);
     }
 

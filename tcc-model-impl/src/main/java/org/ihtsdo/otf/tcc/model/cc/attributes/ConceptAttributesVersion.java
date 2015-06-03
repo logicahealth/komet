@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -85,7 +86,7 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
 
 
     @Override
-    public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<ConceptAttributesVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((ConceptAttributes)cc).getVersion(c);
     }
 
