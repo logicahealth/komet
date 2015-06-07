@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
+import javafx.concurrent.Task;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
@@ -1011,11 +1012,12 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     }
 
     /**
+     * @return 
      * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#index(java.lang.Class[])
      */
     @Override
-    public void index(Class<?> ... indexesToRebuild) throws IOException {
-        store.index(indexesToRebuild);
+    public Task<?> index(Class<?> ... indexesToRebuild) {
+        return store.index(indexesToRebuild);
     }
 
     @Override
