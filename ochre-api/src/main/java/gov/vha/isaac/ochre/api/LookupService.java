@@ -23,6 +23,7 @@ import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -184,6 +185,10 @@ public class LookupService {
      * Start all core isaac services, blocking until started (or failed)
      */
     public static void startupIsaac() {
+        //Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial 
+        //init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
+        //should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID. 
+        getService(WorkExecutors.class).getExecutor().execute(() -> UUID.randomUUID());
         setRunLevel(ISAAC_STARTED_RUNLEVEL);
     }
     
