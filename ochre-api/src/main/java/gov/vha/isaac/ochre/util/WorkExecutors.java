@@ -74,11 +74,12 @@ public class WorkExecutors
 	{
 		log.info("Starting the WorkExecutors thread pools");
 		//The java default ForkJoinPool.commmonPool starts with only 1 thread, on 1 and 2 core systems, which can get us deadlocked pretty easily.
-		int parallelism = Runtime.getRuntime().availableProcessors();
-		forkJoinExecutor_ = new ForkJoinPool(parallelism < 3 ? 3 : parallelism);
+		int procCount = Runtime.getRuntime().availableProcessors();
+		int parallelism = ((procCount - 1) < 3 ? 3 : procCount - 1);  //set between 3 and 1 less than proc count (not less than 3)
+		forkJoinExecutor_ = new ForkJoinPool(parallelism);
 
 		int corePoolSize = 2;
-		int maximumPoolSize = (parallelism < 2 ? 2 : parallelism);
+		int maximumPoolSize = parallelism;
 		int keepAliveTime = 60;
 		TimeUnit timeUnit = TimeUnit.SECONDS;
 		
@@ -87,7 +88,7 @@ public class WorkExecutors
 		{
 			Thread t = Executors.defaultThreadFactory().newThread(runnable);
 			t.setDaemon(true);
-			t.setName("ISAAC-work-thread-" + t.getId());
+			t.setName("ISAAC-B-work-thread-" + t.getId());
 			return t;
 		}));
 		blockingThreadPoolExecutor_.setRejectedExecutionHandler((runnable, executor) -> 
@@ -108,7 +109,7 @@ public class WorkExecutors
 		{
 			Thread t = Executors.defaultThreadFactory().newThread(runnable);
 			t.setDaemon(true);
-			t.setName("ISAAC-work-thread-" + t.getId());
+			t.setName("ISAAC-Q-work-thread-" + t.getId());
 			return t;
 		}));
 		threadPoolExecutor_.allowCoreThreadTimeOut(true);
