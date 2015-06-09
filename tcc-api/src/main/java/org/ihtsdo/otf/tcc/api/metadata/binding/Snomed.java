@@ -64,6 +64,10 @@ public class Snomed {
     public static ConceptSpec CORE_MODULE =
             new ConceptSpec("SNOMED CT core module",
             UUID.fromString("1b4f1ba5-b725-390f-8c3b-33ec7096bdca"));
+    //TODO Dan needs to verify this UUID in ISAAC
+    public static ConceptSpec US_EXTENSION_MODULE =
+            new ConceptSpec("US National Library of Medicine maintained module",
+            UUID.fromString("bf291637-8f18-38a3-8cc9-fc28927d68ad"));
     public static ConceptSpec DISEASE =
             new ConceptSpec("Disease (disorder)",
             UUID.fromString("ab4e618b-b954-3d56-a44b-f0f29d6f59d3"));
