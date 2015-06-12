@@ -189,7 +189,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
         super(getComponentUUID(componentUuid,mediaVersion,idDirective), 
-                mediaVersion, viewCoordinate, idDirective, refexDirective);
+                mediaVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
 
         this.conceptUuid = conceptUuid;
         this.typeUuid = typeUuid;

@@ -174,7 +174,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
             RefexDirective refexDirective) throws
             IOException, InvalidCAB, ContradictionException {
         this(conceptUuid, typeUuid, langCode, text, initialCaseSignificant,
-                null, descriptionVersion, viewCoordinate, 
+                Optional.empty(), descriptionVersion, viewCoordinate, 
                 idDirective, 
                 refexDirective);
     }
@@ -212,7 +212,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
             throws IOException, InvalidCAB, ContradictionException {
         super(getComponentUUID(componentUuid,descriptionVersion,idDirective), 
                 descriptionVersion, viewCoordinate,
-                idDirective, refexDirective);
+                (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
 
         this.conceptUuid = conceptUuid;
         this.lang = langCode.getFormatedLanguageNoDialectCode();

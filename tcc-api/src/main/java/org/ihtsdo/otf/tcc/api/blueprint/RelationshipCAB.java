@@ -107,8 +107,8 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
             throws IOException, InvalidCAB, ContradictionException {
         this(sourceUuid, typeUuid, targetUuid, group, null, 
                 relationshipType, 
-                null, 
-                null,
+                Optional.empty(), 
+                Optional.empty(),
                 idDirective, 
                 RefexDirective.EXCLUDE);
     }
@@ -226,7 +226,8 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
             Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
-        super(componentUuid, relationshipVersion, viewCoordinate, idDirective, refexDirective);
+        super(componentUuid, relationshipVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective),
+                refexDirective);
         assert sourceUuid != null;
         assert typeUuid != null;
         assert targetUuid != null;

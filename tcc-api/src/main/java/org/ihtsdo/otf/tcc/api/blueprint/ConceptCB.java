@@ -717,7 +717,7 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
                     parentUuid,
                     0,
                     RelationshipType.STATED_HIERARCHY,
-                    idDirective);
+                    (idDirective == IdDirective.PRESERVE ? IdDirective.GENERATE_HASH : idDirective));  //can't preserve, when making a new rel...
             if (moduleUuid != null) {
                 parent.properties.put(ComponentProperty.MODULE_ID, moduleUuid);
             }
@@ -740,7 +740,8 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      */
     public List<DescriptionCAB> getFullySpecifiedNameCABs() throws IOException, InvalidCAB, ContradictionException, UnsupportedEncodingException, NoSuchAlgorithmException {
         if (fsnCABs.isEmpty()) {
-            fsnCABs.add(makeFullySpecifiedNameCAB(idDirective));
+            //can't "preserve" a UUID on a desc that doesn't yet exist.
+            fsnCABs.add(makeFullySpecifiedNameCAB(idDirective == IdDirective.PRESERVE ? IdDirective.GENERATE_HASH : idDirective));
         }
         return fsnCABs;
     }
@@ -759,7 +760,8 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
      */
     public List<DescriptionCAB> getPreferredNameCABs() throws IOException, InvalidCAB, ContradictionException, UnsupportedEncodingException, NoSuchAlgorithmException {
         if (prefCABs.isEmpty()) {
-            prefCABs.add(makePreferredCAB(idDirective));
+            //can't "preserve" a UUID on a desc that doesn't yet exist.
+            prefCABs.add(makePreferredCAB(idDirective == IdDirective.PRESERVE ? IdDirective.GENERATE_HASH : idDirective));
         }
         return prefCABs;
     }

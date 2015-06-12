@@ -140,39 +140,57 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
       //TODO Dan notes, this is wrong - should be calling recomputeUuid(), as far as I can tell... for every case but the preserve ones...
         //tis also wrong, because there is no way to use the API to actually pass in the desired componentUuid.  It is set above, and then overwritten
         //in almost every case.  One would expect that if the directive is a type of PRESERVE, then you should not default to overwriting with the component
-        //version UUID.  PRESERVE is ill defined.  PRESERVE what?  What the user said in the API?  Or what the componentVersion has?
+        //version UUID.  PRESERVE is ill defined.  PRESERVE what?  What the user said in the API?  Or what the componentVersion has?  The entire API
+        //surrounding how these ID Directives are supposed to be handled is an incomprehensible mess - which only gets worse when you try to understand it from code.
+        //The entire code stack has all of these error conditions that have to be ignored, because other random code depends on the error not being thrown... but 
+        //then real errors from users aren't detected.  It needs an overhaul from top to bottom.
         
-        if (idDirective == IdDirective.PRESERVE || idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH || idDirective == IdDirective.GENERATE_RANDOM_CONCEPT_REST_HASH)
-        {
+        if (idDirective == IdDirective.PRESERVE || idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH) {
+            UUID toPreserve = null;
+            if (componentUuid != null) {
+                toPreserve = componentUuid;
+            }
+            
             if (componentVersion.isPresent()) {
-                switch (idDirective) {
-                    case PRESERVE_CONCEPT_REST_HASH:
-                        if (!(componentVersion.get() instanceof ConceptVersionBI))
-                        {
-                            break;
-                        }  //else, fall through to preserve
-                    case PRESERVE:
-                        setComponentUuidNoRecompute(componentVersion.get().getPrimordialUuid());
-                        break;
-                    case GENERATE_RANDOM_CONCEPT_REST_HASH:
-                        if (componentVersion.get() instanceof ConceptVersionBI)
-                        {
-                            setComponentUuidNoRecompute(UUID.randomUUID());
-                        }
-                        break;
-                    default :
-                        throw new RuntimeException("Unexpected case"); 
+                if (toPreserve != null && !toPreserve.equals(componentVersion.get().getPrimordialUuid())) {
+                    throw new RuntimeException("The UUID provided in componentUuid does not match the provided componentVersion primoridial UUID.");
+                }
+                else {
+                    toPreserve = componentVersion.get().getPrimordialUuid();
                 }
             }
-            else
-            {
-                throw new RuntimeException("Cannot use IdDirective PRESERVE types without a componentVersion");
+            else if (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH) {
+                throw new RuntimeException("Cannot use PRESERVE_CONCEPT_REST_HASH without providing a component version");
+            }
+            
+            if (toPreserve == null) {
+                throw new RuntimeException("No UUID provided to preserve, either via componentUuid, or the componentVersion");
+            }
+            
+            if (idDirective == IdDirective.PRESERVE || (componentVersion.isPresent() &&  componentVersion.get() instanceof ConceptVersionBI)) {
+                setComponentUuidNoRecompute(toPreserve);
+            }
+        }
+        
+        else if (idDirective == IdDirective.GENERATE_RANDOM_CONCEPT_REST_HASH) {
+            if (componentVersion.isPresent()) {
+                if (componentVersion.get() instanceof ConceptVersionBI) {
+                    setComponentUuidNoRecompute(UUID.randomUUID());
+                }
+            }
+            else {
+                throw new RuntimeException("Must provide a componentVersion in order to use the IdDirective GENERATE_RANDOM_CONCEPT_REST_HASH");
             }
         }
 
         else if (idDirective == IdDirective.GENERATE_RANDOM) {
             setComponentUuidNoRecompute(UUID.randomUUID());
         } 
+        
+        else {
+            //None of the other id directives are  handled here.  The hash ones get handled elsewhere...
+            //Yes, its ok to hit your head on the desk now.
+        }
 
         if (refexDirective == RefexDirective.INCLUDE) {
             if (!viewCoordinate.isPresent() || !componentVersion.isPresent()) {

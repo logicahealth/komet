@@ -271,7 +271,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        super(null, Optional.empty(), Optional.empty(), idDirective, refexDirective);
+        super(null, Optional.empty(), Optional.empty(), (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUUID);
         this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionUuid);
@@ -349,7 +349,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        super(memberUuid, refexVersion, viewCoordinate, idDirective, refexDirective);
+        super(memberUuid, refexVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUuid);
         this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionNid);
