@@ -75,6 +75,12 @@ public interface IdentifierService {
 
     boolean hasUuid(Collection<UUID> uuids);
 
+    /**
+     * Note that, unlike the counterpart to this call in Cradle - getConceptNidForNid - this API does _not_ work correctly
+     * if you pass in a nid for a concept.  It only works for nids that you know are component nids.
+     * 
+     * To determine if this method is safe to call, first use @see #isConceptNid(int)
+     */
     @Deprecated
     int getConceptSequenceForComponentNid(int nid);
     
@@ -92,6 +98,9 @@ public interface IdentifierService {
     IntStream getRefexNidsForSequences(IntStream refexSequences);
     @Deprecated
     RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
-    
 
+    /**
+     * Returns true, if the provided nid (or sequenceId) exists, and identifies a concept (as opposed to a component)
+     */
+    boolean isConceptNid(int nidOrSequence);
 }
