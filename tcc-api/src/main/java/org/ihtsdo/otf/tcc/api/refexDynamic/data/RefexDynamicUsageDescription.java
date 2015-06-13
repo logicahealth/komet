@@ -179,7 +179,7 @@ public class RefexDynamicUsageDescription
 		{
 			throw new IOException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for " 
 					+ "a RefexDynamicData Refex Type.  It must contain a description of type Definition with an annotation of type " + 
-					"RefexDynamic.REFEX_DYNAMIC_DEFINITION_DESCRIPTION");
+					"RefexDynamic.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION");
 		}
 		
 		for (RefexDynamicChronicleBI<?> rdc : assemblageConcept.getRefexesDynamic())
