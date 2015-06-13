@@ -56,6 +56,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicBoolean;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicInteger;
@@ -69,6 +70,8 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicUUID;
  */
 public class RefexDynamicUsageDescriptionBuilder
 {
+	//From ISAAC Metadata, which we can't yet depend on... sigh
+	private static ConceptSpec DEVELOPMENT = new ConceptSpec("development", UUID.fromString("32d7e06d-c8ae-516d-8a33-df5bcc9c9ec7"));
 	
 	/**
 	 * Just calls {@link RefexDynamicUsageDescription#read(int)
@@ -177,7 +180,7 @@ public class RefexDynamicUsageDescriptionBuilder
 		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
 				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
 						TermAux.ISAAC_MODULE.getLenient().getNid(), 
-						TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
+						DEVELOPMENT.getLenient().getConceptNid()), 
 				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit();
