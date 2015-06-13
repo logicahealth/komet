@@ -193,10 +193,10 @@ public interface TerminologyDI {
     int getNidForUuids(UUID... uuids);
 
     /**
-     * Retrieve the concept nid from a specified nid.
-     *
-     * @param nid
-     * @return the {@code int} concept nid of the specified nid
+     * Retrieve the concept nid from a specified nid.  Note that for backwards compatibility, implementations of this method
+     * should function correctly if the passed in nid is a concept nid, or if it is a nid that is a member of said concept.
+     * 
+     * It should not be assumed that the passed nid is a component nid.
      */
     int getConceptNidForNid(int nid);
 
