@@ -611,4 +611,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         return Optional.of(new LatestVersion<>((V) getVersionsForStamps(latestStampSequences)));
     }
 
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
+    }
+
 }

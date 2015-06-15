@@ -37,6 +37,8 @@ import java.io.Serializable;
 import java.io.StringWriter;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -112,90 +114,93 @@ public class ConceptChronicleDdo implements Serializable {
     }
 
     public ConceptChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleBI c, VersionPolicy versionPolicy,
-            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
-            throws IOException, ContradictionException {
-        this.versionPolicy = versionPolicy;
-        this.refexPolicy = refexPolicy;
-        this.relationshipPolicy = relationshipPolicy;
-        this.viewCoordinateUuid = ss.getViewCoordinate().getVcUuid();
-        if (ss.getConceptForNid(c.getNid()).getPreferredDescription() != null) {
-            this.conceptReference = new ComponentReference(c.getPrimordialUuid(), c.getNid(),
-                    ss.getConceptForNid(c.getNid()).getPreferredDescription().getText());
-        } else {
-            this.conceptReference = new ComponentReference(c.getNid());
-
-        }
-        this.conceptAttributes = new ConceptAttributesChronicleDdo(ss, this, c.getConceptAttributes());
-        this.primordialUuid = conceptAttributes.getPrimordialComponentUuid();
-
-        switch (relationshipPolicy) {
-            case DESTINATION_RELATIONSHIPS:
-                _destinationRelationships =
-                        FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
-                addDestinationRelationships(c, ss);
-
-                break;
-
-            case ORIGINATING_RELATIONSHIPS:
-                _originRelationships = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
-                addOriginRelationships(c, ss);
-
-                break;
-
-            case ORIGINATING_AND_DESTINATION_RELATIONSHIPS:
-                addOriginRelationships(c, ss);
-                addDestinationRelationships(c, ss);
-
-                break;
-
-            case ORIGINATING_AND_DESTINATION_TAXONOMY_RELATIONSHIPS:
-                addOriginTaxonomyRelationships(c, ss);
-                addDestinationTaxonomyRelationships(c, ss);
-
-                break;
-
-            default:
-                throw new UnsupportedOperationException("Can't handle: " + relationshipPolicy);
-        }
-
-        _descriptions =
-                FXCollections.observableArrayList(new ArrayList<DescriptionChronicleDdo>(c.getDescriptions().size()));
-
-        for (DescriptionChronicleBI desc : c.getDescriptions()) {
-            DescriptionChronicleDdo dc = new DescriptionChronicleDdo(ss, this, desc);
-
-            if (!dc.getVersions().isEmpty()) {
-                _descriptions.add(dc);
+            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy) {
+        try {
+            this.versionPolicy = versionPolicy;
+            this.refexPolicy = refexPolicy;
+            this.relationshipPolicy = relationshipPolicy;
+            this.viewCoordinateUuid = ss.getViewCoordinate().getVcUuid();
+            if (ss.getConceptForNid(c.getNid()).getPreferredDescription() != null) {
+                this.conceptReference = new ComponentReference(c.getPrimordialUuid(), c.getNid(),
+                        ss.getConceptForNid(c.getNid()).getPreferredDescription().getText());
+            } else {
+                this.conceptReference = new ComponentReference(c.getNid());
+                
             }
-        }
-
-        _media = FXCollections.observableArrayList(new ArrayList<MediaChronicleDdo>(c.getMedia().size()));
-
-        for (MediaChronicleBI mediaChronicle : c.getMedia()) {
-            MediaChronicleDdo tkMedia = new MediaChronicleDdo(ss, this, mediaChronicle);
-
-            if (!tkMedia.getVersions().isEmpty()) {
-                _media.add(tkMedia);
+            this.conceptAttributes = new ConceptAttributesChronicleDdo(ss, this, c.getConceptAttributes());
+            this.primordialUuid = conceptAttributes.getPrimordialComponentUuid();
+            
+            switch (relationshipPolicy) {
+                case DESTINATION_RELATIONSHIPS:
+                    _destinationRelationships =
+                            FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
+                    addDestinationRelationships(c, ss);
+                    
+                    break;
+                    
+                case ORIGINATING_RELATIONSHIPS:
+                    _originRelationships = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
+                    addOriginRelationships(c, ss);
+                    
+                    break;
+                    
+                case ORIGINATING_AND_DESTINATION_RELATIONSHIPS:
+                    addOriginRelationships(c, ss);
+                    addDestinationRelationships(c, ss);
+                    
+                    break;
+                    
+                case ORIGINATING_AND_DESTINATION_TAXONOMY_RELATIONSHIPS:
+                    addOriginTaxonomyRelationships(c, ss);
+                    addDestinationTaxonomyRelationships(c, ss);
+                    
+                    break;
+                    
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + relationshipPolicy);
             }
-        }
-
-        if (((refexPolicy == RefexPolicy.ANNOTATION_MEMBERS_AND_REFSET_MEMBERS)
-                || (refexPolicy == RefexPolicy.REFEX_MEMBERS_AND_REFSET_MEMBERS)) && !c.isAnnotationStyleRefex()) {
-            Collection<? extends RefexChronicleBI<?>> members = c.getRefsetMembers();
-
-            if (members != null) {
-                _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(members.size()));
-
-                for (RefexChronicleBI<?> m : members) {
-                    RefexChronicleDdo<?, ?> member = convertRefex(ss, m);
-
-                    if ((member != null) && !member.getVersions().isEmpty()) {
-                        _refsetMembers.add(member);
-                    } else {
-                        throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
+            
+            _descriptions =
+                    FXCollections.observableArrayList(new ArrayList<DescriptionChronicleDdo>(c.getDescriptions().size()));
+            
+            for (DescriptionChronicleBI desc : c.getDescriptions()) {
+                DescriptionChronicleDdo dc = new DescriptionChronicleDdo(ss, this, desc);
+                
+                if (!dc.getVersions().isEmpty()) {
+                    _descriptions.add(dc);
+                }
+            }
+            
+            _media = FXCollections.observableArrayList(new ArrayList<MediaChronicleDdo>(c.getMedia().size()));
+            
+            for (MediaChronicleBI mediaChronicle : c.getMedia()) {
+                MediaChronicleDdo tkMedia = new MediaChronicleDdo(ss, this, mediaChronicle);
+                
+                if (!tkMedia.getVersions().isEmpty()) {
+                    _media.add(tkMedia);
+                }
+            }
+            
+            if (((refexPolicy == RefexPolicy.ANNOTATION_MEMBERS_AND_REFSET_MEMBERS)
+                    || (refexPolicy == RefexPolicy.REFEX_MEMBERS_AND_REFSET_MEMBERS)) && !c.isAnnotationStyleRefex()) {
+                Collection<? extends RefexChronicleBI<?>> members = c.getRefsetMembers();
+                
+                if (members != null) {
+                    _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(members.size()));
+                    
+                    for (RefexChronicleBI<?> m : members) {
+                        RefexChronicleDdo<?, ?> member = convertRefex(ss, m);
+                        
+                        if ((member != null) && !member.getVersions().isEmpty()) {
+                            _refsetMembers.add(member);
+                        } else {
+                            throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
+                        }
                     }
                 }
             }
+        } catch (ContradictionException | IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

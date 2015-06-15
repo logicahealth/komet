@@ -149,6 +149,6 @@ public interface NativeIdSetBI {
     
     public default ConceptSequenceSet toConceptSequenceSet() {
         IdentifierService sp = LookupService.getService(IdentifierService.class);
-        return sp.getConceptSequencesForNids(getSetValues());
+        return sp.getConceptSequencesForConceptNids(getSetValues());
     }
 }

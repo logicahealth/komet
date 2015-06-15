@@ -23,6 +23,9 @@ import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,6 +109,12 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
     }
     public IntStream getVersionStampSequences() {
         return this.cc.getVersionStampSequences();
+    }
+
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
     }
 
     public boolean isIndexed() {

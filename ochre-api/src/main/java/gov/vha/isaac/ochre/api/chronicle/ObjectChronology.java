@@ -26,13 +26,16 @@ public interface ObjectChronology<V extends StampedVersion>
         getLatestVersion(Class<V> type, StampCoordinate coordinate);
         
     default Optional<LatestVersion<V>> 
-        getLatestActiveVersion(Class<V> type, StampCoordinate coordinate) {
+        getLatestVersionIfActive(Class<V> type, StampCoordinate coordinate) {
             Optional<LatestVersion<V>> latest = getLatestVersion(type, coordinate);
             if (latest.isPresent() && latest.get().value.getState() == State.ACTIVE) {
                 return latest;
             }
             return Optional.empty();
         }
+    
+        
+    boolean isLatestVersionActive(StampCoordinate coordinate);
     /**
      * 
      * @return a list of all versions of this object chronology. 

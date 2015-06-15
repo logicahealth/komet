@@ -11,7 +11,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.SequenceSet;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -161,6 +163,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     //~--- methods -------------------------------------------------------------
 
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
+    }
+    
     @Override
     public void invalidated(javafx.beans.Observable observable) {
         throw new UnsupportedOperationException("Not supported yet."); 

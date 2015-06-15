@@ -7,7 +7,9 @@ import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.SequenceSet;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -65,6 +67,12 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
+    }
 
    @Override
    public boolean addAnnotation(RefexChronicleBI<?> annotation) {

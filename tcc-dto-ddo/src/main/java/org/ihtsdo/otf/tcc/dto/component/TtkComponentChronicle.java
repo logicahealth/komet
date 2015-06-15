@@ -9,6 +9,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
@@ -159,6 +160,13 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
     }
 
     /**

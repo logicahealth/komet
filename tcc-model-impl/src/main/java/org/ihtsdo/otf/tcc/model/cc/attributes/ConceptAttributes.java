@@ -5,6 +5,7 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.io.IOException;
 
 import java.util.*;
@@ -61,6 +62,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
             }
         }
     }
+
 
     //~--- methods -------------------------------------------------------------
     @Override

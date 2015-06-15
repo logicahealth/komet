@@ -191,6 +191,10 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.commit(changeSetPolicy, changeSetWriterThreading);
     }
 
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        return concept.isLatestVersionActive(coordinate);
+    }
+
     public void commit(ChangeSetPolicy changeSetPolicy, ChangeSetWriterThreading changeSetWriterThreading)
             throws IOException {
         concept.commit(changeSetPolicy, changeSetWriterThreading);

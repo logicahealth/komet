@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -85,31 +86,35 @@ public class ComponentReference implements Externalizable {
         uuidLsb = uuid.getLeastSignificantBits();
     }
 
-    public ComponentReference(TerminologySnapshotDI ss, int nid) throws IOException, ContradictionException {
-        this.nid = nid;
-
-        ComponentVersionBI component = ss.getComponentVersion(nid);
-
-        if (component != null) {
-            uuidMsb = component.getPrimordialUuid().getMostSignificantBits();
-            uuidLsb = component.getPrimordialUuid().getLeastSignificantBits();
-            isNull = false;
-
-            if (component instanceof ConceptVersionBI) {
-                text = ((ConceptVersionBI) component).getPreferredDescription().getText();
-            } else if (component instanceof DescriptionVersionBI) {
-                text = ((DescriptionVersionBI) component).getText();
-            } else {
-                if (ss.getConceptForNid(nid).getFullySpecifiedDescription() != null) {
-                    text = component.getChronicle().getClass().getSimpleName() + " for: "
-                            + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
+    public ComponentReference(TerminologySnapshotDI ss, int nid)  {
+        try {
+            this.nid = nid;
+            
+            ComponentVersionBI component = ss.getComponentVersion(nid);
+            
+            if (component != null) {
+                uuidMsb = component.getPrimordialUuid().getMostSignificantBits();
+                uuidLsb = component.getPrimordialUuid().getLeastSignificantBits();
+                isNull = false;
+                
+                if (component instanceof ConceptVersionBI) {
+                    text = ((ConceptVersionBI) component).getPreferredDescription().getText();
+                } else if (component instanceof DescriptionVersionBI) {
+                    text = ((DescriptionVersionBI) component).getText();
                 } else {
-                    text = component.getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
+                    if (ss.getConceptForNid(nid).getFullySpecifiedDescription() != null) {
+                        text = component.getChronicle().getClass().getSimpleName() + " for: "
+                                + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
+                    } else {
+                        text = component.getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
+                    }
                 }
+            } else {
+                text = "null component";
+                isNull = true;
             }
-        } else {
-            text = "null component";
-            isNull = true;
+        } catch (IOException | ContradictionException ex) {
+           throw new RuntimeException(ex);
         }
     }
 
