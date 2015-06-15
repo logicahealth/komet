@@ -39,15 +39,15 @@ import org.jvnet.hk2.annotations.Service;
  * Generally available thread pools for doing background processing in an ISAAC application.
  * 
  * The {@link #getForkJoinPoolExecutor()} that this provides is identical to the @{link {@link ForkJoinPool#commonPool()}
- * with the exception that is will bottom out at 3 processing threads, rather than 1, to help prevent
+ * with the exception that it will bottom out at 3 processing threads, rather than 1, to help prevent
  * deadlock situations in common ISAAC usage patterns.  This has an unbounded queue depth, and LIFO behavior.
  * 
- * The {@link #getPotentiallyBlockingExecutor()} that is provided is a standard thread pool with (up to) the same number of threads
+ * The {@link #getPotentiallyBlockingExecutor()} that this provides is a standard thread pool with (up to) the same number of threads
  * as there are cores present on the computer - with a minimum of 2 threads.  This executor has no queue - internally
  * it uses a {@link SynchronousQueue} - so if no thread is available to accept the task being queued, it will block 
  * submission of the task until a thread is available to accept the job.
  * 
- * The {@link #getExecutor()} that is provided is a standard thread pool with (up to) the same number of threads
+ * The {@link #getExecutor()} that this provides is a standard thread pool with (up to) the same number of threads
  * as there are cores present on the computer - with a minimum of 2 threads.  This executor has an unbounded queue 
  * depth, and FIFO behavior.
  *
@@ -74,11 +74,12 @@ public class WorkExecutors
 	{
 		log.info("Starting the WorkExecutors thread pools");
 		//The java default ForkJoinPool.commmonPool starts with only 1 thread, on 1 and 2 core systems, which can get us deadlocked pretty easily.
-		int parallelism = Runtime.getRuntime().availableProcessors();
-		forkJoinExecutor_ = new ForkJoinPool(parallelism < 3 ? 3 : parallelism);
+		int procCount = Runtime.getRuntime().availableProcessors();
+		int parallelism = ((procCount - 1) < 3 ? 3 : procCount - 1);  //set between 3 and 1 less than proc count (not less than 3)
+		forkJoinExecutor_ = new ForkJoinPool(parallelism);
 
 		int corePoolSize = 2;
-		int maximumPoolSize = (parallelism < 2 ? 2 : parallelism);
+		int maximumPoolSize = parallelism;
 		int keepAliveTime = 60;
 		TimeUnit timeUnit = TimeUnit.SECONDS;
 		
@@ -87,7 +88,7 @@ public class WorkExecutors
 		{
 			Thread t = Executors.defaultThreadFactory().newThread(runnable);
 			t.setDaemon(true);
-			t.setName("ISAAC-work-thread-" + t.getId());
+			t.setName("ISAAC-B-work-thread-" + t.getId());
 			return t;
 		}));
 		blockingThreadPoolExecutor_.setRejectedExecutionHandler((runnable, executor) -> 
@@ -108,7 +109,7 @@ public class WorkExecutors
 		{
 			Thread t = Executors.defaultThreadFactory().newThread(runnable);
 			t.setDaemon(true);
-			t.setName("ISAAC-work-thread-" + t.getId());
+			t.setName("ISAAC-Q-work-thread-" + t.getId());
 			return t;
 		}));
 		threadPoolExecutor_.allowCoreThreadTimeOut(true);

@@ -110,7 +110,7 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     }
 
     @Override
-    public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<MediaVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((Media) cc).getVersion(c);
     }
 

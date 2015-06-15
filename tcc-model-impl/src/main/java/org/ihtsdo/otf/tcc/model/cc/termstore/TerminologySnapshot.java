@@ -4,30 +4,27 @@ package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
+import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
@@ -37,11 +34,8 @@ import org.ihtsdo.otf.tcc.ddo.store.FxTerminologySnapshotDI;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.PropertyChangeListener;
-import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -51,13 +45,12 @@ import javafx.concurrent.Task;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import gov.vha.isaac.ochre.util.UuidFactory;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
 
 /**
- * Class description
- *
- *
- * @version        Enter version here..., 13/03/29
- * @author         Enter your name here...    
+ * created 13/03/29
  */
 public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminologySnapshotDI {
 
@@ -500,7 +493,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ComponentVersionBI getComponentVersion(Collection<UUID> uuids)
+   public Optional<? extends ComponentVersionBI> getComponentVersion(Collection<UUID> uuids)
            throws IOException, ContradictionException {
       return store.getComponentVersion(vc, uuids);
    }
@@ -517,7 +510,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ComponentVersionBI getComponentVersion(ComponentContainerBI cc)
+   public Optional<? extends ComponentVersionBI> getComponentVersion(ComponentContainerBI cc)
            throws IOException, ContradictionException {
       return getComponentVersion(cc.getNid());
    }
@@ -534,7 +527,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ComponentVersionBI getComponentVersion(int nid) throws IOException, ContradictionException {
+   public Optional<? extends ComponentVersionBI> getComponentVersion(int nid) throws IOException, ContradictionException {
       return store.getComponentVersion(vc, nid);
    }
 
@@ -550,7 +543,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ComponentVersionBI getComponentVersion(UUID... uuids) throws IOException, ContradictionException {
+   public Optional<? extends ComponentVersionBI> getComponentVersion(UUID... uuids) throws IOException, ContradictionException {
       return store.getComponentVersion(vc, uuids);
    }
 
@@ -696,7 +689,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc)
+   public ConceptChronicleDdo getFxConcept(UUID conceptUUID)
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
@@ -1024,11 +1017,12 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     }
 
     /**
+     * @return 
      * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#index(java.lang.Class[])
      */
     @Override
-    public void index(Class<?> ... indexesToRebuild) throws IOException {
-        store.index(indexesToRebuild);
+    public Task<?> index(Class<?> ... indexesToRebuild) {
+        return store.index(indexesToRebuild);
     }
 
     @Override

@@ -22,9 +22,9 @@ import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -46,7 +46,7 @@ public interface ConceptVersionBI extends ComponentVersionBI,
     @Override
     ConceptChronicleBI getChronicle();
 
-    ConceptAttributeVersionBI getConceptAttributesActive() throws IOException, ContradictionException;
+    Optional<? extends ConceptAttributeVersionBI> getConceptAttributesActive() throws IOException, ContradictionException;
 
     Collection<? extends RefexVersionBI<?>> getCurrentRefexMembers(int refsetNid) throws IOException;
 

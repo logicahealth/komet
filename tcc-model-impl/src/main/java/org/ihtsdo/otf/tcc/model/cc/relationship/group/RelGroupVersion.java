@@ -216,11 +216,11 @@ public class RelGroupVersion implements RelGroupVersionBI {
       for (RelationshipChronicleBI relc : rg.getRels()) {
          if (coordinate != null) {
             try {
-               RelationshipVersionBI rv = relc.getVersion(coordinate.getVcWithAllStatusValues());
+               Optional<? extends RelationshipVersionBI<?>> rv = relc.getVersion(coordinate.getVcWithAllStatusValues());
 
-               if (rv != null) {
-                  if (rv.getGroup() == rg.getRelGroup()) {
-                     results.add(rv);
+               if (rv.isPresent()) {
+                  if (rv.get().getGroup() == rg.getRelGroup()) {
+                     results.add(rv.get());
                   }
                }
             } catch (ContradictionException ex) {
@@ -310,12 +310,12 @@ public class RelGroupVersion implements RelGroupVersionBI {
 
       for (RelationshipChronicleBI relc : rg.getRels()) {
          if (coordinate != null) {
-            RelationshipVersionBI rv = relc.getVersion(coordinate);
+            Optional<? extends RelationshipVersionBI<?>> rv = relc.getVersion(coordinate);
 
-            if (rv != null) {
-               if ((rv.getGroup() == rg.getRelGroup())
-                       && coordinate.getAllowedStatus().contains(rv.getStatus())) {
-                  results.add(rv);
+            if (rv.isPresent()) {
+               if ((rv.get().getGroup() == rg.getRelGroup())
+                       && coordinate.getAllowedStatus().contains(rv.get().getStatus())) {
+                  results.add(rv.get());
                }
             }
          } else {
@@ -450,7 +450,7 @@ public class RelGroupVersion implements RelGroupVersionBI {
    }
 
    @Override
-   public RelGroupVersionBI getVersion(ViewCoordinate c) throws ContradictionException {
+   public Optional<? extends RelGroupVersionBI> getVersion(ViewCoordinate c) throws ContradictionException {
       return rg.getVersion(c);
    }
 

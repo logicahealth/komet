@@ -16,8 +16,7 @@
 
 package org.ihtsdo.otf.tcc.api.concept;
 
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 /**
@@ -26,5 +25,5 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
  */
 public interface ConceptFetcherBI {
    ConceptChronicleBI fetch() throws Exception;
-   ConceptVersionBI fetch(ViewCoordinate vc) throws Exception;
+   Optional<ConceptVersionBI> fetch(ViewCoordinate vc) throws Exception;
 }

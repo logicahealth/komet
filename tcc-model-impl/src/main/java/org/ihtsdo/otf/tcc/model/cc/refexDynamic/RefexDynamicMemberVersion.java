@@ -2,7 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -117,7 +116,7 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
     }
 
     @Override
-    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RefexDynamicMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((RefexDynamicMember) cc).getVersion(c);
     }
 

@@ -10,11 +10,9 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
@@ -38,6 +36,8 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.Optional;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
 public class RelGroupChronicle implements RelGroupChronicleBI {
    private int                                 conceptNid;
@@ -292,8 +292,8 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    }
 
    @Override
-   public RelGroupVersionBI getVersion(ViewCoordinate c) throws ContradictionException {
-      return new RelGroupVersion(this, c);
+   public Optional<RelGroupVersionBI> getVersion(ViewCoordinate c) throws ContradictionException {
+      return Optional.of(new RelGroupVersion(this, c));
    }
 
    @Override

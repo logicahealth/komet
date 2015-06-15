@@ -236,7 +236,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
                 getTextDescription(),
                 getMedia(),
                 getVersion(vc),
-                vc, idDirective, refexDirective);
+                Optional.of(vc), idDirective, refexDirective);
         return mediaBp;
     }
 
@@ -266,11 +266,11 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public MediaVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<MediaVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         List<MediaVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         if (vForC.size() > 1) {
@@ -281,7 +281,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
             throw new ContradictionException(vForC.toString());
         }
 
-        return vForC.get(0);
+        return Optional.of(vForC.get(0));
     }
 
     @Override

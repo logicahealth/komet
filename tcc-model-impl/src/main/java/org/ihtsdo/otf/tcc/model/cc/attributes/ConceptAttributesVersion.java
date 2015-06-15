@@ -89,7 +89,7 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
 
 
     @Override
-    public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<ConceptAttributesVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((ConceptAttributes)cc).getVersion(c);
     }
 

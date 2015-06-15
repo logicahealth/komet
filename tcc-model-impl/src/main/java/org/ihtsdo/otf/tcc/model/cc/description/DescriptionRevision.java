@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -250,7 +249,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
         DescriptionCAB descBp = new DescriptionCAB(getConceptNid(), getTypeNid(),
                 LanguageCode.getLangCode(lang), getText(), initialCaseSignificant,
-                getVersion(vc), vc,
+                getVersion(vc), Optional.of(vc),
                 idDirective, refexDirective);
         return descBp;
     }
@@ -276,7 +275,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
    @Override
-   public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
+   public Optional<DescriptionVersion> getVersion(ViewCoordinate c) throws ContradictionException {
       return primordialComponent.getVersion(c);
    }
 

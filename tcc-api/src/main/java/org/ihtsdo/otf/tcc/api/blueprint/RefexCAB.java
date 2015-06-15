@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
@@ -256,7 +257,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
         this(memberType,
                 Ts.get().getUuidPrimordialForNid(referencedComponentNid),
                 collectionNid,
-                null, null, null,
+                null, Optional.empty(), Optional.empty(),
                 idDirective,
                 refexDirective);
         recomputeUuid();
@@ -270,7 +271,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        super(null, null, null, idDirective, refexDirective);
+        super(null, Optional.empty(), Optional.empty(), (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUUID);
         this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionUuid);
@@ -309,13 +310,14 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             RefexType memberType,
             UUID referencedComponentUuid,
             int collectionNid,
-            RefexVersionBI refexVersion,
-            ViewCoordinate viewCoordinate,
+            Optional<? extends RefexVersionBI> refexVersion,
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-         this(memberType, referencedComponentUuid, collectionNid, refexVersion.getPrimordialUuid(), refexVersion, viewCoordinate, idDirective, refexDirective);
-		recomputeUuid();
+         this(memberType, referencedComponentUuid, collectionNid, (refexVersion.isPresent() ? refexVersion.get().getPrimordialUuid() : null), refexVersion, 
+             viewCoordinate, idDirective, refexDirective);
+        recomputeUuid();
         this.properties.put(ComponentProperty.COMPONENT_ID,
                 getComponentUuid());
     }
@@ -342,12 +344,12 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             UUID referencedComponentUuid,
             int collectionNid,
             UUID memberUuid,
-            RefexVersionBI refexVersion,
-            ViewCoordinate viewCoordinate,
+            Optional<? extends RefexVersionBI> refexVersion,
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        super(memberUuid, refexVersion, viewCoordinate, idDirective, refexDirective);
+        super(memberUuid, refexVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUuid);
         this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionNid);

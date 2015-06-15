@@ -23,6 +23,7 @@ import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -114,7 +115,10 @@ public class LookupService {
      * @see ServiceLocator#getService(Class, Annotation...) 
      */
     public static <T> T getService(Class<T> contractOrImpl) {
-        return get().getService(contractOrImpl, new Annotation[0]);
+        T service = get().getService(contractOrImpl, new Annotation[0]);
+        log.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
+
+        return service;
     }
     
     /**
@@ -130,7 +134,11 @@ public class LookupService {
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("You must specify a service name to use this method");
         }
-        return get().getService(contractOrService, name, new Annotation[0]);
+        T service = get().getService(contractOrService, name, new Annotation[0]);
+        
+		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+
+        return service;
     }
     
     /**
@@ -140,16 +148,20 @@ public class LookupService {
      * @param name May be null (to indicate any name is ok), and is the name of the implementation to be returned
      */
     public static <T> T getNamedServiceIfPossible(Class<T> contractOrService, String name) {
+    	T service = null;
         if (StringUtils.isEmpty(name)) {
-            return get().getService(contractOrService);
+            service = get().getService(contractOrService);
         }
         else {
-            T service = get().getService(contractOrService, name);
+            service = get().getService(contractOrService, name);
             if (service == null) {
                 service = get().getService(contractOrService);
             }
-            return service;
         }
+        
+		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+
+        return service;
     }
     
     public static int getCurrentRunLevel() {
@@ -173,6 +185,10 @@ public class LookupService {
      * Start all core isaac services, blocking until started (or failed)
      */
     public static void startupIsaac() {
+        //Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial 
+        //init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
+        //should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID. 
+        getService(WorkExecutors.class).getExecutor().execute(() -> UUID.randomUUID());
         setRunLevel(ISAAC_STARTED_RUNLEVEL);
     }
     

@@ -137,7 +137,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     @Override
-    public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RelationshipVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((Relationship) cc).getVersion(c);
     }
 

@@ -1,7 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -11,11 +14,6 @@ import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 public interface I_ManageConceptData extends ModificationTracker {
     
@@ -68,12 +66,14 @@ public interface I_ManageConceptData extends ModificationTracker {
     Collection<Media> getMedia() throws IOException;
 
     Set<Integer> getMemberNids() throws IOException;
+    
+    Set<Integer> getDynamicMemberNids() throws IOException;
 
     int getNid();
 
     RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException;
 
-    RefexDynamicMember getRefsetDynamicMember(int memberNid) throws IOException;
+    Optional<RefexDynamicMember> getRefsetDynamicMember(int memberNid) throws IOException;
 
     RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException;
 

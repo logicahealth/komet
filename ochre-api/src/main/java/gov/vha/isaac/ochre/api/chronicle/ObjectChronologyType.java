@@ -20,5 +20,5 @@ package gov.vha.isaac.ochre.api.chronicle;
  * @author kec
  */
 public enum ObjectChronologyType {
-    CONCEPT, SEMEME, REFEX, OTHER;
+    CONCEPT, SEMEME, REFEX, OTHER, UNKNOWN_NID;
 }

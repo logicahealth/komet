@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -90,7 +91,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
             byte[] dataBytes, IdDirective idDirective)
             throws IOException, InvalidCAB, ContradictionException {
         this(conceptUuid, typeUuid, format, textDescription, dataBytes,
-                null, null, null, idDirective, RefexDirective.EXCLUDE);
+                Optional.empty(), Optional.empty(), Optional.empty(), idDirective, RefexDirective.EXCLUDE);
     }
 
     /**
@@ -118,8 +119,8 @@ public class MediaCAB extends CreateOrAmendBlueprint {
             String format, 
             String textDescription,
             byte[] dataBytes, 
-            MediaVersionBI mediaVersion, 
-            ViewCoordinate viewCoordinate,
+            Optional<? extends MediaVersionBI> mediaVersion, 
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
@@ -151,7 +152,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
      */
     public MediaCAB(
             UUID conceptUuid, UUID typeUuid, String format, String textDescription,
-            byte[] dataBytes, MediaVersionBI mediaVersion, ViewCoordinate viewCoordinate,
+            byte[] dataBytes, Optional<? extends MediaVersionBI> mediaVersion, Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
@@ -183,12 +184,12 @@ public class MediaCAB extends CreateOrAmendBlueprint {
      */
     public MediaCAB(
             UUID conceptUuid, UUID typeUuid, String format, String textDescription,
-            byte[] dataBytes, UUID componentUuid, MediaVersionBI mediaVersion,
-            ViewCoordinate viewCoordinate,
+            byte[] dataBytes, Optional<UUID> componentUuid, Optional<? extends MediaVersionBI> mediaVersion,
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
         super(getComponentUUID(componentUuid,mediaVersion,idDirective), 
-                mediaVersion, viewCoordinate, idDirective, refexDirective);
+                mediaVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
 
         this.conceptUuid = conceptUuid;
         this.typeUuid = typeUuid;

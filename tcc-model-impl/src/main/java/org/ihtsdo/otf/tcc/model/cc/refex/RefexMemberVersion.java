@@ -133,7 +133,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
-    public RefexMemberVersion<R,C> getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<RefexMemberVersion<R,C>> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((RefexMember) cc).getVersion(c);
     }
 

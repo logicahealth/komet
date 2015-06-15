@@ -94,6 +94,5 @@ public interface IdentifierService {
     IntStream getRefexNidsForSequences(IntStream refexSequences);
     @Deprecated
     RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
-    
 
 }

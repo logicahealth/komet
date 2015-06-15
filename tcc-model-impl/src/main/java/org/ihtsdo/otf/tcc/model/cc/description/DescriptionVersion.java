@@ -136,7 +136,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
     }
 
     @Override
-    public DescriptionVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<DescriptionVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         return ((Description)cc).getVersion(c);
     }
 

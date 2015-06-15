@@ -165,8 +165,8 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         RefexDynamicCAB rdc = new RefexDynamicCAB(
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
-                this, 
-                vc, 
+                Optional.of(this), 
+                Optional.of(vc), 
                 idDirective, 
                 refexDirective);
 
@@ -240,8 +240,8 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     @Override
-    public RefexDynamicMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-       return (RefexDynamicMemberVersion) ((RefexDynamicMember) primordialComponent).getVersion(c);
+    public Optional<RefexDynamicMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+       return ((RefexDynamicMember) primordialComponent).getVersion(c);
     }
 
     @Override

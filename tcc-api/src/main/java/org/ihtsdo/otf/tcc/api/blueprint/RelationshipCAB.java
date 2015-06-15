@@ -18,15 +18,16 @@ package org.ihtsdo.otf.tcc.api.blueprint;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  * The Class RelationshipCAB contains methods for creating a relationship
@@ -74,7 +75,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
         this(Ts.get().getComponent(sourceNid).getPrimordialUuid(),
                 Ts.get().getComponent(typeNid).getPrimordialUuid(),
                 Ts.get().getComponent(targetNid).getPrimordialUuid(),
-                group, null, relationshipType, null, null,
+                group, null, relationshipType, Optional.empty(), Optional.empty(),
                 idDirective, RefexDirective.EXCLUDE);
     }
 
@@ -106,8 +107,8 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
             throws IOException, InvalidCAB, ContradictionException {
         this(sourceUuid, typeUuid, targetUuid, group, null, 
                 relationshipType, 
-                null, 
-                null,
+                Optional.empty(), 
+                Optional.empty(),
                 idDirective, 
                 RefexDirective.EXCLUDE);
     }
@@ -138,8 +139,8 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
     public RelationshipCAB(
             int sourceNid, int typeNid, int targetNid, int group, 
             RelationshipType relationshipType,
-            RelationshipVersionBI relationshipVersion, 
-            ViewCoordinate viewCoordinate,
+            Optional<? extends RelationshipVersionBI<?>> relationshipVersion, 
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) 
             throws IOException, InvalidCAB, ContradictionException {
@@ -181,8 +182,8 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
             UUID targetUuid, 
             int group,
             RelationshipType relationshipType, 
-            RelationshipVersionBI relationshipVersion,
-            ViewCoordinate viewCoordinate,
+            Optional<? extends RelationshipVersionBI<?>> relationshipVersion,
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) 
             throws IOException, InvalidCAB, ContradictionException {
@@ -221,11 +222,12 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
      */
     public RelationshipCAB(
             UUID sourceUuid, UUID typeUuid, UUID targetUuid, int group,
-            UUID componentUuid, RelationshipType relationshipType, RelationshipVersionBI relationshipVersion,
-            ViewCoordinate viewCoordinate,
+            UUID componentUuid, RelationshipType relationshipType, Optional<? extends RelationshipVersionBI<?>> relationshipVersion,
+            Optional<ViewCoordinate> viewCoordinate,
             IdDirective idDirective,
             RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
-        super(componentUuid, relationshipVersion, viewCoordinate, idDirective, refexDirective);
+        super(componentUuid, relationshipVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective),
+                refexDirective);
         assert sourceUuid != null;
         assert typeUuid != null;
         assert targetUuid != null;

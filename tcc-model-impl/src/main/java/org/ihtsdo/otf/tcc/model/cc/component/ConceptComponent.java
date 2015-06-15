@@ -215,7 +215,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         int cNid = PersistentStore.get().getConceptNidForNid(nid);
 
-        if (cNid == Integer.MAX_VALUE) {
+        if (cNid == Integer.MAX_VALUE || cNid == 0) {
             PersistentStore.get().setConceptNidForNid(this.enclosingConceptNid, this.nid);
         } else if (cNid != this.enclosingConceptNid) {
             PersistentStore.get().resetConceptNidForNid(this.enclosingConceptNid, this.nid);

@@ -151,7 +151,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
                 PersistentStore.get().getUuidPrimordialForNid(getReferencedComponentNid()),
                 getAssemblageNid(),
                 getVersion(vc), 
-                vc, 
+                Optional.of(vc), 
                 idDirective, 
                 refexDirective);
 

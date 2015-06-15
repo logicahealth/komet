@@ -19,6 +19,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,8 +66,8 @@ public class ComponentReference implements Externalizable {
                 + " nid(" + concept.getNid() + ")");
         } else {
             text = description.getText();
-            if (concept.getConceptAttributesActive() != null
-                    && concept.getConceptAttributesActive().isDefined()) {
+            if (concept.getConceptAttributesActive().isPresent()
+                    && concept.getConceptAttributesActive().get().isDefined()) {
                 definitionalState = DefinitionalState.NECESSARY_AND_SUFFICIENT;
             } else {
                 definitionalState = DefinitionalState.NECESSARY;
@@ -87,29 +88,29 @@ public class ComponentReference implements Externalizable {
     }
 
     public ComponentReference(TerminologySnapshotDI ss, int nid)  {
+        this.nid = nid;
         try {
-            this.nid = nid;
-            
-            ComponentVersionBI component = ss.getComponentVersion(nid);
-            
-            if (component != null) {
-                uuidMsb = component.getPrimordialUuid().getMostSignificantBits();
-                uuidLsb = component.getPrimordialUuid().getLeastSignificantBits();
-                isNull = false;
-                
-                if (component instanceof ConceptVersionBI) {
-                    text = ((ConceptVersionBI) component).getPreferredDescription().getText();
-                } else if (component instanceof DescriptionVersionBI) {
-                    text = ((DescriptionVersionBI) component).getText();
-                } else {
-                    if (ss.getConceptForNid(nid).getFullySpecifiedDescription() != null) {
-                        text = component.getChronicle().getClass().getSimpleName() + " for: "
-                                + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
-                    } else {
-                        text = component.getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
-                    }
-                }
+        Optional<? extends ComponentVersionBI> component = ss.getComponentVersion(nid);
+
+        if (component.isPresent()) {
+            uuidMsb = component.get().getPrimordialUuid().getMostSignificantBits();
+            uuidLsb = component.get().getPrimordialUuid().getLeastSignificantBits();
+            isNull = false;
+
+            if (component.get() instanceof ConceptVersionBI) {
+                text = ((ConceptVersionBI) component.get()).getPreferredDescription().getText();
+            } else if (component.get() instanceof DescriptionVersionBI) {
+                text = ((DescriptionVersionBI) component.get()).getText();
             } else {
+                if (ss.getConceptForNid(nid).getFullySpecifiedDescription() != null) {
+                    text = component.get().getChronicle().getClass().getSimpleName() + " for: "
+                            + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
+                } else {
+                    text = component.get().getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
+                }
+                
+            } 
+        } else {
                 text = "null component";
                 isNull = true;
             }

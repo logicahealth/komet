@@ -184,7 +184,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
 	  }
 
       RelationshipCAB relBp = new RelationshipCAB(getOriginNid(), getTypeNid(), getDestinationNid(), getGroup(), relType,
-                                getVersion(vc), vc, idDirective, refexDirective);
+                                getVersion(vc), Optional.of(vc), idDirective, refexDirective);
 
       return relBp;
    }
@@ -343,11 +343,11 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
    @Override
-   public RelationshipVersion getVersion(ViewCoordinate c) throws ContradictionException {
+   public Optional<RelationshipVersion> getVersion(ViewCoordinate c) throws ContradictionException {
       List<RelationshipVersion> vForC = getVersions(c);
 
       if (vForC.isEmpty()) {
-         return null;
+         return Optional.empty();
       }
 
       if (vForC.size() > 1) {
@@ -359,10 +359,10 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
       }
 
       if (!vForC.isEmpty()) {
-         return vForC.get(0);
+         return Optional.of(vForC.get(0));
       }
 
-      return null;
+      return Optional.empty();
    }
 
     @Override

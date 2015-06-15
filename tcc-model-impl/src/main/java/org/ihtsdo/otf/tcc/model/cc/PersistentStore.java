@@ -15,12 +15,9 @@
  */
 package org.ihtsdo.otf.tcc.model.cc;
 
-import org.glassfish.hk2.api.Descriptor;
-import org.glassfish.hk2.api.Filter;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
+import gov.vha.isaac.ochre.api.LookupService;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
-import javax.inject.Inject;
 
 /**
  *
@@ -35,7 +32,7 @@ public class PersistentStore {
     private PersistentStoreI persistentStoreImplementation;
 
     private PersistentStore() {
-        this.persistentStoreImplementation = Hk2Looker.get().getService(PersistentStoreI.class);
+        this.persistentStoreImplementation = LookupService.get().getService(PersistentStoreI.class);
     }
 
     public static PersistentStoreI get() {

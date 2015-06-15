@@ -15,39 +15,32 @@
  */
 package org.ihtsdo.otf.tcc.api.blueprint;
 
-//~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.security.NoSuchAlgorithmException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
+import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
+import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
  * The Class CreateOrAmendBlueprint contains methods for creating a terminology generic blueprint. This
@@ -89,14 +82,7 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * Map to hold additional IDs.
      */
     private HashMap<Object, UUID> idMap = new HashMap<>();
-    /**
-     * Field description
-     */
-    private ComponentVersionBI cv;
-    /**
-     * Field description
-     */
-    private ViewCoordinate vc;
+
     /**
      * Field description
      */
@@ -114,6 +100,21 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     public void setReferencedComponent(ComponentChronicleBI<?> referencedComponent) {
         this.referencedComponent = referencedComponent;
     }
+    
+    /**
+     * Instantiates a new create or amend blueprint.
+     *
+     * @param componentUuid the uuid of the component specified by this blueprint
+     * @param idDirective
+     * @param refexDirective
+     * @throws IOException signals that an I/O exception has occurred
+     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
+     * @throws ContradictionException if more than one version is returned for the view coordinate
+     */
+    public CreateOrAmendBlueprint(UUID componentUuid, IdDirective idDirective, RefexDirective refexDirective)
+            throws IOException, InvalidCAB, ContradictionException {
+        this(componentUuid, Optional.empty(), Optional.empty(), idDirective, refexDirective);
+    }
 
     /**
      * Instantiates a new create or amend blueprint.
@@ -127,35 +128,80 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more than one version is returned for the view coordinate
      */
-    public CreateOrAmendBlueprint(UUID componentUuid, ComponentVersionBI componentVersion,
-            ViewCoordinate viewCoordinate, IdDirective idDirective,
+    public CreateOrAmendBlueprint(UUID componentUuid, Optional<? extends ComponentVersionBI> componentVersion,
+            Optional<ViewCoordinate> viewCoordinate, IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
         this.idDirective = idDirective;
         this.refexDirective = refexDirective;
-        this.cv = componentVersion;
-        this.vc = viewCoordinate;
         setStatus(Status.ACTIVE);
         setComponentUuidNoRecompute(componentUuid);
 
       //TODO Dan notes, this is wrong - should be calling recomputeUuid(), as far as I can tell... for every case but the preserve ones...
         //tis also wrong, because there is no way to use the API to actually pass in the desired componentUuid.  It is set above, and then overwritten
         //in almost every case.  One would expect that if the directive is a type of PRESERVE, then you should not default to overwriting with the component
-        //version UUID.  PRESERVE is ill defined.  PRESERVE what?  What the user said in the API?  Or what the componentVersion has?
-        if (idDirective == IdDirective.PRESERVE && componentVersion != null) {
-            setComponentUuidNoRecompute(componentVersion.getPrimordialUuid());
-        } else if (idDirective == IdDirective.GENERATE_RANDOM) {
-            setComponentUuidNoRecompute(UUID.randomUUID());
-        } else if ((cv instanceof ConceptVersionBI)
-                && (idDirective == IdDirective.GENERATE_RANDOM_CONCEPT_REST_HASH)) {
-            setComponentUuidNoRecompute(UUID.randomUUID());
-        } else if ((cv instanceof ConceptVersionBI)
-                && (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH)) {
-            setComponentUuidNoRecompute(componentVersion.getPrimordialUuid());
+        //version UUID.  PRESERVE is ill defined.  PRESERVE what?  What the user said in the API?  Or what the componentVersion has?  The entire API
+        //surrounding how these ID Directives are supposed to be handled is an incomprehensible mess - which only gets worse when you try to understand it from code.
+        //The entire code stack has all of these error conditions that have to be ignored, because other random code depends on the error not being thrown... but 
+        //then real errors from users aren't detected.  It needs an overhaul from top to bottom.
+        
+        if (idDirective == IdDirective.PRESERVE || idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH) {
+            UUID toPreserve = null;
+            if (componentUuid != null) {
+                toPreserve = componentUuid;
+            }
+            
+            if (componentVersion.isPresent()) {
+                if (toPreserve != null && !toPreserve.equals(componentVersion.get().getPrimordialUuid())) {
+                    throw new RuntimeException("The UUID provided in componentUuid does not match the provided componentVersion primoridial UUID.");
+                }
+                else {
+                    toPreserve = componentVersion.get().getPrimordialUuid();
+                }
+            }
+            else if (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH) {
+                throw new RuntimeException("Cannot use PRESERVE_CONCEPT_REST_HASH without providing a component version");
+            }
+            
+            if (toPreserve == null) {
+                throw new RuntimeException("No UUID provided to preserve, either via componentUuid, or the componentVersion");
+            }
+            
+            if (idDirective == IdDirective.PRESERVE || (componentVersion.isPresent() &&  componentVersion.get() instanceof ConceptVersionBI)) {
+                setComponentUuidNoRecompute(toPreserve);
+            }
+        }
+        
+        else if (idDirective == IdDirective.GENERATE_RANDOM_CONCEPT_REST_HASH) {
+            if (componentVersion.isPresent()) {
+                if (componentVersion.get() instanceof ConceptVersionBI) {
+                    setComponentUuidNoRecompute(UUID.randomUUID());
+                }
+            }
+            else {
+                throw new RuntimeException("Must provide a componentVersion in order to use the IdDirective GENERATE_RANDOM_CONCEPT_REST_HASH");
+            }
         }
 
-        getAnnotationBlueprintsFromOriginal();
-        getAnnotationDynamicBlueprintsFromOriginal();
+        else if (idDirective == IdDirective.GENERATE_RANDOM) {
+            setComponentUuidNoRecompute(UUID.randomUUID());
+        } 
+        
+        else {
+            //None of the other id directives are  handled here.  The hash ones get handled elsewhere...
+            //Yes, its ok to hit your head on the desk now.
+        }
+
+        if (refexDirective == RefexDirective.INCLUDE) {
+            if (!viewCoordinate.isPresent() || !componentVersion.isPresent()) {
+                throw new RuntimeException("Must provide a view coordinate and component version to include refexes");
+            }
+            else {
+                getAnnotationBlueprintsFromOriginal(componentVersion.get(), viewCoordinate.get());
+                getAnnotationDynamicBlueprintsFromOriginal(componentVersion.get(), viewCoordinate.get());
+            }
+        }
+        
         pcs.addPropertyChangeListener(this);
     }
 
@@ -338,12 +384,12 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more then one version is found for a particular view coordinate
      */
-    private List<RefexCAB> getAnnotationBlueprintsFromOriginal()
+    private List<RefexCAB> getAnnotationBlueprintsFromOriginal(ComponentVersionBI componentVersion, ViewCoordinate vc)
             throws IOException, InvalidCAB, ContradictionException {
-        if (annotations.isEmpty() && (cv != null)) {
+        if (annotations.isEmpty()) {
             if (refexDirective == RefexDirective.INCLUDE) {
-                if (cv.getRefexMembersActive(vc) != null) {
-                    Collection<? extends RefexVersionBI<?>> originalRefexes = cv.getRefexMembersActive(vc);
+                if (componentVersion.getRefexMembersActive(vc) != null) {
+                    Collection<? extends RefexVersionBI<?>> originalRefexes = componentVersion.getRefexMembersActive(vc);
 
                     if (!originalRefexes.isEmpty()) {
                         IdDirective refexIdDirective = idDirective;
@@ -392,12 +438,12 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * @throws InvalidCAB if the any of the values in blueprint to make are invalid
      * @throws ContradictionException if more then one version is found for a particular view coordinate
      */
-    private List<RefexDynamicCAB> getAnnotationDynamicBlueprintsFromOriginal()
+    private List<RefexDynamicCAB> getAnnotationDynamicBlueprintsFromOriginal(ComponentVersionBI componentVersion, ViewCoordinate vc)
             throws IOException, InvalidCAB, ContradictionException {
-        if (annotationsDynamic.isEmpty() && (cv != null)) {
+        if (annotationsDynamic.isEmpty()) {
             if (refexDirective == RefexDirective.INCLUDE) {
-                if (cv.getRefexesDynamicActive(vc) != null) {
-                    Collection<? extends RefexDynamicVersionBI<?>> originalRefexes = cv.getRefexesDynamicActive(vc);
+                if (componentVersion.getRefexesDynamicActive(vc) != null) {
+                    Collection<? extends RefexDynamicVersionBI<?>> originalRefexes = componentVersion.getRefexesDynamicActive(vc);
 
                     if (!originalRefexes.isEmpty()) {
                         IdDirective refexIdDirective = idDirective;
@@ -457,10 +503,10 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      *
      * @return
      */
-    protected static UUID getComponentUUID(UUID componentUuid, ComponentVersionBI cv,
+    protected static UUID getComponentUUID(Optional<UUID> componentUuid, Optional<? extends ComponentVersionBI> cv,
             IdDirective idDirective) {
-        if (componentUuid != null) {
-            return componentUuid;
+        if (componentUuid.isPresent()) {
+            return componentUuid.get();
         }
 
         switch (idDirective) {
@@ -468,8 +514,8 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
                 return UUID.randomUUID();
 
             case PRESERVE:
-                if (cv != null) {
-                    return cv.getPrimordialUuid();
+                if (cv.isPresent()) {
+                    return cv.get().getPrimordialUuid();
                 }
         }
 

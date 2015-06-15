@@ -1,29 +1,24 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
-
-import java.util.*;
-
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_boolean.TtkRefexUuidBooleanRevision;
+import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
+import org.ihtsdo.otf.tcc.model.cc.refex.RefexRevision;
 
 public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBooleanMember>
         implements RefexNidBooleanAnalogBI<NidBooleanRevision> {
@@ -158,8 +153,9 @@ public class NidBooleanRevision extends RefexRevision<NidBooleanRevision, NidBoo
    }
 
    @Override
-   public NidBooleanMemberVersion getVersion(ViewCoordinate c) throws ContradictionException {
-      return (NidBooleanMemberVersion) ((NidBooleanMember) primordialComponent).getVersion(c);
+   public Optional<NidBooleanMemberVersion> getVersion(ViewCoordinate c) throws ContradictionException {
+      Optional<RefexMemberVersion<NidBooleanRevision, NidBooleanMember>> temp =  ((NidBooleanMember) primordialComponent).getVersion(c);
+      return Optional.ofNullable(temp.isPresent() ? (NidBooleanMemberVersion)temp.get() : null);
    }
 
    @Override

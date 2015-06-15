@@ -7,9 +7,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.io.IOException;
-
 import java.util.*;
-
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -206,7 +204,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     public ConceptAttributeAB makeBlueprint(ViewCoordinate vc,
             IdDirective idDirective, RefexDirective refexDirective) throws IOException, ContradictionException, InvalidCAB {
         ConceptAttributeAB conAttrBp = new ConceptAttributeAB(nid, defined,
-                getVersion(vc), vc, refexDirective, idDirective);
+                getVersion(vc), Optional.of(vc), refexDirective, idDirective);
         return conAttrBp;
     }
 
@@ -216,11 +214,11 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public ConceptAttributesVersion getVersion(ViewCoordinate c) throws ContradictionException {
+    public Optional<ConceptAttributesVersion> getVersion(ViewCoordinate c) throws ContradictionException {
         List<ConceptAttributesVersion> vForC = getVersions(c);
 
         if (vForC.isEmpty()) {
-            return null;
+            Optional.empty();
         }
 
         if (vForC.size() > 1) {
@@ -232,9 +230,9 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         }
 
         if (!vForC.isEmpty()) {
-            return vForC.get(0);
+            return Optional.of(vForC.get(0));
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
