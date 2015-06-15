@@ -49,6 +49,7 @@ public interface IdentifierService {
     IntStream getSememeSequenceStream();
     IntStream getParallelSememeSequenceStream();
     
+    ConceptSequenceSet getConceptSequencesForNids(NidSet componentNidSet);
     ConceptSequenceSet getConceptSequencesForNids(int[] conceptNidArray);
     SememeSequenceSet getSememeSequencesForNids(int[] sememeNidArray);
     ConceptSequenceSet getConceptSequencesForReferencedComponents(SememeSequenceSet sememeSequences);

@@ -15,10 +15,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
+import static org.ihtsdo.otf.tcc.dto.component.TtkRevision.informAboutUuid;
 
-public class TtkMediaChronicle extends TtkComponentChronicle<TtkMediaRevision> {
+public class TtkMediaChronicle extends TtkComponentChronicle<TtkMediaRevision, TtkMediaVersion> 
+    implements TtkMediaVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -63,16 +63,6 @@ public class TtkMediaChronicle extends TtkComponentChronicle<TtkMediaRevision> {
    public TtkMediaChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkMediaChronicle(TtkMediaChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-
-         this.conceptUuid     = transformer.transform(another.conceptUuid, another, ComponentFields.MEDIA_ENCLOSING_CONCEPT_UUID);
-         this.dataBytes       = transformer.transform(another.dataBytes, another, ComponentFields.MEDIA_DATA);
-         this.format          = transformer.transform(another.format, another, ComponentFields.MEDIA_FORMAT);
-         this.textDescription = transformer.transform(another.textDescription, another, ComponentFields.MEDIA_TEXT_DESCRIPTION);
-         this.typeUuid        = transformer.transform(another.typeUuid, another, ComponentFields.MEDIA_TYPE_UUID);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -147,11 +137,6 @@ public class TtkMediaChronicle extends TtkComponentChronicle<TtkMediaRevision> {
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkMediaChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkMediaChronicle(this, transformer);
    }
 
    @Override

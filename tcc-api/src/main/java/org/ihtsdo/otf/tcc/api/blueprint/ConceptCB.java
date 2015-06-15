@@ -25,7 +25,7 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 //~--- JDK imports ------------------------------------------------------------
 

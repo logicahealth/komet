@@ -18,7 +18,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;

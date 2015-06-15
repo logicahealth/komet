@@ -50,7 +50,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 /**
  * {@link RefexDynamicCAB} 
  * 

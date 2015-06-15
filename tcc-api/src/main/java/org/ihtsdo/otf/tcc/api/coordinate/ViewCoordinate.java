@@ -2,6 +2,11 @@ package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LanguageCoordinateService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -29,9 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.annotation.*;
 
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerPolicy;
@@ -287,7 +291,7 @@ public class ViewCoordinate implements StampCoordinate,
         int hashCode = 0;
 
         hashCode = Hashcode.computeLong(hashCode,
-                viewPosition.getPath().getConceptNid(), viewPosition.getTime());
+                viewPosition.getPath().getPathConceptSequence(), viewPosition.getTime());
 
         return hashCode;
     }
@@ -436,7 +440,7 @@ public class ViewCoordinate implements StampCoordinate,
     public int getClassifierNid() {
         if (classifierNid == Integer.MAX_VALUE) {
             try {
-                this.classifierNid = classifierSpec.getLenient().getConceptNid();
+                this.classifierNid = classifierSpec.getLenient().getNid();
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {
@@ -686,10 +690,8 @@ public class ViewCoordinate implements StampCoordinate,
     public int getStatedAssemblageSequence() {
         if (this.statedAssemblageNid == Integer.MAX_VALUE) {
             try {
-                this.statedAssemblageNid = statedAssemblageSpec.getLenient().getConceptNid();
+                this.statedAssemblageNid = statedAssemblageSpec.getLenient().getNid();
             } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -700,12 +702,10 @@ public class ViewCoordinate implements StampCoordinate,
     public int getInferredAssemblageSequence() {
         if (this.inferredAssemblageNid == Integer.MAX_VALUE) {
             try {
-                this.inferredAssemblageNid = inferredAssemblageSpec.getLenient().getConceptNid();
+                this.inferredAssemblageNid = inferredAssemblageSpec.getLenient().getNid();
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            } 
         }
         return getSequenceProvider().getConceptSequence(this.inferredAssemblageNid);
     }
@@ -714,7 +714,7 @@ public class ViewCoordinate implements StampCoordinate,
     public int getDescriptionLogicProfileSequence() {
         if (this.descriptionLogicProfileNid == Integer.MAX_VALUE) {
             try {
-                this.descriptionLogicProfileNid = descriptionLogicProfileSpec.getLenient().getConceptNid();
+                this.descriptionLogicProfileNid = descriptionLogicProfileSpec.getLenient().getNid();
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {
@@ -810,4 +810,26 @@ public class ViewCoordinate implements StampCoordinate,
     public int[] getModuleSequences() {
         return new int[0];
     }
+    
+    private static LanguageCoordinateService languageCoordinateService;
+    private static LanguageCoordinateService getLanguageCoordinateService() {
+        if (languageCoordinateService == null) {
+            languageCoordinateService = LookupService.getService(LanguageCoordinateService.class);
+        }
+        return languageCoordinateService;
+    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
+                getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
+   }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
+                getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
+
 }

@@ -204,7 +204,7 @@ public class ConceptProxy {
 
         return nid;
     }
-    
+     
     public int getSequence() {
         if (sequence == Integer.MAX_VALUE) {
             sequence = getConceptSequence(getNid());

@@ -16,11 +16,11 @@ import java.io.IOException;
 import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 @XmlRootElement(name="attributes")
-public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConceptAttributesRevision> {
+public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConceptAttributesRevision, 
+            TtkConceptAttributesVersion>
+    implements TtkConceptAttributesVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -60,11 +60,6 @@ public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConc
    public TtkConceptAttributesChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkConceptAttributesChronicle(TtkConceptAttributesChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.defined = transformer.transform(another.defined, another, ComponentFields.ATTRIBUTE_DEFINED);
    }
 
 
@@ -115,11 +110,6 @@ public class TtkConceptAttributesChronicle extends TtkComponentChronicle<TtkConc
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkConceptAttributesChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkConceptAttributesChronicle(this, transformer);
    }
 
    @Override

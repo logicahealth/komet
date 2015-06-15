@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.api.store;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
@@ -169,8 +170,6 @@ public interface TerminologyStoreDI extends TerminologyDI {
     Map<Integer, ConceptChronicleBI> getConcepts(NativeIdSetBI cNids) throws IOException;
 
     Collection<DbDependency> getLatestChangeSetDependencies() throws IOException;
-
-    List<? extends Path> getPathChildren(int nid);
 
     /**
      * Retrieves an array of concept nids that are children of the specified

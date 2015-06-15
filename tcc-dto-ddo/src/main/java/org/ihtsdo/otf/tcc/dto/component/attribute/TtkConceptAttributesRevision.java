@@ -15,11 +15,9 @@ import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 @XmlRootElement(name="attributes-revision")
-public class TtkConceptAttributesRevision extends TtkRevision {
+public class TtkConceptAttributesRevision extends TtkRevision implements TtkConceptAttributesVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -42,11 +40,6 @@ public class TtkConceptAttributesRevision extends TtkRevision {
            throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkConceptAttributesRevision(TtkConceptAttributesRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.defined = transformer.transform(another.defined, another, ComponentFields.ATTRIBUTE_DEFINED);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -89,11 +82,6 @@ public class TtkConceptAttributesRevision extends TtkRevision {
    }
 
    @Override
-   public TtkConceptAttributesRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkConceptAttributesRevision(this, transformer);
-   }
-
-   @Override
    public void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super.readExternal(in, dataVersion);
       defined = in.readBoolean();
@@ -128,6 +116,7 @@ public class TtkConceptAttributesRevision extends TtkRevision {
     *
     * @see org.ihtsdo.etypes.I_ConceptualizeExternally#isDefined()
     */
+    @Override
    public boolean isDefined() {
       return defined;
    }

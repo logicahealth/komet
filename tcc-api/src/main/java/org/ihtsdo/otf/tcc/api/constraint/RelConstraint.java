@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.api.constraint;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -57,15 +58,15 @@ public class RelConstraint implements ConstraintBI {
 		return destinationSpec;
 	}
 
-	public ConceptVersionBI getOrigin(ViewCoordinate c) throws IOException {
+	public ConceptSnapshot getOrigin(ViewCoordinate c) throws IOException {
 		return originSpec.getStrict(c);
 	}
 
-	public ConceptVersionBI getRelType(ViewCoordinate c) throws IOException {
+	public ConceptSnapshot getRelType(ViewCoordinate c) throws IOException {
 		return relTypeSpec.getStrict(c);
 	}
 
-	public ConceptVersionBI getDestination(ViewCoordinate c) throws IOException {
+	public ConceptSnapshot getDestination(ViewCoordinate c) throws IOException {
 		return destinationSpec.getStrict(c);
 	}
 

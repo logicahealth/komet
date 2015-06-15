@@ -1,7 +1,15 @@
 package org.ihtsdo.otf.tcc.dto.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.model.ObjectChronicleImpl;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
@@ -33,8 +41,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_int.TtkRefexUu
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexUuidUuidUuidLongMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.DataInput;
@@ -42,8 +48,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.xml.bind.annotation.*;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
@@ -53,6 +58,7 @@ import org.ihtsdo.otf.tcc.dto.ListCompareHelper;
  * Class description
  *
  *
+ * @param <R>
  * @param <V>
  *
  * @version Enter version here..., 13/03/27
@@ -60,7 +66,9 @@ import org.ihtsdo.otf.tcc.dto.ListCompareHelper;
  */
 @XmlRootElement()
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRevision {
+public abstract class TtkComponentChronicle<R extends TtkRevision, V extends StampedVersion> 
+    extends TtkRevision
+    implements ObjectChronology<V>,  StampedVersion {
 
     /**
      * Field description
@@ -99,7 +107,7 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
      */
     @XmlElementWrapper(name = "revisions")
     @XmlElement(name = "revision")
-    public List<V> revisions;
+    public List<R> revisions;
 
     /**
      * Constructs ...
@@ -134,10 +142,10 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
         this.primordialUuid = another.getPrimordialUuid();
     }
 
-    public TtkComponentChronicle(ObjectChronicleImpl<?> another) {
-        super(another.getVersions().get(0));
+    public TtkComponentChronicle(ObjectChronologyImpl<?> another) {
+        super(another.getVersionList().get(0));
         try {
-            List<UUID> allUuids = another.getUUIDs();
+            List<UUID> allUuids = another.getUuidList();
             if (allUuids.size() > 1) {
                 this.additionalIds = new ArrayList<>(allUuids.size() - 1);
                 for (int i = 1; i < allUuids.size(); i++) {
@@ -168,52 +176,6 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
         readExternal(in, dataVersion);
     }
 
-    /**
-     * Constructs ...
-     *
-     *
-     * @param another
-     * @param transformer
-     */
-    public TtkComponentChronicle(TtkComponentChronicle<V> another, ComponentTransformerBI transformer) {
-        super(another, transformer);
-
-        if (another.additionalIds != null) {
-            this.additionalIds = new ArrayList<>(another.additionalIds.size());
-
-            for (TtkIdentifier id : another.additionalIds) {
-                this.additionalIds.add((TtkIdentifier) id.makeTransform(transformer));
-            }
-        }
-
-        if (another.annotations != null) {
-            this.annotations = new ArrayList<>(another.annotations.size());
-
-            for (TtkRefexAbstractMemberChronicle<?> r : another.annotations) {
-                this.annotations.add((TtkRefexAbstractMemberChronicle<?>) r.makeTransform(transformer));
-            }
-        }
-
-        if (another.annotationsDynamic != null) {
-            this.annotationsDynamic = new ArrayList<>(another.annotations.size());
-
-            for (TtkRefexDynamicMemberChronicle r : another.annotationsDynamic) {
-                this.annotationsDynamic.add((TtkRefexDynamicMemberChronicle) r.makeTransform(transformer));
-            }
-        }
-
-        this.primordialUuid = transformer.transform(another.primordialUuid, another,
-                ComponentFields.PRIMORDIAL_UUID);
-
-        if (another.revisions != null) {
-            this.revisions = new ArrayList<>(another.revisions.size());
-
-            for (V r : another.revisions) {
-                this.revisions.add((V) r.makeTransform(transformer));
-            }
-        }
-    }
-
     public void addStamps(Collection<TtkStamp> stamps) {
         stamps.add(this.getStamp());
         if (revisions != null) {
@@ -240,7 +202,7 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
         }
 
         if (TtkComponentChronicle.class.isAssignableFrom(obj.getClass())) {
-            TtkComponentChronicle<?> another = (TtkComponentChronicle<?>) obj;
+            TtkComponentChronicle<?, ?> another = (TtkComponentChronicle<?, ?>) obj;
 
             // =========================================================
             // Compare properties of 'this' class to the 'another' class
@@ -267,7 +229,7 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
         return false;
     }
 
-    private boolean testIdLists(TtkComponentChronicle<?> thisComponent, TtkComponentChronicle<?> anotherComponent) {
+    private boolean testIdLists(TtkComponentChronicle<?,?> thisComponent, TtkComponentChronicle<?,?> anotherComponent) {
         if (thisComponent.additionalIds == null) {
             thisComponent.additionalIds = new ArrayList<>();
         }
@@ -734,7 +696,7 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
      *
      * @return
      */
-    public List<V> getRevisions() {
+    public List<R> getRevisions() {
         return revisions;
     }
 
@@ -822,7 +784,77 @@ public abstract class TtkComponentChronicle<V extends TtkRevision> extends TtkRe
      *
      * @param revisions
      */
-    public void setRevisions(List<V> revisions) {
+    public void setRevisions(List<R> revisions) {
         this.revisions = revisions;
     }
+
+    @Override
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
+        return RelativePositionCalculator.getCalculator(coordinate).getLatestVersion(this);
+    }
+
+    @Override
+    public List<? extends V> getVersionList() {
+        ArrayList versionList = new ArrayList();
+        versionList.add(this);
+        if (revisions != null) {
+            revisions.stream().forEach((revision) -> versionList.add(revision));
+        }
+        return versionList;
+    }
+
+    @Override
+    public IntStream getVersionStampSequences() {
+        IntStream.Builder builder = IntStream.builder();
+        builder.accept(getStampSequence());
+        if (revisions != null) {
+            revisions.stream().forEach((revision)-> builder.accept(revision.getStampSequence()));
+        }
+        return builder.build();
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public <SV extends SememeVersion> List<? extends SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public String toUserString() {
+        return toString();
+    }
+
+    @Override
+    public int getNid() {
+        return getIdService().getNidForUuids(getPrimordialComponentUuid());
+    }
+
+    @Override
+    public UUID getPrimordialUuid() {
+        return primordialUuid;
+    }
+
+    @Override
+    public List<UUID> getUuidList() {
+        return getUuids();
+    }
+
+    @Override
+    public CommitStates getCommitState() {
+        if (getVersionList().stream().anyMatch((version) -> version.getTime() == Long.MAX_VALUE)) {
+            return CommitStates.UNCOMMITTED;
+        }
+        return CommitStates.COMMITTED;
+    }
+    
+    
 }

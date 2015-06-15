@@ -24,4 +24,5 @@ import gov.vha.isaac.ochre.api.DataTarget;
 public interface LogicalExpression {
     byte[][] getData(DataTarget dataTarget);
     
+    boolean isMeaningful();
 }

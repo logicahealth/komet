@@ -38,5 +38,8 @@ public interface SememeSnapshotService<V extends SememeVersion> {
     
     Stream<LatestVersion<V>> getLatestSememeVersionsForComponentFromAssemblage(int componentNid, int assemblageSequence);
     Stream<LatestVersion<V>> getLatestActiveSememeVersionsForComponentFromAssemblage(int componentNid, int assemblageSequence);
+
+    Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid);
+    Stream<LatestVersion<V>> getLatestActiveDescriptionVersionsForComponent(int componentNid);
     
 }

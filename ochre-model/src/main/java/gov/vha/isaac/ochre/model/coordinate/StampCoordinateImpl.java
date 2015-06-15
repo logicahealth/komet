@@ -75,10 +75,12 @@ public class StampCoordinateImpl implements StampCoordinate {
         if (!Objects.equals(this.stampPosition, other.stampPosition)) {
             return false;
         }
-        if (!Arrays.equals(this.moduleSequences, other.moduleSequences)) {
-            return false;
-        }
-        return true;
+        return Arrays.equals(this.moduleSequences, other.moduleSequences);
+    }
+
+    @Override
+    public String toString() {
+        return "StampCoordinateImpl{" + "stampPrecedence=" + stampPrecedence + ", stampPosition=" + stampPosition + ", moduleSequences=" + Arrays.toString(moduleSequences) + '}';
     }
     
 }

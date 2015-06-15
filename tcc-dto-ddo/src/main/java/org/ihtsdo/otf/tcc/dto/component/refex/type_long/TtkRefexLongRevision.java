@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexLongRevision extends TtkRevision {
    public static final long serialVersionUID = 1;
@@ -39,11 +37,6 @@ public class TtkRefexLongRevision extends TtkRevision {
    public TtkRefexLongRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexLongRevision(TtkRefexLongRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.longValue = transformer.transform(another.longValue, another, ComponentFields.REFEX_LONG1);
    }
 
 
@@ -86,10 +79,6 @@ public class TtkRefexLongRevision extends TtkRevision {
       return false;
    }
 
-   @Override
-   public TtkRefexLongRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexLongRevision(this, transformer);
-   }
 
    @Override
    public void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

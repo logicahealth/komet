@@ -102,7 +102,7 @@ public class ChangeSetLogWriter implements ChangeSetGeneratorBI
 		tempOut.append("\tconcept\t");
 		tempOut.append(change.toString());
 		tempOut.append("\t");
-		tempOut.append(change.getUUIDs().toString());
+		tempOut.append(change.getUuidList().toString());
 		tempOut.append("\n");
 	}
 

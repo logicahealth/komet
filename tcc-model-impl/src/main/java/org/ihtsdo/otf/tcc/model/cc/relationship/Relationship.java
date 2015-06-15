@@ -1,6 +1,9 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
@@ -21,6 +24,8 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
+import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
@@ -478,5 +483,11 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
          modified();
       }
    }
+
+    @Override
+    public Optional<LatestVersion<RelationshipVersionBI<?>>> getLatestVersion(Class<RelationshipVersionBI<?>> type, StampCoordinate coordinate) {
+         return RelativePositionCalculator.getCalculator(coordinate)
+                .getLatestVersion(this);
+     }
 
 }

@@ -13,12 +13,18 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 public interface ComponentChronicleBI<T extends ComponentVersionBI>
         extends ComponentBI, ObjectChronology<T> {
 
+   
     T getVersion(ViewCoordinate c) throws ContradictionException;
 
     Collection<? extends T> getVersions(ViewCoordinate c);
 
+
     @Override
-    List<? extends T> getVersions();
+    default List<? extends T> getVersionList() {
+        return getVersions();
+    }
+    
+    
     
     /**
      * 
@@ -33,5 +39,11 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
     T getPrimordialVersion();
     
     boolean makeAdjudicationAnalogs(EditCoordinate ec, ViewCoordinate vc) throws Exception;
+    
+    int getEnclosingConceptNid();
 
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
+ 
 }

@@ -16,6 +16,8 @@
 package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import java.util.Collection;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -24,5 +26,11 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface PathService {
+
+    //~--- methods -------------------------------------------------------------
     StampPath getStampPath(int stampPathSequence);
+    
+    boolean exists(int pathConceptId);
+    
+    Collection<? extends StampPosition> getOrigins(int stampPathSequence);
 }

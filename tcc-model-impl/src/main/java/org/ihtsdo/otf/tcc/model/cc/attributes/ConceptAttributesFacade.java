@@ -25,4 +25,5 @@ import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 public interface ConceptAttributesFacade extends ConceptAttributeVersionBI {
     void setDefined(boolean defined) throws PropertyVetoException;
     ConceptAttributesRevision makeAnalog(int statusNid, int authorNid, int pathNid, long time);
+    
 }

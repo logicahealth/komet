@@ -16,11 +16,9 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 @XmlRootElement(name="description-revision")
-public class TtkDescriptionRevision extends TtkRevision {
+public class TtkDescriptionRevision extends TtkRevision implements TtkDescriptionVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -51,14 +49,6 @@ public class TtkDescriptionRevision extends TtkRevision {
    public TtkDescriptionRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkDescriptionRevision(TtkDescriptionRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.initialCaseSignificant = transformer.transform(another.initialCaseSignificant, another, ComponentFields.DESCRIPTION_INITIAL_CASE_SIGNIFICANT);
-      this.lang                   = transformer.transform(another.lang, another, ComponentFields.DESCRIPTION_LANGUAGE);
-      this.text                   = transformer.transform(another.text, another, ComponentFields.DESCRIPTION_TEXT);
-      this.typeUuid = transformer.transform(another.typeUuid, another, ComponentFields.DESCRIPTION_TYPE_UUID);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -114,11 +104,6 @@ public class TtkDescriptionRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   @Override
-   public TtkDescriptionRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkDescriptionRevision(this, transformer);
    }
 
    @Override
@@ -195,6 +180,7 @@ public class TtkDescriptionRevision extends TtkRevision {
     *
     * @see org.ihtsdo.etypes.I_DescribeExternally#getLang()
     */
+    @Override
    public String getLang() {
       return lang;
    }
@@ -204,10 +190,12 @@ public class TtkDescriptionRevision extends TtkRevision {
     *
     * @see org.ihtsdo.etypes.I_DescribeExternally#getText()
     */
+    @Override
    public String getText() {
       return text;
    }
 
+    @Override
    public UUID getTypeUuid() {
       return typeUuid;
    }
@@ -217,6 +205,7 @@ public class TtkDescriptionRevision extends TtkRevision {
     *
     * @see org.ihtsdo.etypes.I_DescribeExternally#isInitialCaseSignificant()
     */
+    @Override
    public boolean isInitialCaseSignificant() {
       return initialCaseSignificant;
    }

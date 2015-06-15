@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.api.store;
 
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
@@ -125,7 +126,7 @@ public interface TerminologyDI {
      */
     int loadEconFiles(String... econFileStrings) throws Exception;
 
-    Position newPosition(Path path, long time) throws IOException;
+    Position newPosition(StampPath path, long time) throws IOException;
 
     void removeChangeSetGenerator(String key);
 
@@ -168,13 +169,13 @@ public interface TerminologyDI {
 
     int getModuleNidForStamp(int stamp);
 
-    Path getPath(int pathNid) throws IOException;
+    StampPath getPath(int pathNid) throws IOException;
 
     int getPathNidForStamp(int stamp);
 
-    Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
+    Set<StampPath> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
 
-    Set<Path> getPathSetFromStampSet(Set<Integer> stamp) throws IOException;
+    Set<StampPath> getPathSetFromStampSet(Set<Integer> stamp) throws IOException;
 
     Set<Position> getPositionSet(Set<Integer> stamp) throws IOException;
 

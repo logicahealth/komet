@@ -90,7 +90,7 @@ public interface CommitService {
     
     boolean isUncommitted(int stampSequence);
     
-    int getStamp(State status, long time, 
+    int getStampSequence(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);
     
     String describeStampSequence(int stampSequence);
@@ -100,6 +100,16 @@ public interface CommitService {
     default Instant getInstantForStamp(int stampSequence) {
        return Instant.ofEpochMilli(getTimeForStamp(stampSequence));
     }
+
+    /**
+     * Use to compare if versions may be unnecessary duplicates. If their
+     * content is equal, see if their stampSequences indicate a semantic difference
+     * (change in status, module, or path). 
+     * @param stampSequence1
+     * @param stampSequence2
+     * @return true if stampSequences are equal without considering the author and time. 
+     */
+    boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2);
 
     
 }

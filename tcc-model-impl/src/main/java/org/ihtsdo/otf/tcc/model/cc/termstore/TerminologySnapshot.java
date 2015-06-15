@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentContainerBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -49,7 +50,7 @@ import java.util.stream.Stream;
 import javafx.concurrent.Task;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
+import gov.vha.isaac.ochre.util.UuidFactory;
 
 /**
  * Class description
@@ -420,7 +421,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Position newPosition(Path path, long time) throws IOException {
+   public Position newPosition(StampPath path, long time) throws IOException {
       return store.newPosition(path, time);
    }
 
@@ -851,7 +852,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Path getPath(int pathNid) throws IOException {
+   public StampPath getPath(int pathNid) throws IOException {
       return store.getPath(pathNid);
    }
 
@@ -879,7 +880,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
+   public Set<StampPath> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
       return store.getPathSetFromPositionSet(positions);
    }
 
@@ -894,7 +895,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<Path> getPathSetFromStampSet(Set<Integer> sapNids) throws IOException {
+   public Set<StampPath> getPathSetFromStampSet(Set<Integer> sapNids) throws IOException {
       return store.getPathSetFromStampSet(sapNids);
    }
 

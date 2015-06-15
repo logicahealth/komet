@@ -28,9 +28,4 @@ public interface IdentifiedObjectUniversal extends CommittableComponent {
     
     List<UUID> getUuidList();
 
-    @Deprecated
-    default public List<UUID> getUUIDs() {
-        return getUuidList();
-    }
-
 }

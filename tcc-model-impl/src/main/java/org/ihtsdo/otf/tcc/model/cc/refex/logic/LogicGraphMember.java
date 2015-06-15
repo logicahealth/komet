@@ -20,7 +20,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;

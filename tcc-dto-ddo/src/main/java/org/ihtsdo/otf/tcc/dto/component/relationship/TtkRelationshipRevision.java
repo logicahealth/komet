@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.tcc.dto.component.relationship;
+  package org.ihtsdo.otf.tcc.dto.component.relationship;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -19,11 +19,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 @XmlRootElement(name="relationship-revision")
-public class TtkRelationshipRevision extends TtkRevision {
+public class TtkRelationshipRevision extends TtkRevision implements TtkRelationshipVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -57,16 +55,6 @@ public class TtkRelationshipRevision extends TtkRevision {
       super();
       readExternal(in, dataVersion);
    }
-
-   public TtkRelationshipRevision(TtkRelationshipRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer); 
-
-         this.characteristicUuid = transformer.transform(another.characteristicUuid, another, ComponentFields.RELATIONSHIP_CHARACTERISTIC_UUID);
-         this.refinabilityUuid   = transformer.transform(another.refinabilityUuid, another, ComponentFields.RELATIONSHIP_REFINABILITY_UUID);
-         this.group           = transformer.transform(another.group, another, ComponentFields.RELATIONSHIP_GROUP);
-         this.typeUuid           = transformer.transform(another.typeUuid, another, ComponentFields.RELATIONSHIP_TYPE_UUID);
-   }
-
    //~--- methods -------------------------------------------------------------
    @Override
    protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
@@ -123,11 +111,6 @@ public class TtkRelationshipRevision extends TtkRevision {
    }
 
    @Override
-   public TtkRelationshipRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRelationshipRevision(this, transformer);
-   }
-
-   @Override
    public void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super.readExternal(in, dataVersion);
       characteristicUuid = new UUID(in.readLong(), in.readLong());
@@ -175,22 +158,27 @@ public class TtkRelationshipRevision extends TtkRevision {
 
    //~--- get methods ---------------------------------------------------------
 
+    @Override
    public UUID getCharacteristicUuid() {
       return characteristicUuid;
    }
 
+    @Override
    public int getGroup() {
       return group;
    }
 
+    @Override
    public int getRelGroup() {
       return group;
    }
 
+    @Override
    public UUID getRefinabilityUuid() {
       return refinabilityUuid;
    }
 
+    @Override
    public UUID getTypeUuid() {
       return typeUuid;
    }

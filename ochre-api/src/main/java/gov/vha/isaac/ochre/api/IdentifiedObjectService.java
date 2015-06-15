@@ -15,7 +15,8 @@
  */
 package gov.vha.isaac.ochre.api;
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import java.util.Optional;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -26,7 +27,7 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface IdentifiedObjectService {
     
-    Optional<IdentifiedObjectLocal> getIdentifiedObject(int nid);
+    Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid);
     
     CharSequence informAboutObject(int nid);
 }

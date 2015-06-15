@@ -16,7 +16,8 @@
 package gov.vha.isaac.ochre.api.observable.sememe;
 
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeObject;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableSememeVersion;
@@ -28,7 +29,7 @@ import javafx.beans.property.IntegerProperty;
  * @param <V>
  */
 public interface ObservableSememeChronology<V extends ObservableSememeVersion> 
-    extends ObservableChronology<V>, SememeChronology<V> {
+    extends ObservableChronology<V>, SememeObject {
     
     IntegerProperty sememeSequenceProperty();
     
@@ -36,11 +37,30 @@ public interface ObservableSememeChronology<V extends ObservableSememeVersion>
     
     IntegerProperty referencedComponentNidProperty();
 
-    @Override
-    <M extends V> M createMutableUncommittedVersion(Class<M> type, State status, EditCoordinate ec);
+
+    /**
+     * Create a mutable version with Long.MAX_VALUE as the time, indicating
+     * the version is uncommitted. It is the responsibility of the caller to
+     * add the mutable version to the commit manager when changes are complete
+     * prior to committing the component. 
+     * @param <M>
+     * @param type SememeVersion type
+     * @param state state of the created mutable version 
+     * @param ec edit coordinate to provide the author, module, and path for the mutable version
+     * @return the mutable version
+     */
+    <M extends V> M createMutableVersion(Class<M> type, State state, EditCoordinate ec);
     
-    @Override
-    <M extends V> M createMutableStampedVersion(Class<M> type, int stampSequence);
+    /**
+     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
+     * add persist the chronicle when changes to the mutable version are complete . 
+     * @param <M>
+     * @param type SememeVersion type
+     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version. 
+     * @return the mutable version
+     */
+    <M extends V> M createMutableVersion(Class<M> type, int stampSequence);
     
+    SememeType getSememeType();
     
 }

@@ -25,7 +25,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * The Class MediaCAB contains methods for creating a media blueprint. This

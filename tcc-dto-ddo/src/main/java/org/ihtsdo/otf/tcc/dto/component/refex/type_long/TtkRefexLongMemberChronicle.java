@@ -5,7 +5,6 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_long;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 
@@ -17,8 +16,6 @@ import java.io.IOException;
 
 import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexLongMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexLongRevision> {
    public static final long serialVersionUID = 1;
@@ -57,11 +54,6 @@ public class TtkRefexLongMemberChronicle extends TtkRefexAbstractMemberChronicle
    public TtkRefexLongMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexLongMemberChronicle(TtkRefexLongMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.long1 = transformer.transform(another.long1, another, ComponentFields.REFEX_LONG1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -112,11 +104,6 @@ public class TtkRefexLongMemberChronicle extends TtkRefexAbstractMemberChronicle
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexLongMemberChronicle(this, transformer);
    }
 
    @Override

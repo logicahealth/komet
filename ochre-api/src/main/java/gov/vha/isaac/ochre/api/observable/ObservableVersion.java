@@ -42,4 +42,6 @@ public interface ObservableVersion extends MutableStampedVersion {
     
     ObjectProperty<CommitStates> commitStateProperty();
     
+    ObservableChronology<? extends ObservableVersion> getChronology();
+    
 }

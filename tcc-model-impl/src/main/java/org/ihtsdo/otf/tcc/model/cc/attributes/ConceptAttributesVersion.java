@@ -16,15 +16,19 @@
 
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
@@ -131,5 +135,19 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
         buf.append(" -defined: ").append(getCv().isDefined());
         return buf.toString();
     }
+    @Override
+    public int getEnclosingConceptNid() {
+       return getCv().getEnclosingConceptNid();
+    }    
     
+        @Override
+    public int getAssociatedConceptNid() {
+       return getEnclosingConceptNid();
+    }
+    
+    @Override
+    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate coordinate) {
+       return getCv().getLatestVersion(type, coordinate);
+    }
+
 }

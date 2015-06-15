@@ -18,6 +18,9 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -44,6 +48,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
@@ -566,4 +571,13 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
         temp[columnNumber] = data;
         modified();
     }
+
+    @Override
+    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate coordinate) {
+        return RelativePositionCalculator.getCalculator(coordinate)
+                .getLatestVersion(this);
+ 
+    }
+    
+    
 }

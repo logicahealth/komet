@@ -4,7 +4,6 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_int;
 
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_int.RefexNidIntVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 
@@ -19,8 +18,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexUuidIntMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexUuidIntRevision> {
    public static final long serialVersionUID = 1;
@@ -64,12 +61,6 @@ public class TtkRefexUuidIntMemberChronicle extends TtkRefexAbstractMemberChroni
    public TtkRefexUuidIntMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexUuidIntMemberChronicle(TtkRefexUuidIntMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1 = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.int1 = transformer.transform(another.int1, another, ComponentFields.REFEX_INTEGER1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -124,11 +115,6 @@ public class TtkRefexUuidIntMemberChronicle extends TtkRefexAbstractMemberChroni
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexUuidIntMemberChronicle(this, transformer);
    }
 
    @Override

@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.api.classifier;
 
-import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;

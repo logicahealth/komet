@@ -15,15 +15,31 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.LanguageCoordinateService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
  * @author kec
  */
 public class LanguageCoordinateImpl implements LanguageCoordinate {
-    
+
+    private static LanguageCoordinateService languageCoordinateService;
+
+    private static LanguageCoordinateService getLanguageCoordinateService() {
+        if (languageCoordinateService == null) {
+            languageCoordinateService = LookupService.getService(LanguageCoordinateService.class);
+        }
+        return languageCoordinateService;
+    }
     int languageConceptSequence;
     int[] dialectAssemblagePreferenceList;
     int[] descriptionTypePreferenceList;
@@ -33,8 +49,6 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
         this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
         this.descriptionTypePreferenceList = descriptionTypePreferenceList;
     }
-    
-    
 
     @Override
     public int getLanugageConceptSequence() {
@@ -74,10 +88,21 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
         if (!Arrays.equals(this.dialectAssemblagePreferenceList, other.dialectAssemblagePreferenceList)) {
             return false;
         }
-        if (!Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList)) {
-            return false;
-        }
-        return true;
+        return Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList);
     }
-    
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(
+            List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
+                getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
+    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(
+            List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
+                getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
 }

@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.model.cc.media;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.io.IOException;
 
 
@@ -17,6 +19,7 @@ import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
@@ -243,4 +246,9 @@ public class MediaRevision extends Revision<MediaRevision, Media>
       this.typeNid = type;
       modified();
    }
+
+    @Override
+    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate coordinate) {
+        return this.primordialComponent.getLatestVersion(type, coordinate);
+    }
 }

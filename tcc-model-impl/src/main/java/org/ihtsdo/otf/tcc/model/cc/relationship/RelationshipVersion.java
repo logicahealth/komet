@@ -16,10 +16,13 @@
 
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -29,6 +32,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -186,6 +190,11 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     @Override
     public void setTypeNid(int typeNid) throws PropertyVetoException {
         getCv().setTypeNid(typeNid);
+    }
+
+    @Override
+    public Optional<LatestVersion<RelationshipVersionBI<?>>> getLatestVersion(Class<RelationshipVersionBI<?>> type, StampCoordinate coordinate) {
+        return getCv().getLatestVersion(type, coordinate);
     }
     
 }

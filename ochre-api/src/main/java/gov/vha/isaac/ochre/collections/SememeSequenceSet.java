@@ -38,8 +38,12 @@ public class SememeSequenceSet extends SequenceSet {
         return new SememeSequenceSet(members.stream().mapToInt((i) -> i));
     }
     
+    public static SememeSequenceSet ofAllSememeSequences() {
+        return new SememeSequenceSet(getIdentifierService().getSememeSequenceStream());
+    }
+    
     public static SememeSequenceSet of(NidSet sememeNidSet) {
-        IdentifierService sp = getSequenceProvider();
+        IdentifierService sp = getIdentifierService();
         return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
     }
     

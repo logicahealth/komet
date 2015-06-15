@@ -5,21 +5,84 @@
  */
 package gov.vha.isaac.ochre.api.component.concept;
 
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescription;
-import gov.vha.isaac.ochre.api.component.concept.description.ConceptDescriptionChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
  * @author kec
  * @param <V>
-  */
-public interface ConceptChronology<V extends StampedVersion> extends ObjectChronology<V> {
+ */
+public interface ConceptChronology<V extends ConceptVersion>
+    extends ObjectChronology<V> {
     
+    /**
+     * 
+     * @return the sequence of this concept. A contiguously assigned identifier for
+     * concepts >= 0;
+     */
     int getConceptSequence();
     
-    List<? extends ConceptDescriptionChronology<? extends ConceptDescription>> getConceptDescriptionList();
+    /**
+     * Create a mutable version with Long.MAX_VALUE as the time, indicating
+     * the version is uncommitted. It is the responsibility of the caller to
+     * add the mutable version to the commit manager when changes are complete
+     * prior to committing the component. 
+     * @param state state of the created mutable version
+     * @param ec edit coordinate to provide the author, module, and path for the mutable version
+     * @return the mutable version
+     */
+    V createMutableVersion(State state, EditCoordinate ec);
+    
+    /**
+     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
+     * add persist the chronicle when changes to the mutable version are complete . 
+     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
+     * @return the mutable version
+     */
+     V createMutableVersion(int stampSequence);
+    
+    /**
+     * A test for validating that a concept contains a description. Used
+     * to validate concept proxies or concept specs at runtime.
+     * @param descriptionText text to match against. 
+     * @return true if any version of a description matches this text. 
+     */
+    boolean containsDescription(String descriptionText);
+
+    /**
+     * A test for validating that a concept contains an active description. Used
+     * to validate concept proxies or concept specs at runtime.
+     * @param descriptionText text to match against. 
+     * @param stampCoordinate coordinate to determine if description is active. 
+     * @return true if any version of a description matches this text. 
+     */
+    boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
+        
+    List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList();
+    
+    Optional<LatestVersion<DescriptionSememe>> 
+        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
+    
+    Optional<LatestVersion<DescriptionSememe>> 
+        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
+    
+    /**
+     * 
+     * @return
+     * @deprecated use getNid() instead.
+     */
+    @Deprecated
+    default int getConceptNid() {
+        return getNid();
+    }
 
 }

@@ -21,14 +21,25 @@ import java.time.Instant;
  *
  * @author kec
  */
-public interface StampPosition {
+public interface StampPosition extends Comparable<StampPosition> {
     
     long getTime();
     
     int getStampPathSequence();
+    
+    StampPath getStampPath();
 
     default Instant getTimeAsInstant() {
        return Instant.ofEpochMilli(getTime());
     }
+    @Override
+    default int compareTo(StampPosition o) {
+        int comparison = Long.compare(this.getTime(), o.getTime());
+        if (comparison != 0) {
+            return comparison;
+        }
+        return Integer.compare(this.getStampPathSequence(), o.getStampPathSequence());
+    }
+    
     
 }

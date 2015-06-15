@@ -16,10 +16,20 @@
 
 package org.ihtsdo.otf.tcc.model.cc.description;
 
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LanguageCoordinateService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -29,12 +39,30 @@ import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
+import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
 
 public class DescriptionVersion extends Version<DescriptionRevision, Description> implements DescriptionAnalogBI<DescriptionRevision>, TypedComponentVersionBI {
- 
+    
+    private static IdentifierService identfierService;
+    protected static IdentifierService getIdentifierService() {
+        if (identfierService == null) {
+            identfierService = LookupService.getService(IdentifierService.class);
+        }
+        return identfierService;
+    }
+    
+    private static LanguageCoordinateService languageCoordinateService;
+    protected static LanguageCoordinateService getLanguageCoordinateService() {
+        if (languageCoordinateService == null) {
+            languageCoordinateService = LookupService.getService(LanguageCoordinateService.class);
+        }
+        return languageCoordinateService;
+    }
+    
+    
     public DescriptionVersion(){}
     
     public DescriptionVersion(DescriptionAnalogBI<DescriptionRevision> cv, Description d, int stamp) {
@@ -157,5 +185,60 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
     public boolean matches(Pattern p) {
         return getCv().matches(p);
     }
-    
+
+    @Override
+    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
+        return getCv().getLatestActiveVersion(type, coordinate);
+    }
+
+    @Override
+    public <M extends DescriptionVersionBI> M createMutableVersion(Class<M> type, State state, EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <M extends DescriptionVersionBI> M createMutableVersion(Class<M> type, int stampSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SememeType getSememeType() {
+        return SememeType.DESCRIPTION;
+    }
+
+    @Override
+    public int getSememeSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getReferencedComponentNid() {
+        return getConceptNid();
+    }
+
+    @Override
+    public int getCaseSignificanceConceptSequence() {
+        return getIdentifierService().getConceptSequence(
+                getLanguageCoordinateService().caseSignificanceToConceptSequence(isInitialCaseSignificant()));
+    }
+
+    @Override
+    public int getLanguageConceptSequence() {
+        return getLanguageCoordinateService().iso639toConceptSequence(getLang());
+    }
+
+    @Override
+    public int getDescriptionTypeConceptSequence() {
+        return getIdentifierService().getConceptSequence(getTypeNid());
+    }
+
+    @Override
+    public SememeChronology getChronology() {
+        return (Description) cc;
+    }    
 }

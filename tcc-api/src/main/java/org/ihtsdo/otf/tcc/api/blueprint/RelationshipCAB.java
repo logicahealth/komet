@@ -26,7 +26,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * The Class RelationshipCAB contains methods for creating a relationship
@@ -492,4 +492,7 @@ public class RelationshipCAB extends CreateOrAmendBlueprint {
         }
         return true;
     }
+    
+
+
 }

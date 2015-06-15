@@ -15,13 +15,19 @@
  */
 package gov.vha.isaac.ochre.api.observable.sememe.version;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeObject;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
+import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
 
 /**
  *
  * @author kec
+ * @param <V>
  */
-public interface ObservableSememeVersion extends ObservableVersion, SememeVersion {
-    
+public interface ObservableSememeVersion<V extends ObservableSememeVersion> 
+    extends ObservableVersion, SememeObject {
+
+    @Override
+    ObservableSememeChronology<V> getChronology();
+
 }

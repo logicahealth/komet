@@ -21,12 +21,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 /**
  * The Class TkRefexArrayOfByteArrayRevision represents a version of an array of
@@ -88,25 +85,6 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
         readExternal(in, dataVersion);
     }
 
-    /**
-     * Instantiates a new TK Refex Array of Byte Array Revision based on
-     * {@code another} TK Refex Array of Byte Array Revision and allows for
-     * uuid conversion.
-     *
-     * @param another the TK Refex Array of Byte Array Revision specifying how to
-     * construct this TK Refex Array of Byte Array Revision
-     * @param conversionMap the map for converting from one set of uuids to
-     * another
-     * @param offset the offset to be applied to the time associated with this
-     * TK Refex Array of Byte Array Member
-     * @param mapAll set to {@code true} to map all the uuids in this TK
-     * Refex Array of Byte Array Revision based on the conversion map
-     */
-    public TtkRefexArrayOfByteArrayRevision(TtkRefexArrayOfByteArrayRevision another, ComponentTransformerBI transformer) {
-        super(another, transformer);
-        this.arrayOfByteArray1 = transformer.transform(another.arrayOfByteArray1, another, ComponentFields.REFEX_ARRAY_OF_BYTEARRAY);
-    }
-
     //~--- methods -------------------------------------------------------------
     @Override
     protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
@@ -153,21 +131,6 @@ public class TtkRefexArrayOfByteArrayRevision extends TtkRevision {
     @Override
     public int hashCode() {
         return super.hashCode();
-    }
-
-    /**
-     *
-     * @param conversionMap the map for converting from one set of uuids to
-     * another
-     * @param offset the offset to be applied to the time associated with this
-     * TK Refex Array of Byte Array Revision
-     * @param mapAll set to {@code true} to map all the uuids in this TK
-     * Refex Array of Bytearray Revision based on the conversion map
-     * @return the converted TK Refex Array of Byte Array Revision
-     */
-    @Override
-    public TtkRefexArrayOfByteArrayRevision makeTransform(ComponentTransformerBI transformer) {
-        return new TtkRefexArrayOfByteArrayRevision(this, transformer);
     }
 
     /**

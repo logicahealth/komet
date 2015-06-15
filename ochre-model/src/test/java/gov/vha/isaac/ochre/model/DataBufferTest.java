@@ -368,5 +368,23 @@ public class DataBufferTest {
         String result = instance.readUTF();
         assertEquals(str, result);
     }
-    
+    @Test
+    public void testEdgeUTF() {
+        System.out.println("readUTF");
+        String str = "is-a";
+        DataBuffer instance = new DataBuffer(10);
+        instance.putShort((short) 4);
+        instance.putInt(13);
+        instance.putInt(16);
+        instance.putUTF(str);
+        instance.putInt(11);
+        instance.reset();
+        assertEquals(4, instance.getShort());
+        assertEquals(13, instance.getInt());
+        assertEquals(16, instance.getInt());
+        String result = instance.readUTF();
+        assertEquals(str, result);
+        assertEquals(11, instance.getInt());
+    }
+  
 }

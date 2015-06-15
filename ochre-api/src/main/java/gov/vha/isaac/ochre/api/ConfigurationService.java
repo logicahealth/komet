@@ -37,6 +37,20 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface ConfigurationService
 {
+    
+        /**
+         * The default {@code ConceptModel} is {@code ConceptModel.OTF_CONCEPT_MODEL}
+         * @return the {@code ConceptModel} the database shall use. 
+         */
+        ConceptModel getConceptModel();
+        
+        /**
+         * Set an alternative {@code ConceptModel}. Must be set prior to 
+         * loading the database from sources. 
+         * @param model {@code ConceptModel} the database shall use.
+         */
+        void setConceptModel(ConceptModel model);
+        
 	/**
 	 * @return The root folder of the database - this method returns a value the returned path should contain subfolders
 	 * of {@link Constants#DEFAULT_CHRONICLE_FOLDER} and {@link Constants#DEFAULT_SEARCH_FOLDER}.

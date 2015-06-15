@@ -1,7 +1,11 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
 //import org.dwfa.ace.api.I_IntSet;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -30,6 +34,8 @@ import java.util.*;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 
 public abstract class RefexMember<R extends RefexRevision<R, C>, C extends RefexMember<R, C>>
         extends ConceptComponent<R, C> implements RefexChronicleBI<R>, RefexAnalogBI<R>, SememeVersion {
@@ -374,6 +380,17 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     @Override
     public int getAssemblageSequence() {
         return getIdService().getConceptSequence(assemblageNid);
+    }
+
+    @Override
+    public Optional<LatestVersion<RefexVersionBI<R>>> getLatestVersion(Class<RefexVersionBI<R>> type, StampCoordinate coordinate) {
+         return RelativePositionCalculator.getCalculator(coordinate)
+                .getLatestVersion(this);
+    }
+
+    @Override
+    public SememeChronology getChronology() {
+        throw new UnsupportedOperationException("For OCHRE implementation only. ");
     }
 
 }

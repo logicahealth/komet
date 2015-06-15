@@ -1,6 +1,13 @@
 package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.io.IOException;
 
 import java.util.*;
@@ -19,14 +26,18 @@ import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
+import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
+import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getIdentifierService;
+import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getLanguageCoordinateService;
 import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 public class Description extends ConceptComponent<DescriptionRevision, Description>
@@ -397,5 +408,63 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
         this.typeNid = typeNid;
         modified();
     }
+
+    @Override
+    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
+         return RelativePositionCalculator.getCalculator(coordinate)
+                .getLatestVersion(this);
+    }
+
+    @Override
+    public <M extends DescriptionVersionBI> M createMutableVersion(Class<M> type, State state, EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <M extends DescriptionVersionBI> M createMutableVersion(Class<M> type, int stampSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SememeType getSememeType() {
+        return SememeType.DESCRIPTION;
+    }
+
+    @Override
+    public int getSememeSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getReferencedComponentNid() {
+        return getConceptNid();
+    }
+
+    @Override
+    public int getCaseSignificanceConceptSequence() {
+        return getIdentifierService().getConceptSequence(
+                getLanguageCoordinateService().caseSignificanceToConceptSequence(isInitialCaseSignificant()));
+    }
+
+    @Override
+    public int getLanguageConceptSequence() {
+        return getLanguageCoordinateService().iso639toConceptSequence(getLang());
+    }
+
+    @Override
+    public int getDescriptionTypeConceptSequence() {
+        return getIdentifierService().getConceptSequence(getTypeNid());
+    }
+
+    @Override
+    public SememeChronology getChronology() {
+        return this;
+    }
+
 
 }

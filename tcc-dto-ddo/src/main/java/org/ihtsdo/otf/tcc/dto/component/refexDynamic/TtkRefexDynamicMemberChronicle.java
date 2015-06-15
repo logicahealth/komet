@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.dto.component.refexDynamic;
 
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -17,12 +18,10 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
-public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRefexDynamicRevision>
+public class TtkRefexDynamicMemberChronicle extends 
+        TtkComponentChronicle<TtkRefexDynamicRevision, StampedVersion>
 {
 	public static final long serialVersionUID = 1;
 
@@ -112,27 +111,6 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 	{
 		super();
 		readExternal(in, dataVersion);
-	}
-
-	public TtkRefexDynamicMemberChronicle(TtkRefexDynamicMemberChronicle another, ComponentTransformerBI transformer)
-	{
-		super(another, transformer);
-
-		this.componentUuid = transformer.transform(another.componentUuid, another, ComponentFields.REFEX_REFERENCED_COMPONENT_UUID);
-		this.refexAssemblageUuid = transformer.transform(another.refexAssemblageUuid, another, ComponentFields.ASSEMBLAGE_UUID);
-		//TODO (artf231854) [REFEX] do I need a transformer?
-		this.data_ = new TtkRefexDynamicData[another.getData().length];
-		for (int i = 0; i < data_.length; i++)
-		{
-			if (another.getData()[i] == null)
-			{
-				data_[i] = null;
-			}
-			else
-			{
-				data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getRefexDataType(), another.getData()[i].getData());
-			}
-		}
 	}
 
 	/**
@@ -306,12 +284,6 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 			return super.equals(obj);
 		}
 		return false;
-	}
-
-	@Override
-	public TtkRevision makeTransform(ComponentTransformerBI transformer)
-	{
-		return new TtkRefexDynamicMemberChronicle(this, transformer);
 	}
 
 	/**

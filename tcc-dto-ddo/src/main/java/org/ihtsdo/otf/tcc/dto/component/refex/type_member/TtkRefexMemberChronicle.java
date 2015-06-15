@@ -3,7 +3,6 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_member;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 
@@ -15,8 +14,6 @@ import java.io.IOException;
 
 import java.util.*;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexRevision> {
    public static final long serialVersionUID = 1;
@@ -47,10 +44,6 @@ public class TtkRefexMemberChronicle extends TtkRefexAbstractMemberChronicle<Ttk
             revisions.add(new TtkRefexRevision(rv));
          }
       }
-   }
-
-   public TtkRefexMemberChronicle(TtkRefexMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -97,10 +90,6 @@ public class TtkRefexMemberChronicle extends TtkRefexAbstractMemberChronicle<Ttk
       return this.primordialUuid.hashCode();
    }
 
-   @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexMemberChronicle(this, transformer);
-   }
 
    @Override
    public void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

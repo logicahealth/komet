@@ -9,4 +9,7 @@ public interface ConceptAttributeAnalogBI<A extends ConceptAttributeAnalogBI>
 	
     public void setDefined(boolean defined) throws PropertyVetoException;
 
+    default int getConceptNid() {
+        return getNid();
+    }
 }

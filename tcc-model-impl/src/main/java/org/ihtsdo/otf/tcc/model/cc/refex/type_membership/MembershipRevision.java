@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
@@ -134,4 +135,5 @@ public class MembershipRevision extends RefexRevision<MembershipRevision, Member
    public Collection<? extends RefexVersionBI<MembershipRevision>> getVersions(ViewCoordinate c) {
       return ((MembershipMember) primordialComponent).getVersions(c);
    }
+
 }

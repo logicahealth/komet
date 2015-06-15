@@ -15,8 +15,10 @@
  */
 package gov.vha.isaac.ochre.api.snapshot.calculator;
 
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
@@ -24,9 +26,11 @@ import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
+import gov.vha.isaac.ochre.api.observable.ObservableChronology;
+import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,9 +55,20 @@ public class RelativePositionCalculator {
 
     private static PathService pathService = null;
     
+    private static IdentifierService identifierService;
+    private static IdentifierService getIdentifierService() {
+        if (identifierService == null) {
+            identifierService = LookupService.getService(IdentifierService.class);
+        }
+        return identifierService;
+    }
+    
     private static PathService getPathService() {
         if (pathService == null) {
             pathService = LookupService.getService(PathService.class);
+            if (pathService == null) {
+                throw new RuntimeException("PathService not found.");
+            }
         }
         return pathService;
     }
@@ -92,11 +108,11 @@ public class RelativePositionCalculator {
      * There is one entry for each path reachable antecedent to the destination 
      * position of the computer. 
      */
-    OpenIntObjectHashMap<Segment> pathNidSegmentMap;
+    OpenIntObjectHashMap<Segment> pathSequenceSegmentMap;
 
     public RelativePositionCalculator(StampCoordinate coordinate) {
         this.coordinate = coordinate;
-        this.pathNidSegmentMap = setupPathNidSegmentMap(coordinate.getStampPosition());
+        this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
     }
 
     private static class Segment {
@@ -122,7 +138,7 @@ public class RelativePositionCalculator {
         
         RoaringBitmap precedingSegments;
 
-        public Segment(int segmentSequence, int pathConceptSequence, long endTime, RoaringBitmap precedingSegments) {
+        private Segment(int segmentSequence, int pathConceptSequence, long endTime, RoaringBitmap precedingSegments) {
             this.segmentSequence = segmentSequence;
             this.pathConceptSequence = pathConceptSequence;
             this.endTime = endTime;
@@ -131,7 +147,7 @@ public class RelativePositionCalculator {
         }
 
         // Could check for modules here...
-        public boolean containsPosition(int pathConceptSequence, long time) {
+        private boolean containsPosition(int pathConceptSequence, long time) {
             if (this.pathConceptSequence == pathConceptSequence && time != Long.MIN_VALUE) {
                 return time <= endTime;
             }
@@ -139,8 +155,8 @@ public class RelativePositionCalculator {
         }
     }
 
-    private static OpenIntObjectHashMap<Segment>  setupPathNidSegmentMap(StampPosition destination) {
-        OpenIntObjectHashMap<Segment> pathNidSegmentMap = new OpenIntObjectHashMap<>();
+    private static OpenIntObjectHashMap<Segment>  setupPathSequenceSegmentMap(StampPosition destination) {
+        OpenIntObjectHashMap<Segment> pathSequenceSegmentMap = new OpenIntObjectHashMap<>();
         AtomicInteger segmentSequence = new AtomicInteger(0);
         
         // the sequence of the preceding segments is set in the recursive 
@@ -148,30 +164,32 @@ public class RelativePositionCalculator {
         RoaringBitmap precedingSegments = new RoaringBitmap();
         
         // call to recursive method...
-        addOriginsToPathNidSegmentMap(destination, pathNidSegmentMap, segmentSequence, precedingSegments);
+        addOriginsToPathSequenceSegmentMap(destination, pathSequenceSegmentMap, segmentSequence, precedingSegments);
 
-        return pathNidSegmentMap;
+        return pathSequenceSegmentMap;
 
     }
 
     // recursively called method
-    private static void addOriginsToPathNidSegmentMap(StampPosition destination,
+    private static void addOriginsToPathSequenceSegmentMap(StampPosition destination,
             OpenIntObjectHashMap<Segment> pathNidSegmentMap, AtomicInteger segmentSequence, RoaringBitmap precedingSegments) {
         Segment segment = new Segment(segmentSequence.getAndIncrement(), destination.getStampPathSequence(),
                 destination.getTime(), precedingSegments);
         // precedingSegments is cumulative, each recursive call adds another
         precedingSegments.add(segment.segmentSequence);
         pathNidSegmentMap.put(destination.getStampPathSequence(), segment);
-        getPathService().getStampPath(destination.getStampPathSequence()).
-                getPathOrigins().stream().forEach((origin) -> {
+        destination.getStampPath()
+                .getPathOrigins()
+                .stream()
+                .forEach((origin) -> {
             // Recursive call
-            addOriginsToPathNidSegmentMap(origin, pathNidSegmentMap, segmentSequence, precedingSegments);
+            addOriginsToPathSequenceSegmentMap(origin, pathNidSegmentMap, segmentSequence, precedingSegments);
         });
     }
 
     public RelativePosition fastRelativePosition(StampedVersion v1, StampedVersion v2, StampPrecedence precedencePolicy) {
         if (v1.getPathSequence() == v2.getPathSequence()) {
-            Segment seg = (Segment) pathNidSegmentMap.get(v1.getPathSequence());
+            Segment seg = (Segment) pathSequenceSegmentMap.get(v1.getPathSequence());
             if (seg.containsPosition(v1.getPathSequence(), v1.getTime())
                     && seg.containsPosition(v2.getPathSequence(), v2.getTime())) {
                 if (v1.getTime() < v2.getTime()) {
@@ -187,8 +205,8 @@ public class RelativePositionCalculator {
             return RelativePosition.UNREACHABLE;
         }
 
-        Segment seg1 = (Segment) pathNidSegmentMap.get(v1.getPathSequence());
-        Segment seg2 = (Segment) pathNidSegmentMap.get(v2.getPathSequence());
+        Segment seg1 = (Segment) pathSequenceSegmentMap.get(v1.getPathSequence());
+        Segment seg2 = (Segment) pathSequenceSegmentMap.get(v2.getPathSequence());
         if (seg1 == null || seg2 == null) {
             return RelativePosition.UNREACHABLE;
         }
@@ -222,7 +240,7 @@ public class RelativePositionCalculator {
         int ss2PathSequence = getCommitService().getPathSequenceForStamp(stampSequence2);
         
         if (ss1PathSequence == ss2PathSequence) {
-            Segment seg = (Segment) pathNidSegmentMap.get(ss1PathSequence);
+            Segment seg = (Segment) pathSequenceSegmentMap.get(ss1PathSequence);
             if (seg.containsPosition(ss1PathSequence, ss1Time)
                     && seg.containsPosition(ss2PathSequence, ss2Time)) {
                 if (ss1Time < ss2Time) {
@@ -238,8 +256,8 @@ public class RelativePositionCalculator {
             return RelativePosition.UNREACHABLE;
         }
 
-        Segment seg1 = (Segment) pathNidSegmentMap.get(ss1PathSequence);
-        Segment seg2 = (Segment) pathNidSegmentMap.get(ss2PathSequence);
+        Segment seg1 = (Segment) pathSequenceSegmentMap.get(ss1PathSequence);
+        Segment seg2 = (Segment) pathSequenceSegmentMap.get(ss2PathSequence);
         if (seg1 == null || seg2 == null) {
             return RelativePosition.UNREACHABLE;
         }
@@ -272,14 +290,14 @@ public class RelativePositionCalculator {
     }
 
     public boolean onRoute(StampedVersion v) {
-        Segment seg = (Segment) pathNidSegmentMap.get(v.getPathSequence());
+        Segment seg = (Segment) pathSequenceSegmentMap.get(v.getPathSequence());
         if (seg != null) {
             return seg.containsPosition(v.getPathSequence(), v.getTime());
         }
         return false;
     }
     public boolean onRoute(int stampSequence) {
-        Segment seg = (Segment) pathNidSegmentMap.get(stampSequence);
+        Segment seg = (Segment) pathSequenceSegmentMap.get(getCommitService().getPathSequenceForStamp(stampSequence));
         if (seg != null) {
             return seg.containsPosition(getCommitService().getPathSequenceForStamp(stampSequence), 
                     getCommitService().getTimeForStamp(stampSequence));
@@ -287,14 +305,14 @@ public class RelativePositionCalculator {
         return false;
     }
 
-    public RelativePosition relativePosition(int v1, int v2) throws IOException {
-        if (!(onRoute(v1) && onRoute(v2))) {
+    public RelativePosition relativePosition(int stampSequence1, int stampSequence2)  {
+        if (!(onRoute(stampSequence1) && onRoute(stampSequence2))) {
             return RelativePosition.UNREACHABLE;
         }
-        return fastRelativePosition(v1, v2, StampPrecedence.PATH);
+        return fastRelativePosition(stampSequence1, stampSequence2, StampPrecedence.PATH);
     }    
     
-    public RelativePosition relativePosition(StampedVersion v1, StampedVersion v2) throws IOException {
+    public RelativePosition relativePosition(StampedVersion v1, StampedVersion v2) {
         if (!(onRoute(v1) && onRoute(v2))) {
             return RelativePosition.UNREACHABLE;
         }
@@ -332,13 +350,51 @@ public class RelativePositionCalculator {
         }
         
     }
+    
+    
+    private class LatestStampResultSupplier implements Supplier<LatestStampResult> {
+        @Override
+        public LatestStampResult get() {
+            return new LatestStampResult();
+        }
+    };
+    
+    private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
+        @Override
+        public StampSequenceSet get() {
+            return new StampSequenceSet();
+        }
+    };
+        
+    public int[] getLatestStamps(IntStream stamps) {
+        StampSequenceSetSupplier supplier = new StampSequenceSetSupplier();
+        LatestPrimitiveStampCollector collector = new LatestPrimitiveStampCollector(this.coordinate);
+        LatestPrimitiveStampCombiner combiner = new LatestPrimitiveStampCombiner(this);
+        StampSequenceSet result = stamps.collect(supplier, 
+                       collector, 
+                       combiner);
+        
+        return result.stream().toArray();
+    }      
 
-    public <V extends StampedVersion> Optional<LatestVersion<V>>
-        getLatestVersion(ObjectChronology<V> chronicle) {
+    /**
+     * 
+     * @param stamps A stream of stamps from which the latest is found, and then
+     * tested to determine if the latest is active. 
+     * @return true if any of the latest stamps (may be multiple in the case of a 
+     * contradiction) are active. 
+     */
+    public boolean isLatestActive(IntStream stamps) {
+        return Arrays.stream(getLatestStamps(stamps)).anyMatch((int stamp) -> 
+                getCommitService().getStatusForStamp(stamp) == State.ACTIVE);
+    }
+    public <C extends ObservableChronology<V>, V extends ObservableVersion> 
+                Optional<LatestVersion<V>>
+        getLatestVersion(C chronicle) {
 
         HashSet<V> latestVersionSet = new HashSet<>();
 
-        chronicle.getVersions().stream().filter((newVersionToTest) -> 
+        chronicle.getVersionList().stream().filter((newVersionToTest) -> 
                 (newVersionToTest.getTime() != Long.MIN_VALUE)).filter(
                         (newVersionToTest) -> (onRoute(newVersionToTest))).forEach((newVersionToTest) -> {
             if (latestVersionSet.isEmpty()) {
@@ -352,11 +408,38 @@ public class RelativePositionCalculator {
             return Optional.empty();
         } 
         if (latestVersionList.size() == 1) {
-            return Optional.of(new LatestVersion(latestVersionList.get(1)));
+            return Optional.of(new LatestVersion(latestVersionList.get(0)));
         }
         
-        return Optional.of(new LatestVersion(latestVersionList.get(1),
-            latestVersionList.subList(2, latestVersionList.size())));
+        return Optional.of(new LatestVersion(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size())));
+    }
+    
+    public <C extends ObjectChronology<V>, V extends StampedVersion> 
+                Optional<LatestVersion<V>>
+        getLatestVersion(C chronicle) {
+
+        HashSet<V> latestVersionSet = new HashSet<>();
+
+        chronicle.getVersionList().stream().filter((newVersionToTest) -> 
+                (newVersionToTest.getTime() != Long.MIN_VALUE)).filter(
+                        (newVersionToTest) -> (onRoute(newVersionToTest))).forEach((newVersionToTest) -> {
+            if (latestVersionSet.isEmpty()) {
+                latestVersionSet.add(newVersionToTest);
+            } else {
+                handlePart(latestVersionSet, newVersionToTest);
+            }
+        });
+        List<V> latestVersionList =  new ArrayList<>(latestVersionSet);
+        if (latestVersionList.isEmpty()) {
+            return Optional.empty();
+        } 
+        if (latestVersionList.size() == 1) {
+            return Optional.of(new LatestVersion(latestVersionList.get(0)));
+        }
+        
+        return Optional.of(new LatestVersion(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size())));
     }
 
     private int errorCount = 0;
@@ -390,8 +473,8 @@ public class RelativePositionCalculator {
                     // Duplicate values encountered.
                     errorCount++;
                     if (errorCount < 5) {
-                        log.warn("{0} should never happen. "
-                                + "Data is malformed. sap: {1} Part:\n{2} \n  Part to test: \n{3}",
+                        log.warn("{} should never happen. "
+                                + "Data is malformed. stampSequence: {} Part:\n{} \n  Part to test: \n{}",
                                 new Object[]{RelativePosition.EQUAL,
                                     part.getStampSequence(),
                                     part,
@@ -441,8 +524,8 @@ public class RelativePositionCalculator {
                     // Duplicate values encountered.
                     errorCount++;
                     if (errorCount < 5) {
-                        log.warn("{0} should never happen. "
-                                + "Data is malformed. stamp: {1} \n  Part to test: \n{2}",
+                        log.warn("{} should never happen. "
+                                + "\n  Data is malformed. stamp: {}  Part to test: {}",
                                 new Object[]{RelativePosition.EQUAL,
                                     stamp,
                                     prevStamp});

@@ -250,10 +250,6 @@ public class DataBuffer {
 
     public int getInt(int position) {
         long lockStamp = sl.tryOptimisticRead();
-        // TODO remove line for debugging. 
-        if (position + 4 > data.length) {
-            System.out.println("Index going to be out of bounds...");
-        }
         int result = (((data[position]) << 24)
                 | ((data[position + 1] & 0xff) << 16)
                 | ((data[position + 2] & 0xff) << 8)
@@ -558,7 +554,6 @@ public class DataBuffer {
 
         putInt(utflen);
         put(bytearr, 0, utflen);
-        position += utflen;
     }
 
     public final String readUTF() {

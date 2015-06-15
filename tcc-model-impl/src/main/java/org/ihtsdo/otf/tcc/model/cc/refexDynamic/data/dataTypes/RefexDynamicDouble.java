@@ -68,25 +68,21 @@ public class RefexDynamicDouble extends RefexDynamicData implements RefexDynamic
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
 		return getDataDoubleProperty();
 	}
 
-	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
+	/**  
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() throws IOException, ContradictionException {
-		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
-		}
-		return property_;
+	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
+            if (property_ == null) {
+                property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
+            }
+            return property_;
 	}
 }

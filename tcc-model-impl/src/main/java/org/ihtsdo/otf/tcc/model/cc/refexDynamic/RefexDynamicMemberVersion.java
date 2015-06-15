@@ -1,5 +1,8 @@
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import org.apache.mahout.math.list.IntArrayList;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -22,6 +25,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by kec on 7/12/14.
@@ -198,6 +202,12 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
     public void setData(int columnNumber, RefexDynamicDataBI data) throws IndexOutOfBoundsException, PropertyVetoException
     {
         ((RefexDynamicRevision)getCv()).setData(columnNumber, data);
+    }
+
+    @Override
+    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate coordinate) {
+        return getCv().getLatestVersion(type, coordinate);
+ 
     }
 }
 

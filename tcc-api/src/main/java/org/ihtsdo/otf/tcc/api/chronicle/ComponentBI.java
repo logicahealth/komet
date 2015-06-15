@@ -15,6 +15,8 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import java.io.IOException;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 public interface ComponentBI extends IdentifiedObjectUniversal {
    boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException;
@@ -30,8 +32,6 @@ public interface ComponentBI extends IdentifiedObjectUniversal {
    Collection<? extends IdBI> getAllIds() throws IOException;
 
    Collection<? extends RefexChronicleBI<?>> getAnnotations() throws IOException;
-
-   int getConceptNid();
 
    Collection<? extends RefexVersionBI<?>> getAnnotationsActive(ViewCoordinate xyz) throws IOException;
 
@@ -61,6 +61,10 @@ public interface ComponentBI extends IdentifiedObjectUniversal {
    boolean hasCurrentAnnotationMember(ViewCoordinate xyz, int refsetNid) throws IOException;
 
    boolean hasCurrentRefexMember(ViewCoordinate xyz, int refsetNid) throws IOException;
+   
+   default List<UUID> getUUIDs() {
+       return getUuidList();
+   }
    
    //TODO [REFEX] RefexDynamicAPI getter definitions
    /**

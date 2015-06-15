@@ -3,7 +3,6 @@ package org.ihtsdo.otf.tcc.dto.component.identifier;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.ihtsdo.otf.tcc.api.id.LongIdBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -16,8 +15,6 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkIdentifierLong extends TtkIdentifier {
    public static final long serialVersionUID = 1;
@@ -41,11 +38,6 @@ public class TtkIdentifierLong extends TtkIdentifier {
    public TtkIdentifierLong(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super(in, dataVersion);
       denotation = in.readLong();
-   }
-
-   public TtkIdentifierLong(TtkIdentifierLong another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.denotation = transformer.transform(another.denotation, another, ComponentFields.ID_LONG_DENOTATION);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -98,11 +90,6 @@ public class TtkIdentifierLong extends TtkIdentifier {
          (int) denotation, (int) (denotation >>> 32), status.hashCode(), pathUuid.hashCode(), (int) time,
          (int) (time >>> 32)
       });
-   }
-
-   @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkIdentifierLong(this, transformer);
    }
 
    /**

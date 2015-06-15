@@ -1,14 +1,13 @@
 package org.ihtsdo.otf.tcc.model.util;
 
+import gov.vha.isaac.ochre.collections.NidSet;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ProcessComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
-import java.io.IOException;
 
 /**
  * Created by kec on 12/1/14.
@@ -44,7 +43,7 @@ public class VerifyAndRepairNidCnidMap implements ProcessUnfetchedConceptDataBI,
     }
 
     @Override
-    public NativeIdSetBI getNidSet() throws IOException {
+    public NidSet getNidSet() {
         return null;
     }
 

@@ -65,7 +65,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * The Class RefexCAB contains methods for creating a media blueprint. This blueprint can be constructed into

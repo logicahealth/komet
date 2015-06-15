@@ -196,56 +196,6 @@ public class Path implements StampPath, Externalizable {
         this.origins = new HashSet(origins);
     }
 
-    public Set<Position> getInheritedOrigins() {
-        HashSet<Position> inheritedOrigins = new HashSet<>();
-        for (Position origin : this.origins) {
-            inheritedOrigins.addAll(origin.getPath().getInheritedOrigins());
-            inheritedOrigins.add(origin);
-        }
-        return inheritedOrigins;
-    }
-
-    public Set<Position> getNormalisedOrigins() {
-        return getNormalisedOrigins(null);
-    }
-
-    public Set<Position> getNormalisedOrigins(Collection<Path> paths) {
-        final Set<Position> inheritedOrigins = getInheritedOrigins();
-        if (paths != null) {
-            for (Path path : paths) {
-                if (path != this) {
-                    inheritedOrigins.addAll(path.getInheritedOrigins());
-                }
-            }
-        }
-        Set<Position> normalisedOrigins = new HashSet<>(inheritedOrigins);
-        for (Position a : inheritedOrigins) {
-            for (Position b : inheritedOrigins) {
-                if ((a.getPath().getConceptNid()) == b.getPath().getConceptNid() && (a.getTime() < b.getTime())) {
-                    normalisedOrigins.remove(a);
-                }
-            }
-        }
-        return normalisedOrigins;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.dwfa.vodb.types.Path#getMatchingPath(int)
-     */
-    public Path getMatchingPath(int pathId) {
-        if (conceptNid == pathId) {
-            return this;
-        }
-        for (Position origin : origins) {
-            if (origin.getPath().getMatchingPath(pathId) != null) {
-                return origin.getPath();
-            }
-        }
-        return null;
-    }
-
     public static String toHtmlString(Path path) throws IOException {
         StringBuilder buff = new StringBuilder();
         buff.append("<html><font color='blue' size='+1'><u>");
@@ -257,53 +207,6 @@ public class Path implements StampPath, Externalizable {
             buff.append(origin);
         }
         return buff.toString();
-    }
-
-    public static void writePath(ObjectOutputStream out, Path p) throws IOException {
-        List<UUID> uuids = Ts.get().getUuidsForNid(p.getConceptNid());
-        if (uuids.size() > 0) {
-            out.writeObject(Ts.get().getUuidsForNid(p.getConceptNid()));
-        } else {
-            throw new IOException("no uuids for component: " + p);
-        }
-        out.writeInt(p.getOrigins().size());
-        for (Position origin : p.getOrigins()) {
-            Position.writePosition(out, origin);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Path readPath(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        int pathId;
-        List<UUID> pathIdList = (List<UUID>) in.readObject();
-        if (Ts.get().hasUuid(pathIdList)) {
-            pathId = Ts.get().getNidForUuids(pathIdList);
-        } else {
-            pathId = TermAux.WB_AUX_PATH.getLenient().getNid();
-            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, "ReadPath error. {0} missing. Substuting WB Aux ", pathIdList);
-        }
-        int size = in.readInt();
-        List<Position> origins = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            origins.add(Position.readPosition(in));
-        }
-        return new Path(pathId, origins);
-    }
-
-    public static Set<Path> readPathSet(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        int size = in.readInt();
-        Set<Path> positions = new HashSet<>(size);
-        for (int i = 0; i < size; i++) {
-            positions.add(readPath(in));
-        }
-        return positions;
-    }
-
-    public static void writePathSet(ObjectOutputStream out, Set<Path> viewPositions) throws IOException {
-        out.writeInt(viewPositions.size());
-        for (Path p : viewPositions) {
-            writePath(out, p);
-        }
     }
 
     @Override

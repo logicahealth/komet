@@ -2,7 +2,10 @@ package org.ihtsdo.otf.tcc.model.cc.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -21,6 +24,7 @@ import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -190,6 +194,15 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     public int getAssemblageSequence() {
        return primordialComponent.getAssemblageSequence();
     }
+
+    @Override
+    public Optional<LatestVersion<RefexVersionBI<V>>> getLatestVersion(Class<RefexVersionBI<V>> type, StampCoordinate coordinate) {
+        return primordialComponent.getLatestVersion(type, coordinate);
+    }
     
+    @Override
+    public SememeChronology getChronology() {
+       throw new UnsupportedOperationException("For OCHRE implementation only");
+    }
     
 }

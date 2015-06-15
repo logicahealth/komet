@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cs;
 
+import gov.vha.isaac.ochre.collections.NidSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +22,7 @@ public class ChangeSetWriterHandler implements Runnable, ProcessUnfetchedConcept
 
    private static final ConcurrentHashMap<String, ChangeSetGeneratorBI> writerMap = new ConcurrentHashMap<>();
    public static AtomicInteger changeSetWriters = new AtomicInteger();
-   private final NativeIdSetBI cNidsToWrite;
+   private final NidSet cNidsToWrite;
    private final long commitTime;
    private final String commitTimeStr;
    private final NidSetBI sapNidsFromCommit;
@@ -33,7 +34,7 @@ public class ChangeSetWriterHandler implements Runnable, ProcessUnfetchedConcept
    private final ChangeSetGenerationPolicy changeSetPolicy;
    private final List<ChangeSetGeneratorBI> writerListForHandler;
 
-   public ChangeSetWriterHandler(NativeIdSetBI cNidsToWrite,
+   public ChangeSetWriterHandler(NidSet cNidsToWrite,
            long commitTime, NidSetBI sapNidsFromCommit, ChangeSetGenerationPolicy changeSetPolicy,
            ChangeSetWriterThreading changeSetWriterThreading) {
       super();
@@ -92,7 +93,7 @@ public class ChangeSetWriterHandler implements Runnable, ProcessUnfetchedConcept
 
    @Override
    public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fcfc) throws Exception {
-      if (cNidsToWrite.isMember(cNid)) {
+      if (cNidsToWrite.contains(cNid)) {
          processedChangedCount.incrementAndGet();
          ConceptChronicle c = (ConceptChronicle) fcfc.fetch();
          for (ChangeSetGeneratorBI writer : writerListForHandler) {
@@ -109,7 +110,7 @@ public class ChangeSetWriterHandler implements Runnable, ProcessUnfetchedConcept
    }
 
    @Override
-   public NativeIdSetBI getNidSet() {
+   public NidSet getNidSet() {
       return cNidsToWrite;
    }
 

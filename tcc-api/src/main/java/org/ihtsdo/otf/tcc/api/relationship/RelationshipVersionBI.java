@@ -26,7 +26,10 @@ import java.io.IOException;
  */
 public interface RelationshipVersionBI<A extends RelationshipAnalogBI>
         extends TypedComponentVersionBI, RelationshipChronicleBI, AnalogGeneratorBI<A> {
-
+    @Override
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
    /**
     * Method description
     *
@@ -85,4 +88,6 @@ public interface RelationshipVersionBI<A extends RelationshipAnalogBI>
     * @return
     */
    public boolean isStated() throws IOException;
+   
+   int getConceptNid();
 }

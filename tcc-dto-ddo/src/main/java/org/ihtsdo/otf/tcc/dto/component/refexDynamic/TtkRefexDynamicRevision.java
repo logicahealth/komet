@@ -12,7 +12,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexDynamicRevision extends TtkRevision
 {
@@ -41,12 +40,7 @@ public class TtkRefexDynamicRevision extends TtkRevision
 		readExternal(in, dataVersion);
 	}
 
-	public TtkRefexDynamicRevision(TtkRefexDynamicRevision another, ComponentTransformerBI transformer)
-	{
-		super(another, transformer);
-		this.data_ = another.data_;  //TODO (artf231855) [REFEX] do we need transformer support for the data?  No idea what it is used for.
-	}
-
+        
 	//~--- methods -------------------------------------------------------------
 
 	/**
@@ -97,12 +91,6 @@ public class TtkRefexDynamicRevision extends TtkRevision
 		buff.append(super.toString());
 
 		return buff.toString();
-	}
-
-	@Override
-	public TtkRefexDynamicRevision makeTransform(ComponentTransformerBI transformer)
-	{
-		return new TtkRefexDynamicRevision(this, transformer);
 	}
 
 	@Override

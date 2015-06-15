@@ -14,10 +14,8 @@ import java.io.IOException;
 
 import java.util.Collection;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
-public class TtkMediaRevision extends TtkRevision {
+public class TtkMediaRevision extends TtkRevision implements TtkMediaVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -47,11 +45,6 @@ public class TtkMediaRevision extends TtkRevision {
         references.add(this.typeUuid);
     }
 
-    public TtkMediaRevision(TtkMediaRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.textDescription = transformer.transform(another.textDescription, another, ComponentFields.MEDIA_TEXT_DESCRIPTION);
-      this.typeUuid = transformer.transform(another.typeUuid, another, ComponentFields.MEDIA_TYPE_UUID);
-   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -95,11 +88,6 @@ public class TtkMediaRevision extends TtkRevision {
    }
 
    @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkMediaRevision(this, transformer);
-   }
-
-   @Override
    public void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super.readExternal(in, dataVersion);
       textDescription = in.readUTF();
@@ -134,10 +122,12 @@ public class TtkMediaRevision extends TtkRevision {
 
    //~--- get methods ---------------------------------------------------------
 
+    @Override
    public String getTextDescription() {
       return textDescription;
    }
 
+    @Override
    public UUID getTypeUuid() {
       return typeUuid;
    }

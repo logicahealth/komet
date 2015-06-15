@@ -19,8 +19,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexUuidUuidStringMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexUuidUuidStringRevision> {
    public static final long serialVersionUID = 1;
@@ -69,12 +67,6 @@ public class TtkRefexUuidUuidStringMemberChronicle extends TtkRefexAbstractMembe
       readExternal(in, dataVersion);
    }
 
-   public TtkRefexUuidUuidStringMemberChronicle(TtkRefexUuidUuidStringMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1 = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.uuid2 = transformer.transform(another.uuid2, another, ComponentFields.REFEX_COMPONENT_2_UUID);
-      this.string1 = transformer.transform(another.string1, another, ComponentFields.REFEX_STRING1);
-   }
 
    //~--- methods -------------------------------------------------------------
    @Override
@@ -135,10 +127,6 @@ public class TtkRefexUuidUuidStringMemberChronicle extends TtkRefexAbstractMembe
       return this.primordialUuid.hashCode();
    }
 
-   @Override
-   public TtkRefexUuidUuidStringMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexUuidUuidStringMemberChronicle(this, transformer);
-   }
 
    @Override
    public final void readExternal(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

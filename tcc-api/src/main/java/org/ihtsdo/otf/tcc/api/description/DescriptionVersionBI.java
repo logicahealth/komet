@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.api.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
@@ -27,8 +28,12 @@ import java.util.regex.Pattern;
  * @author         Enter your name here...    
  */
 public interface DescriptionVersionBI<A extends DescriptionAnalogBI>
-        extends TypedComponentVersionBI, DescriptionChronicleBI, AnalogGeneratorBI<A> {
-
+        extends TypedComponentVersionBI, DescriptionChronicleBI, AnalogGeneratorBI<A>, 
+        DescriptionSememe {
+    @Override
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
    /**
     * Method description
     *
@@ -72,6 +77,7 @@ public interface DescriptionVersionBI<A extends DescriptionAnalogBI>
     *
     * @return
     */
+    @Override
    public String getText();
 
    /**

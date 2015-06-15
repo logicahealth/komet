@@ -68,4 +68,11 @@ public interface MediaVersionBI<A extends MediaAnalogBI>
     * @return
     */
    public String getTextDescription();
+   
+   int getConceptNid();
+   
+    @Override
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
 }

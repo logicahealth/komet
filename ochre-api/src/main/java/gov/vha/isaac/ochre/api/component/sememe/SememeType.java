@@ -15,6 +15,17 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
+import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LongSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
+import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableComponentNidSememe;
+import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableDescriptionSememe;
+import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableSememeVersion;
+
 /**
  *
  * @author kec
@@ -23,11 +34,11 @@ public enum SememeType {
 
     MEMBER((byte) 0),
     COMPONENT_NID((byte) 1),
-    CONCEPT_SEQUENCE((byte) 2),
-    CONCEPT_SEQUENCE_TIME((byte) 3),
+    LONG((byte) 2),
     LOGIC_GRAPH((byte) 4),
     STRING((byte) 5),
-    DYNAMIC((byte) 6);
+    DYNAMIC((byte) 6),
+    DESCRIPTION((byte) 7);
 
     final byte sememeToken;
 
@@ -35,11 +46,52 @@ public enum SememeType {
         this.sememeToken = sememeToken;
     }
 
+    public Class getSememeVersionClass() {
+        switch (this) {
+            case COMPONENT_NID:
+                return ComponentNidSememe.class;
+            case DESCRIPTION:
+                return DescriptionSememe.class;
+            case MEMBER:
+                return SememeVersion.class;
+            case DYNAMIC:
+                return DynamicSememe.class;
+            case LOGIC_GRAPH:
+                return LogicGraphSememe.class;
+            case LONG:
+                return LongSememe.class;
+            case STRING:
+                return StringSememe.class;
+            default:
+                throw new RuntimeException("Can't handle: " + this);
+        }
+    }
+
+    public Class getObservableSememeVersionClass() {
+        switch (this) {
+            case COMPONENT_NID:
+                return ObservableComponentNidSememe.class;
+            case DESCRIPTION:
+                return ObservableDescriptionSememe.class;
+            case MEMBER:
+                return ObservableSememeVersion.class;
+            case DYNAMIC:
+            //TODO
+            case LOGIC_GRAPH:
+            //TODO
+            case LONG:
+            //TODO
+            case STRING:
+            //TODO
+            default:
+                throw new RuntimeException("Can't handle: " + this);
+        }
+    }
+
     public byte getSememeToken() {
         return sememeToken;
     }
 
-    
     public static SememeType getFromToken(byte token) {
         switch (token) {
             case 0:
@@ -47,15 +99,15 @@ public enum SememeType {
             case 1:
                 return COMPONENT_NID;
             case 2:
-                return CONCEPT_SEQUENCE;
-            case 3:
-                return CONCEPT_SEQUENCE_TIME;
+                return LONG;
             case 4:
                 return LOGIC_GRAPH;
             case 5:
                 return STRING;
             case 6:
                 return DYNAMIC;
+            case 7:
+                return DESCRIPTION;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }

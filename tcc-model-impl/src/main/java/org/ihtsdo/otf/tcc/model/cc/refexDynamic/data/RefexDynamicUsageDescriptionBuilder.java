@@ -175,14 +175,14 @@ public class RefexDynamicUsageDescriptionBuilder
 		
 		//Build this on the lowest level path, otherwise, other code that references this will fail (as it doesn't know about custom paths)
 		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
-				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
+				new EditCoordinate(TermAux.USER.getLenient().getNid(), 
 						TermAux.ISAAC_MODULE.getLenient().getNid(), 
-						TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
+						TermAux.WB_AUX_PATH.getLenient().getNid()), 
 				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit();
 		
-		return new RefexDynamicUsageDescription(newCon.getConceptNid());
+		return new RefexDynamicUsageDescription(newCon.getNid());
 	}
 	
 	private static RefexDynamicDataBI convertPolymorphicDataColumn(RefexDynamicDataBI defaultValue, RefexDynamicDataType columnType) 

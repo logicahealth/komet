@@ -27,6 +27,10 @@ import java.io.IOException;
 public interface ConceptAttributeVersionBI<A extends ConceptAttributeAnalogBI>
         extends ComponentVersionBI, ConceptAttributeChronicleBI, AnalogGeneratorBI<A> {
 
+    @Override
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
    /**
     * Method description
     *

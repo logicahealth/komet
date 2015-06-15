@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -35,25 +36,54 @@ public interface TaxonomyService {
     
     boolean isKindOf(int childId, int parentId, TaxonomyCoordinate tc);
     
+    /**
+     * Method to determine if a concept was ever a kind of another, without
+     * knowing a TaxonomyCoordinate. 
+     * @param childId
+     * @param parentId
+     * @return true if child was ever a kind of the parent. 
+     */
+    boolean wasEverKindOf(int childId, int parentId);
+    
     ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc);
      
-    int[] getAllRelationshipOriginSequencesActive(int destination, TaxonomyCoordinate tc);
+    ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc);
+     
+    IntStream getAllRelationshipOriginSequencesActive(int destinationId, TaxonomyCoordinate tc);
     
-    int[] getAllRelationshipOriginSequencesVisible(int destination, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipOriginSequencesVisible(int destinationId, TaxonomyCoordinate tc);
     
-    int[] getAllRelationshipOriginSequences(int destination);
+    IntStream getAllRelationshipOriginSequences(int destinationId);
 
-    int[] getTaxonomyChildSequencesActive(int parentId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequencesActive(int originId, TaxonomyCoordinate tc);
+    
+    IntStream getAllRelationshipDestinationSequencesVisible(int originId, TaxonomyCoordinate tc);
+    
+    IntStream getAllRelationshipDestinationSequences(int originId);
 
-    int[] getTaxonomyChildSequencesVisible(int parentId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequencesOfTypeActive(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
-    int[] getTaxonomyChildSequences(int parentId);
+    IntStream getAllRelationshipDestinationSequencesOfTypeVisible(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
-    int[] getTaxonomyParentSequencesActive(int childId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
+
+    IntStream getAllRelationshipOriginSequencesOfTypeActive(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
-    int[] getTaxonomyParentSequencesVisible(int childId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipOriginSequencesOfTypeVisible(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
-    int[] getTaxonomyParentSequences(int childId);
+    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
+
+    IntStream getTaxonomyChildSequencesActive(int parentId, TaxonomyCoordinate tc);
+
+    IntStream getTaxonomyChildSequencesVisible(int parentId, TaxonomyCoordinate tc);
     
-    int[] getRoots(TaxonomyCoordinate sc);
+    IntStream getTaxonomyChildSequences(int parentId);
+    
+    IntStream getTaxonomyParentSequencesActive(int childId, TaxonomyCoordinate tc);
+    
+    IntStream getTaxonomyParentSequencesVisible(int childId, TaxonomyCoordinate tc);
+    
+    IntStream getTaxonomyParentSequences(int childId);
+    
+    IntStream getRoots(TaxonomyCoordinate sc);
 }

@@ -22,12 +22,8 @@ import java.io.IOException;
 import java.util.*;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 /**
  * The Class TkRefexArrayOfBytearrayMember represents an array of byte array
@@ -124,20 +120,6 @@ public class TtkRefexArrayOfByteArrayMemberChronicle
         readExternal(in, dataVersion);
     }
 
-    /**
-     * Instantiates a new TK Refex Array of Byte Array Member based on
-     * {@code another} TK Refex Array of Byte Array Member and allows for
-     * uuid conversion.
-     *
-     * @param another the TK Refex Array of Byte Array Member specifying how to
-     * construct this TK Refex Array of Byte Array Member
-     * @param transformer
-     */
-    public TtkRefexArrayOfByteArrayMemberChronicle(TtkRefexArrayOfByteArrayMemberChronicle another, ComponentTransformerBI transformer) {
-        super(another, transformer);
-        this.arrayOfByteArray1 = transformer.transform(another.arrayOfByteArray1, another, ComponentFields.REFEX_ARRAY_OF_BYTEARRAY);
-    }
-
     //~--- methods -------------------------------------------------------------
 
     @Override
@@ -188,16 +170,6 @@ public class TtkRefexArrayOfByteArrayMemberChronicle
     @Override
     public int hashCode() {
         return this.primordialUuid.hashCode();
-    }
-
-    /**
-     *
-     * @param transformer
-     * @return the converted TK Refex Array of Byte Array Member
-     */
-    @Override
-    public TtkRefexArrayOfByteArrayMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-        return new TtkRefexArrayOfByteArrayMemberChronicle(this, transformer);
     }
 
     /**

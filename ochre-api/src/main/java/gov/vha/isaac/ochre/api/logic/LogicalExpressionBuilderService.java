@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.logic;
 
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -24,4 +25,6 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface LogicalExpressionBuilderService {
         LogicalExpressionBuilder getLogicalExpressionBuilder();
+        
+        LogicalExpression fromSememe(LogicGraphSememe sememe);
 }

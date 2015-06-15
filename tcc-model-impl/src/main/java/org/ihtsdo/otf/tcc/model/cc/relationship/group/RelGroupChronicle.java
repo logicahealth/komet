@@ -2,9 +2,11 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -32,7 +34,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
+import java.util.Optional;
 
 public class RelGroupChronicle implements RelGroupChronicleBI {
    private int                                 conceptNid;
@@ -135,10 +138,14 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       throw new UnsupportedOperationException("Not supported.");
    }
 
-   @Override
    public int getConceptNid() {
       return conceptNid;
    }
+
+    @Override
+    public int getEnclosingConceptNid() {
+        return conceptNid;
+    }
 
    @Override
    public Collection<? extends RefexVersionBI<?>> getAnnotationsActive(ViewCoordinate xyz)
@@ -271,11 +278,6 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public Collection<? extends RelationshipChronicleBI> getRels() {
       return rels;
    }
-
-   @Override
-   public List<UUID> getUUIDs() {
-      return Arrays.asList(new UUID[] { uuid });
-   }
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { uuid });
@@ -324,7 +326,20 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+   @Override
+    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+   @Override
+    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate coordinate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    

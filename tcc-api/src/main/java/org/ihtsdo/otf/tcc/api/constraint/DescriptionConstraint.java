@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.api.constraint;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -57,11 +58,11 @@ public class DescriptionConstraint implements ConstraintBI {
 		return text;
 	}
 
-	public ConceptVersionBI getConcept(ViewCoordinate c) throws IOException {
+	public ConceptSnapshot getConcept(ViewCoordinate c) throws IOException {
 		return conceptSpec.getStrict(c);
 	}
 
-	public ConceptVersionBI getDescType(ViewCoordinate c) throws IOException {
+	public ConceptSnapshot getDescType(ViewCoordinate c) throws IOException {
 		return descTypeSpec.getStrict(c);
 	}
 

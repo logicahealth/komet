@@ -20,8 +20,7 @@ package org.ihtsdo.otf.tcc.api.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import java.io.IOException;
+import gov.vha.isaac.ochre.collections.NidSet;
 import org.ihtsdo.otf.tcc.api.ContinuationTrackerBI;
 
 /**
@@ -50,9 +49,8 @@ public interface ProcessUnfetchedConceptDataBI extends ContinuationTrackerBI {
     *
     * @return a {@code NativeIdSetBI} of concept nids to iterate over. A null value is allowed
     * and will cause all concepts to be iterated over.
-    * @throws IOException
     */
-   NativeIdSetBI getNidSet() throws IOException;
+   NidSet getNidSet();
 
    /**
     *

@@ -8,11 +8,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
-import org.ihtsdo.otf.tcc.dto.UtfHelper;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -23,8 +19,6 @@ import java.io.IOException;
 import java.util.*;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringRevision;
 
 public class TtkRefexUuidBooleanMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexUuidBooleanRevision> {
    public static final long serialVersionUID = 1;
@@ -64,11 +58,7 @@ public class TtkRefexUuidBooleanMemberChronicle extends TtkRefexAbstractMemberCh
       readExternal(in, dataVersion);
    }
 
-   public TtkRefexUuidBooleanMemberChronicle(TtkRefexUuidBooleanMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1    = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.boolean1 = transformer.transform(another.boolean1, another, ComponentFields.REFEX_STRING1);
-   }
+   
     @Override
     protected void addUuidReferencesForRefexRevision(Collection<UUID> references) {
         references.add(uuid1);
@@ -120,11 +110,6 @@ public class TtkRefexUuidBooleanMemberChronicle extends TtkRefexAbstractMemberCh
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRefexUuidBooleanMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexUuidBooleanMemberChronicle(this, transformer);
    }
 
    @Override

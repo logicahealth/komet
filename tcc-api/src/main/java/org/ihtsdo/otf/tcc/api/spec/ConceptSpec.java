@@ -20,18 +20,14 @@ package org.ihtsdo.otf.tcc.api.spec;
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
-import org.ihtsdo.otf.tcc.api.nid.NidSet;
-import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
-import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.IOException;
@@ -56,6 +52,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class ConceptSpec extends ConceptProxy implements SpecBI {
 
+    private static IdentifierService idService = null;
+    private static IdentifierService getIdentifierService() {
+        if (idService == null) {
+            idService = LookupService.getService(IdentifierService.class);
+        }
+        return idService;
+    }
+    
+    private static ConceptService conceptService = null;
+    private static ConceptService getConceptService() {
+        if (conceptService == null) {
+            conceptService = LookupService.getService(ConceptService.class);
+        }
+        return conceptService;
+    }
     /**
      * dataversion for serialization versioning
      */
@@ -68,39 +79,11 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * Native identifier for the concept proxied by this object
      */
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ConceptSpec other = (ConceptSpec) obj;
-        if (!Arrays.deepEquals(this.getUuids(), other.getUuids())) {
-            return false;
-        }
-        if (!Objects.equals(this.getDescription(), other.getDescription())) {
-            return false;
-        }
-        if (this.relSpecs != other.relSpecs) {
-            if (!Arrays.deepEquals(this.relSpecs, other.relSpecs)) {
-                return false;
-            }
-
-        }
-        return true;
-    }
 
     /**
      * Field description
      */
-    transient private ConceptChronicleBI localChronicle;
-
-    /**
-     * Field description
-     */
-    transient private ConceptVersionBI localVersion;
+    transient private ConceptChronology localChronicle;
 
     /**
      * Field description
@@ -194,7 +177,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
 
     public ConceptSpec(ConceptChronicleBI chronicle) throws IOException {
         this(chronicle.getDescriptions().iterator().next().getPrimordialVersion().getText(),
-                chronicle.getUUIDs().toArray(new UUID[0]));
+                chronicle.getUuidList().toArray(new UUID[0]));
     }
 
     /**
@@ -240,20 +223,8 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws ContradictionException
      * @throws IOException
      */
-    private void validateDescription(ConceptChronicleBI local) throws IOException, ContradictionException {
-        boolean found = false;
-
-        for (DescriptionChronicleBI desc : local.getDescriptions()) {
-            for (DescriptionVersionBI descv : desc.getVersions()) {
-                if (descv.getText().equals(getDescription())) {
-                    found = true;
-
-                    break;
-                }
-            }
-        }
-
-        if (found == false) {
+    private void validateDescription(ConceptChronology local) throws IOException, ContradictionException {
+        if (!local.containsDescription(getDescription())) {
             throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n" + local);
         }
     }
@@ -268,89 +239,16 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws ContradictionException
      * @throws IOException
      */
-    private void validateDescription(ConceptVersionBI localVersion, ViewCoordinate c)
+    private void validateDescription(ConceptChronology localVersion, ViewCoordinate c)
             throws IOException, ContradictionException {
-        boolean found = false;
 
-        for (DescriptionVersionBI desc : localVersion.getDescriptionsActive()) {
-            if (desc.getText().equals(getDescription())) {
-                found = true;
-
-                break;
-            }
-        }
-
-        if (found == false) {
+        if (!localVersion.containsActiveDescription(description, c)) {
             throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n"
                     + localVersion);
         }
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param local
-     *
-     * @throws IOException
-     */
-    private void validateRelationships(ConceptChronicleBI local) throws IOException {
-        if ((relSpecs == null) || (relSpecs.length == 0)) {
-            return;
-        }
 
-        next:
-        for (RelSpec relSpec : relSpecs) {
-            ConceptChronicleBI relType = relSpec.getRelTypeSpec().getLenient();
-            ConceptChronicleBI destination = relSpec.getDestinationSpec().getLenient();
-            NidSetBI typeNids = new NidSet();
-
-            typeNids.add(relType.getNid());
-
-            for (RelationshipChronicleBI rel : local.getRelationshipsOutgoing()) {
-                for (RelationshipVersionBI rv : rel.getVersions()) {
-                    if ((rv.getTypeNid() == relType.getNid())
-                            && (rv.getDestinationNid() == destination.getNid())) {
-                        continue next;
-                    }
-                }
-            }
-
-            throw new ValidationException("No match for RelSpec: " + relSpec);
-        }
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param local
-     * @param c
-     *
-     * @throws IOException
-     */
-    private void validateRelationships(ConceptVersionBI local, ViewCoordinate c) throws IOException {
-        if ((relSpecs == null) || (relSpecs.length == 0)) {
-            return;
-        }
-
-        next:
-        for (RelSpec relSpec : relSpecs) {
-            ConceptVersionBI relType = relSpec.getRelTypeSpec().getStrict(c);
-            ConceptVersionBI destination = relSpec.getDestinationSpec().getStrict(c);
-            NidSetBI typeNids = new NidSet();
-
-            typeNids.add(relType.getNid());
-
-            for (ConceptVersionBI dest : local.getRelationshipsOutgoingDestinations(typeNids)) {
-                if (dest.equals(destination)) {
-                    continue next;
-                }
-            }
-
-            throw new ValidationException("No match for RelSpec: " + relSpec);
-        }
-    }
 
     /**
      * Method description
@@ -375,7 +273,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      *
      * @throws ValidationException
      */
-    public ConceptChronicleBI getLenient() throws ValidationException {
+    public ConceptChronology getLenient() throws ValidationException {
 
         if (localChronicle != null) {
             return localChronicle;
@@ -395,9 +293,8 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
             throw new ValidationException("No matching ids in db: " + this.toString());
         }
         try {
-            localChronicle = Ts.get().getConcept(getUuids());
+            localChronicle = getConceptService().getConcept(getUuids());
             validateDescription(localChronicle);
-            validateRelationships(localChronicle);
         } catch (IOException ex) {
             localChronicle = null;
             throw new RuntimeException(ex);
@@ -422,7 +319,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      */
     public int getNid(ViewCoordinate vc) throws ValidationException, IOException {
         if (nid == Integer.MAX_VALUE) {
-            ConceptVersionBI conceptVersion = getStrict(vc);
+            ConceptSnapshot conceptVersion = getStrict(vc);
 
             nid = conceptVersion.getNid();
         }
@@ -451,45 +348,12 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws IOException
      * @throws ValidationException
      */
-    public ConceptVersionBI getStrict(ViewCoordinate vc) throws ValidationException, IOException {
-        try {
-            if (localVersion != null) {
-                return localVersion;
-            }
-
-            boolean found = false;
-
-            for (UUID uuid : getUuids()) {
-                if (Ts.get().hasUuid(uuid)) {
-                    found = true;
-
-                    break;
-                }
-            }
-
-            if (!found) {
-                throw new ValidationException("No matching ids in db: " + this.toString());
-            }
-
-            localVersion = Ts.get().getConceptVersion(vc, getUuids());
-
-            if (localVersion == null) {
-            	throw new ValidationException("No ConceptVersion for " + getUuids() + " on ViewCoordinate " + vc.getName());
-            }
-            
-            try {
-                validateDescription(localVersion, vc);
-                validateRelationships(localVersion, vc);
-            } catch (IOException | ContradictionException ex) {
-                localVersion = null;
-
-                throw ex;
-            }
-            nid = localVersion.getNid();
-            return localVersion;
-        } catch (ContradictionException e) {
-            throw new ValidationException(e);
-        }
+    public ConceptSnapshot getStrict(ViewCoordinate vc) throws ValidationException, IOException {
+        ConceptChronology conceptChronology = getLenient();
+        
+        ConceptSnapshot conceptSnapshot = getConceptService().getSnapshot(vc).getConceptSnapshot(conceptChronology.getConceptSequence());
+        conceptSnapshot.containsActiveDescription(description);
+        return conceptSnapshot;
     }
 
     /**
@@ -512,14 +376,12 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     @Override
     public int getNid() {
         if (nid == Integer.MAX_VALUE) {
-            ConceptChronicleBI conceptChronicle;
+
             try {
-                conceptChronicle = getLenient();
-            } catch (IOException ex) {
+                nid = getLenient().getNid();
+            } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
             }
-
-            nid = conceptChronicle.getNid();
         }
 
         return nid;
@@ -538,5 +400,28 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
             sequence = getConceptSequence(getNid());
         }
         return sequence;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConceptSpec other = (ConceptSpec) obj;
+        if (!Arrays.deepEquals(this.getUuids(), other.getUuids())) {
+            return false;
+        }
+        if (!Objects.equals(this.getDescription(), other.getDescription())) {
+            return false;
+        }
+        if (this.relSpecs != other.relSpecs) {
+            if (!Arrays.deepEquals(this.relSpecs, other.relSpecs)) {
+                return false;
+            }
+
+        }
+        return true;
     }
 }

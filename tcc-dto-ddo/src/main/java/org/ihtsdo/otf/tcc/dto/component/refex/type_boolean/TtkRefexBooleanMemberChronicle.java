@@ -16,8 +16,6 @@ import java.io.IOException;
 
 import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexBooleanMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexBooleanRevision> {
    public static final long serialVersionUID = 1;
@@ -56,11 +54,6 @@ public class TtkRefexBooleanMemberChronicle extends TtkRefexAbstractMemberChroni
    public TtkRefexBooleanMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexBooleanMemberChronicle(TtkRefexBooleanMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.booleanValue = transformer.transform(another.booleanValue, another, ComponentFields.REFEX_BOOLEAN1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -111,11 +104,6 @@ public class TtkRefexBooleanMemberChronicle extends TtkRefexAbstractMemberChroni
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRefexBooleanMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexBooleanMemberChronicle(this, transformer);
    }
 
    @Override

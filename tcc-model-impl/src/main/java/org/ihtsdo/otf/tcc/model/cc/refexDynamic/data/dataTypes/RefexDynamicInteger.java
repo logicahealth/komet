@@ -18,6 +18,8 @@ package org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -67,26 +69,22 @@ public class RefexDynamicInteger extends RefexDynamicData implements RefexDynami
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
-		return getDataIntegerProperty();
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
+            return getDataIntegerProperty();
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI#getDataIntegerProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() throws IOException, ContradictionException {
-		if (property_ == null) {
-			property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
-		}
-		return property_;
+	public ReadOnlyObjectProperty<Integer> getDataIntegerProperty()  {
+            if (property_ == null) {
+                property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
+            }
+            return property_;
 	}
 
 	/**

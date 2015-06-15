@@ -8,8 +8,6 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.dto.UtfHelper;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -23,7 +21,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "description")
-public class TtkDescriptionChronicle extends TtkComponentChronicle<TtkDescriptionRevision> {
+public class TtkDescriptionChronicle 
+    extends TtkComponentChronicle<TtkDescriptionRevision, TtkDescriptionVersion>
+    implements TtkDescriptionVersion {
     public static final long serialVersionUID = 1;
     @XmlAttribute
     public UUID              conceptUuid;
@@ -72,17 +72,6 @@ public class TtkDescriptionChronicle extends TtkComponentChronicle<TtkDescriptio
     public TtkDescriptionChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
         super();
         readExternal(in, dataVersion);
-    }
-
-    public TtkDescriptionChronicle(TtkDescriptionChronicle another, ComponentTransformerBI transformer) {
-        super(another, transformer);
-        this.initialCaseSignificant = transformer.transform(another.initialCaseSignificant, another,
-                ComponentFields.DESCRIPTION_INITIAL_CASE_SIGNIFICANT);
-        this.lang        = transformer.transform(another.lang, another, ComponentFields.DESCRIPTION_LANGUAGE);
-        this.text        = transformer.transform(another.text, another, ComponentFields.DESCRIPTION_TEXT);
-        this.typeUuid    = transformer.transform(another.typeUuid, another, ComponentFields.DESCRIPTION_TYPE_UUID);
-        this.conceptUuid = transformer.transform(another.conceptUuid, another,
-                ComponentFields.DESCRIPTION_ENCLOSING_CONCEPT_UUID);
     }
 
     @Override
@@ -142,11 +131,6 @@ public class TtkDescriptionChronicle extends TtkComponentChronicle<TtkDescriptio
         }
 
         return false;
-    }
-
-    @Override
-    public TtkDescriptionChronicle makeTransform(ComponentTransformerBI transformer) {
-        return new TtkDescriptionChronicle(this, transformer);
     }
 
     @Override

@@ -16,6 +16,9 @@
 package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -25,9 +28,21 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface ConceptService {
     
-    ConceptChronology getConcept(int conceptSequence);
+    ConceptChronology<? extends ConceptVersion> getConcept(int conceptSequence);
     
+    ConceptChronology<? extends ConceptVersion> getConcept(UUID... conceptUuids);
+    
+    void writeConcept(ConceptChronology<? extends ConceptVersion> concept);
+
     boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
     
     ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate);
+    
+    int getConceptCount();
+    
+    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream();
+    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream();
+
+    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
 }
