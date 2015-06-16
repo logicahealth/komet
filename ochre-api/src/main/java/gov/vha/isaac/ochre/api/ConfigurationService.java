@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,20 +37,46 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface ConfigurationService
 {
-    
-        /**
-         * The default {@code ConceptModel} is {@code ConceptModel.OTF_CONCEPT_MODEL}
-         * @return the {@code ConceptModel} the database shall use. 
-         */
-        ConceptModel getConceptModel();
-        
-        /**
-         * Set an alternative {@code ConceptModel}. Must be set prior to 
-         * loading the database from sources. 
-         * @param model {@code ConceptModel} the database shall use.
-         */
-        void setConceptModel(ConceptModel model);
-        
+	/**
+	 * The default {@code ConceptModel} is {@link ConceptModel#OCHRE_CONCEPT_MODEL}.  This can be overridden by 
+	 * setting the system property {@code Constants#CONCEPT_MODEL_PROPERTY}.  However, the actual value returned depends 
+	 * on the actual implementation of the ConfigurationService - and if or how it overrides this method.  The recommended
+	 * behavior of an implementation, is that any call to {@link #setConceptModel(ConceptModel)} should override this default
+	 * behavior (including the reading of the system property)
+	 * 
+	 * @return the {@code ConceptModel} the database shall use. 
+	 */
+	public default ConceptModel getConceptModel()
+	{
+		String conceptModel = System.getProperty(Constants.CONCEPT_MODEL_PROPERTY);
+		if (StringUtils.isNotBlank(conceptModel))
+		{
+			try
+			{
+				return ConceptModel.valueOf(conceptModel);
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException("The system property " + Constants.CONCEPT_MODEL_PROPERTY + " is not parseable as an instance of a ConceptModel enum");
+			}
+		}
+		return ConceptModel.OCHRE_CONCEPT_MODEL;
+	}
+	
+	/**
+	 * Set an alternative {@code ConceptModel}. 
+	 * This method can only be utilized prior populating a database.
+	 * 
+	 * @param model {@code ConceptModel} the database shall use.
+	 * 
+	 * @throws IllegalStateException if this is called after database has transitioned to a running state.
+	 */
+	public default void setConceptModel(ConceptModel model) throws IllegalStateException
+	{
+		throw new IllegalStateException("Not supported by the supplied ConfigurationService implementation." 
+				+ "  The implementation must override the setConceptModel(...) method");
+	}
+		
 	/**
 	 * @return The root folder of the database - this method returns a value the returned path should contain subfolders
 	 * of {@link Constants#DEFAULT_CHRONICLE_FOLDER} and {@link Constants#DEFAULT_SEARCH_FOLDER}.
