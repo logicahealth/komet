@@ -4,9 +4,9 @@ import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptServiceManagerI;
 import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
 import gov.vha.isaac.ochre.model.logic.Node;
-
 import java.io.*;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,7 +30,7 @@ public abstract class AbstractNode implements Node, Comparable<Node> {
     private static ConceptService conceptService;
     protected static ConceptService getConceptService() {
         if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptService.class);
+            conceptService = LookupService.getService(ConceptServiceManagerI.class).get();
         }
         return conceptService;
     }

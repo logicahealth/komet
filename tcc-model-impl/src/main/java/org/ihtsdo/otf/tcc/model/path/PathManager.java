@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptServiceManagerI;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class PathManager implements PathService {
     private static ConceptService conceptService = null;
     private static ConceptService getConceptService() {
         if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptService.class);
+            conceptService = LookupService.getService(ConceptServiceManagerI.class).get();
         }
         return conceptService;
     }
@@ -75,8 +76,12 @@ public class PathManager implements PathService {
     private ConceptChronicle pathRefsetConcept;
     private ConceptChronicle refsetPathOriginsConcept;
 
-    //~--- constructors --------------------------------------------------------
-    private PathManager() throws IOException {
+    /**
+     * You likely shouldn't use this constructor - it instead, should be managed by the PathProvider.
+     * 
+     * This legacy class will go away entirely, in the future.
+     */
+    public PathManager() throws IOException {
         try {
             setupPathMap();
         } catch (Exception e) {
