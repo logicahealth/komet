@@ -15,10 +15,12 @@
  */
 package gov.vha.isaac.ochre.api.classifier;
 
+import javafx.concurrent.Task;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -30,7 +32,14 @@ public interface ClassifierService {
     
     void initialize(LogicCoordinate logicCoordinate);
     
+    /*
     ClassifierResults fullClassification(StampCoordinate stampCoordinate, 
+            LogicCoordinate logicCoordinate, 
+            EditCoordinate editCoordinate);
+    */
+    
+    Task<ClassifierResults> getFullClassificationTask(
+    		StampCoordinate stampCoordinate, 
             LogicCoordinate logicCoordinate, 
             EditCoordinate editCoordinate);
     
