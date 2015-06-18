@@ -443,7 +443,7 @@ public abstract class Termstore implements PersistentStoreI {
 
             return ((ComponentChronicleBI<?>) component).getVersion(coordinate);
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

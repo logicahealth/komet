@@ -43,7 +43,9 @@ public class DataBuffer {
 
     public DataBuffer(byte[] data) {
         this.data = data;
-        this.used = data.length;
+        //TODO Keith - this null check likely shouldn't be here (I added it to get around a problem), I suspect related 
+        //to other problems in the sememe service at the moment. 
+        this.used = data == null ? 0 : data.length;
     }
 
     public DataBuffer(int size) {
