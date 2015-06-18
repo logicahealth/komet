@@ -4,8 +4,8 @@ import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
 
 import java.io.*;
 import java.util.SortedSet;
@@ -36,17 +36,17 @@ public abstract class AbstractNode implements Node, Comparable<Node> {
     }
 
 
-    LogicExpressionOchreImpl logicGraphVersion;
+    LogicalExpressionOchreImpl logicGraphVersion;
     private short nodeIndex = Short.MIN_VALUE;
     protected UUID nodeUuid = null;
     
 
-    public AbstractNode(LogicExpressionOchreImpl logicGraphVersion) {
+    public AbstractNode(LogicalExpressionOchreImpl logicGraphVersion) {
         this.logicGraphVersion = logicGraphVersion;
         logicGraphVersion.addNode(this);
     }
 
-    public AbstractNode(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public AbstractNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         nodeIndex = dataInputStream.readShort();
         this.logicGraphVersion = logicGraphVersion;
         logicGraphVersion.addNode(this);

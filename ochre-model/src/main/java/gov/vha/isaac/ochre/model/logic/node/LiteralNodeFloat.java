@@ -1,9 +1,9 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -19,12 +19,12 @@ public class LiteralNodeFloat extends LiteralNode {
 
     float literalValue;
 
-    public LiteralNodeFloat(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public LiteralNodeFloat(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         literalValue = dataInputStream.readFloat();
     }
 
-    public LiteralNodeFloat(LogicExpressionOchreImpl logicGraphVersion, float literalValue) {
+    public LiteralNodeFloat(LogicalExpressionOchreImpl logicGraphVersion, float literalValue) {
         super(logicGraphVersion);
         this.literalValue = literalValue;
     }

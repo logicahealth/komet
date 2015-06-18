@@ -7,9 +7,9 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
 import java.io.DataInputStream;
@@ -36,13 +36,13 @@ public class TemplateNodeWithUuids extends AbstractNode {
      */
     UUID assemblageConceptUuid;
 
-    public TemplateNodeWithUuids(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public TemplateNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         templateConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
         assemblageConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
     }
 
-    public TemplateNodeWithUuids(LogicExpressionOchreImpl logicGraphVersion, UUID templateConceptUuid, UUID assemblageConceptUuid) {
+    public TemplateNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID templateConceptUuid, UUID assemblageConceptUuid) {
         super(logicGraphVersion);
         this.templateConceptUuid = templateConceptUuid;
         this.assemblageConceptUuid = assemblageConceptUuid;

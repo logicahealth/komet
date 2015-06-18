@@ -1,9 +1,9 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -20,12 +20,12 @@ public class LiteralNodeBoolean extends LiteralNode {
 
     boolean literalValue;
 
-    public LiteralNodeBoolean(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public LiteralNodeBoolean(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         literalValue = dataInputStream.readBoolean();
     }
 
-    public LiteralNodeBoolean(LogicExpressionOchreImpl logicGraphVersion, boolean literalValue) {
+    public LiteralNodeBoolean(LogicalExpressionOchreImpl logicGraphVersion, boolean literalValue) {
         super(logicGraphVersion);
         this.literalValue = literalValue;
     }

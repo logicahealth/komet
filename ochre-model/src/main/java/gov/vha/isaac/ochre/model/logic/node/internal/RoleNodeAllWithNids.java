@@ -1,8 +1,8 @@
 package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.external.RoleNodeAllWithUuids;
 
@@ -18,11 +18,11 @@ import gov.vha.isaac.ochre.util.UuidT5Generator;
  */
 public final class RoleNodeAllWithNids extends TypedNodeWithNids {
 
-    public RoleNodeAllWithNids(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public RoleNodeAllWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
     }
 
-    public RoleNodeAllWithNids(LogicExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
+    public RoleNodeAllWithNids(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
         super(logicGraphVersion, typeConceptNid, child);
     }
 

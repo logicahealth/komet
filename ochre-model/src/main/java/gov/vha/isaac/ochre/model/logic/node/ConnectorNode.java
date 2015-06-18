@@ -1,8 +1,8 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
 import org.apache.mahout.math.list.ShortArrayList;
 
 import java.io.DataInputStream;
@@ -17,7 +17,7 @@ public abstract class ConnectorNode extends AbstractNode {
 
     private final ShortArrayList childIndices;
 
-    public ConnectorNode(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         short childrenSize = dataInputStream.readShort();
         childIndices = new ShortArrayList(childrenSize);
@@ -26,7 +26,7 @@ public abstract class ConnectorNode extends AbstractNode {
         }
     }
 
-    public ConnectorNode(LogicExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
+    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
         super(logicGraphVersion);
         childIndices = new ShortArrayList(children.length);
         for (AbstractNode child : children) {

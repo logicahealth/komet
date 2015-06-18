@@ -20,7 +20,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import org.jvnet.hk2.annotations.Service;
 
 /**
@@ -40,6 +40,6 @@ public class LogicalExpressionBuilderOchreProvider implements LogicalExpressionB
 
     @Override
     public LogicalExpression fromSememe(LogicGraphSememe sememe) {
-        return new LogicExpressionOchreImpl(sememe.getGraphData(), DataSource.INTERNAL, sememe.getReferencedComponentNid());
+        return new LogicalExpressionOchreImpl(sememe.getGraphData(), DataSource.INTERNAL, sememe.getReferencedComponentNid());
     }
 }

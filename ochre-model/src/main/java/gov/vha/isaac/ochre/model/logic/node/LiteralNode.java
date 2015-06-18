@@ -1,8 +1,8 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -13,11 +13,11 @@ import java.io.IOException;
  */
 public abstract class LiteralNode extends AbstractNode {
 
-    public LiteralNode(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
     }
 
-    public LiteralNode(LogicExpressionOchreImpl logicGraphVersion) {
+    public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion) {
         super(logicGraphVersion);
     }
 

@@ -1,8 +1,8 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.*;
 import java.util.UUID;
@@ -11,10 +11,10 @@ import java.util.UUID;
  */
 public class AndNode extends ConnectorNode {
 
-    public AndNode(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public AndNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
     }
-    public AndNode(LogicExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
+    public AndNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
         super(logicGraphVersion, children);
     }
 

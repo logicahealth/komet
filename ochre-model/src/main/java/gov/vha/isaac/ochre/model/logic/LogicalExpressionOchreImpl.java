@@ -1,5 +1,7 @@
 package gov.vha.isaac.ochre.model.logic;
 
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
@@ -60,7 +62,7 @@ import org.apache.mahout.math.list.IntArrayList;
  * 
  * TODO Standard refset for right identities
  */
-public class LogicExpressionOchreImpl implements LogicalExpression {
+public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     private static IdentifierService idService;
     protected static IdentifierService getIdentifierService() {
@@ -83,7 +85,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
     
     
 
-    public LogicExpressionOchreImpl() {
+    public LogicalExpressionOchreImpl() {
     }
     
     /**
@@ -92,7 +94,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
      * @param dataSource
      * @param conceptId Either a nid or sequence of a concept is acceptable. 
      */
-    public LogicExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
+    public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
         this(nodeDataArray, dataSource);
         if (conceptId < 0) {
             conceptId = getIdentifierService().getConceptSequence(conceptId);
@@ -100,7 +102,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         this.conceptSequence = conceptId;
     }
 
-    public LogicExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource) {
+    public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource) {
         try {
             nodes = new ArrayList<>(nodeDataArray.length);
             for (byte[] nodeDataArray1 : nodeDataArray) {
@@ -234,14 +236,17 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         return nodes.stream().anyMatch((node) -> (meaningfulNodeSemantics.contains(node.getNodeSemantic())));
     }
 
+    @Override
     public int getConceptSequence() {
         return conceptSequence;
     }
 
+    @Override
     public int getNodeCount() {
         return nodes.size();
     }
 
+    @Override
     public final RootNode getRoot() {
         if (nodes.isEmpty()) {
             return Root();
@@ -249,6 +254,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         return (RootNode) nodes.get(0);
     }
 
+    @Override
     public Node getNode(int nodeIndex) {
         return nodes.get(nodeIndex);
     }
@@ -258,6 +264,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         return pack(dataTarget);
     }
 
+    @Override
     public byte[][] pack(DataTarget dataTarget) {
         init();
         byte[][] byteArrayArray = new byte[nodes.size()][];
@@ -276,6 +283,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         nodes.add(node);
     }
 
+    @Override
     public void processDepthFirst(BiConsumer<Node, TreeNodeVisitData> consumer) {
         init();
         TreeNodeVisitData graphVisitData = new TreeNodeVisitData(nodes.size());
@@ -514,7 +522,7 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final LogicExpressionOchreImpl other = (LogicExpressionOchreImpl) obj;
+        final LogicalExpressionOchreImpl other = (LogicalExpressionOchreImpl) obj;
         if (this.nodes == other.nodes) {
             return true;
         }
@@ -531,7 +539,14 @@ public class LogicExpressionOchreImpl implements LogicalExpression {
         return true;
     }
 
-    public int[] maximalCommonSubgraph(LogicExpressionOchreImpl another) {
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + this.conceptSequence;
+        return hash;
+    }
+
+    public int[] maximalCommonSubgraph(LogicalExpressionOchreImpl another) {
         TreeNodeVisitData graphVisitData = new TreeNodeVisitData(nodes.size());
         depthFirstVisit(null, getRoot(), graphVisitData, 0);
         int[] solution = new int[this.nodes.size()];

@@ -1,8 +1,8 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -14,10 +14,10 @@ import java.util.UUID;
  */
 public class SufficientSetNode extends ConnectorNode {
 
-    public SufficientSetNode(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public SufficientSetNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
     }
-    public SufficientSetNode(LogicExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
+    public SufficientSetNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
         super(logicGraphVersion, children);
     }
 

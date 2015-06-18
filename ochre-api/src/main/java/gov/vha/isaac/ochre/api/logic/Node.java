@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.model.logic;
+package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import java.util.Arrays;

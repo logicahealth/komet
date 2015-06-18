@@ -18,12 +18,12 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import org.glassfish.hk2.api.MultiException;
 
 /**
@@ -33,11 +33,11 @@ import org.glassfish.hk2.api.MultiException;
 public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl>
         implements MutableLogicGraphSememe {
 
-    private static LogicByteArrayConverter converter;
+    private static LogicalExpressionByteArrayConverter converter;
 
-    private static LogicByteArrayConverter getExternalDataConverter() throws MultiException {
+    private static LogicalExpressionByteArrayConverter getExternalDataConverter() throws MultiException {
         if (converter == null) {
-            converter = LookupService.get().getService(LogicByteArrayConverter.class);
+            converter = LookupService.get().getService(LogicalExpressionByteArrayConverter.class);
         }
         return converter;
     }
@@ -101,7 +101,7 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
         StringBuilder sb = new StringBuilder();
         sb.append("LogicGraphSememeImpl{");
         sb.append(getSememeType().toString());
-        LogicExpressionOchreImpl lg = new LogicExpressionOchreImpl(graphData, DataSource.INTERNAL, getIdentifierService().getConceptSequence(getReferencedComponentNid()));
+        LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getIdentifierService().getConceptSequence(getReferencedComponentNid()));
         sb.append("\n ");
         sb.append(lg.toString());
         toString(sb);

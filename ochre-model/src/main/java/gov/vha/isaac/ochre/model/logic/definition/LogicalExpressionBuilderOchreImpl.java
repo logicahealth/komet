@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.model.logic.definition;
 
 
+import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
@@ -46,8 +47,8 @@ import gov.vha.isaac.ochre.api.logic.assertions.substitution.InstantSubstitution
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.IntegerSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.StringSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -271,7 +272,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     @Override
     public LogicalExpression build() throws IllegalStateException {
         checkNotBuilt();
-        LogicExpressionOchreImpl definition = new LogicExpressionOchreImpl();
+        LogicalExpressionOchreImpl definition = new LogicalExpressionOchreImpl();
         definition.Root();
 
         rootSets.forEach((axiom) -> addToDefinition(axiom, definition));
@@ -286,7 +287,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         }
     }
 
-    private AbstractNode addToDefinition(GenericAxiom axiom, LogicExpressionOchreImpl definition) 
+    private AbstractNode addToDefinition(GenericAxiom axiom, LogicalExpressionOchreImpl definition) 
         throws IllegalStateException {
         
         AbstractNode newNode;
@@ -308,23 +309,43 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                 return definition.Feature(featureTypeProxy.getNid(),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
             case CONCEPT:
+                if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
+                    return definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getSequence());
+                }
                 ConceptChronology conceptProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex()); 
                 return definition.Concept(conceptProxy.getConceptSequence());
             case ROLE_ALL:
+                if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
+                    return definition.AllRole(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getNid(),
+                            addToDefinition(definitionTree.get(axiom).get(0), definition));
+                }
                 ConceptChronology roleTypeProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
                 return definition.AllRole(roleTypeProxy.getNid(), 
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
             case ROLE_SOME:
+                if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
+                    return definition.SomeRole(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getNid(),
+                            addToDefinition(definitionTree.get(axiom).get(0), definition));
+                }
                 roleTypeProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
                 return definition.SomeRole(roleTypeProxy.getNid(), 
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
             case TEMPLATE:
                 Object[] params = (Object[]) axiomParameters.get(axiom.getIndex());
+                if (params[0] instanceof ConceptProxy) {
+                    ConceptProxy templateConceptProxy = (ConceptProxy) params[0]; 
+                    ConceptProxy assemblageToPopulateTemplateConceptProxy = (ConceptProxy) params[1];
+                    return definition.Template(templateConceptProxy.getSequence(), 
+                        assemblageToPopulateTemplateConceptProxy.getSequence());
+                }
                 ConceptChronology templateConceptProxy = (ConceptChronology) params[0]; 
                 ConceptChronology assemblageToPopulateTemplateConceptProxy = (ConceptChronology) params[1];
                 return definition.Template(templateConceptProxy.getConceptSequence(), 
                         assemblageToPopulateTemplateConceptProxy.getConceptSequence());
             case DISJOINT_WITH:
+                if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
+                    return definition.DisjointWith(definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getSequence()));
+                }
                 ConceptChronology disjointConceptProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
                 return definition.DisjointWith(definition.Concept(disjointConceptProxy.getConceptSequence()));
             case LITERAL_BOOLEAN:
@@ -372,11 +393,62 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         }
     }
 
-    protected AbstractNode[] getChildren(GenericAxiom axiom, LogicExpressionOchreImpl definition) {
+    protected AbstractNode[] getChildren(GenericAxiom axiom, LogicalExpressionOchreImpl definition) {
         List<GenericAxiom> childrenAxioms = definitionTree.get(axiom);
         List<AbstractNode> children = new ArrayList<>(childrenAxioms.size());
         childrenAxioms.forEach((childAxiom) -> children.add(addToDefinition(childAxiom, definition)));
         return children.toArray(new AbstractNode[children.size()]);
+    }
+
+    @Override
+    public DisjointWith disjointWith(ConceptProxy conceptProxy) {
+        checkNotBuilt();
+        GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
+        axiomParameters.put(axiom.getIndex(), conceptProxy);
+        return axiom;
+    }
+
+    @Override
+    public ConceptAssertion conceptAssertion(ConceptProxy conceptProxy) {
+        checkNotBuilt();
+        GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
+        axiomParameters.put(axiom.getIndex(), conceptProxy);
+        return axiom;
+    }
+
+    @Override
+    public AllRole allRole(ConceptProxy roleTypeProxy, Assertion roleRestriction) {
+        checkNotBuilt();
+        GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
+        addToDefinitionTree(axiom, roleRestriction);
+        axiomParameters.put(axiom.getIndex(), roleTypeProxy);
+        return axiom;
+    }
+
+    @Override
+    public Feature feature(ConceptProxy featureTypeProxy, LiteralAssertion literal) {
+        checkNotBuilt();
+        GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
+        addToDefinitionTree(axiom, literal);
+        axiomParameters.put(axiom.getIndex(), featureTypeProxy);
+        return axiom;
+    }
+
+    @Override
+    public SomeRole someRole(ConceptProxy roleTypeProxy, Assertion roleRestriction) {
+        checkNotBuilt();
+        GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
+        addToDefinitionTree(axiom, roleRestriction);
+        axiomParameters.put(axiom.getIndex(), roleTypeProxy);
+        return axiom;
+    }
+
+    @Override
+    public Template template(ConceptProxy templateProxy, ConceptProxy assemblageToPopulateTemplateProxy) {
+        checkNotBuilt();
+        GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
+        axiomParameters.put(axiom.getIndex(), new Object[]{templateProxy, assemblageToPopulateTemplateProxy});
+        return axiom;
     }
 
 }

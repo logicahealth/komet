@@ -13,6 +13,6 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface LogicByteArrayConverter {
+public interface LogicalExpressionByteArrayConverter {
     byte[][] convertLogicGraphForm(byte[][] logicGraphBytes, DataTarget dataTarget);
 }

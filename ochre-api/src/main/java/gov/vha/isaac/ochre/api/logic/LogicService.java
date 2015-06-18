@@ -15,31 +15,20 @@
  */
 package gov.vha.isaac.ochre.api.logic;
 
-import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
-import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
-
-
-import java.util.function.BiConsumer;
+import gov.vha.isaac.ochre.api.classifier.ClassifierService;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
-public interface LogicalExpression {
-    byte[][] getData(DataTarget dataTarget);
-    
-    boolean isMeaningful();
-
-    int getConceptSequence();
-
-    Node getNode(int nodeIndex);
-
-    int getNodeCount();
-
-    Node getRoot();
-
-    byte[][] pack(DataTarget dataTarget);
-
-    void processDepthFirst(BiConsumer<Node, TreeNodeVisitData> consumer);
+@Contract
+public interface LogicService {
+    ClassifierService getClassifierService(
+            StampCoordinate stampCoordinate, 
+            LogicCoordinate logicCoordinate, 
+            EditCoordinate editCoordinate);
 }

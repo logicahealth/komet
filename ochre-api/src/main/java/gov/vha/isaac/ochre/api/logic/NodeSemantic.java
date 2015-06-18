@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.model.logic;
+package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.io.UnsupportedEncodingException;

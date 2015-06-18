@@ -37,7 +37,7 @@ import gov.vha.isaac.ochre.api.logic.assertions.substitution.FloatSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.InstantSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.IntegerSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.StringSubstitution;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 /**
  *

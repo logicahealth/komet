@@ -18,7 +18,7 @@ package org.ihtsdo.otf.tcc.dto.component.sememe;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
@@ -34,8 +34,8 @@ import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
  * @author kec
  */
 public class SememeFromDtoFactory {
-    private static LogicByteArrayConverter byteConverter;
-    private static LogicByteArrayConverter getLogicByteArrayConverter() {
+    private static LogicalExpressionByteArrayConverter byteConverter;
+    private static LogicalExpressionByteArrayConverter getLogicByteArrayConverter() {
         return byteConverter;
     }
 

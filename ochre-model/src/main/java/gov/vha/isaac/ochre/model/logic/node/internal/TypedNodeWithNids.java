@@ -2,8 +2,8 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
 import gov.vha.isaac.ochre.model.logic.node.external.TypedNodeWithUuids;
@@ -20,12 +20,12 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
 
     int typeConceptNid;
 
-    public TypedNodeWithNids(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public TypedNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         this.typeConceptNid = dataInputStream.readInt();
     }
 
-    public TypedNodeWithNids(LogicExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
+    public TypedNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
         super(logicGraphVersion, child);
         this.typeConceptNid = typeConceptNid;
     }

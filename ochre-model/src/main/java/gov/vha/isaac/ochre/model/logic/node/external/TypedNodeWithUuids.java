@@ -6,8 +6,8 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.Node;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithNids;
@@ -24,12 +24,12 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     UUID typeConceptUuid;
 
-    public TypedNodeWithUuids(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         this.typeConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
     }
 
-    public TypedNodeWithUuids(LogicExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
+    public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
         super(logicGraphVersion, child);
         this.typeConceptUuid = typeConceptUuid;
     }

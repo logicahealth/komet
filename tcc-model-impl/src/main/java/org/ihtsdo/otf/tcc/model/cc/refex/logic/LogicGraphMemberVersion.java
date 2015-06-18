@@ -6,7 +6,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
@@ -55,7 +55,7 @@ public class LogicGraphMemberVersion extends RefexMemberVersion<LogicGraphRevisi
    
         @Override
     public byte[][] getExternalLogicGraphBytes() {
-        LogicByteArrayConverter converter = Hk2Looker.get().getService(LogicByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = Hk2Looker.get().getService(LogicalExpressionByteArrayConverter.class);
         return converter.convertLogicGraphForm(getCv().getLogicGraphBytes(), DataTarget.EXTERNAL);
     }
 

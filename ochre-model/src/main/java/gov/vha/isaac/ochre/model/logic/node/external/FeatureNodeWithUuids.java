@@ -7,8 +7,8 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
-import gov.vha.isaac.ochre.model.logic.LogicExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.NodeSemantic;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithNids;
 import java.io.DataInputStream;
@@ -30,12 +30,12 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
 
     UUID unitsConceptUuid;
 
-    public FeatureNodeWithUuids(LogicExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public FeatureNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         operator = concreteDomainOperators[dataInputStream.readByte()];
         unitsConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
     }
-    public FeatureNodeWithUuids(LogicExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
+    public FeatureNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
         super(logicGraphVersion, typeConceptUuid, child);
     }
     public FeatureNodeWithUuids(FeatureNodeWithNids internalNode) throws IOException {

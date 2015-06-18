@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.api.chronicle;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -33,11 +34,11 @@ public final class LatestVersion<V>  {
     Optional<Set<V>> contradictions;
     
     public LatestVersion(Class<V> versionType) {
-        
+        contradictions = Optional.empty();
     }
 
     public LatestVersion(V latest) {
-        this.value = latest;
+        this.value = Objects.requireNonNull(latest, "latest version cannot be null");
         contradictions = Optional.empty();
     }
 
