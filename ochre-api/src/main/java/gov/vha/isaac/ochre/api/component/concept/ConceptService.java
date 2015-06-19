@@ -19,6 +19,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 //Normally, this would be a contract... but we only want one in the system (and we have two, that we don't want running at the same time)
 //So, force the users to get one via the ConceptServiceManagerI
 //Alternatively, maybe we could do something with:  https://hk2.java.net/custom-resolver-example.html
+@Contract
 public interface ConceptService {
     
     ConceptChronology<? extends ConceptVersion> getConcept(int conceptSequence);

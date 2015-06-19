@@ -11,7 +11,6 @@ import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
-import gov.vha.isaac.ochre.api.component.concept.ConceptServiceManagerI;
 import gov.vha.isaac.ochre.collections.LruCache;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -55,7 +54,7 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
 
     protected static ConceptService getConceptService() {
         if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptServiceManagerI.class).get();
+            conceptService = LookupService.getService(ConceptService.class);
         }
         return conceptService;
     }

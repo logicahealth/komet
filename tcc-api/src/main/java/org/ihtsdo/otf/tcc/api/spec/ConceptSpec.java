@@ -22,7 +22,6 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
-import gov.vha.isaac.ochre.api.component.concept.ConceptServiceManagerI;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
@@ -63,7 +62,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     private static ConceptService conceptService = null;
     private static ConceptService getConceptService() {
         if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptServiceManagerI.class).get();
+            conceptService = LookupService.getService(ConceptService.class);
         }
         return conceptService;
     }

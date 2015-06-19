@@ -5,7 +5,6 @@ import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
-import gov.vha.isaac.ochre.api.component.concept.ConceptServiceManagerI;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.Externalizable;
@@ -47,7 +46,7 @@ public class Position implements StampPosition, Externalizable {
     private static ConceptService conceptService;
     private static ConceptService getConceptService() {
         if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptServiceManagerI.class).get();
+            conceptService = LookupService.getService(ConceptService.class);
         }
         return conceptService;
     }
