@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import java.util.Optional;
+import javafx.concurrent.Task;
 
 /**
  *
@@ -28,12 +29,12 @@ import java.util.Optional;
  */
 public interface ClassifierService {
     
-    ClassifierResults classify();
+    Task<ClassifierResults> classify();
 
     Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId, int logicAssemblageId, 
             StampCoordinate stampCoordinate);
     
-    int getConceptSequenceForExpression(LogicalExpression expression, 
+    Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, 
             StampCoordinate stampCoordinate, 
             LogicCoordinate logicCoordinate, 
             EditCoordinate editCoordinate);
