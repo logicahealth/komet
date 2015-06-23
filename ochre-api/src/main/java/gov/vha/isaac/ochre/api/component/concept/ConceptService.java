@@ -48,4 +48,10 @@ public interface ConceptService {
 
     Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
     Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    
+    /**
+     * For compatability reasons only. 
+     * @return 
+     */
+    ConceptService getDelegate();
 }
