@@ -58,6 +58,9 @@ public enum Status {
     }
     
     public static EnumSet<State> getStateSet(EnumSet<Status> statusSet) {
+        if (statusSet == null) {
+            return EnumSet.allOf(State.class);
+        }
        EnumSet<State> allowedStates = EnumSet.noneOf(State.class);
         statusSet.forEach((status) -> { allowedStates.add(status.getState());});
         return allowedStates;
