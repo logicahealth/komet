@@ -69,12 +69,8 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     @Override
     protected UUID initNodeUuid() {
-            try {
-                return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), 
-                        conceptUuid.toString());
-            } catch (IOException| NoSuchAlgorithmException ex) {
-                throw new RuntimeException(ex);
-            } 
+        return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
+                conceptUuid.toString()); 
      }
     
     

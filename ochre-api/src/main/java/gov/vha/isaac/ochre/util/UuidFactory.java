@@ -16,8 +16,6 @@
 package gov.vha.isaac.ochre.util;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 /**
@@ -38,13 +36,9 @@ public class UuidFactory {
      * @return the uuid of the specified component
      */
     public static UUID getUuidFromAlternateId(UUID authorityUuid, String altId) {
-        try {
-            if (authorityUuid.equals(SNOMED_IDENTIFIER.getUuids()[0])) {
-                return UuidT3Generator.fromSNOMED(altId);
-            }
-            return UuidT5Generator.get(authorityUuid, altId);
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex);
+        if (authorityUuid.equals(SNOMED_IDENTIFIER.getUuids()[0])) {
+            return UuidT3Generator.fromSNOMED(altId);
         }
+        return UuidT5Generator.get(authorityUuid, altId);
     }
 }

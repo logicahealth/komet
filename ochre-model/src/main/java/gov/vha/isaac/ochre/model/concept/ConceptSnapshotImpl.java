@@ -62,7 +62,7 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
 
     @Override
     public boolean containsActiveDescription(String descriptionText) {
-        return conceptChronology.containsActiveDescription(descriptionText, stampCoordinate);
+        return conceptChronology.containsDescription(descriptionText, stampCoordinate);
     }
 
     @Override

@@ -54,12 +54,8 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       this.relGroup   = relGroup;
       this.conceptNid = c.getNid();
 
-      try {
-         uuid = UuidT5Generator.get(UuidT5Generator.REL_GROUP_NAMESPACE,
-                                     c.getPrimordialUuid().toString() + relGroup);
-      } catch (NoSuchAlgorithmException e) {
-         throw new IOException(e);
-      }
+      uuid = UuidT5Generator.get(UuidT5Generator.REL_GROUP_NAMESPACE,
+              c.getPrimordialUuid().toString() + relGroup);
 
       nid = PersistentStore.get().getNidForUuids(uuid);
       PersistentStore.get().setConceptNidForNid(conceptNid, nid);
@@ -70,7 +66,7 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
     @Override
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
 

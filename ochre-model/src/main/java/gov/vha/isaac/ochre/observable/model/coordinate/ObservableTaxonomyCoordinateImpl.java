@@ -16,11 +16,12 @@
 package gov.vha.isaac.ochre.observable.model.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.TaxonomyType;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableTaxonomyCoordinate;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -30,9 +31,10 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoordinate {
     
-    ObjectProperty<TaxonomyType> taxonomyTypeProperty;
+    ObjectProperty<PremiseType> taxonomyTypeProperty;
     ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty;
     ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty;
+    ObjectProperty<UUID> uuidProperty;
     
     TaxonomyCoordinate taxonomyCoordinate;
 
@@ -41,10 +43,10 @@ public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoord
     }
 
     @Override
-    public ObjectProperty<TaxonomyType> taxonomyTypeProperty() {
+    public ObjectProperty<PremiseType> taxonomyTypeProperty() {
         if (taxonomyTypeProperty == null) {
             taxonomyTypeProperty = new SimpleObjectProperty(this, 
-                    ObservableFields.TAXONOMY_TYPE_FOR_TAXONOMY_COORDINATE.toExternalString(), 
+                    ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE.toExternalString(), 
                     getTaxonomyType());
         }
         return taxonomyTypeProperty;
@@ -71,7 +73,7 @@ public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoord
     }
 
     @Override
-    public TaxonomyType getTaxonomyType() {
+    public PremiseType getTaxonomyType() {
         return taxonomyCoordinate.getTaxonomyType();
     }
 
@@ -83,5 +85,19 @@ public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoord
     @Override
     public ObservableLanguageCoordinate getLanguageCoordinate() {
         return new ObservableLanguageCoordinateImpl(taxonomyCoordinate.getLanguageCoordinate());
+    }
+
+    @Override
+    public ObjectProperty<UUID> uuidProperty() {
+        if (uuidProperty == null) {
+            uuidProperty = new SimpleObjectProperty(this, 
+                    ObservableFields.UUID_FOR_TAXONOMY_COORDINATE.toExternalString(), 
+                    getLanguageCoordinate());
+        }
+        return uuidProperty;
+    }
+    @Override
+    public UUID getUuid() {
+        return taxonomyCoordinate.getUuid();
     }
 }

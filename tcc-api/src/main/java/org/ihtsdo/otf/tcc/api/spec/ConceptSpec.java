@@ -241,7 +241,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     private void validateDescription(ConceptChronology localVersion, ViewCoordinate c)
             throws IOException, ContradictionException {
 
-        if (!localVersion.containsActiveDescription(description, c)) {
+        if (!localVersion.containsDescription(description, c)) {
             throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n"
                     + localVersion);
         }

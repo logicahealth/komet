@@ -154,7 +154,7 @@ public class ObservableConceptChronologyImpl extends
 
     @Override
     public boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate) {
-        return chronicledObjectLocal.containsActiveDescription(descriptionText, stampCoordinate);
+        return chronicledObjectLocal.containsDescription(descriptionText, stampCoordinate);
     }
 
 }

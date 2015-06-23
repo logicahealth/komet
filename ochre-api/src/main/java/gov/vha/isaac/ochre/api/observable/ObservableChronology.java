@@ -9,7 +9,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY_STATE_SET KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -19,7 +19,6 @@ import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
@@ -54,14 +53,6 @@ public interface ObservableChronology<V extends ObservableVersion>
     Optional<LatestVersion<V>> 
         getLatestVersion(Class<V> type, StampCoordinate coordinate);
         
-    default Optional<LatestVersion<V>> 
-        getLatestActiveVersion(Class<V> type, StampCoordinate coordinate) {
-            Optional<LatestVersion<V>> latest = getLatestVersion(type, coordinate);
-            if (latest.isPresent() && latest.get().value().getState() == State.ACTIVE) {
-                return latest;
-            }
-            return Optional.empty();
-        }
     /**
      * 
      * @return a list of all versions of this object chronology. 

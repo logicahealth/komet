@@ -101,7 +101,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                     + getReferencedComponentUuid().toString());
             properties.put(ComponentProperty.COMPONENT_ID, memberComponentUuid);
             return memberComponentUuid;
-        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -149,7 +149,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                     + getPrimordialUuidStringForNidProp(ComponentProperty.ASSEMBLAGE_ID)
                     + getPrimordialUuidStringForNidProp(ComponentProperty.REFERENCED_COMPONENT_ID)
                     + sb.toString());
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }

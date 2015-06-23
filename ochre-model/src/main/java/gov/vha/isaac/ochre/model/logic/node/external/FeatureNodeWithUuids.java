@@ -69,14 +69,10 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
     
     @Override
     protected UUID initNodeUuid() {
-            try {
-                return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), 
-                        typeConceptUuid.toString() +
-                                operator + 
-                                unitsConceptUuid.toString());
-            } catch (IOException| NoSuchAlgorithmException ex) {
-                throw new RuntimeException(ex);
-            } 
+        return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
+                typeConceptUuid.toString() +
+                        operator +
+                        unitsConceptUuid.toString()); 
      }
         
 

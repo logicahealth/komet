@@ -113,7 +113,7 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
 
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
 

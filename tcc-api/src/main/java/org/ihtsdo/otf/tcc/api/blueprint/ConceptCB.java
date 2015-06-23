@@ -279,19 +279,15 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         switch (idDirective) {
             case GENERATE_HASH:
             case GENERATE_REFEX_CONTENT_HASH:
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    List<String> descs = new ArrayList<>();
-                    descs.addAll(fsns);
-                    descs.addAll(prefNames);
-                    java.util.Collections.sort(descs);
-                    for (String desc : descs) {
-                        sb.append(desc);
-                    }
-                    return UuidT5Generator.get(conceptSpecNamespace, sb.toString());
-                } catch (IOException | NoSuchAlgorithmException ex) {
-                    throw new RuntimeException(ex);
+                StringBuilder sb = new StringBuilder();
+                List<String> descs = new ArrayList<>();
+                descs.addAll(fsns);
+                descs.addAll(prefNames);
+                java.util.Collections.sort(descs);
+                for (String desc : descs) {
+                    sb.append(desc);
                 }
+                return UuidT5Generator.get(conceptSpecNamespace, sb.toString());
 
             case GENERATE_RANDOM:
             case GENERATE_RANDOM_CONCEPT_REST_HASH:

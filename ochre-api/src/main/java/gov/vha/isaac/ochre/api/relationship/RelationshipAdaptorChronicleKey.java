@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 International Health Terminology Standards Development Organisation.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,5 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gov.vha.isaac.ochre.api.relationship;
 
-package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+
+/**
+ *
+ * @author kec
+ */
+public interface RelationshipAdaptorChronicleKey {
+
+    int getDestinationSequence();
+
+    int getGroup();
+
+    int getOriginSequence();
+
+    PremiseType getPremiseType();
+
+    int getTypeSequence();
+
+    /**
+     * 
+     * @return sequence of the node in the logical expression 
+     * from which this adaptor originated.  
+     */
+    short getNodeSequence();
+    
+
+}

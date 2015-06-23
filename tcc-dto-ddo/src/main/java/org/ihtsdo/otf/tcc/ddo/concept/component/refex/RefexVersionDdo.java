@@ -20,12 +20,11 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentVersionDdo;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -33,7 +32,6 @@ import java.io.IOException;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp.RefexCompVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_int.RefexIntVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_long.RefexLongVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_string.RefexStringVersionDdo;
 
@@ -43,7 +41,6 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_string.RefexStringVer
  */
 @XmlSeeAlso( {
     RefexCompVersionDdo.class, 
-    RefexIntVersionDdo.class, 
     RefexLongVersionDdo.class, 
     RefexStringVersionDdo.class, 
     RefexCompVersionDdo.class, 
@@ -52,14 +49,9 @@ public class RefexVersionDdo<T extends RefexChronicleDdo, V extends RefexVersion
         extends ComponentVersionDdo<T, V> {
    public RefexVersionDdo() {}
 
-   public RefexVersionDdo(T chronicle, TerminologySnapshotDI ss, ComponentVersionBI another)
+   public RefexVersionDdo(T chronicle, TaxonomyCoordinate ss, SememeVersion<?> another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-   }
-
-   public RefexVersionDdo(T chronicle, TerminologySnapshotDI ss, IdBI id)
-           throws IOException, ContradictionException {
-      super(chronicle, ss, id);
    }
 
    //~--- get methods ---------------------------------------------------------

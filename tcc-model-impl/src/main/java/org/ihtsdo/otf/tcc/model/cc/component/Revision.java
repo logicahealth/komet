@@ -93,7 +93,7 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
     public IntStream getVersionStampSequences() {

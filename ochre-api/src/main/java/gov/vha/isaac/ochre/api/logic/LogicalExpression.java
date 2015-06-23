@@ -16,7 +16,6 @@
 package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 
 

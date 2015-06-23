@@ -1,13 +1,15 @@
 package org.ihtsdo.otf.tcc.ddo.concept.component.description;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.LanguageCoordinateService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -19,6 +21,9 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.TypedComponentVersionDdo;
 public class DescriptionVersionDdo extends TypedComponentVersionDdo<DescriptionChronicleDdo, DescriptionVersionDdo> {
 
     public static final long serialVersionUID = 1;
+    
+    private static LanguageCoordinateService languageCoordinateService = 
+            LookupService.getService(LanguageCoordinateService.class);
     //~--- fields --------------------------------------------------------------
     protected SimpleBooleanProperty initialCaseSignificantProperty = new SimpleBooleanProperty(this,
             "initialCaseSignificant");
@@ -30,14 +35,15 @@ public class DescriptionVersionDdo extends TypedComponentVersionDdo<DescriptionC
         super();
     }
 
-    public DescriptionVersionDdo(DescriptionChronicleDdo chronicle, TerminologySnapshotDI ss,
-            DescriptionVersionBI another)
+    public DescriptionVersionDdo(DescriptionChronicleDdo chronicle, TaxonomyCoordinate ss,
+            DescriptionSememe another)
             throws IOException, ContradictionException {
         super(chronicle, ss, another);
-        this.initialCaseSignificantProperty.set(another.isInitialCaseSignificant());
-        this.languageProperty.set(another.getLang());
+        this.initialCaseSignificantProperty.set(languageCoordinateService.conceptIdToCaseSignificance(another.getCaseSignificanceConceptSequence()));
+        this.languageProperty.set(languageCoordinateService.conceptIdToIso639(another.getLanguageConceptSequence()));
         this.textProperty.set(another.getText());
-        this.typeReferenceProperty.set(new ComponentReference(ss.getConceptVersion(another.getTypeNid())));
+        this.typeReferenceProperty.set(new ComponentReference(another.getDescriptionTypeConceptSequence(), 
+                ss.getStampCoordinate(), ss.getLanguageCoordinate()));
     }
 
     //~--- methods -------------------------------------------------------------

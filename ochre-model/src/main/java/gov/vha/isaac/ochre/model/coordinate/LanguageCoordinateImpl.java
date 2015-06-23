@@ -105,4 +105,11 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
                 getLanguageCoordinateService().getSynonymConceptSequence(), this);
     }
 
+    @Override
+    public String toString() {
+        return "LanguageCoordinateImpl{languageConceptSequence=" + languageConceptSequence + 
+                ", dialectAssemblagePreferenceList=" + Arrays.toString(dialectAssemblagePreferenceList) + 
+                ", descriptionTypePreferenceList=" + Arrays.toString(descriptionTypePreferenceList) + '}';
+    }
+
 }

@@ -20,13 +20,12 @@ package org.ihtsdo.otf.tcc.ddo.concept.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IdentifierDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -53,15 +52,9 @@ public class ComponentVersionDdo<T extends ComponentChronicleDdo, V extends Comp
 
    public ComponentVersionDdo() {}
 
-   public ComponentVersionDdo(T chronicle, TerminologySnapshotDI ss, ComponentVersionBI another)
+   public ComponentVersionDdo(T chronicle, TaxonomyCoordinate taxonomyCoordinate, StampedVersion another)
            throws IOException, ContradictionException {
-      super(ss, another);
-      this.chronicle = chronicle;
-   }
-
-   public ComponentVersionDdo(T chronicle, TerminologySnapshotDI ss, IdBI id)
-           throws IOException, ContradictionException {
-      super(ss, id);
+      super(taxonomyCoordinate, another);
       this.chronicle = chronicle;
    }
 
@@ -75,10 +68,6 @@ public class ComponentVersionDdo<T extends ComponentChronicleDdo, V extends Comp
 
    //~--- get methods ---------------------------------------------------------
 
-   @XmlTransient
-   public List<IdentifierDdo> getAdditionalIds() {
-      return this.chronicle.additionalIds;
-   }
 
    @XmlTransient
    public List<RefexChronicleDdo<?,?>> getAnnotations() {

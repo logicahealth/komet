@@ -59,12 +59,8 @@ public class LiteralNodeBoolean extends LiteralNode {
         
     @Override
     protected UUID initNodeUuid() {
-        try {
-            return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                    Boolean.toString(literalValue));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex);
-        }
+        return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
+                Boolean.toString(literalValue));
      }
 
     

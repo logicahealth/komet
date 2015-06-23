@@ -15,10 +15,12 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Objects;
 
 /**
@@ -30,11 +32,21 @@ public class StampCoordinateImpl implements StampCoordinate {
     StampPrecedence stampPrecedence;
     StampPosition stampPosition;
     int[] moduleSequences;
+    EnumSet<State> allowedStates;
 
-    public StampCoordinateImpl(StampPrecedence stampPrecedence, StampPosition stampPosition, int[] moduleSequences) {
+    public StampCoordinateImpl(StampPrecedence stampPrecedence, 
+            StampPosition stampPosition, 
+            int[] moduleSequences, EnumSet<State> allowedStates) {
         this.stampPrecedence = stampPrecedence;
         this.stampPosition = stampPosition;
         this.moduleSequences = moduleSequences;
+        this.allowedStates = allowedStates;
+    }
+    
+
+    @Override
+    public EnumSet<State> getAllowedStates() {
+        return allowedStates;
     }
     
     @Override
@@ -75,12 +87,19 @@ public class StampCoordinateImpl implements StampCoordinate {
         if (!Objects.equals(this.stampPosition, other.stampPosition)) {
             return false;
         }
+        if (!this.allowedStates.equals(other.allowedStates)) {
+            return false;
+        }
+        
         return Arrays.equals(this.moduleSequences, other.moduleSequences);
     }
 
     @Override
     public String toString() {
-        return "StampCoordinateImpl{" + "stampPrecedence=" + stampPrecedence + ", stampPosition=" + stampPosition + ", moduleSequences=" + Arrays.toString(moduleSequences) + '}';
+        return "StampCoordinateImpl{" + "stampPrecedence=" + stampPrecedence + 
+                ", stampPosition=" + stampPosition + 
+                ", moduleSequences=" + Arrays.toString(moduleSequences) + 
+                ", allowedStates=" + allowedStates + '}';
     }
     
 }

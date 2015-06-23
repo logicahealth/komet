@@ -9,13 +9,14 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY_STATE_SET KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
+import java.util.EnumSet;
 
 /**
  *
@@ -54,6 +55,12 @@ public enum Status {
                 default: 
                     throw new UnsupportedOperationException("Can't handle: " + state);
         }
+    }
+    
+    public static EnumSet<State> getStateSet(EnumSet<Status> statusSet) {
+       EnumSet<State> allowedStates = EnumSet.noneOf(State.class);
+        statusSet.forEach((status) -> { allowedStates.add(status.getState());});
+        return allowedStates;
     }
 }
 

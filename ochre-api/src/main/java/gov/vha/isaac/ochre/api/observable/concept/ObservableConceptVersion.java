@@ -8,6 +8,7 @@ import gov.vha.isaac.ochre.api.observable.ObservableVersion;
  */
 public interface ObservableConceptVersion extends ObservableVersion, StampedVersion {
 
+    @Override
     ObservableConceptChronology<ObservableConceptVersion> getChronology(); 
 
 }

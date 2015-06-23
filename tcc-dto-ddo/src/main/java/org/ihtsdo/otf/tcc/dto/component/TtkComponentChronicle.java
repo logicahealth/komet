@@ -165,7 +165,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     @Override
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
 
@@ -254,7 +254,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
         List<TtkIdentifier> thisAlternateList = new ArrayList<>(additionalIds);
         for (Iterator<TtkIdentifier> iterator = thisAlternateList.iterator(); iterator.hasNext();) {
             TtkIdentifier ttkId = iterator.next();
-            if (ttkId.getIdType() != IDENTIFIER_PART_TYPES.UUID) {
+            if (!(ttkId instanceof TtkIdentifierUuid)) {
                 iterator.remove();
             }
         }
@@ -323,7 +323,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
             additionalIds = new ArrayList<>(idVersionCount);
 
             for (int i = 0; i < idVersionCount; i++) {
-                switch (IDENTIFIER_PART_TYPES.readType(in)) {
+                switch (IDENTIFIER_PART_TYPES.readType(in)) { 
                     case LONG:
                         additionalIds.add(new TtkIdentifierLong(in, dataVersion));
 

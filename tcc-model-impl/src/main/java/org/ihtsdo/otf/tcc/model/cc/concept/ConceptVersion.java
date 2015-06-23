@@ -4,12 +4,14 @@ import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +30,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -1452,8 +1457,8 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate) {
-        return concept.containsActiveDescription(descriptionText, stampCoordinate);
+    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
+        return concept.containsDescription(descriptionText, stampCoordinate);
     }
 
     @Override
@@ -1469,7 +1474,7 @@ public class ConceptVersion implements ConceptVersionBI,
 
     @Override
     public boolean containsActiveDescription(String descriptionText) {
-       return concept.containsActiveDescription(descriptionText, vc);
+       return concept.containsDescription(descriptionText, vc);
     }
 
     @Override
@@ -1499,6 +1504,31 @@ public class ConceptVersion implements ConceptVersionBI,
     @Override
     public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
        return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
+        return concept.getRelationshipListOriginatingFromConcept(logicCoordinate);
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept() {
+        return concept.getRelationshipListOriginatingFromConcept();
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination() {
+        return concept.getRelationshipListWithConceptAsDestination();
+    }
+
+    @Override
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
+        return concept.getRelationshipListWithConceptAsDestination(logicCoordinate);
+    }
+
+    @Override
+    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+        return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
     
 }

@@ -188,7 +188,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
 
     @Override
     public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
-        return getCv().getLatestVersionIfActive(type, coordinate);
+        return getCv().getLatestVersion(type, coordinate);
     }
 
     @Override

@@ -117,7 +117,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 			}
 			return UuidT5Generator.get(refexDynamicNamespace, sb.toString());
 		}
-		catch (NoSuchAlgorithmException | UnsupportedEncodingException ex)
+		catch (UnsupportedEncodingException ex)
 		{
 			throw new RuntimeException(ex);
 		}

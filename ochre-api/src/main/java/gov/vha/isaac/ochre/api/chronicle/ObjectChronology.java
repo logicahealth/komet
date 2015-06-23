@@ -5,7 +5,6 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
-import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -23,17 +22,7 @@ public interface ObjectChronology<V extends StampedVersion>
     extends IdentifiedObjectLocal, CommittableComponent {
     
     Optional<LatestVersion<V>> 
-        getLatestVersion(Class<V> type, StampCoordinate coordinate);
-        
-    default Optional<LatestVersion<V>> 
-        getLatestVersionIfActive(Class<V> type, StampCoordinate coordinate) {
-            Optional<LatestVersion<V>> latest = getLatestVersion(type, coordinate);
-            if (latest.isPresent() && latest.get().value.getState() == State.ACTIVE) {
-                return latest;
-            }
-            return Optional.empty();
-        }
-    
+        getLatestVersion(Class<V> type, StampCoordinate coordinate);    
         
     boolean isLatestVersionActive(StampCoordinate coordinate);
     /**

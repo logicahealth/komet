@@ -141,6 +141,10 @@ public abstract class IntSet<T extends IntSet> {
                 false);
     }
     
+    public int[] asArray() {
+         return stream().toArray();
+    }
+    
     public OpenIntHashSet asOpenIntHashSet() {
         OpenIntHashSet set = new OpenIntHashSet();
         stream().forEach((sequence) -> set.add(sequence));

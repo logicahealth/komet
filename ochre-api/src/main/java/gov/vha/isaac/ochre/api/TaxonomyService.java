@@ -49,39 +49,27 @@ public interface TaxonomyService {
      
     ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc);
      
-    IntStream getAllRelationshipOriginSequencesActive(int destinationId, TaxonomyCoordinate tc);
-    
-    IntStream getAllRelationshipOriginSequencesVisible(int destinationId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipOriginSequences(int destinationId, TaxonomyCoordinate tc);
     
     IntStream getAllRelationshipOriginSequences(int destinationId);
 
-    IntStream getAllRelationshipDestinationSequencesActive(int originId, TaxonomyCoordinate tc);
-    
-    IntStream getAllRelationshipDestinationSequencesVisible(int originId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc);
     
     IntStream getAllRelationshipDestinationSequences(int originId);
-
-    IntStream getAllRelationshipDestinationSequencesOfTypeActive(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
-    IntStream getAllRelationshipDestinationSequencesOfTypeVisible(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
     IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
 
-    IntStream getAllRelationshipOriginSequencesOfTypeActive(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
-    
-    IntStream getAllRelationshipOriginSequencesOfTypeVisible(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
     
     IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
 
-    IntStream getTaxonomyChildSequencesActive(int parentId, TaxonomyCoordinate tc);
-
-    IntStream getTaxonomyChildSequencesVisible(int parentId, TaxonomyCoordinate tc);
+    IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc);
     
     IntStream getTaxonomyChildSequences(int parentId);
     
-    IntStream getTaxonomyParentSequencesActive(int childId, TaxonomyCoordinate tc);
-    
-    IntStream getTaxonomyParentSequencesVisible(int childId, TaxonomyCoordinate tc);
+    IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc);
     
     IntStream getTaxonomyParentSequences(int childId);
     

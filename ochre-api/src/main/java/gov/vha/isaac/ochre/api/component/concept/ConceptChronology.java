@@ -10,9 +10,13 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,13 +63,14 @@ public interface ConceptChronology<V extends ConceptVersion>
     boolean containsDescription(String descriptionText);
 
     /**
-     * A test for validating that a concept contains an active description. Used
+     * A test for validating that a concept contains a description as specified by
+     * the stampCoordinate. Used
      * to validate concept proxies or concept specs at runtime.
      * @param descriptionText text to match against. 
      * @param stampCoordinate coordinate to determine if description is active. 
      * @return true if any version of a description matches this text. 
      */
-    boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
+    boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate);
         
     List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList();
     
@@ -74,7 +79,28 @@ public interface ConceptChronology<V extends ConceptVersion>
     
     Optional<LatestVersion<DescriptionSememe>> 
         getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
-    
+
+    /**
+     * Uses the default logic coordinate. 
+     * @return 
+     */
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+        getRelationshipListOriginatingFromConcept();
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+        getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate);
+        
+    /**
+     * Uses the default logic coordinate. 
+     * @return 
+     */
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+        getRelationshipListWithConceptAsDestination();
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+        getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate);
+        
+        
+    Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, 
+            PremiseType premiseType, LogicCoordinate logicCoordinate);
     /**
      * 
      * @return

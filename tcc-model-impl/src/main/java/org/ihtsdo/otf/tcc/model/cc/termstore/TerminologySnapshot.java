@@ -29,7 +29,6 @@ import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
 import org.ihtsdo.otf.tcc.ddo.store.FxTerminologySnapshotDI;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -693,7 +692,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this, c, VersionPolicy.ACTIVE_VERSIONS, RefexPolicy.REFEX_MEMBERS,
+      return new ConceptChronicleDdo(this.getViewCoordinate(), c, RefexPolicy.REFEX_MEMBERS,
                            RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
    }
 
@@ -722,7 +721,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
          c = getConceptVersion(ref.getUuid());
       }
 
-      return new ConceptChronicleDdo(this, c, VersionPolicy.ACTIVE_VERSIONS, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
@@ -744,7 +743,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this, c, VersionPolicy.ACTIVE_VERSIONS, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**

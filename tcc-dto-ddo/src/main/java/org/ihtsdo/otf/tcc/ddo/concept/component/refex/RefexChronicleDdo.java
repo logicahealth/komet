@@ -2,30 +2,16 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_array_of_bytearray.RefexArrayOfByteArrayChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_boolean.RefexBooleanChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp.RefexCompChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_boolean.RefexCompBooleanChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp.RefexCompCompChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp.RefexCompCompCompChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_float.RefexCompCompCompFloatChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_int.RefexCompCompCompIntChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_long.RefexCompCompCompLongChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_string
-   .RefexCompCompCompStringChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_string.RefexCompCompStringChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_float.RefexCompFloatChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_int.RefexCompIntChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_long.RefexCompLongChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_string.RefexCompStringChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_int.RefexIntChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_long.RefexLongChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_member.RefexMembershipChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_string.RefexStringChronicleDdo;
@@ -38,29 +24,15 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 //J-
 @XmlSeeAlso( {
-   RefexArrayOfByteArrayChronicleDdo.class, 
-   RefexBooleanChronicleDdo.class, 
    RefexCompChronicleDdo.class, 
-   RefexCompBooleanChronicleDdo.class, 
-   RefexCompCompChronicleDdo.class,
-   RefexCompCompCompChronicleDdo.class, 
-   RefexCompCompCompFloatChronicleDdo.class,
-   RefexCompCompCompIntChronicleDdo.class,
-   RefexCompCompCompLongChronicleDdo.class,
-   RefexCompCompCompStringChronicleDdo.class,
-   RefexCompCompStringChronicleDdo.class, 
-   RefexCompFloatChronicleDdo.class,
-   RefexCompIntChronicleDdo.class,
-   RefexCompLongChronicleDdo.class,
-   RefexCompStringChronicleDdo.class, 
-   RefexIntChronicleDdo.class, 
    RefexLongChronicleDdo.class, 
    RefexMembershipChronicleDdo.class,
    RefexStringChronicleDdo.class, 
 })
 //J+
-public abstract class RefexChronicleDdo<V extends ComponentVersionDdo, T extends RefexVersionBI>
+public abstract class RefexChronicleDdo<V extends ComponentVersionDdo, T extends SememeVersion>
         extends ComponentChronicleDdo<V, T> {
+    private static final IdentifierService identifierService = LookupService.getService(IdentifierService.class);
 
    /** Field description */
    public static final long serialVersionUID = 1;
@@ -90,13 +62,15 @@ public abstract class RefexChronicleDdo<V extends ComponentVersionDdo, T extends
     * @throws ContradictionException
     * @throws IOException
     */
-   public RefexChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleDdo concept, RefexVersionBI another)
+   public RefexChronicleDdo(TaxonomyCoordinate ss, ConceptChronicleDdo concept, T another)
            throws IOException, ContradictionException {
-      super(ss, concept, another);
-      this.referencedComponentReference      = new ComponentReference(ss,
-          another.getReferencedComponentNid());
+      super(ss, concept, another.getChronology());
+      this.referencedComponentReference      = new ComponentReference(
+          another.getReferencedComponentNid(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate());
       this.refexExtensionIdentifierReference =
-         new ComponentReference(ss.getConceptVersion(another.getAssemblageNid()));
+         new ComponentReference(identifierService.getConceptNid(another.getAssemblageSequence()), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate());
    }
 
    /**

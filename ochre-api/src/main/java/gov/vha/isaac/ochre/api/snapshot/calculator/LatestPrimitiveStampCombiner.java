@@ -67,7 +67,7 @@ public class LatestPrimitiveStampCombiner implements BiConsumer<StampSequenceSet
         } else {
             tStampSet.or(uStampSet);
             t.clear();
-            Arrays.stream(computer.getLatestStamps(tStampSet.stream())).forEach((stamp) -> t.add(stamp));
+            Arrays.stream(computer.getLatestStampSequencesAsArray(tStampSet.stream())).forEach((stamp) -> t.add(stamp));
         }
     }
 

@@ -10,7 +10,6 @@ import gov.vha.isaac.ochre.model.logic.node.external.FeatureNodeWithUuids;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -65,14 +64,10 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
 
     @Override
     protected UUID initNodeUuid() {
-        try {
-            return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                    getIdentifierService().getUuidPrimordialForNid(typeConceptNid).toString()
-                    + operator
-                    + getIdentifierService().getUuidPrimordialForNid(unitsConceptNid).toString());
-        } catch (IOException | NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
+        return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
+                getIdentifierService().getUuidPrimordialForNid(typeConceptNid).toString()
+                        + operator
+                        + getIdentifierService().getUuidPrimordialForNid(unitsConceptNid).toString());
 
     }
 

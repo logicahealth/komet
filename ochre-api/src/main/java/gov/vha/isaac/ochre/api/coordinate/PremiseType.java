@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 International Health Terminology Standards Development Organisation.
+ * Copyright 2015 kec.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,5 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gov.vha.isaac.ochre.api.coordinate;
 
-package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_float;
+/**
+ *
+ * @author kec
+ */
+public enum PremiseType {
+    /**
+     * Compute the taxonomy from stated axioms. 
+     */
+    STATED, 
+    
+    /**
+     * Compute the taxonomy from inferred axioms. 
+     */
+    INFERRED;
+}

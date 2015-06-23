@@ -18,8 +18,10 @@ package gov.vha.isaac.ochre.model.coordinate;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.TaxonomyType;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  *
@@ -27,18 +29,21 @@ import java.util.Objects;
  */
 public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
 
-    TaxonomyType taxonomyType;
+    PremiseType taxonomyType;
     StampCoordinate stampCoordinate;
     LanguageCoordinate languageCoordinate;
+    UUID uuid;
 
-    public TaxonomyCoordinateImpl(TaxonomyType taxonomyType, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
         this.taxonomyType = taxonomyType;
         this.stampCoordinate = stampCoordinate;
         this.languageCoordinate = languageCoordinate;
+        uuid = UuidT5Generator.get(UuidT5Generator.TAXONOMY_COORDINATE_NAMESPACE,
+        this.taxonomyType + stampCoordinate.toString() + languageCoordinate.toString());
     }
     
     @Override
-    public TaxonomyType getTaxonomyType() {
+    public PremiseType getTaxonomyType() {
         return taxonomyType;
     }
 
@@ -76,10 +81,12 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
         if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
             return false;
         }
-        if (!Objects.equals(this.languageCoordinate, other.languageCoordinate)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.languageCoordinate, other.languageCoordinate);
+    }
+
+    @Override
+    public UUID getUuid() {
+        return uuid;
     }
     
 }

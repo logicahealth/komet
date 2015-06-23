@@ -1,6 +1,5 @@
 package org.ihtsdo.otf.tcc.model.version;
 
-import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import java.io.IOException;
@@ -321,7 +320,7 @@ public class VersionComputer<V extends Version<?, ?>> {
             ContradictionManagerBI contradictionManager, InferredFilter[] filters) {
         HashSet<V> partsToAdd = new HashSet<>();
        StampCoordinateImpl sci = new StampCoordinateImpl(precedencePolicy.getStampPrecedence(), 
-                viewPosition, new int[] {});
+                viewPosition, new int[] {}, Status.getStateSet(allowedStatus));
          
             HashSet<V> partsForPosition = new HashSet<>();
             RelativePositionCalculator mapper = RelativePositionCalculator.getCalculator(sci);
@@ -382,7 +381,7 @@ public class VersionComputer<V extends Version<?, ?>> {
         HashSet<V> partsToAdd = new HashSet<>();
         
         StampCoordinateImpl sci = new StampCoordinateImpl(precedencePolicy.getStampPrecedence(), 
-                viewPosition, new int[] {});
+                viewPosition, new int[] {}, Status.getStateSet(allowedStatus));
             HashSet<V> partsForPosition = new HashSet<>();
             RelativePositionCalculator mapper = RelativePositionCalculator.getCalculator(sci);
             nextpart:

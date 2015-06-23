@@ -36,11 +36,7 @@ public class SubstitutionNodeConcept extends SubstitutionNode {
 
     @Override
     protected UUID initNodeUuid() {
-        try {
-            return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                    substitutionFieldSpecification.toString());
-        } catch (IOException | NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
+        return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
+                substitutionFieldSpecification.toString());
     }
 }

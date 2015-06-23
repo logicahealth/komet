@@ -15,13 +15,17 @@
  */
 package gov.vha.isaac.ochre.api.coordinate;
 
+import java.util.UUID;
+
 /**
  *
  * @author kec
  */
 public interface TaxonomyCoordinate {
     
-    TaxonomyType getTaxonomyType();
+    UUID getUuid();
+    
+    PremiseType getTaxonomyType();
     
     StampCoordinate getStampCoordinate();
     

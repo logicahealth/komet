@@ -66,12 +66,8 @@ public class LiteralNodeInteger extends LiteralNode {
 
     @Override
     protected UUID initNodeUuid() {
-        try {
-            return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                    Integer.toString(literalValue));
-        } catch (IOException | NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
+        return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
+                Integer.toString(literalValue));
     }
 
     @Override

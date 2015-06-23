@@ -15,15 +15,21 @@
  */
 package gov.vha.isaac.ochre.observable.model.coordinate;
 
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import java.util.EnumSet;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleSetProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableIntegerArray;
+import javafx.collections.ObservableSet;
 
 /**
  *
@@ -34,10 +40,26 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
     ObjectProperty<StampPrecedence> stampPrecedenceProperty;
     ObjectProperty<ObservableStampPosition> stampPositionProperty;
     ObjectProperty<ObservableIntegerArray> moduleSequencesProperty;
+    SetProperty<State> allowedStates;
     StampCoordinate stampCoordinate;
 
     public ObservableStampCoordinateImpl(StampCoordinate stampCoordinate) {
         this.stampCoordinate = stampCoordinate;
+    }
+
+    @Override
+    public SetProperty<State> allowedStatesProperty() {
+        if (allowedStates == null) {
+            allowedStates = new SimpleSetProperty(this, 
+                    ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE.toExternalString(), 
+                    FXCollections.observableSet(stampCoordinate.getAllowedStates()));
+        }
+        return allowedStates;
+    }
+
+    @Override
+    public ObservableSet<State> getAllowedStates() {
+        return allowedStatesProperty().getValue();
     }
     
     

@@ -17,7 +17,6 @@ package gov.vha.isaac.ochre.api.classifier;
 
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import java.util.Optional;
@@ -35,8 +34,6 @@ public interface ClassifierService {
             StampCoordinate stampCoordinate);
     
     Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, 
-            StampCoordinate stampCoordinate, 
-            LogicCoordinate logicCoordinate, 
             EditCoordinate editCoordinate);
     
 }

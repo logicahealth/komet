@@ -20,11 +20,13 @@ package org.ihtsdo.otf.tcc.ddo.concept.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleObjectProperty;
 
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.chronicle.TypedComponentVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -44,11 +46,21 @@ public class TypedComponentVersionDdo<V extends ComponentChronicleDdo, T extends
 
    public TypedComponentVersionDdo() {}
 
-   public TypedComponentVersionDdo(V chronicle, TerminologySnapshotDI ss, TypedComponentVersionBI another)
+   public TypedComponentVersionDdo(V chronicle, TaxonomyCoordinate ss, StampedVersion another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-      typeReferenceProperty.set(new ComponentReference(ss, another.getNid()));
-   }
+      if (another instanceof TypedComponentVersionBI) {
+        typeReferenceProperty.set(new ComponentReference(((TypedComponentVersionBI)another).getTypeNid(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate()));
+      } else if (another instanceof DescriptionSememe) {
+          DescriptionSememe desc = (DescriptionSememe) another;
+          typeReferenceProperty.set(new ComponentReference(desc.getDescriptionTypeConceptSequence(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate()));
+
+      } else {
+          throw new RuntimeException("Can't handle object: " + another);
+      }
+  }
 
    //~--- methods -------------------------------------------------------------
   /**

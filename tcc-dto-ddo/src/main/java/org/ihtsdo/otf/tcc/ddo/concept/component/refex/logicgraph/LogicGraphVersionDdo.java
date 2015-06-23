@@ -5,11 +5,11 @@
  */
 package org.ihtsdo.otf.tcc.ddo.concept.component.refex.logicgraph;
 
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import java.io.IOException;
 import javafx.beans.property.SimpleObjectProperty;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexVersionDdo;
 
@@ -45,11 +45,11 @@ public class LogicGraphVersionDdo<T extends RefexChronicleDdo,
     * @throws ContradictionException
     * @throws IOException
     */
-   public LogicGraphVersionDdo(T chronicle, TerminologySnapshotDI ss,
-       LogicGraphVersionBI another)
+   public LogicGraphVersionDdo(T chronicle, TaxonomyCoordinate ss,
+       LogicGraphSememe another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-      this.arrayOfByteArrayProperty = new SimpleObjectProperty(another.getLogicGraphBytes());
+      this.arrayOfByteArrayProperty = new SimpleObjectProperty(another);
    }
 
    /**

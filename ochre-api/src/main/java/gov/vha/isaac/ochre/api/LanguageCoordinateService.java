@@ -39,7 +39,14 @@ public interface LanguageCoordinateService {
 
     int caseSignificanceToConceptSequence(boolean initialCaseSignificant);
 
-    String conceptNidToIso639(int nid);
+    boolean conceptIdToCaseSignificance(int id);
+
+    /**
+     * 
+     * @param id either a concept nid or concept sequence
+     * @return ISO 639 language code
+     */
+    String conceptIdToIso639(int id);
 
     int iso639toConceptNid(String iso639text);
 

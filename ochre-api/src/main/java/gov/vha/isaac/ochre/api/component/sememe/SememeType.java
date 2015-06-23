@@ -38,7 +38,8 @@ public enum SememeType {
     LOGIC_GRAPH((byte) 4),
     STRING((byte) 5),
     DYNAMIC((byte) 6),
-    DESCRIPTION((byte) 7);
+    DESCRIPTION((byte) 7),
+    RELATIONSHIP_ADAPTOR((byte) 8);
 
     final byte sememeToken;
 

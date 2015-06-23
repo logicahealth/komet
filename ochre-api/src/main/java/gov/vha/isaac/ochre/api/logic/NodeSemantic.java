@@ -1,8 +1,6 @@
 package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 /**
@@ -43,12 +41,8 @@ public enum NodeSemantic {
     UUID semanticUuid;
 
     private NodeSemantic() {
-        try {
-            this.semanticUuid = UuidT5Generator.get(UUID.fromString("8a834ec8-028d-11e5-a322-1697f925ec7b"),
-                    this.getClass().getName() + this.name());
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex);
-        } 
+        this.semanticUuid = UuidT5Generator.get(UUID.fromString("8a834ec8-028d-11e5-a322-1697f925ec7b"),
+                this.getClass().getName() + this.name()); 
     }
     
     

@@ -604,7 +604,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 return calc.getLatestVersion(this);
             }
         }
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         if (latestStampSequences.isEmpty()) {
             return Optional.empty();
         }
@@ -614,7 +614,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     @Override
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
 

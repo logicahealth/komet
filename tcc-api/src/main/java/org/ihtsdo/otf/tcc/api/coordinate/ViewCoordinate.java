@@ -4,6 +4,7 @@ package org.ihtsdo.otf.tcc.api.coordinate;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LanguageCoordinateService;
 import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
@@ -13,7 +14,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.TaxonomyType;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
@@ -624,6 +625,11 @@ public class ViewCoordinate implements StampCoordinate,
         return vcUuid;
     }
 
+    @Override
+    public UUID getUuid() {
+        return vcUuid;
+    }
+
     public void setVcUuid(UUID vcUuid) {
         this.vcUuid = vcUuid;
     }
@@ -738,13 +744,13 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public TaxonomyType getTaxonomyType() {
+    public PremiseType getTaxonomyType() {
         switch (getRelationshipAssertionType()) {
             case INFERRED:
             case INFERRED_THEN_STATED:
-                return TaxonomyType.INFERRED;
+                return PremiseType.INFERRED;
             case STATED:
-                return TaxonomyType.STATED;
+                return PremiseType.STATED;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + getRelationshipAssertionType());
         }
@@ -829,6 +835,11 @@ public class ViewCoordinate implements StampCoordinate,
     public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
         return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
                 getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
+    @Override
+    public EnumSet<State> getAllowedStates() {
+        return Status.getStateSet(allowedStatus);
     }
 
 

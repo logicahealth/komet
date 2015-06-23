@@ -17,8 +17,6 @@ package gov.vha.isaac.ochre.observable.model;
 
 import static gov.vha.isaac.ochre.api.ConceptProxy.FIELD_SEPERATOR;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 /**
@@ -40,13 +38,15 @@ public enum ObservableFields {
     STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("stamp precedence for stamp coordinate"),
     STAMP_POSITION_FOR_STAMP_COORDINATE("stamp position for stamp coordinate"),
     MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE("module sequence array for stamp coordinate"),
+    ALLOWED_STATES_FOR_STAMP_COORDINATE("allowed states for stamp coordinate"),
     PATH_SEQUENCE_FOR_STAMP_PATH("path sequence for stamp path"),
     PATH_ORIGIN_LIST_FOR_STAMP_PATH("path origin list for stamp path"),
     TIME_FOR_STAMP_POSITION("time for stamp position"),
     PATH_SEQUENCE_FOR_STAMP_POSITION("path sequence for stamp position"),
-    TAXONOMY_TYPE_FOR_TAXONOMY_COORDINATE("taxonomy type for taxonomy coordinate"),
+    PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("premise type for taxonomy coordinate"),
     STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("stamp coordinate for taxonomy coordinate"),
     LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("language coordinate for taxonomy coordinate"),
+    UUID_FOR_TAXONOMY_COORDINATE("uuid for taxonomy coordinate"),
     STATUS_FOR_VERSION("status for version"),
     TIME_FOR_VERSION("time for version"),
     AUTHOR_SEQUENCE_FOR_VERSION("author sequence for version"),
@@ -89,11 +89,7 @@ public enum ObservableFields {
     }
 
     public UUID getUuid() {
-        try {
-            return UuidT5Generator.get(namespace, name());
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex);
-        }
+        return UuidT5Generator.get(namespace, name());
     }
 
 }

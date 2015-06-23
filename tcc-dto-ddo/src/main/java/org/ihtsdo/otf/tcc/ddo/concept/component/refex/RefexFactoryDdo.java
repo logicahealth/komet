@@ -13,41 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package org.ihtsdo.otf.tcc.ddo.concept.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
-
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_array_of_bytearray.RefexArrayOfByteArrayChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_boolean.RefexBooleanChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp.RefexCompChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_boolean.RefexCompBooleanChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp.RefexCompCompChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp.RefexCompCompCompChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_float.RefexCompCompCompFloatChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_int.RefexCompCompCompIntChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_long.RefexCompCompCompLongChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_comp_string
-   .RefexCompCompCompStringChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp_string.RefexCompCompStringChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_float.RefexCompFloatChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_int.RefexCompIntChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_long.RefexCompLongChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_string.RefexCompStringChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_int.RefexIntChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_long.RefexLongChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_member.RefexMembershipChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_string.RefexStringChronicleDdo;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
+import java.util.Optional;
+import org.ihtsdo.otf.tcc.ddo.concept.component.refex.logicgraph.LogicGraphChronicleDdo;
 
 /**
  *
@@ -55,81 +36,38 @@ import java.io.IOException;
  */
 public class RefexFactoryDdo {
 
-   /**
-    * Method description
-    *
-    *
-    * @param ss
-    * @param concept
-    * @param another
-    *
-    * @return
-    *
-    * @throws ContradictionException
-    * @throws IOException
-    */
-   public static RefexChronicleDdo make(TerminologySnapshotDI ss, ConceptChronicleDdo concept, RefexChronicleBI another)
-           throws IOException, ContradictionException {
-      switch (another.getRefexType()) {
-      case ARRAY_BYTEARRAY :
-         return new RefexArrayOfByteArrayChronicleDdo(ss, concept, another);
-
-      case BOOLEAN :
-         return new RefexBooleanChronicleDdo(ss, concept, another);
-
-      case CID :
-         return new RefexCompChronicleDdo(ss, concept, another);
-
-      case CID_BOOLEAN :
-         return new RefexCompBooleanChronicleDdo(ss, concept, another);
-
-      case CID_CID :
-         return new RefexCompCompChronicleDdo(ss, concept, another);
-
-      case CID_CID_CID :
-         return new RefexCompCompCompChronicleDdo(ss, concept, another);
-
-      case CID_CID_CID_FLOAT :
-         return new RefexCompCompCompFloatChronicleDdo(ss, concept, another);
-
-      case CID_CID_CID_INT :
-         return new RefexCompCompCompIntChronicleDdo(ss, concept, another);
-
-      case CID_CID_CID_LONG :
-         return new RefexCompCompCompLongChronicleDdo(ss, concept, another);
-
-      case CID_CID_CID_STRING :
-         return new RefexCompCompCompStringChronicleDdo(ss, concept, another);
-
-      case CID_CID_STR :
-         return new RefexCompCompStringChronicleDdo(ss, concept, another);
-
-      case CID_FLOAT :
-         return new RefexCompFloatChronicleDdo();
-
-      case CID_INT :
-         return new RefexCompIntChronicleDdo(ss, concept, another);
-
-      case CID_LONG :
-         return new RefexCompLongChronicleDdo(ss, concept, another);
-
-      case CID_STR :
-         return new RefexCompStringChronicleDdo(ss, concept, another);
-
-      case INT :
-         return new RefexIntChronicleDdo(ss, concept, another);
-
-      case LONG :
-         return new RefexLongChronicleDdo(ss, concept, another);
-
-      case MEMBER :
-         return new RefexMembershipChronicleDdo(ss, concept, another);
-
-      case STR :
-         return new RefexStringChronicleDdo(ss, concept, another);
-
-      default :
-         throw new UnsupportedOperationException("Can't handle: " + another.getRefexType());
-      }
-   }
+    /**
+     * Method description
+     *
+     *
+     * @param taxonomyCoordinate
+     * @param concept
+     * @param another
+     *
+     * @return
+     *
+     * @throws ContradictionException
+     * @throws IOException
+     */
+    public static Optional<RefexChronicleDdo<?,?>> make(TaxonomyCoordinate taxonomyCoordinate, ConceptChronicleDdo concept, SememeChronology another)
+            throws IOException, ContradictionException {
+        switch (another.getSememeType()) {
+            case COMPONENT_NID:
+                return Optional.of(new RefexCompChronicleDdo(taxonomyCoordinate, concept, another));
+            case LONG:
+                return Optional.of(new RefexLongChronicleDdo(taxonomyCoordinate, concept, another));
+            case MEMBER:
+                return Optional.of(new RefexMembershipChronicleDdo(taxonomyCoordinate, concept, another));
+            case STRING:
+                return Optional.of(new RefexStringChronicleDdo(taxonomyCoordinate, concept, another));
+            case LOGIC_GRAPH:
+                return Optional.of(new LogicGraphChronicleDdo(taxonomyCoordinate, concept, another));
+            case DESCRIPTION:
+                return Optional.empty();
+            case DYNAMIC:
+                return Optional.empty();
+            default:
+                throw new UnsupportedOperationException("Can't handle: " + another.getSememeType());
+        }
+    }
 }

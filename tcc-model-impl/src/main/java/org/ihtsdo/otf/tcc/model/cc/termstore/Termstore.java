@@ -397,7 +397,7 @@ public abstract class Termstore implements PersistentStoreI {
         try {
             return getComponent(PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid),
                     altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -483,7 +483,7 @@ public abstract class Termstore implements PersistentStoreI {
         try {
             return getComponentVersion(
                     vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid), altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -506,7 +506,7 @@ public abstract class Termstore implements PersistentStoreI {
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUUID, altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -605,7 +605,7 @@ public abstract class Termstore implements PersistentStoreI {
         try {
             return ConceptChronicle.get(
                     PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid), altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -625,7 +625,7 @@ public abstract class Termstore implements PersistentStoreI {
     public ConceptChronicleBI getConceptFromAlternateId(UUID authorityUuid, String altId) throws IOException {
         try {
             return ConceptChronicle.get(PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUuid, altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }

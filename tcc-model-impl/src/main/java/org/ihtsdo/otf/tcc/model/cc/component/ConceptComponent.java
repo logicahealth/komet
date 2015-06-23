@@ -261,7 +261,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
     public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
-        StampSequenceSet latestStampSequences = calc.getLatestStampSequences(this.getVersionStampSequences());
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
 
@@ -817,7 +817,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                     default:
                         throw new UnsupportedOperationException();
                 }
-            } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+            } catch (UnsupportedEncodingException ex) {
                 throw new IOException(ex);
             }
         }
