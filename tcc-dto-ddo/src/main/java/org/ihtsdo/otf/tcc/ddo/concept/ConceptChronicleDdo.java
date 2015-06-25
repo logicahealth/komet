@@ -1,12 +1,15 @@
 package org.ihtsdo.otf.tcc.ddo.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -52,6 +55,14 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexFactoryDdo;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement()
 public class ConceptChronicleDdo implements Serializable {
+    private static ConceptService conceptService;
+
+    private static ConceptService getConceptService() {
+        if (conceptService == null) {
+            conceptService = LookupService.getService(ConceptService.class);
+        }
+        return conceptService;
+    }
 
     public static final String PADDING = "     ";
     public static final long serialVersionUID = 1;
@@ -206,7 +217,9 @@ public class ConceptChronicleDdo implements Serializable {
                 LatestVersion<RelationshipVersionAdaptor> latestRelVersion = optionalRelVersion.get();
                 if (latestRelVersion.value().getTypeSequence() == isaSequence) {
                     if (taxonomyCoordinate.getTaxonomyType() == latestRelVersion.value().getPremiseType()) {
-                        RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(taxonomyCoordinate, this, rel);
+                        ConceptChronology origin = getConceptService().getConcept(latestRelVersion.value().getOriginSequence());
+                        ConceptChronicleDdo originDdo = new ConceptChronicleDdo(taxonomyCoordinate, origin, RefexPolicy.NONE, RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
+                        RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(taxonomyCoordinate, originDdo, rel);
                         _destinationRelationships.add(fxc);
                     }
                 }

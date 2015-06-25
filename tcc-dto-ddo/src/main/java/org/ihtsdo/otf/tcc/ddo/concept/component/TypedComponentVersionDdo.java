@@ -23,6 +23,7 @@ package org.ihtsdo.otf.tcc.ddo.concept.component;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import gov.vha.isaac.ochre.model.relationship.RelationshipVersionAdaptorImpl;
 import javafx.beans.property.SimpleObjectProperty;
 
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
@@ -55,6 +56,11 @@ public class TypedComponentVersionDdo<V extends ComponentChronicleDdo, T extends
       } else if (another instanceof DescriptionSememe) {
           DescriptionSememe desc = (DescriptionSememe) another;
           typeReferenceProperty.set(new ComponentReference(desc.getDescriptionTypeConceptSequence(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate()));
+
+      } else if (another instanceof RelationshipVersionAdaptorImpl) {
+          RelationshipVersionAdaptorImpl rel = (RelationshipVersionAdaptorImpl) another;
+          typeReferenceProperty.set(new ComponentReference(rel.getTypeSequence(), 
               ss.getStampCoordinate(), ss.getLanguageCoordinate()));
 
       } else {

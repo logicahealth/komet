@@ -608,7 +608,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         if (latestStampSequences.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new LatestVersion<>((V) getVersionsForStamps(latestStampSequences)));
+        return Optional.of(new LatestVersion<>((List<V>) getVersionsForStamps(latestStampSequences)));
     }
 
     @Override

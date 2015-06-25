@@ -106,5 +106,10 @@ public class RelationshipAdaptorChronicleKeyImpl implements RelationshipAdaptorC
 
         return this.premiseType == other.premiseType;
     }
+
+    @Override
+    public String toString() {
+        return "RelAdaptorKey{" + "originSequence=" + originSequence + ", destinationSequence=" + destinationSequence + ", typeSequence=" + typeSequence + ", group=" + group + ", premiseType=" + premiseType + ", nodeSequence=" + nodeSequence + '}';
+    }
     
 }

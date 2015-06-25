@@ -11,8 +11,6 @@ import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentChronicleDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -42,11 +40,12 @@ public class RelationshipChronicleDdo
                                   ObjectChronology<? extends RelationshipVersionAdaptor> another)
            throws IOException, ContradictionException {
       super(ss, concept, another);
+      RelationshipVersionAdaptor primordialVersion = another.getVersionList().get(0);
       this.originReferenceProperty.set(
-          new ComponentReference(another.getNid(), 
+          new ComponentReference(primordialVersion.getOriginSequence(), 
               ss.getStampCoordinate(), ss.getLanguageCoordinate()));
       this.destinationReferenceProperty.set(
-          new ComponentReference(another.getVersionList().get(0).getDestinationSequence(), 
+          new ComponentReference(primordialVersion.getDestinationSequence(), 
               ss.getStampCoordinate(), ss.getLanguageCoordinate()));
    }
 

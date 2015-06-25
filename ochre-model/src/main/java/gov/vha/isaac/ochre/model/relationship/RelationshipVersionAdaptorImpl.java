@@ -187,5 +187,10 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
     public RelationshipAdaptorChronicleKey getChronicleKey() {
         return relationshipAdaptorChronicleKey;
     }
+
+    @Override
+    public String toString() {
+        return "RelVersionAdaptor{" + "Key=" + relationshipAdaptorChronicleKey + ", stampSequence=" + stampSequence + '}';
+    }
     
 }

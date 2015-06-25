@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.api.chronicle;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -40,6 +41,15 @@ public final class LatestVersion<V>  {
     public LatestVersion(V latest) {
         this.value = Objects.requireNonNull(latest, "latest version cannot be null");
         contradictions = Optional.empty();
+    }
+
+    public LatestVersion(List<V> versions) {
+        this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
+        if (versions.size() < 2) {
+            contradictions = Optional.empty();
+        } else {
+            contradictions = Optional.of(new HashSet(versions.subList(1, versions.size())));
+        }
     }
 
     public LatestVersion(V latest, Collection<V> contradictions) {

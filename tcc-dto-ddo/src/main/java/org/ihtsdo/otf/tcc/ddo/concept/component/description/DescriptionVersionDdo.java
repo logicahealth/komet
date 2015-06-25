@@ -122,9 +122,6 @@ public class DescriptionVersionDdo extends TypedComponentVersionDdo<DescriptionC
         buff.append("'").append(this.languageProperty.get()).append("'");
         buff.append(" text:");
         buff.append("'").append(this.textProperty.get()).append("'");
-        buff.append(" type:");
-        buff.append(typeReferenceProperty.get().getText());
-        buff.append(" ");
         buff.append(super.toString());
 
         return buff.toString();

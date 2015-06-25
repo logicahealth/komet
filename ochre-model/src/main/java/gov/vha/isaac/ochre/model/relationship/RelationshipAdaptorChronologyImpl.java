@@ -52,9 +52,12 @@ public class RelationshipAdaptorChronologyImpl
      * Native identifier of this component
      */
     private final int nid;
+    /**
+     * Id of the logical expression this adaptor was generated from. 
+     */
     private final int referencedComponentNid;
 
-    private ArrayList<RelationshipVersionAdaptorImpl> versionList;
+    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList();
 
     public RelationshipAdaptorChronologyImpl(int nid, int referencedComponentNid) {
         this.nid = nid;
@@ -163,6 +166,11 @@ public class RelationshipAdaptorChronologyImpl
     @Override
     public int getReferencedComponentNid() {
         return referencedComponentNid; 
+    }
+
+    @Override
+    public String toString() {
+        return "RelAdaptor{" + "nid=" + nid + ", referencedComponentNid=" + referencedComponentNid + ", versionList=" + versionList + '}';
     }
     
 }

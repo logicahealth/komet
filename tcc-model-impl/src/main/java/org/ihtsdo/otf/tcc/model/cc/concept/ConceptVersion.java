@@ -1228,12 +1228,12 @@ public class ConceptVersion implements ConceptVersionBI,
 
     @Override
     public List<? extends ConceptVersionBI> getVersions() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return concept.getVersionList();
     }
 
     @Override
     public List<? extends ConceptVersionBI> getVersionList() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return concept.getVersionList();
     }
 
     // TODO this method calls ConceptChronicle.getVersions() which always returns UnsupportedOperationException.  If a different implementation getting called, it's probably wrong anyway
@@ -1438,17 +1438,17 @@ public class ConceptVersion implements ConceptVersionBI,
 
     @Override
     public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return concept.getSememeListFromAssemblage(assemblageSequence);
     }
 
     @Override
     public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return concept.getSememeListFromAssemblageOfType(assemblageSequence, type);
     }
 
     @Override
     public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       return concept.getConceptDescriptionList();
     }
 
     @Override

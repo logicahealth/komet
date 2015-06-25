@@ -112,6 +112,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
        if (identifierProvider == null) {
            identifierProvider = LookupService.getService(IdentifierService.class);
        }
+        Objects.requireNonNull(identifierProvider, "IdentifierService not found. LookupService can't find service. ");
        return identifierProvider;
    }
 
@@ -120,6 +121,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
        if (sememeService == null) {
            sememeService = LookupService.getService(SememeService.class);
        }
+        Objects.requireNonNull(sememeService, "SememeService not found. LookupService can't find service. ");
        return sememeService;
    }
     private static LogicService logicService;
@@ -128,6 +130,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         if (logicService == null) {
             logicService = LookupService.getService(LogicService.class);
         }
+        Objects.requireNonNull(logicService, "LogicService not found. LookupService can't find service. ");
         return logicService;
     }
 
@@ -1705,16 +1708,22 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public List<? extends ConceptVersionBI> getVersionList() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getVersions();
     }
 
     @Override
     public List<? extends ConceptVersionBI> getVersions() {
         try {
+            ArrayList<ConceptVersion> cvList = new ArrayList<>();
             for (Position p: getPositions()) {
+                UUID vcUuid = UUID.randomUUID();
+                ViewCoordinate vc = new ViewCoordinate(vcUuid, vcUuid.toString(), Ts.get().getMetadataVC());
+                vc.setViewPosition(p);
+                cvList.add(new ConceptVersion(this, vc));
                // need to know if stated or inferred...   
+               // throw new UnsupportedOperationException("Not supported yet.");
             }
-            throw new UnsupportedOperationException("Not supported yet.");
+            return cvList;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -2028,7 +2037,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination() {
         if (relationshipListWithConceptAsDestinationListDefaltCoordinate == null) {
             relationshipListWithConceptAsDestinationListDefaltCoordinate = new ArrayList<>();
-            getLogicService().getRelationshipAdaptorsOriginatingWithConcept(this)
+            getLogicService().getRelationshipAdaptorsWithConceptAsDestination(this)
                     .forEach((relAdaptor) -> {
                         relationshipListWithConceptAsDestinationListDefaltCoordinate.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                     });
