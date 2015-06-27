@@ -5,9 +5,13 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -56,7 +60,7 @@ public class RelGroupVersion implements RelGroupVersionBI {
    private ViewCoordinate      coordinate;
    private int                 moduleNid;
    private int                 pathNid;
-   private RelGroupChronicleBI rg;
+   private RelGroupChronicle rg;
    private Status                 status;
 
    //~--- constructors --------------------------------------------------------
@@ -64,12 +68,18 @@ public class RelGroupVersion implements RelGroupVersionBI {
    public RelGroupVersion(RelGroupChronicleBI rg, ViewCoordinate coordinate) {
       assert rg != null;
       assert coordinate != null;
-      this.rg         = rg;
+      this.rg         = (RelGroupChronicle) rg;
       this.coordinate = new ViewCoordinate(UUID.randomUUID(), "RelGroupVersion temp", coordinate);
       setupLatest();
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
+    }
 
    @Override
    public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
@@ -252,7 +262,6 @@ public class RelGroupVersion implements RelGroupVersionBI {
       return rg;
    }
 
-   @Override
    public int getConceptNid() {
       return rg.getConceptNid();
    }
@@ -434,10 +443,6 @@ public class RelGroupVersion implements RelGroupVersionBI {
       return time;
    }
 
-   @Override
-   public List<UUID> getUUIDs() {
-      return rg.getUUIDs();
-   }
 
    @Override
    public List<UUID> getUuidList() {
@@ -516,8 +521,24 @@ public class RelGroupVersion implements RelGroupVersionBI {
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    @Override
+    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    @Override
+    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    @Override
+    public int getEnclosingConceptNid() {
+        return rg.getConceptNid();
+    }
 
+    @Override
+    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate coordinate) {
+        return rg.getLatestVersion(type, coordinate);
+    }
 }

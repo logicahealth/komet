@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -32,11 +33,12 @@ public interface SememeService {
     <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType, 
             StampCoordinate stampCoordinate);
     
-    SememeChronology getSememe(int sememeSequence);
+    <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
+    
+    SememeChronology<? extends SememeVersion> getSememe(int sememeSequence);
     
     Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence);
-    SememeSequenceSet getSememeSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence, StampPosition position);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageSequence, StampPosition position);
     
     Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid);
@@ -51,7 +53,7 @@ public interface SememeService {
     Stream<SememeChronology<? extends SememeVersion>> getSememeStream();
     
     Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream();
-
-
+    
+    Stream<SememeChronology<DescriptionSememe>> getDescriptionsForComponent(int componentNid);
     
 }

@@ -15,15 +15,15 @@
  */
 package gov.vha.isaac.ochre.api.observable.sememe.version;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
-import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 import javafx.beans.property.IntegerProperty;
 
 /**
  *
  * @author kec
  */
-public interface ObservableComponentNidSememe extends ComponentNidSememe, ObservableVersion {
+public interface ObservableComponentNidSememe extends ObservableSememeVersion {
+    
+    int getComponentNid();
     
     IntegerProperty componentNidProperty();
     

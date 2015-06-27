@@ -1,5 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
+//~--- non-JDK imports --------------------------------------------------------
+
+
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -11,6 +16,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -188,4 +194,10 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
                 refexDirective, idDirective);
         return conAttrBp;
     }
+
+    @Override
+    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate coordinate) {
+       return primordialComponent.getLatestVersion(type, coordinate);
+    }
+    
 }

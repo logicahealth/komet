@@ -108,5 +108,10 @@ public class LogicCoordinateLazyBinding implements LogicCoordinate {
         }
         return this.getClassifierSequence() == other.getClassifierSequence();
     }
+
+    @Override
+    public String toString() {
+        return "LogicCoordinateLazyBinding{" + "statedAssemblageProxy=" + statedAssemblageProxy + ", inferredAssemblageProxy=" + inferredAssemblageProxy + ", descriptionLogicProfileProxy=" + descriptionLogicProfileProxy + ", classifierProxy=" + classifierProxy + '}';
+    }
     
 }

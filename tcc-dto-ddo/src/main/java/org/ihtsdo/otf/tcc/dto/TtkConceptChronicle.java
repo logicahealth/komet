@@ -1,14 +1,14 @@
 package org.ihtsdo.otf.tcc.dto;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
+import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
-import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
@@ -58,8 +58,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_long.TtkRefexU
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefexUuidUuidUuidStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_FLOAT;
 import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_INT;
@@ -73,7 +71,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.stream.IntStream;
+import java.util.stream.IntStream.Builder;
 import javax.xml.bind.JAXB;
 
 import javax.xml.bind.annotation.*;
@@ -91,6 +90,21 @@ import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChro
 @XmlRootElement(name = "concept")
 public class TtkConceptChronicle implements ChronicledObjectUniversal {
 
+    private static IdentifierService identifierService;
+    protected static IdentifierService getIdentifierService() {
+        if (identifierService == null) {
+            identifierService = LookupService.getService(IdentifierService.class);
+        }
+        return identifierService;
+    }
+    
+    private static CommitService commitService;
+    protected static CommitService getCommitService() {
+        if (commitService == null) {
+            commitService = LookupService.getService(CommitService.class);
+        }
+        return commitService;
+    }
     /**
      * Field description
      */
@@ -212,11 +226,11 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
 //            }
 //            switch (sc.getSememeType()) {
 //                case LOGIC_GRAPH:
-//                    TtkLogicGraphMemberChronicle lgmc = new TtkLogicGraphMemberChronicle((SememeChronicleImpl<LogicGraphSememeImpl>) sc);
+//                    TtkLogicGraphMemberChronicle lgmc = new TtkLogicGraphMemberChronicle((SememeChroniclogyImpl<LogicGraphSememeImpl>) sc);
 //                    refsetMembers.add(lgmc);
 //                    break;
 //                case STRING:
-//                    TtkRefexStringMemberChronicle smc = new TtkRefexStringMemberChronicle((SememeChronicleImpl<StringSememeImpl>) sc);
+//                    TtkRefexStringMemberChronicle smc = new TtkRefexStringMemberChronicle((SememeChroniclogyImpl<StringSememeImpl>) sc);
 //                    refsetMembers.add(smc);
 //                    break;
 //                default:
@@ -274,66 +288,16 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         readExternal(in);
     }
 
-    /**
-     * Constructs ...
-     *
-     *
-     * @param another
-     * @param transformer
-     */
-    public TtkConceptChronicle(TtkConceptChronicle another, ComponentTransformerBI transformer) {
-        super();
-        this.annotationStyleRefex = transformer.transform(another.annotationStyleRefex, another,
-                ComponentFields.ANNOTATION_REFEX);
-        this.annotationIndexStyleRefex = transformer.transform(another.annotationIndexStyleRefex, another,
-                ComponentFields.ANNOTATION_INDEX_REFEX);
-
-        if (another.conceptAttributes != null) {
-            this.conceptAttributes = another.conceptAttributes.makeTransform(transformer);
-        }
-
-        if (another.descriptions != null) {
-            this.descriptions = new ArrayList<>(another.descriptions.size());
-
-            for (TtkDescriptionChronicle d : another.descriptions) {
-                this.descriptions.add(d.makeTransform(transformer));
+    public IntStream getStampSequenceStream() {
+        Builder builder = IntStream.builder();
+        processComponentChronicles((TtkComponentChronicle<?, ?> cc) -> {
+            builder.accept(cc.getStampSequence());
+            if (cc.revisions != null) {
+                cc.revisions.forEach((revision) -> builder.accept(revision.getStampSequence()));
             }
-        }
-
-        if (another.media != null) {
-            this.media = new ArrayList<>(another.media.size());
-
-            for (TtkMediaChronicle d : another.media) {
-                this.media.add(d.makeTransform(transformer));
-            }
-        }
-
-        this.primordialUuid = transformer.transform(another.primordialUuid, another,
-                ComponentFields.PRIMORDIAL_UUID);
-
-        if (another.refsetMembers != null) {
-            this.refsetMembers = new ArrayList<>(another.refsetMembers.size());
-
-            for (TtkRefexAbstractMemberChronicle<?> d : another.refsetMembers) {
-                this.refsetMembers.add((TtkRefexAbstractMemberChronicle<?>) d.makeTransform(transformer));
-            }
-        }
-
-        if (another.refsetMembersDynamic != null) {
-            this.refsetMembersDynamic = new ArrayList<>(another.refsetMembersDynamic.size());
-
-            for (TtkRefexDynamicMemberChronicle d : another.refsetMembersDynamic) {
-                this.refsetMembersDynamic.add((TtkRefexDynamicMemberChronicle) d.makeTransform(transformer));
-            }
-        }
-
-        if (another.relationships != null) {
-            this.relationships = new ArrayList<>(another.relationships.size());
-
-            for (TtkRelationshipChronicle d : another.relationships) {
-                this.relationships.add(d.makeTransform(transformer));
-            }
-        }
+        });
+        
+        return builder.build();
     }
 
     public void processComponentChronicles(TtkChronicleProcessor processor) {
@@ -359,6 +323,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         processChronicle(chronicle.getAnnotationsDynamic(), processor);
     }
 
+    @Override
     public boolean isUncommitted() {
         UncommittedTestProcessor uncommittedTestProcessor = new UncommittedTestProcessor();
         processComponentRevisions(uncommittedTestProcessor);
@@ -393,7 +358,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         processChronicleRevisions(this.refsetMembersDynamic, processor);
     }
 
-    private void processChronicleRevisions(TtkComponentChronicle<?> cc,
+    private void processChronicleRevisions(TtkComponentChronicle<?, ?> cc,
             TtkRevisionProcessorBI processor) {
         if (cc != null) {
             processor.process(cc);
@@ -409,23 +374,22 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         }
     }
 
-    private void processChronicleRevisions(List<? extends TtkComponentChronicle<?>> componentList,
+    private void processChronicleRevisions(List<? extends TtkComponentChronicle<?, ?>> componentList,
             TtkRevisionProcessorBI processor) {
         if (componentList != null) {
-            for (TtkComponentChronicle<?> cc : componentList) {
+            for (TtkComponentChronicle<?, ?> cc : componentList) {
                 processChronicleRevisions(cc, processor);
             }
         }
     }
 
     public static TtkRefexAbstractMemberChronicle<?> convertSememeChronicle(SememeChronology<?> sc) {
-        SememeChronicleImpl<LogicGraphSememeImpl> sci = (SememeChronicleImpl<LogicGraphSememeImpl>) sc;
+        SememeChronologyImpl<LogicGraphSememeImpl> sci = (SememeChronologyImpl<LogicGraphSememeImpl>) sc;
         switch (sci.getSememeType()) {
             case LOGIC_GRAPH:
                 return new TtkLogicGraphMemberChronicle(sci);
             case COMPONENT_NID:
-            case CONCEPT_SEQUENCE:
-            case CONCEPT_SEQUENCE_TIME:
+            case LONG:
             case DYNAMIC:
             case MEMBER:
             default:

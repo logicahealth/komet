@@ -29,6 +29,4 @@ public interface MutableStampedVersion extends StampedVersion {
     
     void setPathSequence(int pathSequence);
     
-    boolean isUncommitted();
-    
 }

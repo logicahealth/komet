@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.collections;
 
 import gov.vha.isaac.ochre.api.IdentifierService;
-import static gov.vha.isaac.ochre.collections.IntSet.getSequenceProvider;
+import static gov.vha.isaac.ochre.collections.IntSet.getIdentifierService;
 import java.util.Collection;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -34,18 +34,24 @@ public class NidSet extends IntSet {
     public static NidSet of(OpenIntHashSet members) {
         return new NidSet(members);
     }
+    public static NidSet of(IntStream memberStream) {
+        return new NidSet(memberStream);
+    }
+    public static NidSet ofAllComponentNids() {
+        return new NidSet(getIdentifierService().getComponentNidStream());
+    }
     
     public static NidSet of(Collection<Integer> members) {
         return new NidSet(members.stream().mapToInt(i -> i));
     }
     public static NidSet of(ConceptSequenceSet conceptSequenceSet) {
-        IdentifierService sp = getSequenceProvider();
+        IdentifierService sp = getIdentifierService();
         return new NidSet(conceptSequenceSet.stream()
                 .map((sequence) -> sp.getConceptNid(sequence)));
     }
 
     public static NidSet of(SememeSequenceSet sememeSequenceSet) {
-        IdentifierService sp = getSequenceProvider();
+        IdentifierService sp = getIdentifierService();
         return new NidSet(sememeSequenceSet.stream()
                 .map((sequence) -> sp.getSememeNid(sequence)));
     }

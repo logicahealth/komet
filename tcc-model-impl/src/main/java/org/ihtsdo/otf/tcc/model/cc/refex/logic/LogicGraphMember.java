@@ -7,7 +7,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
@@ -48,7 +48,7 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
 
     public LogicGraphMember(TtkLogicGraphMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        LogicByteArrayConverter converter = Hk2Looker.get().getService(LogicByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = Hk2Looker.get().getService(LogicalExpressionByteArrayConverter.class);
         logicGraphBytes =  converter.convertLogicGraphForm(logicGraphBytes, DataTarget.INTERNAL);
 
         if (refsetMember.getRevisionList() != null) {
@@ -214,7 +214,7 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
     }
     @Override
     public byte[][] getExternalLogicGraphBytes() {
-        LogicByteArrayConverter converter = LookupService.get().getService(LogicByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = LookupService.get().getService(LogicalExpressionByteArrayConverter.class);
         return converter.convertLogicGraphForm(logicGraphBytes, DataTarget.EXTERNAL);
     }
 

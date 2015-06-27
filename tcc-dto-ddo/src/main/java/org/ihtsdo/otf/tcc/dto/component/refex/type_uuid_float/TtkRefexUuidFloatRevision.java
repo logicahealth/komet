@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexUuidFloatRevision extends TtkRevision {
    public static final long serialVersionUID = 1;
@@ -47,13 +45,6 @@ public class TtkRefexUuidFloatRevision extends TtkRevision {
    public TtkRefexUuidFloatRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexUuidFloatRevision(TtkRefexUuidFloatRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1 = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.float1 = transformer.transform(another.float1, another, ComponentFields.REFEX_FLOAT1);
-
    }
 
    //~--- methods -------------------------------------------------------------
@@ -98,11 +89,6 @@ public class TtkRefexUuidFloatRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   @Override
-   public TtkRefexUuidFloatRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexUuidFloatRevision(this, transformer);
    }
 
    @Override

@@ -2,23 +2,18 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleStringProperty;
 
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexVersionDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_string.RefexCompStringVersionDdo;
 
 
-@XmlSeeAlso( {
-    RefexCompStringVersionDdo.class, 
-})
 public class RefexStringVersionDdo extends RefexVersionDdo<RefexStringChronicleDdo, RefexStringVersionDdo> {
    public static final long serialVersionUID = 1;
 
@@ -32,11 +27,11 @@ public class RefexStringVersionDdo extends RefexVersionDdo<RefexStringChronicleD
       super();
    }
 
-   public RefexStringVersionDdo(RefexStringChronicleDdo chronicle, TerminologySnapshotDI ss,
-                               RefexStringVersionBI another)
+   public RefexStringVersionDdo(RefexStringChronicleDdo chronicle, TaxonomyCoordinate ss,
+                               StringSememe another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-      this.string1Property.set(another.getString1());
+      this.string1Property.set(another.getString());
    }
 
    //~--- methods -------------------------------------------------------------

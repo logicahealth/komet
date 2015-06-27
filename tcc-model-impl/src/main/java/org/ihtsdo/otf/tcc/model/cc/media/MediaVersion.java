@@ -16,6 +16,8 @@
 
 package org.ihtsdo.otf.tcc.model.cc.media;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,6 +30,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.model.cc.component.Version;
 
 //~--- inner classes -------------------------------------------------------
@@ -134,6 +137,11 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     @Override
     public void setTypeNid(int type) throws PropertyVetoException {
         getCv().setTypeNid(type);
+    }
+
+    @Override
+    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate coordinate) {
+        return this.getCv().getLatestVersion(type, coordinate);
     }
     
 }

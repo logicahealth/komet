@@ -16,8 +16,14 @@
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.IdentifiedObjectService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.PathService;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.collections.NidSet;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
@@ -29,14 +35,13 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptContainerBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidFactory;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
@@ -54,7 +59,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.model.path.PathManager;
 
 /**
  *
@@ -160,57 +164,6 @@ public abstract class Termstore implements PersistentStoreI {
         return new ChangeSetWriter(changeSetFileName, changeSetTempFileName, policy, true);
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @param nid
-     *
-     * @return
-     */
-    @Override
-    public CharSequence informAboutNid(int nid) {
-        if (nid > -1) {
-            nid = getIdentifierService().getConceptNid(nid);
-        }
-        StringBuilder sb = new StringBuilder();
-
-        try {
-            int cNid = Ts.get().getConceptNidForNid(nid);
-
-            if (cNid == nid) {
-                ConceptChronicleBI cc = Ts.get().getConcept(cNid);
-
-                sb.append("'");
-                sb.append(cc.toUserString());
-                sb.append("' ");
-                sb.append(cNid);
-                sb.append(" ");
-                sb.append(cc.getPrimordialUuid());
-            } else {
-                ComponentBI component = Ts.get().getComponent(nid);
-
-                sb.append("comp: '");
-
-                if (component != null) {
-                    sb.append(component.toUserString());
-                } else {
-                    sb.append("null");
-                }
-
-                sb.append("' ");
-                sb.append(nid);
-                sb.append(" ");
-                if (component != null) {
-                    sb.append(component.getPrimordialUuid());
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(Termstore.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return sb;
-    }
 
     /**
      * Method description
@@ -322,7 +275,7 @@ public abstract class Termstore implements PersistentStoreI {
      * @throws IOException
      */
     @Override
-    public Position newPosition(Path path, long time) throws IOException {
+    public Position newPosition(StampPath path, long time) throws IOException {
         return new Position(time, path);
     }
 
@@ -386,6 +339,13 @@ public abstract class Termstore implements PersistentStoreI {
         return getComponent(cc.getNid());
     }
 
+    private static IdentifiedObjectService ios;
+    private IdentifiedObjectService getIdentifiedObjectService() {
+        if (ios == null) {
+            ios = LookupService.getService(IdentifiedObjectService.class);
+        }
+        return ios;
+    }
     /**
      * Method description
      *
@@ -398,11 +358,12 @@ public abstract class Termstore implements PersistentStoreI {
      */
     @Override
     public final ComponentChronicleBI<?> getComponent(int nid) throws IOException {
-        if (getConceptNidForNid(nid) == Integer.MAX_VALUE) {
-            return null;
+        Optional<? extends ObjectChronology<? extends StampedVersion>> result = 
+                getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
+        if (result.isPresent()) {
+            return (ComponentChronicleBI<?>) result.get();
         }
-
-        return getConceptForNid(nid).getComponent(nid);
+        return null;
     }
 
     /**
@@ -436,7 +397,7 @@ public abstract class Termstore implements PersistentStoreI {
         try {
             return getComponent(PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid),
                     altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -482,7 +443,7 @@ public abstract class Termstore implements PersistentStoreI {
 
             return ((ComponentChronicleBI<?>) component).getVersion(coordinate);
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -522,7 +483,7 @@ public abstract class Termstore implements PersistentStoreI {
         try {
             return getComponentVersion(
                     vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid), altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -545,7 +506,7 @@ public abstract class Termstore implements PersistentStoreI {
             throws IOException, ContradictionException {
         try {
             return getComponentVersion(vc, PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUUID, altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -644,7 +605,7 @@ public abstract class Termstore implements PersistentStoreI {
         try {
             return ConceptChronicle.get(
                     PersistentStore.get().getNidForUuids(UuidT5Generator.get(PersistentStore.get().getUuidPrimordialForNid(authorityNid), altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -664,7 +625,7 @@ public abstract class Termstore implements PersistentStoreI {
     public ConceptChronicleBI getConceptFromAlternateId(UUID authorityUuid, String altId) throws IOException {
         try {
             return ConceptChronicle.get(PersistentStore.get().getNidForUuids(UuidT5Generator.get(authorityUuid, altId)));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -770,7 +731,8 @@ public abstract class Termstore implements PersistentStoreI {
      */
     @Override
     public Map<Integer, ConceptVersionBI> getConceptVersions(ViewCoordinate c, NativeIdSetBI cNids) throws IOException {
-        ConceptVersionGetter processor = new ConceptVersionGetter(cNids, c);
+        NidSet cNidSet = NidSet.of(cNids.toConceptSequenceSet());
+        ConceptVersionGetter processor = new ConceptVersionGetter(cNidSet, c);
 
         try {
             PersistentStore.get().iterateConceptDataInParallel(processor);
@@ -793,7 +755,8 @@ public abstract class Termstore implements PersistentStoreI {
      */
     @Override
     public Map<Integer, ConceptChronicleBI> getConcepts(NativeIdSetBI cNids) throws IOException {
-        ConceptGetter processor = new ConceptGetter(cNids);
+        NidSet cNidSet = NidSet.of(cNids.toConceptSequenceSet());
+        ConceptGetter processor = new ConceptGetter(cNidSet);
 
         try {
             PersistentStore.get().iterateConceptDataInParallel(processor);
@@ -938,18 +901,13 @@ public abstract class Termstore implements PersistentStoreI {
     }
 
     @Override
-    public final Path getPath(int pathNid) throws IOException {
-        return PathManager.get().get(pathNid);
+    public final StampPath getPath(int pathNid) throws IOException {
+        return  LookupService.getService(PathService.class).getStampPath(pathNid);
     }
 
     @Override
-    public final List<? extends Path> getPathChildren(int nid) {
-        return PathManager.get().getPathChildren(nid);
-    }
-
-    @Override
-    public final Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
-        HashSet<Path> paths = new HashSet<>(positions.size());
+    public final Set<StampPath> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
+        HashSet<StampPath> paths = new HashSet<>(positions.size());
         for (Position position : positions) {
             paths.add(position.getPath());
             // addOrigins(paths, position.getPath().getInheritedOrigins());
@@ -958,10 +916,10 @@ public abstract class Termstore implements PersistentStoreI {
     }
 
     @Override
-    public final Set<Path> getPathSetFromStampSet(Set<Integer> stamps) throws IOException {
-        HashSet<Path> paths = new HashSet<>(stamps.size());
+    public final Set<StampPath> getPathSetFromStampSet(Set<Integer> stamps) throws IOException {
+        HashSet<StampPath> paths = new HashSet<>(stamps.size());
         for (int stamp : stamps) {
-            Path path = PathManager.get().get(getPathNidForStamp(stamp));
+            StampPath path =  LookupService.getService(PathService.class).getStampPath(getPathNidForStamp(stamp));
             paths.add(path);
         }
         return paths;
@@ -972,7 +930,7 @@ public abstract class Termstore implements PersistentStoreI {
         TreeSet<Position> positions = new TreeSet<>();
         for (int stamp : stamps) {
             if (stamp >= 0) {
-                Path path = PathManager.get().get(getPathNidForStamp(stamp));
+                StampPath path =  LookupService.getService(PathService.class).getStampPath(getPathNidForStamp(stamp));
                 positions.add(new Position(getTimeForStamp(stamp), path));
             }
         }

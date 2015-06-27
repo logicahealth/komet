@@ -2,6 +2,12 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -24,6 +30,8 @@ import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
+import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getIdentifierService;
+import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getLanguageCoordinateService;
 
 public class DescriptionRevision extends Revision<DescriptionRevision, Description>
         implements DescriptionAnalogBI<DescriptionRevision> {
@@ -316,4 +324,61 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
       this.typeNid = typeNid;
       modified();
    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
+        return primordialComponent.getLatestVersion(type, coordinate);
+    }
+    
+
+    @Override
+    public <M extends DescriptionVersionBI> M createMutableVersion(Class<M> type, State state, EditCoordinate ec) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <M extends DescriptionVersionBI> M createMutableVersion(Class<M> type, int stampSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SememeType getSememeType() {
+        return SememeType.DESCRIPTION;
+    }
+
+    @Override
+    public int getSememeSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getAssemblageSequence() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getReferencedComponentNid() {
+        return getConceptNid();
+    }
+
+    @Override
+    public int getCaseSignificanceConceptSequence() {
+        return getIdentifierService().getConceptSequence(
+                getLanguageCoordinateService().caseSignificanceToConceptSequence(isInitialCaseSignificant()));
+    }
+
+    @Override
+    public int getLanguageConceptSequence() {
+        return getLanguageCoordinateService().iso639toConceptSequence(getLang());
+    }
+
+    @Override
+    public int getDescriptionTypeConceptSequence() {
+        return getIdentifierService().getConceptSequence(getTypeNid());
+    }
+
+    @Override
+    public SememeChronology getChronology() {
+        return this;
+    }    
 }

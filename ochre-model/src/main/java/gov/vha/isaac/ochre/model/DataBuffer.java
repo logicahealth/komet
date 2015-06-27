@@ -43,7 +43,9 @@ public class DataBuffer {
 
     public DataBuffer(byte[] data) {
         this.data = data;
-        this.used = data.length;
+        //TODO Keith - this null check likely shouldn't be here (I added it to get around a problem), I suspect related 
+        //to other problems in the sememe service at the moment. 
+        this.used = data == null ? 0 : data.length;
     }
 
     public DataBuffer(int size) {
@@ -250,10 +252,6 @@ public class DataBuffer {
 
     public int getInt(int position) {
         long lockStamp = sl.tryOptimisticRead();
-        // TODO remove line for debugging. 
-        if (position + 4 > data.length) {
-            System.out.println("Index going to be out of bounds...");
-        }
         int result = (((data[position]) << 24)
                 | ((data[position + 1] & 0xff) << 16)
                 | ((data[position + 2] & 0xff) << 8)
@@ -558,7 +556,6 @@ public class DataBuffer {
 
         putInt(utflen);
         put(bytearr, 0, utflen);
-        position += utflen;
     }
 
     public final String readUTF() {

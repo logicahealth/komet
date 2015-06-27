@@ -1,34 +1,36 @@
 package org.ihtsdo.otf.tcc.dto.component;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.IdentifiedObjectService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.collections.LruCache;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class TtkRevision implements ExternalStampBI {
+public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
+
+    private static final long serialVersionUID = 1;
 
     private static IdentifierService idService = null;
 
@@ -39,8 +41,32 @@ public abstract class TtkRevision implements ExternalStampBI {
         return idService;
     }
 
-    @SuppressWarnings("unused")
-    private static final long serialVersionUID = 1;
+    private static CommitService commitService;
+
+    protected static CommitService getCommitService() {
+        if (commitService == null) {
+            commitService = LookupService.getService(CommitService.class);
+        }
+        return commitService;
+    }
+
+    private static ConceptService conceptService;
+
+    protected static ConceptService getConceptService() {
+        if (conceptService == null) {
+            conceptService = LookupService.getService(ConceptService.class);
+        }
+        return conceptService;
+    }
+
+    private static IdentifiedObjectService identifiedObjectService;
+
+    protected static IdentifiedObjectService getIdentifiedObjectService() {
+        if (identifiedObjectService == null) {
+            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
+        }
+        return identifiedObjectService;
+    }
 
     @XmlAttribute
     public long time = Long.MIN_VALUE;
@@ -105,21 +131,64 @@ public abstract class TtkRevision implements ExternalStampBI {
         assert moduleUuid != null : this;
     }
 
-    public TtkRevision(TtkRevision another, ComponentTransformerBI transformer) {
-        super();
-        this.status = another.status;
-        this.authorUuid = transformer.transform(another.authorUuid, another, ComponentFields.AUTHOR_UUID);
-        this.pathUuid = transformer.transform(another.pathUuid, another, ComponentFields.PATH_UUID);
-        this.moduleUuid = transformer.transform(another.moduleUuid, another, ComponentFields.MODULE_UUID);
-        assert pathUuid != null : another;
-        assert authorUuid != null : another;
-        assert status != null : another;
-        assert moduleUuid != null : another;
-        this.time = transformer.transform(another.time, another, ComponentFields.TIME);
-    }
-
     public TtkStamp getStamp() {
         return new TtkStamp(status, time, authorUuid, moduleUuid, pathUuid);
+    }
+
+    @Override
+    public int getStampSequence() {
+        return getCommitService().getStampSequence(getState(), time, getAuthorSequence(),
+                getModuleSequence(), getPathSequence());
+    }
+
+    @Override
+    public State getState() {
+        return status.getState();
+    }
+
+    @Override
+    public int getAuthorSequence() {
+        return getIdService().getConceptSequenceForUuids(authorUuid);
+    }
+
+    private static ThreadLocal<LinkedHashMap<UUID, Integer>> moduleSequenceCache =
+            new ThreadLocal() {
+                @Override
+                protected LruCache<UUID, Integer> initialValue() {
+                    return new LruCache<>(13);
+                }
+            };
+
+    @Override
+    public int getModuleSequence() {
+        Integer pathSequence = moduleSequenceCache.get().get(moduleUuid);
+        if (pathSequence != null) {
+            return pathSequence;
+        }
+
+        int intPathSequence = getIdService().getConceptSequenceForUuids(moduleUuid);
+        moduleSequenceCache.get().put(moduleUuid, intPathSequence);
+        return intPathSequence;
+    }
+
+    private static ThreadLocal<LinkedHashMap<UUID, Integer>> pathSequenceCache =
+            new ThreadLocal() {
+                @Override
+                protected LruCache<UUID, Integer> initialValue() {
+                    return new LruCache<>(7);
+                }
+            };
+
+    @Override
+    public int getPathSequence() {
+        Integer pathSequence = pathSequenceCache.get().get(pathUuid);
+        if (pathSequence != null) {
+            return pathSequence;
+        }
+
+        int intPathSequence = getIdService().getConceptSequenceForUuids(pathUuid);
+        pathSequenceCache.get().put(pathUuid, intPathSequence);
+        return intPathSequence;
     }
 
     public Collection<UUID> getUuidReferences() {
@@ -209,31 +278,32 @@ public abstract class TtkRevision implements ExternalStampBI {
         if (uuid == null) {
             return "NULL UUID";
         }
-        if (Ts.get() == null) {
+        if (getConceptService() == null) {
             return uuid.toString();
         }
 
         StringBuilder sb = new StringBuilder();
 
-        if (Ts.get().hasUuid(uuid)) {
-            try {
-                int nid = Ts.get().getNidForUuids(uuid);
-                int cNid = Ts.get().getConceptNidForNid(nid);
-
-                if (cNid == nid) {
-                    ConceptChronicleBI cc = Ts.get().getConcept(cNid);
+        if (getIdService().hasUuid(uuid)) {
+            int nid = getIdService().getNidForUuids(uuid);
+            int conceptSequence = getIdService().getConceptSequenceForComponentNid(nid);
+            if (conceptSequence != Integer.MAX_VALUE) {
+                if (getIdService().getChronologyTypeForNid(nid) == ObjectChronologyType.CONCEPT) {
+                    ConceptChronology<? extends StampedVersion> cc
+                            = getConceptService().getConcept(conceptSequence);
 
                     sb.append("'");
                     sb.append(cc.toUserString());
                     sb.append("' ");
-                    sb.append(cNid);
+                    sb.append(conceptSequence);
                     sb.append(" ");
                 } else {
-                    ComponentBI component = Ts.get().getComponent(nid);
+                    Optional<? extends ObjectChronology<? extends StampedVersion>> component = 
+                            getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
 
-                    if (component != null) {
+                    if (component.isPresent()) {
                         sb.append("' ");
-                        sb.append(component.toUserString());
+                        sb.append(component.get().toUserString());
                     } else {
                         sb.append("'null");
                     }
@@ -242,8 +312,13 @@ public abstract class TtkRevision implements ExternalStampBI {
                     sb.append(nid);
                     sb.append(" ");
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(TtkRevision.class.getName()).log(Level.SEVERE, null, ex);
+            } else {
+                sb.append(uuid.toString());
+                sb.append(" nid: ");
+                sb.append(nid);
+                sb.append(" conceptSequence: ");
+                sb.append(conceptSequence);
+                sb.append(" ");
             }
         }
 
@@ -251,8 +326,6 @@ public abstract class TtkRevision implements ExternalStampBI {
 
         return sb;
     }
-
-    public abstract TtkRevision makeTransform(ComponentTransformerBI transformer);
 
     private static final String ACTIVE = "d12702ee-c37f-385f-a070-61d56d4d0f1f";
     private static final String INACTIVE = "a5daba09-7feb-37f0-8d6d-c3cadfc7f724";

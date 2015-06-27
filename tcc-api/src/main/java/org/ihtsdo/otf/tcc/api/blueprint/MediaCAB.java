@@ -26,7 +26,7 @@ import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * The Class MediaCAB contains methods for creating a media blueprint. This
@@ -189,7 +189,7 @@ public class MediaCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException {
         super(getComponentUUID(componentUuid,mediaVersion,idDirective), 
-                mediaVersion, viewCoordinate, idDirective, refexDirective);
+                mediaVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
 
         this.conceptUuid = conceptUuid;
         this.typeUuid = typeUuid;

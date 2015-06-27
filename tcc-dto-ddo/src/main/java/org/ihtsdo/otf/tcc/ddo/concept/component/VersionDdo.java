@@ -2,25 +2,22 @@ package org.ihtsdo.otf.tcc.ddo.concept.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleObjectProperty;
 
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.TimeReference;
 import org.ihtsdo.otf.tcc.ddo.concept.component.attribute.ConceptAttributesVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.description.DescriptionVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IdentifierDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.media.MediaVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_boolean.RefexBooleanVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp.RefexCompVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_int.RefexIntVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_long.RefexLongVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_member.RefexMembershipVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_string.RefexStringVersionDdo;
@@ -41,14 +38,15 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 
 @XmlSeeAlso( {
-   ConceptAttributesVersionDdo.class, DescriptionVersionDdo.class, IdentifierDdo.class,
-   RelationshipVersionDdo.class, MediaVersionDdo.class, RefexCompVersionDdo.class, DescriptionVersionDdo.class,
-   RefexLongVersionDdo.class, RefexMembershipVersionDdo.class, RefexBooleanVersionDdo.class,
-   RefexStringVersionDdo.class, RefexIntVersionDdo.class
+   ConceptAttributesVersionDdo.class, DescriptionVersionDdo.class, 
+   RelationshipVersionDdo.class, RefexCompVersionDdo.class, DescriptionVersionDdo.class,
+   RefexLongVersionDdo.class, RefexMembershipVersionDdo.class, 
+   RefexStringVersionDdo.class, 
 })
 public abstract class VersionDdo implements Serializable {
    private static final long                          serialVersionUID    = 1;
    public static UUID                                 unspecifiedUserUuid = TermAux.USER.getUuids()[0];
+   private static IdentifierService identifierService = LookupService.getService(IdentifierService.class);
    private ComponentReference                       authorReference;
    private SimpleObjectProperty<ComponentReference> authorReferenceProperty;
    private TimeReference                                     fxTime;
@@ -65,31 +63,21 @@ public abstract class VersionDdo implements Serializable {
       super();
    }
 
-   public VersionDdo(TerminologySnapshotDI ss, ComponentVersionBI another)
+   public VersionDdo(TaxonomyCoordinate taxonomyCoordinate, StampedVersion another)
            throws IOException, ContradictionException {
       super();
-      status                  = another.getStatus();
+      status                  = Status.getStatusFromState(another.getState());
       fxTime                  = new TimeReference(another.getTime());
-      authorReference         = new ComponentReference(ss.getConceptForNid(another.getAuthorNid()));
-      moduleReference         = new ComponentReference(ss.getConceptForNid(another.getModuleNid()));
-      pathReference           = new ComponentReference(ss.getConceptForNid(another.getPathNid()));
-      viewCoordinateUuid = ss.getViewCoordinate().getVcUuid();
+      authorReference         = new ComponentReference(identifierService.getConceptNid(another.getAuthorSequence()), taxonomyCoordinate);
+      moduleReference         = new ComponentReference(identifierService.getConceptNid(another.getPathSequence()), taxonomyCoordinate);
+      pathReference           = new ComponentReference(identifierService.getConceptNid(another.getModuleSequence()), taxonomyCoordinate);
+      viewCoordinateUuid = taxonomyCoordinate.getUuid();
       assert status != null: "status is null";
       assert fxTime != null: "fxTime is null";
       assert authorReference != null: "authorReference is null";
       assert moduleReference != null: "moduleReference is null";
       assert pathReference != null: "pathReference is null";
       assert viewCoordinateUuid != null: "viewCoordinateUuid is null";
-   }
-
-   public VersionDdo(TerminologySnapshotDI ss, IdBI id) throws IOException, ContradictionException {
-      super();
-      status                  = id.getStatus();
-      fxTime                  = new TimeReference(id.getTime());
-      authorReference         = new ComponentReference(ss.getConceptVersion(id.getAuthorNid()));
-      moduleReference         = new ComponentReference(ss.getConceptVersion(id.getPathNid()));
-      pathReference           = new ComponentReference(ss.getConceptVersion(id.getModuleNid()));
-      this.viewCoordinateUuid = ss.getViewCoordinate().getVcUuid();
    }
 
    public SimpleObjectProperty<ComponentReference> authorReferenceProperty() {

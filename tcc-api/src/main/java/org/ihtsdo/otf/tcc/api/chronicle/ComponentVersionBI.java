@@ -3,14 +3,15 @@ package org.ihtsdo.otf.tcc.api.chronicle;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.commit.CommitStates;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import java.util.List;
 
 import java.util.Set;
+import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
@@ -22,6 +23,9 @@ import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
 public interface ComponentVersionBI extends ComponentBI, VersionPointBI, StampedVersion {
+    
+   int getAssociatedConceptNid();
+   
    boolean stampIsInRange(int min, int max);
 
    String toUserString(TerminologySnapshotDI snapshot) throws IOException, ContradictionException;
@@ -72,7 +76,4 @@ public interface ComponentVersionBI extends ComponentBI, VersionPointBI, Stamped
     
     boolean isActive() throws IOException;
     
-    default boolean isUncommitted() {
-        return getCommitState() == CommitStates.UNCOMMITTED;
-    }
 }

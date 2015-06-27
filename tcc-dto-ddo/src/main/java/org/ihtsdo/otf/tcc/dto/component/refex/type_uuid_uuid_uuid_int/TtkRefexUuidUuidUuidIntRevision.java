@@ -6,8 +6,6 @@ import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_int.RefexNidNidNidIntVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 import static org.ihtsdo.otf.tcc.dto.component.TtkRevision.informAboutUuid;
 
@@ -55,23 +53,7 @@ public class TtkRefexUuidUuidUuidIntRevision extends TtkRevision {
       readExternal(in, dataVersion);
    }
 
-   public TtkRefexUuidUuidUuidIntRevision(
-           TtkRefexUuidUuidUuidIntRevision another,
-           ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1 =
-         transformer.transform(another.uuid1, another,
-                               ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.uuid2 =
-         transformer.transform(another.uuid2, another,
-                               ComponentFields.REFEX_COMPONENT_2_UUID);
-      this.uuid3 =
-         transformer.transform(another.uuid3, another,
-                               ComponentFields.REFEX_COMPONENT_3_UUID);
-      this.int1 = transformer.transform(another.int1, another,
-                                        ComponentFields.REFEX_INTEGER1);
-   }
-    @Override
+   @Override
     protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
         references.add(uuid1);
         references.add(uuid2);
@@ -125,12 +107,6 @@ public class TtkRefexUuidUuidUuidIntRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   @Override
-   public TtkRefexUuidUuidUuidIntRevision makeTransform(
-           ComponentTransformerBI transformer) {
-      return new TtkRefexUuidUuidUuidIntRevision(this, transformer);
    }
 
    @Override

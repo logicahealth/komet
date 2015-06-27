@@ -71,12 +71,10 @@ public class RefexDynamicString extends RefexDynamicData implements RefexDynamic
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty()  {
 		return getDataStringProperty();
 	}
 
@@ -86,7 +84,7 @@ public class RefexDynamicString extends RefexDynamicData implements RefexDynamic
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI#getDataStringProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<String> getDataStringProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<String> getDataStringProperty() {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
 		}

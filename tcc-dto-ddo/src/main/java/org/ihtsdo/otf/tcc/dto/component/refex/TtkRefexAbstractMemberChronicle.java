@@ -2,9 +2,9 @@ package org.ihtsdo.otf.tcc.dto.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
-import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
@@ -20,10 +20,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
-public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> extends TtkComponentChronicle<V> {
+public abstract class TtkRefexAbstractMemberChronicle<R extends TtkRevision> 
+    extends TtkComponentChronicle<R, StampedVersion> {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -56,7 +55,7 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
       }
    }
 
-   public TtkRefexAbstractMemberChronicle(SememeChronicleImpl<?> another) {
+   public TtkRefexAbstractMemberChronicle(SememeChronologyImpl<?> another) {
       super(another);
       this.referencedComponentUuid = another.getPrimordialUuid();
       this.assemblageUuid = getIdService().getUuidPrimordialFromConceptSequence(another.getAssemblageSequence()).get();
@@ -65,13 +64,6 @@ public abstract class TtkRefexAbstractMemberChronicle<V extends TtkRevision> ext
    public TtkRefexAbstractMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexAbstractMemberChronicle(TtkRefexAbstractMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-
-         this.referencedComponentUuid = transformer.transform(another.referencedComponentUuid, another, ComponentFields.REFEX_REFERENCED_COMPONENT_UUID);
-         this.assemblageUuid = transformer.transform(another.assemblageUuid, another, ComponentFields.ASSEMBLAGE_UUID);
    }
 
    //~--- methods -------------------------------------------------------------

@@ -19,7 +19,6 @@ import gov.vha.isaac.ochre.api.tree.NodeStatus;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.ObjIntConsumer;
@@ -126,7 +125,15 @@ public abstract class AbstractHashTree implements Tree {
         if (childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
             return childSequence_ParentSequenceArray_Map.get(childSequence);
         }
-        return EMPTY_INT_ARRAY;
+        return new int[0];
+    }
+
+    @Override
+    public IntStream getParentSequenceStream(int childSequence) {
+        if (childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
+            return IntStream.of(childSequence_ParentSequenceArray_Map.get(childSequence));
+        }
+        return IntStream.empty();
     }
 
     @Override
@@ -134,7 +141,15 @@ public abstract class AbstractHashTree implements Tree {
         if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
             return parentSequence_ChildSequenceArray_Map.get(parentSequence);
         }
-        return EMPTY_INT_ARRAY;
+        return new int[0];
+   }
+
+    @Override
+    public IntStream getChildrenSequenceStream(int parentSequence) {
+        if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+            return IntStream.of(parentSequence_ChildSequenceArray_Map.get(parentSequence));
+        }
+        return IntStream.empty();
     }
 
     @Override

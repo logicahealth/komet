@@ -15,9 +15,11 @@
  */
 package gov.vha.isaac.ochre.api.observable.coordinate;
 
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SetProperty;
 import javafx.collections.ObservableIntegerArray;
 
 /**
@@ -25,6 +27,8 @@ import javafx.collections.ObservableIntegerArray;
  * @author kec
  */
 public interface ObservableStampCoordinate extends StampCoordinate {
+    
+    SetProperty<State> allowedStatesProperty();
     
     ObjectProperty<StampPrecedence> stampPrecedenceProperty();
     

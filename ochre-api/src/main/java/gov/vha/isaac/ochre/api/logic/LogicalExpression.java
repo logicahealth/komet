@@ -16,6 +16,10 @@
 package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
+
+
+import java.util.function.BiConsumer;
 
 /**
  *
@@ -24,4 +28,17 @@ import gov.vha.isaac.ochre.api.DataTarget;
 public interface LogicalExpression {
     byte[][] getData(DataTarget dataTarget);
     
+    boolean isMeaningful();
+
+    int getConceptSequence();
+
+    Node getNode(int nodeIndex);
+
+    int getNodeCount();
+
+    Node getRoot();
+
+    byte[][] pack(DataTarget dataTarget);
+
+    void processDepthFirst(BiConsumer<Node, TreeNodeVisitData> consumer);
 }

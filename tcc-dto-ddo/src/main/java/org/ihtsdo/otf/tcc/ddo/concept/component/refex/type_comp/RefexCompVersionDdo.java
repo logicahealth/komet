@@ -2,33 +2,19 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_comp.RefexCompCompVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_float.RefexCompFloatVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_int.RefexCompIntVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_long.RefexCompLongVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_string.RefexCompStringVersionDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_boolean.RefexCompBooleanVersionDdo;
 
-@XmlSeeAlso( {
-    RefexCompBooleanVersionDdo.class,
-    RefexCompCompVersionDdo.class, 
-    RefexCompFloatVersionDdo.class, 
-    RefexCompIntVersionDdo.class,
-    RefexCompLongVersionDdo.class,
-    RefexCompStringVersionDdo.class, 
-})
+
 public class RefexCompVersionDdo<T extends RefexChronicleDdo, V extends RefexCompVersionDdo>
         extends RefexVersionDdo<T, V> {
    public static final long serialVersionUID = 1;
@@ -43,11 +29,12 @@ public class RefexCompVersionDdo<T extends RefexChronicleDdo, V extends RefexCom
       super();
    }
 
-   public RefexCompVersionDdo(T chronicle, TerminologySnapshotDI ss,
-                             RefexNidVersionBI another)
+   public RefexCompVersionDdo(T chronicle, TaxonomyCoordinate ss,
+                             ComponentNidSememe another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-      this.comp1Ref = new ComponentReference(ss, another.getNid1());
+      this.comp1Ref = new ComponentReference(another.getComponentNid(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate());
    }
 
    //~--- methods -------------------------------------------------------------

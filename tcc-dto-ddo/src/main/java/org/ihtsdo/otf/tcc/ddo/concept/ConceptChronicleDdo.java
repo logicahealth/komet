@@ -1,6 +1,16 @@
 package org.ihtsdo.otf.tcc.ddo.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import gov.vha.isaac.ochre.api.logic.LogicService;
+import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -8,30 +18,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
-import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.component.attribute.ConceptAttributesChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.description.DescriptionChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.description.DescriptionVersionDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.media.MediaChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.relationship.RelationshipChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.relationship.RelationshipVersionDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
 
 //~--- JDK imports ------------------------------------------------------------
-
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -45,6 +42,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexFactoryDdo;
 
 /**
@@ -57,6 +55,14 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexFactoryDdo;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement()
 public class ConceptChronicleDdo implements Serializable {
+    private static ConceptService conceptService;
+
+    private static ConceptService getConceptService() {
+        if (conceptService == null) {
+            conceptService = LookupService.getService(ConceptService.class);
+        }
+        return conceptService;
+    }
 
     public static final String PADDING = "     ";
     public static final long serialVersionUID = 1;
@@ -66,9 +72,6 @@ public class ConceptChronicleDdo implements Serializable {
     @XmlElementWrapper(name = "destinationRelationshipList")
     @XmlElement(name = "destinationRelationship")
     protected ObservableList<RelationshipChronicleDdo> _destinationRelationships;
-    @XmlElementWrapper(name = "mediaList")
-    @XmlElement(name = "media")
-    protected ObservableList<MediaChronicleDdo> _media;
     @XmlElementWrapper(name = "originRelationshipList")
     @XmlElement(name = "originRelationship")
     protected ObservableList<RelationshipChronicleDdo> _originRelationships;
@@ -84,8 +87,6 @@ public class ConceptChronicleDdo implements Serializable {
     @XmlTransient
     private SimpleObjectProperty<ObservableList<RelationshipChronicleDdo>> destinationRelationships;
     @XmlTransient
-    private SimpleObjectProperty<ObservableList<MediaChronicleDdo>> media;
-    @XmlTransient
     private SimpleObjectProperty<ObservableList<RelationshipChronicleDdo>> originRelationships;
     @XmlElement()
     protected UUID primordialUuid;
@@ -97,118 +98,103 @@ public class ConceptChronicleDdo implements Serializable {
     private SimpleObjectProperty<ObservableList<RefexChronicleDdo<?, ?>>> refsetMembers;
     @XmlElement()
     private RelationshipPolicy relationshipPolicy;
-    @XmlElement()
-    private VersionPolicy versionPolicy;
 
     public ConceptChronicleDdo() {
         super();
-        _originRelationships =
-                FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(1));
-        _destinationRelationships =
-                FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(1));
+        _originRelationships
+                = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(1));
+        _destinationRelationships
+                = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(1));
         _descriptions = FXCollections.observableArrayList(new ArrayList<DescriptionChronicleDdo>(1));
-        _media = FXCollections.observableArrayList(new ArrayList<MediaChronicleDdo>(1));
         _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(0));
     }
 
-    public ConceptChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleBI c, VersionPolicy versionPolicy,
-            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
-            throws IOException, ContradictionException {
-        this.versionPolicy = versionPolicy;
-        this.refexPolicy = refexPolicy;
-        this.relationshipPolicy = relationshipPolicy;
-        this.viewCoordinateUuid = ss.getViewCoordinate().getVcUuid();
-        if (ss.getConceptForNid(c.getNid()).getPreferredDescription() != null) {
-            this.conceptReference = new ComponentReference(c.getPrimordialUuid(), c.getNid(),
-                    ss.getConceptForNid(c.getNid()).getPreferredDescription().getText());
-        } else {
-            this.conceptReference = new ComponentReference(c.getNid());
+    public ConceptChronicleDdo(TaxonomyCoordinate taxonomyCoordinate, ConceptChronology<?> concept,
+            RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy) {
+        try {
+            this.refexPolicy = refexPolicy;
+            this.relationshipPolicy = relationshipPolicy;
+            this.viewCoordinateUuid = taxonomyCoordinate.getUuid();
+            this.conceptReference = new ComponentReference(concept, taxonomyCoordinate);
 
-        }
-        this.conceptAttributes = new ConceptAttributesChronicleDdo(ss, this, c.getConceptAttributes());
-        this.primordialUuid = conceptAttributes.getPrimordialComponentUuid();
+            this.conceptAttributes
+                    = new ConceptAttributesChronicleDdo(taxonomyCoordinate, this, concept);
+            this.primordialUuid = conceptAttributes.getPrimordialComponentUuid();
 
-        switch (relationshipPolicy) {
-            case DESTINATION_RELATIONSHIPS:
-                _destinationRelationships =
-                        FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
-                addDestinationRelationships(c, ss);
+            switch (relationshipPolicy) {
+                case DESTINATION_RELATIONSHIPS:
+                    _destinationRelationships
+                            = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
+                    addDestinationRelationships(concept, taxonomyCoordinate);
 
-                break;
+                    break;
 
-            case ORIGINATING_RELATIONSHIPS:
-                _originRelationships = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
-                addOriginRelationships(c, ss);
+                case ORIGINATING_RELATIONSHIPS:
+                    _originRelationships = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(0));
+                    addOriginRelationships(concept, taxonomyCoordinate);
 
-                break;
+                    break;
 
-            case ORIGINATING_AND_DESTINATION_RELATIONSHIPS:
-                addOriginRelationships(c, ss);
-                addDestinationRelationships(c, ss);
+                case ORIGINATING_AND_DESTINATION_RELATIONSHIPS:
+                    addOriginRelationships(concept, taxonomyCoordinate);
+                    addDestinationRelationships(concept, taxonomyCoordinate);
 
-                break;
+                    break;
 
-            case ORIGINATING_AND_DESTINATION_TAXONOMY_RELATIONSHIPS:
-                addOriginTaxonomyRelationships(c, ss);
-                addDestinationTaxonomyRelationships(c, ss);
+                case ORIGINATING_AND_DESTINATION_TAXONOMY_RELATIONSHIPS:
+                    addOriginTaxonomyRelationships(concept, taxonomyCoordinate);
+                    addDestinationTaxonomyRelationships(concept, taxonomyCoordinate);
 
-                break;
+                    break;
 
-            default:
-                throw new UnsupportedOperationException("Can't handle: " + relationshipPolicy);
-        }
-
-        _descriptions =
-                FXCollections.observableArrayList(new ArrayList<DescriptionChronicleDdo>(c.getDescriptions().size()));
-
-        for (DescriptionChronicleBI desc : c.getDescriptions()) {
-            DescriptionChronicleDdo dc = new DescriptionChronicleDdo(ss, this, desc);
-
-            if (!dc.getVersions().isEmpty()) {
-                _descriptions.add(dc);
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + relationshipPolicy);
             }
-        }
 
-        _media = FXCollections.observableArrayList(new ArrayList<MediaChronicleDdo>(c.getMedia().size()));
+            _descriptions
+                    = FXCollections.observableArrayList(new ArrayList<DescriptionChronicleDdo>(concept.getConceptDescriptionList().size()));
 
-        for (MediaChronicleBI mediaChronicle : c.getMedia()) {
-            MediaChronicleDdo tkMedia = new MediaChronicleDdo(ss, this, mediaChronicle);
+            for (SememeChronology<? extends DescriptionSememe> desc : concept.getConceptDescriptionList()) {
+                DescriptionChronicleDdo dc = new DescriptionChronicleDdo(taxonomyCoordinate, this, desc);
 
-            if (!tkMedia.getVersions().isEmpty()) {
-                _media.add(tkMedia);
+                if (!dc.getVersions().isEmpty()) {
+                    _descriptions.add(dc);
+                }
             }
-        }
 
-        if (((refexPolicy == RefexPolicy.ANNOTATION_MEMBERS_AND_REFSET_MEMBERS)
-                || (refexPolicy == RefexPolicy.REFEX_MEMBERS_AND_REFSET_MEMBERS)) && !c.isAnnotationStyleRefex()) {
-            Collection<? extends RefexChronicleBI<?>> members = c.getRefsetMembers();
+            if (((refexPolicy == RefexPolicy.ANNOTATION_MEMBERS_AND_REFSET_MEMBERS)
+                    || (refexPolicy == RefexPolicy.REFEX_MEMBERS_AND_REFSET_MEMBERS))) {
+                List<? extends SememeChronology<? extends SememeVersion>> members = concept.getSememeList();
 
-            if (members != null) {
-                _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(members.size()));
+                if (members != null) {
+                    _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(members.size()));
 
-                for (RefexChronicleBI<?> m : members) {
-                    RefexChronicleDdo<?, ?> member = convertRefex(ss, m);
+                    for (SememeChronology<? extends SememeVersion> m : members) {
+                        Optional<RefexChronicleDdo<?, ?>> member = convertRefex(taxonomyCoordinate, m);
 
-                    if ((member != null) && !member.getVersions().isEmpty()) {
-                        _refsetMembers.add(member);
-                    } else {
-                        throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
+                        if (member.isPresent()) {
+                            _refsetMembers.add(member.get());
+                        } else {
+                            throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + concept);
+                        }
                     }
                 }
             }
+        } catch (ContradictionException | IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
-    protected final void addDestinationRelationships(ConceptChronicleBI c, TerminologySnapshotDI ss)
+    protected final void addDestinationRelationships(ConceptChronology c, TaxonomyCoordinate taxonomyCoordinate)
             throws ContradictionException, IOException {
-        Collection<? extends RelationshipChronicleBI> relsIncoming = c.getRelationshipsIncoming();
+        Collection<SememeChronology<RelationshipVersionAdaptor>> relsIncoming = c.getRelationshipListWithConceptAsDestination();
 
-        _destinationRelationships =
-                FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(relsIncoming.size()));
+        _destinationRelationships
+                = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(relsIncoming.size()));
 
-        for (RelationshipChronicleBI rel : relsIncoming) {
+        for (SememeChronology<RelationshipVersionAdaptor> rel : relsIncoming) {
             if (rel != null) {
-                RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(ss, this, rel);
+                RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(taxonomyCoordinate, this, rel);
 
                 if (!fxc.getVersions().isEmpty()) {
                     _destinationRelationships.add(fxc);
@@ -217,81 +203,23 @@ public class ConceptChronicleDdo implements Serializable {
         }
     }
 
-    protected final void addDestinationTaxonomyRelationships(ConceptChronicleBI c, TerminologySnapshotDI ss)
+    protected final void addDestinationTaxonomyRelationships(ConceptChronology c, TaxonomyCoordinate taxonomyCoordinate)
             throws ContradictionException, IOException {
-        Collection<? extends RelationshipChronicleBI> relsIncoming = c.getRelationshipsIncoming();
+        List<SememeChronology<RelationshipVersionAdaptor>> relsIncoming = c.getRelationshipListWithConceptAsDestination();
 
-        _destinationRelationships =
-                FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(relsIncoming.size()));
+        _destinationRelationships
+                = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(relsIncoming.size()));
 
-        int isaNid = ss.getViewCoordinate().getIsaNid();
-
-        NEXT_REL:
-        for (RelationshipChronicleBI rel : relsIncoming) {
-            RelationshipVersionBI<?> relVersion = rel.getPrimordialVersion();
-
-            switch (ss.getViewCoordinate().getRelationshipAssertionType()) {
-                case INFERRED:
-                    if (!relVersion.isInferred()) {
-                        continue NEXT_REL;
-                    }
-
-                    break;
-
-                case STATED:
-                    if (!relVersion.isStated()) {
-                        continue NEXT_REL;
-                    }
-
-                    break;
-
-                case INFERRED_THEN_STATED:
-                    if (!relVersion.isInferred()) {
-                        continue NEXT_REL;
-                    }
-
-                    break;
-            }
-
-            boolean foundType = false;
-
-            for (RelationshipVersionBI<?> rv : rel.getVersions(ss.getViewCoordinate())) {
-                if (isaNid == rv.getTypeNid()) {
-                    foundType = true;
-
-                    break;
-                }
-            }
-
-            if (!foundType) {
-                continue NEXT_REL;
-            }
-
-            RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(ss, this, rel);
-
-            _destinationRelationships.add(fxc);
-        }
-
-        if (_destinationRelationships.isEmpty()
-                && (ss.getViewCoordinate().getRelationshipAssertionType()
-                == RelAssertionType.INFERRED_THEN_STATED)) {
-            for (RelationshipChronicleBI rel : relsIncoming) {
-                RelationshipVersionBI<?> relVersion = rel.getPrimordialVersion();
-
-                if (relVersion.isStated()) {
-                    boolean foundType = false;
-
-                    for (RelationshipVersionBI<?> rv : rel.getVersions(ss.getViewCoordinate())) {
-                        if (isaNid == rv.getTypeNid()) {
-                            foundType = true;
-
-                            break;
-                        }
-                    }
-
-                    if (foundType) {
-                        RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(ss, this, rel);
-
+        int isaSequence = Snomed.IS_A.getSequence();
+        for (SememeChronology<RelationshipVersionAdaptor> rel : relsIncoming) {
+            Optional<LatestVersion<RelationshipVersionAdaptor>> optionalRelVersion = rel.getLatestVersion(RelationshipVersionAdaptor.class, taxonomyCoordinate.getStampCoordinate());
+            if (optionalRelVersion.isPresent()) {
+                LatestVersion<RelationshipVersionAdaptor> latestRelVersion = optionalRelVersion.get();
+                if (latestRelVersion.value().getTypeSequence() == isaSequence) {
+                    if (taxonomyCoordinate.getTaxonomyType() == latestRelVersion.value().getPremiseType()) {
+                        ConceptChronology origin = getConceptService().getConcept(latestRelVersion.value().getOriginSequence());
+                        ConceptChronicleDdo originDdo = new ConceptChronicleDdo(taxonomyCoordinate, origin, RefexPolicy.NONE, RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
+                        RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(taxonomyCoordinate, originDdo, rel);
                         _destinationRelationships.add(fxc);
                     }
                 }
@@ -299,74 +227,51 @@ public class ConceptChronicleDdo implements Serializable {
         }
     }
 
-    protected final void addOriginRelationships(ConceptChronicleBI c, TerminologySnapshotDI ss)
+    protected final void addOriginRelationships(ConceptChronology c, TaxonomyCoordinate taxonomyCoordinate)
             throws ContradictionException, IOException {
+        List<SememeChronology<RelationshipVersionAdaptor>> outgoingRels = c.getRelationshipListOriginatingFromConcept();
         _originRelationships = FXCollections.observableArrayList(
-                new ArrayList<RelationshipChronicleDdo>(c.getRelationshipsOutgoing().size()));
-
-        for (RelationshipChronicleBI rel : c.getRelationshipsOutgoing()) {
-            RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(ss, this, rel);
-
+                new ArrayList<RelationshipChronicleDdo>(outgoingRels.size()));
+        for (SememeChronology<? extends RelationshipVersionAdaptor> rel : outgoingRels) {
+            RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(taxonomyCoordinate, this, rel);
             if (!fxc.getVersions().isEmpty()) {
                 _originRelationships.add(fxc);
             }
         }
     }
 
-    protected final void addOriginTaxonomyRelationships(ConceptChronicleBI c, TerminologySnapshotDI ss)
+    protected final void addOriginTaxonomyRelationships(ConceptChronology c, TaxonomyCoordinate taxonomyCoordinate)
             throws ContradictionException, IOException {
+        List<SememeChronology<RelationshipVersionAdaptor>> relsOutgoing = c.getRelationshipListOriginatingFromConcept();
         _originRelationships = FXCollections.observableArrayList(
-                new ArrayList<RelationshipChronicleDdo>(c.getRelationshipsOutgoing().size()));
+                new ArrayList<RelationshipChronicleDdo>());
 
-        int isaNid = ss.getViewCoordinate().getIsaNid();
+        int isaSequence = Snomed.IS_A.getSequence();
 
-        for (RelationshipChronicleBI rel : c.getRelationshipsOutgoing()) {
-            RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(ss, this, rel);
-            ArrayList<RelationshipVersionDdo> toRemove = new ArrayList<>();
-
-            for (RelationshipVersionDdo fxv : fxc.getVersions()) {
-                if (isaNid != fxv.getTypeReference().getNid()) {
-                    toRemove.add(fxv);
-
-                    break;
-                }
-
-                switch (ss.getViewCoordinate().getRelationshipAssertionType()) {
-                    case INFERRED:
-                        if (fxv.getCharacteristicReference().getNid() != SnomedMetadataRf2.INFERRED_RELATIONSHIP_RF2.getLenient().getNid()) {
-                            toRemove.add(fxv);
-                        }
-
-                        break;
-
-                    case STATED:
-                        if (fxv.getCharacteristicReference().getNid() != SnomedMetadataRf2.STATED_RELATIONSHIP_RF2.getLenient().getNid()) {
-                            toRemove.add(fxv);
-                        }
-
-                        break;
-                    case INFERRED_THEN_STATED:
-                        break;
+        for (SememeChronology<RelationshipVersionAdaptor> rel : relsOutgoing) {
+            Optional<LatestVersion<RelationshipVersionAdaptor>> optionalRelVersion = rel.getLatestVersion(RelationshipVersionAdaptor.class, taxonomyCoordinate.getStampCoordinate());
+            if (optionalRelVersion.isPresent()) {
+                LatestVersion<RelationshipVersionAdaptor> latestRelVersion = optionalRelVersion.get();
+                if (latestRelVersion.value().getTypeSequence() == isaSequence) {
+                    if (taxonomyCoordinate.getTaxonomyType() == latestRelVersion.value().getPremiseType()) {
+                        RelationshipChronicleDdo fxc = new RelationshipChronicleDdo(taxonomyCoordinate, this, rel);
+                        _originRelationships.add(fxc);
+                    }
                 }
             }
 
-            fxc.getVersions().removeAll(toRemove);
-
-            if (!fxc.getVersions().isEmpty()) {
-                _originRelationships.add(fxc);
-            }
         }
     }
 
-    private RefexChronicleDdo<?, ?> convertRefex(TerminologySnapshotDI ss, RefexChronicleBI<?> m)
+    private Optional<RefexChronicleDdo<?, ?>> convertRefex(TaxonomyCoordinate taxonomyCoordinate, SememeChronology<?> m)
             throws IOException, ContradictionException {
-        return convertRefex(ss, this, m);
+        return convertRefex(taxonomyCoordinate, this, m);
     }
 
-    public static RefexChronicleDdo<?, ?> convertRefex(TerminologySnapshotDI ss, ConceptChronicleDdo concept,
-            RefexChronicleBI<?> m)
+    public static Optional<RefexChronicleDdo<?, ?>> convertRefex(TaxonomyCoordinate taxonomyCoordinate, ConceptChronicleDdo concept,
+            SememeChronology<?> m)
             throws IOException, ContradictionException {
-        return RefexFactoryDdo.make(ss, concept, m);
+        return RefexFactoryDdo.make(taxonomyCoordinate, concept, m);
     }
 
     public ObjectProperty<ObservableList<DescriptionChronicleDdo>> descriptions() {
@@ -438,17 +343,6 @@ public class ConceptChronicleDdo implements Serializable {
                 return false;
             }
 
-            // Compare Images
-            if (this._media == null) {
-                if (another._media == null) {                           // Equal!
-                } else if (another._media.isEmpty()) {                  // Equal!
-                } else {
-                    return false;
-                }
-            } else if (!this._media.equals(another._media)) {
-                return false;
-            }
-
             // Compare Refset Members
             if (this._refsetMembers == null) {
                 if (another._refsetMembers == null) {                   // Equal!
@@ -468,22 +362,13 @@ public class ConceptChronicleDdo implements Serializable {
     }
 
     /**
-     * Returns a hash code for this
-     * {@code EConcept}.
+     * Returns a hash code for this {@code EConcept}.
      *
      * @return a hash code value for this {@code EConcept}.
      */
     @Override
     public int hashCode() {
         return this.conceptAttributes.getPrimordialComponentUuid().hashCode();
-    }
-
-    public ObjectProperty<ObservableList<MediaChronicleDdo>> media() {
-        if (media == null) {
-            media = new SimpleObjectProperty<>(_media);
-        }
-
-        return media;
     }
 
     public SimpleObjectProperty<ObservableList<RelationshipChronicleDdo>> originRelationships() {
@@ -633,18 +518,6 @@ public class ConceptChronicleDdo implements Serializable {
         return sb.toString();
     }
 
-    public ObservableList<MediaChronicleDdo> getMedia() {
-        if (media != null) {
-            return media.get();
-        }
-
-        if (_media == null) {
-            _media = FXCollections.emptyObservableList();
-        }
-
-        return _media;
-    }
-
     private void getOriginRelationshipTable(StringBuilder sb) {
         sb.append("<table>");
         sb.append("<tr>");
@@ -707,10 +580,6 @@ public class ConceptChronicleDdo implements Serializable {
         return relationshipPolicy;
     }
 
-    public VersionPolicy getVersionPolicy() {
-        return versionPolicy;
-    }
-
     public UUID getViewCoordinateUuid() {
         return viewCoordinateUuid;
     }
@@ -736,14 +605,6 @@ public class ConceptChronicleDdo implements Serializable {
             this.destinationRelationships.setValue(FXCollections.observableArrayList(destinationRelationships));
         } else {
             this._destinationRelationships = FXCollections.observableArrayList(destinationRelationships);
-        }
-    }
-
-    public void setMedia(ObservableList<MediaChronicleDdo> media) {
-        if (this.media != null) {
-            this.media.setValue(FXCollections.observableArrayList(media));
-        } else {
-            this._media = FXCollections.observableArrayList(media);
         }
     }
 
@@ -773,10 +634,6 @@ public class ConceptChronicleDdo implements Serializable {
 
     public void setRelationshipPolicy(RelationshipPolicy relationshipPolicy) {
         this.relationshipPolicy = relationshipPolicy;
-    }
-
-    public void setVersionPolicy(VersionPolicy versionPolicy) {
-        this.versionPolicy = versionPolicy;
     }
 
     public void setViewCoordinateUuid(UUID viewCoordinateUuid) {

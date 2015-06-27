@@ -27,10 +27,29 @@ import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
  */
 public interface SememeChronology<V extends SememeVersion> 
     extends ObjectChronology<V>, SememeObject {
+
+    /**
+     * Create a mutable version with Long.MAX_VALUE as the time, indicating
+     * the version is uncommitted. It is the responsibility of the caller to
+     * add the mutable version to the commit manager when changes are complete
+     * prior to committing the component. 
+     * @param <M>
+     * @param type SememeVersion type
+     * @param state state of the created mutable version 
+     * @param ec edit coordinate to provide the author, module, and path for the mutable version
+     * @return the mutable version
+     */
+    <M extends V> M createMutableVersion(Class<M> type, State state, EditCoordinate ec);
     
-    <M extends V> M createMutableUncommittedVersion(Class<M> type, State status, EditCoordinate ec);
-    
-    <M extends V> M createMutableStampedVersion(Class<M> type, int stampSequence);
+    /**
+     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
+     * add persist the chronicle when changes to the mutable version are complete . 
+     * @param <M>
+     * @param type SememeVersion type
+     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version. 
+     * @return the mutable version
+     */
+    <M extends V> M createMutableVersion(Class<M> type, int stampSequence);
     
     SememeType getSememeType();
 }

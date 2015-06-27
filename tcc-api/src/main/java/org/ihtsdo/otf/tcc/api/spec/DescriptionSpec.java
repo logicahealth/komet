@@ -16,6 +16,7 @@
  */
 package org.ihtsdo.otf.tcc.api.spec;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -94,7 +95,7 @@ public class DescriptionSpec implements SpecBI {
 
 
 	public DescriptionVersionBI get(ViewCoordinate c) throws IOException {
-		ConceptVersionBI concept = conceptSpec.getStrict(c);
+		ConceptSnapshot concept = conceptSpec.getStrict(c);
 		DescriptionVersionBI desc = (DescriptionVersionBI) Ts.get().getComponent(descUuids);
 		if (concept.getNid() != desc.getConceptNid()) {
 			throw new RuntimeException("Concept NIDs do not match. 1: "

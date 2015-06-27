@@ -8,10 +8,11 @@ package org.ihtsdo.otf.tcc.dto.taxonomy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.JaxbForDto;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
@@ -240,4 +241,24 @@ public class Taxonomy {
            throws NoSuchAlgorithmException, UnsupportedEncodingException {
       return UuidT5Generator.get(this.getClass().getName() + name);
    }
+     protected ConceptCB createConcept(ObservableFields observableFields) throws Exception {
+      ConceptCB cb = new ConceptCB(observableFields.getDescription() + " " + semanticTag, 
+              observableFields.getDescription(), lang, 
+              isaTypeSpec.getUuids()[0],
+              IdDirective.GENERATE_HASH,
+              moduleSpec.getUuids()[0], 
+              pathSpec.getUuids()[0],
+              getParentArray());
+      
+      if (conceptBps.containsKey(observableFields.name())) {
+         throw new Exception("Concept is already added");
+      }
+
+      conceptBps.put(observableFields.name(), cb);
+      conceptBpsInInsertionOrder.add(cb);
+      current = cb;
+      cb.setComponentUuidNoRecompute(observableFields.getUuid());
+      return cb;
+   }  
+
 }

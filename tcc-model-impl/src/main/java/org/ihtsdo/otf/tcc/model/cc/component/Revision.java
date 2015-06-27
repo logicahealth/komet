@@ -8,6 +8,9 @@ import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -88,6 +91,11 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     //~--- methods -------------------------------------------------------------
     
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
+    }
     public IntStream getVersionStampSequences() {
         return this.primordialComponent.getVersionStampSequences();
     }
@@ -314,11 +322,16 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return (ComponentChronicleBI) primordialComponent;
     }
 
-    @Override
     public int getConceptNid() {
         return primordialComponent.enclosingConceptNid;
     }
-
+    public int getEnclosingConceptNid() {
+       return primordialComponent.enclosingConceptNid;
+    }
+    @Override
+    public int getAssociatedConceptNid() {
+       return getConceptNid();
+    }
     @Override
     public Collection<? extends RefexVersionBI<?>> getAnnotationsActive(ViewCoordinate xyz)
             throws IOException {
@@ -462,11 +475,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.getUuidList();
     }
 
-    
-    @Override
-    public final List<UUID> getUUIDs() {
-        return primordialComponent.getUUIDs();
-    }
 
     public final C getVersioned() {
         return primordialComponent;
@@ -630,8 +638,14 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
        return getSequenceService().getConceptSequence(getPathNid());
     }
 
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
         return primordialComponent.getSememeList();
+    }
+    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        return primordialComponent.getSememeListFromAssemblage(assemblageSequence);
+    }
+    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        return primordialComponent.getSememeListFromAssemblageOfType(assemblageSequence, type);
     }
     
 }

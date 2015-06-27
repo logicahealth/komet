@@ -79,22 +79,19 @@ public class RefexDynamicUUID extends RefexDynamicData implements RefexDynamicUU
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
 		return getDataUUIDProperty();
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
+     * @return 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUIDProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty()  {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
 		}

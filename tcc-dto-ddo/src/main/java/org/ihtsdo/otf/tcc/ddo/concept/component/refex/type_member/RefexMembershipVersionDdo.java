@@ -2,10 +2,10 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_member;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexVersionDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -22,8 +22,8 @@ public class RefexMembershipVersionDdo
       super();
    }
 
-   public RefexMembershipVersionDdo(RefexMembershipChronicleDdo chronicle, TerminologySnapshotDI ss,
-                                   RefexVersionBI another)
+   public RefexMembershipVersionDdo(RefexMembershipChronicleDdo chronicle, TaxonomyCoordinate ss,
+                                   SememeVersion another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
    }

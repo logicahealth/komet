@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 /**
  *
@@ -77,21 +75,6 @@ public class TtkLogicGraphRevision extends TtkRevision {
         readExternal(in, dataVersion);
     }
 
-    /**
-     * Instantiates a new TK Refex Array of Byte Array Revision based on
-     * {@code another} TK Refex Array of Byte Array Revision and allows for
-     * uuid conversion.
-     *
-     * @param another the TK Refex Array of Byte Array Revision specifying how to
-     * construct this TK Refex Array of Byte Array Revision
-     * @param transformer
-      */
-    public TtkLogicGraphRevision(TtkLogicGraphRevision another, ComponentTransformerBI transformer) {
-        super(another, transformer);
-        this.logicGraphBytes = transformer.transform(another.logicGraphBytes, 
-                another, ComponentFields.REFEX_LOGIC_GRAPH_BYTES);
-    }
-
     //~--- methods -------------------------------------------------------------
     @Override
     protected void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
@@ -138,16 +121,6 @@ public class TtkLogicGraphRevision extends TtkRevision {
     @Override
     public int hashCode() {
         return super.hashCode();
-    }
-
-    /**
-     *
-     * @param transformer
-      * @return the converted TK Refex Array of Byte Array Revision
-     */
-    @Override
-    public TtkLogicGraphRevision makeTransform(ComponentTransformerBI transformer) {
-        return new TtkLogicGraphRevision(this, transformer);
     }
 
     /**

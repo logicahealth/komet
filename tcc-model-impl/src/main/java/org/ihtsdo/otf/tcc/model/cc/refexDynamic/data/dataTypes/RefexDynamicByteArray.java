@@ -60,22 +60,18 @@ public class RefexDynamicByteArray extends RefexDynamicData implements RefexDyna
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty()  {
 		return getDataByteArrayProperty();
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArrayProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty()  {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<byte[]>(null, getName(), data_);
 		}

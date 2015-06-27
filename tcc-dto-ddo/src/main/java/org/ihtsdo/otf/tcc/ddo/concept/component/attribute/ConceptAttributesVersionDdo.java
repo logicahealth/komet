@@ -2,12 +2,12 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.attribute;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentVersionDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -28,11 +28,12 @@ public class ConceptAttributesVersionDdo
       super();
    }
 
-   public ConceptAttributesVersionDdo(ConceptAttributesChronicleDdo chronicle, TerminologySnapshotDI ss,
-                                     ConceptAttributeVersionBI another)
+   public ConceptAttributesVersionDdo(ConceptAttributesChronicleDdo chronicle, 
+           TaxonomyCoordinate taxonomyCoordinate,
+           ConceptVersion another)
            throws IOException, ContradictionException {
-      super(chronicle, ss, another);
-      this.definedProperty.set(another.isDefined());
+      super(chronicle, taxonomyCoordinate, another);
+      this.definedProperty.set(false);
    }
 
    //~--- methods -------------------------------------------------------------

@@ -10,8 +10,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid_float
    .RefexNidNidNidFloatVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 import static org.ihtsdo.otf.tcc.dto.component.TtkRevision.informAboutUuid;
 
@@ -75,22 +73,6 @@ public class TtkRefexUuidUuidUuidFloatMemberChronicle
       readExternal(in, dataVersion);
    }
 
-   public TtkRefexUuidUuidUuidFloatMemberChronicle(
-           TtkRefexUuidUuidUuidFloatMemberChronicle another,
-           ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1 =
-         transformer.transform(another.uuid1, another,
-                               ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.uuid2 =
-         transformer.transform(another.uuid2, another,
-                               ComponentFields.REFEX_COMPONENT_2_UUID);
-      this.uuid3 =
-         transformer.transform(another.uuid3, another,
-                               ComponentFields.REFEX_COMPONENT_3_UUID);
-      this.float1 = transformer.transform(another.float1, another,
-              ComponentFields.REFEX_FLOAT1);
-   }
     @Override
     protected void addUuidReferencesForRefexRevision(Collection<UUID> references) {
         references.add(uuid1);
@@ -154,12 +136,6 @@ public class TtkRefexUuidUuidUuidFloatMemberChronicle
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRefexUuidUuidUuidFloatMemberChronicle makeTransform(
-           ComponentTransformerBI transformer) {
-      return new TtkRefexUuidUuidUuidFloatMemberChronicle(this, transformer);
    }
 
    @Override

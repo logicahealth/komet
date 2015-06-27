@@ -6,7 +6,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
@@ -49,7 +49,7 @@ public class LogicGraphRevision
 
    public LogicGraphRevision(TtkLogicGraphRevision eVersion, LogicGraphMember another) throws IOException {
       super(eVersion, another);
-        LogicByteArrayConverter converter = Hk2Looker.get().getService(LogicByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = Hk2Looker.get().getService(LogicalExpressionByteArrayConverter.class);
         this.logicGraphBytes = converter.convertLogicGraphForm(eVersion.getLogicGraphBytes(), DataTarget.INTERNAL);
    }
 
@@ -192,7 +192,7 @@ public class LogicGraphRevision
 
     @Override
     public byte[][] getExternalLogicGraphBytes() {
-        LogicByteArrayConverter converter = Hk2Looker.get().getService(LogicByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = Hk2Looker.get().getService(LogicalExpressionByteArrayConverter.class);
         return converter.convertLogicGraphForm(logicGraphBytes, DataTarget.EXTERNAL);
     }
 }

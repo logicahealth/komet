@@ -5,7 +5,7 @@
  */
 package org.ihtsdo.otf.tcc.dto.component.refex.logicgraph;
 
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -20,8 +20,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 /**
  *
@@ -94,10 +92,10 @@ public class TtkLogicGraphMemberChronicle
                 }
             }
     }
-    public TtkLogicGraphMemberChronicle(SememeChronicleImpl<LogicGraphSememeImpl> logicGraphChronicle) {
+    public TtkLogicGraphMemberChronicle(SememeChronologyImpl<LogicGraphSememeImpl> logicGraphChronicle) {
         super(logicGraphChronicle);
         
-        List<LogicGraphSememeImpl> graphVersions = (List<LogicGraphSememeImpl>) logicGraphChronicle.getVersions();
+        List<LogicGraphSememeImpl> graphVersions = (List<LogicGraphSememeImpl>) logicGraphChronicle.getVersionList();
 
         
         this.logicGraphBytes = graphVersions.get(0).getExternalGraphData();
@@ -123,20 +121,6 @@ public class TtkLogicGraphMemberChronicle
     public TtkLogicGraphMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
         super();
         readExternal(in, dataVersion);
-    }
-
-    /**
-     * Instantiates a new TK Refex Array of Byte Array Member based on
-     * {@code another} TK Refex Array of Byte Array Member and allows for
-     * uuid conversion.
-     *
-     * @param another the TK Refex Array of Byte Array Member specifying how to
-     * construct this TK Refex Array of Byte Array Member
-     * @param transformer
-     */
-    public TtkLogicGraphMemberChronicle(TtkLogicGraphMemberChronicle another, ComponentTransformerBI transformer) {
-        super(another, transformer);
-        this.logicGraphBytes = transformer.transform(another.logicGraphBytes, another, ComponentFields.REFEX_ARRAY_OF_BYTEARRAY);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -189,16 +173,6 @@ public class TtkLogicGraphMemberChronicle
     @Override
     public int hashCode() {
         return this.primordialUuid.hashCode();
-    }
-
-    /**
-     *
-     * @param transformer
-     * @return the converted TK Refex Array of Byte Array Member
-     */
-    @Override
-    public TtkLogicGraphMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-        return new TtkLogicGraphMemberChronicle(this, transformer);
     }
 
     /**

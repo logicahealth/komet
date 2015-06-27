@@ -15,12 +15,11 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
-import java.io.IOException;
+import gov.vha.isaac.ochre.collections.NidSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 
@@ -30,10 +29,10 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
  */
 class ConceptGetter implements ProcessUnfetchedConceptDataBI {
     Map<Integer, ConceptChronicleBI> conceptMap = new ConcurrentHashMap<>();
-    NativeIdSetBI cNids;
+    NidSet cNids;
     //~--- constructors -----------------------------------------------------
     //~--- constructors -----------------------------------------------------
-    public ConceptGetter(NativeIdSetBI cNids) {
+    public ConceptGetter(NidSet cNids) {
         super();
         this.cNids = cNids;
     }
@@ -46,7 +45,7 @@ class ConceptGetter implements ProcessUnfetchedConceptDataBI {
 
     @Override
     public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fcfc) throws Exception {
-        if (cNids.isMember(cNid)) {
+        if (cNids.contains(cNid)) {
             ConceptChronicle c = (ConceptChronicle) fcfc.fetch();
             conceptMap.put(cNid, c);
         }
@@ -54,7 +53,7 @@ class ConceptGetter implements ProcessUnfetchedConceptDataBI {
 
     //~--- get methods ------------------------------------------------------
     @Override
-    public NativeIdSetBI getNidSet() throws IOException {
+    public NidSet getNidSet() {
         return cNids;
     }
 

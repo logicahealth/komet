@@ -32,13 +32,13 @@ import org.roaringbitmap.RoaringBitmap;
  * @param <T>
  */
 public abstract class IntSet<T extends IntSet> {
-    protected static IdentifierService sequenceProvider;
+    protected static IdentifierService identifierService;
 
-    protected static IdentifierService getSequenceProvider() {
-        if (SequenceSet.sequenceProvider == null) {
-            SequenceSet.sequenceProvider = LookupService.getService(IdentifierService.class);
+    protected static IdentifierService getIdentifierService() {
+        if (SequenceSet.identifierService == null) {
+            SequenceSet.identifierService = LookupService.getService(IdentifierService.class);
         }
-        return SequenceSet.sequenceProvider;
+        return SequenceSet.identifierService;
     }
     
     RoaringBitmap rbmp;
@@ -141,6 +141,10 @@ public abstract class IntSet<T extends IntSet> {
                 false);
     }
     
+    public int[] asArray() {
+         return stream().toArray();
+    }
+    
     public OpenIntHashSet asOpenIntHashSet() {
         OpenIntHashSet set = new OpenIntHashSet();
         stream().forEach((sequence) -> set.add(sequence));
@@ -193,7 +197,8 @@ public abstract class IntSet<T extends IntSet> {
     }
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + rbmp;
+        return this.getClass().getSimpleName() + 
+                " size: " + size() + " elements: " + rbmp;
     }
     
     public IntIterator getIntIterator() {

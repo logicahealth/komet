@@ -15,28 +15,25 @@
  */
 package gov.vha.isaac.ochre.api.classifier;
 
-import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import org.jvnet.hk2.annotations.Contract;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
+import java.util.Optional;
+import javafx.concurrent.Task;
 
 /**
  *
  * @author kec
  */
-@Contract
 public interface ClassifierService {
     
-    void initialize(LogicCoordinate logicCoordinate);
+    Task<ClassifierResults> classify();
+
+    Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId, int logicAssemblageId, 
+            StampCoordinate stampCoordinate);
     
-    ClassifierResults fullClassification(StampCoordinate stampCoordinate, 
-            LogicCoordinate logicCoordinate, 
+    Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, 
             EditCoordinate editCoordinate);
     
-    ClassifierResults incrementalClassification(StampCoordinate stampCoordinate, 
-            LogicCoordinate logicCoordinate, 
-            EditCoordinate editCoordinate, 
-            ConceptSequenceSet newConcepts);
 }

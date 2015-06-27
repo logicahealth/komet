@@ -18,12 +18,16 @@ package gov.vha.isaac.ochre.api.component.concept.description;
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 
 /**
  *
  * @author kec
+ * @param <T>
+ * @param <V>
  */
-public interface DescriptionBuilder extends IdentifiedComponentBuilder<ObjectChronology> {
+public interface DescriptionBuilder<T extends ObjectChronology, V extends StampedVersion> 
+    extends IdentifiedComponentBuilder<T> {
     DescriptionBuilder setPreferredInDialectAssemblage(ConceptProxy dialectAssemblage);
     DescriptionBuilder setAcceptableInDialectAssemblage(ConceptProxy dialectAssemblage);
 }

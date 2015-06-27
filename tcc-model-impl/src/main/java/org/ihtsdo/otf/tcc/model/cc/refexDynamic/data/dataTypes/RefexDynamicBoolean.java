@@ -56,7 +56,7 @@ public class RefexDynamicBoolean extends RefexDynamicData implements RefexDynami
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBooleanProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty()  {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
 		}
@@ -69,7 +69,7 @@ public class RefexDynamicBoolean extends RefexDynamicData implements RefexDynami
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
 		return getDataBooleanProperty();
 	}
 

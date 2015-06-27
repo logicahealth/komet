@@ -15,12 +15,15 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-
 /**
  *
  * @author kec
  */
 public interface DynamicSememe extends SememeVersion {
+    /**
+     * @return All of the data columns that are part of this Refex. See
+     *         {@link #getData(int)}. May be empty, will not be null.
+     */
+    DynamicSememeData[] getData();
     
 }

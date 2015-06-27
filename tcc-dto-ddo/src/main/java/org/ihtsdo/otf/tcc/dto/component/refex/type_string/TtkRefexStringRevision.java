@@ -3,7 +3,6 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_string;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
-import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import org.ihtsdo.otf.tcc.dto.UtfHelper;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
@@ -17,8 +16,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexStringRevision extends TtkRevision {
    public static final long serialVersionUID = 1;
@@ -47,11 +44,6 @@ public class TtkRefexStringRevision extends TtkRevision {
    public TtkRefexStringRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexStringRevision(TtkRefexStringRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.string1 = transformer.transform(another.string1, another, ComponentFields.REFEX_STRING1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -91,11 +83,6 @@ public class TtkRefexStringRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   @Override
-   public TtkRefexStringRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexStringRevision(this, transformer);
    }
 
    @Override

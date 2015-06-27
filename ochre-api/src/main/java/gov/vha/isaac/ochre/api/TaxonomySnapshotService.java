@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -32,11 +33,18 @@ public interface TaxonomySnapshotService {
     
     ConceptSequenceSet getKindOfSequenceSet(int rootId);
      
-    int[] getAllRelationshipOriginSequencesActive(int destination);
+    IntStream getTaxonomyChildSequences(int parentId);
 
-    int[] getTaxonomyChildSequencesActive(int parentId);
+    IntStream getTaxonomyParentSequences(int childId);
 
-    int[] getTaxonomyParentSequencesActive(int childId);
+    IntStream getRoots();    
 
-    int[] getRoots();    
+    IntStream getAllRelationshipDestinationSequences(int originId);
+    
+    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
+    
+    IntStream getAllRelationshipOriginSequences(int destination);
+
+    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
+    
 }

@@ -41,8 +41,8 @@ public class SpecFactory {
     }
 
     public static DescriptionSpec get(DescriptionVersionBI desc, ViewCoordinate vc) throws IOException {
-        if (desc != null && desc.getUUIDs() != null) {
-            DescriptionSpec ds = new DescriptionSpec(desc.getUUIDs().toArray(new UUID[]{}),
+        if (desc != null && desc.getUuidList() != null) {
+            DescriptionSpec ds = new DescriptionSpec(desc.getUuidList().toArray(new UUID[]{}),
                     get(Ts.get().getConcept(desc.getConceptNid()), vc),
                     get(Ts.get().getConcept(desc.getTypeNid()), vc),
                     desc.getText());

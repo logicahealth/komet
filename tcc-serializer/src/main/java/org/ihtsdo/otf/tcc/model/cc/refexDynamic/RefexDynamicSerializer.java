@@ -7,6 +7,7 @@ import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.dataTypes.RefexDynamicTypeT
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.RefexDynamicData;
 
 /**
  * Created by kec on 7/13/14.
@@ -87,7 +88,7 @@ public class RefexDynamicSerializer extends AbstractSerializer<RefexDynamicMembe
         //read the following format -
         //dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
         int colCount = input.readInt();
-        cc.data_ = new RefexDynamicDataBI[colCount];
+        cc.data_ = new RefexDynamicData[colCount];
         for (int i = 0; i < colCount; i++)
         {
             RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());

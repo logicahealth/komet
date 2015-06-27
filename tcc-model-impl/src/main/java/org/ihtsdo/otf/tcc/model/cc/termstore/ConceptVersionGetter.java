@@ -15,13 +15,12 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
-import java.io.IOException;
+import gov.vha.isaac.ochre.collections.NidSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
 import org.ihtsdo.otf.tcc.api.concept.ConceptFetcherBI;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
@@ -32,12 +31,12 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
  */
 class ConceptVersionGetter implements ProcessUnfetchedConceptDataBI {
     Map<Integer, ConceptVersionBI> conceptMap = new ConcurrentHashMap<>();
-    NativeIdSetBI cNids;
+    NidSet cNids;
     ViewCoordinate coordinate;
 
     //~--- constructors -----------------------------------------------------
     //~--- constructors -----------------------------------------------------
-    public ConceptVersionGetter(NativeIdSetBI cNids, ViewCoordinate c) {
+    public ConceptVersionGetter(NidSet cNids, ViewCoordinate c) {
         super();
         this.cNids = cNids;
         this.coordinate = c;
@@ -51,7 +50,7 @@ class ConceptVersionGetter implements ProcessUnfetchedConceptDataBI {
 
     @Override
     public void processUnfetchedConceptData(int cNid, ConceptFetcherBI fcfc) throws Exception {
-        if (cNids.isMember(cNid)) {
+        if (cNids.contains(cNid)) {
             ConceptChronicle c = (ConceptChronicle) fcfc.fetch();
             conceptMap.put(cNid, new ConceptVersion(c, coordinate));
         }
@@ -59,7 +58,7 @@ class ConceptVersionGetter implements ProcessUnfetchedConceptDataBI {
 
     //~--- get methods ------------------------------------------------------
     @Override
-    public NativeIdSetBI getNidSet() throws IOException {
+    public NidSet getNidSet() {
         return cNids;
     }
 

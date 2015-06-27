@@ -17,26 +17,23 @@
 package org.ihtsdo.otf.tcc.model.path;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
-import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-import org.glassfish.hk2.runlevel.RunLevel;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.type_nid_long.RefexNidLongVersionBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.model.cc.ReferenceConcepts;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
@@ -44,7 +41,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_nid.NidMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int.NidIntMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long.NidLongMember;
-import org.jvnet.hk2.annotations.Service;
 
 /**
  * OldPath management.
@@ -56,72 +52,64 @@ import org.jvnet.hk2.annotations.Service;
  * instead marshals to to the Extension termstore (indirectly).
  *
  */
-@Service(name = "Path Manager")
-@Singleton
 public class PathManager implements PathService {
 
     private static final Logger logger = Logger.getLogger(PathManager.class.getName());
     private static Lock l = new ReentrantLock();
-    private static PathManager singleton;
-    private static IdentifierService sequenceProvider;
-    private static IdentifierService getSequenceService() {
-        if (sequenceProvider == null) {
-            sequenceProvider = LookupService.getService(IdentifierService.class);
+    private static IdentifierService identifierService;
+    private static IdentifierService getIdentifierService() {
+        if (identifierService == null) {
+            identifierService = LookupService.getService(IdentifierService.class);
         }
-        return sequenceProvider;
+        return identifierService;
     }
+
     //~--- fields --------------------------------------------------------------
-    ConcurrentHashMap<Integer, Path> pathMap;
+    private ConcurrentHashMap<Integer, Path> pathMap_;
     private ConceptChronicle pathRefsetConcept;
     private ConceptChronicle refsetPathOriginsConcept;
 
-    //~--- constructors --------------------------------------------------------
-    private PathManager() throws IOException {
-        try {
-            setupPathMap();
-        } catch (Exception e) {
-            throw new IOException("Unable to initialise path management.", e);
-        }
+    /**
+     * You likely shouldn't use this constructor - it instead, should be managed by the PathProvider.
+     * 
+     * This legacy class will go away entirely, in the future.
+     */
+    public PathManager() {
     }
 
     //~--- methods -------------------------------------------------------------
-    public boolean exists(int cNid) throws IOException {
-        if (pathMap.containsKey(cNid)) {
-            return true;
+    @Override
+    public boolean exists(int pathConceptId) {
+        if (pathConceptId >= 0) {
+            pathConceptId = getIdentifierService().getConceptNid(pathConceptId);
+        }
+        try {
+            if (getPathMap().containsKey(pathConceptId)) {
+                return true;
+            }
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        return getFromDisk(cNid) != null;
+        return getFromDisk(pathConceptId) != null;
     }
 
-    public boolean existsFast(int cNid) throws IOException {
-        if (pathMap.containsKey(cNid)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public synchronized void resetPathMap() throws IOException {
-        pathMap = null;
-        setupPathMap();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setupPathMap() throws IOException {
-        if (pathMap == null) {
+    private ConcurrentHashMap<Integer, Path> getPathMap() throws IOException {
+        if (pathMap_ == null) {
             l.lock();
-            pathMap = new ConcurrentHashMap<>();
+            pathMap_ = new ConcurrentHashMap<>();
             try {
                 getPathRefsetConcept();
 
-                for (RefexMember extPart : getPathRefsetConcept().getExtensions()) {
+                for (RefexMember<?, ?> extPart : getPathRefsetConcept().getExtensions()) {
                     if (extPart instanceof NidMember) {
                         NidMember conceptExtension = (NidMember) extPart;
                         int pathId = conceptExtension.getC1Nid();
-                        pathMap.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
+                        pathMap_.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
                     } else {
                         int pathId = extPart.getReferencedComponentNid();
-                        pathMap.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
+                        pathMap_.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
                     }
                 }
             } catch (Exception e) {
@@ -130,76 +118,13 @@ public class PathManager implements PathService {
                 l.unlock();
             }
         }
+        return pathMap_;
     }
 
-    //~--- get methods ---------------------------------------------------------
-    public static PathManager get() {
-        if (singleton == null) {
-            l.lock();
 
-            try {
-                if (singleton == null) {
-                    try {
-                        PathManager mgr = new PathManager();
-
-                        singleton = mgr;
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            } finally {
-                l.unlock();
-            }
-        }
-
-        return singleton;
-    }
-
-    public static void reset() {
-        if (singleton != null) {
-            l.lock();
-            try {
-                singleton = null;
-            } finally {
-                l.unlock();
-            }
-        }
-    }
-
-    public Path get(int nid) throws IOException {
-        if (nid >= 0) {
-            nid = getSequenceService().getConceptNid(nid);
-        }
-        if (exists(nid)) {
-            return pathMap.get(nid);
-        } else {
-            Path p = getFromDisk(nid);
-
-            if (p != null) {
-                return p;
-            }
-        }
-        return null;
-    }
-
-    public Set<Path> getAll() {
-        return new HashSet<>(pathMap.values());
-    }
-
-    public List<Position> getAllPathOrigins(int nid) throws IOException {
-        Path p = pathMap.get(nid);
-
-        if (p == null) {
-            p = getFromDisk(nid);
-        }
-
-        return new ArrayList<>(p.getInheritedOrigins());
-    }
-
-    @SuppressWarnings("unchecked")
-    private Path getFromDisk(int cNid) throws IOException {
+    private Path getFromDisk(int cNid) {
         try {
-            for (RefexMember extPart : getPathRefsetConcept().getExtensions()) {
+            for (RefexMember<?, ?> extPart : getPathRefsetConcept().getExtensions()) {
                 int pathId;
                 if (extPart instanceof NidMember) {
                     NidMember conceptExtension = (NidMember) extPart;
@@ -208,66 +133,31 @@ public class PathManager implements PathService {
                     pathId = extPart.getReferencedComponentNid();
                 }
                 if (pathId == cNid) {
-                    pathMap.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
-                    return pathMap.get(cNid);
+                    getPathMap().put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
+                    return getPathMap().get(cNid);
                 }
 
             }
         } catch (Exception e) {
-            throw new IOException("Unable to retrieve all paths.", e);
+            throw new RuntimeException("Unable to retrieve all paths.", e);
         }
 
         return null;
     }
 
-    public List<Path> getPathChildren(int nid) {
-        List<Path> children = new ArrayList<>();
-
-        for (Path p : pathMap.values()) {
-            if (p.getOrigins() != null) {
-                for (Position origin : p.getOrigins()) {
-                    if (origin.getPath().getConceptNid() == nid) {
-                        children.add(p);
-                    }
-                }
-            }
+    @Override
+    public Collection<? extends StampPosition> getOrigins(int stampPathSequence) {
+        if (stampPathSequence < 0) {
+            stampPathSequence = getIdentifierService().getConceptSequence(stampPathSequence);
         }
-
-        return children;
+        return getPathOriginsFromDb(stampPathSequence);
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<Integer> getPathNids() throws IOException {
-        try {
-            HashSet<Integer> result = new HashSet<>();
-
-            for (RefexMember extPart : getPathRefsetConcept().getExtensions()) {
-                RefexNidLongVersionBI conceptExtension = (RefexNidLongVersionBI) extPart;
-
-                result.add(conceptExtension.getNid1());
-            }
-
-            return result;
-        } catch (Exception e) {
-            throw new IOException("Unable to retrieve all paths.", e);
-        }
-    }
-
-    public Collection<? extends Position> getPathOrigins(int nid) throws IOException {
-        try {
-            Path p = pathMap.get(nid);
-
-            return p.getOrigins();
-        } catch (Exception e) {
-            throw new IOException("Unable to retrieve path children.", e);
-        }
-    }
-
-    private List<Position> getPathOriginsFromDb(int nid) throws IOException {
+    private List<Position> getPathOriginsFromDb(int nid) {
         return getPathOriginsWithDepth(nid, 0);
     }
 
-    private List<Position> getPathOriginsWithDepth(int nid, int depth) throws IOException {
+    private List<Position> getPathOriginsWithDepth(int nid, int depth) {
         try {
             ArrayList<Position> result = new ArrayList<>();
             ConceptChronicle pathConcept = (ConceptChronicle) Ts.get().getConcept(nid);
@@ -285,9 +175,9 @@ public class PathManager implements PathService {
                             logger.log(Level.SEVERE, "Self-referencing origin in path: {0}",
                                     pathConcept.getDescriptions().iterator().next());
                         } else {
-                            if (pathMap.containsKey(conceptExtension.getC1Nid())) {
+                            if (getPathMap().containsKey(conceptExtension.getC1Nid())) {
                                 result.add(new Position(conceptExtension.getLong1(),
-                                        pathMap.get(conceptExtension.getC1Nid())));
+                                        getPathMap().get(conceptExtension.getC1Nid())));
                             } else {
                                 if (depth > 40) {
                                     logger.log(Level.SEVERE, "",
@@ -314,9 +204,9 @@ public class PathManager implements PathService {
                             logger.log(Level.SEVERE, "Self-referencing origin in path[2]: {0}",
                                     pathConcept.getDescriptions().iterator().next());
                         } else {
-                            if (pathMap.containsKey(conceptExtension.getC1Nid())) {
+                            if (getPathMap().containsKey(conceptExtension.getC1Nid())) {
                                 result.add(new Position(ThinVersionHelper.convert(conceptExtension.getInt1()),
-                                        pathMap.get(conceptExtension.getC1Nid())));
+                                        getPathMap().get(conceptExtension.getC1Nid())));
                             } else {
                                 if (depth > 40) {
                                     logger.log(Level.SEVERE, "",
@@ -340,7 +230,7 @@ public class PathManager implements PathService {
 
             return result;
         } catch (Exception e) {
-            throw new IOException("Unable to retrieve path origins.", e);
+            throw new RuntimeException("Unable to retrieve path origins.", e);
         }
     }
 
@@ -360,26 +250,25 @@ public class PathManager implements PathService {
         return refsetPathOriginsConcept;
     }
 
-    public boolean hasPath(int nid) throws IOException {
-        if (exists(nid)) {
-            return true;
-        } else {
-            Path p = getFromDisk(nid);
-
-            if (p != null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     @Override
     public StampPath getStampPath(int stampPathSequence) {
-        try {
-            return get(stampPathSequence);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        if (stampPathSequence >= 0) {
+            stampPathSequence = getIdentifierService().getConceptNid(stampPathSequence);
         }
+        if (exists(stampPathSequence)) {
+            try {
+                return getPathMap().get(stampPathSequence);
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            Path p = getFromDisk(stampPathSequence);
+
+            if (p != null) {
+                return p;
+            }
+        }
+        return null;
     }
 }

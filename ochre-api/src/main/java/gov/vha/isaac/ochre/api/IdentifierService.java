@@ -30,18 +30,18 @@ public interface IdentifierService {
     
     IntStream getComponentNidStream();
     
-    int getConceptNidForDescriptionNid(int nid);
-    int getConceptSequenceForDescriptionNid(int nid);
+    int getConceptNidForDescriptionNid(int descriptionNid);
+    int getConceptSequenceForDescriptionNid(int descriptionNid);
     void setConceptSequenceForComponentNid(int conceptSequence, int nid);
     void resetConceptSequenceForComponentNid(int conceptSequence, int nid);
     
-    int getConceptSequence(int nid);
+    int getConceptSequence(int conceptNid);
     int getConceptNid(int conceptSequence);
     
     IntStream getConceptSequenceStream();
     IntStream getParallelConceptSequenceStream();
     
-    int getSememeSequence(int nid);
+    int getSememeSequence(int sememeNid);
     int getSememeNid(int sememeSequence);
     int getSememeSequenceForUuids(Collection<UUID> uuids);
     int getSememeSequenceForUuids(UUID... uuids);
@@ -49,12 +49,14 @@ public interface IdentifierService {
     IntStream getSememeSequenceStream();
     IntStream getParallelSememeSequenceStream();
     
-    ConceptSequenceSet getConceptSequencesForNids(int[] conceptNidArray);
-    SememeSequenceSet getSememeSequencesForNids(int[] sememeNidArray);
+    ConceptSequenceSet getConceptSequencesForConceptNids(NidSet componentNidSet);
+    ConceptSequenceSet getConceptSequencesForConceptNids(int[] conceptNidArray);
+    SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray);
     ConceptSequenceSet getConceptSequencesForReferencedComponents(SememeSequenceSet sememeSequences);
-
-    IntStream getConceptNidsForSequences(IntStream conceptSequences);
-    IntStream getSememeNidsForSequences(IntStream sememSequences);
+    ConceptSequenceSet getConceptSequenceSetForComponentNidSet(NidSet nids);
+    
+    IntStream getConceptNidsForConceptSequences(IntStream conceptSequences);
+    IntStream getSememeNidsForSememeSequences(IntStream sememSequences);
     
     int getNidForUuids(Collection<UUID> uuids);
     int getNidForUuids(UUID... uuids);
@@ -92,6 +94,5 @@ public interface IdentifierService {
     IntStream getRefexNidsForSequences(IntStream refexSequences);
     @Deprecated
     RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
-    
 
 }

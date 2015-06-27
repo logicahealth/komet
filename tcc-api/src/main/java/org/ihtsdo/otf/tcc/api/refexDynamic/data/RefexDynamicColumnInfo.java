@@ -457,9 +457,9 @@ public class RefexDynamicColumnInfo implements Comparable<RefexDynamicColumnInfo
 		cab.addDescriptionCAB(dCab);
 		
 		ConceptChronicleBI newCon = Ts.get().getTerminologyBuilder(
-				new EditCoordinate(TermAux.USER.getLenient().getConceptNid(), 
+				new EditCoordinate(TermAux.USER.getLenient().getNid(), 
 					TermAux.ISAAC_MODULE.getLenient().getNid(), 
-					TermAux.WB_AUX_PATH.getLenient().getConceptNid()), 
+					TermAux.WB_AUX_PATH.getLenient().getNid()), 
 					vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit(/* newCon */);

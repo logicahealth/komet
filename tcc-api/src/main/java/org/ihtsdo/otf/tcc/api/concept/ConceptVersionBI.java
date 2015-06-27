@@ -1,6 +1,9 @@
 package org.ihtsdo.otf.tcc.api.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
@@ -27,8 +30,14 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
-public interface ConceptVersionBI extends ComponentVersionBI, ConceptChronicleBI {
-
+public interface ConceptVersionBI extends ComponentVersionBI, 
+        ConceptChronicleBI, 
+        ConceptSnapshot, 
+        ConceptVersion {
+    @Override
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
     boolean satisfies(ConstraintBI constraint, ConstraintCheckType subjectCheck,
             ConstraintCheckType propertyCheck, ConstraintCheckType valueCheck)
             throws IOException, ContradictionException;
@@ -135,9 +144,9 @@ public interface ConceptVersionBI extends ComponentVersionBI, ConceptChronicleBI
 
     boolean hasRefsetMemberForComponentActive(int componentNid) throws IOException;
 
-    boolean isChildOf(ConceptVersionBI child) throws IOException;
+    boolean isChildOf(ConceptSnapshot child) throws IOException;
 
-    boolean isKindOf(ConceptVersionBI parentKind) throws IOException, ContradictionException;
+    boolean isKindOf(ConceptSnapshot parentKind) throws IOException, ContradictionException;
 
     boolean isLeaf() throws IOException;
 

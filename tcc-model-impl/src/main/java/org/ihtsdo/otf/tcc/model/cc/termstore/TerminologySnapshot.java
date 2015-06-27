@@ -1,14 +1,10 @@
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
+//~--- non-JDK imports --------------------------------------------------------
+
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
 import org.ihtsdo.otf.tcc.api.blueprint.TerminologyBuilderBI;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
@@ -21,24 +17,33 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidFactory;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
 import org.ihtsdo.otf.tcc.ddo.store.FxTerminologySnapshotDI;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
+import javafx.concurrent.Task;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import gov.vha.isaac.ochre.util.UuidFactory;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptVersion;
@@ -408,7 +413,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Position newPosition(Path path, long time) throws IOException {
+   public Position newPosition(StampPath path, long time) throws IOException {
       return store.newPosition(path, time);
    }
 
@@ -687,7 +692,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this, c, VersionPolicy.ACTIVE_VERSIONS, RefexPolicy.REFEX_MEMBERS,
+      return new ConceptChronicleDdo(this.getViewCoordinate(), c, RefexPolicy.REFEX_MEMBERS,
                            RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
    }
 
@@ -716,7 +721,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
          c = getConceptVersion(ref.getUuid());
       }
 
-      return new ConceptChronicleDdo(this, c, VersionPolicy.ACTIVE_VERSIONS, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
@@ -738,7 +743,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this, c, VersionPolicy.ACTIVE_VERSIONS, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
@@ -839,7 +844,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Path getPath(int pathNid) throws IOException {
+   public StampPath getPath(int pathNid) throws IOException {
       return store.getPath(pathNid);
    }
 
@@ -867,7 +872,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
+   public Set<StampPath> getPathSetFromPositionSet(Set<Position> positions) throws IOException {
       return store.getPathSetFromPositionSet(positions);
    }
 
@@ -882,7 +887,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     * @throws IOException
     */
    @Override
-   public Set<Path> getPathSetFromStampSet(Set<Integer> sapNids) throws IOException {
+   public Set<StampPath> getPathSetFromStampSet(Set<Integer> sapNids) throws IOException {
       return store.getPathSetFromStampSet(sapNids);
    }
 
@@ -1011,11 +1016,12 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     }
 
     /**
+     * @return 
      * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#index(java.lang.Class[])
      */
     @Override
-    public void index(Class<?> ... indexesToRebuild) throws IOException {
-        store.index(indexesToRebuild);
+    public Task<?> index(Class<?> ... indexesToRebuild) {
+        return store.index(indexesToRebuild);
     }
 
     @Override

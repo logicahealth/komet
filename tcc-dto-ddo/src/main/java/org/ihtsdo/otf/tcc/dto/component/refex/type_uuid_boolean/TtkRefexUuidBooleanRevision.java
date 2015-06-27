@@ -6,8 +6,6 @@ import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_boolean.RefexNidBooleanVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -81,19 +79,7 @@ public class TtkRefexUuidBooleanRevision extends TtkRevision {
       readExternal(in, dataVersion);
    }
 
-   /**
-    * Constructs ...
-    *
-    *
-    * @param another
-    * @param transformer
-    */
-   public TtkRefexUuidBooleanRevision(TtkRefexUuidBooleanRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.uuid1    = transformer.transform(another.uuid1, another, ComponentFields.REFEX_COMPONENT_1_UUID);
-      this.boolean1 = transformer.transform(another.boolean1, another, ComponentFields.REFEX_BOOLEAN1);
-   }
-    @Override
+   @Override
     protected final void addUuidReferencesForRevisionComponent(Collection<UUID> references) {
         // nothing to add
     }
@@ -134,19 +120,6 @@ public class TtkRefexUuidBooleanRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   /**
-    * Method description
-    *
-    *
-    * @param transformer
-    *
-    * @return
-    */
-   @Override
-   public TtkRefexUuidBooleanRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexUuidBooleanRevision(this, transformer);
    }
 
    /**

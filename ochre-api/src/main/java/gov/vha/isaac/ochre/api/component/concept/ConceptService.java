@@ -16,18 +16,42 @@
 package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
+//Normally, this would be a contract... but we only want one in the system (and we have two, that we don't want running at the same time)
+//So, force the users to get one via the ConceptServiceManagerI
+//Alternatively, maybe we could do something with:  https://hk2.java.net/custom-resolver-example.html
 @Contract
 public interface ConceptService {
     
-    ConceptChronology getConcept(int conceptSequence);
+    ConceptChronology<? extends ConceptVersion> getConcept(int conceptSequence);
     
+    ConceptChronology<? extends ConceptVersion> getConcept(UUID... conceptUuids);
+    
+    void writeConcept(ConceptChronology<? extends ConceptVersion> concept);
+
     boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
     
     ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate);
+    
+    int getConceptCount();
+    
+    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream();
+    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream();
+
+    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    
+    /**
+     * For compatability reasons only. 
+     * @return 
+     */
+    ConceptService getDelegate();
 }

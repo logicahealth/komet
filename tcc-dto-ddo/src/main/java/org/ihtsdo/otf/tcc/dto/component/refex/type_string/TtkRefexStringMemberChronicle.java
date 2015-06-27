@@ -2,8 +2,7 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
@@ -20,9 +19,6 @@ import java.io.IOException;
 
 import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexStringRevision> {
    public static final long serialVersionUID = 1;
@@ -58,9 +54,9 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
       }
    }
 
-    public TtkRefexStringMemberChronicle(SememeChronicleImpl<StringSememeImpl> another) {
+    public TtkRefexStringMemberChronicle(SememeChronologyImpl<StringSememeImpl> another) {
       super(another);
-      List<StringSememeImpl> stringVersions = (List<StringSememeImpl>) another.getVersions();
+      List<StringSememeImpl> stringVersions = (List<StringSememeImpl>) another.getVersionList();
         
       this.string1 = stringVersions.get(0).getString();
 
@@ -74,11 +70,6 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
    public TtkRefexStringMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexStringMemberChronicle(TtkRefexStringMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.string1 = transformer.transform(another.string1, another, ComponentFields.REFEX_STRING1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -129,11 +120,6 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRefexStringMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexStringMemberChronicle(this, transformer);
    }
 
    @Override

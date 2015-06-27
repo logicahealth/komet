@@ -29,9 +29,9 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 /**
  * The Class DescriptionCAB contains methods for creating a description
@@ -174,7 +174,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
             RefexDirective refexDirective) throws
             IOException, InvalidCAB, ContradictionException {
         this(conceptUuid, typeUuid, langCode, text, initialCaseSignificant,
-                null, descriptionVersion, viewCoordinate, 
+                Optional.empty(), descriptionVersion, viewCoordinate, 
                 idDirective, 
                 refexDirective);
     }
@@ -212,7 +212,7 @@ public class DescriptionCAB extends CreateOrAmendBlueprint {
             throws IOException, InvalidCAB, ContradictionException {
         super(getComponentUUID(componentUuid,descriptionVersion,idDirective), 
                 descriptionVersion, viewCoordinate,
-                idDirective, refexDirective);
+                (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
 
         this.conceptUuid = conceptUuid;
         this.lang = langCode.getFormatedLanguageNoDialectCode();

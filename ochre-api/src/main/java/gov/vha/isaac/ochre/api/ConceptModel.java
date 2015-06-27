@@ -20,5 +20,21 @@ package gov.vha.isaac.ochre.api;
  * @author kec
  */
 public enum ConceptModel {
-    OCHRE_CONCEPT_MODEL, OTF_CONCEPT_MODEL;
+    
+    /**
+     * The OCHRE concept model, where there are no relationships, as
+     * definitions are represented as logic graphs, and concept attributes
+     * are integrated with the concept itself, as the primitive/defined field
+     * is not relevant as the logic graphs can represent multiple necessary and
+     * sufficient sets, and full nesting of logical axioms is supported. 
+     */
+    OCHRE_CONCEPT_MODEL, 
+    
+    /**
+     * The OTF concept model, based on classic SNOMED RF2 distribution files, 
+     * where definitions are represented as relationships, and multiple necessary
+     * and sufficient sets are not supported, and the only nesting allowed is
+     * role groupings. 
+     */
+    OTF_CONCEPT_MODEL;
 }

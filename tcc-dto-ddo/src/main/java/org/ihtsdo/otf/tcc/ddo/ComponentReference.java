@@ -15,22 +15,31 @@
  */
 package org.ihtsdo.otf.tcc.ddo;
 
+import gov.vha.isaac.ochre.api.IdentifiedObjectService;
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 
 /**
  *
@@ -39,6 +48,9 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 public class ComponentReference implements Externalizable {
 
     public static final long serialVersionUID = 1;
+    
+    IdentifierService identifierService = LookupService.getService(IdentifierService.class);
+    IdentifiedObjectService identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
     //~--- fields --------------------------------------------------------------
     private int nid = Integer.MAX_VALUE;
     private SimpleIntegerProperty nidProperty;
@@ -47,70 +59,120 @@ public class ComponentReference implements Externalizable {
     private long uuidMsb;
     private long uuidLsb;
     private SimpleObjectProperty<UUID> uuidProperty;
-    private DefinitionalState definitionalState = DefinitionalState.UNDETERMINED;
     private boolean isNull;
 
     //~--- constructors --------------------------------------------------------
     public ComponentReference() {
     }
 
-    public ComponentReference(ConceptVersionBI concept) throws IOException, ContradictionException {
+    /**
+     * 
+     * @param concept
+     * @param stampCoordinate
+     * @param languageCoordinate 
+     */
+    public ComponentReference(ConceptChronology<?> concept, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
         nid = concept.getNid();
+        if (nid >= 0) {
+            nid = identifierService.getConceptNid(nid);
+        }
         uuidMsb = concept.getPrimordialUuid().getMostSignificantBits();
         uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
-        DescriptionVersionBI<?> description = concept.getPreferredDescription();
-        if (description == null) {
-            text = concept.getPrimordialUuid().toString();
-            Logger.getLogger(ComponentReference.class.getName()).warning("Concept with no preferred description: " + concept.getPrimordialUuid() 
-                + " nid(" + concept.getNid() + ")");
+        Optional<LatestVersion<DescriptionSememe>> description = concept.getPreferredDescription(languageCoordinate, stampCoordinate);
+        if (description.isPresent()) {
+            text = description.get().value().getText();
         } else {
-            text = description.getText();
-            if (concept.getConceptAttributesActive().isPresent()
-                    && concept.getConceptAttributesActive().get().isDefined()) {
-                definitionalState = DefinitionalState.NECESSARY_AND_SUFFICIENT;
-            } else {
-                definitionalState = DefinitionalState.NECESSARY;
-            }
+            text = concept.getPrimordialUuid().toString();
+            Logger.getLogger(ComponentReference.class.getName()).log(Level.WARNING, 
+                    "Concept with no preferred description: {0} nid({1})", 
+                    new Object[]{concept.getPrimordialUuid(), concept.getNid()});
         }
     }
 
-    public ComponentReference(int nid) throws IOException {
-        this.nid = nid;
-        if (Ts.get().getConceptNidForNid(nid) != nid) {
-            definitionalState = DefinitionalState.NOT_A_DEFINED_COMPONENT;
+    /**
+     * 
+     * @param intId either a native id, or a concept sequence, which will be converted to a nid. 
+     * @throws IOException 
+     */
+    public ComponentReference(int intId) throws IOException {
+        if (nid >= 0) {
+            this.nid = identifierService.getConceptNid(intId);
+        } else {
+            this.nid = intId;
         }
+         
     }
 
     public ComponentReference(UUID uuid) {
         uuidMsb = uuid.getMostSignificantBits();
         uuidLsb = uuid.getLeastSignificantBits();
     }
+    
+    public ComponentReference(int nid, TaxonomyCoordinate taxonomyCoordinate)  {
+        this(nid, taxonomyCoordinate.getStampCoordinate(), taxonomyCoordinate.getLanguageCoordinate());
+    }
 
-    public ComponentReference(TerminologySnapshotDI ss, int nid) throws IOException, ContradictionException {
-        this.nid = nid;
-
-        Optional<? extends ComponentVersionBI> component = ss.getComponentVersion(nid);
-
+    /**
+     * 
+     * @param intId either a native id, or a concept sequence, which will be converted to a nid. 
+     * @param stampCoordinate
+     * @param languageCoordinate 
+     */
+    public ComponentReference(int intId, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate)  {
+        if (nid >= 0) {
+            this.nid = identifierService.getConceptNid(intId);
+        } else {
+            this.nid = intId;
+        }
+        Optional<? extends ObjectChronology<? extends StampedVersion>> component = identifiedObjectService.getIdentifiedObjectChronology(nid);
         if (component.isPresent()) {
-            uuidMsb = component.get().getPrimordialUuid().getMostSignificantBits();
-            uuidLsb = component.get().getPrimordialUuid().getLeastSignificantBits();
-            isNull = false;
-
-            if (component.get() instanceof ConceptVersionBI) {
-                text = ((ConceptVersionBI) component.get()).getPreferredDescription().getText();
-            } else if (component.get() instanceof DescriptionVersionBI) {
-                text = ((DescriptionVersionBI) component.get()).getText();
-            } else {
-                if (ss.getConceptForNid(nid).getFullySpecifiedDescription() != null) {
-                    text = component.get().getChronicle().getClass().getSimpleName() + " for: "
-                            + ss.getConceptForNid(nid).getFullySpecifiedDescription().getText();
-                } else {
-                    text = component.get().getChronicle().getClass().getSimpleName() + " for: (cannot find description)";
-                }
-            }
+            setupComponent(component.get(), languageCoordinate, stampCoordinate);
         } else {
             text = "null component";
             isNull = true;
+        }
+    }
+
+    public ComponentReference(ObjectChronology<?> component, TaxonomyCoordinate taxonomyCoordinate)  {
+        this.nid = component.getNid();
+        setupComponent(component, taxonomyCoordinate.getLanguageCoordinate(), taxonomyCoordinate.getStampCoordinate());
+    }
+    
+    private void setupComponent(ObjectChronology<? extends StampedVersion> chronology, LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+        uuidMsb = chronology.getPrimordialUuid().getMostSignificantBits();
+        uuidLsb = chronology.getPrimordialUuid().getLeastSignificantBits();
+        isNull = false;
+        
+        if (chronology instanceof ConceptChronology) {
+            ConceptChronology<?> conceptChronology = (ConceptChronology<?>) chronology;
+            Optional<LatestVersion<DescriptionSememe>> preferredDescription =
+                    conceptChronology.getPreferredDescription(languageCoordinate, stampCoordinate);
+            if (preferredDescription.isPresent()) {
+                text = preferredDescription.get().value().getText();
+            } else {
+                Optional<LatestVersion<DescriptionSememe>> fullySpecifiedDescription =
+                        conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
+                if (fullySpecifiedDescription.isPresent()) {
+                    text = fullySpecifiedDescription.get().value().getText();
+                } else {
+                    text = conceptChronology.toUserString();
+                }
+            }
+        } else if (chronology instanceof SememeChronology) {
+            SememeChronology sememeChronology = (SememeChronology) chronology;
+            if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
+                Optional<DescriptionSememe> desc = sememeChronology.getLatestVersion(DescriptionSememe.class, stampCoordinate);
+                if (desc.isPresent()) {
+                    text = desc.get().getText();
+                } else {
+                    text =  chronology.toUserString();
+                }
+                
+            } else {
+                text =  chronology.toUserString();
+            }
+        } else {
+            text = chronology.getClass().getSimpleName() + " for: (cannot find description)";
         }
     }
 
@@ -151,7 +213,7 @@ public class ComponentReference implements Externalizable {
 
     public SimpleIntegerProperty nidProperty() {
         if (nidProperty == null) {
-            nidProperty = new SimpleIntegerProperty(this, "nid", Integer.valueOf(nid));
+            nidProperty = new SimpleIntegerProperty(this, "nid", nid);
         }
 
         return nidProperty;
@@ -219,7 +281,7 @@ public class ComponentReference implements Externalizable {
 
     public String getHtmlFragment() {
         StringBuilder sb = new StringBuilder();
-        if (Ts.get().getConceptNidForNid(getNid()) == getNid()) {
+        if (identifierService.getChronologyTypeForNid(nid) == ObjectChronologyType.CONCEPT) {
             sb.append("<a href=\"../concept/");
         } else {
             sb.append("<a href=\"../component/");
@@ -231,14 +293,6 @@ public class ComponentReference implements Externalizable {
 
 
         return sb.toString();
-    }
-
-    public DefinitionalState getDefinitionalState() {
-        return definitionalState;
-    }
-
-    public void setDefinitionalState(DefinitionalState definitionalState) {
-        this.definitionalState = definitionalState;
     }
 
     /**

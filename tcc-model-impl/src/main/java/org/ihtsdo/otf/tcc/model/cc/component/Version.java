@@ -23,6 +23,9 @@ import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,6 +109,12 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
     }
     public IntStream getVersionStampSequences() {
         return this.cc.getVersionStampSequences();
+    }
+
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
     }
 
     public boolean isIndexed() {
@@ -363,11 +372,12 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
      *
      * @return
      */
-    @Override
     public int getConceptNid() {
         return cc.enclosingConceptNid;
     }
-
+    public int getEnclosingConceptNid() {
+       return cc.enclosingConceptNid;
+    }
     /**
      * Method description
      *
@@ -501,7 +511,10 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
     public int getNid() {
         return cc.nid;
     }
-
+    @Override
+    public int getAssociatedConceptNid() {
+       return cc.enclosingConceptNid;
+    }
     /**
      * Method description
      *
@@ -626,17 +639,6 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
     @Override
     public List<UUID> getUuidList() {
         return cc.getUuidList();
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    @Override
-    public List<UUID> getUUIDs() {
-        return cc.getUUIDs();
     }
 
     //    @Override
@@ -838,9 +840,16 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
        return getSequenceService().getConceptSequence(getPathNid());
     }
 
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
         return cc.getSememeList();
     }
+    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        return cc.getSememeListFromAssemblage(assemblageSequence);
+    }
+    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        return cc.getSememeListFromAssemblageOfType(assemblageSequence, type);
+    }
 
+    
 }
 

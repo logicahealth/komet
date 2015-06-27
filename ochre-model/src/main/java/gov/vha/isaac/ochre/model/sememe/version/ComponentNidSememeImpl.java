@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableComponentNidSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
@@ -29,13 +29,13 @@ public class ComponentNidSememeImpl extends SememeVersionImpl implements Mutable
 
     int componentNid = Integer.MAX_VALUE;
 
-    public ComponentNidSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
+    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
             int stampSequence, short versionSequence) {
         super(container, 
                 stampSequence, versionSequence);
     }
 
-    public ComponentNidSememeImpl(SememeChronicleImpl<ComponentNidSememeImpl> container, 
+    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
             int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);

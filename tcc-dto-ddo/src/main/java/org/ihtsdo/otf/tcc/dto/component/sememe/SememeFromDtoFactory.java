@@ -18,11 +18,11 @@ package org.ihtsdo.otf.tcc.dto.component.sememe;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
@@ -34,8 +34,8 @@ import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
  * @author kec
  */
 public class SememeFromDtoFactory {
-    private static LogicByteArrayConverter byteConverter;
-    private static LogicByteArrayConverter getLogicByteArrayConverter() {
+    private static LogicalExpressionByteArrayConverter byteConverter;
+    private static LogicalExpressionByteArrayConverter getLogicByteArrayConverter() {
         return byteConverter;
     }
 
@@ -60,13 +60,13 @@ public class SememeFromDtoFactory {
         switch (eRefsetMember.getType()) {
 
             case LOGIC:
-                SememeChronicleImpl<LogicGraphSememeImpl> chronicle = 
-                        new SememeChronicleImpl(SememeType.LOGIC_GRAPH, 
+                SememeChronologyImpl<LogicGraphSememeImpl> chronicle = 
+                        new SememeChronologyImpl(SememeType.LOGIC_GRAPH, 
                             eRefsetMember.primordialUuid, nid, assemblageSequence,
                             referencedComponentNid, containerSequence);    
                 
                 // primordial version
-                LogicGraphSememeImpl graphVersion = chronicle.createMutableUncommittedVersion(LogicGraphSememeImpl.class, 
+                LogicGraphSememeImpl graphVersion = chronicle.createMutableVersion(LogicGraphSememeImpl.class, 
                         eRefsetMember.status.getState(), 
                         ec);
                 TtkLogicGraphMemberChronicle logicGraphMember = (TtkLogicGraphMemberChronicle) eRefsetMember;
@@ -79,7 +79,7 @@ public class SememeFromDtoFactory {
                     ec.setAuthorSequence(ids.getNidForUuids(r.authorUuid));
                     ec.setModuleSequence(ids.getNidForUuids(r.moduleUuid));
                     ec.setPathSequence(ids.getNidForUuids(r.pathUuid));
-                    graphVersion = chronicle.createMutableUncommittedVersion(LogicGraphSememeImpl.class, 
+                    graphVersion = chronicle.createMutableVersion(LogicGraphSememeImpl.class, 
                         eRefsetMember.status.getState(), 
                         ec);
                     graphVersion.setGraphData(getLogicByteArrayConverter().

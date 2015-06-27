@@ -19,11 +19,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 @XmlRootElement(name="relationship")
-public class TtkRelationshipChronicle extends TtkComponentChronicle<TtkRelationshipRevision> {
+public class TtkRelationshipChronicle 
+    extends TtkComponentChronicle<TtkRelationshipRevision, TtkRelationshipVersion> 
+    implements TtkRelationshipVersion {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -79,17 +79,6 @@ public class TtkRelationshipChronicle extends TtkComponentChronicle<TtkRelations
    public TtkRelationshipChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRelationshipChronicle(TtkRelationshipChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer); 
-
-         this.c1Uuid             = transformer.transform(another.c1Uuid, another, ComponentFields.RELATIONSHIP_ORIGIN_UUID);
-         this.c2Uuid             = transformer.transform(another.c2Uuid, another, ComponentFields.RELATIONSHIP_DESTINATION_UUID);
-         this.characteristicUuid = transformer.transform(another.characteristicUuid, another, ComponentFields.RELATIONSHIP_CHARACTERISTIC_UUID);
-         this.refinabilityUuid   = transformer.transform(another.refinabilityUuid, another, ComponentFields.RELATIONSHIP_REFINABILITY_UUID);
-         this.group           = transformer.transform(another.group, another, ComponentFields.RELATIONSHIP_GROUP);
-         this.typeUuid           = transformer.transform(another.typeUuid, another, ComponentFields.RELATIONSHIP_TYPE_UUID);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -172,11 +161,6 @@ public class TtkRelationshipChronicle extends TtkComponentChronicle<TtkRelations
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRelationshipChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRelationshipChronicle(this, transformer);
    }
 
    @Override
@@ -335,4 +319,9 @@ public class TtkRelationshipChronicle extends TtkComponentChronicle<TtkRelations
    public void setTypeUuid(UUID typeUuid) {
       this.typeUuid = typeUuid;
    }
+
+    @Override
+    public int getGroup() {
+        return group;
+    }
 }

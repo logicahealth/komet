@@ -1,12 +1,18 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.io.IOException;
 import java.util.*;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptAttributeAB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
+import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
@@ -26,6 +32,7 @@ import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
 public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevision, ConceptAttributes>
         implements ConceptAttributeAnalogBI<ConceptAttributesRevision> {
+
 
     private static VersionComputer<ConceptAttributesVersion> computer
             = new VersionComputer<>();
@@ -53,6 +60,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
             }
         }
     }
+
 
     //~--- methods -------------------------------------------------------------
     @Override
@@ -313,5 +321,12 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
         this.defined = defined;
         modified();
     }
+
+    @Override
+    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate coordinate) {
+         return RelativePositionCalculator.getCalculator(coordinate)
+                .getLatestVersion(this);
+    }
+
 
 }

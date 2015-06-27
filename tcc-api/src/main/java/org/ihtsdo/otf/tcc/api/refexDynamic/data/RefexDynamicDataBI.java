@@ -18,51 +18,18 @@
  */
 package org.ihtsdo.otf.tcc.api.refexDynamic.data;
 
-import java.io.IOException;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import javafx.beans.property.ReadOnlyObjectProperty;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememeData;
 
 /**
  * {@link RefexDynamicDataBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface RefexDynamicDataBI {
-    /**
-     * @return The data object itself, in its most compact, serialized form. You
-     *         probably don't want this method unless you are doing something clever.... 
-     *         For a getData() method that doesn't require deserialization, see the {@link #getDataObject()} method. 
-     *         For a method that doesn't require casting the output, see the getDataXXX() method available within 
-     *         implementations of the {@link RefexDynamicDataBI} interface.
-     */
-    public byte[] getData();
-
-    /**
-     * @return The data object itself. 
-     *         For a getData() method that doesn't  require casting of the output, see the getDataXXX() method
-     *         available within implementations of the {@link RefexDynamicDataBI} interface.
-     */
-    public Object getDataObject();
-    
-    /**
-     * @return The data object itself. 
-     *         For a getDataProperty() method that doesn't  require casting of the output, see the getDataXXXProperty() methods
-     *         available within implementations of the {@link RefexDynamicDataBI} interface.
-     * @throws ContradictionException 
-     * @throws IOException 
-     */
-    public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException;
+public interface RefexDynamicDataBI extends DynamicSememeData {
 
     /**
      * @return The type information of the data
      */
     public RefexDynamicDataType getRefexDataType();
     
-    /**
-     * This is only intended to be used by {@link RefexDynamicCAB}. 
-     * Please ignore.
-     * @param name
-     */
-    public void setNameIfAbsent(String name);
 }

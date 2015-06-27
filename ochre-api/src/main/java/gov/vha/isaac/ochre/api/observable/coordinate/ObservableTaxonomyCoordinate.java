@@ -16,7 +16,8 @@
 package gov.vha.isaac.ochre.api.observable.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.TaxonomyType;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
 
 /**
@@ -25,10 +26,12 @@ import javafx.beans.property.ObjectProperty;
  */
 public interface ObservableTaxonomyCoordinate extends TaxonomyCoordinate {
     
-    ObjectProperty<TaxonomyType> taxonomyTypeProperty();
+    ObjectProperty<PremiseType> taxonomyTypeProperty();
     
     ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty();
     
     ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty();
+    
+    ObjectProperty<UUID> uuidProperty();
     
 }

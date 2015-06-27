@@ -15,9 +15,9 @@
  */
 package org.ihtsdo.otf.tcc.api.metadata.binding;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import java.io.IOException;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 
@@ -67,7 +67,7 @@ public class Language {
             new ConceptSpec("en-US text variants",
             UUID.fromString("4a28be68-0e9c-349b-a474-4472c889345e"));
 
-    public static ConceptVersionBI getConceptFromLang(
+    public static ConceptSnapshot getConceptFromLang(
             String lang,
             ViewCoordinate vc) throws IOException {
         if (lang.toLowerCase().startsWith("en")) {

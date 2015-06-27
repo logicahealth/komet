@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexRevision extends TtkRevision {
    public static final long serialVersionUID = 1;
@@ -31,10 +30,6 @@ public class TtkRefexRevision extends TtkRevision {
    public TtkRefexRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexRevision(TtkRefexRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -63,11 +58,6 @@ public class TtkRefexRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexRevision(this, transformer);
    }
 
    @Override

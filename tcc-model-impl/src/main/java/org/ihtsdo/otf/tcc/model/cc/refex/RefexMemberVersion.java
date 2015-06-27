@@ -16,8 +16,10 @@
 
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
@@ -168,7 +170,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -180,6 +182,16 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     @Override
     public int getAssemblageSequence() {
         return ((RefexMember) cc).getAssemblageSequence();
+    }
+
+    @Override
+    public Optional<LatestVersion<RefexVersionBI<R>>> getLatestVersion(Class<RefexVersionBI<R>> type, StampCoordinate coordinate) {
+        return ((RefexMember) cc).getLatestVersion(type, coordinate);
+    }
+
+    @Override
+    public SememeChronology getChronology() {
+        throw new UnsupportedOperationException("For OCHRE implementation only. ");
     }
     
 }

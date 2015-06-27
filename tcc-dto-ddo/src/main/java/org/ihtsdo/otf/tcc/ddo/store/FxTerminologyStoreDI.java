@@ -26,7 +26,6 @@ import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RefexPolicy;
 import org.ihtsdo.otf.tcc.ddo.fetchpolicy.RelationshipPolicy;
-import org.ihtsdo.otf.tcc.ddo.fetchpolicy.VersionPolicy;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -44,19 +43,19 @@ import org.jvnet.hk2.annotations.Contract;
 public interface FxTerminologyStoreDI extends TerminologyStoreDI {
    ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc) throws IOException, ContradictionException;
 
-   ConceptChronicleDdo getFxConcept(ComponentReference ref, UUID viewCoordinateUuid, VersionPolicy versionPolicy,
+   ConceptChronicleDdo getFxConcept(ComponentReference ref, UUID viewCoordinateUuid,
                           RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 
-   ConceptChronicleDdo getFxConcept(ComponentReference ref, ViewCoordinate vc, VersionPolicy versionPolicy,
+   ConceptChronicleDdo getFxConcept(ComponentReference ref, ViewCoordinate vc,
                           RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 
-   ConceptChronicleDdo getFxConcept(UUID conceptUUID, UUID viewCoordinateUuid, VersionPolicy versionPolicy,
+   ConceptChronicleDdo getFxConcept(UUID conceptUUID, UUID viewCoordinateUuid,
                           RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 
-   ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc, VersionPolicy versionPolicy,
+   ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc,
                           RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 }

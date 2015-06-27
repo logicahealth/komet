@@ -22,6 +22,6 @@ package org.ihtsdo.otf.tcc.dto.component;
  */
 public interface TtkChronicleProcessor {
 
-    public void process(TtkComponentChronicle cc);
+    public void process(TtkComponentChronicle<?, ?> cc);
     
 }

@@ -3,7 +3,6 @@ package org.ihtsdo.otf.tcc.dto.component.identifier;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.ihtsdo.otf.tcc.api.id.UuidIdBI;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -16,8 +15,6 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkIdentifierUuid extends TtkIdentifier {
    public static final long serialVersionUID = 1;
@@ -48,11 +45,6 @@ public class TtkIdentifierUuid extends TtkIdentifier {
    public TtkIdentifierUuid(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super(in, dataVersion);
       denotation = new UUID(in.readLong(), in.readLong());
-   }
-
-   public TtkIdentifierUuid(TtkIdentifierUuid another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.denotation = transformer.transform(another.denotation, another, ComponentFields.ID_UUID_DENOTATION);
    }
 
 
@@ -104,11 +96,6 @@ public class TtkIdentifierUuid extends TtkIdentifier {
    public int hashCode() {
       return Arrays.hashCode(new int[] { denotation.hashCode(), status.hashCode(), pathUuid.hashCode(),
                                          (int) time, (int) (time >>> 32) });
-   }
-
-   @Override
-   public TtkRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkIdentifierUuid(this, transformer);
    }
 
    /**

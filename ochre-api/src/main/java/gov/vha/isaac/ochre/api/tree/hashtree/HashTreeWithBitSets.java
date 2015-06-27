@@ -59,10 +59,15 @@ public class HashTreeWithBitSets extends AbstractHashTree {
 
     @Override
     public int[] getRootSequences() {
+        return getRootSequenceStream().toArray();
+    }
+
+    @Override
+    public IntStream getRootSequenceStream() {
         SequenceSet rootSet = new SequenceSet();
         rootSet.or(conceptSequencesWithChildren);
         rootSet.andNot(conceptSequencesWithParents);
-        return rootSet.stream().toArray();
+        return rootSet.stream();
     }
 
     @Override
@@ -78,11 +83,11 @@ public class HashTreeWithBitSets extends AbstractHashTree {
         return conceptSequences;
     }
 
-    public int[] getLeafSequences() {
+    public IntStream getLeafSequences() {
         SequenceSet leavesSet = new SequenceSet();
         leavesSet.or(conceptSequencesWithParents);
         leavesSet.andNot(conceptSequencesWithChildren);
-        return leavesSet.stream().toArray();
+        return leavesSet.stream();
     }
 
     public int conceptSequencesWithParentsCount() {

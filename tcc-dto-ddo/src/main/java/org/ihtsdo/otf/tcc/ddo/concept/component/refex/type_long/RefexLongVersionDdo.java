@@ -2,23 +2,17 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.LongSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleLongProperty;
 
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexVersionDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.type_long.RefexLongVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_comp_long.RefexCompLongVersionDdo;
 
-
-@XmlSeeAlso( {
-    RefexCompLongVersionDdo.class, 
-})
 public class RefexLongVersionDdo extends RefexVersionDdo<RefexLongChronicleDdo, RefexLongVersionDdo> {
    public static final long serialVersionUID = 1;
 
@@ -32,11 +26,11 @@ public class RefexLongVersionDdo extends RefexVersionDdo<RefexLongChronicleDdo, 
       super();
    }
 
-   public RefexLongVersionDdo(RefexLongChronicleDdo chronicle, TerminologySnapshotDI ss,
-                             RefexLongVersionBI another)
+   public RefexLongVersionDdo(RefexLongChronicleDdo chronicle, TaxonomyCoordinate ss,
+                             LongSememe another)
            throws IOException, ContradictionException {
       super(chronicle, ss, another);
-      this.long1Property.set(another.getLong1());
+      this.long1Property.set(another.getLongValue());
    }
 
    //~--- methods -------------------------------------------------------------

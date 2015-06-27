@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api.tree;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.BitSet;
 import java.util.function.ObjIntConsumer;
+import java.util.stream.IntStream;
 
 /**
  * A structure to represent the concept taxonomy from a particular 
@@ -67,6 +68,12 @@ public interface Tree {
      */
 
     int[] getChildrenSequences(int parentSequence);
+    /**
+     * 
+     * @param parentSequence sequence of the concept from which to find children
+     * @return an IntStream of child sequences. 
+     */
+    IntStream getChildrenSequenceStream(int parentSequence);
 
     /**
      *
@@ -74,12 +81,24 @@ public interface Tree {
      * @return an array of parent sequences. 
      */
     int[] getParentSequences(int childSequence);
+    /**
+     *
+     * @param childSequence sequence of the concept from which to find parent
+     * @return an IntStream of parent sequences. 
+     */
+    IntStream getParentSequenceStream(int childSequence);
 
     /**
      *
      * @return sequence identifiers for the root concept[s] of this tree.
      */
     int[] getRootSequences();
+    
+    /**
+     *
+     * @return IntStream of sequence identifiers for the root concept[s] of this tree.
+     */
+    IntStream getRootSequenceStream();
 
     /**
      * An ancestor tree represents all the paths from a child to the tree root.

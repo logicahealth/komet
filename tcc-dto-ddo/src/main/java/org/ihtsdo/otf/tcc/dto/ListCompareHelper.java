@@ -15,6 +15,7 @@
  */
 package org.ihtsdo.otf.tcc.dto;
 
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -28,10 +29,10 @@ import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 public class ListCompareHelper {
     private static final TtkRevisionComparator comparator = new TtkRevisionComparator();
     
-    private static class TtkRevisionComparator implements Comparator<TtkRevision> {
+    private static class TtkRevisionComparator implements Comparator<StampedVersion> {
 
         @Override
-        public int compare(TtkRevision o1, TtkRevision o2) {
+        public int compare(StampedVersion o1, StampedVersion o2) {
             if (o1 instanceof TtkComponentChronicle) {
                 TtkComponentChronicle cc1 = (TtkComponentChronicle) o1;
                 TtkComponentChronicle cc2 = (TtkComponentChronicle) o2;
@@ -41,26 +42,25 @@ public class ListCompareHelper {
                 }
             }
             
-            
-            if (o1.time > o2.time) {
+            if (o1.getTime() > o2.getTime()) {
                 return 1;
             }
-            if (o1.time < o2.time) {
+            if (o1.getTime() < o2.getTime()) {
                 return -1;
             }
-            int compare = o1.authorUuid.compareTo(o2.authorUuid);
+            int compare = Integer.compare(o1.getAuthorSequence(), o2.getAuthorSequence());
             if (compare != 0) {
                 return compare;
             }
-            compare = o1.pathUuid.compareTo(o2.pathUuid);
+            compare = Integer.compare(o1.getPathSequence(), o2.getPathSequence());
             if (compare != 0) {
                 return compare;
             }
-            compare = o1.moduleUuid.compareTo(o2.moduleUuid);
+            compare = Integer.compare(o1.getModuleSequence(), o2.getModuleSequence());
             if (compare != 0) {
                 return compare;
             }
-            return o1.status.compareTo(o2.status);
+            return o1.getState().compareTo(o2.getState());
         }
     
     }

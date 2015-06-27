@@ -18,8 +18,6 @@ import java.io.IOException;
 
 import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexIntMemberChronicle extends TtkRefexAbstractMemberChronicle<TtkRefexIntRevision> {
    public static final long serialVersionUID = 1;
@@ -59,11 +57,6 @@ public class TtkRefexIntMemberChronicle extends TtkRefexAbstractMemberChronicle<
    public TtkRefexIntMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexIntMemberChronicle(TtkRefexIntMemberChronicle another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.int1 = transformer.transform(another.int1, another, ComponentFields.REFEX_INTEGER1);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -126,11 +119,6 @@ public class TtkRefexIntMemberChronicle extends TtkRefexAbstractMemberChronicle<
    @Override
    public int hashCode() {
       return this.primordialUuid.hashCode();
-   }
-
-   @Override
-   public TtkRefexIntMemberChronicle makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexIntMemberChronicle(this, transformer);
    }
 
    @Override

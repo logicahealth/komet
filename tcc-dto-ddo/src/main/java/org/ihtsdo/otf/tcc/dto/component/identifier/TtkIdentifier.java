@@ -21,8 +21,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class TtkIdentifier extends TtkRevision {
@@ -46,11 +44,6 @@ public abstract class TtkIdentifier extends TtkRevision {
    public TtkIdentifier(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkIdentifier(TtkIdentifier another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.authorityUuid = transformer.transform(another.authorityUuid, another, ComponentFields.ID_AUTHORITY_UUID);
    }
 
    //~--- methods -------------------------------------------------------------

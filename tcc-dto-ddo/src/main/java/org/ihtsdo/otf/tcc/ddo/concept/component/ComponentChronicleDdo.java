@@ -1,24 +1,20 @@
 package org.ihtsdo.otf.tcc.ddo.concept.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IdentifierDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IdentifierUuidDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
-import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.id.IdBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -26,311 +22,247 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 
-public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T extends ComponentVersionBI>
+public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T extends StampedVersion>
         implements Serializable {
-   private static final long serialVersionUID = 1;
-   private static final Logger log = LogManager.getLogger();
+
+    private static final long serialVersionUID = 1;
+    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
-
-   @XmlElementWrapper(name = "additionalIdList")
-   @XmlElement(name = "additionalId")
-   public ObservableList<IdentifierDdo> additionalIds =
-      FXCollections.observableArrayList(new ArrayList<IdentifierDdo>(0));
-   @XmlElementWrapper(name = "annotationList")
-   @XmlElement(name = "annotation")
-   public ObservableList<RefexChronicleDdo<?, ?>> refexes =
-      FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(0));
-   private int               componentNid;
-   @XmlTransient
-   protected ConceptChronicleDdo       concept;
-   private UUID              primordialComponentUuid;
-   @XmlElementWrapper(name = "versionList")
-   @XmlElement()
-   private ObservableList<V> versions;
+    @XmlElementWrapper(name = "annotationList")
+    @XmlElement(name = "annotation")
+    public ObservableList<RefexChronicleDdo<?, ?>> refexes
+            = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(0));
+    private int componentNid;
+    @XmlTransient
+    protected ConceptChronicleDdo concept;
+    private UUID primordialComponentUuid;
+    @XmlElementWrapper(name = "versionList")
+    @XmlElement()
+    private ObservableList<V> versions;
 
    //~--- constructors --------------------------------------------------------
+    public ComponentChronicleDdo() {
+        super();
+        this.versions = FXCollections.observableArrayList(new ArrayList<V>(1));
+    }
 
-   public ComponentChronicleDdo() {
-      super();
-      this.versions = FXCollections.observableArrayList(new ArrayList<V>(1));
-   }
+    public ComponentChronicleDdo(TaxonomyCoordinate taxonomyCoordinate, ConceptChronicleDdo concept, ObjectChronology<? extends T> another)
+            throws IOException, ContradictionException {
+        super();
+        this.concept = concept;
+        this.primordialComponentUuid = another.getPrimordialUuid();
+        this.componentNid = another.getNid();
 
-   public ComponentChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleDdo concept, ComponentChronicleBI<T> another)
-           throws IOException, ContradictionException {
-      super();
-      this.concept                 = concept;
-      this.primordialComponentUuid = another.getPrimordialUuid();
-      this.componentNid            = another.getNid();
+        processRefexes(taxonomyCoordinate, another);
+        this.versions = FXCollections.observableArrayList(new ArrayList<V>(another.getVersions().size()));
+        for (T v : another.getVersionList()) {
+            this.versions.add(makeVersion(taxonomyCoordinate, v));
+        }
 
-      Collection<? extends IdBI> anotherAdditionalIds = another.getAdditionalIds();
-
-      if (anotherAdditionalIds != null) {
-         this.additionalIds =
-            FXCollections.observableArrayList(new ArrayList<IdentifierDdo>(anotherAdditionalIds.size()));
-         nextId:
-         for (IdBI id : anotherAdditionalIds) {
-            this.additionalIds.add((IdentifierDdo) IdentifierDdo.convertId(ss, id));
-         }
-      }
-
-      processRefexes(ss, another);
-
-      switch (concept.getVersionPolicy()) {
-      case ACTIVE_VERSIONS :
-         this.versions = FXCollections.observableArrayList(new ArrayList<V>(1));
-
-         for (T v : another.getVersions(ss.getViewCoordinate())) {
-            this.versions.add(makeVersion(ss, v));
-         }
-
-         break;
-
-      case LAST_VERSIONS :
-         this.versions = FXCollections.observableArrayList(new ArrayList<V>(1));
-
-         for (T v : another.getVersions(ss.getViewCoordinate().getVcWithAllStatusValues())) {
-            this.versions.add(makeVersion(ss, v));
-         }
-
-         break;
-
-      case ALL_VERSIONS :
-         this.versions = FXCollections.observableArrayList(new ArrayList<V>(another.getVersions().size()));
-
-         for (T v : another.getVersions()) {
-            this.versions.add(makeVersion(ss, v));
-         }
-
-         break;
-
-      default :
-         throw new UnsupportedOperationException("Can't get versions for policy: "
-                 + concept.getVersionPolicy());
-      }
-   }
+    }
 
    //~--- methods -------------------------------------------------------------
+    public void beforeUnmarshal(Unmarshaller u, Object parent) {
+        if (parent instanceof ConceptChronicleDdo) {
+            this.concept = (ConceptChronicleDdo) parent;
+        } else if (parent instanceof ComponentChronicleDdo) {
+            this.concept = ((ComponentChronicleDdo) parent).getConcept();
+        }
+    }
 
-   public void beforeUnmarshal(Unmarshaller u, Object parent) {
-      if (parent instanceof ConceptChronicleDdo) {
-         this.concept = (ConceptChronicleDdo) parent;
-      } else if (parent instanceof ComponentChronicleDdo) {
-         this.concept = ((ComponentChronicleDdo) parent).getConcept();
-      }
-   }
-
-   /**
-    * Compares this object to the specified object. The result is {@code true} if and only if the argument
-    * is not {@code null}, is a {@code EComponent} object, and contains the same values, field by field, as
-    * this {@code EComponent}.
-    *
-    * @param obj the object to compare with.
-    * @return {@code true} if the objects are the same; {@code false} otherwise.
-    */
-   @Override
-   public final boolean equals(Object obj) {
-      if (obj == null) {
-         return false;
-      }
-
-      if (ComponentChronicleDdo.class.isAssignableFrom(obj.getClass())) {
-         ComponentChronicleDdo<V, T> another = (ComponentChronicleDdo<V, T>) obj;
-
-         return this.primordialComponentUuid.equals(another.primordialComponentUuid);
-      }
-
-      return false;
-   }
-
-   /**
-    * Returns a hash code for this
-    * {@code EComponent}.
-    *
-    * @return a hash code value for this {@code EComponent}.
-    */
-   @Override
-   public final int hashCode() {
-      return this.primordialComponentUuid.hashCode();
-   }
-
-   protected abstract V makeVersion(TerminologySnapshotDI ss, T version)
-           throws IOException, ContradictionException;
-
-   private void processRefexes(TerminologySnapshotDI ss, ComponentChronicleBI<T> another)
-           throws IOException, ContradictionException {
-      HashSet<RefexChronicleBI<?>> refexesToProcess = new HashSet<>();
-
-      switch (getConcept().getRefexPolicy()) {
-      case REFEX_MEMBERS :
-      case REFEX_MEMBERS_AND_REFSET_MEMBERS :
-         refexesToProcess.addAll(another.getRefexes());
-
-         break;
-
-      case ANNOTATION_MEMBERS :
-      case ANNOTATION_MEMBERS_AND_REFSET_MEMBERS :
-         refexesToProcess.addAll(another.getAnnotations());
-         break;
-	
-      case NONE:
-         //noop
-         break;
-      default :
-         log.error("Unhandled case in process Refexes!");
-         break;
-      }
-
-      for (RefexChronicleBI<?> r : refexesToProcess) {
-            RefexChronicleDdo<?, ?> fxRefexMember = ConceptChronicleDdo.convertRefex(ss, concept, r);
-            if (!fxRefexMember.getVersions().isEmpty()) {
-                this.refexes.add(fxRefexMember);
-            }
-      }
-   }
-
-   /**
-    * Returns a string representation of the object.
-    */
+    /**
+     * Compares this object to the specified object. The result is {@code true}
+     * if and only if the argument is not {@code null}, is a {@code EComponent}
+     * object, and contains the same values, field by field, as this
+     * {@code EComponent}.
+     *
+     * @param obj the object to compare with.
+     * @return {@code true} if the objects are the same; {@code false}
+     * otherwise.
+     */
     @Override
-   public final String toString() {
-      int depth = 1;
+    public final boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
 
-      if (this instanceof RefexChronicleDdo<?, ?>) {
-         depth = 2;
-      }
+        if (ComponentChronicleDdo.class.isAssignableFrom(obj.getClass())) {
+            ComponentChronicleDdo<V, T> another = (ComponentChronicleDdo<V, T>) obj;
 
-      StringBuilder buff = new StringBuilder();
+            return this.primordialComponentUuid.equals(another.primordialComponentUuid);
+        }
 
-      buff.append(this.getClass().getSimpleName()).append(": ");
-      buff.append(" primordial:");
-      buff.append(this.primordialComponentUuid);
-      buff.append(" xtraIds:");
-      buff.append(this.additionalIds);
-      buff.append(super.toString());
+        return false;
+    }
 
-      if ((refexes != null) && (refexes.size() > 0)) {
-         buff.append("\n" + ConceptChronicleDdo.PADDING);
+    /**
+     * Returns a hash code for this {@code EComponent}.
+     *
+     * @return a hash code value for this {@code EComponent}.
+     */
+    @Override
+    public final int hashCode() {
+        return this.primordialComponentUuid.hashCode();
+    }
 
-         for (int i = 0; i < depth; i++) {
-            buff.append(ConceptChronicleDdo.PADDING);
-         }
+    protected abstract V makeVersion(TaxonomyCoordinate taxonomyCoordinate, T version)
+            throws IOException, ContradictionException;
 
-         buff.append("annotations:\n");
+    private void processRefexes(TaxonomyCoordinate taxonomyCoordinate, ObjectChronology<? extends T> another)
+            throws IOException, ContradictionException {
+        HashSet<SememeChronology<? extends SememeVersion>> sememesToProcess = new HashSet<>();
 
-         for (RefexChronicleDdo m : this.refexes) {
-            buff.append(ConceptChronicleDdo.PADDING);
-            buff.append(ConceptChronicleDdo.PADDING);
+        switch (getConcept().getRefexPolicy()) {
+            case REFEX_MEMBERS:
+            case REFEX_MEMBERS_AND_REFSET_MEMBERS:
+            case ANNOTATION_MEMBERS:
+            case ANNOTATION_MEMBERS_AND_REFSET_MEMBERS:
+                sememesToProcess.addAll(another.getSememeList());
+                break;
+
+            case NONE:
+                //noop
+                break;
+            default:
+                log.error("Unhandled case in process Refexes: " + getConcept().getRefexPolicy());
+                break;
+        }
+
+        for (SememeChronology<?> r : sememesToProcess) {
+            Optional<RefexChronicleDdo<?, ?>> optionalFxRefexMember
+                    = ConceptChronicleDdo.convertRefex(taxonomyCoordinate, concept, r);
+            if (optionalFxRefexMember.isPresent()) {
+                RefexChronicleDdo<?, ?> fxRefexMember = optionalFxRefexMember.get();
+                if (!fxRefexMember.getVersions().isEmpty()) {
+                    this.refexes.add(fxRefexMember);
+                }
+
+            }
+        }
+    }
+
+    /**
+     * Returns a string representation of the object.
+     */
+    @Override
+    public final String toString() {
+        int depth = 1;
+
+        if (this instanceof RefexChronicleDdo<?, ?>) {
+            depth = 2;
+        }
+
+        StringBuilder buff = new StringBuilder();
+
+        buff.append(this.getClass().getSimpleName()).append(": ");
+        buff.append(" primordial:");
+        buff.append(this.primordialComponentUuid);
+        buff.append(super.toString());
+
+        if ((refexes != null) && (refexes.size() > 0)) {
+            buff.append("\n" + ConceptChronicleDdo.PADDING);
 
             for (int i = 0; i < depth; i++) {
-               buff.append(ConceptChronicleDdo.PADDING);
+                buff.append(ConceptChronicleDdo.PADDING);
             }
 
-            buff.append(m);
-            buff.append("\n");
-         }
-      }
+            buff.append("annotations:\n");
 
-      if ((versions != null) && (versions.size() > 0)) {
-         buff.append("\n" + ConceptChronicleDdo.PADDING + "revisions:\n");
+            for (RefexChronicleDdo m : this.refexes) {
+                buff.append(ConceptChronicleDdo.PADDING);
+                buff.append(ConceptChronicleDdo.PADDING);
 
-         for (VersionDdo r : this.versions) {
-            buff.append(ConceptChronicleDdo.PADDING);
-            buff.append(ConceptChronicleDdo.PADDING);
+                for (int i = 0; i < depth; i++) {
+                    buff.append(ConceptChronicleDdo.PADDING);
+                }
 
-            for (int i = 0; i < depth; i++) {
-               buff.append(ConceptChronicleDdo.PADDING);
+                buff.append(m);
+                buff.append("\n");
             }
+        }
 
-            buff.append(r);
-            buff.append("\n");
-         }
-      }
+        if ((versions != null) && (versions.size() > 0)) {
+            buff.append("\n" + ConceptChronicleDdo.PADDING + "revisions:\n");
 
-      return buff.toString();
-   }
+            for (VersionDdo r : this.versions) {
+                buff.append(ConceptChronicleDdo.PADDING);
+                buff.append(ConceptChronicleDdo.PADDING);
+
+                for (int i = 0; i < depth; i++) {
+                    buff.append(ConceptChronicleDdo.PADDING);
+                }
+
+                buff.append(r);
+                buff.append("\n");
+            }
+        }
+
+        return buff.toString();
+    }
 
    //~--- get methods ---------------------------------------------------------
 
-   public List<IdentifierDdo> getAdditionalIds() {
-      return additionalIds;
-   }
 
-   public int getComponentNid() {
-      return componentNid;
-   }
+    public int getComponentNid() {
+        return componentNid;
+    }
 
-   public ConceptChronicleDdo getConcept() {
-      return concept;
-   }
+    public ConceptChronicleDdo getConcept() {
+        return concept;
+    }
 
-   public int getIdCount() {
-      if (additionalIds == null) {
-         return 1;
-      }
+    public int getIdCount() {
+            return 1;
+    }
 
-      return additionalIds.size() + 1;
-   }
+    public UUID getPrimordialComponentUuid() {
+        return primordialComponentUuid;
+    }
 
-   public UUID getPrimordialComponentUuid() {
-      return primordialComponentUuid;
-   }
+    public List<RefexChronicleDdo<?, ?>> getRefexes() {
+        return refexes;
+    }
 
-   public List<RefexChronicleDdo<?, ?>> getRefexes() {
-      return refexes;
-   }
+    public List<UUID> getUuids() {
+        List<UUID> uuids = new ArrayList<>();
 
-   public List<UUID> getUuids() {
-      List<UUID> uuids = new ArrayList<>();
+        uuids.add(primordialComponentUuid);
 
-      uuids.add(primordialComponentUuid);
+        return uuids;
+    }
 
-      if (additionalIds != null) {
-         for (IdentifierDdo idv : additionalIds) {
-            if (IdentifierUuidDdo.class.isAssignableFrom(idv.getClass())) {
-               uuids.add((UUID) idv.getDenotation());
-            }
-         }
-      }
+    public int getVersionCount() {
+        List<? extends VersionDdo> extraVersions = getVersions();
 
-      return uuids;
-   }
+        if (extraVersions == null) {
+            return 1;
+        }
 
-   public int getVersionCount() {
-      List<? extends VersionDdo> extraVersions = getVersions();
+        return extraVersions.size() + 1;
+    }
 
-      if (extraVersions == null) {
-         return 1;
-      }
-
-      return extraVersions.size() + 1;
-   }
-
-   public final List<V> getVersions() {
-      return versions;
-   }
+    public final List<V> getVersions() {
+        return versions;
+    }
 
    //~--- set methods ---------------------------------------------------------
 
-   public void setAdditionalIds(ObservableList<IdentifierDdo> additionalIds) {
-      this.additionalIds = additionalIds;
-   }
 
-   public void setComponentNid(int componentNid) {
-      this.componentNid = componentNid;
-   }
+    public void setComponentNid(int componentNid) {
+        this.componentNid = componentNid;
+    }
 
-   public void setPrimordialComponentUuid(UUID primordialComponentUuid) {
-      this.primordialComponentUuid = primordialComponentUuid;
-   }
+    public void setPrimordialComponentUuid(UUID primordialComponentUuid) {
+        this.primordialComponentUuid = primordialComponentUuid;
+    }
 
-   public void setRefexes(ObservableList<RefexChronicleDdo<?, ?>> annotations) {
-      this.refexes = annotations;
-   }
+    public void setRefexes(ObservableList<RefexChronicleDdo<?, ?>> annotations) {
+        this.refexes = annotations;
+    }
 
-   public void setVersions(ObservableList<V> versions) {
-      this.versions = versions;
-   }
+    public void setVersions(ObservableList<V> versions) {
+        this.versions = versions;
+    }
 }

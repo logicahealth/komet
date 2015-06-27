@@ -15,8 +15,6 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
 import org.ihtsdo.otf.tcc.ddo.concept.component.identifier.IDENTIFIER_PART_TYPES;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkIdentifierString extends TtkIdentifier {
    public static final long serialVersionUID = 1;
@@ -40,11 +38,6 @@ public class TtkIdentifierString extends TtkIdentifier {
    public TtkIdentifierString(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super(in, dataVersion);
       denotation = in.readUTF();
-   }
-
-   public TtkIdentifierString(TtkIdentifierString another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.denotation = transformer.transform(another.denotation, another, ComponentFields.ID_STRING_DENOTATION);
    }
 
 
@@ -96,11 +89,6 @@ public class TtkIdentifierString extends TtkIdentifier {
    public int hashCode() {
       return Arrays.hashCode(new int[] { denotation.hashCode(), status.hashCode(), pathUuid.hashCode(),
                                          (int) time, (int) (time >>> 32) });
-   }
-
-   @Override
-   public TtkIdentifierString makeTransform(ComponentTransformerBI transformer) {
-      return new TtkIdentifierString(this, transformer);
    }
 
    /**

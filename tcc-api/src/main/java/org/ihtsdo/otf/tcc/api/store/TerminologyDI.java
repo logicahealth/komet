@@ -1,30 +1,30 @@
 package org.ihtsdo.otf.tcc.api.store;
 
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Position;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
-import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
-import java.beans.PropertyChangeListener;
-import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import javafx.concurrent.Task;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGenerationPolicy;
 import org.ihtsdo.otf.tcc.api.changeset.ChangeSetGeneratorBI;
 import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeVersionBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+import org.ihtsdo.otf.tcc.api.concept.ProcessUnfetchedConceptDataBI;
+import org.ihtsdo.otf.tcc.api.coordinate.Path;
+import org.ihtsdo.otf.tcc.api.coordinate.Position;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
+import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
+import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.jvnet.hk2.annotations.Contract;
 
 @Contract
@@ -85,9 +85,12 @@ public interface TerminologyDI {
      * class list.  Classes passed in should be an extension of IndexerBI (but I don't have the type here to 
      * be able to enforce that)
      * 
+     * Note that this runs in a background thread - and hands back a task handle.  To wait for completion, 
+     * call get() on the returned task.
+     * 
      * @throws IOException
      */
-    void index(Class<?> ... indexesToRebuild) throws IOException;
+    Task<?> index(Class<?> ... indexesToRebuild);
 
     @Deprecated
     void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;
@@ -125,7 +128,7 @@ public interface TerminologyDI {
      */
     int loadEconFiles(String... econFileStrings) throws Exception;
 
-    Position newPosition(Path path, long time) throws IOException;
+    Position newPosition(StampPath path, long time) throws IOException;
 
     void removeChangeSetGenerator(String key);
 
@@ -168,13 +171,13 @@ public interface TerminologyDI {
 
     int getModuleNidForStamp(int stamp);
 
-    Path getPath(int pathNid) throws IOException;
+    StampPath getPath(int pathNid) throws IOException;
 
     int getPathNidForStamp(int stamp);
 
-    Set<Path> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
+    Set<StampPath> getPathSetFromPositionSet(Set<Position> positions) throws IOException;
 
-    Set<Path> getPathSetFromStampSet(Set<Integer> stamp) throws IOException;
+    Set<StampPath> getPathSetFromStampSet(Set<Integer> stamp) throws IOException;
 
     Set<Position> getPositionSet(Set<Integer> stamp) throws IOException;
 
@@ -191,10 +194,10 @@ public interface TerminologyDI {
     int getNidForUuids(UUID... uuids);
 
     /**
-     * Retrieve the concept nid from a specified nid.
-     *
-     * @param nid
-     * @return the {@code int} concept nid of the specified nid
+     * Retrieve the concept nid from a specified nid.  Note that for backwards compatibility, implementations of this method
+     * should function correctly if the passed in nid is a concept nid, or if it is a nid that is a member of said concept.
+     * 
+     * It should not be assumed that the passed nid is a component nid.
      */
     int getConceptNidForNid(int nid);
 

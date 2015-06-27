@@ -5,18 +5,15 @@
  */
 package org.ihtsdo.otf.tcc.ddo.concept.component.refex.logicgraph;
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import java.io.IOException;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.REFEX_TYPE_DDO;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
-import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_array_of_bytearray.RefexArrayOfByteArrayVersionDdo;
 
 /**
  *
@@ -24,7 +21,7 @@ import org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_array_of_bytearray.Re
  */
 @XmlRootElement()
 public class LogicGraphChronicleDdo  
-    extends RefexChronicleDdo<LogicGraphVersionDdo, LogicGraphVersionBI> {
+    extends RefexChronicleDdo<LogicGraphVersionDdo, LogicGraphSememe> {
 
    /** Field description */
    public static final long serialVersionUID = 1;
@@ -48,10 +45,10 @@ public class LogicGraphChronicleDdo
     * @throws ContradictionException
     * @throws IOException
     */
-   public LogicGraphChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleDdo concept,
-       RefexChronicleBI another)
+   public LogicGraphChronicleDdo(TaxonomyCoordinate ss, ConceptChronicleDdo concept,
+       SememeChronology<LogicGraphSememe> another)
            throws IOException, ContradictionException {
-      super(ss, concept, (RefexVersionBI) another.getPrimordialVersion());
+      super(ss, concept, another.getVersionList().get(0));
    }
 
    /**
@@ -67,8 +64,8 @@ public class LogicGraphChronicleDdo
     * @throws IOException
     */
    @Override
-   protected LogicGraphVersionDdo makeVersion(TerminologySnapshotDI ss,
-       LogicGraphVersionBI version)
+   protected LogicGraphVersionDdo makeVersion(TaxonomyCoordinate ss,
+       LogicGraphSememe version)
            throws IOException, ContradictionException {
       return new LogicGraphVersionDdo(this, ss, version);
    }

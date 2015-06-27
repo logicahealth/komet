@@ -60,13 +60,14 @@ public abstract class RefexDynamicData implements RefexDynamicDataBI
 	{
 	}
 	
-	protected String getName() throws IOException, ContradictionException
+	protected String getName()
 	{
+            try {
 		if (name_ == null)
 		{
 			if (columnNumber_ == -1)
 			{
-				throw new ContradictionException("No data is available to lookup the name.  Has this refex been added to a RefexDynamicCAB via a setData(...) call?");
+				throw new RuntimeException("No data is available to lookup the name.  Has this refex been added to a RefexDynamicCAB via a setData(...) call?");
 			}
 			else
 			{
@@ -74,6 +75,9 @@ public abstract class RefexDynamicData implements RefexDynamicDataBI
 			}
 		}
 		return name_;
+            } catch (IOException | ContradictionException ex) {
+                throw new RuntimeException(ex);
+            }
 	}
 	
 	/**

@@ -1,5 +1,7 @@
 package gov.vha.isaac.ochre.api.constants;
 
+import gov.vha.isaac.ochre.api.ConfigurationService;
+
 /**
  * Created by kec on 9/11/14.
  * 
@@ -59,4 +61,13 @@ public class Constants
 	 * {@link #DATA_STORE_ROOT_LOCATION_PROPERTY} {@link #DEFAULT_SEARCH_FOLDER} values are ignored.
 	 */
 	public static final String SEARCH_ROOT_LOCATION_PROPERTY = "gov.vha.isaac.ochre.api.constants.search-root-location";
+	
+	/**
+	 * May be optionally used to specify which concept model should be used on startup.  This value may be ignored, however, if other code
+	 * calls {@link ConfigurationService#setConceptModel(gov.vha.isaac.ochre.api.ConceptModel)} (depending on the implementation of the 
+	 * ConfigurationService which is being used)
+	 * 
+	 * The value should be set to the string constant OTF_CONCEPT_MODEL or OCHRE_CONCEPT_MODEL, from the {@code ConceptModel} enum.
+	 */
+	public static final String CONCEPT_MODEL_PROPERTY = "CONCEPT_MODEL_PROPERTY";
 }

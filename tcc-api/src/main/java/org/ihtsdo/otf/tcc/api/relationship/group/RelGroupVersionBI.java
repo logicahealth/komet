@@ -11,7 +11,12 @@ import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import java.util.Collection;
 
 public interface RelGroupVersionBI extends RelGroupChronicleBI, ComponentVersionBI {
-   Collection<? extends RelationshipVersionBI> getAllCurrentRelVersions();
+    @Override
+    default int getAssociatedConceptNid() {
+        return getEnclosingConceptNid();
+    }
+    
+    Collection<? extends RelationshipVersionBI> getAllCurrentRelVersions();
 
    Collection<? extends RelationshipVersionBI> getAllRels() throws ContradictionException;
 

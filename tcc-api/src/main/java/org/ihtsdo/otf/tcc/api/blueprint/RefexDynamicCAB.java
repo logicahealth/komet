@@ -51,7 +51,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 /**
  * {@link RefexDynamicCAB} 
  * 
@@ -117,7 +117,7 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 			}
 			return UuidT5Generator.get(refexDynamicNamespace, sb.toString());
 		}
-		catch (NoSuchAlgorithmException | UnsupportedEncodingException ex)
+		catch (UnsupportedEncodingException ex)
 		{
 			throw new RuntimeException(ex);
 		}
@@ -224,7 +224,8 @@ public class RefexDynamicCAB extends CreateOrAmendBlueprint
 	public RefexDynamicCAB(UUID referencedComponentUuid, int assemblageNid, Optional<? extends RefexDynamicVersionBI<?>> refexVersion, Optional<ViewCoordinate> viewCoordinate,
 			IdDirective idDirective, RefexDirective refexDirective) throws IOException, InvalidCAB, ContradictionException
 	{
-		super((refexVersion.isPresent() ? refexVersion.get().getPrimordialUuid() : null), refexVersion, viewCoordinate, idDirective, refexDirective);
+		super((refexVersion.isPresent() ? refexVersion.get().getPrimordialUuid() : null), refexVersion, viewCoordinate, 
+				(idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
 		setReferencedComponentUuid(referencedComponentUuid);
 		setAssemblageNid(assemblageNid);
 		setStatus(Status.ACTIVE);

@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentFields;
-import org.ihtsdo.otf.tcc.dto.component.transformer.ComponentTransformerBI;
 
 public class TtkRefexBooleanRevision extends TtkRevision {
    public static final long serialVersionUID = 1;
@@ -39,11 +37,6 @@ public class TtkRefexBooleanRevision extends TtkRevision {
    public TtkRefexBooleanRevision(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
       super();
       readExternal(in, dataVersion);
-   }
-
-   public TtkRefexBooleanRevision(TtkRefexBooleanRevision another, ComponentTransformerBI transformer) {
-      super(another, transformer);
-      this.booleanValue = transformer.transform(another.booleanValue, another, ComponentFields.REFEX_BOOLEAN1);
    }
    //~--- methods -------------------------------------------------------------
    @Override
@@ -82,11 +75,6 @@ public class TtkRefexBooleanRevision extends TtkRevision {
       }
 
       return false;
-   }
-
-   @Override
-   public TtkRefexBooleanRevision makeTransform(ComponentTransformerBI transformer) {
-      return new TtkRefexBooleanRevision(this, transformer);
    }
 
    @Override

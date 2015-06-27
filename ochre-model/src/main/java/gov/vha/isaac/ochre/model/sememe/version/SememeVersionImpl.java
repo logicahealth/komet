@@ -15,10 +15,11 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableSememeVersion;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 /**
@@ -26,9 +27,11 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
  * @author kec
   * @param <V>
  */
-public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersionImpl<SememeChronicleImpl<V>, V> implements MutableSememeVersion {
+public class SememeVersionImpl<V extends SememeVersionImpl> 
+    extends ObjectVersionImpl<SememeChronologyImpl<V>, V> 
+    implements MutableSememeVersion {
 
-    public SememeVersionImpl(SememeChronicleImpl<V> container, int stampSequence, short versionSequence) {
+    public SememeVersionImpl(SememeChronologyImpl<V> container, int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
     }
     
@@ -59,6 +62,11 @@ public class SememeVersionImpl<V extends SememeVersionImpl> extends ObjectVersio
     @Override
     public int getReferencedComponentNid() {
        return chronicle.getReferencedComponentNid();
+    }
+
+    @Override
+    public SememeChronology<V> getChronology() {
+        return chronicle;
     }
 
 }

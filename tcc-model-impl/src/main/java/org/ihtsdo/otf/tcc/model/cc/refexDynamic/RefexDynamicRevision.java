@@ -18,6 +18,8 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -356,5 +358,10 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
         }
         temp[columnNumber] = data;
         modified();
+    }
+
+    @Override
+    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate coordinate) {
+        return primordialComponent.getLatestVersion(type, coordinate);
     }
 }

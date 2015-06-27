@@ -17,8 +17,9 @@ package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememeData;
 
 /**
  *
@@ -26,14 +27,14 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
  */
 public class DynamicSememeImpl extends SememeVersionImpl implements MutableDynamicSememe {
 
-    public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, 
+    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
             int stampSequence, short versionSequence, 
             DataBuffer db) {
         super(container, stampSequence, versionSequence);
         throw new UnsupportedOperationException();
     }
 
-    public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, 
+    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
             int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
         throw new UnsupportedOperationException();
@@ -48,5 +49,10 @@ public class DynamicSememeImpl extends SememeVersionImpl implements MutableDynam
     public SememeType getSememeType() {
         return SememeType.DYNAMIC;
     };
+
+    @Override
+    public DynamicSememeData[] getData() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

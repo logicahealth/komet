@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
-import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.logic.assertions.AllRole;
 import gov.vha.isaac.ochre.api.logic.assertions.Assertion;
 import gov.vha.isaac.ochre.api.logic.assertions.ConceptAssertion;
@@ -64,10 +64,14 @@ public interface LogicalExpressionBuilder {
         return connectors[0].getBuilder().sufficientSet(connectors);
     }
 
+    DisjointWith disjointWith(ConceptChronology conceptChronology);
     DisjointWith disjointWith(ConceptProxy conceptProxy);
     
-    static DisjointWith DisjointWith(ConceptProxy conceptProxy, 
-            LogicalExpressionBuilder builder) {
+    static DisjointWith DisjointWith(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
+        return builder.disjointWith(conceptChronology);
+    }
+
+    static DisjointWith DisjointWith(ConceptProxy conceptProxy, LogicalExpressionBuilder builder) {
         return builder.disjointWith(conceptProxy);
     }
 
@@ -77,17 +81,33 @@ public interface LogicalExpressionBuilder {
         return assertions[0].getBuilder().and(assertions);
     }
 
+    ConceptAssertion conceptAssertion(ConceptChronology conceptChronology);
     ConceptAssertion conceptAssertion(ConceptProxy conceptProxy);
 
-    static ConceptAssertion ConceptAssertion(ConceptProxy conceptProxy, 
-            LogicalExpressionBuilder builder) {
+    static ConceptAssertion ConceptAssertion(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
+        return builder.conceptAssertion(conceptChronology);
+    }
+
+    static ConceptAssertion ConceptAssertion(ConceptProxy conceptProxy, LogicalExpressionBuilder builder) {
         return builder.conceptAssertion(conceptProxy);
     }
 
-    AllRole allRole(ConceptProxy roleTypeProxy, ConceptAssertion roleRestriction);
+    AllRole allRole(ConceptChronology roleTypeChronology, Assertion roleRestriction);
     
-    static AllRole AllRole(ConceptProxy roleTypeProxy, ConceptAssertion roleRestriction) {
+    static AllRole AllRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
+        return roleRestriction.getBuilder().allRole(roleTypeChronology, roleRestriction);
+    }
+
+    AllRole allRole(ConceptProxy roleTypeProxy, Assertion roleRestriction);
+    
+    static AllRole AllRole(ConceptProxy roleTypeProxy, Assertion roleRestriction) {
         return roleRestriction.getBuilder().allRole(roleTypeProxy, roleRestriction);
+    }
+
+    Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal);
+    
+    static Feature Feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
+        return literal.getBuilder().feature(featureTypeChronology, literal);
     }
 
     Feature feature(ConceptProxy featureTypeProxy, LiteralAssertion literal);
@@ -96,19 +116,28 @@ public interface LogicalExpressionBuilder {
         return literal.getBuilder().feature(featureTypeProxy, literal);
     }
 
-    SomeRole someRole(ConceptProxy roleTypeProxy, ConceptAssertion roleRestriction);
+    SomeRole someRole(ConceptChronology roleTypeChronology, Assertion roleRestriction);
     
-    static SomeRole SomeRole(ConceptProxy roleTypeProxy, ConceptAssertion roleRestriction) {
+    static SomeRole SomeRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
+        return roleRestriction.getBuilder().someRole(roleTypeChronology, roleRestriction);
+    }
+
+    SomeRole someRole(ConceptProxy roleTypeProxy, Assertion roleRestriction);
+    
+    static SomeRole SomeRole(ConceptProxy roleTypeProxy, Assertion roleRestriction) {
         return roleRestriction.getBuilder().someRole(roleTypeProxy, roleRestriction);
     }
 
-    Template template(ConceptProxy templateConcept, 
-            ConceptProxy assemblageToPopulateTemplateConcept);
+    Template template(ConceptChronology templateChronology, ConceptChronology assemblageToPopulateTemplateConcept);
 
-    static Template Template(ConceptProxy templateConcept, 
-            ConceptProxy assemblageToPopulateTemplateConcept, 
-            LogicalExpressionBuilder builder) {
+    static Template Template(ConceptChronology templateConcept, ConceptChronology assemblageToPopulateTemplateConcept, LogicalExpressionBuilder builder) {
         return builder.template(templateConcept, assemblageToPopulateTemplateConcept);
+    }
+
+    Template template(ConceptProxy templateProxy, ConceptProxy assemblageToPopulateTemplateProxy);
+
+    static Template Template(ConceptProxy templateProxy, ConceptProxy assemblageToPopulateTemplateProxy, LogicalExpressionBuilder builder) {
+        return builder.template(templateProxy, assemblageToPopulateTemplateProxy);
     }
 
     Or or(Assertion... assertions);

@@ -66,7 +66,7 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringAnalogBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * The Class RefexCAB contains methods for creating a media blueprint. This blueprint can be constructed into
@@ -101,7 +101,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                     + getReferencedComponentUuid().toString());
             properties.put(ComponentProperty.COMPONENT_ID, memberComponentUuid);
             return memberComponentUuid;
-        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -149,7 +149,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
                     + getPrimordialUuidStringForNidProp(ComponentProperty.ASSEMBLAGE_ID)
                     + getPrimordialUuidStringForNidProp(ComponentProperty.REFERENCED_COMPONENT_ID)
                     + sb.toString());
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -271,7 +271,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        super(null, Optional.empty(), Optional.empty(), idDirective, refexDirective);
+        super(null, Optional.empty(), Optional.empty(), (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUUID);
         this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionUuid);
@@ -349,7 +349,7 @@ public class RefexCAB extends CreateOrAmendBlueprint {
             IdDirective idDirective,
             RefexDirective refexDirective)
             throws IOException, InvalidCAB, ContradictionException {
-        super(memberUuid, refexVersion, viewCoordinate, idDirective, refexDirective);
+        super(memberUuid, refexVersion, viewCoordinate, (idDirective == IdDirective.PRESERVE_CONCEPT_REST_HASH ? IdDirective.GENERATE_HASH : idDirective), refexDirective);
         this.memberType = memberType;
         this.properties.put(ComponentProperty.REFERENCED_COMPONENT_ID, referencedComponentUuid);
         this.properties.put(ComponentProperty.ASSEMBLAGE_ID, collectionNid);

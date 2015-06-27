@@ -15,13 +15,15 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
+import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.logic.LogicByteArrayConverter;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import org.glassfish.hk2.api.MultiException;
 
 /**
@@ -31,18 +33,18 @@ import org.glassfish.hk2.api.MultiException;
 public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl>
         implements MutableLogicGraphSememe {
 
-    private static LogicByteArrayConverter converter;
+    private static LogicalExpressionByteArrayConverter converter;
 
-    private static LogicByteArrayConverter getExternalDataConverter() throws MultiException {
+    private static LogicalExpressionByteArrayConverter getExternalDataConverter() throws MultiException {
         if (converter == null) {
-            converter = LookupService.get().getService(LogicByteArrayConverter.class);
+            converter = LookupService.get().getService(LogicalExpressionByteArrayConverter.class);
         }
         return converter;
     }
 
     byte[][] graphData = null;
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, 
+    public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container, 
             int stampSequence, short versionSequence,
             DataBuffer data) {
         super(container, stampSequence, versionSequence);
@@ -57,7 +59,7 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
         }
     }
 
-    public LogicGraphSememeImpl(SememeChronicleImpl<LogicGraphSememeImpl> container, 
+    public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container, 
             int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
     }
@@ -92,6 +94,19 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
             checkUncommitted();
         }
         this.graphData = graphData;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("LogicGraphSememeImpl{");
+        sb.append(getSememeType().toString());
+        LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getIdentifierService().getConceptSequence(getReferencedComponentNid()));
+        sb.append("\n ");
+        sb.append(lg.toString());
+        toString(sb);
+        sb.append('}');
+        return sb.toString();
     }
 
 }

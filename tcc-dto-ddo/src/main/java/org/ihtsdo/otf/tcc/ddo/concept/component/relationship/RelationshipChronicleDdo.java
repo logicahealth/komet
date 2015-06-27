@@ -2,15 +2,15 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.relationship;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import javafx.beans.property.SimpleObjectProperty;
 
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.ComponentChronicleDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement()
 public class RelationshipChronicleDdo
-        extends ComponentChronicleDdo<RelationshipVersionDdo, RelationshipVersionBI<?>> {
+        extends ComponentChronicleDdo<RelationshipVersionDdo, RelationshipVersionAdaptor> {
    public static final long serialVersionUID = 1;
 
    //~--- fields --------------------------------------------------------------
@@ -36,14 +36,17 @@ public class RelationshipChronicleDdo
       super();
    }
 
-   public RelationshipChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleDdo concept,
-                                  RelationshipChronicleBI another)
+   public RelationshipChronicleDdo(TaxonomyCoordinate ss, ConceptChronicleDdo concept,
+                                  ObjectChronology<? extends RelationshipVersionAdaptor> another)
            throws IOException, ContradictionException {
-      super(ss, concept, another.getPrimordialVersion());
+      super(ss, concept, another);
+      RelationshipVersionAdaptor primordialVersion = another.getVersionList().get(0);
       this.originReferenceProperty.set(
-          new ComponentReference(ss.getConceptVersion(another.getOriginNid())));
+          new ComponentReference(primordialVersion.getOriginSequence(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate()));
       this.destinationReferenceProperty.set(
-          new ComponentReference(ss.getConceptVersion(another.getDestinationNid())));
+          new ComponentReference(primordialVersion.getDestinationSequence(), 
+              ss.getStampCoordinate(), ss.getLanguageCoordinate()));
    }
 
    //~--- methods -------------------------------------------------------------
@@ -53,7 +56,7 @@ public class RelationshipChronicleDdo
    }
 
    @Override
-   protected RelationshipVersionDdo makeVersion(TerminologySnapshotDI ss, RelationshipVersionBI version)
+   protected RelationshipVersionDdo makeVersion(TaxonomyCoordinate ss, RelationshipVersionAdaptor version)
            throws IOException, ContradictionException {
       return new RelationshipVersionDdo(this, ss, version);
    }

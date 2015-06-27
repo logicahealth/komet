@@ -1,5 +1,7 @@
 package org.ihtsdo.otf.tcc.model.version;
 
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +33,7 @@ public class VersionComputer<V extends Version<?, ?>> {
     protected static final Logger logger = Logger.getLogger(VersionComputer.class.getName());
 
     private void handlePart(HashSet<V> partsForPosition,
-            RelativePositionComputerBI mapper, V part,
+            RelativePositionCalculator mapper, V part,
             Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager,
             EnumSet<Status> allowedStatus) throws RuntimeException {
@@ -39,7 +41,7 @@ public class VersionComputer<V extends Version<?, ?>> {
                 new ArrayList<>(partsForPosition);
         for (V prevPartToTest : partsToCompare) {
             switch (mapper.fastRelativePosition(part,
-                    prevPartToTest, precedencePolicy)) {
+                    prevPartToTest, precedencePolicy.getStampPrecedence())) {
                 case AFTER:
                     partsForPosition.remove(prevPartToTest);
                     partsForPosition.add(part);
@@ -317,9 +319,11 @@ public class VersionComputer<V extends Version<?, ?>> {
             Precedence precedencePolicy,
             ContradictionManagerBI contradictionManager, InferredFilter[] filters) {
         HashSet<V> partsToAdd = new HashSet<>();
-        
+       StampCoordinateImpl sci = new StampCoordinateImpl(precedencePolicy.getStampPrecedence(), 
+                viewPosition, new int[] {}, Status.getStateSet(allowedStatus));
+         
             HashSet<V> partsForPosition = new HashSet<>();
-            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(viewPosition);
+            RelativePositionCalculator mapper = RelativePositionCalculator.getCalculator(sci);
             nextpart:
             for (V part : versions) {
                 if (part.getTime() == Long.MIN_VALUE) {
@@ -376,8 +380,10 @@ public class VersionComputer<V extends Version<?, ?>> {
             ContradictionManagerBI contradictionManager, InferredFilter filter) {
         HashSet<V> partsToAdd = new HashSet<>();
         
+        StampCoordinateImpl sci = new StampCoordinateImpl(precedencePolicy.getStampPrecedence(), 
+                viewPosition, new int[] {}, Status.getStateSet(allowedStatus));
             HashSet<V> partsForPosition = new HashSet<>();
-            RelativePositionComputerBI mapper = RelativePositionComputer.getComputer(viewPosition);
+            RelativePositionCalculator mapper = RelativePositionCalculator.getCalculator(sci);
             nextpart:
             for (V part : versions) {
                 if (part.getTime() == Long.MIN_VALUE) {

@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.tree.hashtree;
 
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.BitSet;
 import java.util.stream.IntStream;
 
@@ -33,16 +34,21 @@ public class SimpleHashTree extends AbstractHashTree {
      */
     @Override
     public int[] getRootSequences() {
-        BitSet parents = new BitSet();
+        return getRootSequenceStream().toArray();
+    }
+
+    @Override
+    public IntStream getRootSequenceStream() {
+        ConceptSequenceSet parents = new ConceptSequenceSet();
         parentSequence_ChildSequenceArray_Map.forEachKey((int parent) -> {
-            parents.set(parent);
+            parents.add(parent);
             return true;
         });
         parentSequence_ChildSequenceArray_Map.forEachPair((int parent, int[] children) -> {
-            IntStream.of(children).forEach((child) -> parents.clear(child));
+            IntStream.of(children).forEach((child) -> parents.remove(child));
             return true;
         });
-        return parents.stream().toArray();
+        return parents.stream();
     }
 
     /**

@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.api.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -26,7 +28,14 @@ import java.io.IOException;
  */
 public interface RefexVersionBI<A extends RefexAnalogBI<A>>
         extends ComponentVersionBI, RefexChronicleBI<A>, AnalogGeneratorBI<A> {
-
+    
+   
+    @Override
+    default int getAssociatedConceptNid() {
+        IdentifierService ids = LookupService.getService(IdentifierService.class);
+        return ids.getConceptNid(ids.getConceptSequenceForComponentNid(getReferencedComponentNid()));
+    }
+    
    /**
     * @param viewCoordinate the view coordinate specifying which version of the
     * description to make a blueprint of

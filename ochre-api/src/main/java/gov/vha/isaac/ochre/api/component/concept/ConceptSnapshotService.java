@@ -27,4 +27,6 @@ public interface ConceptSnapshotService {
     
     StampCoordinate getStampCoordinate();
     
+    ConceptSnapshot getConceptSnapshot(int conceptSequence);
+    
 }

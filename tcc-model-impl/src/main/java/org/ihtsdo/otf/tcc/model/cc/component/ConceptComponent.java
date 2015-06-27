@@ -4,13 +4,18 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
 import java.io.*;
@@ -45,7 +50,8 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
+import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
@@ -54,6 +60,7 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChroni
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
@@ -77,6 +84,11 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         implements ComponentBI, ComponentVersionBI, IdBI, AnalogBI, AnalogGeneratorBI<R>,
         Comparable<ConceptComponent> {
 
+    
+//    public <V extends ComponentVersionBI> Optional<LatestVersion<V>> getLatestVersion(StampCoordinate coordinate) {
+//        return RelativePositionCalculator.getCalculator(coordinate)
+//                .getLatestVersion((ObjectChronology<V>) this);
+//    }
     private static RefexService refexService;
 
     protected static RefexService getRefexService() {
@@ -188,7 +200,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @throws IOException
      */
-    protected ConceptComponent(TtkComponentChronicle<?> eComponent, int enclosingConceptNid) throws IOException {
+    protected ConceptComponent(TtkComponentChronicle<?,?> eComponent, int enclosingConceptNid) throws IOException {
         super();
         assert eComponent != null;
 
@@ -203,7 +215,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         int cNid = PersistentStore.get().getConceptNidForNid(nid);
 
-        if (cNid == Integer.MAX_VALUE) {
+        if (cNid == Integer.MAX_VALUE || cNid == 0) {
             PersistentStore.get().setConceptNidForNid(this.enclosingConceptNid, this.nid);
         } else if (cNid != this.enclosingConceptNid) {
             PersistentStore.get().resetConceptNidForNid(this.enclosingConceptNid, this.nid);
@@ -245,6 +257,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                 addDynamicAnnotation(annot);
             }
         }
+    }
+
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
     }
 
     public void setAdditionalUuids(List<UUID> uuids) {
@@ -771,8 +789,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                 getConceptSequence(PersistentStore.get().
                                         getNidForUuids(idv.authorityUuid));
 
-                        SememeChronicleImpl<StringSememeImpl> sememeChronicle
-                                = new SememeChronicleImpl<>(
+                        SememeChronologyImpl<StringSememeImpl> sememeChronicle
+                                = new SememeChronologyImpl<>(
                                         SememeType.STRING,
                                         strMemberUuid,
                                         sememeNid,
@@ -780,13 +798,12 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                         nid, // referenced component
                                         containerSequence
                                 );
-                        int stampSequence = getCommitManager().
-                                getStamp(State.ACTIVE,
+                        int stampSequence = getCommitManager().getStampSequence(State.ACTIVE,
                                         idv.time,
                                         getIdService().getConceptSequenceForUuids(idv.authorUuid),
                                         getIdService().getConceptSequenceForUuids(idv.moduleUuid),
                                         getIdService().getConceptSequenceForUuids(idv.pathUuid));
-                        StringSememeImpl stringVersion = sememeChronicle.createMutableStampedVersion(StringSememeImpl.class, stampSequence);
+                        StringSememeImpl stringVersion = sememeChronicle.createMutableVersion(StringSememeImpl.class, stampSequence);
                         stringVersion.setString(denotation.toString());
                         getSememeService().writeSememe(sememeChronicle);
                         break;
@@ -800,7 +817,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                     default:
                         throw new UnsupportedOperationException();
                 }
-            } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+            } catch (UnsupportedEncodingException ex) {
                 throw new IOException(ex);
             }
         }
@@ -1460,7 +1477,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @Override
     public final int getAuthorityNid() {
         try {
-            return TermAux.GENERATED_UUID.getLenient().getConceptNid();
+            return TermAux.GENERATED_UUID.getLenient().getNid();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -1500,7 +1517,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @return
      */
-    @Override
     public int getConceptNid() {
         return enclosingConceptNid;
     }
@@ -2404,8 +2420,22 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
     }
 
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    public int getEnclosingConceptNid() {
+       return enclosingConceptNid;
+    }
+    @Override
+    public int getAssociatedConceptNid() {
+       return enclosingConceptNid;
+    }
+    
 
 }

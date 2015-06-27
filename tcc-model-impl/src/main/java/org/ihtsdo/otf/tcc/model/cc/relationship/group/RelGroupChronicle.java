@@ -1,19 +1,15 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
+//~--- non-JDK imports --------------------------------------------------------
+
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.SequenceSet;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.IntStream;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
@@ -26,7 +22,20 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.IntStream;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
+import java.util.Optional;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 
@@ -45,12 +54,8 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       this.relGroup   = relGroup;
       this.conceptNid = c.getNid();
 
-      try {
-         uuid = UuidT5Generator.get(UuidT5Generator.REL_GROUP_NAMESPACE,
-                                     c.getPrimordialUuid().toString() + relGroup);
-      } catch (NoSuchAlgorithmException e) {
-         throw new IOException(e);
-      }
+      uuid = UuidT5Generator.get(UuidT5Generator.REL_GROUP_NAMESPACE,
+              c.getPrimordialUuid().toString() + relGroup);
 
       nid = PersistentStore.get().getNidForUuids(uuid);
       PersistentStore.get().setConceptNidForNid(conceptNid, nid);
@@ -58,6 +63,12 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    }
 
    //~--- methods -------------------------------------------------------------
+    @Override
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+        StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+        return !latestStampSequences.isEmpty();
+    }
 
    @Override
    public boolean addAnnotation(RefexChronicleBI<?> annotation) {
@@ -131,10 +142,14 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       throw new UnsupportedOperationException("Not supported.");
    }
 
-   @Override
    public int getConceptNid() {
       return conceptNid;
    }
+
+    @Override
+    public int getEnclosingConceptNid() {
+        return conceptNid;
+    }
 
    @Override
    public Collection<? extends RefexVersionBI<?>> getAnnotationsActive(ViewCoordinate xyz)
@@ -267,11 +282,6 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
    public Collection<? extends RelationshipChronicleBI> getRels() {
       return rels;
    }
-
-   @Override
-   public List<UUID> getUUIDs() {
-      return Arrays.asList(new UUID[] { uuid });
-   }
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { uuid });
@@ -320,7 +330,20 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+   @Override
+    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+   @Override
+    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate coordinate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    

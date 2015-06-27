@@ -2,14 +2,13 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex.type_member;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.ddo.concept.ConceptChronicleDdo;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.REFEX_TYPE_DDO;
 import org.ihtsdo.otf.tcc.ddo.concept.component.refex.RefexChronicleDdo;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -19,7 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement()
 public class RefexMembershipChronicleDdo
-        extends RefexChronicleDdo<RefexMembershipVersionDdo, RefexMemberVersionBI> {
+        extends RefexChronicleDdo<RefexMembershipVersionDdo, SememeVersion> {
    public static final long serialVersionUID = 1;
 
    //~--- constructors --------------------------------------------------------
@@ -28,15 +27,15 @@ public class RefexMembershipChronicleDdo
       super();
    }
 
-   public RefexMembershipChronicleDdo(TerminologySnapshotDI ss, ConceptChronicleDdo concept, RefexChronicleBI another)
+   public RefexMembershipChronicleDdo(TaxonomyCoordinate ss, ConceptChronicleDdo concept, SememeChronology<SememeVersion> another)
            throws IOException, ContradictionException {
-      super(ss, concept, (RefexVersionBI) another.getPrimordialVersion());
+      super(ss, concept, (SememeVersion) another.getVersionList().get(0));
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
-   protected RefexMembershipVersionDdo makeVersion(TerminologySnapshotDI ss, RefexMemberVersionBI version)
+   protected RefexMembershipVersionDdo makeVersion(TaxonomyCoordinate ss, SememeVersion version)
            throws IOException, ContradictionException {
       return new RefexMembershipVersionDdo(this, ss, version);
    }

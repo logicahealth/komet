@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.api.store;
 
+//~--- non-JDK imports --------------------------------------------------------
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -17,7 +18,6 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.ExternalStampBI;
-import org.ihtsdo.otf.tcc.api.coordinate.Path;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
@@ -169,8 +169,6 @@ public interface TerminologyStoreDI extends TerminologyDI {
     Map<Integer, ConceptChronicleBI> getConcepts(NativeIdSetBI cNids) throws IOException;
 
     Collection<DbDependency> getLatestChangeSetDependencies() throws IOException;
-
-    List<? extends Path> getPathChildren(int nid);
 
     /**
      * Retrieves an array of concept nids that are children of the specified

@@ -66,22 +66,18 @@ public class RefexDynamicNid extends RefexDynamicData implements RefexDynamicNid
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<?> getDataObjectProperty()  {
 		return getDataNidProperty();
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNidProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<Integer> getDataNidProperty() throws IOException, ContradictionException {
+	public ReadOnlyObjectProperty<Integer> getDataNidProperty()  {
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<>(null, getName(), getDataNid());
 		}

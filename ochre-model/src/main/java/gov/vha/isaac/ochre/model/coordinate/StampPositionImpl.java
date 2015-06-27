@@ -18,13 +18,14 @@ package gov.vha.isaac.ochre.model.coordinate;
 import gov.vha.isaac.ochre.api.IdentifiedObjectService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 
 /**
  *
  * @author kec
  */
-public class StampPositionImpl implements StampPosition {
+public class StampPositionImpl implements StampPosition, Comparable<StampPosition> {
     
     private static IdentifiedObjectService identifiedObjectService;
     private static IdentifiedObjectService getIdentifiedObjectService() {
@@ -49,6 +50,11 @@ public class StampPositionImpl implements StampPosition {
     public StampPositionImpl(long time, int stampPathSequence) {
         this.time = time;
         this.stampPathSequence = getIdentifierService().getConceptSequence(stampPathSequence);
+    }
+
+    @Override
+    public StampPath getStampPath() {
+        return new StampPathImpl(stampPathSequence);
     }
 
     @Override
@@ -86,9 +92,25 @@ public class StampPositionImpl implements StampPosition {
 
     @Override
     public String toString() {
-        return "StampPosition:{" + "time=" + getTimeAsInstant() + 
-                ", stampPathSequence=" + stampPathSequence + 
-                " " + getIdentifiedObjectService().informAboutObject(stampPathSequence) + '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("StampPosition:{time=");
+        if (time == Long.MAX_VALUE) {
+            sb.append("latest");
+        } else if (time == Long.MIN_VALUE) {
+            sb.append("CANCELED");
+        } else {
+            sb.append(getTimeAsInstant());
+        }
+        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(getIdentifiedObjectService().informAboutObject(stampPathSequence)).append('}');
+        return sb.toString();
     }
-    
+
+    @Override
+    public int compareTo(StampPosition o) {
+        if (this.stampPathSequence != o.getStampPathSequence()) {
+            return Integer.compare(stampPathSequence, o.getStampPathSequence());
+        }
+        return Long.compare(time, o.getTime());
+    }
+
 }

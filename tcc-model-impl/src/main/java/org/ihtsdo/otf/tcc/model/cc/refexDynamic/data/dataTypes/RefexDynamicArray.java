@@ -100,7 +100,7 @@ public class RefexDynamicArray<T extends RefexDynamicData> extends RefexDynamicD
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException, ContradictionException
+	public ReadOnlyObjectProperty<?> getDataObjectProperty()
 	{
 		return getDataArrayProperty();
 	}
@@ -146,7 +146,7 @@ public class RefexDynamicArray<T extends RefexDynamicData> extends RefexDynamicD
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicArrayBI#getDataArrayProperty()
 	 */
 	@Override
-	public ReadOnlyObjectProperty<T[]> getDataArrayProperty() throws IOException, ContradictionException
+	public ReadOnlyObjectProperty<T[]> getDataArrayProperty() 
 	{
 		if (property_ == null) {
 			property_ = new SimpleObjectProperty<T[]>(null, getName(), getDataArray());

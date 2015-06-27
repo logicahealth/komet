@@ -3,7 +3,6 @@ package org.ihtsdo.otf.tcc.api.concept;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
@@ -60,6 +59,7 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
    /**
      * Retrieves tuples matching the specified view coordinate
      * 
+     * @param vc
      * @param cutoffTime
      *          cutoff time to match tuples, tuples with a time greater than
      *          cutoff will no be returned

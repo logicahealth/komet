@@ -17,28 +17,39 @@ package gov.vha.isaac.ochre.api.chronicle;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  *
  * @author kec
  * @param <V>
  */
-public class LatestVersion<V extends Object>  {
+public final class LatestVersion<V>  {
     
     V value;
     
     Optional<Set<V>> contradictions;
     
-    public LatestVersion() {
-        value = null;
+    public LatestVersion(Class<V> versionType) {
         contradictions = Optional.empty();
-    };
+    }
 
     public LatestVersion(V latest) {
-        this.value = latest;
+        this.value = Objects.requireNonNull(latest, "latest version cannot be null");
         contradictions = Optional.empty();
+    }
+
+    public LatestVersion(List<V> versions) {
+        this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
+        if (versions.size() < 2) {
+            contradictions = Optional.empty();
+        } else {
+            contradictions = Optional.of(new HashSet(versions.subList(1, versions.size())));
+        }
     }
 
     public LatestVersion(V latest, Collection<V> contradictions) {
@@ -49,6 +60,7 @@ public class LatestVersion<V extends Object>  {
             this.contradictions = Optional.of(new HashSet<V>(contradictions));
         }
     }
+
     
     public void addLatest(V value) {
         if (this.value == null) {
@@ -61,12 +73,30 @@ public class LatestVersion<V extends Object>  {
         }
     }
     
-    
     public V value() {
         return value;
     }
     
     public Optional<Set<V>> contradictions() {
         return contradictions;
+    }
+    
+    public Stream<V> versionStream() {
+        Stream.Builder<V> builder = Stream.builder();
+        if (value == null) {
+            return Stream.<V>builder().build();
+        }
+        builder.accept(value);
+        if (contradictions.isPresent()) {
+            contradictions.get().forEach((contradiction) -> {
+                builder.add(contradiction); 
+            });
+        }
+        return builder.build();
+    }
+    
+    @Override
+    public String toString() {
+        return "LatestVersion{" + "value=" + value + ", contradictions=" + contradictions + '}';
     }
 }

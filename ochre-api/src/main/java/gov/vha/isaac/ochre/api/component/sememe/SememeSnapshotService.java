@@ -28,15 +28,13 @@ import java.util.stream.Stream;
 public interface SememeSnapshotService<V extends SememeVersion> {
     
     Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequence);
-    Optional<LatestVersion<V>> getLatestSememeVersionIfActive(int sememeSequence);
     
     Stream<LatestVersion<V>> getLatestSememeVersionsFromAssemblage(int assemblageSequence);
-    Stream<LatestVersion<V>> getLatestActiveSememeVersionsFromAssemblage(int assemblageSequence);
     
     Stream<LatestVersion<V>> getLatestSememeVersionsForComponent(int componentNid);
-    Stream<LatestVersion<V>> getLatestActiveSememeVersionsForComponent(int componentNid);
     
     Stream<LatestVersion<V>> getLatestSememeVersionsForComponentFromAssemblage(int componentNid, int assemblageSequence);
-    Stream<LatestVersion<V>> getLatestActiveSememeVersionsForComponentFromAssemblage(int componentNid, int assemblageSequence);
+
+    Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid);
     
 }
