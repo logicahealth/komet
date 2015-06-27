@@ -17,7 +17,9 @@
 package org.ihtsdo.otf.tcc.api.spec;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.ConceptModel;
 import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.ConfigurationService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
@@ -66,6 +68,15 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
         }
         return conceptService;
     }
+    
+    private static ConceptModel conceptModel;
+    private static ConceptModel getConceptModel() {
+        if (conceptModel == null) {
+            conceptModel = LookupService.getService(ConfigurationService.class).getConceptModel();
+        }
+        return conceptModel;
+    }
+    
     /**
      * dataversion for serialization versioning
      */
@@ -318,11 +329,13 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      */
     public int getNid(ViewCoordinate vc) throws ValidationException, IOException {
         if (nid == Integer.MAX_VALUE) {
-            ConceptSnapshot conceptVersion = getStrict(vc);
-
-            nid = conceptVersion.getNid();
+            if (getConceptModel() == ConceptModel.OCHRE_CONCEPT_MODEL) {
+                ConceptSnapshot conceptVersion = getStrict(vc);
+                nid = conceptVersion.getNid();
+            } else {
+                nid = getIdentifierService().getNidForProxy(this);
+            }
         }
-
         return nid;
     }
 
