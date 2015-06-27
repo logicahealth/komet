@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>gov.vha.isaac</groupId>
 		<artifactId>isaac-parent</artifactId>
-		<version>1.7-SNAPSHOT</version>
+		<version>1.8-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>gov.vha.isaac.terminology.converters</groupId>
@@ -15,7 +15,7 @@
 	<name>Converters Common Code</name>
 
 	<properties>
-		<isaac-gui.version>1.7-SNAPSHOT</isaac-gui.version>
+		<isaac-mojo.version>1.7</isaac-mojo.version> <!-- TODO this is behind, need to adjust to new APIs again... -->
 	</properties>
 
 	<scm>
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>gov.vha.isaac</groupId>
 			<artifactId>isaac-mojo</artifactId>
-			<version>${isaac-gui.version}</version>
+			<version>${isaac-mojo.version}</version>
 		</dependency>
 	</dependencies>
 </project>
