@@ -2,6 +2,8 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
+import java.util.Optional;
 
 /**
  * Created by kec on 12/10/14.
@@ -83,9 +86,14 @@ public final class ConceptNodeWithNids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "ConceptNode[" + getNodeIndex() + "]: " + Get.conceptService().getConcept(conceptNid).toUserString() + "<"
+        Optional<? extends ConceptChronology<? extends ConceptVersion>> concept = 
+                Get.conceptService().getOptionalConcept(conceptNid);
+        if (concept.isPresent()) {
+        return "ConceptNode[" + getNodeIndex() + "]: " + concept.get().toUserString() + "<"
                 + Get.identifierService().getConceptSequence(conceptNid)
                 + ">" + super.toString();
+        }
+        return "ConceptNode[" + getNodeIndex() + "]: " + conceptNid + "<not found>" + super.toString();
     }
 
     @Override
