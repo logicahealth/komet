@@ -15,8 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.snapshot;
 
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.TaxonomyService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.TaxonomySnapshotService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
@@ -24,7 +23,6 @@ import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
@@ -55,11 +53,11 @@ public class Snapshot {
     }
 
     public <V extends SememeVersion> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
-        return LookupService.getService(SememeService.class).getSnapshot(type, stampCoordinate);
+        return Get.sememeService().getSnapshot(type, stampCoordinate);
     }
 
     public TaxonomySnapshotService getTaxonomySnapshotService() {
-        return LookupService.getService(TaxonomyService.class).getSnapshot(taxonomyCoordinate);
+        return Get.taxonomyService().getSnapshot(taxonomyCoordinate);
     }
 
     public <V extends StampedVersion> Stream<? extends V> getVisible(ObjectChronology<V> chronicle) {

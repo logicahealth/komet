@@ -17,13 +17,9 @@
 package org.ihtsdo.otf.tcc.api.spec;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.ConceptModel;
 import gov.vha.isaac.ochre.api.ConceptProxy;
-import gov.vha.isaac.ochre.api.ConfigurationService;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
@@ -53,29 +49,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class ConceptSpec extends ConceptProxy implements SpecBI {
 
-    private static IdentifierService idService = null;
-    private static IdentifierService getIdentifierService() {
-        if (idService == null) {
-            idService = LookupService.getService(IdentifierService.class);
-        }
-        return idService;
-    }
-    
-    private static ConceptService conceptService = null;
-    private static ConceptService getConceptService() {
-        if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptService.class);
-        }
-        return conceptService;
-    }
-    
-    private static ConceptModel conceptModel;
-    private static ConceptModel getConceptModel() {
-        if (conceptModel == null) {
-            conceptModel = LookupService.getService(ConfigurationService.class).getConceptModel();
-        }
-        return conceptModel;
-    }
     
     /**
      * dataversion for serialization versioning
@@ -292,7 +265,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
         boolean found = false;
 
         for (UUID uuid : getUuids()) {
-            if (getIdentifierProvider().hasUuid(uuid)) {
+            if (Get.identifierService().hasUuid(uuid)) {
                 found = true;
 
                 break;
@@ -303,7 +276,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
             throw new ValidationException("No matching ids in db: " + this.toString());
         }
         try {
-            localChronicle = getConceptService().getConcept(getUuids());
+            localChronicle = Get.conceptService().getConcept(getUuids());
             validateDescription(localChronicle);
         } catch (IOException ex) {
             localChronicle = null;
@@ -311,7 +284,6 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
         } catch (ContradictionException ex) {
             throw new ValidationException(ex);
         }
-        nid = localChronicle.getNid();
         return localChronicle;
 
     }
@@ -328,15 +300,8 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws ValidationException
      */
     public int getNid(ViewCoordinate vc) throws ValidationException, IOException {
-        if (nid == Integer.MAX_VALUE) {
-            if (getConceptModel() == ConceptModel.OCHRE_CONCEPT_MODEL) {
-                ConceptSnapshot conceptVersion = getStrict(vc);
-                nid = conceptVersion.getNid();
-            } else {
-                nid = getIdentifierService().getNidForProxy(this);
-            }
-        }
-        return nid;
+        ConceptSnapshot conceptVersion = getStrict(vc);
+        return conceptVersion.getNid();
     }
 
     /**
@@ -363,7 +328,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     public ConceptSnapshot getStrict(ViewCoordinate vc) throws ValidationException, IOException {
         ConceptChronology conceptChronology = getLenient();
         
-        ConceptSnapshot conceptSnapshot = getConceptService().getSnapshot(vc).getConceptSnapshot(conceptChronology.getConceptSequence());
+        ConceptSnapshot conceptSnapshot = Get.conceptService().getSnapshot(vc).getConceptSnapshot(conceptChronology.getConceptSequence());
         conceptSnapshot.containsActiveDescription(description);
         return conceptSnapshot;
     }
@@ -378,41 +343,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
         this.relSpecs = relSpecs;
     }
 
-    /**
-     * Method description
-     *
-     *
-     * @return
-     *
-     */
-    @Override
-    public int getNid() {
-        if (nid == Integer.MAX_VALUE) {
 
-            try {
-                nid = getLenient().getNid();
-            } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        return nid;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     *
-     */
-    @Override
-    public int getSequence() {
-        if (sequence == Integer.MAX_VALUE) {
-            sequence = getConceptSequence(getNid());
-        }
-        return sequence;
-    }
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

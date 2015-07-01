@@ -15,9 +15,7 @@
  */
 package org.ihtsdo.otf.tcc.ddo;
 
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
@@ -49,8 +47,6 @@ public class ComponentReference implements Externalizable {
 
     public static final long serialVersionUID = 1;
     
-    IdentifierService identifierService = LookupService.getService(IdentifierService.class);
-    IdentifiedObjectService identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
     //~--- fields --------------------------------------------------------------
     private int nid = Integer.MAX_VALUE;
     private SimpleIntegerProperty nidProperty;
@@ -74,7 +70,7 @@ public class ComponentReference implements Externalizable {
     public ComponentReference(ConceptChronology<?> concept, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
         nid = concept.getNid();
         if (nid >= 0) {
-            nid = identifierService.getConceptNid(nid);
+            nid = Get.identifierService().getConceptNid(nid);
         }
         uuidMsb = concept.getPrimordialUuid().getMostSignificantBits();
         uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
@@ -96,7 +92,7 @@ public class ComponentReference implements Externalizable {
      */
     public ComponentReference(int intId) throws IOException {
         if (nid >= 0) {
-            this.nid = identifierService.getConceptNid(intId);
+            this.nid = Get.identifierService().getConceptNid(intId);
         } else {
             this.nid = intId;
         }
@@ -120,11 +116,11 @@ public class ComponentReference implements Externalizable {
      */
     public ComponentReference(int intId, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate)  {
         if (nid >= 0) {
-            this.nid = identifierService.getConceptNid(intId);
+            this.nid = Get.identifierService().getConceptNid(intId);
         } else {
             this.nid = intId;
         }
-        Optional<? extends ObjectChronology<? extends StampedVersion>> component = identifiedObjectService.getIdentifiedObjectChronology(nid);
+        Optional<? extends ObjectChronology<? extends StampedVersion>> component = Get.getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
         if (component.isPresent()) {
             setupComponent(component.get(), languageCoordinate, stampCoordinate);
         } else {
@@ -281,7 +277,7 @@ public class ComponentReference implements Externalizable {
 
     public String getHtmlFragment() {
         StringBuilder sb = new StringBuilder();
-        if (identifierService.getChronologyTypeForNid(nid) == ObjectChronologyType.CONCEPT) {
+        if (Get.identifierService().getChronologyTypeForNid(nid) == ObjectChronologyType.CONCEPT) {
             sb.append("<a href=\"../concept/");
         } else {
             sb.append("<a href=\"../component/");

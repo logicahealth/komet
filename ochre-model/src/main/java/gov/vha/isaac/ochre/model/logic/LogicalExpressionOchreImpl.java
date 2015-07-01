@@ -4,8 +4,7 @@ import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
@@ -64,14 +63,6 @@ import org.apache.mahout.math.list.IntArrayList;
  */
 public class LogicalExpressionOchreImpl implements LogicalExpression {
 
-    private static IdentifierService idService;
-    protected static IdentifierService getIdentifierService() {
-        if (idService == null) {
-            idService = LookupService.getService(IdentifierService.class);
-        }
-        return idService;
-    }
-
     private static final NodeSemantic[] NODE_SEMANTICS = NodeSemantic.values();
     
     private static final EnumSet<NodeSemantic> meaningfulNodeSemantics
@@ -97,7 +88,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
         this(nodeDataArray, dataSource);
         if (conceptId < 0) {
-            conceptId = getIdentifierService().getConceptSequence(conceptId);
+            conceptId = Get.identifierService().getConceptSequence(conceptId);
         }
         this.conceptSequence = conceptId;
     }

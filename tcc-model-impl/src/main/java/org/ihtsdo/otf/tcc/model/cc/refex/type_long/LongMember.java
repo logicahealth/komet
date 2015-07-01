@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_long;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -178,7 +179,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
 
          if (getTime() != Long.MIN_VALUE) {
             list.add(new LongMemberVersion(this, this, primordialStamp));
-            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+            for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                 list.add(new LongMemberVersion(this, this, stampAlias));
             }
          }
@@ -187,7 +188,7 @@ public class LongMember extends RefexMember<LongRevision, LongMember>
             for (LongRevision lr : revisions) {
                if (lr.getTime() != Long.MIN_VALUE) {
                   list.add(new LongMemberVersion(lr, this, lr.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(lr.stamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(lr.stamp)) {
                         list.add(new LongMemberVersion(lr, this, stampAlias));
                     }
                }

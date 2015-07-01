@@ -6,6 +6,7 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -14,7 +15,6 @@ import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithNids;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -39,7 +39,7 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     public ConceptNodeWithUuids(ConceptNodeWithNids internalForm) {
         super(internalForm);
-        this.conceptUuid = getIdentifierService().getUuidPrimordialForNid(internalForm.getConceptNid()).get();
+        this.conceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getConceptNid()).get();
     }
 
     public UUID getConceptUuid() {
@@ -87,7 +87,7 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "ConceptNode[" + getNodeIndex() + "]: \"" + getConceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString();
+        return "ConceptNode[" + getNodeIndex() + "]: \"" + Get.conceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString();
     }
 
     @Override

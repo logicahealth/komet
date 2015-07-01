@@ -15,8 +15,7 @@
  */
 package gov.vha.isaac.ochre.observable.model;
 
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
@@ -50,17 +49,7 @@ public class ObservableChronologyProvider
 
     private final UUID listenerUuid = UUID.randomUUID();
 
-    private static IdentifierService idService = null;
 
-    /**
-     * @return the idService
-     */
-    public static IdentifierService getIdService() {
-        if (idService == null) {
-            idService = LookupService.getService(IdentifierService.class);
-        }
-        return idService;
-    }
     ConcurrentReferenceHashMap<Integer, ObservableConceptChronology> observableConceptMap = new ConcurrentReferenceHashMap<>(
             ConcurrentReferenceHashMap.ReferenceType.STRONG,
             ConcurrentReferenceHashMap.ReferenceType.WEAK);
@@ -87,7 +76,7 @@ public class ObservableChronologyProvider
     @Override
     public ObservableConceptChronology getObservableConceptChronology(int id) {
         if (id >= 0) {
-            id = getIdService().getConceptNid(id);
+            id = Get.identifierService().getConceptNid(id);
         }
         ObservableConceptChronology occ = observableConceptMap.get(id);
         if (occ != null) {
@@ -100,7 +89,7 @@ public class ObservableChronologyProvider
     @Override
     public ObservableSememeChronology getObservableSememeChronology(int id) {
         if (id >= 0) {
-            id = getIdService().getConceptNid(id);
+            id = Get.identifierService().getConceptNid(id);
         }
         ObservableSememeChronology osc = observableSememeMap.get(id);
         if (osc != null) {
@@ -136,7 +125,7 @@ public class ObservableChronologyProvider
         // handle referenced component 
         // Concept, description, or sememe
         ObjectChronologyType oct
-                = getIdService().getChronologyTypeForNid(sc.getReferencedComponentNid());
+                = Get.identifierService().getChronologyTypeForNid(sc.getReferencedComponentNid());
         ChronologyChangeListener referencedComponent = null;
         switch (oct) {
             case CONCEPT:
@@ -144,7 +133,7 @@ public class ObservableChronologyProvider
                 break;
             case OTHER:
                 referencedComponent = 
-                        observableConceptMap.get(getIdService().getConceptNidForDescriptionNid(sc.getReferencedComponentNid()));
+                        observableConceptMap.get(Get.identifierService().getConceptNidForDescriptionNid(sc.getReferencedComponentNid()));
                 break;
             case SEMEME:
                 referencedComponent = observableSememeMap.get(sc.getReferencedComponentNid());

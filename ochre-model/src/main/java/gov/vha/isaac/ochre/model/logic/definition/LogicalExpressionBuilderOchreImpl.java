@@ -17,8 +17,6 @@ package gov.vha.isaac.ochre.model.logic.definition;
 
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
@@ -65,14 +63,6 @@ import org.apache.mahout.math.map.OpenShortObjectHashMap;
  */
 public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuilder {
     
-    private static IdentifierService identifierService = null;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-
     private boolean built = false;
     private short nextAxiomId = 0;
     private final Set<GenericAxiom> rootSets = new HashSet<>();

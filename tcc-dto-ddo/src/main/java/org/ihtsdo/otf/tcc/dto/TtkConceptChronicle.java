@@ -1,10 +1,7 @@
 package org.ihtsdo.otf.tcc.dto;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
@@ -90,21 +87,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChro
 @XmlRootElement(name = "concept")
 public class TtkConceptChronicle implements ChronicledObjectUniversal {
 
-    private static IdentifierService identifierService;
-    protected static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-    
-    private static CommitService commitService;
-    protected static CommitService getCommitService() {
-        if (commitService == null) {
-            commitService = LookupService.getService(CommitService.class);
-        }
-        return commitService;
-    }
     /**
      * Field description
      */

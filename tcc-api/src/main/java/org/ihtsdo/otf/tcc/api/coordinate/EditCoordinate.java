@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +15,6 @@ import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class EditCoordinate implements gov.vha.isaac.ochre.api.coordinate.EditCoordinate {
     
-    IdentifierService ss = LookupService.getService(IdentifierService.class);
-
     private int authorNid;
     private int moduleNid;
     private NidSetBI editPaths = new NidSet();
@@ -26,9 +23,9 @@ public class EditCoordinate implements gov.vha.isaac.ochre.api.coordinate.EditCo
     }
 
     public EditCoordinate(gov.vha.isaac.ochre.api.coordinate.EditCoordinate another) {
-        this.authorNid = ss.getConceptNid(another.getAuthorSequence());
-        this.moduleNid = ss.getConceptNid(another.getModuleSequence());
-        this.editPaths.add(ss.getConceptNid(another.getPathSequence()));
+        this.authorNid = Get.identifierService().getConceptNid(another.getAuthorSequence());
+        this.moduleNid = Get.identifierService().getConceptNid(another.getModuleSequence());
+        this.editPaths.add(Get.identifierService().getConceptNid(another.getPathSequence()));
     }
 
     public EditCoordinate(int authorNid, int moduleNid, NidSetBI editPaths) {
@@ -75,9 +72,9 @@ public class EditCoordinate implements gov.vha.isaac.ochre.api.coordinate.EditCo
 
     public void setEditPathListSpecs(List<ConceptSpec> specs) throws IOException {
         this.editPaths.clear();
-        for (ConceptSpec spec: specs) {
+        specs.stream().forEach((spec) -> {
             this.editPaths.add(spec.getNid());
-        }
+        });
     }
 
 
@@ -104,16 +101,16 @@ public class EditCoordinate implements gov.vha.isaac.ochre.api.coordinate.EditCo
 
     @Override
     public int getAuthorSequence() {
-        return ss.getConceptSequence(authorNid);
+        return Get.identifierService().getConceptSequence(authorNid);
     }
 
     @Override
     public int getModuleSequence() {
-       return ss.getConceptSequence(moduleNid);
+       return Get.identifierService().getConceptSequence(moduleNid);
     }
 
     @Override
     public int getPathSequence() {
-        return ss.getConceptSequence(editPaths.getMin());
+        return Get.identifierService().getConceptSequence(editPaths.getMin());
     }
 }

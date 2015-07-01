@@ -12,19 +12,9 @@ import java.util.UUID;
  */
 public class ConceptProxy {
     public static final String FIELD_SEPERATOR="⦙";
-    protected transient int nid = Integer.MAX_VALUE;
-    protected transient int sequence = Integer.MAX_VALUE;
-    private static IdentifierService identifierProvider = null;
-
-    public static IdentifierService getIdentifierProvider() {
-        if (identifierProvider == null) {
-            identifierProvider = LookupService.getService(IdentifierService.class);
-        }
-        return identifierProvider;
-    }
 
     protected static int getConceptSequence(int nid) {
-        return getIdentifierProvider().getConceptSequence(nid);
+        return Get.identifierService().getConceptSequence(nid);
     }
     
     /** Universal identifiers for the concept proxied by the is object */
@@ -198,17 +188,10 @@ public class ConceptProxy {
     }
     
     public int getNid() {
-        if (nid == Integer.MAX_VALUE) {
-            nid = getIdentifierProvider().getNidForUuids(uuids);
-        }
-
-        return nid;
+        return Get.identifierService().getNidForUuids(uuids);
     }
      
     public int getSequence() {
-        if (sequence == Integer.MAX_VALUE) {
-            sequence = getConceptSequence(getNid());
-        }
-        return sequence;
+        return Get.identifierService().getConceptSequenceForUuids(uuids);
     }
 }

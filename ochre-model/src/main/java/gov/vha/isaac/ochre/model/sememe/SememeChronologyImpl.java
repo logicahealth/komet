@@ -15,8 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.sememe;
 
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
@@ -45,15 +44,6 @@ import java.util.UUID;
  * @param <V>
  */
 public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
-
-    private static IdentifiedObjectService identifiedObjectService;
-
-    private static IdentifiedObjectService getIdentifiedObjectService() {
-        if (identifiedObjectService == null) {
-            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
-        }
-        return identifiedObjectService;
-    }
 
     byte sememeTypeToken = -1;
     int assemblageSequence = -1;
@@ -118,7 +108,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
 
     @Override
     public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-        int stampSequence = getCommitService().getStampSequence(status, Long.MAX_VALUE,
+        int stampSequence = Get.commitService().getStampSequence(status, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
         M version = createMutableVersionInternal(type, stampSequence, 
                 nextVersionSequence());
@@ -220,11 +210,11 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
                 .append(", assemblageSequence=")
                 .append(assemblageSequence)
                 .append(" (")
-                .append(getIdentifiedObjectService().informAboutObject(assemblageSequence))
+                .append(Get.getIdentifiedObjectService().informAboutObject(assemblageSequence))
                 .append("), referencedComponentNid=")
                 .append(referencedComponentNid)
                 .append(" (")
-                .append(getIdentifiedObjectService().informAboutObject(referencedComponentNid))
+                .append(Get.getIdentifiedObjectService().informAboutObject(referencedComponentNid))
                 .append(")\n ");
         super.toString(builder);
         builder.append('}');

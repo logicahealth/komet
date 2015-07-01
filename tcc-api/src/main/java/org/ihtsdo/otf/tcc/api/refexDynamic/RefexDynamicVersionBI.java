@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.api.refexDynamic;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
 import java.io.IOException;
 import javax.naming.InvalidNameException;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
@@ -22,7 +22,7 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 public interface RefexDynamicVersionBI<A extends RefexDynamicVersionBI<A>> extends ComponentVersionBI, RefexDynamicChronicleBI<A> {
     @Override
     default int getAssociatedConceptNid() {
-        IdentifierService ids = LookupService.getService(IdentifierService.class);
+        IdentifierService ids = Get.identifierService();
         return ids.getConceptNid(ids.getConceptSequenceForComponentNid(getReferencedComponentNid()));
     }
     /**

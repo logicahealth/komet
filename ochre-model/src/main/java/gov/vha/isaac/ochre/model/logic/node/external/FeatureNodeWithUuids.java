@@ -6,6 +6,7 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -14,7 +15,6 @@ import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithNids;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -41,7 +41,7 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
     public FeatureNodeWithUuids(FeatureNodeWithNids internalNode) throws IOException {
         super(internalNode);
         operator = internalNode.getOperator();
-        unitsConceptUuid = getIdentifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptNid()).get();
+        unitsConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptNid()).get();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
     public String toString() {
         return "FeatureNode[" + getNodeIndex() + "]: " +
                  operator +
-                ", units:" + getConceptService().getConcept(unitsConceptUuid).toUserString() +
+                ", units:" + Get.conceptService().getConcept(unitsConceptUuid).toUserString() +
                 super.toString();
     }
     

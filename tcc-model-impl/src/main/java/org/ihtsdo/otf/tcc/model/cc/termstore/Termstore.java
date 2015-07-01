@@ -16,8 +16,7 @@
 package org.ihtsdo.otf.tcc.model.cc.termstore;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
@@ -53,7 +52,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import java.security.NoSuchAlgorithmException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,14 +64,6 @@ import java.util.logging.Logger;
  */
 public abstract class Termstore implements PersistentStoreI {
 
-    private static IdentifierService identifierService = null;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-    
     protected static ViewCoordinate metadataVC = null;
 
     /**
@@ -339,13 +329,6 @@ public abstract class Termstore implements PersistentStoreI {
         return getComponent(cc.getNid());
     }
 
-    private static IdentifiedObjectService ios;
-    private IdentifiedObjectService getIdentifiedObjectService() {
-        if (ios == null) {
-            ios = LookupService.getService(IdentifiedObjectService.class);
-        }
-        return ios;
-    }
     /**
      * Method description
      *
@@ -359,7 +342,7 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public final ComponentChronicleBI<?> getComponent(int nid) throws IOException {
         Optional<? extends ObjectChronology<? extends StampedVersion>> result = 
-                getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
+                Get.getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
         if (result.isPresent()) {
             return (ComponentChronicleBI<?>) result.get();
         }

@@ -2,8 +2,7 @@ package org.ihtsdo.otf.tcc.ddo.concept.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
@@ -32,7 +31,6 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 //J+
 public abstract class RefexChronicleDdo<V extends ComponentVersionDdo, T extends SememeVersion>
         extends ComponentChronicleDdo<V, T> {
-    private static final IdentifierService identifierService = LookupService.getService(IdentifierService.class);
 
    /** Field description */
    public static final long serialVersionUID = 1;
@@ -69,7 +67,7 @@ public abstract class RefexChronicleDdo<V extends ComponentVersionDdo, T extends
           another.getReferencedComponentNid(), 
               ss.getStampCoordinate(), ss.getLanguageCoordinate());
       this.refexExtensionIdentifierReference =
-         new ComponentReference(identifierService.getConceptNid(another.getAssemblageSequence()), 
+         new ComponentReference(Get.identifierService().getConceptNid(another.getAssemblageSequence()), 
               ss.getStampCoordinate(), ss.getLanguageCoordinate());
    }
 

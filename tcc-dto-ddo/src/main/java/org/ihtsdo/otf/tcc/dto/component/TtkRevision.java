@@ -1,16 +1,13 @@
 package org.ihtsdo.otf.tcc.dto.component;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.collections.LruCache;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -32,42 +29,6 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
 
     private static final long serialVersionUID = 1;
 
-    private static IdentifierService idService = null;
-
-    protected static IdentifierService getIdService() {
-        if (idService == null) {
-            idService = LookupService.getService(IdentifierService.class);
-        }
-        return idService;
-    }
-
-    private static CommitService commitService;
-
-    protected static CommitService getCommitService() {
-        if (commitService == null) {
-            commitService = LookupService.getService(CommitService.class);
-        }
-        return commitService;
-    }
-
-    private static ConceptService conceptService;
-
-    protected static ConceptService getConceptService() {
-        if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptService.class);
-        }
-        return conceptService;
-    }
-
-    private static IdentifiedObjectService identifiedObjectService;
-
-    protected static IdentifiedObjectService getIdentifiedObjectService() {
-        if (identifiedObjectService == null) {
-            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
-        }
-        return identifiedObjectService;
-    }
-
     @XmlAttribute
     public long time = Long.MIN_VALUE;
     @XmlAttribute
@@ -86,9 +47,9 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
     public TtkRevision(StampedVersion another) {
         super();
         this.status = Status.getStatusFromState(another.getState());
-        this.authorUuid = getIdService().getUuidPrimordialFromConceptSequence(another.getAuthorSequence()).get();
-        this.pathUuid = getIdService().getUuidPrimordialFromConceptSequence(another.getPathSequence()).get();
-        this.moduleUuid = getIdService().getUuidPrimordialFromConceptSequence(another.getModuleSequence()).get();
+        this.authorUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(another.getAuthorSequence()).get();
+        this.pathUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(another.getPathSequence()).get();
+        this.moduleUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(another.getModuleSequence()).get();
         assert pathUuid != null : another;
         assert authorUuid != null : another;
         assert status != null : another;
@@ -137,7 +98,7 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
 
     @Override
     public int getStampSequence() {
-        return getCommitService().getStampSequence(getState(), time, getAuthorSequence(),
+        return Get.commitService().getStampSequence(getState(), time, getAuthorSequence(),
                 getModuleSequence(), getPathSequence());
     }
 
@@ -148,7 +109,7 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
 
     @Override
     public int getAuthorSequence() {
-        return getIdService().getConceptSequenceForUuids(authorUuid);
+        return Get.identifierService().getConceptSequenceForUuids(authorUuid);
     }
 
     private static ThreadLocal<LinkedHashMap<UUID, Integer>> moduleSequenceCache =
@@ -166,7 +127,7 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
             return pathSequence;
         }
 
-        int intPathSequence = getIdService().getConceptSequenceForUuids(moduleUuid);
+        int intPathSequence = Get.identifierService().getConceptSequenceForUuids(moduleUuid);
         moduleSequenceCache.get().put(moduleUuid, intPathSequence);
         return intPathSequence;
     }
@@ -186,7 +147,7 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
             return pathSequence;
         }
 
-        int intPathSequence = getIdService().getConceptSequenceForUuids(pathUuid);
+        int intPathSequence = Get.identifierService().getConceptSequenceForUuids(pathUuid);
         pathSequenceCache.get().put(pathUuid, intPathSequence);
         return intPathSequence;
     }
@@ -278,28 +239,30 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
         if (uuid == null) {
             return "NULL UUID";
         }
-        if (getConceptService() == null) {
+        if (Get.conceptService() == null) {
             return uuid.toString();
         }
 
         StringBuilder sb = new StringBuilder();
 
-        if (getIdService().hasUuid(uuid)) {
-            int nid = getIdService().getNidForUuids(uuid);
-            int conceptSequence = getIdService().getConceptSequenceForComponentNid(nid);
+        if (Get.identifierService().hasUuid(uuid)) {
+            int nid = Get.identifierService().getNidForUuids(uuid);
+            int conceptSequence = Get.identifierService().getConceptSequenceForComponentNid(nid);
             if (conceptSequence != Integer.MAX_VALUE) {
-                if (getIdService().getChronologyTypeForNid(nid) == ObjectChronologyType.CONCEPT) {
-                    ConceptChronology<? extends StampedVersion> cc
-                            = getConceptService().getConcept(conceptSequence);
+                if (Get.identifierService().getChronologyTypeForNid(nid) == ObjectChronologyType.CONCEPT) {
+                    Optional<? extends ConceptChronology<? extends ConceptVersion>> cco
+                            = Get.conceptService().getOptionalConcept(conceptSequence);
+                    if (cco.isPresent()) {
+                        sb.append("'");
+                        sb.append(cco.get().toUserString());
+                        sb.append("' ");
+                        sb.append(conceptSequence);
+                        sb.append(" ");
+                    } 
 
-                    sb.append("'");
-                    sb.append(cc.toUserString());
-                    sb.append("' ");
-                    sb.append(conceptSequence);
-                    sb.append(" ");
                 } else {
                     Optional<? extends ObjectChronology<? extends StampedVersion>> component = 
-                            getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
+                            Get.getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
 
                     if (component.isPresent()) {
                         sb.append("' ");

@@ -6,6 +6,7 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
@@ -36,7 +37,7 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     public TypedNodeWithUuids(TypedNodeWithNids internalForm) {
         super(internalForm);
-        this.typeConceptUuid = getIdentifierService().getUuidPrimordialForNid(internalForm.getTypeConceptNid()).get();
+        this.typeConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTypeConceptNid()).get();
     }
 
     public UUID getTypeConceptUuid() {
@@ -45,7 +46,7 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     @Override
     public String toString() {
-        return " type: \"" + getConceptService().getConcept(typeConceptUuid).toUserString() +"\""+ super.toString();
+        return " type: \"" + Get.conceptService().getConcept(typeConceptUuid).toUserString() +"\""+ super.toString();
     }
 
     public Node getOnlyChild() {

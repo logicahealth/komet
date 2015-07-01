@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
@@ -101,7 +102,7 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
         StringBuilder sb = new StringBuilder();
         sb.append("LogicGraphSememeImpl{");
         sb.append(getSememeType().toString());
-        LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getIdentifierService().getConceptSequence(getReferencedComponentNid()));
+        LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, Get.identifierService().getConceptSequence(getReferencedComponentNid()));
         sb.append("\n ");
         sb.append(lg.toString());
         toString(sb);

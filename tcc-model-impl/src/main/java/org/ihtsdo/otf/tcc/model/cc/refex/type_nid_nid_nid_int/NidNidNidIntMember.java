@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_nid_nid_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -223,7 +224,7 @@ public class NidNidNidIntMember
 
          if (getTime() != Long.MIN_VALUE) {
             list.add(new NidNidNidIntMemberVersion(this, this, primordialStamp));
-            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+            for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                 list.add(new NidNidNidIntMemberVersion(this, this, stampAlias));
             }
          }
@@ -232,7 +233,7 @@ public class NidNidNidIntMember
             for (NidNidNidIntRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
                   list.add(new NidNidNidIntMemberVersion(r, this, r.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                         list.add(new NidNidNidIntMemberVersion(r, this, stampAlias));
                     }
                }

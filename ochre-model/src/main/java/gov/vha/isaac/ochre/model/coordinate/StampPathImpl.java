@@ -15,9 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.PathService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.util.Collection;
@@ -28,29 +26,12 @@ import java.util.Collection;
  */
 public class StampPathImpl implements StampPath {
     
-    private static PathService pathService = null;
-    private static PathService getPathService() {
-        if (pathService == null) {
-            pathService = LookupService.getService(PathService.class);
-            if (pathService == null) {
-                throw new RuntimeException("PathService not found.");
-            }
-        }
-        return pathService;
-    }
-    private static IdentifierService identifierService;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-    
+
     private final int pathConceptSequence;
 
     public StampPathImpl(int pathConceptSequence) {
         if (pathConceptSequence < 0) {
-            pathConceptSequence = getIdentifierService().getConceptSequence(pathConceptSequence);
+            pathConceptSequence = Get.identifierService().getConceptSequence(pathConceptSequence);
         }
         this.pathConceptSequence = pathConceptSequence;
     }
@@ -62,7 +43,7 @@ public class StampPathImpl implements StampPath {
 
     @Override
     public Collection<? extends StampPosition> getPathOrigins() {
-        return getPathService().getOrigins(pathConceptSequence);
+        return Get.pathService().getOrigins(pathConceptSequence);
     }
     
 }

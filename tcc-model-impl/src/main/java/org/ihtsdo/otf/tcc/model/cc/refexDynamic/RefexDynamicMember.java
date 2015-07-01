@@ -18,6 +18,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refexDynamic;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
@@ -47,7 +48,6 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicRevision;
@@ -321,7 +321,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new RefexDynamicMemberVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new RefexDynamicMemberVersion(this, this, stampAlias));
                 }
             }
@@ -329,7 +329,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
             if (revisions != null) {
                 for (RefexDynamicRevision rv : revisions) {
                     list.add(new RefexDynamicMemberVersion(rv, this, rv.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(rv.getStamp())) {
+                    for (int stampAlias : Get.commitService().getAliases(rv.getStamp())) {
                         list.add(new RefexDynamicMemberVersion(rv, this, stampAlias));
                     }
                 }

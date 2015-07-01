@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import java.util.Collection;
 import java.util.stream.IntStream;
@@ -39,11 +40,11 @@ public class SememeSequenceSet extends SequenceSet {
     }
     
     public static SememeSequenceSet ofAllSememeSequences() {
-        return new SememeSequenceSet(getIdentifierService().getSememeSequenceStream());
+        return new SememeSequenceSet(Get.identifierService().getSememeSequenceStream());
     }
     
     public static SememeSequenceSet of(NidSet sememeNidSet) {
-        IdentifierService sp = getIdentifierService();
+        IdentifierService sp = Get.identifierService();
         return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
     }
     

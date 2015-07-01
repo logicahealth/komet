@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex;
 
 //import org.dwfa.ace.api.I_IntSet;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -278,7 +279,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new RefexMemberVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new RefexMemberVersion(this, this, stampAlias));
                 }
             }
@@ -287,7 +288,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
                 for (RefexRevision r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
                         list.add(new RefexMemberVersion(r, this, r.stamp));
-                        for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                             list.add(new RefexMemberVersion(r, this, stampAlias));
                         }
                     }
@@ -373,12 +374,12 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
 
     @Override
     public int getSememeSequence() {
-        return getIdService().getSememeSequence(getNid());
+        return Get.identifierService().getSememeSequence(getNid());
     }
 
     @Override
     public int getAssemblageSequence() {
-        return getIdService().getConceptSequence(assemblageNid);
+        return Get.identifierService().getConceptSequence(assemblageNid);
     }
 
     @Override

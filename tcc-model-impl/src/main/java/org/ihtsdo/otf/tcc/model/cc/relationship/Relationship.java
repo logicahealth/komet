@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.relationship;
 
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
@@ -25,7 +26,6 @@ import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipAnalogBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
@@ -383,7 +383,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new RelationshipVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new RelationshipVersion(this, this, stampAlias));
                 }
             }
@@ -392,7 +392,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
                 for (RelationshipRevision r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
                         list.add(new RelationshipVersion(r, this, r.stamp));
-                        for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                             list.add(new RelationshipVersion(r, this, stampAlias));
                         }
                     }

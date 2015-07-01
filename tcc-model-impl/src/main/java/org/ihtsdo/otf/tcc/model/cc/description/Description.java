@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -29,14 +30,12 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
-import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
-import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getIdentifierService;
 import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getLanguageCoordinateService;
 import org.ihtsdo.otf.tcc.model.version.VersionComputer;
 
@@ -336,7 +335,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new DescriptionVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new DescriptionVersion(this, this, stampAlias));
                 }
             }
@@ -345,7 +344,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
                 for (DescriptionRevision rev : revisions) {
                     if (rev.getTime() != Long.MIN_VALUE) {
                         list.add(new DescriptionVersion(rev, this, rev.stamp));
-                        for (int stampAlias : getCommitManager().getAliases(rev.stamp)) {
+                        for (int stampAlias : Get.commitService().getAliases(rev.stamp)) {
                             list.add(new DescriptionVersion(rev, this, stampAlias));
                         }
                     }
@@ -447,7 +446,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
 
     @Override
     public int getCaseSignificanceConceptSequence() {
-        return getIdentifierService().getConceptSequence(
+        return Get.identifierService().getConceptSequence(
                 getLanguageCoordinateService().caseSignificanceToConceptSequence(isInitialCaseSignificant()));
     }
 
@@ -458,7 +457,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
 
     @Override
     public int getDescriptionTypeConceptSequence() {
-        return getIdentifierService().getConceptSequence(getTypeNid());
+        return Get.identifierService().getConceptSequence(getTypeNid());
     }
 
     @Override

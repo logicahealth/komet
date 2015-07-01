@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
@@ -31,9 +32,21 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface ConceptService {
     
-    ConceptChronology<? extends ConceptVersion> getConcept(int conceptSequence);
-    
+    ConceptChronology<? extends ConceptVersion> getConcept(int conceptId);
     ConceptChronology<? extends ConceptVersion> getConcept(UUID... conceptUuids);
+    
+    /**
+     * Use in circumstances when not all concepts may have been loaded. 
+     * @param conceptId Either a nid or concept sequence
+     * @return an Optional ConceptChronology.
+     */
+    Optional<? extends ConceptChronology<? extends ConceptVersion>> getOptionalConcept(int conceptId);
+    /**
+     * Use in circumstances when not all concepts may have been loaded. 
+     * @param conceptUuids uuids that identify the concept
+     * @return an Optional ConceptChronology.
+     */
+    Optional<? extends ConceptChronology<? extends ConceptVersion>> getOptionalConcept(UUID... conceptUuids);
     
     void writeConcept(ConceptChronology<? extends ConceptVersion> concept);
 
@@ -50,7 +63,7 @@ public interface ConceptService {
     Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
     
     /**
-     * For compatability reasons only. 
+     * For backward compatability reasons only. 
      * @return 
      */
     ConceptService getDelegate();

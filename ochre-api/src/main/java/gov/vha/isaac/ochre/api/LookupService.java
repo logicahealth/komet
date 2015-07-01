@@ -18,12 +18,10 @@ package gov.vha.isaac.ochre.api;
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import gov.vha.isaac.ochre.api.constants.Constants;
 import gov.vha.isaac.ochre.util.HeadlessToolkit;
-import gov.vha.isaac.ochre.util.WorkExecutors;
 import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import com.sun.javafx.application.PlatformImpl;
+import org.glassfish.hk2.api.ServiceLocatorFactory;
 
 /**
  *
@@ -42,7 +41,7 @@ public class LookupService {
     private static final Logger log = LogManager.getLogger();
     private static volatile ServiceLocator looker = null;
     public static final int ISAAC_STARTED_RUNLEVEL = 4;
-    public static final int ISAAC_STOPPED_RUNLEVEL = -1;
+    public static final int ISAAC_STOPPED_RUNLEVEL = -2;
     private static final Object lock = new Object();
 
     /**
@@ -61,14 +60,12 @@ public class LookupService {
                         // No need to do anything here
                         });
                     
-                    ArrayList<String> packagesToSearch = new ArrayList<String>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
+                    ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
 
                     boolean readInhabitantFiles = Boolean.getBoolean(System.getProperty(Constants.READ_INHABITANT_FILES, "false"));
                     if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
                         String[] extraPackagesToSearch = System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH).split(";");
-                        for (String packageToSearch: extraPackagesToSearch) {
-                            packagesToSearch.add(packageToSearch);
-                        }
+                        packagesToSearch.addAll(Arrays.asList(extraPackagesToSearch));
                     }
                     try {
                         String[] packages = packagesToSearch.toArray(new String[]{});
@@ -177,7 +174,7 @@ public class LookupService {
          * ensure they are stopped during an isaac shutdown sequence.
          */
         if (runLevel <= ISAAC_STOPPED_RUNLEVEL) {
-            get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
+            //get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
         }
     }
     
@@ -188,7 +185,7 @@ public class LookupService {
         //Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial 
         //init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
         //should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID. 
-        getService(WorkExecutors.class).getExecutor().execute(() -> UUID.randomUUID());
+        //getService(WorkExecutors.class).getExecutor().execute(() -> UUID.randomUUID());
         setRunLevel(ISAAC_STARTED_RUNLEVEL);
     }
     
@@ -197,6 +194,12 @@ public class LookupService {
      */
     public static void shutdownIsaac() {
         setRunLevel(ISAAC_STOPPED_RUNLEVEL);
+        log.info("Service caches: " + looker.getAllServices(OchreCache.class));
+        looker.getAllServices(OchreCache.class)
+                .forEach((cache) -> {cache.reset();});
+        looker.shutdown();
+        ServiceLocatorFactory.getInstance().destroy(looker);
+        looker = null;
     }
     
     /**

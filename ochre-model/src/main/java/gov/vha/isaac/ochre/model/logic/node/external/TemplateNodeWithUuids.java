@@ -7,6 +7,7 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -50,8 +51,8 @@ public class TemplateNodeWithUuids extends AbstractNode {
 
     public TemplateNodeWithUuids(TemplateNodeWithNids internalForm) {
         super(internalForm);
-        this.templateConceptUuid = getIdentifierService().getUuidPrimordialForNid(internalForm.getTemplateConceptNid()).get();
-        this.assemblageConceptUuid =getIdentifierService().getUuidPrimordialForNid(internalForm.getAssemblageConceptNid()).get();
+        this.templateConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTemplateConceptNid()).get();
+        this.assemblageConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getAssemblageConceptNid()).get();
     }
 
 
@@ -92,8 +93,8 @@ public class TemplateNodeWithUuids extends AbstractNode {
     @Override
     public String toString() {
         return "TemplateNode[" + getNodeIndex() + "]: "
-                + "assemblage: " + getConceptService().getConcept(assemblageConceptUuid).toUserString()
-                + ", template: " + getConceptService().getConcept(templateConceptUuid).toUserString()
+                + "assemblage: " + Get.conceptService().getConcept(assemblageConceptUuid).toUserString()
+                + ", template: " + Get.conceptService().getConcept(templateConceptUuid).toUserString()
                 + super.toString();
     }
 

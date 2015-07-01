@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 kec.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.classifier;
+package gov.vha.isaac.ochre.api;
 
-import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
-import gov.vha.isaac.ochre.api.logic.LogicalExpression;
-import javafx.concurrent.Task;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
- *
+ * Contract for data or service caches that need to be reset when the services
+ * are started and stopped on possibly different databases. 
  * @author kec
  */
-public interface ClassifierService {
-    
-    Task<ClassifierResults> classify();
-
-    Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, 
-            EditCoordinate editCoordinate);
-    
+@Contract
+public interface OchreCache {
+    /**
+     * Eliminate all references to cached services or data. 
+     */
+    void reset();
 }

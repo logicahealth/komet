@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
@@ -92,14 +93,8 @@ public class ConceptVersion implements ConceptVersionBI,
         Comparable<ConceptVersion>, ConceptSnapshot {
 
     private static NidSetBI classifierCharacteristics_;
-    private static IdentifierService sequenceService = null; 
-    protected static IdentifierService getSequenceService() {
-        if (sequenceService == null) {
-            sequenceService = LookupService.getService(IdentifierService.class);
-        }
-        return sequenceService;
-    }
-   //~--- fields --------------------------------------------------------------
+
+    //~--- fields --------------------------------------------------------------
     private ConceptChronicle concept;
 
     NidListBI fsnOrder;
@@ -681,17 +676,17 @@ public class ConceptVersion implements ConceptVersionBI,
 
     @Override
     public int getAuthorSequence() {
-        return getSequenceService().getConceptSequence(getAuthorNid());
+        return Get.identifierService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getSequenceService().getConceptSequence(getModuleNid());
+        return Get.identifierService().getConceptSequence(getModuleNid());
    }
 
     @Override
     public int getPathSequence() {
-        return getSequenceService().getConceptSequence(getPathNid());
+        return Get.identifierService().getConceptSequence(getPathNid());
    }
 
     @Override

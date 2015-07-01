@@ -16,7 +16,7 @@
 
 package org.ihtsdo.otf.tcc.model.cc.description;
 
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LanguageCoordinateService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
@@ -45,15 +45,7 @@ import org.ihtsdo.otf.tcc.model.cc.component.Version;
 //~--- inner classes -------------------------------------------------------
 
 public class DescriptionVersion extends Version<DescriptionRevision, Description> implements DescriptionAnalogBI<DescriptionRevision>, TypedComponentVersionBI {
-    
-    private static IdentifierService identfierService;
-    protected static IdentifierService getIdentifierService() {
-        if (identfierService == null) {
-            identfierService = LookupService.getService(IdentifierService.class);
-        }
-        return identfierService;
-    }
-    
+
     private static LanguageCoordinateService languageCoordinateService;
     protected static LanguageCoordinateService getLanguageCoordinateService() {
         if (languageCoordinateService == null) {
@@ -223,7 +215,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
 
     @Override
     public int getCaseSignificanceConceptSequence() {
-        return getIdentifierService().getConceptSequence(
+        return Get.identifierService().getConceptSequence(
                 getLanguageCoordinateService().caseSignificanceToConceptSequence(isInitialCaseSignificant()));
     }
 
@@ -234,7 +226,7 @@ public class DescriptionVersion extends Version<DescriptionRevision, Description
 
     @Override
     public int getDescriptionTypeConceptSequence() {
-        return getIdentifierService().getConceptSequence(getTypeNid());
+        return Get.identifierService().getConceptSequence(getTypeNid());
     }
 
     @Override

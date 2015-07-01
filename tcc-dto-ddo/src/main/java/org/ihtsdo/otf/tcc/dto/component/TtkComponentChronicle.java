@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.dto.component;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
@@ -843,7 +844,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
 
     @Override
     public int getNid() {
-        return getIdService().getNidForUuids(getPrimordialComponentUuid());
+        return Get.identifierService().getNidForUuids(getPrimordialComponentUuid());
     }
 
     @Override

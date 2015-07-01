@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.observable.model;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
@@ -24,7 +25,6 @@ import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
@@ -62,8 +62,6 @@ public abstract class ObservableChronologyImpl<
     private static final ObservableChronologyService ocs = 
             LookupService.getService(ObservableChronologyService.class);
 
-    private static final SememeService sememeService = 
-            LookupService.getService(SememeService.class);
     
     private ListProperty<? extends OV> versionListProperty;
     private IntegerProperty nidProperty;
@@ -211,7 +209,7 @@ public abstract class ObservableChronologyImpl<
         if (sememeListProperty == null) {
             ObservableList<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeList = 
                     FXCollections.emptyObservableList();
-            sememeService.getSememeSequencesForComponent(getNid()).stream()
+            Get.sememeService().getSememeSequencesForComponent(getNid()).stream()
                     .forEach((sememeSequence) -> 
                             sememeList.add(ocs.getObservableSememeChronology(sememeSequence)));
             sememeListProperty = new SimpleListProperty(this,

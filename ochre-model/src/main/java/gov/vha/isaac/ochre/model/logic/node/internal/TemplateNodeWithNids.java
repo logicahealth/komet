@@ -1,6 +1,7 @@
 package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -45,8 +46,8 @@ public final class TemplateNodeWithNids extends AbstractNode {
 
     public TemplateNodeWithNids(TemplateNodeWithUuids externalForm) {
         super(externalForm);
-        this.templateConceptNid = getIdentifierService().getNidForUuids(externalForm.getTemplateConceptUuid());
-        this.assemblageConceptNid = getIdentifierService().getNidForUuids(externalForm.getAssemblageConceptUuid());
+        this.templateConceptNid = Get.identifierService().getNidForUuids(externalForm.getTemplateConceptUuid());
+        this.assemblageConceptNid = Get.identifierService().getNidForUuids(externalForm.getAssemblageConceptUuid());
     }
 
     @Override
@@ -84,8 +85,8 @@ public final class TemplateNodeWithNids extends AbstractNode {
     @Override
     public String toString() {
         return "TemplateNode[" + getNodeIndex() + "]: "
-                + "assemblage: " + getConceptService().getConcept(assemblageConceptNid).toUserString()
-                + ", template: " + getConceptService().getConcept(templateConceptNid).toUserString()
+                + "assemblage: " + Get.conceptService().getConcept(assemblageConceptNid).toUserString()
+                + ", template: " + Get.conceptService().getConcept(templateConceptNid).toUserString()
                 + super.toString();
     }
 
@@ -130,8 +131,8 @@ public final class TemplateNodeWithNids extends AbstractNode {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                getIdentifierService().getUuidPrimordialForNid(assemblageConceptNid).toString()
-                        + getIdentifierService().getUuidPrimordialForNid(templateConceptNid).toString());
+                Get.identifierService().getUuidPrimordialForNid(assemblageConceptNid).toString()
+                        + Get.identifierService().getUuidPrimordialForNid(templateConceptNid).toString());
 
     }
 

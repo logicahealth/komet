@@ -1,6 +1,7 @@
 package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -37,7 +38,7 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
     public FeatureNodeWithNids(FeatureNodeWithUuids externalForm) {
         super(externalForm);
         operator = externalForm.getOperator();
-        unitsConceptNid = getIdentifierService().getNidForUuids(externalForm.getUnitsConceptUuid());
+        unitsConceptNid = Get.identifierService().getNidForUuids(externalForm.getUnitsConceptUuid());
     }
 
     @Override
@@ -65,9 +66,9 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                getIdentifierService().getUuidPrimordialForNid(typeConceptNid).toString()
+                Get.identifierService().getUuidPrimordialForNid(typeConceptNid).toString()
                         + operator
-                        + getIdentifierService().getUuidPrimordialForNid(unitsConceptNid).toString());
+                        + Get.identifierService().getUuidPrimordialForNid(unitsConceptNid).toString());
 
     }
 
@@ -103,7 +104,7 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
     public String toString() {
         return "FeatureNode[" + getNodeIndex() + "]: "
                 + operator
-                + ", units:" + getConceptService().getConcept(unitsConceptNid).toUserString()
+                + ", units:" + Get.conceptService().getConcept(unitsConceptNid).toUserString()
                 + super.toString();
     }
 

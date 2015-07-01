@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LanguageCoordinateService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
@@ -45,7 +45,6 @@ import org.ihtsdo.otf.tcc.api.contradiction.strategy.LastCommitWins;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 @XmlRootElement(name = "viewCoordinate")
 @XmlAccessorType(XmlAccessType.PROPERTY)
@@ -701,7 +700,7 @@ public class ViewCoordinate implements StampCoordinate,
                 throw new RuntimeException(ex);
             }
         }
-        return getSequenceProvider().getConceptSequence(this.statedAssemblageNid);
+        return Get.identifierService().getConceptSequence(this.statedAssemblageNid);
     }
 
     @Override
@@ -713,7 +712,7 @@ public class ViewCoordinate implements StampCoordinate,
                 throw new RuntimeException(ex);
             } 
         }
-        return getSequenceProvider().getConceptSequence(this.inferredAssemblageNid);
+        return Get.identifierService().getConceptSequence(this.inferredAssemblageNid);
     }
 
     @Override
@@ -727,20 +726,12 @@ public class ViewCoordinate implements StampCoordinate,
                 throw new RuntimeException(ex);
             }
         }
-        return getSequenceProvider().getConceptSequence(this.descriptionLogicProfileNid);
-    }
-    private static IdentifierService sequenceProvider;
-
-    private static IdentifierService getSequenceProvider() {
-        if (sequenceProvider == null) {
-            sequenceProvider = Hk2Looker.getService(IdentifierService.class);
-        }
-        return sequenceProvider;
+        return Get.identifierService().getConceptSequence(this.descriptionLogicProfileNid);
     }
 
     @Override
     public int getClassifierSequence() {
-        return getSequenceProvider().getConceptSequence(classifierNid);
+        return Get.identifierService().getConceptSequence(classifierNid);
     }
 
     @Override
@@ -793,7 +784,7 @@ public class ViewCoordinate implements StampCoordinate,
 
     @Override
     public int getLanugageConceptSequence() {
-        return getSequenceProvider().getConceptSequence(getLanguageNid());
+        return Get.identifierService().getConceptSequence(getLanguageNid());
     }
 
     @Override
@@ -802,7 +793,7 @@ public class ViewCoordinate implements StampCoordinate,
         int[] sequences = new int[prefNidList.size()];
         int[] nids = prefNidList.getListArray();
         for (int i = 0; i < sequences.length; i++) {
-            sequences[i] = getSequenceProvider().getConceptSequence(nids[i]);
+            sequences[i] = Get.identifierService().getConceptSequence(nids[i]);
         }
         return sequences;
     }

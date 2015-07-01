@@ -1,6 +1,7 @@
 package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
@@ -48,7 +49,7 @@ public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                getIdentifierService().getUuidPrimordialForNid(typeConceptNid).toString());
+                Get.identifierService().getUuidPrimordialForNid(typeConceptNid).toString());
     }
 
     @Override

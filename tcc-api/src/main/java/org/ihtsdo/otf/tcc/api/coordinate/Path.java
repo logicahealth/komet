@@ -2,15 +2,13 @@ package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import java.util.Collection;
@@ -25,10 +23,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.store.Ts;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 @XmlRootElement(name = "path")
 @XmlAccessorType(XmlAccessType.PROPERTY)
@@ -240,18 +236,10 @@ public class Path implements StampPath, Externalizable {
         }
     }
     
-    private static IdentifierService sequenceProvider;
-    
-    private static IdentifierService getSequenceProvider() {
-        if (sequenceProvider == null) {
-            sequenceProvider = Hk2Looker.getService(IdentifierService.class);
-        }
-        return sequenceProvider;
-    }
 
     @Override
     public int getPathConceptSequence() {
-        return getSequenceProvider().getConceptSequence(getConceptNid());
+        return Get.identifierService().getConceptSequence(getConceptNid());
     }
 
     @Override

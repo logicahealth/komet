@@ -18,6 +18,7 @@
  */
 package gov.vha.isaac.ochre.util;
 
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -31,6 +32,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 /**
@@ -55,8 +57,10 @@ import org.jvnet.hk2.annotations.Service;
  */
 
 @Service
-@Singleton
-//Do not manage these via RunLevel, as they are useful in various places before the DB load request occurs - which is primarily what Runlevel manages now.
+@RunLevel(value = -1)
+//KEC: I converted these to use runlevels, but at a runlevel prior to the rest of the 
+//ISAAC services. These workers where not shutting down when Isaac was shutdown, 
+//now they cleanly shutdown and restart. 
 public class WorkExecutors
 {
 	private ForkJoinPool forkJoinExecutor_;
@@ -113,6 +117,7 @@ public class WorkExecutors
 			return t;
 		}));
 		threadPoolExecutor_.allowCoreThreadTimeOut(true);
+		getExecutor().execute(() -> UUID.randomUUID());
 		log.debug("WorkExecutors thread pools ready");
 	}
 

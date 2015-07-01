@@ -15,9 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 
@@ -27,29 +25,12 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
  */
 public class StampPositionImpl implements StampPosition, Comparable<StampPosition> {
     
-    private static IdentifiedObjectService identifiedObjectService;
-    private static IdentifiedObjectService getIdentifiedObjectService() {
-        if (identifiedObjectService == null) {
-            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
-        }
-        return identifiedObjectService;
-    }
-    
-    private static IdentifierService identifierService;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-    
-    
     long time;
     int stampPathSequence;
 
     public StampPositionImpl(long time, int stampPathSequence) {
         this.time = time;
-        this.stampPathSequence = getIdentifierService().getConceptSequence(stampPathSequence);
+        this.stampPathSequence = Get.identifierService().getConceptSequence(stampPathSequence);
     }
 
     @Override
@@ -101,7 +82,7 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
         } else {
             sb.append(getTimeAsInstant());
         }
-        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(getIdentifiedObjectService().informAboutObject(stampPathSequence)).append('}');
+        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(Get.getIdentifiedObjectService().informAboutObject(stampPathSequence)).append('}');
         return sb.toString();
     }
 

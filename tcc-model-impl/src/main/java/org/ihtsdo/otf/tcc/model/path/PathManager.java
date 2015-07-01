@@ -17,8 +17,7 @@
 package org.ihtsdo.otf.tcc.model.path;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.PathService;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
@@ -56,13 +55,6 @@ public class PathManager implements PathService {
 
     private static final Logger logger = Logger.getLogger(PathManager.class.getName());
     private static Lock l = new ReentrantLock();
-    private static IdentifierService identifierService;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
 
     //~--- fields --------------------------------------------------------------
     private ConcurrentHashMap<Integer, Path> pathMap_;
@@ -81,7 +73,7 @@ public class PathManager implements PathService {
     @Override
     public boolean exists(int pathConceptId) {
         if (pathConceptId >= 0) {
-            pathConceptId = getIdentifierService().getConceptNid(pathConceptId);
+            pathConceptId = Get.identifierService().getConceptNid(pathConceptId);
         }
         try {
             if (getPathMap().containsKey(pathConceptId)) {
@@ -148,7 +140,7 @@ public class PathManager implements PathService {
     @Override
     public Collection<? extends StampPosition> getOrigins(int stampPathSequence) {
         if (stampPathSequence < 0) {
-            stampPathSequence = getIdentifierService().getConceptSequence(stampPathSequence);
+            stampPathSequence = Get.identifierService().getConceptSequence(stampPathSequence);
         }
         return getPathOriginsFromDb(stampPathSequence);
     }
@@ -253,7 +245,7 @@ public class PathManager implements PathService {
     @Override
     public StampPath getStampPath(int stampPathSequence) {
         if (stampPathSequence >= 0) {
-            stampPathSequence = getIdentifierService().getConceptNid(stampPathSequence);
+            stampPathSequence = Get.identifierService().getConceptNid(stampPathSequence);
         }
         if (exists(stampPathSequence)) {
             try {

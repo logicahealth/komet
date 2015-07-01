@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.PathService;
@@ -35,22 +36,7 @@ public class Position implements StampPosition, Externalizable {
      */
     private static final long serialVersionUID = 1L;
     
-    private static IdentifierService identifierService;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-    
-    private static ConceptService conceptService;
-    private static ConceptService getConceptService() {
-        if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptService.class);
-        }
-        return conceptService;
-    }
-    
+
     private static PathService pathService;
     private static PathService getPathService() {
         if (pathService == null) {
@@ -141,7 +127,7 @@ public class Position implements StampPosition, Externalizable {
     private boolean checkAntecedentOrEqualToOrigins(Collection<? extends StampPosition> origins, long testTime,
             int testPathId) {
         if (testPathId < 0) {
-            testPathId = getIdentifierService().getConceptSequence(testPathId);
+            testPathId = Get.identifierService().getConceptSequence(testPathId);
         }
         for (StampPosition origin : origins) {
             if (testPathId == origin.getStampPathSequence()) {
@@ -157,7 +143,7 @@ public class Position implements StampPosition, Externalizable {
     private boolean checkSubsequentOrEqualToOrigins(Collection<? extends StampPosition> origins, long testTime,
             int testPathId) {
         if (testPathId < 0) {
-            testPathId = getIdentifierService().getConceptSequence(testPathId);
+            testPathId = Get.identifierService().getConceptSequence(testPathId);
         }
          for (StampPosition origin : origins) {
             if (testPathId == origin.getStampPathSequence()) {
@@ -190,7 +176,7 @@ public class Position implements StampPosition, Externalizable {
 
     public boolean equals(long time, int pathId) {
         if (pathId < 0) {
-            pathId = getIdentifierService().getConceptSequence(pathId);
+            pathId = Get.identifierService().getConceptSequence(pathId);
         }
          return ((this.time == time) && (path.getPathConceptSequence() == pathId));
     }
@@ -205,7 +191,7 @@ public class Position implements StampPosition, Externalizable {
         StringBuilder buff = new StringBuilder();
 
         if (path != null) {
-            ConceptChronology cb = getConceptService().getConcept(path.getPathConceptSequence());
+            ConceptChronology cb = Get.conceptService().getConcept(path.getPathConceptSequence());
             buff.append(cb.toUserString());
         } else {
             buff.append("null path");
@@ -239,7 +225,7 @@ public class Position implements StampPosition, Externalizable {
     public int getDepth(int pathId) {
         int depth = 0;
         if (pathId < 0) {
-            pathId = getIdentifierService().getConceptSequence(pathId);
+            pathId = Get.identifierService().getConceptSequence(pathId);
         }
 
         if (pathId == path.getPathConceptSequence()) {
@@ -320,7 +306,7 @@ public class Position implements StampPosition, Externalizable {
 
     public boolean isAntecedentOrEqualTo(long time, int pathId) {
         if (pathId < 0) {
-            pathId = getIdentifierService().getConceptSequence(pathId);
+            pathId = Get.identifierService().getConceptSequence(pathId);
         }
         if (equals(time, pathId)) {
             return true;
@@ -346,7 +332,7 @@ public class Position implements StampPosition, Externalizable {
 
     public boolean isSubsequentOrEqualTo(long time, int pathId) {
         if (pathId < 0) {
-            pathId = getIdentifierService().getConceptSequence(pathId);
+            pathId = Get.identifierService().getConceptSequence(pathId);
         }
         if (equals(time, pathId)) {
             return true;

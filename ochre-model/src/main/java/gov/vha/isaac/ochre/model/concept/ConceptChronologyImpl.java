@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.concept;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
@@ -72,7 +73,7 @@ public class ConceptChronologyImpl
 
     @Override
     public ConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
-        int stampSequence = getCommitService().getStampSequence(state, Long.MAX_VALUE,
+        int stampSequence = Get.commitService().getStampSequence(state, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
         ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
         addVersion(newVersion);
@@ -98,19 +99,19 @@ public class ConceptChronologyImpl
 
     @Override
     public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
-        return getSememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
+        return Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
     }
 
     @Override
     public boolean containsDescription(String descriptionText) {
-        return getSememeService().getDescriptionsForComponent(getNid())
+        return Get.sememeService().getDescriptionsForComponent(getNid())
                 .anyMatch((desc) -> desc.getVersionList().stream().
                         anyMatch((version) -> version.getText().equals(descriptionText)));
     }
 
     @Override
     public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
-        return getSememeService().getSnapshot(DescriptionSememe.class, stampCoordinate)
+        return Get.sememeService().getSnapshot(DescriptionSememe.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch((latestVersion) -> latestVersion.value().getText().equals(descriptionText));
     }
@@ -155,7 +156,7 @@ public class ConceptChronologyImpl
         } else {
             assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
         }
-        return getSememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate)
+        return Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate)
                 .getLatestSememeVersion(assemblageSequence);
     }
     List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipList;

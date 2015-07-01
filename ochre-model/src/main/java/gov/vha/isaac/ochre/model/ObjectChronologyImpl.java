@@ -15,13 +15,11 @@
  */
 package gov.vha.isaac.ochre.model;
 
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
@@ -46,24 +44,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         implements ObjectChronology<V>, WaitFreeComparable {
-
-    private static CommitService commitManager;
-
-    protected static CommitService getCommitService() {
-        if (commitManager == null) {
-            commitManager = LookupService.getService(CommitService.class);
-        }
-        return commitManager;
-    }
-
-    private static SememeService sememeService;
-
-    protected static SememeService getSememeService() {
-        if (sememeService == null) {
-            sememeService = LookupService.getService(SememeService.class);
-        }
-        return sememeService;
-    }
 
     private static final StampedLock[] stampedLocks = new StampedLock[256];
 
@@ -280,7 +260,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         // add versions..
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
-            if (getCommitService().isNotCanceled(stampSequenceForVersion)) {
+            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
                 int startWritePosition = db.getPosition();
                 db.putInt(0); // placeholder for length
                 version.writeVersionData(db);
@@ -311,7 +291,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
-            if (getCommitService().isNotCanceled(stampSequenceForVersion)) {
+            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
                 writtenStamps.add(stampSequenceForVersion);
                 int startWritePosition = db.getPosition();
                 db.putInt(0); // placeholder for length
@@ -343,7 +323,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             if (versionLength > 0) {
                 int stampSequenceForVersion = writtenBuffer.getInt();
                 if ((!writtenStamps.contains(stampSequenceForVersion))
-                        && getCommitService().isNotCanceled(stampSequenceForVersion)) {
+                        && Get.commitService().isNotCanceled(stampSequenceForVersion)) {
                     writtenStamps.add(stampSequenceForVersion);
                     db.append(writtenBuffer, nextPosition, versionLength);
                 }
@@ -477,7 +457,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     @Override
     public CommitStates getCommitState() {
         if (getVersionStampSequences().anyMatch((stampSequence)
-                -> getCommitService().isUncommitted(stampSequence))) {
+                -> Get.commitService().isUncommitted(stampSequence))) {
             return CommitStates.UNCOMMITTED;
         }
         return CommitStates.COMMITTED;
@@ -571,19 +551,19 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
     @Override
     public List<SememeChronology<? extends SememeVersion>> getSememeList() {
-        return getSememeService().getSememesForComponent(nid).collect(Collectors.toList());
+        return Get.sememeService().getSememesForComponent(nid).collect(Collectors.toList());
     }
 
     @Override
     public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
-        return getSememeService().
+        return Get.sememeService().
                 getSememesForComponentFromAssemblage(nid, assemblageSequence).collect(Collectors.toList());
     }
 
     @Override
     public <SV extends SememeVersion> List<SememeChronology<SV>> 
         getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
-            List<SememeChronology<SV>> results = getSememeService().ofType(type).
+            List<SememeChronology<SV>> results = Get.sememeService().ofType(type).
                 getSememesForComponentFromAssemblage(nid, assemblageSequence)
                     .collect(Collectors.toList());
         return results;

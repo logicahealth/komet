@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -194,7 +195,7 @@ public class NidIntMember extends RefexMember<NidIntRevision, NidIntMember>
 
          if (getTime() != Long.MIN_VALUE) {
             list.add(new NidIntMemberVersion(this, this, primordialStamp));
-            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+            for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                 list.add(new NidIntMemberVersion(this, this, stampAlias));
             }
          }
@@ -203,7 +204,7 @@ public class NidIntMember extends RefexMember<NidIntRevision, NidIntMember>
             for (NidIntRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
                   list.add(new NidIntMemberVersion(r, this, r.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                         list.add(new NidIntMemberVersion(r, this, stampAlias));
                     }
                }
