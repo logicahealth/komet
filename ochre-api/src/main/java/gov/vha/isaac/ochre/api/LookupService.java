@@ -41,6 +41,7 @@ public class LookupService {
     private static final Logger log = LogManager.getLogger();
     private static volatile ServiceLocator looker = null;
     public static final int ISAAC_STARTED_RUNLEVEL = 4;
+    public static final int WORKERS_STARTED_RUNLEVEL = -1;
     public static final int ISAAC_STOPPED_RUNLEVEL = -2;
     private static final Object lock = new Object();
 
@@ -176,6 +177,13 @@ public class LookupService {
         if (runLevel <= ISAAC_STOPPED_RUNLEVEL) {
             //get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
         }
+    }
+    
+    /**
+     * Start the WorkExecutor services (without starting ISAAC core services), blocking until started (or failed). 
+     */
+    public static void startupWorkExecutors() {
+        setRunLevel(WORKERS_STARTED_RUNLEVEL);
     }
     
     /**
