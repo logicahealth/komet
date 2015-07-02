@@ -157,9 +157,9 @@ public class ComponentReference implements Externalizable {
         } else if (chronology instanceof SememeChronology) {
             SememeChronology sememeChronology = (SememeChronology) chronology;
             if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
-                Optional<DescriptionSememe> desc = sememeChronology.getLatestVersion(DescriptionSememe.class, stampCoordinate);
+                Optional<LatestVersion<DescriptionSememe>> desc = sememeChronology.getLatestVersion(DescriptionSememe.class, stampCoordinate);
                 if (desc.isPresent()) {
-                    text = desc.get().getText();
+                    text = desc.get().value().getText();
                 } else {
                     text =  chronology.toUserString();
                 }
