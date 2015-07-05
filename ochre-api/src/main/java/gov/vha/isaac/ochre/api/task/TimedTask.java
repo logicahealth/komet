@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.task;
 
+import gov.vha.isaac.ochre.api.ProgressTracker;
 import gov.vha.isaac.ochre.api.ticker.Ticker;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,16 +31,16 @@ import org.apache.logging.log4j.Logger;
  * @author kec
  * @param <T>
  */
-public abstract class TimedTask<T> extends Task<T> {
+public abstract class TimedTask<T> extends Task<T>  {
     
     private static final Logger log = LogManager.getLogger();
 
     public static int progressUpdateIntervalInSecs = 2;
 
-    Ticker updateTicker = new Ticker();
+    private final Ticker updateTicker = new Ticker();
 
-    Instant startTime;
-    Instant endTime;
+    private Instant startTime;
+    private Instant endTime;
 
     Consumer<TimedTask<T>> completeMessageGenerator;
     Consumer<TimedTask<T>> progressMessageGenerator;
@@ -92,6 +93,11 @@ public abstract class TimedTask<T> extends Task<T> {
      */
     static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
+    public String getFormattedDuration() {
+        return formatDuration(getDuration());
+    }
+    
+    
     private String formatDuration(Duration d) {
         StringBuilder builder = new StringBuilder();
         long seconds = d.getSeconds();
@@ -120,14 +126,22 @@ public abstract class TimedTask<T> extends Task<T> {
         return builder.append(nanos).append(" ns").toString();
     }
 
+    protected void setStartTime() {
+       startTime = Instant.now();
+    }
+    
     @Override
     protected void running() {
         super.running();
-        startTime = Instant.now();
+        if (startTime == null) {
+            startTime = Instant.now();
+        }
+        
         updateTicker.start(progressUpdateIntervalInSecs, (value) -> {
             if (progressMessageGenerator != null) {
                 progressMessageGenerator.accept(this);
             }
         });
     }
+
 }

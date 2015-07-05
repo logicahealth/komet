@@ -120,7 +120,7 @@ public class ComponentReference implements Externalizable {
         } else {
             this.nid = intId;
         }
-        Optional<? extends ObjectChronology<? extends StampedVersion>> component = Get.getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
+        Optional<? extends ObjectChronology<? extends StampedVersion>> component = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
         if (component.isPresent()) {
             setupComponent(component.get(), languageCoordinate, stampCoordinate);
         } else {

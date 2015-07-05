@@ -35,5 +35,15 @@ public class ConcurrentActiveTaskSet implements ActiveTaskSet {
     public Set<Task> get() {
         return taskSet;
     }
+
+    @Override
+    public void add(Task task) {
+        taskSet.add(task);
+    }
+
+    @Override
+    public void remove(Task task) {
+        taskSet.remove(task);
+    }
     
 }

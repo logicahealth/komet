@@ -13,7 +13,6 @@ import gov.vha.isaac.ochre.model.logic.node.external.ConceptNodeWithUuids;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.Optional;

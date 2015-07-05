@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
+import gov.vha.isaac.ochre.api.ProgressTracker;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import java.util.Optional;
@@ -29,7 +30,17 @@ public interface SememeSnapshotService<V extends SememeVersion> {
     
     Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequence);
     
-    Stream<LatestVersion<V>> getLatestSememeVersionsFromAssemblage(int assemblageSequence);
+    /**
+     * 
+     * @param assemblageSequence The sequence identifier of the assemblage to select 
+     * sememes from. 
+     * @param progressTrackers For each {@code progressTracker}, the addToTotalWork() will be
+     * updated with the total number of sememes to be processed, and each time a sememe is
+     * processed, {@code completedUnitOfWork()} will be called. 
+     * @return {@code Stream} of the {@code LatestVersion<V>} for each sememe according to the 
+     * criterion of this snapshot service. 
+     */
+    Stream<LatestVersion<V>> getLatestSememeVersionsFromAssemblage(int assemblageSequence, ProgressTracker... progressTrackers);
     
     Stream<LatestVersion<V>> getLatestSememeVersionsForComponent(int componentNid);
     

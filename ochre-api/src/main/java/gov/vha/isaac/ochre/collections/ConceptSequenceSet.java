@@ -67,4 +67,26 @@ public class ConceptSequenceSet extends SequenceSet {
     protected ConceptSequenceSet(OpenIntHashSet members) {
         super(members);
     }
+    
+    @Override
+    public void add(int item) {
+        rbmp.add(Get.identifierService().getConceptSequence(item));
+    }
+
+    @Override
+    public boolean contains(int item) {
+        return super.contains(Get.identifierService().getConceptSequence(item)); 
+    }
+
+    @Override
+    public void remove(int item) {
+        super.remove(Get.identifierService().getConceptSequence(item)); 
+    }
+
+    @Override
+    public void addAll(IntStream intStream) {
+        super.addAll(intStream.map((item) -> { return Get.identifierService().getConceptSequence(item);})); 
+    }
+    
+    
 }

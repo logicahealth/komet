@@ -18,6 +18,8 @@ package gov.vha.isaac.ochre.api;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.progress.ActiveTasks;
+import gov.vha.isaac.ochre.util.WorkExecutors;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +39,7 @@ import org.jvnet.hk2.annotations.Service;
 public class Get implements OchreCache {
     private static final Logger log = LogManager.getLogger();
 
+    private static ActiveTasks activeTaskSet;
     private static CommitService commitService;
     private static ConceptModel conceptModel;
     private static ConceptService conceptService;
@@ -45,8 +48,15 @@ public class Get implements OchreCache {
     private static PathService pathService;
     private static SememeService sememeService;
     private static TaxonomyService taxonomyService;
+    private static WorkExecutors workExecutors;
 
     public Get() {
+    }
+    public static ActiveTasks activeTasks() {
+        if (activeTaskSet == null) {
+            activeTaskSet = LookupService.getService(ActiveTasks.class);
+        }
+        return activeTaskSet;
     }
 
     public static ConceptService conceptService() {
@@ -98,17 +108,25 @@ public class Get implements OchreCache {
         return conceptModel;
     }
     
-    public static IdentifiedObjectService getIdentifiedObjectService() {
+    public static IdentifiedObjectService identifiedObjectService() {
         if (identifiedObjectService == null) {
             identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
         }
         return identifiedObjectService;
     }
     
+    public static WorkExecutors workExecutors() {
+        if (workExecutors == null) {
+            workExecutors = LookupService.getService(WorkExecutors.class);
+        }
+        return workExecutors;
+    }
+    
     
     @Override
     public void reset() {
         log.info("Resetting service cache.");
+        activeTaskSet = null;
         commitService = null;
         conceptModel = null;
         conceptService = null;
@@ -117,6 +135,7 @@ public class Get implements OchreCache {
         pathService = null;
         sememeService = null;
         taxonomyService = null;
+        workExecutors = null;
     }
     
 }

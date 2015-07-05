@@ -65,5 +65,22 @@ public class SememeSequenceSet extends SequenceSet {
     
     protected SememeSequenceSet(OpenIntHashSet members) {
         super(members);
-    }    
+    }  
+    
+    
+    @Override
+    public boolean contains(int item) {
+        return super.contains(Get.identifierService().getSememeSequence(item)); 
+    }
+
+    @Override
+    public void remove(int item) {
+        super.remove(Get.identifierService().getSememeSequence(item)); 
+    }
+
+    @Override
+    public void addAll(IntStream intStream) {
+        super.addAll(intStream.map((item) -> { return Get.identifierService().getSememeSequence(item);})); 
+    }
+
 }

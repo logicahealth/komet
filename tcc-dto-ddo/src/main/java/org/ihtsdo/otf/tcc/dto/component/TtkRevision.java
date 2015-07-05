@@ -262,7 +262,7 @@ public abstract class TtkRevision implements ExternalStampBI, StampedVersion {
 
                 } else {
                     Optional<? extends ObjectChronology<? extends StampedVersion>> component = 
-                            Get.getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
+                            Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
 
                     if (component.isPresent()) {
                         sb.append("' ");

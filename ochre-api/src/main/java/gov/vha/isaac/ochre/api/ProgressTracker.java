@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.api.component.sememe.version;
+package gov.vha.isaac.ochre.api;
 
 /**
- * Describes the referenced component in a way appropriate for the type and 
- * language specified by the sememe.
- * The description is annotated to provide support for dialect. 
+ *
  * @author kec
- * @param <V>
  */
-public interface DescriptionSememe<V extends DescriptionSememe> 
-    extends SememeVersion<V> {
-    int getCaseSignificanceConceptSequence();
-    int getLanguageConceptSequence();
-    String getText();
-    int getDescriptionTypeConceptSequence();
+public interface ProgressTracker {
+    
+    void addToTotalWork(long amountOfWork);
+    
+    void completedUnitOfWork();
     
 }

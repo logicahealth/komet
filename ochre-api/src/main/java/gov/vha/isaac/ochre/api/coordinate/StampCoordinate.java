@@ -19,5 +19,11 @@ public interface StampCoordinate {
     int[] getModuleSequences();
     
     Set<State> getAllowedStates();
+    /**
+     * Analog: A structural derivative that often differs by a single element.
+     * @param stampPositionTime the time of the stamp position for the analog
+     * @return a new StampCoordinate with the specified stamp position time. 
+     */
+    StampCoordinate makeAnalog(long stampPositionTime);
     
 }

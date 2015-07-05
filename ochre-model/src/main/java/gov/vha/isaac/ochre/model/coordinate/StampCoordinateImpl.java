@@ -42,6 +42,12 @@ public class StampCoordinateImpl implements StampCoordinate {
         this.moduleSequences = moduleSequences;
         this.allowedStates = allowedStates;
     }
+
+    @Override
+    public StampCoordinate makeAnalog(long stampPositionTime) {
+        StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime, stampPosition.getStampPathSequence());
+       return new StampCoordinateImpl(stampPrecedence, anotherStampPosition, moduleSequences, allowedStates);
+    }
     
 
     @Override

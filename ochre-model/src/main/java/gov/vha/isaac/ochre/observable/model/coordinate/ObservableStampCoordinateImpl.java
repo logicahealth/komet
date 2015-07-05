@@ -22,7 +22,6 @@ import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
-import java.util.EnumSet;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -45,6 +44,12 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
 
     public ObservableStampCoordinateImpl(StampCoordinate stampCoordinate) {
         this.stampCoordinate = stampCoordinate;
+    }
+
+    @Override
+    public ObservableStampCoordinateImpl makeAnalog(long stampPositionTime) {
+        StampCoordinate analog = stampCoordinate.makeAnalog(stampPositionTime);
+        return new ObservableStampCoordinateImpl(analog);
     }
 
     @Override

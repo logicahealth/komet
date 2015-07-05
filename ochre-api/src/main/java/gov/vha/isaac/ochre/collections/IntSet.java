@@ -131,6 +131,20 @@ public abstract class IntSet<T extends IntSet> {
                 false);
     }
     
+    /**
+     * 
+     * @return the set members as an {@code IntStream}
+     */
+    public IntStream parallelStream() {
+        if (rbmp.isEmpty()) {
+            return IntStream.empty();
+        }
+        Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
+        return StreamSupport.intStream(streamSupplier, 
+                streamSupplier.get().characteristics(),
+                true);
+    }
+    
     public int[] asArray() {
          return stream().toArray();
     }

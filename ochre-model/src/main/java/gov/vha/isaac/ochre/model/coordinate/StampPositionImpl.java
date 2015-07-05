@@ -82,7 +82,7 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
         } else {
             sb.append(getTimeAsInstant());
         }
-        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(Get.getIdentifiedObjectService().informAboutObject(stampPathSequence)).append('}');
+        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(Get.identifiedObjectService().informAboutObject(stampPathSequence)).append('}');
         return sb.toString();
     }
 

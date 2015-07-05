@@ -342,7 +342,7 @@ public abstract class Termstore implements PersistentStoreI {
     @Override
     public final ComponentChronicleBI<?> getComponent(int nid) throws IOException {
         Optional<? extends ObjectChronology<? extends StampedVersion>> result = 
-                Get.getIdentifiedObjectService().getIdentifiedObjectChronology(nid);
+                Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
         if (result.isPresent()) {
             return (ComponentChronicleBI<?>) result.get();
         }

@@ -14,10 +14,6 @@ public class Ticker {
 
     private Subscription tickSubscription;
 
-    public void start(int intervalInSeconds) {
-        start(intervalInSeconds, (tick) -> System.out.println(MemoryUtil.getHeapPercentUse()));
-    }
-
     public void start(int intervalInSeconds, Consumer consumer) {
         stop();
         tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))

@@ -28,6 +28,12 @@ public class ConcurrentSequenceObjectMap<E> {
     public ConcurrentSequenceObjectMap() {
         objectListList.add(new AtomicReferenceArray(SEGMENT_SIZE));
     }
+    
+    public void clear() {
+        objectListList.clear();
+        objectListList.add(new AtomicReferenceArray(SEGMENT_SIZE));
+        maxSequence.set(0);
+    }
 
     /**
      * Provides no range or null checking. For use with a stream that already

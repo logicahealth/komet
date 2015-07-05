@@ -833,5 +833,10 @@ public class ViewCoordinate implements StampCoordinate,
         return Status.getStateSet(allowedStatus);
     }
 
+    @Override
+    public StampCoordinate makeAnalog(long stampPositionTime) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 
 }

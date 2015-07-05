@@ -210,11 +210,11 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
                 .append(", assemblageSequence=")
                 .append(assemblageSequence)
                 .append(" (")
-                .append(Get.getIdentifiedObjectService().informAboutObject(assemblageSequence))
+                .append(Get.identifiedObjectService().informAboutObject(assemblageSequence))
                 .append("), referencedComponentNid=")
                 .append(referencedComponentNid)
                 .append(" (")
-                .append(Get.getIdentifiedObjectService().informAboutObject(referencedComponentNid))
+                .append(Get.identifiedObjectService().informAboutObject(referencedComponentNid))
                 .append(")\n ");
         super.toString(builder);
         builder.append('}');
