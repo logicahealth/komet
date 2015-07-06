@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.api.task;
 
-import gov.vha.isaac.ochre.api.ProgressTracker;
 import gov.vha.isaac.ochre.api.ticker.Ticker;
 import java.time.Duration;
 import java.time.Instant;
@@ -33,7 +32,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class TimedTask<T> extends Task<T>  {
     
-    private static final Logger log = LogManager.getLogger();
+    protected static final Logger log = LogManager.getLogger();
 
     public static int progressUpdateIntervalInSecs = 2;
 
