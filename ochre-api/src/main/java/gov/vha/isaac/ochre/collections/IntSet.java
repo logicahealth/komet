@@ -57,20 +57,24 @@ public abstract class IntSet<T extends IntSet> {
         rbmp.clear();
     }
     
-    public void or(T otherSet) {
+    public T or(T otherSet) {
         rbmp.or(otherSet.rbmp);
+        return (T) this;
     }
 
-    public void and(T otherSet) {
+    public T and(T otherSet) {
         rbmp.and(otherSet.rbmp);
+        return (T) this;
     }
 
-    public void andNot(T otherSet) {
+    public T andNot(T otherSet) {
         rbmp.andNot(otherSet.rbmp);
+        return (T) this;
     }
 
-    public void xor(T otherSet) {
+    public T xor(T otherSet) {
         rbmp.xor(otherSet.rbmp);
+        return (T) this;
     }
 
     /**

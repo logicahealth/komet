@@ -21,8 +21,9 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 /**
  *
  * @author kec
+ * @param <T>
  */
-public class SequenceSet extends IntSet {
+public class SequenceSet<T extends SequenceSet> extends IntSet<T> {
 
 
     protected SequenceSet(IntStream memberStream) {

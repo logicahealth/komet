@@ -15,6 +15,8 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
@@ -74,4 +76,13 @@ public interface TaxonomyService {
     IntStream getTaxonomyParentSequences(int childId);
     
     IntStream getRoots(TaxonomyCoordinate sc);
+    
+    /**
+     * Update the taxonomy by extracting relationships from the logical definitions
+     * in the {@code logicGraphChronology}. This method will be called by a commit
+     * listener, so developers do not have to update the taxonomy themselves, unless
+     * developing an alternative taxonomy service implementation. 
+     * @param logicGraphChronology Chronology of the logical definitions
+     */
+    void updateTaxonomy(SememeChronology<LogicGraphSememe> logicGraphChronology);
 }

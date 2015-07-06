@@ -25,7 +25,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class SememeSequenceSet extends SequenceSet {
+public class SememeSequenceSet extends SequenceSet<SememeSequenceSet> {
     
     public static SememeSequenceSet of(int... members) {
         return new SememeSequenceSet(members);
@@ -50,6 +50,10 @@ public class SememeSequenceSet extends SequenceSet {
     
     public static SememeSequenceSet of(IntStream sememeSquenceStream) {
         return new SememeSequenceSet(sememeSquenceStream);
+    }
+    
+    public static SememeSequenceSet of(SememeSequenceSet sememeSquenceSet) {
+        return new SememeSequenceSet(sememeSquenceSet.stream());
     }
     
     public SememeSequenceSet() {

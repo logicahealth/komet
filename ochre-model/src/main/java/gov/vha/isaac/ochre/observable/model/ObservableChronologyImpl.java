@@ -22,6 +22,7 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
+import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -126,6 +127,11 @@ public abstract class ObservableChronologyImpl<
             // update descriptions...
             throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public void handleCommit(CommitRecord commitRecord) {
+        //TODO implement handle commit...
     }
 
     @Override

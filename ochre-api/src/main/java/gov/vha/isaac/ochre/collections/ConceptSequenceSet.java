@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.collections;
 
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -25,23 +26,29 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class ConceptSequenceSet extends SequenceSet {
+public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
     
     
     public static ConceptSequenceSet of(int... members) {
-        return new ConceptSequenceSet(members);
+        IdentifierService sp = Get.identifierService();
+        return new ConceptSequenceSet(Arrays.stream(members).map((id) -> sp.getConceptSequence(id)));
     }
 
     public static ConceptSequenceSet of(OpenIntHashSet members) {
-        return new ConceptSequenceSet(members);
+        return new ConceptSequenceSet(members.keys().elements());
     }
     
     public static ConceptSequenceSet of(Collection<Integer> members) {
-        return new ConceptSequenceSet(members.stream().mapToInt(i -> i));
+        IdentifierService sp = Get.identifierService();
+        return new ConceptSequenceSet(members.stream().mapToInt((id) -> sp.getConceptSequence(id)));
     }
 
     public static ConceptSequenceSet of(IntStream memberStream) {
         return new ConceptSequenceSet(memberStream);
+    }
+
+    public static ConceptSequenceSet of(ConceptSequenceSet another) {
+        return new ConceptSequenceSet(another.stream());
     }
 
     public static ConceptSequenceSet ofAllConceptSequences() {
@@ -85,7 +92,8 @@ public class ConceptSequenceSet extends SequenceSet {
 
     @Override
     public void addAll(IntStream intStream) {
-        super.addAll(intStream.map((item) -> { return Get.identifierService().getConceptSequence(item);})); 
+        IdentifierService sp = Get.identifierService();
+        super.addAll(intStream.map((item) -> { return sp.getConceptSequence(item);})); 
     }
     
     
