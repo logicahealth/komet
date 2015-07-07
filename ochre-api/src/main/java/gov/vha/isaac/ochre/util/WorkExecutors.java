@@ -117,6 +117,9 @@ public class WorkExecutors
 			return t;
 		}));
 		threadPoolExecutor_.allowCoreThreadTimeOut(true);
+		//Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial 
+		//init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
+		//should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID. 
 		getExecutor().execute(() -> UUID.randomUUID());
 		log.debug("WorkExecutors thread pools ready");
 	}
