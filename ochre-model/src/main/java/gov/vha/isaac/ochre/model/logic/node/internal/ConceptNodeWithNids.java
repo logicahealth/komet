@@ -31,7 +31,7 @@ public final class ConceptNodeWithNids extends AbstractNode {
 
     public ConceptNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int conceptNid) {
         super(logicGraphVersion);
-        this.conceptNid = conceptNid;
+        this.conceptNid = Get.identifierService().getConceptNid(conceptNid);
 
     }
 

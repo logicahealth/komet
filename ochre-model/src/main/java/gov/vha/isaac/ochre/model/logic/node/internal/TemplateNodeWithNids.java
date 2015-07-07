@@ -40,8 +40,8 @@ public final class TemplateNodeWithNids extends AbstractNode {
 
     public TemplateNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int templateConceptNid, int assemblageConceptNid) {
         super(logicGraphVersion);
-        this.templateConceptNid = templateConceptNid;
-        this.assemblageConceptNid = assemblageConceptNid;
+        this.templateConceptNid = Get.identifierService().getConceptNid(templateConceptNid);
+        this.assemblageConceptNid = Get.identifierService().getConceptNid(assemblageConceptNid);
     }
 
     public TemplateNodeWithNids(TemplateNodeWithUuids externalForm) {

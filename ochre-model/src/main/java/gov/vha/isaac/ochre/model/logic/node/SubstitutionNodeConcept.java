@@ -6,7 +6,6 @@ import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 

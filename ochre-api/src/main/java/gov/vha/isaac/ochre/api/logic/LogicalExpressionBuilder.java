@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.logic.assertions.AllRole;
 import gov.vha.isaac.ochre.api.logic.assertions.Assertion;
 import gov.vha.isaac.ochre.api.logic.assertions.ConceptAssertion;
 import gov.vha.isaac.ochre.api.logic.assertions.Feature;
+import gov.vha.isaac.ochre.api.logic.assertions.LogicalSet;
 import gov.vha.isaac.ochre.api.logic.assertions.NecessarySet;
 import gov.vha.isaac.ochre.api.logic.assertions.SomeRole;
 import gov.vha.isaac.ochre.api.logic.assertions.SufficientSet;
@@ -50,7 +51,24 @@ import java.time.Instant;
  */
 public interface LogicalExpressionBuilder {
 
+    void addToRoot(LogicalSet logicalSet);
+    
+    
+    static void AddToRoot(LogicalSet logicalSet) {
+        logicalSet.getBuilder().addToRoot(logicalSet);
+    }
+
     LogicalExpression build() throws IllegalStateException;
+    
+    /**
+     * Use to add a subtree from an existing logical expression to 
+     * an expression being built. 
+     * @param subTreeRoot The root node, which is included in the new expression, 
+     * along with its children. 
+     * @return an Assertion corresponding to the node equivalent to the 
+     * {@code subTreeRoot} in the new expression. 
+     */
+    Assertion cloneSubTree(Node subTreeRoot);
 
     NecessarySet necessarySet(Connector... connector);
 
@@ -71,6 +89,7 @@ public interface LogicalExpressionBuilder {
         return builder.disjointWith(conceptChronology);
     }
 
+
     static DisjointWith DisjointWith(ConceptProxy conceptProxy, LogicalExpressionBuilder builder) {
         return builder.disjointWith(conceptProxy);
     }
@@ -83,6 +102,7 @@ public interface LogicalExpressionBuilder {
 
     ConceptAssertion conceptAssertion(ConceptChronology conceptChronology);
     ConceptAssertion conceptAssertion(ConceptProxy conceptProxy);
+    ConceptAssertion conceptAssertion(Integer conceptId);
 
     static ConceptAssertion ConceptAssertion(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
         return builder.conceptAssertion(conceptChronology);
