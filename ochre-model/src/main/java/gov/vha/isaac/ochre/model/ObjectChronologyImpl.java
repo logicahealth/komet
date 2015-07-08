@@ -122,7 +122,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      * @param nid A unique internal identifier, that is only valid within this
      * database
      * @param containerSequence Either a concept sequence or a sememe sequence
- depending on the ofType of the underlying object.
+     * depending on the ofType of the underlying object.
      */
     protected ObjectChronologyImpl(UUID primoridalUuid, int nid,
             int containerSequence) {
@@ -186,20 +186,20 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     protected final void constructorEnd(DataBuffer data) {
         versionStartPosition = data.getPosition();
     }
-    
+
     /**
-     * Overwrites existing versions. Use to remove duplicates, etc. 
-     * Deliberately not advertised in standard API, as this call may lose audit
-     * data. 
-     * @param versions 
+     * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
+     * not advertised in standard API, as this call may lose audit data.
+     *
+     * @param versions
      */
     public void setVersions(Collection<V> versions) {
         if (unwrittenData != null) {
             unwrittenData.clear();
         }
         // reset written data
-        writtenData =  null;
-       versions.forEach((V version) -> addVersion(version));
+        writtenData = null;
+        versions.forEach((V version) -> addVersion(version));
     }
 
     /**
@@ -242,19 +242,19 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     public byte[] getDataToWrite(int writeSequence) {
         setWriteSequence(writeSequence);
         if (unwrittenData == null) {
-                // no changes, so nothing to merge. 
-                if (writtenData != null) {
-                    DataBuffer db = new DataBuffer(writtenData);
-                    db.putInt(writeSequence);
-                    return db.getData();
-                }
-                // creating a brand new object
-                DataBuffer db = new DataBuffer(10);
-                writeChronicleData(db);
-                db.putInt(0);
-                db.trimToSize();
+            // no changes, so nothing to merge. 
+            if (writtenData != null) {
+                DataBuffer db = new DataBuffer(writtenData);
+                db.putInt(writeSequence);
                 return db.getData();
-        } 
+            }
+            // creating a brand new object
+            DataBuffer db = new DataBuffer(10);
+            writeChronicleData(db);
+            db.putInt(0);
+            db.trimToSize();
+            return db.getData();
+        }
         DataBuffer db = new DataBuffer(512);
         writeChronicleData(db);
         // add versions..
@@ -270,7 +270,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 db.setPosition(db.getLimit());
             }
         });
-        
+
         db.putInt(0); // last data is a zero length version record
         db.trimToSize();
         return db.getData();
@@ -289,19 +289,22 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         DataBuffer db = new DataBuffer(512);
         writeChronicleData(db);
         OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
-        unwrittenData.values().forEach((version) -> {
-            int stampSequenceForVersion = version.getStampSequence();
-            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
-                writtenStamps.add(stampSequenceForVersion);
-                int startWritePosition = db.getPosition();
-                db.putInt(0); // placeholder for length
-                version.writeVersionData(db);
-                int versionLength = db.getPosition() - startWritePosition;
-                db.setPosition(startWritePosition);
-                db.putInt(versionLength);
-                db.setPosition(db.getLimit());
-            }
-        });
+        if (unwrittenData != null) {
+            unwrittenData.values().forEach((version) -> {
+                int stampSequenceForVersion = version.getStampSequence();
+                if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                    writtenStamps.add(stampSequenceForVersion);
+                    int startWritePosition = db.getPosition();
+                    db.putInt(0); // placeholder for length
+                    version.writeVersionData(db);
+                    int versionLength = db.getPosition() - startWritePosition;
+                    db.setPosition(startWritePosition);
+                    db.putInt(versionLength);
+                    db.setPosition(db.getLimit());
+                }
+            });
+        }
+
         if (writtenData != null) {
             mergeData(writtenData, writtenStamps, db);
         }
@@ -561,14 +564,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public <SV extends SememeVersion> List<SememeChronology<SV>> 
-        getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
-            List<SememeChronology<SV>> results = Get.sememeService().ofType(type).
+    public <SV extends SememeVersion> List<SememeChronology<SV>>
+            getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        List<SememeChronology<SV>> results = Get.sememeService().ofType(type).
                 getSememesForComponentFromAssemblage(nid, assemblageSequence)
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
         return results;
     }
-        
+
     private List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
         List<V> versions = new ArrayList<>(stampSequences.size());
         stampSequences.stream().forEach((stampSequence) -> versions.add(getVersionForStamp(stampSequence).get()));
