@@ -31,6 +31,10 @@ public abstract class SubstitutionNode extends AbstractNode {
         this.substitutionFieldSpecification = substitutionFieldSpecification;
     }
 
+    public SubstitutionFieldSpecification getSubstitutionFieldSpecification() {
+        return substitutionFieldSpecification;
+    }
+
     @Override
     protected final void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
         super.writeData(dataOutput, dataTarget);

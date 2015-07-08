@@ -20,6 +20,7 @@ import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 
 
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 /**
  *
@@ -41,4 +42,8 @@ public interface LogicalExpression {
     byte[][] pack(DataTarget dataTarget);
 
     void processDepthFirst(BiConsumer<Node, TreeNodeVisitData> consumer);
+    
+    boolean contains(NodeSemantic semantic);
+    
+    Stream<Node> getNodesOfType(NodeSemantic semantic);
 }

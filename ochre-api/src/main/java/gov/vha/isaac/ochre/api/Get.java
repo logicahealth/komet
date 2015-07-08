@@ -17,7 +17,9 @@ package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.util.WorkExecutors;
 import javax.inject.Singleton;
@@ -45,7 +47,9 @@ public class Get implements OchreCache {
     private static ConceptService conceptService;
     private static IdentifiedObjectService identifiedObjectService;
     private static IdentifierService identifierService;
+    private static LogicalExpressionBuilderService logicalExpressionBuilderService;
     private static PathService pathService;
+    private static SememeBuilderService sememeBuilderService;
     private static SememeService sememeService;
     private static TaxonomyService taxonomyService;
     private static WorkExecutors workExecutors;
@@ -71,6 +75,13 @@ public class Get implements OchreCache {
             identifierService = LookupService.getService(IdentifierService.class);
         }
         return identifierService;
+    }
+
+    public static LogicalExpressionBuilderService logicalExpressionBuilderService() {
+        if (logicalExpressionBuilderService == null) {
+            logicalExpressionBuilderService = LookupService.getService(LogicalExpressionBuilderService.class);
+        }
+        return logicalExpressionBuilderService;
     }
 
     public static PathService pathService() {
@@ -99,6 +110,13 @@ public class Get implements OchreCache {
             sememeService = LookupService.getService(SememeService.class);
         }
         return sememeService;
+    }
+
+    public static SememeBuilderService sememeBuilderService() {
+        if (sememeBuilderService == null) {
+            sememeBuilderService = LookupService.getService(SememeBuilderService.class);
+        }
+        return sememeBuilderService;
     }
 
     public static ConceptModel conceptModel() {
@@ -132,7 +150,9 @@ public class Get implements OchreCache {
         conceptService = null;
         identifiedObjectService = null;
         identifierService = null;
+        logicalExpressionBuilderService = null;
         pathService = null;
+        sememeBuilderService = null;
         sememeService = null;
         taxonomyService = null;
         workExecutors = null;

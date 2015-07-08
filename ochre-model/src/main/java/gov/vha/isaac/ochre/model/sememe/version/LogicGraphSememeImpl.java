@@ -24,6 +24,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import org.glassfish.hk2.api.MultiException;
 
@@ -82,6 +83,11 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
     @Override
     public byte[][] getGraphData() {
         return graphData;
+    }
+
+    @Override
+    public LogicalExpression getLogicalExpression() {
+        return new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getReferencedComponentNid());
     }
 
     @Override

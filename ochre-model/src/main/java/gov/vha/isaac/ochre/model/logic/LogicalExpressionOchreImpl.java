@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import org.apache.mahout.math.list.IntArrayList;
 
 /**
@@ -220,6 +221,16 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean contains(NodeSemantic semantic) {
+        return nodes.stream().anyMatch((node) -> (node.getNodeSemantic() == semantic));
+    }
+
+    @Override
+    public Stream<Node> getNodesOfType(NodeSemantic semantic) {
+        return nodes.stream().filter((node) -> (node.getNodeSemantic() == semantic));
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 kec.
+ * Copyright 2015 U.S. Department of Veterans Affairs.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.logic.assertions;
  *
  * @author kec
  */
-public interface NecessarySet extends LogicalSet {
+public interface LogicalSet extends Assertion {
     
 }
