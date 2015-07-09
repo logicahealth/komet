@@ -19,6 +19,7 @@ import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.util.WorkExecutors;
@@ -48,6 +49,7 @@ public class Get implements OchreCache {
     private static IdentifiedObjectService identifiedObjectService;
     private static IdentifierService identifierService;
     private static LogicalExpressionBuilderService logicalExpressionBuilderService;
+    private static LogicService logicService;
     private static PathService pathService;
     private static SememeBuilderService sememeBuilderService;
     private static SememeService sememeService;
@@ -82,6 +84,13 @@ public class Get implements OchreCache {
             logicalExpressionBuilderService = LookupService.getService(LogicalExpressionBuilderService.class);
         }
         return logicalExpressionBuilderService;
+    }
+
+    public static LogicService logicService() {
+        if (logicService == null) {
+            logicService = LookupService.getService(LogicService.class);
+        }
+        return logicService;
     }
 
     public static PathService pathService() {
@@ -151,6 +160,7 @@ public class Get implements OchreCache {
         identifiedObjectService = null;
         identifierService = null;
         logicalExpressionBuilderService = null;
+        logicService = null;
         pathService = null;
         sememeBuilderService = null;
         sememeService = null;
