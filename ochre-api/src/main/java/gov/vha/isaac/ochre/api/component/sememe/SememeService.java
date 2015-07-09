@@ -48,7 +48,7 @@ public interface SememeService {
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
     
-    void writeSememe(SememeChronology sememeChronicle);
+    void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints);
     
     Stream<SememeChronology<? extends SememeVersion>> getSememeStream();
     
