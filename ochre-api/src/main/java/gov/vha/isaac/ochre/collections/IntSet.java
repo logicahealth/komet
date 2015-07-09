@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import java.util.OptionalInt;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
@@ -135,6 +136,9 @@ public abstract class IntSet<T extends IntSet> {
                 false);
     }
     
+    public OptionalInt findFirst() {
+        return stream().findFirst();
+    }
     /**
      * 
      * @return the set members as an {@code IntStream}
