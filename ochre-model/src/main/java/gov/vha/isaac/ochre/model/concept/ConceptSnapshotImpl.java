@@ -15,17 +15,21 @@
  */
 package gov.vha.isaac.ochre.model.concept;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -35,11 +39,13 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
 
     private final ConceptChronologyImpl conceptChronology;
     private final StampCoordinate stampCoordinate;
+    private final LanguageCoordinate languageCoordinate;
     private final LatestVersion<ConceptVersionImpl> snapshotVersion;
 
-    public ConceptSnapshotImpl(ConceptChronologyImpl conceptChronology, StampCoordinate stampCoordinate) {
+    public ConceptSnapshotImpl(ConceptChronologyImpl conceptChronology, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
         this.conceptChronology = conceptChronology;
         this.stampCoordinate = stampCoordinate;
+        this.languageCoordinate = languageCoordinate;
         Optional<LatestVersion<ConceptVersionImpl>> optionalVersion = 
                 RelativePositionCalculator.getCalculator(stampCoordinate).getLatestVersion(conceptChronology);
         snapshotVersion = optionalVersion.get();
@@ -123,6 +129,31 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
     @Override
     public Optional<? extends Set<? extends StampedVersion>> getContradictions() {
         return snapshotVersion.contradictions();
+    }
+
+    @Override
+    public LanguageCoordinate getLanguageCoordinate() {
+        return languageCoordinate;
+    }
+
+    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription() {
+        return languageCoordinate.getFullySpecifiedDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
+    }
+
+    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription() {
+        return languageCoordinate.getPreferredDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
+    }
+
+    public DescriptionSememe getDescription() {
+        Optional<LatestVersion<DescriptionSememe>> fsd = getFullySpecifiedDescription();
+        if (fsd.isPresent()) {
+            return fsd.get().value();
+        }
+        Optional<LatestVersion<DescriptionSememe>> pd = getPreferredDescription();
+        if (pd.isPresent()) {
+            return pd.get().value();
+        }
+        return Get.sememeService().getDescriptionsForComponent(getNid()).findAny().get().getVersionList().get(0);
     }
     
 }

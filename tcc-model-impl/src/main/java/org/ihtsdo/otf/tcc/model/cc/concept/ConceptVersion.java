@@ -1525,5 +1525,10 @@ public class ConceptVersion implements ConceptVersionBI,
     public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
+
+    @Override
+    public LanguageCoordinate getLanguageCoordinate() {
+        return Get.configurationService().getDefaultLanguageCoordinate();
+    }
     
 }

@@ -21,8 +21,6 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
-import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
-import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableDescriptionSememe;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import java.util.List;
 import java.util.Optional;

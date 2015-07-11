@@ -16,13 +16,18 @@
 package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedStampedVersion;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- *
+ * An object that identifies a concept, and has a specific {@code StampCoordinate}
+ * and {@code LanguageCoordinate} which determine which versions of which components
+ * will be returned in response to method calls such as {@code getFullySpecifiedDescription()}.
  * @author kec
  */
 public interface ConceptSnapshot extends IdentifiedStampedVersion {
@@ -48,6 +53,13 @@ public interface ConceptSnapshot extends IdentifiedStampedVersion {
     
     /**
      * 
+     * @return the {@code LanguageCoordinate} that defines the latest
+     * version used by this snapshot. 
+     */
+    LanguageCoordinate getLanguageCoordinate();
+    
+    /**
+     * 
      * @return the sequence of this concept. A contiguously assigned identifier for
      * concepts >= 0;
      */
@@ -60,5 +72,31 @@ public interface ConceptSnapshot extends IdentifiedStampedVersion {
      * @return true if any active version of a description matches this text. 
      */
     boolean containsActiveDescription(String descriptionText);
+    
+// TODO put these methods in after removing OTF libraries. 
+//    /**
+//     * 
+//     * @return The fully specified description for this concept. Optional in case
+//     * there is not description that satisfies the {@code StampCoordinate} and the
+//     * {@code LanguageCoordinate} of this snapshot.
+//     */
+//    Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription();
+//    
+//    /**
+//     * 
+//     * @return The preferred description for this concept. Optional in case
+//     * there is not description that satisfies the {@code StampCoordinate} and the
+//     * {@code LanguageCoordinate} of this snapshot.
+//     */
+//    Optional<LatestVersion<DescriptionSememe>> getPreferredDescription();
+//    
+//    /**
+//     * This method will try first to return the fully specified description, 
+//     * next the preferred description, finally any description if there is no 
+//     * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
+//     * {@code LanguageCoordinate} of this snapshot. 
+//     * @return a description for this concept. 
+//     */
+//    DescriptionSememe getDescription();
     
 }

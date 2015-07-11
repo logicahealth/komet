@@ -15,6 +15,8 @@
  */
 package gov.vha.isaac.ochre.api.component.concept;
 
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.Optional;
@@ -26,9 +28,6 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author kec
  */
-//Normally, this would be a contract... but we only want one in the system (and we have two, that we don't want running at the same time)
-//So, force the users to get one via the ConceptServiceManagerI
-//Alternatively, maybe we could do something with:  https://hk2.java.net/custom-resolver-example.html
 @Contract
 public interface ConceptService {
     
@@ -52,7 +51,12 @@ public interface ConceptService {
 
     boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
     
-    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate);
+    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
+    
+    @Deprecated
+    default ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate) {
+        return getSnapshot(stampCoordinate, Get.configurationService().getDefaultLanguageCoordinate());
+    }
     
     int getConceptCount();
     
@@ -65,6 +69,8 @@ public interface ConceptService {
     /**
      * For backward compatability reasons only. 
      * @return 
+     * @deprecated 
      */
+    @Deprecated
     ConceptService getDelegate();
 }

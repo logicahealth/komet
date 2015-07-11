@@ -17,6 +17,8 @@ package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.logic.LogicService;
@@ -43,7 +45,9 @@ public class Get implements OchreCache {
     private static final Logger log = LogManager.getLogger();
 
     private static ActiveTasks activeTaskSet;
+    private static ConfigurationService configurationService;
     private static CommitService commitService;
+    private static ConceptSnapshotService conceptSnapshot;
     private static ConceptModel conceptModel;
     private static ConceptService conceptService;
     private static IdentifiedObjectService identifiedObjectService;
@@ -58,6 +62,8 @@ public class Get implements OchreCache {
 
     public Get() {
     }
+    
+    
     public static ActiveTasks activeTasks() {
         if (activeTaskSet == null) {
             activeTaskSet = LookupService.getService(ActiveTasks.class);
@@ -65,11 +71,33 @@ public class Get implements OchreCache {
         return activeTaskSet;
     }
 
+    public static ConfigurationService configurationService() {
+        if (configurationService == null) {
+            configurationService = LookupService.getService(ConfigurationService.class);
+        }
+        return configurationService;
+    }
+
     public static ConceptService conceptService() {
         if (conceptService == null) {
             conceptService = LookupService.getService(ConceptService.class);
         }
         return conceptService;
+    }
+
+    /**
+     * 
+     * @return a {@code ConceptSnapshotService} configured using the default
+     * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the 
+     * configuration service. 
+     */
+    public static ConceptSnapshotService conceptSnapshot() {
+        if (conceptSnapshot == null) {
+            conceptSnapshot = LookupService.getService(ConceptService.class)
+                    .getSnapshot(Get.configurationService.getDefaultStampCoordinate(), 
+                            Get.configurationService.getDefaultLanguageCoordinate());
+        }
+        return conceptSnapshot;
     }
 
     public static IdentifierService identifierService() {
@@ -154,6 +182,7 @@ public class Get implements OchreCache {
     public void reset() {
         log.info("Resetting service cache.");
         activeTaskSet = null;
+        configurationService = null;
         commitService = null;
         conceptModel = null;
         conceptService = null;

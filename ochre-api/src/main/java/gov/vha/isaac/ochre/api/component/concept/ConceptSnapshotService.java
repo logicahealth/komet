@@ -15,7 +15,11 @@
  */
 package gov.vha.isaac.ochre.api.component.concept;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import java.util.Optional;
 
 /**
  *
@@ -23,10 +27,60 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
  */
 public interface ConceptSnapshotService {
     
-    boolean isConceptActive(int conceptSequence);
-    
+    /**
+     * 
+     * @param conceptId nid or sequence of the concept to determine if it is active
+     * according to the {@code StampCoordinate} of this snapshot service
+     * @return 
+     */
+    boolean isConceptActive(int conceptId);
+
+    /**
+     * 
+     * @param conceptId nid or sequence of the concept to get the {@code ConceptSnapshot} for
+     * @return a concept that internally uses the {@code StampCoordinate} 
+     * and {@code LanguageCoordinate} for 
+     */
+    ConceptSnapshot getConceptSnapshot(int conceptId);
+
+    /**
+     * 
+     * @return the {@code StampCoordinate} associated with this snapshot. 
+     */
     StampCoordinate getStampCoordinate();
     
-    ConceptSnapshot getConceptSnapshot(int conceptSequence);
+   /**
+     * 
+     * @return the {@code LanguageCoordinate} associated with this snapshot. 
+     */
+    LanguageCoordinate getLanguageCoordinate();
+
+    /**
+     * 
+     * @param conceptId nid or sequence of the concept to get the description for
+     * @return The fully specified description for this concept. Optional in case
+     * there is not description that satisfies the {@code StampCoordinate} and the
+     * {@code LanguageCoordinate} of this snapshot.
+     */
+    Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(int conceptId);
+    
+    /**
+     * 
+     * @param conceptId nid or sequence of the concept to get the description for
+     * @return The preferred description for this concept. Optional in case
+     * there is not description that satisfies the {@code StampCoordinate} and the
+     * {@code LanguageCoordinate} of this snapshot.
+     */
+    Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(int conceptId);
+    
+    /**
+     * This method will try first to return the fully specified description, 
+     * next the preferred description, finally any description if there is no 
+     * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
+     * {@code LanguageCoordinate} of this snapshot. 
+     * @param conceptId nid or sequence of the concept to get the description for
+     * @return a description for this concept. 
+     */
+    DescriptionSememe getDescription(int conceptId);
     
 }
