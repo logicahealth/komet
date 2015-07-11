@@ -94,8 +94,8 @@ public class Get implements OchreCache {
     public static ConceptSnapshotService conceptSnapshot() {
         if (conceptSnapshot == null) {
             conceptSnapshot = LookupService.getService(ConceptService.class)
-                    .getSnapshot(Get.configurationService.getDefaultStampCoordinate(), 
-                            Get.configurationService.getDefaultLanguageCoordinate());
+                    .getSnapshot(Get.configurationService().getDefaultStampCoordinate(), 
+                            Get.configurationService().getDefaultLanguageCoordinate());
         }
         return conceptSnapshot;
     }
