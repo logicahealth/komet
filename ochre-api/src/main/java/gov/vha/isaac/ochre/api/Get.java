@@ -17,7 +17,6 @@ package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
-import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
@@ -98,6 +97,20 @@ public class Get implements OchreCache {
                             Get.configurationService().getDefaultLanguageCoordinate());
         }
         return conceptSnapshot;
+    }
+    
+    /**
+     * Simple method for getting text of the description of a concept. 
+     * This method will try first to return the fully specified description, 
+     * next the preferred description, finally any description if there is no 
+     * preferred or fully specified description that satisfies the default 
+     * {@code StampCoordinate} and the default
+     * {@code LanguageCoordinate}. 
+     * @param conceptId nid or sequence of the concept to get the description for
+     * @return a description for this concept. 
+     */
+    public static String conceptDescriptionText(int conceptId) {
+        return conceptSnapshot().getDescription(conceptId).getText();
     }
 
     public static IdentifierService identifierService() {

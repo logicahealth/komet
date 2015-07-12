@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.model.sememe;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
@@ -205,17 +206,22 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("SememeChronicleImpl{sememeType=")
+        builder.append("SememeChronology{")
                 .append(SememeType.getFromToken(sememeTypeToken))
-                .append(", assemblageSequence=")
+                .append(", assemblage=")
+                .append(Get.conceptDescriptionText(assemblageSequence))
+                .append("<")
                 .append(assemblageSequence)
-                .append(" (")
-                .append(Get.identifiedObjectService().informAboutObject(assemblageSequence))
-                .append("), referencedComponentNid=")
+                .append("> referencedComponent=");
+        if (Get.identifierService().getChronologyTypeForNid(referencedComponentNid) ==
+                ObjectChronologyType.CONCEPT) {
+            builder.append(Get.conceptDescriptionText(referencedComponentNid));
+        } else {
+            builder.append(Get.identifiedObjectService().informAboutObject(referencedComponentNid));
+        }
+        builder.append("<")
                 .append(referencedComponentNid)
-                .append(" (")
-                .append(Get.identifiedObjectService().informAboutObject(referencedComponentNid))
-                .append(")\n ");
+                .append(">\n ");
         super.toString(builder);
         builder.append('}');
 
