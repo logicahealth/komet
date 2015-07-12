@@ -83,4 +83,14 @@ public interface ConceptSnapshotService {
      */
     DescriptionSememe getDescription(int conceptId);
     
+    /**
+     * This method will try first to return the fully specified description, 
+     * next the preferred description, finally any description if there is no 
+     * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
+     * {@code LanguageCoordinate} of this snapshot. 
+     * @param conceptId nid or sequence of the concept to get the description for
+     * @return a Optional description for this concept. 
+     */
+    Optional<DescriptionSememe> getDescriptionOptional(int conceptId);
+    
 }

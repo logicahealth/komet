@@ -20,10 +20,12 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.util.WorkExecutors;
+import java.util.Optional;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,7 +112,12 @@ public class Get implements OchreCache {
      * @return a description for this concept. 
      */
     public static String conceptDescriptionText(int conceptId) {
-        return conceptSnapshot().getDescription(conceptId).getText();
+        Optional<DescriptionSememe> descriptionOptional = 
+                conceptSnapshot().getDescriptionOptional(conceptId);
+        if (descriptionOptional.isPresent()) {
+            return descriptionOptional.get().getText();
+        }
+        return "No desc for: " + conceptId;
     }
 
     public static IdentifierService identifierService() {
