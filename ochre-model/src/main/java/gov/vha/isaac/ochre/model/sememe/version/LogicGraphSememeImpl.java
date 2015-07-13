@@ -106,13 +106,11 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("LogicGraphSememeImpl{");
         sb.append(getSememeType().toString());
         LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, Get.identifierService().getConceptSequence(getReferencedComponentNid()));
         sb.append("\n ");
         sb.append(lg.toString());
         toString(sb);
-        sb.append('}');
         return sb.toString();
     }
 

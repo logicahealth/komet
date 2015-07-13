@@ -208,18 +208,18 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
         StringBuilder builder = new StringBuilder();
         builder.append("SememeChronology{")
                 .append(SememeType.getFromToken(sememeTypeToken))
-                .append(", assemblage=")
+                .append("\n assemblage:")
                 .append(Get.conceptDescriptionText(assemblageSequence))
-                .append("<")
+                .append(" <")
                 .append(assemblageSequence)
-                .append("> referencedComponent=");
+                .append(">\n rc:");
         if (Get.identifierService().getChronologyTypeForNid(referencedComponentNid) ==
                 ObjectChronologyType.CONCEPT) {
             builder.append(Get.conceptDescriptionText(referencedComponentNid));
         } else {
             builder.append(Get.identifiedObjectService().informAboutObject(referencedComponentNid));
         }
-        builder.append("<")
+        builder.append(" <")
                 .append(referencedComponentNid)
                 .append(">\n ");
         super.toString(builder);

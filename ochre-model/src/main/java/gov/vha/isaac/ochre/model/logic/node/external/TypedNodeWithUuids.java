@@ -56,5 +56,16 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         }
         throw new IllegalStateException("Typed nodes can have only one child. Found: " + Arrays.toString(children));
     }
+    
+    @Override
+    protected final int compareNodeFields(Node o) {
+        // node semantic already determined equals. 
+        TypedNodeWithUuids other = (TypedNodeWithUuids) o;
+        if (!typeConceptUuid.equals(other.typeConceptUuid)) {
+            return typeConceptUuid.compareTo(other.typeConceptUuid);
+        }
+        return compareTypedNodeFields(o);
+    }
+    protected abstract int compareTypedNodeFields(Node o);
 }
 

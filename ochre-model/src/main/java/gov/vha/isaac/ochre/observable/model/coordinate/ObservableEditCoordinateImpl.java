@@ -26,6 +26,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  * @author kec
  */
 public class ObservableEditCoordinateImpl implements ObservableEditCoordinate {
+    //TODO finish the property listeners for the other Observable coordinates. 
 
     private IntegerProperty authorSequenceProperty = null;
     private IntegerProperty moduleSequenceProperty = null;

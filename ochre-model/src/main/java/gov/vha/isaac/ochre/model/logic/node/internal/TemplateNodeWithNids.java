@@ -84,9 +84,9 @@ public final class TemplateNodeWithNids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "TemplateNode[" + getNodeIndex() + "]: "
-                + "assemblage: " + Get.conceptService().getConcept(assemblageConceptNid).toUserString()
-                + ", template: " + Get.conceptService().getConcept(templateConceptNid).toUserString()
+        return "Template[" + getNodeIndex() + "] "
+                + "assemblage: " + Get.conceptDescriptionText(assemblageConceptNid)
+                + ", template: " + Get.conceptDescriptionText(templateConceptNid)
                 + super.toString();
     }
 
@@ -114,7 +114,7 @@ public final class TemplateNodeWithNids extends AbstractNode {
     protected int compareFields(Node o) {
         TemplateNodeWithNids that = (TemplateNodeWithNids) o;
         if (assemblageConceptNid != that.assemblageConceptNid) {
-            return this.assemblageConceptNid - that.assemblageConceptNid;
+            return Integer.compare(this.assemblageConceptNid, that.assemblageConceptNid);
         }
 
         return this.templateConceptNid - that.templateConceptNid;

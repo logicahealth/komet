@@ -74,23 +74,24 @@ public interface ConceptSnapshotService {
     Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(int conceptId);
     
     /**
-     * This method will try first to return the fully specified description, 
-     * next the preferred description, finally any description if there is no 
-     * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
-     * {@code LanguageCoordinate} of this snapshot. 
-     * @param conceptId nid or sequence of the concept to get the description for
-     * @return a description for this concept. 
-     */
-    DescriptionSememe getDescription(int conceptId);
-    
-    /**
-     * This method will try first to return the fully specified description, 
-     * next the preferred description, finally any description if there is no 
+     * This method will try to return description types according to the type preferences
+     * of the language coordinate, finally any description if there is no 
      * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
      * {@code LanguageCoordinate} of this snapshot. 
      * @param conceptId nid or sequence of the concept to get the description for
      * @return a Optional description for this concept. 
      */
-    Optional<DescriptionSememe> getDescriptionOptional(int conceptId);
+    Optional<LatestVersion<DescriptionSememe>> getDescriptionOptional(int conceptId);
+    /**
+     * Simple method for getting text of the description of a concept. 
+     * This method will return a description type according to the constraints of
+     * the 
+     * {@code StampCoordinate} and the default
+     * {@code LanguageCoordinate}. 
+     * @param conceptId nid or sequence of the concept to get the description for
+     * @return a description for this concept. If no description can be found, 
+     * {@code "No desc for: " + conceptId;} will be returned. 
+     */
+    String conceptDescriptionText(int conceptId);
     
 }

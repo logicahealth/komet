@@ -15,12 +15,16 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
@@ -104,18 +108,18 @@ public class Get implements OchreCache {
     /**
      * Simple method for getting text of the description of a concept. 
      * This method will try first to return the fully specified description, 
-     * next the preferred description, finally any description if there is no 
-     * preferred or fully specified description that satisfies the default 
+     * or the preferred description, as specified in the default  
      * {@code StampCoordinate} and the default
      * {@code LanguageCoordinate}. 
      * @param conceptId nid or sequence of the concept to get the description for
-     * @return a description for this concept. 
+     * @return a description for this concept. If no description can be found, 
+     * {@code "No desc for: " + conceptId;} will be returned. 
      */
     public static String conceptDescriptionText(int conceptId) {
-        Optional<DescriptionSememe> descriptionOptional = 
+        Optional<LatestVersion<DescriptionSememe>> descriptionOptional = 
                 conceptSnapshot().getDescriptionOptional(conceptId);
         if (descriptionOptional.isPresent()) {
-            return descriptionOptional.get().getText();
+            return descriptionOptional.get().value().getText();
         }
         return "No desc for: " + conceptId;
     }
@@ -146,6 +150,28 @@ public class Get implements OchreCache {
             pathService = LookupService.getService(PathService.class);
         }
         return pathService;
+    }
+    
+    /**
+     * 
+     * @param conceptId either a concept nid or sequence. 
+     * @return the stated definition chronology for the specified concept 
+     * according to the default logic coordinate. 
+     */
+    public static Optional<SememeChronology<? extends SememeVersion>> statedDefinitionChronology(int conceptId) {
+        conceptId = identifierService().getConceptNid(conceptId);
+        return sememeService().getSememesForComponentFromAssemblage(conceptId, configurationService().getDefaultLogicCoordinate().getStatedAssemblageSequence()).findAny();
+    }
+    
+    /**
+     * 
+     * @param conceptId either a concept nid or sequence. 
+     * @return the inferred definition chronology for the specified concept 
+     * according to the default logic coordinate. 
+     */
+    public static Optional<SememeChronology<? extends SememeVersion>> inferredDefinitionChronology(int conceptId) {
+        conceptId = identifierService().getConceptNid(conceptId);
+        return sememeService().getSememesForComponentFromAssemblage(conceptId, configurationService().getDefaultLogicCoordinate().getInferredAssemblageSequence()).findAny();
     }
     
     public static TaxonomyService taxonomyService() {

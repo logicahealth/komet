@@ -2,6 +2,7 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -102,9 +103,9 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
 
     @Override
     public String toString() {
-        return "FeatureNode[" + getNodeIndex() + "]: "
+        return "Feature[" + getNodeIndex() + "] "
                 + operator
-                + ", units:" + Get.conceptService().getConcept(unitsConceptNid).toUserString()
+                + ", units:" + Get.conceptDescriptionText(unitsConceptNid)
                 + super.toString();
     }
 
@@ -114,6 +115,19 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
 
     public int getUnitsConceptNid() {
         return unitsConceptNid;
+    }
+    @Override
+
+    protected int compareTypedNodeFields(Node o) {
+        // node semantic already determined equals. 
+        FeatureNodeWithNids other = (FeatureNodeWithNids) o;
+        if (unitsConceptNid != other.unitsConceptNid) {
+            return Integer.compare(unitsConceptNid, other.unitsConceptNid);
+        }
+        if (operator != other.operator) {
+            return operator.compareTo(other.operator);
+        }
+        return Integer.compare(unitsConceptNid, other.unitsConceptNid);
     }
 
 }

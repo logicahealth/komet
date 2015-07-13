@@ -2,8 +2,6 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -15,7 +13,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-import java.util.Optional;
 
 /**
  * Created by kec on 12/10/14.
@@ -70,7 +67,6 @@ public final class ConceptNodeWithNids extends AbstractNode {
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
                 Get.identifierService().getUuidPrimordialForNid(conceptNid).toString());
-
     }
 
     @Override
@@ -85,14 +81,9 @@ public final class ConceptNodeWithNids extends AbstractNode {
 
     @Override
     public String toString() {
-        Optional<? extends ConceptChronology<? extends ConceptVersion>> concept = 
-                Get.conceptService().getOptionalConcept(conceptNid);
-        if (concept.isPresent()) {
-        return "ConceptNode[" + getNodeIndex() + "]: " + concept.get().toUserString() + "<"
+        return "Concept[" + getNodeIndex() + "]: " + Get.conceptDescriptionText(conceptNid) + " <"
                 + Get.identifierService().getConceptSequence(conceptNid)
                 + ">" + super.toString();
-        }
-        return "ConceptNode[" + getNodeIndex() + "]: " + conceptNid + "<not found>" + super.toString();
     }
 
     @Override
@@ -121,7 +112,7 @@ public final class ConceptNodeWithNids extends AbstractNode {
 
     @Override
     protected int compareFields(Node o) {
-        return conceptNid - ((ConceptNodeWithNids) o).getConceptNid();
+        return Integer.compare(conceptNid, ((ConceptNodeWithNids) o).getConceptNid());
     }
 
 }

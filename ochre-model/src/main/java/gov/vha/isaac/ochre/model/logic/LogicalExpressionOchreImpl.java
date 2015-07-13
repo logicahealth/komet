@@ -512,7 +512,6 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
             builder.append(node);
             builder.append("\n");
         });
-        builder.append(" \n\n");
         return builder.toString();
     }
 
@@ -681,6 +680,10 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
             return true;
         }
         return false;
+    }
+
+    public void sort() {
+        nodes.forEach((node) -> node.sort());
     }
 
 }

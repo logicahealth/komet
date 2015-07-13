@@ -2,6 +2,7 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
@@ -54,6 +55,12 @@ public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
 
     @Override
     public String toString() {
-        return "RoleNodeSome[" + getNodeIndex() + "]:" + super.toString();
+        return "Some[" + getNodeIndex() + "]" + super.toString();
+    }
+    
+    @Override
+    protected int compareTypedNodeFields(Node o) {
+        // node semantic already determined equals. 
+        return 0;
     }
 }

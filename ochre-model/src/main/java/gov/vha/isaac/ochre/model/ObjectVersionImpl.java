@@ -142,10 +142,8 @@ public class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends Obje
     
     
     public StringBuilder toString(StringBuilder builder) {
-        builder.append(", stampSequence=")
-                .append(stampSequence)
-                .append(" ")
-                .append(Get.commitService().describeStampSequence(stampSequence));
+        builder.append(" ")
+               .append(Get.commitService().describeStampSequence(stampSequence));
         return builder;
     }
 

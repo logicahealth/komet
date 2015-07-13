@@ -3,8 +3,6 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
@@ -15,7 +13,6 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Created by kec on 12/9/14.
@@ -45,14 +42,10 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
 
     @Override
     public String toString() {
-        Optional<? extends ConceptChronology<? extends ConceptVersion>> typeConcept 
-                = Get.conceptService().getOptionalConcept(typeConceptNid);
-        if (typeConcept.isPresent()) {
-        return " type: " + typeConcept.get().toUserString() +"<"
-                + typeConcept.get().getConceptSequence()
+        return " type: " + Get.conceptDescriptionText(typeConceptNid) +" <"
+                + Get.identifierService().getConceptSequence(typeConceptNid)
                 + ">"+ super.toString();
-        }
-        return " type: " + typeConceptNid + super.toString();
+        
     }
 
         @Override
@@ -68,4 +61,16 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
         }
         throw new IllegalStateException("Typed nodes can have only one child. Found: " + Arrays.toString(children));
     }
+    
+    @Override
+    protected final int compareNodeFields(Node o) {
+        // node semantic already determined equals. 
+        TypedNodeWithNids other = (TypedNodeWithNids) o;
+        if (typeConceptNid != other.typeConceptNid) {
+            return Integer.compare(typeConceptNid, other.typeConceptNid);
+        }
+        return compareTypedNodeFields(o);
+    }
+    protected abstract int compareTypedNodeFields(Node o);
+
 }

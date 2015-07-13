@@ -30,6 +30,7 @@ import javafx.beans.property.SimpleLongProperty;
  * @author kec
  */
 public class ObservableStampPositionImpl implements ObservableStampPosition {
+    //TODO finish the property listeners for the other Observable coordinates. 
     
     LongProperty timeProperty;
     IntegerProperty stampPathSequenceProperty;

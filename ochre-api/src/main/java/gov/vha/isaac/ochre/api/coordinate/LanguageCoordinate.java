@@ -30,5 +30,18 @@ public interface LanguageCoordinate {
                 List<SememeChronology<DescriptionSememe>> descriptionList,
                 StampCoordinate stampCoordinate);
     
+    /**
+     * Return the description according to the type and dialect preferences 
+     * of this {@code LanguageCoordinate}.
+     * @param descriptionList descriptions to consider
+     * @param stampCoordinate
+     * @return an optional description best matching the {@code LanguageCoordinate}
+     * constraints. 
+     */
+     Optional<LatestVersion<DescriptionSememe>> 
+        getDescription(
+                List<SememeChronology<DescriptionSememe>> descriptionList,
+                StampCoordinate stampCoordinate);
+    
     
 }

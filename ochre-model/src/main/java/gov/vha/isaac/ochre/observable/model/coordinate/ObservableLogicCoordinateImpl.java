@@ -26,6 +26,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  * @author kec
  */
 public class ObservableLogicCoordinateImpl implements ObservableLogicCoordinate {
+    //TODO finish the property listeners for the other Observable coordinates. 
 
     IntegerProperty statedAssemblageSequenceProperty;
     IntegerProperty inferredAssemblageSequenceProperty;

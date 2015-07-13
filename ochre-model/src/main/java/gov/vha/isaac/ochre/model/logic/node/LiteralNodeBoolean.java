@@ -78,6 +78,6 @@ public class LiteralNodeBoolean extends LiteralNode {
 
     @Override
     public String toString() {
-        return "LiteralNodeBoolean[" + getNodeIndex() + "]:" + literalValue + super.toString();
+        return "Boolean literal[" + getNodeIndex() + "]" + literalValue + super.toString();
     }
 }

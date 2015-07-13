@@ -32,7 +32,8 @@ import javafx.collections.FXCollections;
  * @author kec
  */
 public class ObservableStampPathImpl implements ObservableStampPath {
-    
+     //TODO finish the property listeners for the other Observable coordinates. 
+   
     IntegerProperty pathConceptSequenceProperty;
     ListProperty<ObservableStampPosition> pathOriginsProperty;
     

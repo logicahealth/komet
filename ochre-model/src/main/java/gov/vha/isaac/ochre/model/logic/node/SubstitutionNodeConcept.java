@@ -30,7 +30,7 @@ public class SubstitutionNodeConcept extends SubstitutionNode {
 
     @Override
     public String toString() {
-        return "SubstitutionNodeConcept[" + getNodeIndex() + "]:" + super.toString();
+        return "Concept substitution[" + getNodeIndex() + "]" + super.toString();
     }
 
     @Override

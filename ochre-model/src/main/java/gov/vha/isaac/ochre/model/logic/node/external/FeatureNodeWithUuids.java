@@ -7,6 +7,7 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
@@ -110,6 +111,15 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
     
     public UUID getUnitsConceptUuid() {
         return unitsConceptUuid;
+    }
+    @Override
+    protected int compareTypedNodeFields(Node o) {
+        // node semantic already determined equals. 
+        FeatureNodeWithUuids other = (FeatureNodeWithUuids) o;
+        if (!unitsConceptUuid.equals(other.unitsConceptUuid)) {
+            return unitsConceptUuid.compareTo(other.unitsConceptUuid);
+        }
+        return operator.compareTo(other.operator);
     }
 
 }

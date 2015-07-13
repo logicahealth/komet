@@ -386,6 +386,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
 
         rootSets.forEach((axiom) -> addToDefinition(axiom, definition));
 
+        definition.sort();
         built = true;
         return definition;
     }

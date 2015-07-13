@@ -30,6 +30,7 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author kec
  */
 public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoordinate {
+    //TODO finish the property listeners for the other Observable coordinates. 
     
     ObjectProperty<PremiseType> taxonomyTypeProperty;
     ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty;

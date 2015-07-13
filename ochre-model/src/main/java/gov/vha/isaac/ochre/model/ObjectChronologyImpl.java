@@ -539,12 +539,20 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     public void toString(StringBuilder builder) {
-        builder.append("writeSequence=").append(writeSequence)
-                .append(", primordialUuid=").append(new UUID(primordialUuidMsb, primordialUuidLsb))
-                .append(",\n  nid=").append(nid)
-                .append(", containerSequence=").append(containerSequence)
-                .append(", versionStartPosition=").append(versionStartPosition)
-                .append(",\n  versions").append(getVersionList());
+        builder//.append("write:").append(writeSequence)
+                .append("uuid:").append(new UUID(primordialUuidMsb, primordialUuidLsb))
+                .append(",\n nid:").append(nid)
+                .append("\n container:").append(containerSequence)
+                //.append(", versionStartPosition:").append(versionStartPosition)
+                .append(",\n versions[");
+        getVersionList().forEach((version)-> {
+            builder.append("\n");
+            builder.append(version);
+            builder.append(",");
+        });
+        builder.deleteCharAt(builder.length()-1);
+        builder.append("]");
+        
     }
 
     @Override

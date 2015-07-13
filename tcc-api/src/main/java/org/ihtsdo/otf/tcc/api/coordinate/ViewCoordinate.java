@@ -276,11 +276,7 @@ public class ViewCoordinate implements StampCoordinate,
                 return false;
             }
 
-            if (!testEquals(langSort, another.langSort)) {
-                return false;
-            }
-
-            return true;
+            return testEquals(langSort, another.langSort);
         }
 
         return false;
@@ -370,11 +366,7 @@ public class ViewCoordinate implements StampCoordinate,
             return Arrays.equals(ns1.getListArray(), ns2.getListArray());
         }
 
-        if (o1.equals(o2)) {
-            return true;
-        }
-
-        return false;
+        return o1.equals(o2);
     }
 
     @Override
@@ -442,8 +434,6 @@ public class ViewCoordinate implements StampCoordinate,
             try {
                 this.classifierNid = classifierSpec.getLenient().getNid();
             } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -526,9 +516,9 @@ public class ViewCoordinate implements StampCoordinate,
         if (langPrefList == null || langPrefList.isEmpty()) {
             langPrefList = new NidList();
             if (langPrefSpecs != null) {
-                for (ConceptSpec spec : langPrefSpecs) {
+                langPrefSpecs.stream().forEach((spec) -> {
                     langPrefList.add(spec.getNid());
-                }
+                });
             } else {
                 if (languageSpec != null) {
                     langPrefList.add(languageSpec.getNid());
@@ -562,9 +552,9 @@ public class ViewCoordinate implements StampCoordinate,
         if (languagePreferenceList != null) {
             this.langPrefSpecs.clear();
             this.langPrefSpecs.addAll(languagePreferenceList.getPreferenceList());
-            for (ConceptSpec conceptSpec : this.langPrefSpecs) {
+            this.langPrefSpecs.stream().forEach((conceptSpec) -> {
                 langPrefList.add(conceptSpec.getNid());
-            }
+            });
         }
     }
 
@@ -722,8 +712,6 @@ public class ViewCoordinate implements StampCoordinate,
                 this.descriptionLogicProfileNid = descriptionLogicProfileSpec.getLenient().getNid();
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
             }
         }
         return Get.identifierService().getConceptSequence(this.descriptionLogicProfileNid);
@@ -764,9 +752,9 @@ public class ViewCoordinate implements StampCoordinate,
         if (descriptionTypePrefList == null || descriptionTypePrefList.isEmpty()) {
             descriptionTypePrefList = new NidList();
             if (descriptionTypePrefSpecs != null) {
-                for (ConceptSpec spec : descriptionTypePrefSpecs) {
+                descriptionTypePrefSpecs.stream().forEach((spec) -> {
                     descriptionTypePrefList.add(spec.getNid());
-                }
+                });
             } 
         }
         return descriptionTypePrefList.getListArray();
@@ -826,6 +814,11 @@ public class ViewCoordinate implements StampCoordinate,
     public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
         return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
                 getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe>> getDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return getPreferredDescription(descriptionList, stampCoordinate);
     }
 
     @Override

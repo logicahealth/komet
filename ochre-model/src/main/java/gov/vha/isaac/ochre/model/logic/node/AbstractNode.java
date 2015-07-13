@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * Created by kec on 12/10/14.
  */
-public abstract class AbstractNode implements Node, Comparable<Node> {
+public abstract class AbstractNode implements Node {
 
     protected static final UUID namespaceUuid = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
@@ -35,6 +35,11 @@ public abstract class AbstractNode implements Node, Comparable<Node> {
     protected AbstractNode(AbstractNode anotherNode) {
         this.nodeIndex = anotherNode.nodeIndex;
         this.nodeUuid = anotherNode.nodeUuid;
+    }
+    
+    @Override
+    public void sort() {
+        // override on nodes with multiple children. 
     }
 
     @Override

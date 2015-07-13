@@ -35,6 +35,7 @@ import javafx.collections.ObservableSet;
  * @author kec
  */
 public class ObservableStampCoordinateImpl implements ObservableStampCoordinate {
+    //TODO finish the property listeners for the other Observable coordinates. 
     
     ObjectProperty<StampPrecedence> stampPrecedenceProperty;
     ObjectProperty<ObservableStampPosition> stampPositionProperty;

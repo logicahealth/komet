@@ -1,6 +1,7 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
@@ -39,6 +40,13 @@ public class NecessarySetNode extends ConnectorNode {
 
     @Override
     public String toString() {
-        return "NecessarySetNode[" + getNodeIndex() + "]:" + super.toString();
+        return "Necessary[" + getNodeIndex() + "]" + super.toString();
     }
+    
+    @Override
+    protected int compareNodeFields(Node o) {
+        // no fields to compare, node semantic already determined equals. 
+        return 0;
+    }
+    
 }

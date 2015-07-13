@@ -8,7 +8,6 @@ import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -82,6 +81,6 @@ public class LiteralNodeFloat extends LiteralNode {
 
     @Override
     public String toString() {
-        return "LiteralNodeFloat[" + getNodeIndex() + "]:" + literalValue + super.toString();
+        return "Float literal[" + getNodeIndex() + "]" + literalValue + super.toString();
     }
 }

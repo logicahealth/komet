@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 /**
  * Created by kec on 12/9/14.
  */
-public interface Node {
+public interface Node extends Comparable<Node> {
 
     NodeSemantic getNodeSemantic();
 
@@ -24,4 +24,9 @@ public interface Node {
     void setNodeIndex(short nodeIndex);
 
     void addChildren(Node... children);
+    
+    /**
+     * Sort the children of this node
+     */
+    public void sort();
 }

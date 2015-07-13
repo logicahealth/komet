@@ -7,6 +7,7 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
@@ -59,4 +60,11 @@ public class RoleNodeAllWithUuids extends TypedNodeWithUuids {
     public String toString() {
         return "RoleNodeAll[" + getNodeIndex() + "]:" + super.toString();
     }
+    
+    @Override
+    protected int compareTypedNodeFields(Node o) {
+        // node semantic already determined equals. 
+        return 0;
+    }
+    
 }

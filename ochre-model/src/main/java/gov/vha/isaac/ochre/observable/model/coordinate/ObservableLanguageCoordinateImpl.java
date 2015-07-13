@@ -21,7 +21,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
+import gov.vha.isaac.ochre.model.coordinate.LanguageCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
@@ -35,16 +37,20 @@ import javafx.collections.ObservableIntegerArray;
  *
  * @author kec
  */
-public class ObservableLanguageCoordinateImpl implements ObservableLanguageCoordinate {
+public final class ObservableLanguageCoordinateImpl implements ObservableLanguageCoordinate {
 
-    private final LanguageCoordinate languageCoordinate;
+    private final LanguageCoordinateImpl languageCoordinate;
 
     IntegerProperty lanugageConceptSequenceProperty;
     ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty;
     ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty;
+    List<Object> listenerReferences = new ArrayList<>();
 
     public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
-        this.languageCoordinate = languageCoordinate;
+        this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
+        listenerReferences.add(this.languageCoordinate.setDescriptionTypePreferenceListProperty(descriptionTypePreferenceListProperty()));
+        listenerReferences.add(this.languageCoordinate.setDialectAssemblagePreferenceListProperty(dialectAssemblagePreferenceListProperty()));
+        listenerReferences.add(this.languageCoordinate.setLanguageConceptSequenceProperty(lanugageConceptSequenceProperty()));
     }
 
     @Override
@@ -111,5 +117,12 @@ public class ObservableLanguageCoordinateImpl implements ObservableLanguageCoord
     public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampSequence) {
        return languageCoordinate.getPreferredDescription(descriptionList, stampSequence);
     }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe>> getDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 
 }

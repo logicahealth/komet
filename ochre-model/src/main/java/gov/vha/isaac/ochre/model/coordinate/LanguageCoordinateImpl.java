@@ -25,6 +25,13 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
+import javafx.collections.ArrayChangeListener;
+import javafx.collections.ObservableIntegerArray;
 
 /**
  *
@@ -106,10 +113,42 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
     }
 
     @Override
+    public Optional<LatestVersion<DescriptionSememe>> getDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, 
+                descriptionList, this);
+    }
+
+    @Override
     public String toString() {
         return "LanguageCoordinateImpl{languageConceptSequence=" + languageConceptSequence + 
                 ", dialectAssemblagePreferenceList=" + Arrays.toString(dialectAssemblagePreferenceList) + 
                 ", descriptionTypePreferenceList=" + Arrays.toString(descriptionTypePreferenceList) + '}';
     }
+    public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
+        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+            descriptionTypePreferenceList = observableArray.toArray(descriptionTypePreferenceList);
+            System.out.println("Type Preference List updated: " + observableArray);
+        };
+        descriptionTypePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+        return listener;
+    }
 
+    public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
+        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+            dialectAssemblagePreferenceList = observableArray.toArray(dialectAssemblagePreferenceList);
+            System.out.println("Dialect Preference List updated: " + observableArray);
+        };
+        dialectAssemblagePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+        return listener;
+    }
+    
+    public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty langaugeConceptSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable, 
+                Number oldValue, 
+                Number newValue) -> {
+            languageConceptSequence = newValue.intValue();
+        };
+        langaugeConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
 }
