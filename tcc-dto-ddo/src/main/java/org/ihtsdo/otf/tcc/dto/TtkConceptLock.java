@@ -22,10 +22,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Class for locking, to prevent two threads processing same concept at the same
- * time, while allowing for concurrency. 
+ * time, while allowing for concurrency.
+ *
  * @author kec
  */
 public class TtkConceptLock {
+
     private static final ReentrantLock[] locks = new ReentrantLock[256];
 
     static {
@@ -34,13 +36,25 @@ public class TtkConceptLock {
         }
     }
 
+    private static int hash(int key) {
+        key = (key + 0x7ed55d16) + (key << 12);
+        key = (key ^ 0xc761c23c) ^ (key >> 19);
+        key = (key + 0x165667b1) + (key << 5);
+        key = (key + 0xd3a2646c) ^ (key << 9);
+        key = (key + 0xfd7046c5) + (key << 3);
+        key = (key ^ 0xb55a4f09) ^ (key >> 16);
+        return key;
+    }
+
     protected static ReentrantLock getLock(int key) {
-        return locks[((int) ((byte) key)) - Byte.MIN_VALUE];
+        key = ((int) ((byte) hash(key))) - Byte.MIN_VALUE;
+        return locks[key];
     }
 
     public static ReentrantLock getLock(UUID... uuids) {
         return getLock(Get.identifierService().getNidForUuids(uuids));
     }
+
     public static ReentrantLock getLock(Collection<UUID> uuids) {
         return getLock(Get.identifierService().getNidForUuids(uuids.toArray(new UUID[uuids.size()])));
     }

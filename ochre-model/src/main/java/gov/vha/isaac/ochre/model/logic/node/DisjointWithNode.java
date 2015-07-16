@@ -40,7 +40,12 @@ public class DisjointWithNode extends ConnectorNode {
 
     @Override
     public String toString() {
-        return "Disjoint with[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Disjoint with[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
     
     @Override

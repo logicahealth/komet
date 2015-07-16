@@ -20,8 +20,10 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.lang.ref.SoftReference;
@@ -29,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.StampedLock;
@@ -607,6 +611,30 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
+    }
+
+    @Override
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+        SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
+            RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());
+            switch (relativePosition) {
+                case BEFORE:
+                    return -1;
+                case EQUAL:
+                    return 0;
+                case AFTER:
+                    return 1;
+                case UNREACHABLE:
+                case CONTRADICTION:
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + relativePosition);
+            }
+        });
+        
+        sortedLogicGraphs.addAll(getVersionList());
+        
+        return sortedLogicGraphs.stream().collect(Collectors.toList());
     }
 
 }

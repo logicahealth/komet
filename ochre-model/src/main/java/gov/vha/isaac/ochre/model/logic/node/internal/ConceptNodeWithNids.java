@@ -5,6 +5,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.external.ConceptNodeWithUuids;
 
@@ -36,6 +37,12 @@ public final class ConceptNodeWithNids extends AbstractNode {
         super(externalForm);
         this.conceptNid = Get.identifierService().getNidForUuids(externalForm.getConceptUuid());
 
+    }
+
+    @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        super.addConceptsReferencedByNode(conceptSequenceSet); 
+        conceptSequenceSet.add(conceptNid);
     }
 
     public int getConceptNid() {
@@ -81,9 +88,14 @@ public final class ConceptNodeWithNids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "Concept[" + getNodeIndex() + "]: " + Get.conceptDescriptionText(conceptNid) + " <"
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Concept[" + getNodeIndex() + nodeIdSuffix + "] " + Get.conceptDescriptionText(conceptNid) + " <"
                 + Get.identifierService().getConceptSequence(conceptNid)
-                + ">" + super.toString();
+                + ">" + super.toString(nodeIdSuffix);
     }
 
     @Override

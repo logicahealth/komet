@@ -5,6 +5,7 @@ import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
 import gov.vha.isaac.ochre.model.logic.node.external.TypedNodeWithUuids;
@@ -41,10 +42,21 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
     }
 
     @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        super.addConceptsReferencedByNode(conceptSequenceSet); 
+        conceptSequenceSet.add(typeConceptNid);
+    }
+
+    @Override
     public String toString() {
-        return " type: " + Get.conceptDescriptionText(typeConceptNid) +" <"
+        return toString("");
+        
+    }
+   @Override
+    public String toString(String nodeIdSuffix) {
+        return " " + Get.conceptDescriptionText(typeConceptNid) +" <"
                 + Get.identifierService().getConceptSequence(typeConceptNid)
-                + ">"+ super.toString();
+                + ">"+ super.toString(nodeIdSuffix);
         
     }
 
@@ -72,5 +84,27 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
         return compareTypedNodeFields(o);
     }
     protected abstract int compareTypedNodeFields(Node o);
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + this.typeConceptNid;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TypedNodeWithNids other = (TypedNodeWithNids) obj;
+        if (this.typeConceptNid != other.typeConceptNid) {
+            return false;
+        }
+        return super.equals(obj);
+    }
 
 }

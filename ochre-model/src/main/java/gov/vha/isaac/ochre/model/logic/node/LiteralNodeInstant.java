@@ -37,7 +37,12 @@ public class LiteralNodeInstant extends LiteralNode {
 
     @Override
     public String toString() {
-        return "Instant literal[" + getNodeIndex() + "]" + literalValue + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
     }
 
     @Override

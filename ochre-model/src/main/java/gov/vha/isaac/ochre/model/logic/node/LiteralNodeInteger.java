@@ -30,7 +30,12 @@ public class LiteralNodeInteger extends LiteralNode {
 
     @Override
     public String toString() {
-        return "Integer literal[" + getNodeIndex() + "]" + literalValue + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Integer literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
     }
 
     @Override

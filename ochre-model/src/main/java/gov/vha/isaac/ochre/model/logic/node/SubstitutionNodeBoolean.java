@@ -35,6 +35,10 @@ public class SubstitutionNodeBoolean extends SubstitutionNodeLiteral {
 
     @Override
     public String toString() {
-        return "Boolean substitution[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Boolean substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
 }

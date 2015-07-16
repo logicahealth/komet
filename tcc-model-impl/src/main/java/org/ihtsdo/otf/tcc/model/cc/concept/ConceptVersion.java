@@ -1531,4 +1531,9 @@ public class ConceptVersion implements ConceptVersionBI,
         return Get.configurationService().getDefaultLanguageCoordinate();
     }
     
+    @Override
+    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+       return "Not supported in OTF"; 
+    }
+
 }

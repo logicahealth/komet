@@ -16,7 +16,6 @@ import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -92,10 +91,15 @@ public class TemplateNodeWithUuids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "TemplateNode[" + getNodeIndex() + "]: "
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "TemplateNode[" + getNodeIndex() + nodeIdSuffix + "] "
                 + "assemblage: " + Get.conceptService().getConcept(assemblageConceptUuid).toUserString()
                 + ", template: " + Get.conceptService().getConcept(templateConceptUuid).toUserString()
-                + super.toString();
+                + super.toString(nodeIdSuffix);
     }
 
     @Override

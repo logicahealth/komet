@@ -23,17 +23,22 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
 import gov.vha.isaac.ochre.api.logic.LogicService;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
 import gov.vha.isaac.ochre.model.relationship.RelationshipAdaptorChronologyImpl;
+import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -215,6 +220,53 @@ public class ConceptChronologyImpl
 
         }
         return relationshipListWithConceptAsDestination;
+    }
+
+    @Override
+    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+         int assemblageSequence;
+        if (premiseType == PremiseType.INFERRED) {
+            assemblageSequence = logicCoordinate.getInferredAssemblageSequence();
+        } else {
+            assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
+        }
+        Optional<SememeChronology<? extends SememeVersion>> definitionChronologyOptional = 
+                Get.sememeService().getSememesForComponentFromAssemblage(getNid(), assemblageSequence).findFirst();
+                
+        if (definitionChronologyOptional.isPresent()) {
+
+            Collection<LogicGraphSememeImpl> versions = (Collection<LogicGraphSememeImpl>) 
+                    definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
+            StringBuilder builder = new StringBuilder();
+            builder.append("_________________________________________________________________________________\n");
+            builder.append("  Encountered concept '")
+                    .append(Get.conceptDescriptionText(getNid()))
+                    .append("' with ").append(versions.size())
+                    .append(" definition versions:\n");
+            builder.append("￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n");
+            int version = 0;
+            LogicalExpression previousVersion = null;
+            for (LogicGraphSememeImpl lgmv : versions) {
+                LogicalExpression lg = lgmv.getLogicalExpression();
+                builder.append(" Version ")
+                        .append(version++)
+                        .append("\n")
+                        .append(Get.commitService().describeStampSequence(lgmv.getStampSequence()))
+                        .append("\n");
+                if (previousVersion == null) {
+                    builder.append(lg);
+                } else {
+                    IsomorphicResults solution = lg.findIsomorphisms(previousVersion);
+                    builder.append(solution);
+                }
+                builder.append("_________________________________________________________________________________\n");
+                previousVersion = lg;
+            }
+            builder.append("￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n");
+            return builder.toString();
+        }
+        return "No definition found. ";
+
     }
 
 }

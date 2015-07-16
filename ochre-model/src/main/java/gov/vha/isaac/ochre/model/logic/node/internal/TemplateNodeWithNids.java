@@ -5,6 +5,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.external.TemplateNodeWithUuids;
 
@@ -51,6 +52,13 @@ public final class TemplateNodeWithNids extends AbstractNode {
     }
 
     @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        super.addConceptsReferencedByNode(conceptSequenceSet); 
+        conceptSequenceSet.add(templateConceptNid);
+        conceptSequenceSet.add(assemblageConceptNid);
+    }
+
+    @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
         switch (dataTarget) {
             case EXTERNAL:
@@ -84,10 +92,15 @@ public final class TemplateNodeWithNids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "Template[" + getNodeIndex() + "] "
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Template[" + getNodeIndex() + nodeIdSuffix + "] "
                 + "assemblage: " + Get.conceptDescriptionText(assemblageConceptNid)
                 + ", template: " + Get.conceptDescriptionText(templateConceptNid)
-                + super.toString();
+                + super.toString(nodeIdSuffix);
     }
 
     @Override

@@ -55,7 +55,12 @@ public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
 
     @Override
     public String toString() {
-        return "Some[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Some[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
     
     @Override

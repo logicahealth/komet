@@ -2053,6 +2053,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate)
                 .getLatestSememeVersion(assemblageSequence);
     }
+
+    @Override
+    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+       return "Not supported in OTF"; 
+    }
     
 
 }

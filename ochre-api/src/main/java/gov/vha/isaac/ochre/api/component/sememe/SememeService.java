@@ -37,16 +37,16 @@ public interface SememeService {
     
     SememeChronology<? extends SememeVersion> getSememe(int sememeSequence);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageSequence);
-    SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence);
-    SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageSequence, StampPosition position);
+    Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageConceptSequence);
+    SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
+    SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageConceptSequence, StampPosition position);
     
     Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
-    SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
-    SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
+    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
+    SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
+    SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptSequence);
     
     void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints);
     

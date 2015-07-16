@@ -40,7 +40,12 @@ public class OrNode extends ConnectorNode {
 
     @Override
     public String toString() {
-        return "Or[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Or[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
     
     @Override

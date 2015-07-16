@@ -78,6 +78,11 @@ public abstract class SubstitutionNode extends AbstractNode {
 
     @Override
     public String toString() {
-        return " Substitution: '" + substitutionFieldSpecification + '\''  + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return " Substitution: '" + substitutionFieldSpecification + '\''  + super.toString(nodeIdSuffix);
     }
 }

@@ -34,7 +34,12 @@ public class SufficientSetNode extends ConnectorNode {
     
     @Override
     public String toString() {
-        return "Sufficient[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Sufficient[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
 
     @Override

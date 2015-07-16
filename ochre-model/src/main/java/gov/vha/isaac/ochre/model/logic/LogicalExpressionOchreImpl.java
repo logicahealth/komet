@@ -5,6 +5,7 @@ import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
@@ -50,41 +51,38 @@ import java.util.stream.Stream;
 import org.apache.mahout.math.list.IntArrayList;
 
 /**
- * Created by kec on 12/6/14. 
- * 
- * TODO need version of Pack that uses UUIDs for
- * change sets 
- * 
- * TODO need unique way of identifying data columns for
- * substitution: Use enumerations for now 
- * 
- * TODO Standard refset for never grouped roles 
- * 
+ * Created by kec on 12/6/14.
+ *
+ * TODO need version of Pack that uses UUIDs for change sets
+ *
+ * TODO need unique way of identifying data columns for substitution: Use
+ * enumerations for now
+ *
+ * TODO Standard refset for never grouped roles
+ *
  * TODO Standard refset for right identities
  */
 public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     private static final NodeSemantic[] NODE_SEMANTICS = NodeSemantic.values();
-    
+
     private static final EnumSet<NodeSemantic> meaningfulNodeSemantics
             = EnumSet.of(NodeSemantic.CONCEPT, NodeSemantic.SUBSTITUTION_CONCEPT);
 
     protected static int isaNid = 0;
-    
+
     transient int conceptSequence = -1;
 
     ArrayList<Node> nodes = new ArrayList<>();
-    
-    
 
     public LogicalExpressionOchreImpl() {
     }
-    
+
     /**
-     * 
+     *
      * @param nodeDataArray
      * @param dataSource
-     * @param conceptId Either a nid or sequence of a concept is acceptable. 
+     * @param conceptId Either a nid or sequence of a concept is acceptable.
      */
     public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
         this(nodeDataArray, dataSource);
@@ -142,7 +140,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                             default:
                                 throw new UnsupportedOperationException("Can't handle: " + dataSource);
                         }
-                        
+
                         break;
                     case FEATURE:
                         switch (dataSource) {
@@ -154,7 +152,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                             default:
                                 throw new UnsupportedOperationException("Can't handle: " + dataSource);
                         }
-                        
+
                         break;
                     case LITERAL_BOOLEAN:
                         BooleanLiteral(dataInputStream);
@@ -181,7 +179,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                             default:
                                 throw new UnsupportedOperationException("Can't handle: " + dataSource);
                         }
-                        
+
                         break;
                     case TEMPLATE:
                         switch (dataSource) {
@@ -193,7 +191,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                             default:
                                 throw new UnsupportedOperationException("Can't handle: " + dataSource);
                         }
-                        
+
                         break;
                     case SUBSTITUTION_BOOLEAN:
                         BooleanSubstitution(dataInputStream);
@@ -263,11 +261,6 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     @Override
     public byte[][] getData(DataTarget dataTarget) {
-        return pack(dataTarget);
-    }
-
-    @Override
-    public byte[][] pack(DataTarget dataTarget) {
         init();
         byte[][] byteArrayArray = new byte[nodes.size()][];
         for (int index = 0; index < byteArrayArray.length; index++) {
@@ -287,24 +280,44 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     @Override
     public void processDepthFirst(BiConsumer<Node, TreeNodeVisitData> consumer) {
-        init();
-        TreeNodeVisitData graphVisitData = new TreeNodeVisitData(nodes.size());
-        depthFirstVisit(consumer, getRoot(), graphVisitData, 0);
+        processDepthFirst(getRoot(), consumer);
     }
 
-    private void depthFirstVisit(BiConsumer<Node, TreeNodeVisitData> consumer, Node node,
+    /**
+     * Process the fragment starting at rood in a depth first manner.
+     *
+     * @param fragmentRoot
+     * @param consumer
+     */
+    @Override
+    public void processDepthFirst(Node fragmentRoot, BiConsumer<Node, TreeNodeVisitData> consumer) {
+        init();
+        TreeNodeVisitData graphVisitData = new TreeNodeVisitData(nodes.size());
+        depthFirstVisit(consumer, fragmentRoot, graphVisitData, 0);
+    }
+
+    protected void depthFirstVisit(BiConsumer<Node, TreeNodeVisitData> consumer, Node node,
             TreeNodeVisitData graphVisitData, int depth) {
 
         if (depth > 100) {
             System.out.println("Depth limit exceeded for node: " + node);
             return;
         }
+        
         graphVisitData.startNodeVisit(node.getNodeIndex(), depth);
+        node.addConceptsReferencedByNode(graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex()));
+        graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex())
+                .addAll(graphVisitData.getConceptsReferencedAtNodeOrAbove(graphVisitData.getPredecessorSequence(node.getNodeIndex())).stream());
         if (consumer != null) {
             consumer.accept(node, graphVisitData);
         }
-        for (Node child : node.getChildren()) {
-            depthFirstVisit(consumer, child, graphVisitData, depth + 1);
+        if (node.getChildren().length == 0) {
+            graphVisitData.setLeafNode(node.getNodeIndex());
+        } else {
+            for (Node child : node.getChildren()) {
+                graphVisitData.setPredecessorSequence(child.getNodeIndex(), node.getNodeIndex());
+                depthFirstVisit(consumer, child, graphVisitData, depth + 1);
+            }
         }
         graphVisitData.endNodeVisit(node.getNodeIndex());
     }
@@ -312,18 +325,23 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public final NecessarySetNode NecessarySet(AbstractNode... children) {
         return new NecessarySetNode(this, children);
     }
+
     public final NecessarySetNode NecessarySet(DataInputStream dataInputStream) throws IOException {
         return new NecessarySetNode(this, dataInputStream);
     }
+
     public final SufficientSetNode SufficientSet(AbstractNode... children) {
         return new SufficientSetNode(this, children);
     }
+
     public final SufficientSetNode SufficientSet(DataInputStream dataInputStream) throws IOException {
         return new SufficientSetNode(this, dataInputStream);
     }
+
     public final AndNode And(AbstractNode... children) {
         return new AndNode(this, children);
     }
+
     public final AndNode And(DataInputStream dataInputStream) throws IOException {
         return new AndNode(this, dataInputStream);
     }
@@ -331,10 +349,10 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public OrNode Or(AbstractNode... children) {
         return new OrNode(this, children);
     }
+
     public final OrNode Or(DataInputStream dataInputStream) throws IOException {
         return new OrNode(this, dataInputStream);
     }
-
 
     public RootNode Root(ConnectorNode... children) {
         return new RootNode(this, children);
@@ -347,6 +365,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public DisjointWithNode DisjointWith(AbstractNode... children) {
         return new DisjointWithNode(this, children);
     }
+
     public final DisjointWithNode DisjointWith(DataInputStream dataInputStream) throws IOException {
         return new DisjointWithNode(this, dataInputStream);
     }
@@ -354,6 +373,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public RoleNodeAllWithNids AllRole(int typeNid, AbstractNode restriction) {
         return new RoleNodeAllWithNids(this, typeNid, restriction);
     }
+
     public final RoleNodeAllWithNids AllRole(DataInputStream dataInputStream) throws IOException {
         return new RoleNodeAllWithNids(this, dataInputStream);
     }
@@ -362,10 +382,10 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         return new RoleNodeAllWithUuids(this, dataInputStream);
     }
 
-
     public final RoleNodeSomeWithNids SomeRole(int typeNid, AbstractNode restriction) {
         return new RoleNodeSomeWithNids(this, typeNid, restriction);
     }
+
     public final RoleNodeSomeWithNids SomeRole(DataInputStream dataInputStream) throws IOException {
         return new RoleNodeSomeWithNids(this, dataInputStream);
     }
@@ -376,14 +396,14 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     public FeatureNodeWithNids Feature(int typeNid, AbstractNode literal) {
         // check for LiteralNode or SubstitutionNodeLiteral
-        if ((literal instanceof LiteralNode) || (
-                literal instanceof SubstitutionNodeLiteral)) {
-        return new FeatureNodeWithNids(this, typeNid, literal);
+        if ((literal instanceof LiteralNode) || (literal instanceof SubstitutionNodeLiteral)) {
+            return new FeatureNodeWithNids(this, typeNid, literal);
         }
         throw new IllegalStateException(
-                "Node must be of type LiteralNode or SubstitutionNodeLiteral. Found: " + 
-                        literal);
+                "Node must be of type LiteralNode or SubstitutionNodeLiteral. Found: "
+                + literal);
     }
+
     public final FeatureNodeWithNids Feature(DataInputStream dataInputStream) throws IOException {
         return new FeatureNodeWithNids(this, dataInputStream);
     }
@@ -395,6 +415,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public LiteralNodeBoolean BooleanLiteral(boolean literalValue) {
         return new LiteralNodeBoolean(this, literalValue);
     }
+
     public final LiteralNodeBoolean BooleanLiteral(DataInputStream dataInputStream) throws IOException {
         return new LiteralNodeBoolean(this, dataInputStream);
     }
@@ -402,14 +423,15 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public LiteralNodeFloat FloatLiteral(float literalValue) {
         return new LiteralNodeFloat(this, literalValue);
     }
+
     public final LiteralNodeFloat FloatLiteral(DataInputStream dataInputStream) throws IOException {
         return new LiteralNodeFloat(this, dataInputStream);
     }
 
-
     public LiteralNodeInstant InstantLiteral(Instant literalValue) {
         return new LiteralNodeInstant(this, literalValue);
     }
+
     public final LiteralNodeInstant InstantLiteral(DataInputStream dataInputStream) throws IOException {
         return new LiteralNodeInstant(this, dataInputStream);
     }
@@ -417,6 +439,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public LiteralNodeInteger IntegerLiteral(int literalValue) {
         return new LiteralNodeInteger(this, literalValue);
     }
+
     public final LiteralNodeInteger IntegerLiteral(DataInputStream dataInputStream) throws IOException {
         return new LiteralNodeInteger(this, dataInputStream);
     }
@@ -424,27 +447,27 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public LiteralNodeString StringLiteral(String literalValue) {
         return new LiteralNodeString(this, literalValue);
     }
+
     public final LiteralNodeString StringLiteral(DataInputStream dataInputStream) throws IOException {
         return new LiteralNodeString(this, dataInputStream);
     }
 
-
     public final ConceptNodeWithNids Concept(int conceptSequence) {
         return new ConceptNodeWithNids(this, conceptSequence);
     }
+
     public final ConceptNodeWithNids Concept(DataInputStream dataInputStream) throws IOException {
         return new ConceptNodeWithNids(this, dataInputStream);
     }
-
 
     public final ConceptNodeWithUuids ConceptWithUuids(DataInputStream dataInputStream) throws IOException {
         return new ConceptNodeWithUuids(this, dataInputStream);
     }
 
-
     public TemplateNodeWithNids Template(int templateConceptSequence, int assemblageConceptSequence) {
         return new TemplateNodeWithNids(this, templateConceptSequence, assemblageConceptSequence);
     }
+
     public final TemplateNodeWithNids Template(DataInputStream dataInputStream) throws IOException {
         return new TemplateNodeWithNids(this, dataInputStream);
     }
@@ -456,19 +479,18 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     public SubstitutionNodeBoolean BooleanSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
         return new SubstitutionNodeBoolean(this, substitutionFieldSpecification);
     }
+
     public final SubstitutionNodeBoolean BooleanSubstitution(DataInputStream dataInputStream) throws IOException {
         return new SubstitutionNodeBoolean(this, dataInputStream);
     }
 
-
     public SubstitutionNodeConcept ConceptSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
         return new SubstitutionNodeConcept(this, substitutionFieldSpecification);
     }
-    
+
     public final SubstitutionNodeConcept ConceptSubstitution(DataInputStream dataInputStream) throws IOException {
         return new SubstitutionNodeConcept(this, dataInputStream);
     }
-
 
     public SubstitutionNodeFloat FloatSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
         return new SubstitutionNodeFloat(this, substitutionFieldSpecification);
@@ -504,12 +526,17 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     @Override
     public String toString() {
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
         StringBuilder builder = new StringBuilder();
         processDepthFirst((Node node, TreeNodeVisitData graphVisitData) -> {
             for (int i = 0; i < graphVisitData.getDistance(node.getNodeIndex()); i++) {
                 builder.append("    ");
             }
-            builder.append(node);
+            builder.append(node.toString(nodeIdSuffix));
             builder.append("\n");
         });
         return builder.toString();
@@ -545,89 +572,6 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         int hash = 7;
         hash = 29 * hash + this.conceptSequence;
         return hash;
-    }
-
-    public int[] maximalCommonSubgraph(LogicalExpressionOchreImpl another) {
-        TreeNodeVisitData graphVisitData = new TreeNodeVisitData(nodes.size());
-        depthFirstVisit(null, getRoot(), graphVisitData, 0);
-        int[] solution = new int[this.nodes.size()];
-        Arrays.fill(solution, -1);
-        maximalCommonSubgraph(this.getRoot(), another.getRoot(), 0, graphVisitData.getMaxDepth(), solution);
-        return solution;
-
-    }
-
-    /**
-     * Needs more work, use 02072094-c72c-3da4-8361-60f450ff6b2f, Insertion of
-     * graft into lower eyelid for testing.
-     *
-     * @param n1
-     * @param n2
-     * @param depth
-     * @param maxDepth
-     * @param solution
-     */
-    private void maximalCommonSubgraph(AbstractNode n1, AbstractNode n2, int depth, int maxDepth, int[] solution) {
-        if (n1.equals(n2)) {
-            solution[n1.getNodeIndex()] = n2.getNodeIndex();
-            int score = scoreSolution(solution);
-            AbstractNode[] n1children = n1.getChildren();
-            AbstractNode[] n2children = n2.getChildren();
-            if (n1children.length == 0 || n2children.length == 0) {
-                return;
-            }
-            if (n1children.length == 1 && n2children.length == 1) {
-                maximalCommonSubgraph(n1children[0], n2children[0], depth + 1, maxDepth, solution);
-                return;
-            }
-            HashMap<Set<UUID>, IntArrayList> uuidSetNodeListMap = new HashMap<>();
-            int depthToTest = 0;
-            while (uuidSetNodeListMap.size() < n1children.length && depthToTest < maxDepth - depth) {
-                depthToTest++;
-                uuidSetNodeListMap.clear();
-                for (AbstractNode child : n1children) {
-                    Set<UUID> nodeUuidSetForDepth = child.getNodeUuidSetForDepth(depthToTest);
-                    if (!uuidSetNodeListMap.containsKey(nodeUuidSetForDepth)) {
-                        IntArrayList nodeList = new IntArrayList();
-                        nodeList.add(child.getNodeIndex());
-                        uuidSetNodeListMap.put(nodeUuidSetForDepth, nodeList);
-                    } else {
-                        uuidSetNodeListMap.get(nodeUuidSetForDepth).add(child.getNodeIndex());
-                    }
-                }
-            }
-
-            for (AbstractNode n2Child : n2children) {
-                Set<UUID> nodeUuidSetForDepth = n2Child.getNodeUuidSetForDepth(depthToTest);
-                IntArrayList possibleMatches = uuidSetNodeListMap.get(nodeUuidSetForDepth);
-                int[] bestSolution = Arrays.copyOf(solution, solution.length);
-                int bestSolutionIndex = -1;
-                if (possibleMatches != null) {
-                    for (int possibleMatchIndex : possibleMatches.elements()) {
-                        int[] testSolution = Arrays.copyOf(solution, solution.length);
-                        maximalCommonSubgraph((AbstractNode) this.nodes.get(possibleMatchIndex), n2Child, depth + 1, maxDepth, testSolution);
-                        if (scoreSolution(testSolution) > scoreSolution(bestSolution)) {
-                            bestSolution = testSolution;
-                            bestSolutionIndex = possibleMatchIndex;
-                        }
-                    }
-                    if (bestSolutionIndex != -1 && bestSolution[bestSolutionIndex] != -1) {
-                        possibleMatches.delete(bestSolution[bestSolutionIndex]);
-                        System.arraycopy(bestSolution, 0, solution, 0, solution.length);
-                    }
-                }
-            }
-        }
-    }
-
-    private int scoreSolution(int[] solution) {
-        int score = 0;
-        for (int solutionIndex : solution) {
-            if (solutionIndex != -1) {
-                score++;
-            }
-        }
-        return score;
     }
 
     private boolean graphsEqual(AbstractNode g1, AbstractNode g2, int depth, int maxDepth) {
@@ -684,6 +628,11 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
 
     public void sort() {
         nodes.forEach((node) -> node.sort());
+    }
+
+    @Override
+    public IsomorphicResults findIsomorphisms(LogicalExpression another) {
+        return new IsomorphicResultsBottomUp(this, another);
     }
 
 }

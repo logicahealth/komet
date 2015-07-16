@@ -46,7 +46,7 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     @Override
     public String toString() {
-        return " type: \"" + Get.conceptService().getConcept(typeConceptUuid).toUserString() +"\""+ super.toString();
+        return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString() +" "+ super.toString();
     }
 
     public Node getOnlyChild() {

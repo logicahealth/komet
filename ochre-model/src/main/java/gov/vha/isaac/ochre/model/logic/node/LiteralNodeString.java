@@ -76,6 +76,11 @@ public class LiteralNodeString extends LiteralNode {
     }
 
     @Override
+    public String toString(String nodeIdSuffix) {
+        return "String literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+    }
+
+    @Override
     public NodeSemantic getNodeSemantic() {
         return NodeSemantic.LITERAL_STRING;
     }

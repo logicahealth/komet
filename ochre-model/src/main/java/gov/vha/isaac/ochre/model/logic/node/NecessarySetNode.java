@@ -40,7 +40,12 @@ public class NecessarySetNode extends ConnectorNode {
 
     @Override
     public String toString() {
-        return "Necessary[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Necessary[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
     
     @Override

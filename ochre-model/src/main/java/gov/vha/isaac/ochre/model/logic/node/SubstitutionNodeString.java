@@ -25,7 +25,12 @@ public class SubstitutionNodeString extends SubstitutionNodeLiteral {
 
     @Override
     public String toString() {
-        return "String substitution[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "String substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
 
     @Override

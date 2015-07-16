@@ -87,7 +87,12 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "ConceptNode[" + getNodeIndex() + "]: \"" + Get.conceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" + Get.conceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
     }
 
     @Override

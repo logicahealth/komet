@@ -99,10 +99,15 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
 
     @Override
     public String toString() {
-        return "FeatureNode[" + getNodeIndex() + "]: " +
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "FeatureNode[" + getNodeIndex() + nodeIdSuffix + "] " +
                  operator +
                 ", units:" + Get.conceptService().getConcept(unitsConceptUuid).toUserString() +
-                super.toString();
+                super.toString(nodeIdSuffix);
     }
     
     public ConcreteDomainOperators getOperator() {

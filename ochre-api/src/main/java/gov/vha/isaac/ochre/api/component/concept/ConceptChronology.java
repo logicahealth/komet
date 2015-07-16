@@ -101,6 +101,17 @@ public interface ConceptChronology<V extends ConceptVersion>
         
     Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate);
+    
+    /**
+     * Return a formatted text report showing chronology of logical definitions
+     * for this concept, according to the provided parameters.
+     * @param stampCoordinate specifies the ordering and currency of versions. 
+     * @param premiseType Stated or inferred premise type
+     * @param logicCoordinate specifies the assemblages where the definitions are stored. 
+     * @return 
+     */
+    String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, 
+            PremiseType premiseType, LogicCoordinate logicCoordinate);
     /**
      * 
      * @return

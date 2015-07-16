@@ -24,7 +24,12 @@ public class SubstitutionNodeFloat extends SubstitutionNodeLiteral {
 
     @Override
     public String toString() {
-        return "Float substitution[" + getNodeIndex() + "]:" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Float substitution[" + getNodeIndex() + nodeIdSuffix +"]:" + super.toString(nodeIdSuffix);
     }
 
     @Override

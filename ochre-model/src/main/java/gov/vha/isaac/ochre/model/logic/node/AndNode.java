@@ -36,7 +36,12 @@ public class AndNode extends ConnectorNode {
 
     @Override
     public String toString() {
-        return "And[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }    
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "And[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }    
 
     @Override

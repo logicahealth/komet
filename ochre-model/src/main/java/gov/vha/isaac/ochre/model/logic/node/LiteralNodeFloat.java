@@ -81,6 +81,11 @@ public class LiteralNodeFloat extends LiteralNode {
 
     @Override
     public String toString() {
-        return "Float literal[" + getNodeIndex() + "]" + literalValue + super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Float literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
     }
 }

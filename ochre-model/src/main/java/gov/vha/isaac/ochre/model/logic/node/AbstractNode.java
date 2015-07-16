@@ -1,8 +1,11 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 
 import java.io.*;
 import java.util.SortedSet;
@@ -36,6 +39,17 @@ public abstract class AbstractNode implements Node {
         this.nodeIndex = anotherNode.nodeIndex;
         this.nodeUuid = anotherNode.nodeUuid;
     }
+
+    /**
+     * Should be overridden by subclasses that need to add concepts. 
+     * Concepts from connector nodes should not be added. 
+     * @param conceptSequenceSet 
+     */
+    @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        conceptSequenceSet.add(Get.identifierService().getConceptSequenceForUuids(getNodeUuid()));
+    }
+    
     
     @Override
     public void sort() {
@@ -90,14 +104,7 @@ public abstract class AbstractNode implements Node {
     protected void writeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
     }
 
-    ;
-
     protected abstract void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException;
-
-    @Override
-    public String toString() {
-        return "";
-    }
 
     @Override
     public int compareTo(Node o) {
@@ -131,4 +138,39 @@ public abstract class AbstractNode implements Node {
     }
     
     protected abstract UUID initNodeUuid();
+    
+    /**
+     * 
+     * @return A string representing the fragment of the expression 
+     * rooted in this node. 
+     */
+    @Override
+    public String fragmentToString() {
+        
+        return fragmentToString("");
+    }
+   @Override
+    public String fragmentToString(String nodeIdSuffix) {
+        StringBuilder builder = new StringBuilder();
+        logicGraphVersion.processDepthFirst(this, (Node node, TreeNodeVisitData graphVisitData) -> {
+            for (int i = 0; i < graphVisitData.getDistance(node.getNodeIndex()); i++) {
+                builder.append("    ");
+            }
+            builder.append(node.toString(nodeIdSuffix));
+            builder.append("\n");
+        });
+        return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toString("");
+    }
+    @Override
+    public String toString(String nodeIdSuffix) {
+         return "";
+    }
+
+    
+    
 }

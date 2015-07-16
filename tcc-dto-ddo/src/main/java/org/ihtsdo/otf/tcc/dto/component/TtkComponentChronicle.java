@@ -9,6 +9,7 @@ import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
@@ -50,6 +51,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.xml.bind.annotation.*;
@@ -183,6 +185,29 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     public TtkComponentChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {
         super();
         readExternal(in, dataVersion);
+    }
+    @Override
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+        SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
+            RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());
+            switch (relativePosition) {
+                case BEFORE:
+                    return -1;
+                case EQUAL:
+                    return 0;
+                case AFTER:
+                    return 1;
+                case UNREACHABLE:
+                case CONTRADICTION:
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + relativePosition);
+            }
+        });
+        
+        sortedLogicGraphs.addAll(getVersionList());
+        
+        return sortedLogicGraphs.stream().collect(Collectors.toList());
     }
 
     public void addStamps(Collection<TtkStamp> stamps) {

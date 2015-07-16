@@ -60,6 +60,11 @@ public final class RoleNodeAllWithNids extends TypedNodeWithNids {
     }
     
     @Override
+    public String toString(String nodeIdSuffix) {
+        return "All[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
+    }
+    
+    @Override
     protected int compareTypedNodeFields(Node o) {
         // node semantic already determined equals. 
         return 0;

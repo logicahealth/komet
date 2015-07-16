@@ -52,9 +52,9 @@ public class Get implements OchreCache {
     private static ActiveTasks activeTaskSet;
     private static ConfigurationService configurationService;
     private static CommitService commitService;
-    private static ConceptSnapshotService conceptSnapshot;
     private static ConceptModel conceptModel;
     private static ConceptService conceptService;
+    private static ConceptSnapshotService conceptSnapshot;
     private static IdentifiedObjectService identifiedObjectService;
     private static IdentifierService identifierService;
     private static LogicalExpressionBuilderService logicalExpressionBuilderService;
@@ -232,6 +232,7 @@ public class Get implements OchreCache {
         commitService = null;
         conceptModel = null;
         conceptService = null;
+        conceptSnapshot = null;
         identifiedObjectService = null;
         identifierService = null;
         logicalExpressionBuilderService = null;

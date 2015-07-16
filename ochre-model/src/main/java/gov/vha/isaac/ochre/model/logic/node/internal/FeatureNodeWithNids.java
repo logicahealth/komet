@@ -103,10 +103,15 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
 
     @Override
     public String toString() {
-        return "Feature[" + getNodeIndex() + "] "
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Feature[" + getNodeIndex() + nodeIdSuffix +"] "
                 + operator
                 + ", units:" + Get.conceptDescriptionText(unitsConceptNid)
-                + super.toString();
+                + super.toString(nodeIdSuffix);
     }
 
     public ConcreteDomainOperators getOperator() {

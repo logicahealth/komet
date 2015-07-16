@@ -9,8 +9,13 @@ import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -30,6 +35,36 @@ public interface ObjectChronology<V extends StampedVersion>
      * @return a list of all versions of this object chronology. 
      */
     List<? extends V> getVersionList();
+    
+    /**
+     * 
+     * @param stampCoordinate used to determine visibility and order of versions
+     * @return a list of all visible versions of this object chronology, sorted in
+     * ascending order (oldest version first, newest version last). 
+     */
+    default List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+        SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
+            RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());
+            switch (relativePosition) {
+                case BEFORE:
+                    return -1;
+                case EQUAL:
+                    return 0;
+                case AFTER:
+                    return 1;
+                case UNREACHABLE:
+                case CONTRADICTION:
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + relativePosition);
+            }
+        });
+        
+        sortedLogicGraphs.addAll(getVersionList());
+        
+        return sortedLogicGraphs.stream().collect(Collectors.toList());
+    }
+    
     
     /**
      * 

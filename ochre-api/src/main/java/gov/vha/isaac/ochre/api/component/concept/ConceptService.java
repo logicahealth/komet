@@ -31,7 +31,18 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface ConceptService {
     
+    /**
+     * 
+     * @param conceptId either a concept sequence or a concept nid. 
+     * @return the concept chronology associated with the identifier. 
+     */
     ConceptChronology<? extends ConceptVersion> getConcept(int conceptId);
+    
+    /**
+     * 
+     * @param conceptUuids a UUID that identifies a concept.
+     * @return the concept chronology associated with the identifier. 
+     */
     ConceptChronology<? extends ConceptVersion> getConcept(UUID... conceptUuids);
     
     /**

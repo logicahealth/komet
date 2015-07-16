@@ -15,7 +15,6 @@ import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithNids;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -59,6 +58,11 @@ public class RoleNodeAllWithUuids extends TypedNodeWithUuids {
     @Override
     public String toString() {
         return "RoleNodeAll[" + getNodeIndex() + "]:" + super.toString();
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "RoleNodeAll[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
     
     @Override

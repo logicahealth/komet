@@ -30,18 +30,18 @@ import org.roaringbitmap.RoaringBitmap;
  * @author kec
  * @param <T>
  */
-public abstract class IntSet<T extends IntSet> {
+public abstract class IntSet<T extends IntSet> implements Comparable<T> {
 
     RoaringBitmap rbmp;
 
     protected IntSet() {
         rbmp = new RoaringBitmap();
     }
-    
+
     protected IntSet(int... members) {
         rbmp = RoaringBitmap.bitmapOf(members);
     }
-    
+
     protected IntSet(OpenIntHashSet members) {
         rbmp = new RoaringBitmap();
         members.forEachKey((int element) -> {
@@ -49,15 +49,33 @@ public abstract class IntSet<T extends IntSet> {
             return true;
         });
     }
+
     protected IntSet(IntStream memberStream) {
         rbmp = new RoaringBitmap();
         memberStream.forEach((member) -> rbmp.add(member));
-    }    
-    
+    }
+
+    @Override
+    public int compareTo(T o) {
+        int comparison = Integer.compare(rbmp.getCardinality(), rbmp.getCardinality());
+        if (comparison != 0) {
+            return comparison;
+        }
+        IntIterator thisIterator = rbmp.getIntIterator();
+        IntIterator otherIterator = o.rbmp.getIntIterator();
+        while (thisIterator.hasNext()) {
+            comparison = Integer.compare(thisIterator.next(), otherIterator.next());
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        return 0;
+    }
+
     public void clear() {
         rbmp.clear();
     }
-    
+
     public T or(T otherSet) {
         rbmp.or(otherSet.rbmp);
         return (T) this;
@@ -79,51 +97,52 @@ public abstract class IntSet<T extends IntSet> {
     }
 
     /**
-     * 
-     * @return the number of elements in this set. 
+     *
+     * @return the number of elements in this set.
      */
     public int size() {
         return rbmp.getCardinality();
     }
-    
+
     /**
-     * 
-     * @return true if the set is empty. 
+     *
+     * @return true if the set is empty.
      */
     public boolean isEmpty() {
         return rbmp.isEmpty();
     }
+
     /**
-     * 
+     *
      * @param item to add to set.
      */
     public void add(int item) {
         rbmp.add(item);
     }
-    
+
     public void addAll(IntStream intStream) {
         intStream.forEach((anInt) -> rbmp.add(anInt));
     }
-    
+
     /**
-     * 
+     *
      * @param item to remove from set.
      */
     public void remove(int item) {
         rbmp.remove(item);
     }
-    
+
     /**
-     * 
+     *
      * @param item to test for containment in set.
      * @return true if item is contained in set.
      */
     public boolean contains(int item) {
         return rbmp.contains(item);
     }
-    
+
     /**
-     * 
+     *
      * @return the set members as an {@code IntStream}
      */
     public IntStream stream() {
@@ -131,16 +150,17 @@ public abstract class IntSet<T extends IntSet> {
             return IntStream.empty();
         }
         Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-        return StreamSupport.intStream(streamSupplier, 
+        return StreamSupport.intStream(streamSupplier,
                 streamSupplier.get().characteristics(),
                 false);
     }
-    
+
     public OptionalInt findFirst() {
         return stream().findFirst();
     }
+
     /**
-     * 
+     *
      * @return the set members as an {@code IntStream}
      */
     public IntStream parallelStream() {
@@ -148,22 +168,21 @@ public abstract class IntSet<T extends IntSet> {
             return IntStream.empty();
         }
         Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-        return StreamSupport.intStream(streamSupplier, 
+        return StreamSupport.intStream(streamSupplier,
                 streamSupplier.get().characteristics(),
                 true);
     }
-    
+
     public int[] asArray() {
-         return stream().toArray();
+        return stream().toArray();
     }
-    
+
     public OpenIntHashSet asOpenIntHashSet() {
         OpenIntHashSet set = new OpenIntHashSet();
         stream().forEach((sequence) -> set.add(sequence));
         return set;
     }
-    
- 
+
     protected Supplier<? extends Spliterator.OfInt> get() {
         return new SpliteratorSupplier();
     }
@@ -207,12 +226,13 @@ public abstract class IntSet<T extends IntSet> {
                     + Spliterator.SORTED;
         }
     }
+
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + 
-                " size: " + size() + " elements: " + rbmp;
+        return this.getClass().getSimpleName()
+                + " size: " + size() + " elements: " + rbmp;
     }
-    
+
     public IntIterator getIntIterator() {
         return rbmp.getIntIterator();
     }
@@ -220,5 +240,5 @@ public abstract class IntSet<T extends IntSet> {
     public IntIterator getReverseIntIterator() {
         return rbmp.getReverseIntIterator();
     }
-    
+
 }

@@ -100,9 +100,24 @@ public abstract class ConnectorNode extends AbstractNode {
 
     @Override
     public String toString() {
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
         if (childIndices != null && !childIndices.isEmpty()) {
-            return "➞" + childIndices
-                    + super.toString();
+            StringBuilder builder = new StringBuilder();
+            builder.append("➞[");
+            childIndices.forEach((index) -> {
+                builder.append(index);
+                builder.append(nodeIdSuffix);
+                builder.append(", ");
+                return true;
+            });
+            builder.deleteCharAt(builder.length() -1);
+            builder.deleteCharAt(builder.length() -1);
+            builder.append("]");
+            return builder.toString();
         }
         return "";
     }
@@ -110,21 +125,7 @@ public abstract class ConnectorNode extends AbstractNode {
     @Override
     protected int compareFields(Node o) {
         // node semantic is already determined to be the same...
-        int comparison = compareNodeFields(o);
-        if (comparison != 0) {
-            return comparison;
-        }
-        ConnectorNode other = (ConnectorNode) o;
-        if (this.childIndices.size() != other.childIndices.size()) {
-            return Integer.compare(this.childIndices.size(), other.childIndices.size());
-        }
-        for (int i = 0; i < this.childIndices.size(); i++) {
-            comparison = logicGraphVersion.getNode(childIndices.get(i)).compareTo(logicGraphVersion.getNode(other.childIndices.get(i)));
-            if (comparison != 0) {
-                return comparison;
-            }
-        }
-        return 0;
+        return compareNodeFields(o);
     }
     
     protected abstract int compareNodeFields(Node o);

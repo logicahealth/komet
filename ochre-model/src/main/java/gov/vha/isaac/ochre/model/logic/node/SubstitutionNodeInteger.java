@@ -25,7 +25,12 @@ public class SubstitutionNodeInteger extends SubstitutionNodeLiteral {
 
     @Override
     public String toString() {
-        return "Integer substitution[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Integer substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
 
     @Override

@@ -40,7 +40,12 @@ public class RootNode extends ConnectorNode {
 
     @Override
     public String toString() {
-        return "Root[" + getNodeIndex() + "]" + super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Root[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
     
     @Override
