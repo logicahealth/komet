@@ -80,6 +80,11 @@ public class ObservableStampPathImpl implements ObservableStampPath {
                 .map((origin) -> new ObservableStampPositionImpl(origin))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public int compareTo(StampPath o) {
+        return stampPath.compareTo(o);
+    }
     
     
 }

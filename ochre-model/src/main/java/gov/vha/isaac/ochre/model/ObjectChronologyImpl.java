@@ -20,15 +20,17 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.dag.Graph;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
@@ -549,14 +551,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 .append("\n container:").append(containerSequence)
                 //.append(", versionStartPosition:").append(versionStartPosition)
                 .append(",\n versions[");
-        getVersionList().forEach((version)-> {
+        getVersionList().forEach((version) -> {
             builder.append("\n");
             builder.append(version);
             builder.append(",");
         });
-        builder.deleteCharAt(builder.length()-1);
+        builder.deleteCharAt(builder.length() - 1);
         builder.append("]");
-        
+
     }
 
     @Override
@@ -612,6 +614,50 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
+    
+    
+
+    @Override
+    public List<Graph<? extends V>> getVersionGraphList() {
+
+        HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
+        getVersionList().forEach((version) -> {
+            StampPath path = Get.pathService().getStampPath(version.getPathSequence());
+
+            TreeSet<V> versionSet = versionMap.get(path);
+            if (versionSet == null) {
+                versionSet = new TreeSet<>((V v1, V v2) -> {
+                    int comparison = Long.compare(v1.getTime(), v2.getTime());
+                    if (comparison != 0) {
+                        return comparison;
+                    }
+                    return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
+                });
+                 versionMap.put(path, versionSet);
+            }
+            versionSet.add(version);
+        });
+
+        if (versionMap.size() == 1) {
+            // easy case...
+            List<Graph<? extends V>> results = new ArrayList();
+            Graph<V> graph = new Graph<>();
+            results.add(graph);
+            versionMap.entrySet().forEach((entry) -> {
+                entry.getValue().forEach((version) -> {
+                    if (graph.getRoot() == null) {
+                        graph.createRoot(version);
+                    } else {
+                        graph.getLastAddedNode().addChild(version);
+                    }
+                });
+
+            });
+            return results;
+        }
+        // TODO support for more than one path...
+        throw new UnsupportedOperationException("TODO: Implement version graph for more than one path...");
+    }
 
     @Override
     public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
@@ -631,9 +677,9 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                     throw new UnsupportedOperationException("Can't handle: " + relativePosition);
             }
         });
-        
+
         sortedLogicGraphs.addAll(getVersionList());
-        
+
         return sortedLogicGraphs.stream().collect(Collectors.toList());
     }
 

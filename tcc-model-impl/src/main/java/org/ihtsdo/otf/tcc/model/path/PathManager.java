@@ -263,4 +263,11 @@ public class PathManager implements PathService {
         }
         return null;
     }
+
+    @Override
+    public Collection<? extends StampPath> getPaths() {
+        return pathMap_.values();
+    }
+    
+    
 }

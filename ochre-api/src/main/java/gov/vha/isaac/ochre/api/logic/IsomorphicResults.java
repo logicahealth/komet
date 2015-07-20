@@ -26,24 +26,60 @@ public interface IsomorphicResults {
 
     /**
      * 
-     * @return roots for nodes that are in the reference expression, but not in the 
-     * common expression. 
+     * @return the expression that isomorphic results are computed with respect to. 
      */
-    Stream<Node> getAdditionRoots();
-
+    LogicalExpression getReferenceExpression();
+    
     /**
+     * 
+     * @return the expression that is compared to the reference expression to compute 
+     * isomorphic results.
+     */
+   LogicalExpression getComparisonExpression();
+
+   /**
      * 
      * @return an expression containing only the connected set of nodes representing
      * the maximal common isomorphism between the two expressions that are connected
      * to their respective roots. 
      */
-    LogicalExpression getCommon();
+    LogicalExpression getIsomorphicExpression();
     
     /**
      * 
-     * @return roots for nodes that are in the comparison expression, but are not in 
+     * @return roots for connected nodes that are in the reference expression, but not in the 
+     * common expression. 
+     */
+    Stream<Node> getAdditionalNodeRoots();
+
+     /**
+     * 
+     * @return roots for connected nodes that are in the comparison expression, but are not in 
      * the common expression. 
      */
-    Stream<Node> getDeletionRoots();
+    Stream<Node> getDeletedNodeRoots();
+    
+    /**
+     * 
+     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
+     * in the comparisonExpression, but not in the referenceExpression. 
+     */
+    Stream<Node> getDeletedRelationshipRoots();
+    
+   /**
+     * 
+     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
+     * in the referenceExpression, but not in the comparisonExpression. 
+     */
+    Stream<Node> getAddedRelationshipRoots();
+    
+   /**
+     * 
+     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
+     * in both the referenceExpression and in the comparisonExpression. 
+     */
+     Stream<Node> getSharedRelationshipRoots();
+    
+   
     
 }

@@ -16,10 +16,11 @@ import org.apache.mahout.math.list.IntArrayList;
  */
 public class TreeNodeVisitData {
 
-    protected IntArrayList distanceList = new IntArrayList();
-    protected IntArrayList discoveryTimeList = new IntArrayList();
-    protected IntArrayList finishTimeList = new IntArrayList();
-    protected IntArrayList predecessorSequenceList = new IntArrayList();
+    protected final IntArrayList distanceList;
+    protected final IntArrayList discoveryTimeList;
+    protected final IntArrayList finishTimeList;
+    protected final IntArrayList predecessorSequenceList;
+    protected final IntArrayList siblingGroupSequenceList;
     private SequenceSet visitStarted = new SequenceSet();
     private SequenceSet visitEnded = new SequenceSet();
     private SequenceSet leafNodes = new SequenceSet();
@@ -39,6 +40,7 @@ public class TreeNodeVisitData {
         this.distanceList = new IntArrayList(new int[graphSize]);
         this.discoveryTimeList = new IntArrayList(new int[graphSize]);
         this.finishTimeList = new IntArrayList(new int[graphSize]);
+        this.siblingGroupSequenceList = new IntArrayList(new int[graphSize]);
         this.predecessorSequenceList = new IntArrayList(new int[graphSize]);
         this.predecessorSequenceList.fillFromToWith(0, graphSize - 1, -1);
     }
@@ -176,6 +178,14 @@ public class TreeNodeVisitData {
             }
         }
         return nodeIdsForDepth;
+    }
+
+    public int getSiblingGroupForSequence(int sequence) {
+        return siblingGroupSequenceList.get(sequence);
+    }
+
+    public void setSiblingGroupForSequence(int sequence, int value) {
+        siblingGroupSequenceList.set(sequence, value);
     }
 
 }

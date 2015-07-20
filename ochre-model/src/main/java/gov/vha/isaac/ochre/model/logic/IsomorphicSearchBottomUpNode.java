@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.model.logic;
 
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -44,11 +45,16 @@ public class IsomorphicSearchBottomUpNode implements Comparable<IsomorphicSearch
         if (comparison != 0) {
             return comparison;
         }
-        comparison = this.conceptsReferencedAtNodeOrAbove.compareTo(o.conceptsReferencedAtNodeOrAbove);
+        comparison = Integer.compare(childNodeId, o.childNodeId);
         if (comparison != 0) {
             return comparison;
         }
-        comparison = Integer.compare(childNodeId, o.childNodeId);
+        comparison = Integer.compare(this.conceptsReferencedAtNodeOrAbove.size(),
+                o.conceptsReferencedAtNodeOrAbove.size());
+        if (comparison != 0) {
+            return comparison;
+        }
+        comparison = this.conceptsReferencedAtNodeOrAbove.compareTo(o.conceptsReferencedAtNodeOrAbove);
         if (comparison != 0) {
             return comparison;
         }
@@ -84,6 +90,8 @@ public class IsomorphicSearchBottomUpNode implements Comparable<IsomorphicSearch
         return Objects.equals(this.conceptsReferencedAtNodeOrAbove, other.conceptsReferencedAtNodeOrAbove);
     }
 
-
-    
+    @Override
+    public String toString() {
+        return "BottomUpNode{"+ nodeSemantic + ", conceptsAtOrAbove=" + Arrays.toString(conceptsReferencedAtNodeOrAbove.asArray()) + ", childId=" + childNodeId + ", nodeId=" + nodeId + '}';
+    }
 }

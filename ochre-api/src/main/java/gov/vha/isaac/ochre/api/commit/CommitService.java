@@ -90,6 +90,14 @@ public interface CommitService {
     
     boolean isUncommitted(int stampSequence);
     
+    /**
+     * 
+     * @param stampSequence a stamp sequence to create an analog of
+     * @return a stampSequence with a State of INACTIVE, but the same
+     * time, author, module, and pat as the provided stamp sequence. 
+     */
+    int getRetiredStampSequence(int stampSequence);
+    
     int getStampSequence(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);
     

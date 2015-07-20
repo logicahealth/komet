@@ -22,6 +22,7 @@ import gov.vha.isaac.ochre.model.logic.node.LiteralNodeString;
 import gov.vha.isaac.ochre.model.logic.node.NecessarySetNode;
 import gov.vha.isaac.ochre.model.logic.node.OrNode;
 import gov.vha.isaac.ochre.model.logic.node.RootNode;
+import gov.vha.isaac.ochre.model.logic.node.SubstitutionNode;
 import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeBoolean;
 import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeConcept;
 import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeFloat;
@@ -40,6 +41,7 @@ import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithNids;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithNids;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithNids;
 import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithNids;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -74,8 +76,95 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     transient int conceptSequence = -1;
 
     ArrayList<Node> nodes = new ArrayList<>();
+    int rootNode = 0;
 
     public LogicalExpressionOchreImpl() {
+    }
+
+    public LogicalExpressionOchreImpl(LogicalExpressionOchreImpl another, int[] solution) {
+         addNodes(another, solution, another.rootNode);
+        nodes.trimToSize();
+    }
+
+    private Node[] addNodes(LogicalExpressionOchreImpl another, int[] solution, int... oldIds) {
+
+        AbstractNode[] results = new AbstractNode[oldIds.length];
+        for (int i = 0; i < oldIds.length; i++) {
+            Node oldNode = another.getNode(oldIds[i]);
+            switch (oldNode.getNodeSemantic()) {
+                case DEFINITION_ROOT:
+                    results[i] = Root(Arrays.stream(addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())).map((Node t) -> (ConnectorNode) t).toArray(ConnectorNode[]::new));
+                    rootNode =  results[i].getNodeIndex();
+                    break;
+                case NECESSARY_SET:
+                    results[i] = NecessarySet((AbstractNode[]) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray()));
+                    break;
+                case SUFFICIENT_SET:
+                    results[i] = SufficientSet((AbstractNode[]) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray()));
+                    break;
+                case AND:
+                    results[i] = And((AbstractNode[]) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray()));
+                    break;
+                case OR:
+                    results[i] = Or((AbstractNode[]) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray()));
+                    break;
+                case DISJOINT_WITH:
+                    results[i] = DisjointWith((AbstractNode[]) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray()));
+                    break;
+                case ROLE_ALL:
+                    results[i] = AllRole(((TypedNodeWithNids) oldNode).getTypeConceptNid(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
+                    break;
+                case ROLE_SOME:
+                    results[i] = SomeRole(((TypedNodeWithNids) oldNode).getTypeConceptNid(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
+                    break;
+                case FEATURE:
+                    results[i] = Feature(((TypedNodeWithNids) oldNode).getTypeConceptNid(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
+                    break;
+                case LITERAL_BOOLEAN:
+                    results[i] = BooleanLiteral(((LiteralNodeBoolean) oldNode).getLiteralValue());
+                    break;
+                case LITERAL_FLOAT:
+                    results[i] = FloatLiteral(((LiteralNodeFloat) oldNode).getLiteralValue());
+                    break;
+                case LITERAL_INSTANT:
+                    results[i] = InstantLiteral(((LiteralNodeInstant) oldNode).getLiteralValue());
+                    break;
+                case LITERAL_INTEGER:
+                    results[i] = IntegerLiteral(((LiteralNodeInteger) oldNode).getLiteralValue());
+                    break;
+                case LITERAL_STRING:
+                    results[i] = StringLiteral(((LiteralNodeString) oldNode).getLiteralValue());
+                    break;
+                case CONCEPT:
+                    results[i] = Concept(((ConceptNodeWithNids) oldNode).getConceptNid());
+                    break;
+                case TEMPLATE:
+                    results[i] = Template(((TemplateNodeWithNids) oldNode).getTemplateConceptNid(),
+                            ((TemplateNodeWithNids) oldNode).getAssemblageConceptNid());
+                    break;
+                case SUBSTITUTION_BOOLEAN:
+                    results[i] = BooleanSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
+                    break;
+                case SUBSTITUTION_CONCEPT:
+                    results[i] = ConceptSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
+                    break;
+                case SUBSTITUTION_FLOAT:
+                    results[i] = FloatSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
+                    break;
+                case SUBSTITUTION_INSTANT:
+                    results[i] = InstantSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
+                    break;
+                case SUBSTITUTION_INTEGER:
+                    results[i] = IntegerSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
+                    break;
+                case SUBSTITUTION_STRING:
+                    results[i] = StringSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + oldNode.getNodeSemantic());
+            }
+        }
+        return results;
     }
 
     /**
@@ -251,7 +340,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         if (nodes.isEmpty()) {
             return Root();
         }
-        return (RootNode) nodes.get(0);
+        return (RootNode) nodes.get(rootNode);
     }
 
     @Override
@@ -303,7 +392,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
             System.out.println("Depth limit exceeded for node: " + node);
             return;
         }
-        
+
         graphVisitData.startNodeVisit(node.getNodeIndex(), depth);
         node.addConceptsReferencedByNode(graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex()));
         graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex())
@@ -314,9 +403,25 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         if (node.getChildren().length == 0) {
             graphVisitData.setLeafNode(node.getNodeIndex());
         } else {
+            int siblingGroupSequence;
+            switch (node.getNodeSemantic()) {
+                case AND:
+                case OR:
+                case SUFFICIENT_SET:
+                case NECESSARY_SET:
+                case DISJOINT_WITH:
+                case DEFINITION_ROOT:
+                    siblingGroupSequence = node.getNodeIndex();
+                    break;
+                default:
+                    siblingGroupSequence =
+                            graphVisitData.getSiblingGroupForSequence(node.getNodeIndex());
+            }
+
             for (Node child : node.getChildren()) {
+                graphVisitData.setSiblingGroupForSequence(child.getNodeIndex(), siblingGroupSequence);
                 graphVisitData.setPredecessorSequence(child.getNodeIndex(), node.getNodeIndex());
-                depthFirstVisit(consumer, child, graphVisitData, depth + 1);
+                     depthFirstVisit(consumer, child, graphVisitData, depth + 1);
             }
         }
         graphVisitData.endNodeVisit(node.getNodeIndex());

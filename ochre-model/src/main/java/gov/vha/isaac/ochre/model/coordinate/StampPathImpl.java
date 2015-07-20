@@ -45,5 +45,10 @@ public class StampPathImpl implements StampPath {
     public Collection<? extends StampPosition> getPathOrigins() {
         return Get.pathService().getOrigins(pathConceptSequence);
     }
+
+    @Override
+    public int compareTo(StampPath o) {
+       return Integer.compare(pathConceptSequence, o.getPathConceptSequence());
+    }
     
 }

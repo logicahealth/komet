@@ -34,5 +34,5 @@ public interface StampedVersion  {
     int getModuleSequence();
     
     int getPathSequence();
-    
+
 }

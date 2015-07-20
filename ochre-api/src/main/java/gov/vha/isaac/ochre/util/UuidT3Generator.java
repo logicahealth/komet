@@ -16,8 +16,6 @@
 package gov.vha.isaac.ochre.util;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 
 

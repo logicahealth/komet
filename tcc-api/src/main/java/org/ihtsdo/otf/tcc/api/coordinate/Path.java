@@ -246,4 +246,9 @@ public class Path implements StampPath, Externalizable {
     public Collection<? extends StampPosition> getPathOrigins() {
         return this.origins;
     }
+
+    @Override
+    public int compareTo(StampPath o) {
+        return Integer.compare(getPathConceptSequence(), o.getPathConceptSequence());
+    }
 }

@@ -238,12 +238,12 @@ public class ConceptChronologyImpl
             Collection<LogicGraphSememeImpl> versions = (Collection<LogicGraphSememeImpl>) 
                     definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
             StringBuilder builder = new StringBuilder();
-            builder.append("_________________________________________________________________________________\n");
+            builder.append("_______________________________________________________________________\n");
             builder.append("  Encountered concept '")
                     .append(Get.conceptDescriptionText(getNid()))
                     .append("' with ").append(versions.size())
                     .append(" definition versions:\n");
-            builder.append("￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n");
+            builder.append("￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n");
             int version = 0;
             LogicalExpression previousVersion = null;
             for (LogicGraphSememeImpl lgmv : versions) {
@@ -259,10 +259,10 @@ public class ConceptChronologyImpl
                     IsomorphicResults solution = lg.findIsomorphisms(previousVersion);
                     builder.append(solution);
                 }
-                builder.append("_________________________________________________________________________________\n");
+                builder.append("_______________________________________________________________________\n");
                 previousVersion = lg;
             }
-            builder.append("￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n");
+            builder.append("￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n");
             return builder.toString();
         }
         return "No definition found. ";

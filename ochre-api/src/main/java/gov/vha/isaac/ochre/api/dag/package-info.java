@@ -13,24 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.model.logic;
-
-import java.util.Comparator;
 
 /**
- *
- * @author kec
+ * A simple graph implementation package for general purpose, use with small graph structures. 
  */
-public class IntArrayComparator implements Comparator<int[]> {
-
-    @Override
-    public int compare(int[] o1, int[] o2) {
-            for (int i = 0; i < o1.length; i++) {
-                if (o1[i] != o2[i]) {
-                    return (o1[i] < o2[i]) ? -1 : ((o1[i] == o2[i]) ? 0 : 1);
-                }
-            }
-            return 0;
-    }
-    
-}
+package gov.vha.isaac.ochre.api.dag;
