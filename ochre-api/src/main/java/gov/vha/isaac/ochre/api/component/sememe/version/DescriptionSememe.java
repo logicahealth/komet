@@ -22,7 +22,7 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  * @author kec
  * @param <V>
  */
-public interface DescriptionSememe<V extends DescriptionSememe> 
+public interface DescriptionSememe<V extends DescriptionSememe<V>> 
     extends SememeVersion<V> {
     int getCaseSignificanceConceptSequence();
     int getLanguageConceptSequence();

@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface MutableLongSememe extends LongSememe {
+public interface MutableLongSememe<T extends MutableLongSememe<T>> extends LongSememe<T> {
     void setLongValue(long longValue);
 }

@@ -19,7 +19,7 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface DynamicSememe extends SememeVersion {
+public interface DynamicSememe<T extends DynamicSememe<T>> extends SememeVersion<T> {
     /**
      * @return All of the data columns that are part of this Refex. See
      *         {@link #getData(int)}. May be empty, will not be null.

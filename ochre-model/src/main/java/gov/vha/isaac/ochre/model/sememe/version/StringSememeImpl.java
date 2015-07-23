@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableStringSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 
@@ -24,7 +25,7 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
  *
  * @author kec
  */
-public class StringSememeImpl extends SememeVersionImpl implements MutableStringSememe {
+public class StringSememeImpl extends SememeVersionImpl implements StringSememe, MutableStringSememe {
     
     private String string = null;
 

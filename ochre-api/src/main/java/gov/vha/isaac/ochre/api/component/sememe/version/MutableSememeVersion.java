@@ -21,6 +21,6 @@ import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
  *
  * @author kec
  */
-public interface MutableSememeVersion extends MutableStampedVersion, SememeVersion {
+public interface MutableSememeVersion<T extends MutableSememeVersion<T>> extends MutableStampedVersion, SememeVersion<T> {
     
 }

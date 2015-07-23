@@ -27,7 +27,7 @@ import org.jvnet.hk2.annotations.Contract;
  * @param <C>
  */
 @Contract
-public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion>> {
+public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion<?>>> {
     
     SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
             IdentifiedComponentBuilder referencedComponent, 

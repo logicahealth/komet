@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface MutableStringSememe extends MutableSememeVersion, StringSememe {
+public interface MutableStringSememe<T extends MutableStringSememe<T>> extends MutableSememeVersion<T>, StringSememe<T> {
     void setString(String string);
 }

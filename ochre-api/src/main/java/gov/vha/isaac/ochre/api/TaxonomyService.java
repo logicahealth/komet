@@ -84,5 +84,5 @@ public interface TaxonomyService {
      * developing an alternative taxonomy service implementation. 
      * @param logicGraphChronology Chronology of the logical definitions
      */
-    void updateTaxonomy(SememeChronology<LogicGraphSememe> logicGraphChronology);
+    void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology);
 }

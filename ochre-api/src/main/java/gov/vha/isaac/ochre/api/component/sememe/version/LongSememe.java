@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface LongSememe extends SememeVersion {
+public interface LongSememe<T extends LongSememe<T>> extends SememeVersion<T> {
     long getLongValue();
 }

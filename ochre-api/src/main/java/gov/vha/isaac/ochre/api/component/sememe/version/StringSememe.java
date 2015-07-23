@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface StringSememe extends SememeVersion {
+public interface StringSememe<T extends StringSememe<T>> extends SememeVersion<T> {
     String getString();
 }
