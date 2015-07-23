@@ -25,7 +25,7 @@ import java.util.Optional;
  * @author kec
  * @param <V>
  */
-public interface ConceptChronology<V extends ConceptVersion>
+public interface ConceptChronology<V extends ConceptVersion<?>>
     extends ObjectChronology<V> {
     
     /**

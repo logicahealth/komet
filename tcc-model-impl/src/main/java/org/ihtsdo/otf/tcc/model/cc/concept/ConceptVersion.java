@@ -1457,7 +1457,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public ConceptChronology<gov.vha.isaac.ochre.api.component.concept.ConceptVersion> getChronology() {
+    public ConceptChronology<gov.vha.isaac.ochre.api.component.concept.ConceptVersion<?>> getChronology() {
         throw new UnsupportedOperationException("Only for OCHRE implementation");
     }
 

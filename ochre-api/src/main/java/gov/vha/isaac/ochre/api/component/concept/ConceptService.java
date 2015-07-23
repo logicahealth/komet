@@ -36,29 +36,29 @@ public interface ConceptService {
      * @param conceptId either a concept sequence or a concept nid. 
      * @return the concept chronology associated with the identifier. 
      */
-    ConceptChronology<? extends ConceptVersion> getConcept(int conceptId);
+    ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId);
     
     /**
      * 
      * @param conceptUuids a UUID that identifies a concept.
      * @return the concept chronology associated with the identifier. 
      */
-    ConceptChronology<? extends ConceptVersion> getConcept(UUID... conceptUuids);
+    ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids);
     
     /**
      * Use in circumstances when not all concepts may have been loaded. 
      * @param conceptId Either a nid or concept sequence
      * @return an Optional ConceptChronology.
      */
-    Optional<? extends ConceptChronology<? extends ConceptVersion>> getOptionalConcept(int conceptId);
+    Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId);
     /**
      * Use in circumstances when not all concepts may have been loaded. 
      * @param conceptUuids uuids that identify the concept
      * @return an Optional ConceptChronology.
      */
-    Optional<? extends ConceptChronology<? extends ConceptVersion>> getOptionalConcept(UUID... conceptUuids);
+    Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids);
     
-    void writeConcept(ConceptChronology<? extends ConceptVersion> concept);
+    void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept);
 
     boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
     
@@ -71,11 +71,11 @@ public interface ConceptService {
     
     int getConceptCount();
     
-    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream();
-    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream();
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream();
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream();
 
-    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
-    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
     
     /**
      * For backward compatability reasons only. 

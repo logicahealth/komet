@@ -33,7 +33,7 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 public interface ConceptVersionBI extends ComponentVersionBI, 
         ConceptChronicleBI, 
         ConceptSnapshot, 
-        ConceptVersion {
+        ConceptVersion<ConceptVersion<?>> {
     @Override
     default int getAssociatedConceptNid() {
         return getEnclosingConceptNid();
