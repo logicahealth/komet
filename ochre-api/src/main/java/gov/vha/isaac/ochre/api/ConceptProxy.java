@@ -32,7 +32,7 @@ public class ConceptProxy {
     public ConceptProxy(String externalString) {
         String[] parts = externalString.split(FIELD_SEPERATOR);
         this.description = parts[0];
-        List<UUID> uuidList = new ArrayList(parts.length - 1);
+        List<UUID> uuidList = new ArrayList<>(parts.length - 1);
         for (int i = 1; i < parts.length; i++) {
             uuidList.add(UUID.fromString(parts[i]));
         }

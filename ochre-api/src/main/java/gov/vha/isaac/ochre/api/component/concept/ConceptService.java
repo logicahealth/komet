@@ -78,7 +78,7 @@ public interface ConceptService {
     Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
     
     /**
-     * For backward compatability reasons only. 
+     * For backward compatibility reasons only. 
      * @return 
      * @deprecated 
      */

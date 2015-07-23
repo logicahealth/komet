@@ -6,7 +6,10 @@
 package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+
 import java.util.Collection;
 
 /**
@@ -15,11 +18,11 @@ import java.util.Collection;
  */
 public interface ChangeChecker extends Comparable<ChangeChecker> {
     
-    void check(ConceptChronology cc, 
+    void check(ConceptChronology<? extends ConceptVersion<?>> cc, 
                Collection<Alert> alertCollection,
                CheckPhase checkPhase);
     
-    void check(SememeChronology sc, 
+    void check(SememeChronology<? extends SememeVersion<?>> sc, 
                Collection<Alert> alertCollection,
                CheckPhase checkPhase);
     

@@ -17,12 +17,17 @@ package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
+
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -40,25 +45,25 @@ public interface CommitService {
     
     Optional<String> getComment(int stampSequence);
     
-    Task<Void> addUncommitted(ConceptChronology cc);
+    Task<Void> addUncommitted(ConceptChronology<? extends ConceptVersion<?>> cc);
 
-    Task<Void> addUncommittedNoChecks(ConceptChronology cc);
+    Task<Void> addUncommittedNoChecks(ConceptChronology<? extends ConceptVersion<?>> cc);
 
-    Task<Void> addUncommitted(SememeChronology sc);
+    Task<Void> addUncommitted(SememeChronology<? extends SememeVersion> sc);
 
-    Task<Void> addUncommittedNoChecks(SememeChronology sc);
+    Task<Void> addUncommittedNoChecks(SememeChronology<? extends SememeVersion> sc);
 
     Task<Void> cancel();
 
-    Task<Void> cancel(ConceptChronology chronicledConcept);
+    Task<Void> cancel(ConceptChronology<? extends ConceptVersion<?>> chronicledConcept);
 
-    Task<Void> cancel(SememeChronology sememeChronicle);
+    Task<Void> cancel(SememeChronology<? extends SememeVersion> sememeChronicle);
 
     Task<Optional<CommitRecord>> commit(String commitComment);
 
-    Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
+    Task<Optional<CommitRecord>> commit(ConceptChronology<? extends ConceptVersion<?>> chronicledConcept, String commitComment);
     
-    Task<Optional<CommitRecord>> commit(SememeChronology sememeChronicle, String commitComment);
+    Task<Optional<CommitRecord>> commit(SememeChronology<? extends SememeVersion> sememeChronicle, String commitComment);
     
     ObservableList<Integer> getUncommittedConceptNids();
     
