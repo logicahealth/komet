@@ -72,7 +72,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             int referencedComponentNid, 
             int assemblageConceptSequence);
 
-    SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> getDescriptionSememeBuilder(
+    SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
             int caseSignificanceConceptSequence,
             int descriptionTypeConceptSequence,
             int languageConceptSequence,
@@ -80,7 +80,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
             int assemblageConceptSequence);
     
-    SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> getDescriptionSememeBuilder(
+    SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
             int caseSignificanceConceptSequence,
             int languageConceptSequence,
             int descriptionTypeConceptSequence,
