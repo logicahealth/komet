@@ -45,25 +45,25 @@ public interface CommitService {
     
     Optional<String> getComment(int stampSequence);
     
-    Task<Void> addUncommitted(ConceptChronology<? extends ConceptVersion<?>> cc);
+    Task<Void> addUncommitted(ConceptChronology<?> cc);
 
-    Task<Void> addUncommittedNoChecks(ConceptChronology<? extends ConceptVersion<?>> cc);
+    Task<Void> addUncommittedNoChecks(ConceptChronology<?> cc);
 
-    Task<Void> addUncommitted(SememeChronology<? extends SememeVersion<?>> sc);
+    Task<Void> addUncommitted(SememeChronology<?> sc);
 
-    Task<Void> addUncommittedNoChecks(SememeChronology<? extends SememeVersion<?>> sc);
+    Task<Void> addUncommittedNoChecks(SememeChronology<?> sc);
 
     Task<Void> cancel();
 
-    Task<Void> cancel(ConceptChronology<? extends ConceptVersion<?>> chronicledConcept);
+    Task<Void> cancel(ConceptChronology<?> chronicledConcept);
 
-    Task<Void> cancel(SememeChronology<? extends SememeVersion<?>> sememeChronicle);
+    Task<Void> cancel(SememeChronology<?> sememeChronicle);
 
     Task<Optional<CommitRecord>> commit(String commitComment);
 
-    Task<Optional<CommitRecord>> commit(ConceptChronology<? extends ConceptVersion<?>> chronicledConcept, String commitComment);
+    Task<Optional<CommitRecord>> commit(ConceptChronology<?> chronicledConcept, String commitComment);
     
-    Task<Optional<CommitRecord>> commit(SememeChronology<? extends SememeVersion<?>> sememeChronicle, String commitComment);
+    Task<Optional<CommitRecord>> commit(SememeChronology<?> sememeChronicle, String commitComment);
     
     ObservableList<Integer> getUncommittedConceptNids();
     
