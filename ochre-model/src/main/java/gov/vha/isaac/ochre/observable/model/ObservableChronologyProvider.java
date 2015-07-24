@@ -113,7 +113,7 @@ public class ObservableChronologyProvider
     }
 
     @Override
-    public void handleChange(SememeChronology<? extends SememeVersion> sc) {
+    public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
         ObservableSememeChronology osc = observableSememeMap.get(sc.getNid());
         if (osc != null) {
             osc.handleChange(sc);

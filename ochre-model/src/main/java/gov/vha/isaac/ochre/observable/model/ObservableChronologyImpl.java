@@ -105,7 +105,7 @@ public abstract class ObservableChronologyImpl<
     };
     
     @Override
-    public final void handleChange(SememeChronology<? extends SememeVersion> sc) {
+    public final void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
         if (this.getNid() == sc.getNid()) {
             updateChronicle((C) sc);
         }
