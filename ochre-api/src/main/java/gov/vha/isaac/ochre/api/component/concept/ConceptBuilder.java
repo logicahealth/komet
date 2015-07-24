@@ -25,11 +25,11 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
  */
 public interface ConceptBuilder extends IdentifiedComponentBuilder<ConceptChronology<?>> {
     
-    DescriptionBuilder getFullySpecifiedDescriptionBuilder();
+    DescriptionBuilder<?,?> getFullySpecifiedDescriptionBuilder();
     
-    DescriptionBuilder getPreferredDescriptionBuilder();
+    DescriptionBuilder<?,?> getPreferredDescriptionBuilder();
     
-    ConceptBuilder addDescription(DescriptionBuilder descriptionBuilder);
+    ConceptBuilder addDescription(DescriptionBuilder<?,?> descriptionBuilder);
     
     /**
      * Use when adding a secondary definition in a different description logic 
@@ -37,5 +37,5 @@ public interface ConceptBuilder extends IdentifiedComponentBuilder<ConceptChrono
      * @param logicalDefinitionBuilder
      * @return a ConceptBuilder for use in method chaining/fluent api. 
      */
-    ConceptBuilder addLogicalDefinition(SememeBuilder logicalDefinitionBuilder);
+    ConceptBuilder addLogicalDefinition(SememeBuilder<?> logicalDefinitionBuilder);
 }
