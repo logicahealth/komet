@@ -23,7 +23,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
  *
  * @author kec
  */
-public interface ConceptBuilder extends IdentifiedComponentBuilder<ConceptChronology> {
+public interface ConceptBuilder extends IdentifiedComponentBuilder<ConceptChronology<?>> {
     
     DescriptionBuilder getFullySpecifiedDescriptionBuilder();
     
