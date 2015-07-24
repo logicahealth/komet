@@ -136,20 +136,20 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
         return languageCoordinate;
     }
 
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription() {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
         return languageCoordinate.getFullySpecifiedDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
     }
 
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription() {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
         return languageCoordinate.getPreferredDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
     }
 
-    public DescriptionSememe getDescription() {
-        Optional<LatestVersion<DescriptionSememe>> fsd = getFullySpecifiedDescription();
+    public DescriptionSememe<?> getDescription() {
+        Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
         if (fsd.isPresent()) {
             return fsd.get().value();
         }
-        Optional<LatestVersion<DescriptionSememe>> pd = getPreferredDescription();
+        Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
         if (pd.isPresent()) {
             return pd.get().value();
         }

@@ -83,13 +83,13 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
         
     ObservableList<? extends ObservableSememeChronology<? extends ObservableDescriptionSememe>> getConceptDescriptionList();
     
-    ListProperty<ObservableSememeChronology<ObservableDescriptionSememe>>
+    ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>>
         conceptDescriptionListProperty();
     
-    Optional<LatestVersion<ObservableDescriptionSememe>> 
+    Optional<LatestVersion<ObservableDescriptionSememe<?>>> 
         getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
     
-    Optional<LatestVersion<ObservableDescriptionSememe>> 
+    Optional<LatestVersion<ObservableDescriptionSememe<?>>> 
         getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
     
     

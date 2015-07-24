@@ -142,13 +142,13 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-        return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override

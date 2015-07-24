@@ -54,6 +54,6 @@ public interface SememeService {
     
     Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream();
     
-    Stream<SememeChronology<DescriptionSememe>> getDescriptionsForComponent(int componentNid);
+    Stream<SememeChronology<DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
     
 }

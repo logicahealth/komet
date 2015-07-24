@@ -62,7 +62,7 @@ public interface ConceptSnapshotService {
      * there is not description that satisfies the {@code StampCoordinate} and the
      * {@code LanguageCoordinate} of this snapshot.
      */
-    Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(int conceptId);
+    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId);
     
     /**
      * 
@@ -71,7 +71,7 @@ public interface ConceptSnapshotService {
      * there is not description that satisfies the {@code StampCoordinate} and the
      * {@code LanguageCoordinate} of this snapshot.
      */
-    Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(int conceptId);
+    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId);
     
     /**
      * This method will try to return description types according to the type preferences
@@ -81,7 +81,7 @@ public interface ConceptSnapshotService {
      * @param conceptId nid or sequence of the concept to get the description for
      * @return a Optional description for this concept. 
      */
-    Optional<LatestVersion<DescriptionSememe>> getDescriptionOptional(int conceptId);
+    Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId);
     /**
      * Simple method for getting text of the description of a concept. 
      * This method will return a description type according to the constraints of
