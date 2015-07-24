@@ -70,7 +70,7 @@ public interface LanguageCoordinateService {
      * @param languageCoordinate Used to determine ranking of candidate matches. 
      * @return 
      */
-    <V extends DescriptionSememe, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate stampCoordinate, 
+    <V extends DescriptionSememe<?>, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate stampCoordinate, 
             List<C> descriptionList, 
             int typeSequence, LanguageCoordinate languageCoordinate);
     /**
@@ -82,6 +82,6 @@ public interface LanguageCoordinateService {
      * @param languageCoordinate Used to determine ranking of candidate matches. 
      * @return 
      */
-    <V extends DescriptionSememe, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate stampCoordinate, 
+    <V extends DescriptionSememe<?>, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate stampCoordinate, 
             List<C> descriptionList, LanguageCoordinate languageCoordinate);
 }
