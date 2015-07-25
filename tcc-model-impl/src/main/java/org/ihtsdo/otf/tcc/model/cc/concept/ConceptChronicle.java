@@ -558,7 +558,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -1935,12 +1935,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles() {
+    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronicles() {
         return Get.sememeService().getSememesFromAssemblage(Get.identifierService().getConceptSequence(nid));
     }
     
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return Get.sememeService().getSememesForComponentFromAssemblage(nid, assemblageSequence).collect(Collectors.toList());
     }
 

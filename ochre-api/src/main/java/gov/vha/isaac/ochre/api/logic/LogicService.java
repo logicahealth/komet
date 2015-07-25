@@ -43,13 +43,13 @@ public interface LogicService {
             EditCoordinate editCoordinate);
 
     Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology conceptChronology);
+            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology<?> conceptChronology);
     Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology conceptChronology,
+            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology<?> conceptChronology,
                     LogicCoordinate logicCoordinate);
     Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology conceptChronology);
+            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology<?> conceptChronology);
     Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology conceptChronology,
+            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology<?> conceptChronology,
                     LogicCoordinate logicCoordinate);
 }

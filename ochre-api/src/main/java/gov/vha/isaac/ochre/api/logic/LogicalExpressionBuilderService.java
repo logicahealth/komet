@@ -26,5 +26,5 @@ import org.jvnet.hk2.annotations.Contract;
 public interface LogicalExpressionBuilderService {
         LogicalExpressionBuilder getLogicalExpressionBuilder();
         
-        LogicalExpression fromSememe(LogicGraphSememe sememe);
+        LogicalExpression fromSememe(LogicGraphSememe<?> sememe);
 }

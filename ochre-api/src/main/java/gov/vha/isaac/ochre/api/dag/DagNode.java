@@ -35,7 +35,7 @@ public class DagNode<T> {
     }
     private final DagNode<T> parent;
     private final Graph<T> graph;
-    private final List<DagNode<T>> children = new ArrayList();
+    private final List<DagNode<T>> children = new ArrayList<>();
 
     public DagNode(T data, Graph<T> graph) {
         this.data = data;
