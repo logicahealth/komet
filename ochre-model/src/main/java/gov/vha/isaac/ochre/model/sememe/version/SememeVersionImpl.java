@@ -27,9 +27,9 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
  * @author kec
   * @param <V>
  */
-public class SememeVersionImpl<V extends SememeVersionImpl> 
+public class SememeVersionImpl<V extends SememeVersionImpl<V>> 
     extends ObjectVersionImpl<SememeChronologyImpl<V>, V> 
-    implements MutableSememeVersion {
+    implements MutableSememeVersion<V> {
 
     public SememeVersionImpl(SememeChronologyImpl<V> container, int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);

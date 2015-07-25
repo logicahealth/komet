@@ -44,15 +44,15 @@ public interface SememeService {
     Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptSequence);
     
     void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememeStream();
     
-    Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
     
     Stream<SememeChronology<DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
     
