@@ -72,10 +72,10 @@ public interface ObservableChronology<V extends ObservableVersion>
      * 
      * @return a list of sememes, where this object is the referenced component. 
      */
-    ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> 
+    ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> 
         getSememeList();
     
-    List<? extends ObservableSememeChronology<? extends SememeVersion>> 
+    List<? extends ObservableSememeChronology<? extends SememeVersion<?>>> 
         getSememeListFromAssemblage(int assemblageSequence);
 
     <SV extends ObservableSememeVersion> List<? extends ObservableSememeChronology<SV>> 
@@ -90,6 +90,6 @@ public interface ObservableChronology<V extends ObservableVersion>
     
     ObjectProperty<CommitStates> commitStateProperty();
 
-    ListProperty<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty();
+    ListProperty<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty();
         
 }
