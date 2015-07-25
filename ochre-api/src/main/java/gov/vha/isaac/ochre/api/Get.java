@@ -59,7 +59,7 @@ public class Get implements OchreCache {
     private static LogicalExpressionBuilderService logicalExpressionBuilderService;
     private static LogicService logicService;
     private static PathService pathService;
-    private static SememeBuilderService sememeBuilderService;
+    private static SememeBuilderService<?> sememeBuilderService;
     private static SememeService sememeService;
     private static TaxonomyService taxonomyService;
     private static WorkExecutors workExecutors;
@@ -115,7 +115,7 @@ public class Get implements OchreCache {
      * {@code "No desc for: " + conceptId;} will be returned. 
      */
     public static String conceptDescriptionText(int conceptId) {
-        Optional<LatestVersion<DescriptionSememe>> descriptionOptional = 
+        Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = 
                 conceptSnapshot().getDescriptionOptional(conceptId);
         if (descriptionOptional.isPresent()) {
             return descriptionOptional.get().value().getText();
@@ -157,7 +157,7 @@ public class Get implements OchreCache {
      * @return the stated definition chronology for the specified concept 
      * according to the default logic coordinate. 
      */
-    public static Optional<SememeChronology<? extends SememeVersion>> statedDefinitionChronology(int conceptId) {
+    public static Optional<SememeChronology<? extends SememeVersion<?>>> statedDefinitionChronology(int conceptId) {
         conceptId = identifierService().getConceptNid(conceptId);
         return sememeService().getSememesForComponentFromAssemblage(conceptId, configurationService().getDefaultLogicCoordinate().getStatedAssemblageSequence()).findAny();
     }
@@ -168,7 +168,7 @@ public class Get implements OchreCache {
      * @return the inferred definition chronology for the specified concept 
      * according to the default logic coordinate. 
      */
-    public static Optional<SememeChronology<? extends SememeVersion>> inferredDefinitionChronology(int conceptId) {
+    public static Optional<SememeChronology<? extends SememeVersion<?>>> inferredDefinitionChronology(int conceptId) {
         conceptId = identifierService().getConceptNid(conceptId);
         return sememeService().getSememesForComponentFromAssemblage(conceptId, configurationService().getDefaultLogicCoordinate().getInferredAssemblageSequence()).findAny();
     }

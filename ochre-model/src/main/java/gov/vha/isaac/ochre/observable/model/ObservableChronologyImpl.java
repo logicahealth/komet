@@ -69,7 +69,7 @@ public abstract class ObservableChronologyImpl<
     private ObjectProperty<UUID> primordialUuidProperty;
     private ListProperty<UUID> uuidListProperty;
     private ObjectProperty<CommitStates> commitStateProperty;
-    private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty;
+    private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty;
     private ObservableList<? extends OV> versionList = null;
 
     protected C chronicledObjectLocal;
@@ -105,7 +105,7 @@ public abstract class ObservableChronologyImpl<
     };
     
     @Override
-    public final void handleChange(SememeChronology<? extends SememeVersion> sc) {
+    public final void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
         if (this.getNid() == sc.getNid()) {
             updateChronicle((C) sc);
         }
@@ -114,7 +114,7 @@ public abstract class ObservableChronologyImpl<
                 // check to be sure sememe is in list, if not, add it. 
                 if (sememeListProperty.get().stream().noneMatch(
                         (element) -> element.getNid() == sc.getNid())) {
-                    sememeListProperty.get().add(ocs.getObservableSememeChronology(sc.getNid()));
+                    sememeListProperty.get().add((ObservableSememeChronology<? extends ObservableSememeVersion<?>>)ocs.getObservableSememeChronology(sc.getNid()));
                 }
             }
             // else, nothing to do, since no one is looking...
@@ -211,7 +211,7 @@ public abstract class ObservableChronologyImpl<
     }
 
     @Override
-    public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty() {
+    public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty() {
         if (sememeListProperty == null) {
             ObservableList<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeList = 
                     FXCollections.emptyObservableList();
@@ -227,7 +227,7 @@ public abstract class ObservableChronologyImpl<
 
     
     @Override
-    public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> getSememeList() {
+    public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> getSememeList() {
         return sememeListProperty().get();
     }
 
@@ -284,7 +284,7 @@ public abstract class ObservableChronologyImpl<
 
 
     @Override
-    public List<? extends ObservableSememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<? extends ObservableSememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

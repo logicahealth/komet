@@ -24,7 +24,7 @@ import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
  * @author kec
  * @param <V>
  */
-public interface ObservableSememeVersion<V extends ObservableSememeVersion> 
+public interface ObservableSememeVersion<V extends ObservableSememeVersion<V>> 
     extends ObservableVersion, SememeObject {
 
     @Override

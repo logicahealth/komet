@@ -142,13 +142,13 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-        return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+        return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
@@ -230,13 +230,18 @@ public class ConceptChronologyImpl
         } else {
             assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
         }
-        Optional<SememeChronology<? extends SememeVersion>> definitionChronologyOptional = 
+        Optional<SememeChronology<? extends SememeVersion<?>>> definitionChronologyOptional = 
                 Get.sememeService().getSememesForComponentFromAssemblage(getNid(), assemblageSequence).findFirst();
                 
         if (definitionChronologyOptional.isPresent()) {
 
             Collection<LogicGraphSememeImpl> versions = (Collection<LogicGraphSememeImpl>) 
                     definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
+            
+//            Collection<LogicGraphSememeImpl> versionsList = new ArrayList<>();
+//            for (LogicGraphSememeImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
+//            	
+//            }
             StringBuilder builder = new StringBuilder();
             builder.append("_______________________________________________________________________\n");
             builder.append("  Encountered concept '")

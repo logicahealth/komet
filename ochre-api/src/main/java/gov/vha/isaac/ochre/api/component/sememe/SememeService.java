@@ -35,25 +35,25 @@ public interface SememeService {
     
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     
-    SememeChronology<? extends SememeVersion> getSememe(int sememeSequence);
+    SememeChronology<? extends SememeVersion<?>> getSememe(int sememeSequence);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageConceptSequence);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageConceptSequence, StampPosition position);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptSequence);
     
-    void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints);
+    void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememeStream();
     
-    Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
     
-    Stream<SememeChronology<DescriptionSememe>> getDescriptionsForComponent(int componentNid);
+    Stream<SememeChronology<DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
     
 }

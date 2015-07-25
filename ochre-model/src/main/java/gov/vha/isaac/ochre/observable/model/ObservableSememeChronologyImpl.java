@@ -36,7 +36,7 @@ import javafx.collections.ObservableList;
  * @param <C>
  */
 public class ObservableSememeChronologyImpl<
-        OV extends ObservableSememeVersionImpl, 
+        OV extends ObservableSememeVersionImpl<OV>, 
         C extends SememeChronology<?>>
     extends ObservableChronologyImpl<OV, C> 
 
@@ -114,14 +114,14 @@ public class ObservableSememeChronologyImpl<
         return referencedComponentNidProperty;
     }
     
-    private <M extends OV> Class getSvForOv(Class<M> type) {
+    private <M extends OV, T> Class<T> getSvForOv(Class<M> type) {
         if (type.isAssignableFrom(ObservableDescriptionImpl.class)) {
-            return DescriptionSememe.class;
+            return (Class<T>)DescriptionSememe.class;
         }
         throw new UnsupportedOperationException("Can't convert " + type);
     }
 
-    private OV wrapInObservable(SememeVersion sememeVersion) {
+    private OV wrapInObservable(SememeVersion<?> sememeVersion) {
         if (DescriptionSememe.class.isAssignableFrom(sememeVersion.getClass())) {
             return (OV) new ObservableDescriptionImpl((DescriptionSememeImpl) sememeVersion, 
                     (ObservableSememeChronology) this);

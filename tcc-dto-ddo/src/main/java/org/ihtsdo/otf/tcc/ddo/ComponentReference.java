@@ -74,7 +74,7 @@ public class ComponentReference implements Externalizable {
         }
         uuidMsb = concept.getPrimordialUuid().getMostSignificantBits();
         uuidLsb = concept.getPrimordialUuid().getLeastSignificantBits();
-        Optional<LatestVersion<DescriptionSememe>> description = concept.getPreferredDescription(languageCoordinate, stampCoordinate);
+        Optional<LatestVersion<DescriptionSememe<?>>> description = concept.getPreferredDescription(languageCoordinate, stampCoordinate);
         if (description.isPresent()) {
             text = description.get().value().getText();
         } else {
@@ -141,12 +141,12 @@ public class ComponentReference implements Externalizable {
         
         if (chronology instanceof ConceptChronology) {
             ConceptChronology<?> conceptChronology = (ConceptChronology<?>) chronology;
-            Optional<LatestVersion<DescriptionSememe>> preferredDescription =
+            Optional<LatestVersion<DescriptionSememe<?>>> preferredDescription =
                     conceptChronology.getPreferredDescription(languageCoordinate, stampCoordinate);
             if (preferredDescription.isPresent()) {
                 text = preferredDescription.get().value().getText();
             } else {
-                Optional<LatestVersion<DescriptionSememe>> fullySpecifiedDescription =
+                Optional<LatestVersion<DescriptionSememe<?>>> fullySpecifiedDescription =
                         conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
                 if (fullySpecifiedDescription.isPresent()) {
                     text = fullySpecifiedDescription.get().value().getText();

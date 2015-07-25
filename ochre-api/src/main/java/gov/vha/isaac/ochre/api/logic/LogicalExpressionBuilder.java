@@ -82,10 +82,10 @@ public interface LogicalExpressionBuilder {
         return connectors[0].getBuilder().sufficientSet(connectors);
     }
 
-    DisjointWith disjointWith(ConceptChronology conceptChronology);
+    DisjointWith disjointWith(ConceptChronology<?> conceptChronology);
     DisjointWith disjointWith(ConceptProxy conceptProxy);
     
-    static DisjointWith DisjointWith(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
+    static DisjointWith DisjointWith(ConceptChronology<?> conceptChronology, LogicalExpressionBuilder builder) {
         return builder.disjointWith(conceptChronology);
     }
 
@@ -100,11 +100,11 @@ public interface LogicalExpressionBuilder {
         return assertions[0].getBuilder().and(assertions);
     }
 
-    ConceptAssertion conceptAssertion(ConceptChronology conceptChronology);
+    ConceptAssertion conceptAssertion(ConceptChronology<?> conceptChronology);
     ConceptAssertion conceptAssertion(ConceptProxy conceptProxy);
     ConceptAssertion conceptAssertion(Integer conceptId);
 
-    static ConceptAssertion ConceptAssertion(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
+    static ConceptAssertion ConceptAssertion(ConceptChronology<?> conceptChronology, LogicalExpressionBuilder builder) {
         return builder.conceptAssertion(conceptChronology);
     }
 
@@ -112,9 +112,9 @@ public interface LogicalExpressionBuilder {
         return builder.conceptAssertion(conceptProxy);
     }
 
-    AllRole allRole(ConceptChronology roleTypeChronology, Assertion roleRestriction);
+    AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction);
     
-    static AllRole AllRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
+    static AllRole AllRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
         return roleRestriction.getBuilder().allRole(roleTypeChronology, roleRestriction);
     }
 
@@ -124,9 +124,9 @@ public interface LogicalExpressionBuilder {
         return roleRestriction.getBuilder().allRole(roleTypeProxy, roleRestriction);
     }
 
-    Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal);
+    Feature feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal);
     
-    static Feature Feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
+    static Feature Feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal) {
         return literal.getBuilder().feature(featureTypeChronology, literal);
     }
 
@@ -136,9 +136,9 @@ public interface LogicalExpressionBuilder {
         return literal.getBuilder().feature(featureTypeProxy, literal);
     }
 
-    SomeRole someRole(ConceptChronology roleTypeChronology, Assertion roleRestriction);
+    SomeRole someRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction);
     
-    static SomeRole SomeRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
+    static SomeRole SomeRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
         return roleRestriction.getBuilder().someRole(roleTypeChronology, roleRestriction);
     }
 
@@ -148,9 +148,9 @@ public interface LogicalExpressionBuilder {
         return roleRestriction.getBuilder().someRole(roleTypeProxy, roleRestriction);
     }
 
-    Template template(ConceptChronology templateChronology, ConceptChronology assemblageToPopulateTemplateConcept);
+    Template template(ConceptChronology<?> templateChronology, ConceptChronology<?> assemblageToPopulateTemplateConcept);
 
-    static Template Template(ConceptChronology templateConcept, ConceptChronology assemblageToPopulateTemplateConcept, LogicalExpressionBuilder builder) {
+    static Template Template(ConceptChronology<?> templateConcept, ConceptChronology<?> assemblageToPopulateTemplateConcept, LogicalExpressionBuilder builder) {
         return builder.template(templateConcept, assemblageToPopulateTemplateConcept);
     }
 

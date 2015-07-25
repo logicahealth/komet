@@ -25,20 +25,20 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
  *
  * @author kec
  */
-public class DescriptionSememeImpl 
-    extends SememeVersionImpl<DescriptionSememeImpl>
-    implements MutableDescriptionSememe {
+public class DescriptionSememeImpl<T extends DescriptionSememeImpl<T>>
+    extends SememeVersionImpl<T>
+    implements MutableDescriptionSememe<T> {
 
     protected int caseSignificanceConceptSequence;
     protected int languageConceptSequence;
     protected String text;
     protected int descriptionTypeConceptSequence;
 
-    public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle, 
+    public DescriptionSememeImpl(SememeChronologyImpl<T> chronicle, 
             int stampSequence, short versionSequence) {
         super(chronicle, stampSequence, versionSequence);
     }
-    public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle, 
+    public DescriptionSememeImpl(SememeChronologyImpl<T> chronicle, 
             int stampSequence, short versionSequence, DataBuffer data) {
         super(chronicle, stampSequence, versionSequence);
         this.caseSignificanceConceptSequence = data.getInt();

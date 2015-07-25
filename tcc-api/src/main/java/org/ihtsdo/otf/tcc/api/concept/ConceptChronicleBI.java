@@ -75,7 +75,7 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
 
    RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException;
    
-   Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles();
+   Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronicles();
 
    Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException;
    

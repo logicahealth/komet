@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.collections.NidSet;
@@ -42,7 +41,7 @@ public interface SememeServiceTyped<SV extends SememeVersion> {
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
     
-    void writeSememe(SememeChronology sememeChronicle);
+    void writeSememe(SememeChronology<?> sememeChronicle);
     
     Stream<SememeChronology<SV>> getSememeStream();
     

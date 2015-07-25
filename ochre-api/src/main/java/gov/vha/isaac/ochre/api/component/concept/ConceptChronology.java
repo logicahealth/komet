@@ -74,10 +74,10 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
         
     List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList();
     
-    Optional<LatestVersion<DescriptionSememe>> 
+    Optional<LatestVersion<DescriptionSememe<?>>> 
         getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
     
-    Optional<LatestVersion<DescriptionSememe>> 
+    Optional<LatestVersion<DescriptionSememe<?>>> 
         getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
 
     /**

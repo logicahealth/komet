@@ -33,7 +33,7 @@ import org.glassfish.hk2.api.MultiException;
  * @author kec
  */
 public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl>
-        implements MutableLogicGraphSememe {
+        implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
 
     private static LogicalExpressionByteArrayConverter converter;
 
