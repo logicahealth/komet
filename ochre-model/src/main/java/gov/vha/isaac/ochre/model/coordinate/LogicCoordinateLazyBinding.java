@@ -22,22 +22,18 @@ import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
  *
  * @author kec
  */
-public class LogicCoordinateLazyBinding implements LogicCoordinate {
+public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     
     private final ConceptProxy statedAssemblageProxy;
     private final ConceptProxy inferredAssemblageProxy;
     private final ConceptProxy descriptionLogicProfileProxy;
     private final ConceptProxy classifierProxy;
 
-    int statedAssemblageSequence = Integer.MAX_VALUE;
-    int inferredAssemblageSequence = Integer.MAX_VALUE;
-    int descriptionLogicProfileSequence = Integer.MAX_VALUE;
-    int classifierSequence = Integer.MAX_VALUE;
-
     public LogicCoordinateLazyBinding(ConceptProxy statedAssemblageProxy, 
             ConceptProxy inferredAssemblageProxy, 
             ConceptProxy descriptionLogicProfileProxy, 
             ConceptProxy classifierProxy) {
+        super(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.statedAssemblageProxy = statedAssemblageProxy;
         this.inferredAssemblageProxy = inferredAssemblageProxy;
         this.descriptionLogicProfileProxy = descriptionLogicProfileProxy;

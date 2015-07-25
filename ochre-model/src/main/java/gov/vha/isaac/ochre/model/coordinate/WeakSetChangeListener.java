@@ -17,36 +17,35 @@ package gov.vha.isaac.ochre.model.coordinate;
 
 import java.lang.ref.WeakReference;
 import javafx.beans.WeakListener;
-import javafx.collections.ArrayChangeListener;
-import javafx.collections.ObservableIntegerArray;
+import javafx.collections.SetChangeListener;
 
 /**
  *
  * @author kec
  */
-public class WeakArrayChangeListener implements WeakListener, ArrayChangeListener<ObservableIntegerArray>{
+public class WeakSetChangeListener<T> implements WeakListener, SetChangeListener<T>{
 
-    private final WeakReference<ArrayChangeListener<ObservableIntegerArray>> ref;
+   private final WeakReference<SetChangeListener<T>> ref;
 
-    public WeakArrayChangeListener(ArrayChangeListener<ObservableIntegerArray> listener) {
+    public WeakSetChangeListener(SetChangeListener<T> listener) {
         this.ref = new WeakReference<>(listener);
     }
-
+    
     @Override
     public boolean wasGarbageCollected() {
         return (ref.get() == null);
     }
 
     @Override
-    public void onChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
-        ArrayChangeListener<ObservableIntegerArray> listener = ref.get();
+    public void onChanged(Change<? extends T> change) {
+        SetChangeListener<T> listener = ref.get();
         if (listener != null) {
-            listener.onChanged(observableArray, sizeChanged, from, to);
+            listener.onChanged(change);
         } else {
             // The weakly reference listener has been garbage collected,
             // so this WeakListener will now unhook itself from the
             // source bean
-            observableArray.removeListener(this);
+            change.getSet().removeListener(this);
         }
     }
     

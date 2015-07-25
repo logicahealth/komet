@@ -16,8 +16,8 @@
 package gov.vha.isaac.ochre.api.observable.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyListProperty;
 
 /**
  *
@@ -25,8 +25,8 @@ import javafx.beans.property.ListProperty;
  */
 public interface ObservableStampPath extends StampPath {
     
-    IntegerProperty pathConceptSequenceProperty();
+    ReadOnlyIntegerProperty pathConceptSequenceProperty();
     
-    ListProperty<ObservableStampPosition> pathOriginsProperty();    
+    ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty();    
     
 }

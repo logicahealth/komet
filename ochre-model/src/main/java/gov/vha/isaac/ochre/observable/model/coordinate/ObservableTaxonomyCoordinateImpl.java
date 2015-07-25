@@ -15,11 +15,14 @@
  */
 package gov.vha.isaac.ochre.observable.model.coordinate;
 
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLogicCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableTaxonomyCoordinate;
+import gov.vha.isaac.ochre.model.coordinate.TaxonomyCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import java.util.UUID;
 import javafx.beans.property.ObjectProperty;
@@ -29,26 +32,26 @@ import javafx.beans.property.SimpleObjectProperty;
  *
  * @author kec
  */
-public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoordinate {
-    //TODO finish the property listeners for the other Observable coordinates. 
-    
+public class ObservableTaxonomyCoordinateImpl extends ObservableCoordinateImpl implements ObservableTaxonomyCoordinate {
+    TaxonomyCoordinateImpl taxonomyCoordinate;
+
+   
     ObjectProperty<PremiseType> taxonomyTypeProperty;
     ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty;
     ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty;
+    ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty;
     ObjectProperty<UUID> uuidProperty;
     
-    TaxonomyCoordinate taxonomyCoordinate;
-
     public ObservableTaxonomyCoordinateImpl(TaxonomyCoordinate taxonomyCoordinate) {
-        this.taxonomyCoordinate = taxonomyCoordinate;
+        this.taxonomyCoordinate = (TaxonomyCoordinateImpl) taxonomyCoordinate;
     }
 
     @Override
-    public ObjectProperty<PremiseType> taxonomyTypeProperty() {
+    public ObjectProperty<PremiseType> premiseTypeProperty() {
         if (taxonomyTypeProperty == null) {
-            taxonomyTypeProperty = new SimpleObjectProperty(this, 
-                    ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE.toExternalString(), 
-                    getTaxonomyType());
+            taxonomyTypeProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE.toExternalString(),
+                    taxonomyCoordinate.getTaxonomyType());
         }
         return taxonomyTypeProperty;
     }
@@ -56,9 +59,9 @@ public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoord
     @Override
     public ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty() {
         if (stampCoordinateProperty == null) {
-            stampCoordinateProperty = new SimpleObjectProperty(this, 
+            stampCoordinateProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(), 
-                    getStampCoordinate());
+                    new ObservableStampCoordinateImpl(taxonomyCoordinate.getStampCoordinate()));
         }
         return stampCoordinateProperty;
     }
@@ -66,39 +69,54 @@ public class ObservableTaxonomyCoordinateImpl implements ObservableTaxonomyCoord
     @Override
     public ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty() {
         if (languageCoordinateProperty == null) {
-            languageCoordinateProperty = new SimpleObjectProperty(this, 
+            languageCoordinateProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(), 
-                    getLanguageCoordinate());
+                    new ObservableLanguageCoordinateImpl(taxonomyCoordinate.getLanguageCoordinate()));
         }
         return languageCoordinateProperty;
     }
 
     @Override
-    public PremiseType getTaxonomyType() {
-        return taxonomyCoordinate.getTaxonomyType();
-    }
-
-    @Override
-    public ObservableStampCoordinate getStampCoordinate() {
-        return new ObservableStampCoordinateImpl(taxonomyCoordinate.getStampCoordinate());
-    }
-
-    @Override
-    public ObservableLanguageCoordinate getLanguageCoordinate() {
-        return new ObservableLanguageCoordinateImpl(taxonomyCoordinate.getLanguageCoordinate());
+    public ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty() {
+        if (logicCoordinateProperty == null) {
+            logicCoordinateProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
+                    new ObservableLogicCoordinateImpl(taxonomyCoordinate.getLogicCoordinate()));
+        }
+        return logicCoordinateProperty;
     }
 
     @Override
     public ObjectProperty<UUID> uuidProperty() {
         if (uuidProperty == null) {
-            uuidProperty = new SimpleObjectProperty(this, 
-                    ObservableFields.UUID_FOR_TAXONOMY_COORDINATE.toExternalString(), 
-                    getLanguageCoordinate());
+            uuidProperty = new SimpleObjectProperty<>(this,
+                    ObservableFields.UUID_FOR_TAXONOMY_COORDINATE.toExternalString(),
+                    taxonomyCoordinate.getUuid());
         }
         return uuidProperty;
     }
+
+    @Override
+    public LogicCoordinate getLogicCoordinate() {
+        return logicCoordinateProperty().get();
+    }
+
+    @Override
+    public PremiseType getTaxonomyType() {
+        return premiseTypeProperty().get();
+    }
+
+    @Override
+    public ObservableStampCoordinate getStampCoordinate() {
+        return stampCoordinateProperty().get();
+    }
+
+    @Override
+    public ObservableLanguageCoordinate getLanguageCoordinate() {
+        return languageCoordinateProperty().get();
+    }
     @Override
     public UUID getUuid() {
-        return taxonomyCoordinate.getUuid();
+        return uuidProperty().get();
     }
 }

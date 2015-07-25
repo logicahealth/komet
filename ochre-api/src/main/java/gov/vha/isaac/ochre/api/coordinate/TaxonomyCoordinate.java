@@ -22,12 +22,37 @@ import java.util.UUID;
  * @author kec
  */
 public interface TaxonomyCoordinate {
-    
+
+    /**
+     *
+     * @return a UUID that uniquely identifies this taxonomy coordinate.
+     */
     UUID getUuid();
-    
+
+    /**
+     *
+     * @return PremiseType.STATED if taxonomy operations should be based on stated definitions, or
+     * PremiseType.INFERRED if taxonomy operations should be based on inferred definitions.
+     */
     PremiseType getTaxonomyType();
-    
+
+    /**
+     *
+     * @return a StampCoordinate that specifies the retrieval and display of
+     * object chronicle versions by indicating the current position on a path, and allowed modules.
+     */
     StampCoordinate getStampCoordinate();
-    
+
+    /**
+     *
+     * @return a LanguageCoordinate that specifies how to manage the retrieval and display of language.
+     * and dialect information.
+     */
     LanguageCoordinate getLanguageCoordinate();
+
+    /**
+     *
+     * @return a LogicCoordinate that specifies how to manage the retrieval and display of logic information.
+     */
+    LogicCoordinate getLogicCoordinate();
 }

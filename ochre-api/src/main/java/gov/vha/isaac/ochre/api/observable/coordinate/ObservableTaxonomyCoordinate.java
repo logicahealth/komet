@@ -26,12 +26,14 @@ import javafx.beans.property.ObjectProperty;
  */
 public interface ObservableTaxonomyCoordinate extends TaxonomyCoordinate {
     
-    ObjectProperty<PremiseType> taxonomyTypeProperty();
+    ObjectProperty<PremiseType> premiseTypeProperty();
     
     ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty();
-    
+
     ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty();
-    
+
+    ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty();
+
     ObjectProperty<UUID> uuidProperty();
     
 }

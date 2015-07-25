@@ -18,6 +18,11 @@ package gov.vha.isaac.ochre.model.coordinate;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 
 /**
  *
@@ -32,6 +37,26 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
         this.time = time;
         this.stampPathSequence = Get.identifierService().getConceptSequence(stampPathSequence);
     }
+    public ChangeListener<Number> setStampPathSequenceProperty(IntegerProperty stampPathSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            stampPathSequence = newValue.intValue();
+        };
+        stampPathSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
+    public ChangeListener<Number> setTimeProperty(LongProperty timeProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            time = newValue.longValue();
+        };
+        timeProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
 
     @Override
     public StampPath getStampPath() {

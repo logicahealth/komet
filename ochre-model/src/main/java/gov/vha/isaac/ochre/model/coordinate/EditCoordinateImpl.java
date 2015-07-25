@@ -16,6 +16,10 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 
 
 /**
@@ -32,6 +36,38 @@ public class EditCoordinateImpl implements EditCoordinate {
         this.moduleSequence = moduleSequence;
         this.pathSequence = pathSequence;
     }
+
+
+    public ChangeListener<Number> setAuthorSequenceProperty(IntegerProperty authorSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            authorSequence = newValue.intValue();
+        };
+        authorSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
+    public ChangeListener<Number> setModuleSequenceProperty(IntegerProperty moduleSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            moduleSequence = newValue.intValue();
+        };
+        moduleSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
+    public ChangeListener<Number> setPathSequenceProperty(IntegerProperty pathSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            pathSequence = newValue.intValue();
+        };
+        pathSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
 
     @Override
     public int getAuthorSequence() {

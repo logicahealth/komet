@@ -46,6 +46,7 @@ public enum ObservableFields {
     PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("premise type for taxonomy coordinate"),
     STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("stamp coordinate for taxonomy coordinate"),
     LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("language coordinate for taxonomy coordinate"),
+    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("logic coordinate for taxonomy coordinate"),
     UUID_FOR_TAXONOMY_COORDINATE("uuid for taxonomy coordinate"),
     STATUS_FOR_VERSION("status for version"),
     TIME_FOR_VERSION("time for version"),
