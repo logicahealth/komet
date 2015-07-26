@@ -92,10 +92,10 @@ public interface ObjectChronology<V extends StampedVersion>
      * 
      * @return a list of sememes, where this object is the referenced component. 
      */
-    List<? extends SememeChronology<? extends SememeVersion>> 
+    List<? extends SememeChronology<? extends SememeVersion<?>>> 
         getSememeList();
     
-    List<? extends SememeChronology<? extends SememeVersion>> 
+    List<? extends SememeChronology<? extends SememeVersion<?>>> 
         getSememeListFromAssemblage(int assemblageSequence);
 
     <SV extends SememeVersion> List<? extends SememeChronology<SV>> 

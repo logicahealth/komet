@@ -832,10 +832,10 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
        return Get.identifierService().getConceptSequence(getPathNid());
     }
 
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         return cc.getSememeList();
     }
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return cc.getSememeListFromAssemblage(assemblageSequence);
     }
     public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {

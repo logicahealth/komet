@@ -567,12 +567,12 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         return Get.sememeService().getSememesForComponent(nid).collect(Collectors.toList());
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return Get.sememeService().
                 getSememesForComponentFromAssemblage(nid, assemblageSequence).collect(Collectors.toList());
     }

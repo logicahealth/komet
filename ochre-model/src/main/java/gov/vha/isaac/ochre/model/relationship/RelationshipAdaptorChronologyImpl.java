@@ -93,12 +93,12 @@ public class RelationshipAdaptorChronologyImpl
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         return Collections.EMPTY_LIST;
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return Collections.EMPTY_LIST;
     }
 
