@@ -16,9 +16,7 @@
 package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedStampedVersion;
-import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Optional;
@@ -30,7 +28,7 @@ import java.util.Set;
  * will be returned in response to method calls such as {@code getFullySpecifiedDescription()}.
  * @author kec
  */
-public interface ConceptSnapshot extends IdentifiedStampedVersion {
+public interface ConceptSnapshot extends IdentifiedStampedVersion, ConceptSpecification {
     
     /**
      * 
@@ -57,13 +55,6 @@ public interface ConceptSnapshot extends IdentifiedStampedVersion {
      * version used by this snapshot. 
      */
     LanguageCoordinate getLanguageCoordinate();
-    
-    /**
-     * 
-     * @return the sequence of this concept. A contiguously assigned identifier for
-     * concepts >= 0;
-     */
-    int getConceptSequence();
 
     /**
      * A test for validating that a concept contains an active description. Used

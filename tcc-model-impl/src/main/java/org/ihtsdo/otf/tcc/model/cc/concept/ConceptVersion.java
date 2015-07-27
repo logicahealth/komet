@@ -130,8 +130,14 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.getVersionStampSequences();
     }
 
+    @Override
     public int getConceptSequence() {
         return concept.getConceptSequence();
+    }
+
+    @Override
+    public String getConceptDescriptionText() {
+        return concept.getConceptDescriptionText();
     }
     
     @Override

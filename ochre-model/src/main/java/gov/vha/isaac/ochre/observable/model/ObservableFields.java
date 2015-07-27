@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.observable.model;
 
-import static gov.vha.isaac.ochre.api.ConceptProxy.FIELD_SEPERATOR;
+import static gov.vha.isaac.ochre.api.component.concept.ConceptSpecification.FIELD_SEPARATOR;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.UUID;
 
@@ -85,7 +85,7 @@ public enum ObservableFields {
     public String toExternalString() {
         StringBuilder sb = new StringBuilder();
         sb.append(description);
-        sb.append(FIELD_SEPERATOR).append(getUuid().toString());
+        sb.append(FIELD_SEPARATOR).append(getUuid().toString());
         return sb.toString();
     }
 

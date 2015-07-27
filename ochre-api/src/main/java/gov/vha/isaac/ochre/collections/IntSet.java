@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
@@ -33,13 +34,26 @@ import org.roaringbitmap.RoaringBitmap;
 public abstract class IntSet<T extends IntSet> implements Comparable<T> {
 
     RoaringBitmap rbmp;
+    boolean readOnly = false;
 
+    /**
+     * 
+     * @param readOnly true if the set is read only. 
+     */
+    protected IntSet(boolean readOnly) {
+        rbmp = new RoaringBitmap();
+        this.readOnly = readOnly;
+    }
     protected IntSet() {
         rbmp = new RoaringBitmap();
     }
 
     protected IntSet(int... members) {
         rbmp = RoaringBitmap.bitmapOf(members);
+    }
+
+    public void setReadOnly() {
+        this.readOnly = true;
     }
 
     protected IntSet(OpenIntHashSet members) {
@@ -77,21 +91,33 @@ public abstract class IntSet<T extends IntSet> implements Comparable<T> {
     }
 
     public T or(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.or(otherSet.rbmp);
         return (T) this;
     }
 
     public T and(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.and(otherSet.rbmp);
         return (T) this;
     }
 
     public T andNot(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.andNot(otherSet.rbmp);
         return (T) this;
     }
 
     public T xor(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.xor(otherSet.rbmp);
         return (T) this;
     }
@@ -117,10 +143,16 @@ public abstract class IntSet<T extends IntSet> implements Comparable<T> {
      * @param item to add to set.
      */
     public void add(int item) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.add(item);
     }
 
     public void addAll(IntStream intStream) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         intStream.forEach((anInt) -> rbmp.add(anInt));
     }
 
@@ -129,7 +161,10 @@ public abstract class IntSet<T extends IntSet> implements Comparable<T> {
      * @param item to remove from set.
      */
     public void remove(int item) {
-        rbmp.remove(item);
+         if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+       rbmp.remove(item);
     }
 
     /**
@@ -157,6 +192,25 @@ public abstract class IntSet<T extends IntSet> implements Comparable<T> {
 
     public OptionalInt findFirst() {
         return stream().findFirst();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 67 * hash + Objects.hashCode(this.rbmp);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IntSet<?> other = (IntSet<?>) obj;
+        return this.rbmp.equals(other.rbmp);
     }
 
     /**

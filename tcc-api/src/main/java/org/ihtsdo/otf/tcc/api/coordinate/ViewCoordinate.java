@@ -15,6 +15,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
@@ -792,8 +793,8 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public int[] getModuleSequences() {
-        return new int[0];
+    public ConceptSequenceSet getModuleSequences() {
+        return new ConceptSequenceSet();
     }
     
     private static LanguageCoordinateService languageCoordinateService;
@@ -828,6 +829,11 @@ public class ViewCoordinate implements StampCoordinate,
 
     @Override
     public StampCoordinate makeAnalog(long stampPositionTime) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Object makeAnalog(State... state) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

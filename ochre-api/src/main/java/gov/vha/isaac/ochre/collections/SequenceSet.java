@@ -26,6 +26,10 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public class SequenceSet<T extends SequenceSet> extends IntSet<T> {
 
+    protected SequenceSet(boolean readOnly) {
+        super(readOnly);
+    }
+
 
     protected SequenceSet(IntStream memberStream) {
         super(memberStream);

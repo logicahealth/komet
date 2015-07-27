@@ -26,14 +26,7 @@ import java.util.Optional;
  * @param <V>
  */
 public interface ConceptChronology<V extends ConceptVersion<V>>
-    extends ObjectChronology<V> {
-    
-    /**
-     * 
-     * @return the sequence of this concept. A contiguously assigned identifier for
-     * concepts >= 0;
-     */
-    int getConceptSequence();
+    extends ObjectChronology<V>, ConceptSpecification {
     
     /**
      * Create a mutable version with Long.MAX_VALUE as the time, indicating

@@ -24,7 +24,7 @@ import javafx.beans.property.ObjectProperty;
  *
  * @author kec
  */
-public interface ObservableTaxonomyCoordinate extends TaxonomyCoordinate {
+public interface ObservableTaxonomyCoordinate extends TaxonomyCoordinate<ObservableTaxonomyCoordinate> {
     
     ObjectProperty<PremiseType> premiseTypeProperty();
     

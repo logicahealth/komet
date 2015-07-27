@@ -92,7 +92,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
     }
 
     public ConceptSpec(ConceptSpec conceptSpec) {
-        this(conceptSpec.getDescription(), conceptSpec.getUuids(), new RelSpec[]{});
+        this(conceptSpec.getConceptDescriptionText(), conceptSpec.getUuids(), new RelSpec[]{});
     }
 
     /**
@@ -207,8 +207,8 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws IOException
      */
     private void validateDescription(ConceptChronology local) throws IOException, ContradictionException {
-        if (!local.containsDescription(getDescription())) {
-            throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n" + local);
+        if (!local.containsDescription(getConceptDescriptionText())) {
+            throw new ValidationException("No description matching: '" + getConceptDescriptionText() + "' found for:\n" + local);
         }
     }
 
@@ -226,7 +226,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
             throws IOException, ContradictionException {
 
         if (!localVersion.containsDescription(description, c)) {
-            throw new ValidationException("No description matching: '" + getDescription() + "' found for:\n"
+            throw new ValidationException("No description matching: '" + getConceptDescriptionText() + "' found for:\n"
                     + localVersion);
         }
     }
@@ -243,7 +243,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeInt(dataVersion);
-        out.writeUTF(getDescription());
+        out.writeUTF(getConceptDescriptionText());
         out.writeObject(getUuids());
         out.writeObject(relSpecs);
     }
@@ -356,7 +356,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
         if (!Arrays.deepEquals(this.getUuids(), other.getUuids())) {
             return false;
         }
-        if (!Objects.equals(this.getDescription(), other.getDescription())) {
+        if (!Objects.equals(this.getConceptDescriptionText(), other.getConceptDescriptionText())) {
             return false;
         }
         if (this.relSpecs != other.relSpecs) {

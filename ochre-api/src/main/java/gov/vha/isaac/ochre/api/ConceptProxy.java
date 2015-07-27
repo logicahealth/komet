@@ -1,5 +1,6 @@
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import java.util.ArrayList;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Arrays;
@@ -10,8 +11,7 @@ import java.util.UUID;
 /**
  * Created by kec on 2/16/15.
  */
-public class ConceptProxy {
-    public static final String FIELD_SEPERATOR="⦙";
+public class ConceptProxy implements ConceptSpecification {
 
     protected static int getConceptSequence(int nid) {
         return Get.identifierService().getConceptSequence(nid);
@@ -30,7 +30,7 @@ public class ConceptProxy {
         this.description = description;
     }
     public ConceptProxy(String externalString) {
-        String[] parts = externalString.split(FIELD_SEPERATOR);
+        String[] parts = externalString.split(FIELD_SEPARATOR);
         this.description = parts[0];
         List<UUID> uuidList = new ArrayList<>(parts.length - 1);
         for (int i = 1; i < parts.length; i++) {
@@ -42,17 +42,7 @@ public class ConceptProxy {
         }
         this.uuids = uuidList.toArray(new UUID[uuidList.size()]);
     }
-    
-    
-    public String toExternalString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(description);
-        for (UUID uuid: uuids) {
-            sb.append(FIELD_SEPERATOR).append(uuid.toString());
-        }
-        
-        return sb.toString();
-    }
+
 
     @Override
     public int hashCode() {
@@ -87,9 +77,9 @@ public class ConceptProxy {
     @Override
     public String toString() {
         if (uuids != null) {
-           return "ConceptSpec{" + description + "; " + Arrays.asList(uuids) + "}";
+           return "ConceptProxy{" + description + "; " + Arrays.asList(uuids) + "}";
         }
-        return "ConceptSpec{" + description + "; null UUIDs}";
+        return "ConceptProxy{" + description + "; null UUIDs}";
     }
 
     /**
@@ -98,7 +88,8 @@ public class ConceptProxy {
      *
      * @return
      */
-    public String getDescription() {
+    @Override
+    public String getConceptDescriptionText() {
        return description;
     }
 
@@ -111,6 +102,11 @@ public class ConceptProxy {
     @XmlTransient
     public UUID[] getUuids() {
        return uuids;
+    }
+
+    @Override
+    public List<UUID> getUuidList() {
+        return Arrays.asList(uuids);
     }
     
     /**
@@ -189,9 +185,5 @@ public class ConceptProxy {
     
     public int getNid() {
         return Get.identifierService().getNidForUuids(uuids);
-    }
-     
-    public int getSequence() {
-        return Get.identifierService().getConceptSequenceForUuids(uuids);
     }
 }

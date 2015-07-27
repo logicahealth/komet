@@ -20,6 +20,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import javafx.beans.property.ObjectProperty;
@@ -49,6 +50,12 @@ public class ObservableStampCoordinateImpl extends ObservableCoordinateImpl impl
     @Override
     public ObservableStampCoordinateImpl makeAnalog(long stampPositionTime) {
         StampCoordinate analog = stampCoordinate.makeAnalog(stampPositionTime);
+        return new ObservableStampCoordinateImpl(analog);
+    }
+
+    @Override
+    public ObservableStampCoordinate makeAnalog(State... state) {
+        StampCoordinate analog = stampCoordinate.makeAnalog(state);
         return new ObservableStampCoordinateImpl(analog);
     }
 
@@ -97,7 +104,7 @@ public class ObservableStampCoordinateImpl extends ObservableCoordinateImpl impl
         if (moduleSequencesProperty == null) {
             moduleSequencesProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE.toExternalString(), 
-                    FXCollections.observableIntegerArray(getModuleSequences()));
+                    FXCollections.observableIntegerArray(getModuleSequences().asArray()));
             addListenerReference(stampCoordinate.setModuleSequencesProperty(moduleSequencesProperty));
         }
         return moduleSequencesProperty;
@@ -117,9 +124,9 @@ public class ObservableStampCoordinateImpl extends ObservableCoordinateImpl impl
     }
 
     @Override
-    public int[] getModuleSequences() {
+    public ConceptSequenceSet getModuleSequences() {
         if (moduleSequencesProperty != null) {
-            return moduleSequencesProperty.get().toArray(new int[0]);
+            return ConceptSequenceSet.of(moduleSequencesProperty.get().toArray(new int[0]));
         }
         return stampCoordinate.getModuleSequences();
     }

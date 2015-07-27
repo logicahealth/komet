@@ -203,7 +203,7 @@ public class ConceptChronicleDdo implements Serializable {
         _destinationRelationships
                 = FXCollections.observableArrayList(new ArrayList<RelationshipChronicleDdo>(relsIncoming.size()));
 
-        int isaSequence = Snomed.IS_A.getSequence();
+        int isaSequence = Snomed.IS_A.getConceptSequence();
         for (SememeChronology<RelationshipVersionAdaptor> rel : relsIncoming) {
             Optional<LatestVersion<RelationshipVersionAdaptor>> optionalRelVersion = rel.getLatestVersion(RelationshipVersionAdaptor.class, taxonomyCoordinate.getStampCoordinate());
             if (optionalRelVersion.isPresent()) {
@@ -239,7 +239,7 @@ public class ConceptChronicleDdo implements Serializable {
         _originRelationships = FXCollections.observableArrayList(
                 new ArrayList<RelationshipChronicleDdo>());
 
-        int isaSequence = Snomed.IS_A.getSequence();
+        int isaSequence = Snomed.IS_A.getConceptSequence();
 
         for (SememeChronology<RelationshipVersionAdaptor> rel : relsOutgoing) {
             Optional<LatestVersion<RelationshipVersionAdaptor>> optionalRelVersion = rel.getLatestVersion(RelationshipVersionAdaptor.class, taxonomyCoordinate.getStampCoordinate());

@@ -1,16 +1,23 @@
 package gov.vha.isaac.ochre.api.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Coordinate to control the retrieval and display of
- * object chronicle versions by indicating the current position on a path, and allowed modules.
+ * object chronicle versions by indicating the current position (represented as time) on a path, 
+ * and allowed modules.
  * 
  *
  * Created by kec on 2/16/15.
+ * @param <T>
+ *  * TODO can remove generic type on StampCoordinate once ViewCoordinate is eliminated. 
+
  */
-public interface StampCoordinate {
+public interface StampCoordinate<T extends StampCoordinate> extends TimeBasedAnalogMaker<T>, StateBasedAnalogMaker<T> {
     
     /**
      * Determine if the stamp coordinate is time based, or path based. Generally
@@ -33,9 +40,17 @@ public interface StampCoordinate {
      * in the results. 
      * @return the set of module sequences to include in results based on this
      * stamp coordinate. 
-     * TODO change this to a concept sequence set, instead of an int[]?
      */
-    int[] getModuleSequences();
+    ConceptSequenceSet getModuleSequences();
+    
+    /**
+     * 
+     * @return A list of {@code ConceptSpecification} that represent the modules to include in version computations
+     * based on this stamp coordinate.
+     */
+    default List<ConceptSpecification> getModuleSpecificationList() {
+        return getModuleSequences().toConceptSpecificationList() ;
+     }
     
     /**
      * Determine what states should be included in results based on this
@@ -44,11 +59,4 @@ public interface StampCoordinate {
      * @return the set of allowed states for results based on this stamp coordinate. 
      */
     Set<State> getAllowedStates();
-    /**
-     * Analog: A structural derivative that often differs by a single element.
-     * @param stampPositionTime the time of the stamp position for the analog
-     * @return a new StampCoordinate with the specified stamp position time. 
-     */
-    StampCoordinate makeAnalog(long stampPositionTime);
-    
 }

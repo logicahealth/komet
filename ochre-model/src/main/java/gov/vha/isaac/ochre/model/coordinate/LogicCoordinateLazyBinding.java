@@ -45,7 +45,7 @@ public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     @Override
     public int getStatedAssemblageSequence() {
         if (statedAssemblageSequence == Integer.MAX_VALUE) {
-            statedAssemblageSequence = statedAssemblageProxy.getSequence();
+            statedAssemblageSequence = statedAssemblageProxy.getConceptSequence();
         }
         return statedAssemblageSequence;
     }
@@ -53,7 +53,7 @@ public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     @Override
     public int getInferredAssemblageSequence() {
         if (inferredAssemblageSequence == Integer.MAX_VALUE) {
-            inferredAssemblageSequence = inferredAssemblageProxy.getSequence();
+            inferredAssemblageSequence = inferredAssemblageProxy.getConceptSequence();
         }
         return inferredAssemblageSequence;
     }
@@ -61,7 +61,7 @@ public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     @Override
     public int getDescriptionLogicProfileSequence() {
         if (descriptionLogicProfileSequence == Integer.MAX_VALUE) {
-            descriptionLogicProfileSequence = descriptionLogicProfileProxy.getSequence();
+            descriptionLogicProfileSequence = descriptionLogicProfileProxy.getConceptSequence();
         }
         return descriptionLogicProfileSequence;
     }
@@ -69,7 +69,7 @@ public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     @Override
     public int getClassifierSequence() {
         if (classifierSequence == Integer.MAX_VALUE) {
-            classifierSequence = classifierProxy.getSequence();
+            classifierSequence = classifierProxy.getConceptSequence();
         }
         return classifierSequence;
     }
