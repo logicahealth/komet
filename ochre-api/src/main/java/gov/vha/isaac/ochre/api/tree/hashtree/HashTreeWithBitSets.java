@@ -14,20 +14,20 @@ import java.util.stream.IntStream;
  * @author kec
  */
 public class HashTreeWithBitSets extends AbstractHashTree {
-    final SequenceSet conceptSequencesWithParents;
-    final SequenceSet conceptSequencesWithChildren;
-    final SequenceSet conceptSequences;
+    final SequenceSet<?> conceptSequencesWithParents;
+    final SequenceSet<?> conceptSequencesWithChildren;
+    final SequenceSet<?> conceptSequences;
 
     public HashTreeWithBitSets() {
-        conceptSequencesWithParents = new SequenceSet();
-        conceptSequencesWithChildren = new SequenceSet();
-        conceptSequences = new SequenceSet();
+        conceptSequencesWithParents = new SequenceSet<>();
+        conceptSequencesWithChildren = new SequenceSet<>();
+        conceptSequences = new SequenceSet<>();
     }
 
     public HashTreeWithBitSets(int initialSize) {
-        conceptSequencesWithParents = new SequenceSet();
-        conceptSequencesWithChildren = new SequenceSet();
-        conceptSequences = new SequenceSet();
+        conceptSequencesWithParents = new SequenceSet<>();
+        conceptSequencesWithChildren = new SequenceSet<>();
+        conceptSequences = new SequenceSet<>();
     }
 
 
@@ -64,7 +64,7 @@ public class HashTreeWithBitSets extends AbstractHashTree {
 
     @Override
     public IntStream getRootSequenceStream() {
-        SequenceSet rootSet = new SequenceSet();
+        SequenceSet rootSet = new SequenceSet<>();
         rootSet.or(conceptSequencesWithChildren);
         rootSet.andNot(conceptSequencesWithParents);
         return rootSet.stream();
@@ -79,12 +79,12 @@ public class HashTreeWithBitSets extends AbstractHashTree {
         return maxSequence;
     }
 
-    public SequenceSet getNodeSequences() {
+    public SequenceSet<?> getNodeSequences() {
         return conceptSequences;
     }
 
     public IntStream getLeafSequences() {
-        SequenceSet leavesSet = new SequenceSet();
+        SequenceSet leavesSet = new SequenceSet<>();
         leavesSet.or(conceptSequencesWithParents);
         leavesSet.andNot(conceptSequencesWithChildren);
         return leavesSet.stream();

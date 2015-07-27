@@ -24,7 +24,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @author kec
  * @param <T>
  */
-public class SequenceSet<T extends SequenceSet> extends IntSet<T> {
+public class SequenceSet<T extends SequenceSet<T>> extends IntSet<T> {
 
     protected SequenceSet(boolean readOnly) {
         super(readOnly);
@@ -46,24 +46,24 @@ public class SequenceSet<T extends SequenceSet> extends IntSet<T> {
     public SequenceSet() {
     }
     
-    public static SequenceSet of(int... members) {
-        return new SequenceSet(members);
+    public static SequenceSet<?> of(int... members) {
+        return new SequenceSet<>(members);
     }
 
-    public static SequenceSet of(OpenIntHashSet members) {
-        return new SequenceSet(members);
+    public static SequenceSet<?> of(OpenIntHashSet members) {
+        return new SequenceSet<>(members);
     }
     
-    public static SequenceSet of(Collection<Integer> members) {
-        return new SequenceSet(members.stream().mapToInt(i -> i));
+    public static SequenceSet<?> of(Collection<Integer> members) {
+        return new SequenceSet<>(members.stream().mapToInt(i -> i));
     }
 
-    public static SequenceSet of(IntStream memberStream) {
-        return new SequenceSet(memberStream);
+    public static SequenceSet<?> of(IntStream memberStream) {
+        return new SequenceSet<>(memberStream);
     }
 
-    public static SequenceSet of(StampSequenceSet other) {
-        return new SequenceSet(other.stream());
+    public static SequenceSet<?> of(StampSequenceSet other) {
+        return new SequenceSet<>(other.stream());
     }
     
 }

@@ -23,7 +23,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class StampSequenceSet extends SequenceSet {
+public class StampSequenceSet extends SequenceSet<StampSequenceSet> {
     
     
     public static StampSequenceSet of(int... members) {

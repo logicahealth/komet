@@ -1538,7 +1538,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V>
                 return false;
             }
             @SuppressWarnings("unchecked")
-            Map.Entry e = (Map.Entry) o;
+            Map.Entry<?,?> e = (Map.Entry<?,?>) o;
             return eq(key, e.getKey()) && eq(value, e.getValue());
         }
 

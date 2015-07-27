@@ -36,8 +36,8 @@ import gov.vha.isaac.ochre.api.coordinate.PremiseType;
  * 
  * @author kec
  */
-public interface RelationshipVersionAdaptor 
-    extends SememeVersion {
+public interface RelationshipVersionAdaptor<T extends RelationshipVersionAdaptor<T>> 
+    extends SememeVersion<T> {
 
     int getOriginSequence();
     

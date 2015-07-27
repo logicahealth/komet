@@ -27,8 +27,8 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -36,7 +36,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class Snapshot {
     
-    private static final Logger log = LogManager.getLogger();
+    //private static final Logger log = LogManager.getLogger();
 
     LanguageCoordinate languageCoordinate;
     LogicCoordinate logicCoordinate;
@@ -52,7 +52,7 @@ public class Snapshot {
         this.positionCalculator = RelativePositionCalculator.getCalculator(stampCoordinate);
     }
 
-    public <V extends SememeVersion> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
+    public <V extends SememeVersion<?>> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
         return Get.sememeService().getSnapshot(type, stampCoordinate);
     }
 

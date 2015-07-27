@@ -7,8 +7,12 @@ import java.util.concurrent.locks.StampedLock;
  * Created by kec on 7/25/14.
  */
 public class ConcurrentUuidToIntHashMap extends UuidToIntHashMap {
-    
-    StampedLock sl = new StampedLock();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6525403154660005459L;
+
+	StampedLock sl = new StampedLock();
 
     public StampedLock getStampedLock() {
         return sl;
