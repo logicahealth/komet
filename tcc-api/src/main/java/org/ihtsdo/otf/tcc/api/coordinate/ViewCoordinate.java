@@ -53,8 +53,8 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
     "languageSort", "languageSpec", "languagePreferenceList",
     "name", "precedence", "relationshipAssertionType", "vcUuid",
     "viewPosition"})
-public class ViewCoordinate implements StampCoordinate,
-        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate, Externalizable {
+public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
+        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate<ViewCoordinate>, Externalizable {
 
     public static final long serialVersionUID = 2;
 
@@ -828,12 +828,12 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public StampCoordinate makeAnalog(long stampPositionTime) {
+    public ViewCoordinate makeAnalog(long stampPositionTime) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Object makeAnalog(State... state) {
+    public ViewCoordinate makeAnalog(State... state) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
