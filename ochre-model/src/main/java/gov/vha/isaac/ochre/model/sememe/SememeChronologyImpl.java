@@ -44,7 +44,7 @@ import java.util.UUID;
  * @author kec
  * @param <V>
  */
-public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
+public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
 
     byte sememeTypeToken = -1;
     int assemblageSequence = -1;

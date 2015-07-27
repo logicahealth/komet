@@ -23,19 +23,19 @@ import gov.vha.isaac.ochre.api.component.sememe.version.MutableLongSememe;
 /**
  * Used for path origins by path manager. 
  * @author kec
- */
-public class LongSememeImpl<T extends LongSememeImpl<T>> extends SememeVersionImpl<T> 
-    implements  MutableLongSememe<T> {
+  */
+public class LongSememeImpl extends SememeVersionImpl<LongSememeImpl> 
+    implements  MutableLongSememe<LongSememeImpl> {
 
     long longValue = Long.MAX_VALUE;
     
-    public LongSememeImpl(SememeChronologyImpl<T> container,  
+    public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container,  
             int stampSequence, short versionSequence, DataBuffer data) {
         super(container, stampSequence, versionSequence);
         this.longValue = data.getLong();
     }
 
-    public LongSememeImpl(SememeChronologyImpl<T> container,  
+    public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container,  
             int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
     }

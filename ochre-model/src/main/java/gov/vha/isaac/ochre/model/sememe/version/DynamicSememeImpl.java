@@ -25,7 +25,8 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememeData;
  *
  * @author kec
  */
-public class DynamicSememeImpl extends SememeVersionImpl implements MutableDynamicSememe {
+public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> 
+    implements MutableDynamicSememe<DynamicSememeImpl> {
 
     public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
             int stampSequence, short versionSequence, 

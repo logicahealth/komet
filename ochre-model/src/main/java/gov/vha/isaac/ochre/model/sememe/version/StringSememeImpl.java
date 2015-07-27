@@ -25,7 +25,7 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
  *
  * @author kec
  */
-public class StringSememeImpl extends SememeVersionImpl implements StringSememe, MutableStringSememe {
+public class StringSememeImpl extends SememeVersionImpl<StringSememeImpl> implements StringSememe<StringSememeImpl>, MutableStringSememe<StringSememeImpl> {
     
     private String string = null;
 
@@ -34,7 +34,7 @@ public class StringSememeImpl extends SememeVersionImpl implements StringSememe,
         super(container, stampSequence, versionSequence);
     }
 
-    public StringSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
+    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, 
             int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);

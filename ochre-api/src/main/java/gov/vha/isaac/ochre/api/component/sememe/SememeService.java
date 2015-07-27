@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -36,6 +37,7 @@ public interface SememeService {
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     
     SememeChronology<? extends SememeVersion<?>> getSememe(int sememeSequence);
+    Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeSequence);
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
