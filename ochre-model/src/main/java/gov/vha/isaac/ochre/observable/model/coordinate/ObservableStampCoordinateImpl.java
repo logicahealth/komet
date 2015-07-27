@@ -17,10 +17,10 @@ package gov.vha.isaac.ochre.observable.model.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
+import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
@@ -34,17 +34,16 @@ import javafx.collections.ObservableSet;
  *
  * @author kec
  */
-public class ObservableStampCoordinateImpl implements ObservableStampCoordinate {
-    //TODO finish the property listeners for the other Observable coordinates. 
-    
+public class ObservableStampCoordinateImpl extends ObservableCoordinateImpl implements ObservableStampCoordinate {
+    StampCoordinateImpl stampCoordinate;
+
     ObjectProperty<StampPrecedence> stampPrecedenceProperty;
     ObjectProperty<ObservableStampPosition> stampPositionProperty;
     ObjectProperty<ObservableIntegerArray> moduleSequencesProperty;
     SetProperty<State> allowedStates;
-    StampCoordinate stampCoordinate;
 
     public ObservableStampCoordinateImpl(StampCoordinate stampCoordinate) {
-        this.stampCoordinate = stampCoordinate;
+        this.stampCoordinate = (StampCoordinateImpl) stampCoordinate;
     }
 
     @Override
@@ -56,9 +55,10 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
     @Override
     public SetProperty<State> allowedStatesProperty() {
         if (allowedStates == null) {
-            allowedStates = new SimpleSetProperty(this, 
+            allowedStates = new SimpleSetProperty<>(this,
                     ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE.toExternalString(), 
                     FXCollections.observableSet(stampCoordinate.getAllowedStates()));
+            stampCoordinate.setAllowedStatesProperty(allowedStates);
         }
         return allowedStates;
     }
@@ -73,9 +73,10 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
     @Override
     public ObjectProperty<StampPrecedence> stampPrecedenceProperty() {
         if (stampPrecedenceProperty == null) {
-            stampPrecedenceProperty = new SimpleObjectProperty(this, 
+            stampPrecedenceProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.STAMP_PRECEDENCE_FOR_STAMP_COORDINATE.toExternalString(), 
                     getStampPrecedence());
+            addListenerReference(stampCoordinate.setStampPrecedenceProperty(stampPrecedenceProperty));
         }
         return stampPrecedenceProperty;
     }
@@ -83,9 +84,10 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
     @Override
     public ObjectProperty<ObservableStampPosition> stampPositionProperty() {
         if (stampPositionProperty == null) {
-            stampPositionProperty = new SimpleObjectProperty(this, 
+            stampPositionProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.STAMP_POSITION_FOR_STAMP_COORDINATE.toExternalString(), 
-                    getStampPosition());
+                    new ObservableStampPositionImpl(stampCoordinate.getStampPosition()));
+            addListenerReference(stampCoordinate.setStampPositionProperty(stampPositionProperty));
         }
         return stampPositionProperty;
     }
@@ -93,9 +95,10 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
     @Override
     public ObjectProperty<ObservableIntegerArray> moduleSequencesProperty() {
         if (moduleSequencesProperty == null) {
-            moduleSequencesProperty = new SimpleObjectProperty(this, 
+            moduleSequencesProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE.toExternalString(), 
-                    getModuleSequences());
+                    FXCollections.observableIntegerArray(getModuleSequences()));
+            addListenerReference(stampCoordinate.setModuleSequencesProperty(moduleSequencesProperty));
         }
         return moduleSequencesProperty;
     }
@@ -109,11 +112,8 @@ public class ObservableStampCoordinateImpl implements ObservableStampCoordinate 
     }
 
     @Override
-    public StampPosition getStampPosition() {
-        if (stampPositionProperty != null) {
-            return stampPositionProperty.get();
-        }
-        return stampCoordinate.getStampPosition();
+    public ObservableStampPosition getStampPosition() {
+       return stampPositionProperty().get();
     }
 
     @Override

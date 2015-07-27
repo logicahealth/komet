@@ -848,12 +848,12 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     @Override
-    public List<? extends SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 

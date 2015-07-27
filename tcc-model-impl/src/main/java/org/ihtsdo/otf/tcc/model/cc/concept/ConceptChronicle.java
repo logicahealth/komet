@@ -1936,7 +1936,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
     @Override
     public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronicles() {
-        return Get.sememeService().getSememesFromAssemblage(Get.identifierService().getConceptSequence(nid));
+        return Get.sememeService().getSememesFromAssemblage(Get.identifierService().getConceptSequence(nid)); 
     }
     
     @Override

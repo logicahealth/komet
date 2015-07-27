@@ -13,7 +13,7 @@ import java.util.Optional;
  */
 public interface LanguageCoordinate {
     
-    int getLanugageConceptSequence();
+    int getLanguageConceptSequence();
     
     int[] getDialectAssemblagePreferenceList();
     

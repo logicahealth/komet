@@ -771,7 +771,7 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public int getLanugageConceptSequence() {
+    public int getLanguageConceptSequence() {
         return Get.identifierService().getConceptSequence(getLanguageNid());
     }
 
@@ -831,5 +831,8 @@ public class ViewCoordinate implements StampCoordinate,
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
+    @Override
+    public LogicCoordinate getLogicCoordinate() {
+        return this;
+    }
 }
