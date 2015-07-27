@@ -21,7 +21,7 @@ import javafx.beans.property.IntegerProperty;
  *
  * @author kec
  */
-public interface ObservableComponentNidSememe extends ObservableSememeVersion {
+public interface ObservableComponentNidSememe<T extends ObservableComponentNidSememe<T>> extends ObservableSememeVersion<T> {
     
     int getComponentNid();
     

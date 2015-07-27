@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api.tree.hashtree;
 
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import java.util.BitSet;
+
 import java.util.stream.IntStream;
 
 /**

@@ -29,7 +29,12 @@ import org.apache.mahout.math.map.PrimeFinder;
  * @author kec
  */
 public class UuidToIntHashMap extends AbstractUuidToIntHashMap implements UuidToIntMap {
-    public long[] getTable() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3621266181773866347L;
+
+	public long[] getTable() {
         return table;
     }
 

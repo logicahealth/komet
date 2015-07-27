@@ -21,9 +21,9 @@ public class TreeNodeVisitData {
     protected final IntArrayList finishTimeList;
     protected final IntArrayList predecessorSequenceList;
     protected final IntArrayList siblingGroupSequenceList;
-    private SequenceSet visitStarted = new SequenceSet();
-    private SequenceSet visitEnded = new SequenceSet();
-    private SequenceSet leafNodes = new SequenceSet();
+    private SequenceSet<?> visitStarted = new SequenceSet<>();
+    private SequenceSet<?> visitEnded = new SequenceSet<>();
+    private SequenceSet<?> leafNodes = new SequenceSet<>();
     private ConceptSequenceSet[] conceptsReferencedAtNodeOrAbove;
 
     private int maxDepth = 0;
@@ -34,9 +34,9 @@ public class TreeNodeVisitData {
     public TreeNodeVisitData(int graphSize) {
 
         this.graphSize = graphSize;
-        this.visitStarted = new SequenceSet();
-        this.visitEnded = new SequenceSet();
-        this.leafNodes = new SequenceSet();
+        this.visitStarted = new SequenceSet<>();
+        this.visitEnded = new SequenceSet<>();
+        this.leafNodes = new SequenceSet<>();
         this.distanceList = new IntArrayList(new int[graphSize]);
         this.discoveryTimeList = new IntArrayList(new int[graphSize]);
         this.finishTimeList = new IntArrayList(new int[graphSize]);
@@ -158,20 +158,20 @@ public class TreeNodeVisitData {
         }
     }
 
-    public SequenceSet getLeafNodes() {
+    public SequenceSet<?> getLeafNodes() {
         return leafNodes;
     }
 
-    public SequenceSet getIntermediateNodes() {
-        SequenceSet intermediateNodes = new SequenceSet();
+    public SequenceSet<?> getIntermediateNodes() {
+        SequenceSet intermediateNodes = new SequenceSet<>();
         intermediateNodes.or(visitEnded);
         intermediateNodes.andNot(leafNodes);
 
         return intermediateNodes;
     }
 
-    public SequenceSet getNodeIdsForDepth(int depth) {
-        SequenceSet nodeIdsForDepth = new SequenceSet();
+    public SequenceSet<?> getNodeIdsForDepth(int depth) {
+        SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
         for (int i = 0; i < distanceList.size(); i++) {
             if (distanceList.get(i) == depth) {
                 nodeIdsForDepth.add(i);

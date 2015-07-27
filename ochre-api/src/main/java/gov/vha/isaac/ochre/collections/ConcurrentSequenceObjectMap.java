@@ -26,12 +26,12 @@ public class ConcurrentSequenceObjectMap<E> {
     AtomicInteger maxSequence = new AtomicInteger(0);
 
     public ConcurrentSequenceObjectMap() {
-        objectListList.add(new AtomicReferenceArray(SEGMENT_SIZE));
+        objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
     }
     
     public void clear() {
         objectListList.clear();
-        objectListList.add(new AtomicReferenceArray(SEGMENT_SIZE));
+        objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
         maxSequence.set(0);
     }
 
@@ -77,7 +77,7 @@ public class ConcurrentSequenceObjectMap<E> {
             lock.lock();
             try {
                 while (segmentIndex >= objectListList.size()) {
-                    objectListList.add(new AtomicReferenceArray(SEGMENT_SIZE));
+                    objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
                 }
             } finally {
                 lock.unlock();

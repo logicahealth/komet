@@ -15,14 +15,15 @@
  */
 package gov.vha.isaac.ochre.api.task;
 
-import gov.vha.isaac.ochre.api.ProgressTracker;
-import static gov.vha.isaac.ochre.api.task.TimedTask.progressUpdateIntervalInSecs;
-import gov.vha.isaac.ochre.api.ticker.Ticker;
-import java.lang.invoke.MethodHandle;
 import static java.lang.invoke.MethodHandles.publicLookup;
+import gov.vha.isaac.ochre.api.ProgressTracker;
+import gov.vha.isaac.ochre.api.ticker.Ticker;
+
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
+
 import javafx.concurrent.Task;
 
 /**

@@ -30,7 +30,7 @@ import org.roaringbitmap.RoaringBitmap;
  * @author kec
  * @param <T>
  */
-public abstract class IntSet<T extends IntSet> implements Comparable<T> {
+public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
 
     RoaringBitmap rbmp;
 

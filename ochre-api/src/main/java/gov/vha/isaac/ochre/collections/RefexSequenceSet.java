@@ -27,7 +27,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @deprecated migrate to Sememes...
  */
 @Deprecated
-public class RefexSequenceSet extends SequenceSet {
+public class RefexSequenceSet extends SequenceSet<RefexSequenceSet> {
     
     public static RefexSequenceSet of(int... members) {
         return new RefexSequenceSet(members);

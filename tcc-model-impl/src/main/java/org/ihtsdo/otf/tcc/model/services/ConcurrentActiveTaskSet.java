@@ -29,10 +29,10 @@ import org.ihtsdo.otf.lookup.contracts.contracts.ActiveTaskSet;
 @Singleton
 @Service
 public class ConcurrentActiveTaskSet implements ActiveTaskSet {
-    private final Set<Task> taskSet = new CopyOnWriteArraySet<>();
+    private final Set<Task<?>> taskSet = new CopyOnWriteArraySet<>();
 
     @Override
-    public Set<Task> get() {
+    public Set<Task<?>> get() {
         return taskSet;
     }
 

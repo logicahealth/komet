@@ -25,7 +25,7 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface ActiveTasks {
-    Set<Task> get();
-    void add(Task task);
-    void remove(Task task);
+    Set<Task<?>> get();
+    void add(Task<?> task);
+    void remove(Task<?> task);
 }

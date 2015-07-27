@@ -251,12 +251,13 @@ public class UuidArrayList  extends AbstractUuidList {
         @Override
 	public boolean equals(Object otherObj) { // delta
 		// overridden for performance only.
-		if (!(otherObj instanceof UuidArrayList))
-			return super.equals(otherObj);
+        if (otherObj == null)
+    		return false;
 		if (this == otherObj)
 			return true;
-		if (otherObj == null)
-			return false;
+		if (!(otherObj instanceof UuidArrayList))
+			return super.equals(otherObj);
+
 		UuidArrayList other = (UuidArrayList) otherObj;
 		if (size() != other.size())
 			return false;
