@@ -134,7 +134,7 @@ public class LookupService {
         }
         T service = get().getService(contractOrService, name, new Annotation[0]);
         
-		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+        log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
 
         return service;
     }
@@ -146,7 +146,7 @@ public class LookupService {
      * @param name May be null (to indicate any name is ok), and is the name of the implementation to be returned
      */
     public static <T> T getNamedServiceIfPossible(Class<T> contractOrService, String name) {
-    	T service = null;
+        T service = null;
         if (StringUtils.isEmpty(name)) {
             service = get().getService(contractOrService);
         }
@@ -157,7 +157,7 @@ public class LookupService {
             }
         }
         
-		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+        log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
 
         return service;
     }
@@ -168,15 +168,6 @@ public class LookupService {
 
     public static void setRunLevel(int runLevel) {
         getService(RunLevelController.class).proceedTo(runLevel);
-        /*
-         * Stop the thread pools - these are handled as a singleton, rather than a runlevel, as other code that reuses these
-         * wants to make use of the thread pools before the DB has been started.  With them configured as a singleton, they will
-         * be started automatically, when needed - and this hook (which is the only obvious path to change the runlevel) will 
-         * ensure they are stopped during an isaac shutdown sequence.
-         */
-        if (runLevel <= ISAAC_STOPPED_RUNLEVEL) {
-            //get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
-        }
     }
     
     /**
