@@ -25,17 +25,17 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
  *
  * @author kec
  */
-public class ComponentNidSememeImpl extends SememeVersionImpl implements MutableComponentNidSememe {
+public class ComponentNidSememeImpl<T extends ComponentNidSememeImpl<T>> extends SememeVersionImpl<T> implements MutableComponentNidSememe<T> {
 
     int componentNid = Integer.MAX_VALUE;
 
-    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
+    public ComponentNidSememeImpl(SememeChronologyImpl<T> container, 
             int stampSequence, short versionSequence) {
         super(container, 
                 stampSequence, versionSequence);
     }
 
-    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
+    public ComponentNidSememeImpl(SememeChronologyImpl<T> container, 
             int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);

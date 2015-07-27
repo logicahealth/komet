@@ -25,16 +25,16 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememeData;
  *
  * @author kec
  */
-public class DynamicSememeImpl extends SememeVersionImpl implements MutableDynamicSememe {
+public class DynamicSememeImpl<T extends DynamicSememeImpl<T>> extends SememeVersionImpl<T> implements MutableDynamicSememe<T> {
 
-    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
+    public DynamicSememeImpl(SememeChronologyImpl<T> container, 
             int stampSequence, short versionSequence, 
             DataBuffer db) {
         super(container, stampSequence, versionSequence);
         throw new UnsupportedOperationException();
     }
 
-    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
+    public DynamicSememeImpl(SememeChronologyImpl<T> container, 
             int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
         throw new UnsupportedOperationException();

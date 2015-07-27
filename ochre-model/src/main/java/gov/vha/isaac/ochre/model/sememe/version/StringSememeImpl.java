@@ -25,16 +25,16 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
  *
  * @author kec
  */
-public class StringSememeImpl extends SememeVersionImpl implements StringSememe, MutableStringSememe {
+public class StringSememeImpl<T extends StringSememeImpl<T>> extends SememeVersionImpl<T> implements StringSememe<T>, MutableStringSememe<T> {
     
     private String string = null;
 
-    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, 
+    public StringSememeImpl(SememeChronologyImpl<T> container, 
             int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
     }
 
-    public StringSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
+    public StringSememeImpl(SememeChronologyImpl<T> container, 
             int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);
