@@ -127,7 +127,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
                 break;
             case LONG:
                 if (LongSememe.class.isAssignableFrom(type)) {
-                    return (M) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) this,
+                    return (M) new LongSememeImpl( (SememeChronologyImpl<LongSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
                 break;
@@ -159,7 +159,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
                 break;
             case DESCRIPTION:
                 if (DescriptionSememe.class.isAssignableFrom(type)) {
-                    return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
+                    return (M) new DescriptionSememeImpl( (SememeChronologyImpl<DescriptionSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
                     
