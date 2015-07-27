@@ -54,9 +54,9 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
       }
    }
 
-    public TtkRefexStringMemberChronicle(SememeChronologyImpl<StringSememeImpl> another) {
+    public <T extends StringSememeImpl<T>> TtkRefexStringMemberChronicle(SememeChronologyImpl<T> another) {
       super(another);
-      List<StringSememeImpl> stringVersions = (List<StringSememeImpl>) another.getVersionList();
+      List<T> stringVersions = (List<T>) another.getVersionList();
         
       this.string1 = stringVersions.get(0).getString();
 

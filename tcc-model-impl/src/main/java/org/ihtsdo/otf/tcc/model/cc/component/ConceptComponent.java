@@ -13,10 +13,11 @@ import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
+import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
+
 import java.beans.PropertyVetoException;
 import java.io.*;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -26,7 +27,9 @@ import java.util.stream.IntStream;
 
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
+
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
+
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -46,7 +49,9 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
+
 import gov.vha.isaac.ochre.util.UuidT5Generator;
+
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
@@ -729,7 +734,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      *
      * @throws IOException
      */
-    public final void convertId(List<TtkIdentifier> list) throws IOException {
+    public final <T extends StringSememeImpl<T>> void convertId(List<TtkIdentifier> list) throws IOException {
         if ((list == null) || list.isEmpty()) {
             return;
         }
@@ -755,7 +760,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                 getConceptSequence(PersistentStore.get().
                                         getNidForUuids(idv.authorityUuid));
 
-                        SememeChronologyImpl<StringSememeImpl> sememeChronicle
+                        SememeChronologyImpl<T> sememeChronicle
                                 = new SememeChronologyImpl<>(
                                         SememeType.STRING,
                                         strMemberUuid,
@@ -769,7 +774,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                         Get.identifierService().getConceptSequenceForUuids(idv.authorUuid),
                                         Get.identifierService().getConceptSequenceForUuids(idv.moduleUuid),
                                         Get.identifierService().getConceptSequenceForUuids(idv.pathUuid));
-                        StringSememeImpl stringVersion = sememeChronicle.createMutableVersion(StringSememeImpl.class, stampSequence);
+                        SememeChronologyImpl rawSCI = (SememeChronologyImpl)sememeChronicle;
+                        SememeVersionImpl sememeVersion = rawSCI.createMutableVersion(StringSememeImpl.class, stampSequence);
+                        T stringVersion = (T)sememeVersion;
+                        
                         stringVersion.setString(denotation.toString());
                         Get.sememeService().writeSememe(sememeChronicle);
                         break;

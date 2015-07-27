@@ -44,7 +44,7 @@ import java.util.UUID;
  * @author kec
  * @param <V>
  */
-public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
+public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
 
     byte sememeTypeToken = -1;
     int assemblageSequence = -1;
@@ -121,19 +121,19 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
         switch (getSememeType()) {
             case COMPONENT_NID:
                 if (MutableComponentNidSememe.class.isAssignableFrom(type)) {
-                    return (M) new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>) this,
+                    return (M) new ComponentNidSememeImpl((SememeChronologyImpl<V>) this,
                             stampSequence, versionSequence);
                 }
                 break;
             case LONG:
                 if (LongSememe.class.isAssignableFrom(type)) {
-                    return (M) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) this,
+                    return (M) new LongSememeImpl((SememeChronologyImpl<V>) this,
                             stampSequence, versionSequence);
                 }
                 break;
             case DYNAMIC:
                 if (MutableDynamicSememe.class.isAssignableFrom(type)) {
-                    return (M) new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) this,
+                    return (M) new DynamicSememeImpl((SememeChronologyImpl<V>) this,
                             stampSequence, versionSequence);
                 }
                 break;
@@ -146,7 +146,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
 
             case STRING:
                 if (StringSememe.class.isAssignableFrom(type)) {
-                    return (M) new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>) this,
+                    return (M) new StringSememeImpl((SememeChronologyImpl<V>) this,
                             stampSequence, versionSequence);
                 }
                 break;
@@ -159,7 +159,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
                 break;
             case DESCRIPTION:
                 if (DescriptionSememe.class.isAssignableFrom(type)) {
-                    return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
+                    return (M) new DescriptionSememeImpl((SememeChronologyImpl<V>) this,
                             stampSequence, versionSequence);
                 }
                     
