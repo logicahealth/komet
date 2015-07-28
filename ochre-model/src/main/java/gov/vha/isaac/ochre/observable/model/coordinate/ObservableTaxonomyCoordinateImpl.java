@@ -130,4 +130,10 @@ public class ObservableTaxonomyCoordinateImpl extends ObservableCoordinateImpl i
     public ObservableTaxonomyCoordinate makeAnalog(State... state) {
         return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(state));
     }
+
+    @Override
+    public TaxonomyCoordinate<ObservableTaxonomyCoordinate> makeAnalog(PremiseType taxonomyType) {
+        return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(taxonomyType));
+    }
+    
 }

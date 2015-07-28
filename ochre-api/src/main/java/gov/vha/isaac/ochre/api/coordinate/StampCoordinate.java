@@ -10,8 +10,13 @@ import java.util.Set;
  * Coordinate to control the retrieval and display of
  * object chronicle versions by indicating the current position (represented as time) on a path, 
  * and allowed modules.
+ * <p\>
+ * q: How does the stamp coordinate relate to the stamp sequence?
+ * <p\>
+ * a: A stamp sequence is a sequentially assigned identifier for a unique combination of State, Time, Author, Module, and Path...
+ * A stamp coordinate specifies a position on a  path, with a particular set of modules, and allowed state values.
  * 
- *
+ *<p\>
  * Created by kec on 2/16/15.
  * @param <T>
  *  * TODO can remove generic type on StampCoordinate once ViewCoordinate is eliminated. 

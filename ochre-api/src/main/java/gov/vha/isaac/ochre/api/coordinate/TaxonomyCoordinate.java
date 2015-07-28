@@ -57,4 +57,12 @@ public interface TaxonomyCoordinate<T extends TaxonomyCoordinate> extends TimeBa
      * @return a LogicCoordinate that specifies how to manage the retrieval and display of logic information.
      */
     LogicCoordinate getLogicCoordinate();
+    
+    /**
+     * 
+     * @param taxonomyType the {@code PremiseType} for the analog 
+     * @return a new taxonomyCoordinate with the specified taxonomy type. 
+     */
+    
+    TaxonomyCoordinate<T> makeAnalog(PremiseType taxonomyType);
 }

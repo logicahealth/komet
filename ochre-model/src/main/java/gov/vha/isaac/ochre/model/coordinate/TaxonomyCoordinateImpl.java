@@ -111,6 +111,12 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordi
         return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate.makeAnalog(state),
                                   languageCoordinate, logicCoordinate);
     }
+
+    @Override
+    public TaxonomyCoordinate<TaxonomyCoordinate> makeAnalog(PremiseType taxonomyType) {
+        return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate,
+                                  languageCoordinate, logicCoordinate);
+    }
     
     
     

@@ -841,4 +841,10 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
     public LogicCoordinate getLogicCoordinate() {
         return this;
     }
+
+    @Override
+    public TaxonomyCoordinate<ViewCoordinate> makeAnalog(PremiseType taxonomyType) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }
