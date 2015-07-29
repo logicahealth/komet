@@ -534,11 +534,11 @@ public class RelativePositionCalculator implements OchreCache {
                     }
                     break;
                 case UNREACHABLE:
-                    // Should have failed mapper.onRoute(stampSequence)
-                    // above.
-                    throw new RuntimeException(
-                            RelativePosition.UNREACHABLE
-                            + " should never happen.");
+                    // nothing to do...
+                    break;
+                    default:
+                        throw new UnsupportedOperationException("Can't handle: " + fastRelativePosition(stampSequence,
+                    prevStamp, coordinate.getStampPrecedence()));
             }            
         });
     }
