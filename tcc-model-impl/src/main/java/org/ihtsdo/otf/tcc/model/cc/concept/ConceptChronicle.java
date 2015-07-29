@@ -1185,6 +1185,11 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
        }
     }
 
+    @Override
+    public String getConceptDescriptionText() {
+        return Get.conceptDescriptionText(nid);
+    }
+
     public Collection<Relationship> getDestRels(NidSetBI allowedTypes) throws IOException {
         if (isCanceled()) {
             return new ArrayList<>();

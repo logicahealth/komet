@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.observable.model.coordinate;
 
+import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
@@ -119,4 +120,20 @@ public class ObservableTaxonomyCoordinateImpl extends ObservableCoordinateImpl i
     public UUID getUuid() {
         return uuidProperty().get();
     }
+
+    @Override
+    public ObservableTaxonomyCoordinate makeAnalog(long stampPositionTime) {
+        return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(stampPositionTime));
+    }
+
+    @Override
+    public ObservableTaxonomyCoordinate makeAnalog(State... state) {
+        return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(state));
+    }
+
+    @Override
+    public TaxonomyCoordinate<ObservableTaxonomyCoordinate> makeAnalog(PremiseType taxonomyType) {
+        return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(taxonomyType));
+    }
+    
 }

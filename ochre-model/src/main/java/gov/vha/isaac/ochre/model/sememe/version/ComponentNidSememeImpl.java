@@ -25,7 +25,8 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
  *
  * @author kec
  */
-public class ComponentNidSememeImpl extends SememeVersionImpl implements MutableComponentNidSememe {
+public class ComponentNidSememeImpl extends SememeVersionImpl<ComponentNidSememeImpl> 
+    implements MutableComponentNidSememe<ComponentNidSememeImpl> {
 
     int componentNid = Integer.MAX_VALUE;
 

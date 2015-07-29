@@ -15,6 +15,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
@@ -52,8 +53,8 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
     "languageSort", "languageSpec", "languagePreferenceList",
     "name", "precedence", "relationshipAssertionType", "vcUuid",
     "viewPosition"})
-public class ViewCoordinate implements StampCoordinate,
-        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate, Externalizable {
+public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
+        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate<ViewCoordinate>, Externalizable {
 
     public static final long serialVersionUID = 2;
 
@@ -792,8 +793,8 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public int[] getModuleSequences() {
-        return new int[0];
+    public ConceptSequenceSet getModuleSequences() {
+        return new ConceptSequenceSet();
     }
     
     private static LanguageCoordinateService languageCoordinateService;
@@ -827,7 +828,12 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public StampCoordinate makeAnalog(long stampPositionTime) {
+    public ViewCoordinate makeAnalog(long stampPositionTime) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ViewCoordinate makeAnalog(State... state) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -835,4 +841,10 @@ public class ViewCoordinate implements StampCoordinate,
     public LogicCoordinate getLogicCoordinate() {
         return this;
     }
+
+    @Override
+    public TaxonomyCoordinate<ViewCoordinate> makeAnalog(PremiseType taxonomyType) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

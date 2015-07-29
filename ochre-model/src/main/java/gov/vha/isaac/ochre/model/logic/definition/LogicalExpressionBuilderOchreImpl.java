@@ -427,7 +427,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.Concept(((Integer) axiomParameters.get(axiom.getIndex())));
                 }
                 if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
-                    return definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getSequence());
+                    return definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getConceptSequence());
                 }
                 ConceptChronology conceptProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
                 return definition.Concept(conceptProxy.getConceptSequence());
@@ -464,8 +464,8 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                 if (params[0] instanceof ConceptProxy) {
                     ConceptProxy templateConceptProxy = (ConceptProxy) params[0];
                     ConceptProxy assemblageToPopulateTemplateConceptProxy = (ConceptProxy) params[1];
-                    return definition.Template(templateConceptProxy.getSequence(),
-                            assemblageToPopulateTemplateConceptProxy.getSequence());
+                    return definition.Template(templateConceptProxy.getConceptSequence(),
+                            assemblageToPopulateTemplateConceptProxy.getConceptSequence());
                 }
                 ConceptChronology templateConceptProxy = (ConceptChronology) params[0];
                 ConceptChronology assemblageToPopulateTemplateConceptProxy = (ConceptChronology) params[1];
@@ -476,7 +476,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.DisjointWith(definition.Concept(((Integer) axiomParameters.get(axiom.getIndex()))));
                 }
                 if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
-                    return definition.DisjointWith(definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getSequence()));
+                    return definition.DisjointWith(definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getConceptSequence()));
                 }
                 ConceptChronology disjointConceptProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
                 return definition.DisjointWith(definition.Concept(disjointConceptProxy.getConceptSequence()));

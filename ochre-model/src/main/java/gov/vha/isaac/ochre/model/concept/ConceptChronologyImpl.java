@@ -72,6 +72,11 @@ public class ConceptChronologyImpl
     }
 
     @Override
+    public String getConceptDescriptionText() {
+        return Get.conceptDescriptionText(getNid());
+    }
+
+    @Override
     public void writeChronicleData(DataBuffer data) {
         super.writeChronicleData(data);
     }

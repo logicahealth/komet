@@ -15,10 +15,14 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -28,6 +32,11 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
     
+    public final static ConceptSequenceSet EMPTY = new ConceptSequenceSet(true);
+
+    private ConceptSequenceSet(boolean readOnly) {
+        super(readOnly);
+    }
     
     public static ConceptSequenceSet of(int... members) {
         IdentifierService sp = Get.identifierService();
@@ -94,6 +103,12 @@ public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
     public void addAll(IntStream intStream) {
         IdentifierService sp = Get.identifierService();
         super.addAll(intStream.map((item) -> { return sp.getConceptSequence(item);})); 
+    }
+    
+    public List<ConceptSpecification> toConceptSpecificationList() {
+       return stream().mapToObj((int conceptSequence) -> new ConceptProxy(
+                Get.conceptDescriptionText(conceptSequence),
+                Get.identifierService().getUuidPrimordialFromConceptSequence(conceptSequence).get())).collect(Collectors.toList()) ;
     }
     
     

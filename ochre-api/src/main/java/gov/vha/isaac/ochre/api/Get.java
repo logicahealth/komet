@@ -24,6 +24,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.CoordinateFactory;
 import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
@@ -61,12 +62,20 @@ public class Get implements OchreCache {
     private static PathService pathService;
     private static SememeBuilderService<?> sememeBuilderService;
     private static SememeService sememeService;
+    private static CoordinateFactory coordinateFactory;
     private static TaxonomyService taxonomyService;
     private static WorkExecutors workExecutors;
 
     public Get() {
     }
     
+
+    public static CoordinateFactory coordinateFactory() {
+        if (coordinateFactory == null) {
+            coordinateFactory = LookupService.getService(CoordinateFactory.class);
+        }
+        return coordinateFactory;
+    }
     
     public static ActiveTasks activeTasks() {
         if (activeTaskSet == null) {
@@ -232,6 +241,7 @@ public class Get implements OchreCache {
         conceptModel = null;
         conceptService = null;
         conceptSnapshot = null;
+        coordinateFactory = null;
         identifiedObjectService = null;
         identifierService = null;
         logicalExpressionBuilderService = null;

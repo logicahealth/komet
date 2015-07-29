@@ -44,7 +44,7 @@ import java.util.UUID;
  * @author kec
  * @param <V>
  */
-public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
+public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
 
     byte sememeTypeToken = -1;
     int assemblageSequence = -1;
@@ -127,7 +127,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
                 break;
             case LONG:
                 if (LongSememe.class.isAssignableFrom(type)) {
-                    return (M) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) this,
+                    return (M) new LongSememeImpl( (SememeChronologyImpl<LongSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
                 break;
@@ -159,7 +159,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
                 break;
             case DESCRIPTION:
                 if (DescriptionSememe.class.isAssignableFrom(type)) {
-                    return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
+                    return (M) new DescriptionSememeImpl( (SememeChronologyImpl<DescriptionSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
                     

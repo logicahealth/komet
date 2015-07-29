@@ -50,6 +50,11 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
                 RelativePositionCalculator.getCalculator(stampCoordinate).getLatestVersion(conceptChronology);
         snapshotVersion = optionalVersion.get();
     }
+
+    @Override
+    public String getConceptDescriptionText() {
+        return getDescription().getText();
+    }
     
     @Override
     public ConceptChronologyImpl getChronology() {

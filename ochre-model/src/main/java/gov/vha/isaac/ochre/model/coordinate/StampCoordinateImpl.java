@@ -16,12 +16,15 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
@@ -35,20 +38,42 @@ import javafx.collections.SetChangeListener;
  *
  * @author kec
  */
-public class StampCoordinateImpl implements StampCoordinate {
+public class StampCoordinateImpl implements StampCoordinate<StampCoordinate> {
 
     StampPrecedence stampPrecedence;
     StampPosition stampPosition;
-    int[] moduleSequences;
+    ConceptSequenceSet moduleSequences;
     EnumSet<State> allowedStates;
 
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
             StampPosition stampPosition,
-            int[] moduleSequences, EnumSet<State> allowedStates) {
+            ConceptSequenceSet moduleSequences, EnumSet<State> allowedStates) {
         this.stampPrecedence = stampPrecedence;
         this.stampPosition = stampPosition;
         this.moduleSequences = moduleSequences;
         this.allowedStates = allowedStates;
+    }
+    public StampCoordinateImpl(StampPrecedence stampPrecedence,
+            StampPosition stampPosition,
+            List<ConceptSpecification> moduleSpecifications, EnumSet<State> allowedStates) {
+        this(stampPrecedence, stampPosition, 
+                ConceptSequenceSet.of(moduleSpecifications.stream().mapToInt((spec) -> spec.getConceptSequence())), 
+                allowedStates);
+    }
+
+    /**
+     * 
+     * @param stampPrecedence
+     * @param stampPosition
+     * @param moduleSequencesArray
+     * @param allowedStates
+     * @deprecated moduleSequencesArray not typesafe. Use a different constructor. 
+     */
+    @Deprecated
+    public StampCoordinateImpl(StampPrecedence stampPrecedence,
+            StampPosition stampPosition,
+            int[] moduleSequencesArray, EnumSet<State> allowedStates) {
+        this(stampPrecedence, stampPosition, ConceptSequenceSet.of(moduleSequencesArray), allowedStates);
     }
 
     public SetChangeListener<State> setAllowedStatesProperty(SetProperty<State> allowedStatesProperty) {
@@ -66,7 +91,7 @@ public class StampCoordinateImpl implements StampCoordinate {
     public ArrayChangeListener<ObservableIntegerArray> setModuleSequencesProperty(
             ObjectProperty<ObservableIntegerArray> moduleSequencesProperty) {
         ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
-            moduleSequences = observableArray.toArray(moduleSequences);
+            moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
         };
         moduleSequencesProperty.getValue().addListener(new WeakArrayChangeListener(listener));
         return listener;
@@ -99,6 +124,13 @@ public class StampCoordinateImpl implements StampCoordinate {
     }
 
     @Override
+    public StampCoordinate makeAnalog(State... states) {
+        EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
+        newAllowedStates.addAll(Arrays.asList(states));
+        return new StampCoordinateImpl(stampPrecedence, stampPosition, moduleSequences, newAllowedStates);
+    }
+
+    @Override
     public EnumSet<State> getAllowedStates() {
         return allowedStates;
     }
@@ -114,7 +146,7 @@ public class StampCoordinateImpl implements StampCoordinate {
     }
 
     @Override
-    public int[] getModuleSequences() {
+    public ConceptSequenceSet getModuleSequences() {
         return moduleSequences;
     }
 
@@ -145,14 +177,14 @@ public class StampCoordinateImpl implements StampCoordinate {
             return false;
         }
 
-        return Arrays.equals(this.moduleSequences, other.moduleSequences);
+        return this.moduleSequences.equals(other.moduleSequences);
     }
 
     @Override
     public String toString() {
         return "StampCoordinateImpl{" + "stampPrecedence=" + stampPrecedence
                 + ", stampPosition=" + stampPosition
-                + ", moduleSequences=" + Arrays.toString(moduleSequences)
+                + ", modules=" + getModuleSpecificationList()
                 + ", allowedStates=" + allowedStates + '}';
     }
 

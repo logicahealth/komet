@@ -17,9 +17,7 @@ package gov.vha.isaac.ochre.api.commit;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -99,7 +97,7 @@ public interface CommitService {
      * 
      * @param stampSequence a stamp sequence to create an analog of
      * @return a stampSequence with a State of INACTIVE, but the same
-     * time, author, module, and pat as the provided stamp sequence. 
+     * time, author, module, and path as the provided stamp sequence. 
      */
     int getRetiredStampSequence(int stampSequence);
     
