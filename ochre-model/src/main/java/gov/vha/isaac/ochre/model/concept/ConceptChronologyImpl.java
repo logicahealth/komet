@@ -205,7 +205,7 @@ public class ConceptChronologyImpl
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination() {
         if (relationshipListWithConceptAsDestinationListDefaltCoordinate == null) {
             relationshipListWithConceptAsDestinationListDefaltCoordinate = new ArrayList<>();
-            getLogicService().getRelationshipAdaptorsOriginatingWithConcept(this)
+            getLogicService().getRelationshipAdaptorsWithConceptAsDestination(this)
                     .forEach((relAdaptor) -> {
                         relationshipListWithConceptAsDestinationListDefaltCoordinate.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                     });
