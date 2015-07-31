@@ -76,7 +76,7 @@ public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
         super(memberStream);
     }
 
-    protected ConceptSequenceSet(int[] members) {
+    public ConceptSequenceSet(int[] members) {
         super(members);
     }
 
