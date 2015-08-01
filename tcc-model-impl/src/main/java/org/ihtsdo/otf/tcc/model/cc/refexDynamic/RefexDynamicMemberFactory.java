@@ -68,9 +68,9 @@ public class RefexDynamicMemberFactory {
 
       member.assemblageNid = refexColCon.getNid();
       member.nid               = PersistentStore.get().getNidForUuids(blueprint.getMemberUUID());
-
-       if (refexColCon.isAnnotationStyleRefex()) {
-           int rcNid = PersistentStore.get().getNidForUuids(blueprint.getReferencedComponentUuid());
+      int rcNid = PersistentStore.get().getNidForUuids(blueprint.getReferencedComponentUuid());
+      if (refexColCon.isAnnotationStyleRefex()) {
+           
 
            if (blueprint.hasProperty(ComponentProperty.ENCLOSING_CONCEPT_ID)) {
                int setCnid = blueprint.getInt(ComponentProperty.ENCLOSING_CONCEPT_ID);
@@ -105,6 +105,7 @@ public class RefexDynamicMemberFactory {
            PersistentStore.get().setConceptNidForNid(member.enclosingConceptNid, member.nid);
            refexColCon.getData().add(member);
        }
+       member.setReferencedComponentNid(rcNid);
 
       for (int i = 0; i < ec.getEditPaths().size(); i++) {
          if (i == 0) {

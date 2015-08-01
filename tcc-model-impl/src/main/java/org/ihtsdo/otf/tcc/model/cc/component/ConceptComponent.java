@@ -2,6 +2,9 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.Get;
+
+import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -19,12 +22,26 @@ import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
 import java.io.*;
 import java.util.*;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
 
@@ -59,6 +76,7 @@ import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
@@ -67,6 +85,7 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexService;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
 import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
 /**
  * Class description
@@ -932,22 +951,23 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     protected void modified() {
 //TODO-AKF-KEC: should this be implemented?
-//        try {
-//            if (enclosingConceptNid != Integer.MIN_VALUE) {
-//                if ((P.s != null) && P.s.hasConcept(enclosingConceptNid)) {
+        try {
+            if (enclosingConceptNid != Integer.MIN_VALUE) {
+            	PersistentStoreI ps = PersistentStore.get();
+                if (ps != null && ps.hasConcept(enclosingConceptNid)) {
 //                    P.s.setIndexed(nid, false);
-//                    ConceptChronicle c = (ConceptChronicle) P.s.getConcept(enclosingConceptNid);
-//
-//                    if (c != null) {
-//                        c.modified();
-//                    }
-//                }
-//            } else {
-//                logger.log(Level.WARNING, "No enclosingConceptNid for: {0}", this);
-//            }
-//        } catch (IOException ex) {
-//            logger.log(Level.SEVERE, null, ex);
-//        }
+                    ConceptChronicle c = (ConceptChronicle)ps.getConcept(enclosingConceptNid);
+
+                    if (c != null) {
+                        c.modified(c.getConceptAttributes());
+                    }
+                }
+            } else {
+                logger.log(Level.WARNING, "No enclosingConceptNid for: {0}", this);
+            }
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

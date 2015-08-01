@@ -15,6 +15,12 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version;
 
+
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescriptionBI;
+import java.io.IOException;
+import javax.naming.InvalidNameException;
+
 /**
  *
  * @author kec
@@ -26,4 +32,40 @@ public interface DynamicSememe<T extends DynamicSememe<T>> extends SememeVersion
      */
     DynamicSememeData[] getData();
     
+    /**
+     * @return All of the data columns that are part of this Sememe. See
+     *         {@link #getData(int)}. May be empty, will not be null.
+     */
+    DynamicSememeDataBI[] getData();
+
+    /**
+     * The type and data (if any) in the specified column of the Sememe.
+     * 
+     * @param columnNumber
+     * @return The SememeMemberBI which contains the type and data (if any) for
+     *         the specified column
+     * @throws IndexOutOfBoundsException
+     */
+    DynamicSememeDataBI getData(int columnNumber) throws IndexOutOfBoundsException;
+    
+    /**
+     * The type and data (if any) in the specified column of the Sememe.
+     * 
+     * @param columnName
+     * @return The DynamicSememeDataBI which contains the type and data (if any) for the specified column
+     * @throws ContradictionException 
+     * @throws IOException 
+     * @throws IndexOutOfBoundsException
+     */
+    DynamicSememeDataBI getData(String columnName) throws InvalidNameException, IndexOutOfBoundsException, IOException;
+
+	
+	/**
+     * A convenience method that reads the concept referenced in
+     * {@link #getAssemblageNid()} and returns the actual column
+     * information that is contained within that concept.
+     * @throws ContradictionException 
+     * @throws IOException 
+     */
+    public DynamicSememeUsageDescriptionBI getDynamicSememeUsageDescription();
 }

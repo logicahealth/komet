@@ -184,7 +184,6 @@ public class RefexDynamicUsageDescriptionBuilder
 				vc).construct(cab);
 		Ts.get().addUncommitted(newCon);
 		Ts.get().commit();
-		
 		return new RefexDynamicUsageDescription(newCon.getNid());
 	}
 	
