@@ -99,7 +99,7 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("StampPosition:{time=");
+        sb.append("StampPosition:{");
         if (time == Long.MAX_VALUE) {
             sb.append("latest");
         } else if (time == Long.MIN_VALUE) {
@@ -107,7 +107,7 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
         } else {
             sb.append(getTimeAsInstant());
         }
-        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(Get.identifiedObjectService().informAboutObject(stampPathSequence)).append('}');
+        sb.append(" on '").append(Get.conceptDescriptionText(stampPathSequence)).append("' path}");
         return sb.toString();
     }
 

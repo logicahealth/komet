@@ -28,7 +28,10 @@ import gov.vha.isaac.ochre.api.coordinate.CoordinateFactory;
 import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.util.WorkExecutors;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
@@ -36,17 +39,19 @@ import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 
 /**
- * Provides simple static access to common services, in a lookup service 
- * aware way. Intended to be used in place of static fields placed in classes
- * that frequently use a common service. This class was added specifically 
- * to address problems when a service is used in a mojo that spans more 
- * than one project, by ensuring that static initialization of services
- * does not provide a way to retain stale services. 
+ * Provides simple static access to common services, in a lookup service aware
+ * way. Intended to be used in place of static fields placed in classes that
+ * frequently use a common service. This class was added specifically to address
+ * problems when a service is used in a mojo that spans more than one project,
+ * by ensuring that static initialization of services does not provide a way to
+ * retain stale services.
+ *
  * @author kec
  */
-@Service 
+@Service
 @Singleton
 public class Get implements OchreCache {
+
     private static final Logger log = LogManager.getLogger();
 
     private static ActiveTasks activeTaskSet;
@@ -57,6 +62,7 @@ public class Get implements OchreCache {
     private static ConceptSnapshotService conceptSnapshot;
     private static IdentifiedObjectService identifiedObjectService;
     private static IdentifierService identifierService;
+    private static LanguageCoordinateService languageCoordinateService;
     private static LogicalExpressionBuilderService logicalExpressionBuilderService;
     private static LogicService logicService;
     private static PathService pathService;
@@ -68,7 +74,6 @@ public class Get implements OchreCache {
 
     public Get() {
     }
-    
 
     public static CoordinateFactory coordinateFactory() {
         if (coordinateFactory == null) {
@@ -76,7 +81,7 @@ public class Get implements OchreCache {
         }
         return coordinateFactory;
     }
-    
+
     public static ActiveTasks activeTasks() {
         if (activeTaskSet == null) {
             activeTaskSet = LookupService.getService(ActiveTasks.class);
@@ -99,37 +104,64 @@ public class Get implements OchreCache {
     }
 
     /**
-     * 
+     *
      * @return a {@code ConceptSnapshotService} configured using the default
-     * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the 
-     * configuration service. 
+     * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the
+     * configuration service.
      */
     public static ConceptSnapshotService conceptSnapshot() {
         if (conceptSnapshot == null) {
             conceptSnapshot = LookupService.getService(ConceptService.class)
-                    .getSnapshot(Get.configurationService().getDefaultStampCoordinate(), 
+                    .getSnapshot(Get.configurationService().getDefaultStampCoordinate(),
                             Get.configurationService().getDefaultLanguageCoordinate());
         }
         return conceptSnapshot;
     }
-    
+
     /**
-     * Simple method for getting text of the description of a concept. 
-     * This method will try first to return the fully specified description, 
-     * or the preferred description, as specified in the default  
-     * {@code StampCoordinate} and the default
-     * {@code LanguageCoordinate}. 
-     * @param conceptId nid or sequence of the concept to get the description for
-     * @return a description for this concept. If no description can be found, 
-     * {@code "No desc for: " + conceptId;} will be returned. 
+     * Simple method for getting text of the description of a concept. This
+     * method will try first to return the fully specified description, or the
+     * preferred description, as specified in the default
+     * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
+     *
+     * @param conceptId nid or sequence of the concept to get the description
+     * for
+     * @return a description for this concept. If no description can be found,
+     * {@code "No desc for: " + conceptId;} will be returned.
      */
     public static String conceptDescriptionText(int conceptId) {
-        Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = 
-                conceptSnapshot().getDescriptionOptional(conceptId);
+        Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional
+                = conceptSnapshot().getDescriptionOptional(conceptId);
         if (descriptionOptional.isPresent()) {
             return descriptionOptional.get().value().getText();
         }
         return "No desc for: " + conceptId;
+    }
+
+    public static String conceptDescriptionTextList(int[] conceptIds) {
+        if (conceptIds.length > 0) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("[");
+            Arrays.stream(conceptIds).forEach((conceptId) -> {
+                builder.append(conceptDescriptionText(conceptId));
+                builder.append(", ");
+            });
+            builder.delete(builder.length() - 2, builder.length() - 1);
+            builder.append("]");
+            return builder.toString();
+        }
+        return "[]";
+    }
+
+    public static String conceptDescriptionTextList(ConceptSequenceSet conceptIds) {
+        return conceptDescriptionTextList(conceptIds.asArray());
+    }
+
+    public static String conceptDescriptionTextList(List<Integer> conceptIds) {
+        return conceptDescriptionTextList(
+                conceptIds
+                .stream().mapToInt((boxedInt) -> (int) boxedInt).toArray()
+        );
     }
 
     public static IdentifierService identifierService() {
@@ -139,6 +171,12 @@ public class Get implements OchreCache {
         return identifierService;
     }
 
+    public static LanguageCoordinateService languageCoordinateService() {
+        if (languageCoordinateService == null) {
+            languageCoordinateService = LookupService.getService(LanguageCoordinateService.class);
+        }
+        return languageCoordinateService;
+    }
     public static LogicalExpressionBuilderService logicalExpressionBuilderService() {
         if (logicalExpressionBuilderService == null) {
             logicalExpressionBuilderService = LookupService.getService(LogicalExpressionBuilderService.class);
@@ -159,36 +197,36 @@ public class Get implements OchreCache {
         }
         return pathService;
     }
-    
+
     /**
-     * 
-     * @param conceptId either a concept nid or sequence. 
-     * @return the stated definition chronology for the specified concept 
-     * according to the default logic coordinate. 
+     *
+     * @param conceptId either a concept nid or sequence.
+     * @return the stated definition chronology for the specified concept
+     * according to the default logic coordinate.
      */
     public static Optional<SememeChronology<? extends SememeVersion<?>>> statedDefinitionChronology(int conceptId) {
         conceptId = identifierService().getConceptNid(conceptId);
         return sememeService().getSememesForComponentFromAssemblage(conceptId, configurationService().getDefaultLogicCoordinate().getStatedAssemblageSequence()).findAny();
     }
-    
+
     /**
-     * 
-     * @param conceptId either a concept nid or sequence. 
-     * @return the inferred definition chronology for the specified concept 
-     * according to the default logic coordinate. 
+     *
+     * @param conceptId either a concept nid or sequence.
+     * @return the inferred definition chronology for the specified concept
+     * according to the default logic coordinate.
      */
     public static Optional<SememeChronology<? extends SememeVersion<?>>> inferredDefinitionChronology(int conceptId) {
         conceptId = identifierService().getConceptNid(conceptId);
         return sememeService().getSememesForComponentFromAssemblage(conceptId, configurationService().getDefaultLogicCoordinate().getInferredAssemblageSequence()).findAny();
     }
-    
+
     public static TaxonomyService taxonomyService() {
         if (taxonomyService == null) {
             taxonomyService = LookupService.getService(TaxonomyService.class);
         }
         return taxonomyService;
     }
-    
+
     public static CommitService commitService() {
         if (commitService == null) {
             commitService = LookupService.getService(CommitService.class);
@@ -216,22 +254,21 @@ public class Get implements OchreCache {
         }
         return conceptModel;
     }
-    
+
     public static IdentifiedObjectService identifiedObjectService() {
         if (identifiedObjectService == null) {
             identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
         }
         return identifiedObjectService;
     }
-    
+
     public static WorkExecutors workExecutors() {
         if (workExecutors == null) {
             workExecutors = LookupService.getService(WorkExecutors.class);
         }
         return workExecutors;
     }
-    
-    
+
     @Override
     public void reset() {
         log.info("Resetting service cache.");
@@ -244,6 +281,7 @@ public class Get implements OchreCache {
         coordinateFactory = null;
         identifiedObjectService = null;
         identifierService = null;
+        languageCoordinateService = null;
         logicalExpressionBuilderService = null;
         logicService = null;
         pathService = null;
@@ -252,5 +290,5 @@ public class Get implements OchreCache {
         taxonomyService = null;
         workExecutors = null;
     }
-    
+
 }

@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -182,10 +183,15 @@ public class StampCoordinateImpl implements StampCoordinate<StampCoordinate> {
 
     @Override
     public String toString() {
-        return "StampCoordinateImpl{" + "stampPrecedence=" + stampPrecedence
-                + ", stampPosition=" + stampPosition
-                + ", modules=" + getModuleSpecificationList()
-                + ", allowedStates=" + allowedStates + '}';
+        StringBuilder builder = new StringBuilder();
+        builder.append("Stamp Coordinate{").append(stampPrecedence).append(", ").append(stampPosition).append(", modules: ");
+        if (moduleSequences.isEmpty()) {
+            builder.append("all, ");
+        } else {
+            builder.append(Get.conceptDescriptionTextList(moduleSequences)).append(", ");
+        }
+         builder.append(allowedStates).append('}');
+        return builder.toString();
     }
 
 }

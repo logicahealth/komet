@@ -48,7 +48,6 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     public String toString() {
         return getSememeType().toString() + super.toString();
     }
-
     @Override
     public int getSememeSequence() {
         return chronicle.getSememeSequence();

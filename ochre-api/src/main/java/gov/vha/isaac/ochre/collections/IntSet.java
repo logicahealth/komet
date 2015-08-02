@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.Spliterator;
@@ -71,7 +72,7 @@ public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
 
     @Override
     public int compareTo(T o) {
-        int comparison = Integer.compare(rbmp.getCardinality(), rbmp.getCardinality());
+        int comparison = Integer.compare(rbmp.getCardinality(), o.rbmp.getCardinality());
         if (comparison != 0) {
             return comparison;
         }
@@ -196,9 +197,12 @@ public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 67 * hash + Objects.hashCode(this.rbmp);
-        return hash;
+        int result = 1;
+        IntIterator itr = rbmp.getIntIterator();
+        while (itr.hasNext()) {
+            result = 31 * result + itr.next();
+        }
+        return result;
     }
 
     @Override

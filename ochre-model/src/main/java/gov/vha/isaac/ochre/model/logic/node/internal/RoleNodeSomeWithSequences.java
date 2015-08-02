@@ -17,14 +17,14 @@ import gov.vha.isaac.ochre.util.UuidT5Generator;
 /**
  * Created by kec on 12/10/14.
  */
-public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
+public final class RoleNodeSomeWithSequences extends TypedNodeWithSequences {
 
-    public RoleNodeSomeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
     }
 
-    public RoleNodeSomeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
-        super(logicGraphVersion, typeConceptNid, child);
+    public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
+        super(logicGraphVersion, typeConceptId, child);
     }
 
     @Override
@@ -50,7 +50,7 @@ public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                Get.identifierService().getUuidPrimordialForNid(typeConceptNid).toString());
+                Get.identifierService().getUuidPrimordialForNid(typeConceptSequence).toString());
     }
 
     @Override

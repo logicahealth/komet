@@ -85,7 +85,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
 
     @Override
     protected V makeVersion(int stampSequence, DataBuffer db) {
-        return (V) createSememe(sememeTypeToken, this, stampSequence, 
+        return (V) createSememe(sememeTypeToken, this, stampSequence,
                 db.getShort(), db);
     }
 
@@ -101,7 +101,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
 
     @Override
     public <M extends V> M createMutableVersion(Class<M> type, int stampSequence) {
-        M version = createMutableVersionInternal(type, stampSequence, 
+        M version = createMutableVersionInternal(type, stampSequence,
                 nextVersionSequence());
         addVersion(version);
         return version;
@@ -111,7 +111,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
         int stampSequence = Get.commitService().getStampSequence(status, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
-        M version = createMutableVersionInternal(type, stampSequence, 
+        M version = createMutableVersionInternal(type, stampSequence,
                 nextVersionSequence());
         addVersion(version);
         return version;
@@ -127,7 +127,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
                 break;
             case LONG:
                 if (LongSememe.class.isAssignableFrom(type)) {
-                    return (M) new LongSememeImpl( (SememeChronologyImpl<LongSememeImpl>) this,
+                    return (M) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
                 break;
@@ -159,10 +159,10 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
                 break;
             case DESCRIPTION:
                 if (DescriptionSememe.class.isAssignableFrom(type)) {
-                    return (M) new DescriptionSememeImpl( (SememeChronologyImpl<DescriptionSememeImpl>) this,
+                    return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
-                    
+
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + getSememeType());
@@ -175,7 +175,6 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     public int getReferencedComponentNid() {
         return referencedComponentNid;
     }
-    
 
     public static SememeVersionImpl createSememe(byte token, SememeChronologyImpl container,
             int stampSequence, short versionSequence, DataBuffer bb) {
@@ -213,11 +212,15 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
                 .append(" <")
                 .append(assemblageSequence)
                 .append(">\n rc:");
-        if (Get.identifierService().getChronologyTypeForNid(referencedComponentNid) ==
-                ObjectChronologyType.CONCEPT) {
-            builder.append(Get.conceptDescriptionText(referencedComponentNid));
-        } else {
-            builder.append(Get.identifiedObjectService().informAboutObject(referencedComponentNid));
+        switch (Get.identifierService().getChronologyTypeForNid(referencedComponentNid)) {
+            case CONCEPT:
+                builder.append("CONCEPT: ").append(Get.conceptDescriptionText(referencedComponentNid));
+                break;
+            case SEMEME:
+                builder.append("SEMEME: ").append(Get.sememeService().getSememe(referencedComponentNid));
+                break;
+            default:
+                builder.append(Get.identifierService().getChronologyTypeForNid(referencedComponentNid)).append(" ").append(referencedComponentNid);
         }
         builder.append(" <")
                 .append(referencedComponentNid)

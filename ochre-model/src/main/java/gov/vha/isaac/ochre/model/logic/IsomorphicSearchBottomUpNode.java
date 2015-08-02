@@ -17,8 +17,10 @@ package gov.vha.isaac.ochre.model.logic;
 
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import org.apache.mahout.math.function.IntProcedure;
+import org.apache.mahout.math.set.OpenIntHashSet;
+
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  *
@@ -26,15 +28,23 @@ import java.util.Objects;
  */
 public class IsomorphicSearchBottomUpNode implements Comparable<IsomorphicSearchBottomUpNode> {
     
-    NodeSemantic nodeSemantic;
-    ConceptSequenceSet conceptsReferencedAtNodeOrAbove;
-    int childNodeId;
-    int nodeId;
+    final NodeSemantic nodeSemantic;
+    final ConceptSequenceSet conceptsReferencedAtNodeOrAbove;
+    int conceptsReferencedAtNodeOrAboveHash;
+    final int childNodeId;
+    final int nodeId;
+    final int size;
 
-    public IsomorphicSearchBottomUpNode(NodeSemantic nodeSemantic, 
-            ConceptSequenceSet conceptsReferencedAtNodeOrAbove, int childNodeId, int nodeId) {
+    public IsomorphicSearchBottomUpNode(NodeSemantic nodeSemantic,
+                                        OpenIntHashSet conceptsReferencedAtNodeOrAbove,
+                                        int childNodeId, int nodeId) {
         this.nodeSemantic = nodeSemantic;
-        this.conceptsReferencedAtNodeOrAbove = conceptsReferencedAtNodeOrAbove;
+        this.conceptsReferencedAtNodeOrAbove = ConceptSequenceSet.of(conceptsReferencedAtNodeOrAbove);
+        this.size = conceptsReferencedAtNodeOrAbove.size();
+        this.conceptsReferencedAtNodeOrAboveHash = 1;
+        for (int element: conceptsReferencedAtNodeOrAbove.keys().elements()) {
+            conceptsReferencedAtNodeOrAboveHash = 31 * conceptsReferencedAtNodeOrAboveHash + element;
+        }
         this.childNodeId = childNodeId;
         this.nodeId = nodeId;
     }
@@ -49,8 +59,13 @@ public class IsomorphicSearchBottomUpNode implements Comparable<IsomorphicSearch
         if (comparison != 0) {
             return comparison;
         }
-        comparison = Integer.compare(this.conceptsReferencedAtNodeOrAbove.size(),
-                o.conceptsReferencedAtNodeOrAbove.size());
+        comparison = Integer.compare(this.size,
+                o.size);
+        if (comparison != 0) {
+            return comparison;
+        }
+        comparison = Integer.compare(this.conceptsReferencedAtNodeOrAboveHash,
+                o.conceptsReferencedAtNodeOrAboveHash);
         if (comparison != 0) {
             return comparison;
         }
@@ -60,13 +75,9 @@ public class IsomorphicSearchBottomUpNode implements Comparable<IsomorphicSearch
         }
         return Integer.compare(nodeId, o.nodeId);
     }
-
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 61 * hash + Objects.hashCode(this.nodeSemantic);
-        hash = 61 * hash + this.nodeId;
-        return hash;
+        return conceptsReferencedAtNodeOrAboveHash;
     }
 
     @Override
@@ -77,21 +88,12 @@ public class IsomorphicSearchBottomUpNode implements Comparable<IsomorphicSearch
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final IsomorphicSearchBottomUpNode other = (IsomorphicSearchBottomUpNode) obj;
-        if (this.nodeId != other.nodeId) {
-            return false;
-        }
-        if (this.nodeSemantic != other.nodeSemantic) {
-            return false;
-        }
-        if (this.childNodeId != other.childNodeId) {
-            return false;
-        }
-        return Objects.equals(this.conceptsReferencedAtNodeOrAbove, other.conceptsReferencedAtNodeOrAbove);
+        return compareTo((IsomorphicSearchBottomUpNode) obj) == 0;
     }
 
     @Override
     public String toString() {
-        return "BottomUpNode{"+ nodeSemantic + ", conceptsAtOrAbove=" + Arrays.toString(conceptsReferencedAtNodeOrAbove.asArray()) + ", childId=" + childNodeId + ", nodeId=" + nodeId + '}';
+        return "BottomUpNode{"+ nodeSemantic + ", conceptsAtOrAbove=" + conceptsReferencedAtNodeOrAbove + ", childId=" + childNodeId + ", nodeId=" + nodeId + '}';
     }
+
 }

@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableStringSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
@@ -67,7 +68,12 @@ public class StringSememeImpl extends SememeVersionImpl<StringSememeImpl> implem
 
     @Override
     public String toString() {
-        return "string=" + string + ',' + super.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("String≤");
+        sb.append(string);
+         toString(sb);
+        sb.append('≥');
+        return sb.toString();
     }
-    
+
 }

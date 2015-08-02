@@ -18,33 +18,33 @@ import java.util.Arrays;
 /**
  * Created by kec on 12/9/14.
  */
-public abstract class TypedNodeWithNids extends ConnectorNode {
+public abstract class TypedNodeWithSequences extends ConnectorNode {
 
-    int typeConceptNid;
+    int typeConceptSequence;
 
-    public TypedNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
-        this.typeConceptNid = dataInputStream.readInt();
+        this.typeConceptSequence = dataInputStream.readInt();
     }
 
-    public TypedNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
+    public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
         super(logicGraphVersion, child);
-        this.typeConceptNid = typeConceptNid;
+        this.typeConceptSequence = Get.identifierService().getConceptSequence(typeConceptId);
     }
 
-    public TypedNodeWithNids(TypedNodeWithUuids externalForm) {
+    public TypedNodeWithSequences(TypedNodeWithUuids externalForm) {
         super(externalForm);
-        this.typeConceptNid = Get.identifierService().getNidForUuids(externalForm.getTypeConceptUuid());
+        this.typeConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getTypeConceptUuid());
     }
 
-    public int getTypeConceptNid() {
-        return typeConceptNid;
+    public int getTypeConceptSequence() {
+        return typeConceptSequence;
     }
 
     @Override
     public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
         super.addConceptsReferencedByNode(conceptSequenceSet); 
-        conceptSequenceSet.add(typeConceptNid);
+        conceptSequenceSet.add(typeConceptSequence);
     }
 
     @Override
@@ -54,8 +54,8 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
     }
    @Override
     public String toString(String nodeIdSuffix) {
-        return " " + Get.conceptDescriptionText(typeConceptNid) +" <"
-                + Get.identifierService().getConceptSequence(typeConceptNid)
+        return " " + Get.conceptDescriptionText(typeConceptSequence) +" <"
+                + Get.identifierService().getConceptSequence(typeConceptSequence)
                 + ">"+ super.toString(nodeIdSuffix);
         
     }
@@ -63,7 +63,7 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
         @Override
     protected void writeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
         super.writeData(dataOutput, dataTarget);
-        dataOutput.writeInt(typeConceptNid);
+        dataOutput.writeInt(typeConceptSequence);
     }
         
     public Node getOnlyChild() {
@@ -77,9 +77,9 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
     @Override
     protected final int compareNodeFields(Node o) {
         // node semantic already determined equals. 
-        TypedNodeWithNids other = (TypedNodeWithNids) o;
-        if (typeConceptNid != other.typeConceptNid) {
-            return Integer.compare(typeConceptNid, other.typeConceptNid);
+        TypedNodeWithSequences other = (TypedNodeWithSequences) o;
+        if (typeConceptSequence != other.typeConceptSequence) {
+            return Integer.compare(typeConceptSequence, other.typeConceptSequence);
         }
         return compareTypedNodeFields(o);
     }
@@ -88,7 +88,7 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 97 * hash + this.typeConceptNid;
+        hash = 97 * hash + this.typeConceptSequence;
         return hash;
     }
 
@@ -100,8 +100,8 @@ public abstract class TypedNodeWithNids extends ConnectorNode {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final TypedNodeWithNids other = (TypedNodeWithNids) obj;
-        if (this.typeConceptNid != other.typeConceptNid) {
+        final TypedNodeWithSequences other = (TypedNodeWithSequences) obj;
+        if (this.typeConceptSequence != other.typeConceptSequence) {
             return false;
         }
         return super.equals(obj);

@@ -12,7 +12,7 @@ import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -39,10 +39,10 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
     public FeatureNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
         super(logicGraphVersion, typeConceptUuid, child);
     }
-    public FeatureNodeWithUuids(FeatureNodeWithNids internalNode) throws IOException {
+    public FeatureNodeWithUuids(FeatureNodeWithSequences internalNode) throws IOException {
         super(internalNode);
         operator = internalNode.getOperator();
-        unitsConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptNid()).get();
+        unitsConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptSequence()).get();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
                 dataOutput.writeLong(unitsConceptUuid.getLeastSignificantBits());
                 break;
             case INTERNAL:
-                FeatureNodeWithNids internalForm =  new FeatureNodeWithNids(this);
+                FeatureNodeWithSequences internalForm =  new FeatureNodeWithSequences(this);
                 internalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);

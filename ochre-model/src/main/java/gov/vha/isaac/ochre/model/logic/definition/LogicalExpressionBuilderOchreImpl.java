@@ -62,11 +62,11 @@ import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeFloat;
 import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeInstant;
 import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeInteger;
 import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeString;
-import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithSequences;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,17 +121,17 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
             case DISJOINT_WITH:
                 break;
             case ROLE_ALL:
-                RoleNodeAllWithNids allRoleNode = (RoleNodeAllWithNids) node;
-                return allRole(allRoleNode.getTypeConceptNid(), makeAssertionFromNode(allRoleNode.getOnlyChild()));
+                RoleNodeAllWithSequences allRoleNode = (RoleNodeAllWithSequences) node;
+                return allRole(allRoleNode.getTypeConceptSequence(), makeAssertionFromNode(allRoleNode.getOnlyChild()));
             case ROLE_SOME:
-                RoleNodeSomeWithNids someRoleNode = (RoleNodeSomeWithNids) node;
-                return someRole(someRoleNode.getTypeConceptNid(), makeAssertionFromNode(someRoleNode.getOnlyChild()));
+                RoleNodeSomeWithSequences someRoleNode = (RoleNodeSomeWithSequences) node;
+                return someRole(someRoleNode.getTypeConceptSequence(), makeAssertionFromNode(someRoleNode.getOnlyChild()));
             case CONCEPT:
-                ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) node;
-                return conceptAssertion(conceptNode.getConceptNid());
+                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) node;
+                return conceptAssertion(conceptNode.getConceptSequence());
             case FEATURE:
-                FeatureNodeWithNids featureNode = (FeatureNodeWithNids) node;
-                return feature(featureNode.getTypeConceptNid(), 
+                FeatureNodeWithSequences featureNode = (FeatureNodeWithSequences) node;
+                return feature(featureNode.getTypeConceptSequence(), 
                         (LiteralAssertion) makeAssertionFromNode(featureNode.getOnlyChild()));
             case LITERAL_BOOLEAN:
                 LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) node;
@@ -150,7 +150,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                 return stringLiteral(literalNodeString.getLiteralValue());
 
             case TEMPLATE:
-                TemplateNodeWithNids templateNode = (TemplateNodeWithNids) node;
+                TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) node;
                 return template(templateNode.getTemplateConceptNid(), 
                         templateNode.getAssemblageConceptNid());
             case SUBSTITUTION_CONCEPT:

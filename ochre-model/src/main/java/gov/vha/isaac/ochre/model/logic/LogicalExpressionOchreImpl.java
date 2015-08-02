@@ -9,6 +9,7 @@ import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.AndNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
@@ -36,12 +37,12 @@ import gov.vha.isaac.ochre.model.logic.node.external.FeatureNodeWithUuids;
 import gov.vha.isaac.ochre.model.logic.node.external.RoleNodeAllWithUuids;
 import gov.vha.isaac.ochre.model.logic.node.external.RoleNodeSomeWithUuids;
 import gov.vha.isaac.ochre.model.logic.node.external.TemplateNodeWithUuids;
-import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
-import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithSequences;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -112,13 +113,13 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                     results[i] = DisjointWith((AbstractNode[]) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray()));
                     break;
                 case ROLE_ALL:
-                    results[i] = AllRole(((TypedNodeWithNids) oldNode).getTypeConceptNid(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
+                    results[i] = AllRole(((TypedNodeWithSequences) oldNode).getTypeConceptSequence(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
                     break;
                 case ROLE_SOME:
-                    results[i] = SomeRole(((TypedNodeWithNids) oldNode).getTypeConceptNid(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
+                    results[i] = SomeRole(((TypedNodeWithSequences) oldNode).getTypeConceptSequence(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
                     break;
                 case FEATURE:
-                    results[i] = Feature(((TypedNodeWithNids) oldNode).getTypeConceptNid(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
+                    results[i] = Feature(((TypedNodeWithSequences) oldNode).getTypeConceptSequence(), (AbstractNode) addNodes(another, solution, oldNode.getChildStream().filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0).mapToInt((oldChildNode) -> oldChildNode.getNodeIndex()).toArray())[0]);
                     break;
                 case LITERAL_BOOLEAN:
                     results[i] = BooleanLiteral(((LiteralNodeBoolean) oldNode).getLiteralValue());
@@ -136,11 +137,11 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                     results[i] = StringLiteral(((LiteralNodeString) oldNode).getLiteralValue());
                     break;
                 case CONCEPT:
-                    results[i] = Concept(((ConceptNodeWithNids) oldNode).getConceptNid());
+                    results[i] = Concept(((ConceptNodeWithSequences) oldNode).getConceptSequence());
                     break;
                 case TEMPLATE:
-                    results[i] = Template(((TemplateNodeWithNids) oldNode).getTemplateConceptNid(),
-                            ((TemplateNodeWithNids) oldNode).getAssemblageConceptNid());
+                    results[i] = Template(((TemplateNodeWithSequences) oldNode).getTemplateConceptNid(),
+                            ((TemplateNodeWithSequences) oldNode).getAssemblageConceptNid());
                     break;
                 case SUBSTITUTION_BOOLEAN:
                     results[i] = BooleanSubstitution(((SubstitutionNode) oldNode).getSubstitutionFieldSpecification());
@@ -394,9 +395,14 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         }
 
         graphVisitData.startNodeVisit(node.getNodeIndex(), depth);
-        node.addConceptsReferencedByNode(graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex()));
-        graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex())
-                .addAll(graphVisitData.getConceptsReferencedAtNodeOrAbove(graphVisitData.getPredecessorSequence(node.getNodeIndex())).stream());
+        ConceptSequenceSet conceptsAtNodeOrAbove = new ConceptSequenceSet();
+        node.addConceptsReferencedByNode(conceptsAtNodeOrAbove);
+        graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex());
+
+        node.addConceptsReferencedByNode(ConceptSequenceSet.of(graphVisitData.getConceptsReferencedAtNodeOrAbove(node.getNodeIndex())));
+        conceptsAtNodeOrAbove.addAll(graphVisitData.getConceptsReferencedAtNodeOrAbove(graphVisitData.getPredecessorSequence(node.getNodeIndex())));
+        graphVisitData.setConceptsReferencedAtNodeOrAbove(node.getNodeIndex(), conceptsAtNodeOrAbove);
+
         if (consumer != null) {
             consumer.accept(node, graphVisitData);
         }
@@ -475,42 +481,42 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         return new DisjointWithNode(this, dataInputStream);
     }
 
-    public RoleNodeAllWithNids AllRole(int typeNid, AbstractNode restriction) {
-        return new RoleNodeAllWithNids(this, typeNid, restriction);
+    public RoleNodeAllWithSequences AllRole(int typeNid, AbstractNode restriction) {
+        return new RoleNodeAllWithSequences(this, typeNid, restriction);
     }
 
-    public final RoleNodeAllWithNids AllRole(DataInputStream dataInputStream) throws IOException {
-        return new RoleNodeAllWithNids(this, dataInputStream);
+    public final RoleNodeAllWithSequences AllRole(DataInputStream dataInputStream) throws IOException {
+        return new RoleNodeAllWithSequences(this, dataInputStream);
     }
 
     public final RoleNodeAllWithUuids AllRoleWithUuids(DataInputStream dataInputStream) throws IOException {
         return new RoleNodeAllWithUuids(this, dataInputStream);
     }
 
-    public final RoleNodeSomeWithNids SomeRole(int typeNid, AbstractNode restriction) {
-        return new RoleNodeSomeWithNids(this, typeNid, restriction);
+    public final RoleNodeSomeWithSequences SomeRole(int typeNid, AbstractNode restriction) {
+        return new RoleNodeSomeWithSequences(this, typeNid, restriction);
     }
 
-    public final RoleNodeSomeWithNids SomeRole(DataInputStream dataInputStream) throws IOException {
-        return new RoleNodeSomeWithNids(this, dataInputStream);
+    public final RoleNodeSomeWithSequences SomeRole(DataInputStream dataInputStream) throws IOException {
+        return new RoleNodeSomeWithSequences(this, dataInputStream);
     }
 
     public final RoleNodeSomeWithUuids SomeRoleWithUuids(DataInputStream dataInputStream) throws IOException {
         return new RoleNodeSomeWithUuids(this, dataInputStream);
     }
 
-    public FeatureNodeWithNids Feature(int typeNid, AbstractNode literal) {
+    public FeatureNodeWithSequences Feature(int typeNid, AbstractNode literal) {
         // check for LiteralNode or SubstitutionNodeLiteral
         if ((literal instanceof LiteralNode) || (literal instanceof SubstitutionNodeLiteral)) {
-            return new FeatureNodeWithNids(this, typeNid, literal);
+            return new FeatureNodeWithSequences(this, typeNid, literal);
         }
         throw new IllegalStateException(
                 "Node must be of type LiteralNode or SubstitutionNodeLiteral. Found: "
                 + literal);
     }
 
-    public final FeatureNodeWithNids Feature(DataInputStream dataInputStream) throws IOException {
-        return new FeatureNodeWithNids(this, dataInputStream);
+    public final FeatureNodeWithSequences Feature(DataInputStream dataInputStream) throws IOException {
+        return new FeatureNodeWithSequences(this, dataInputStream);
     }
 
     public final FeatureNodeWithUuids FeatureWithUuids(DataInputStream dataInputStream) throws IOException {
@@ -557,24 +563,24 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         return new LiteralNodeString(this, dataInputStream);
     }
 
-    public final ConceptNodeWithNids Concept(int conceptSequence) {
-        return new ConceptNodeWithNids(this, conceptSequence);
+    public final ConceptNodeWithSequences Concept(int conceptSequence) {
+        return new ConceptNodeWithSequences(this, conceptSequence);
     }
 
-    public final ConceptNodeWithNids Concept(DataInputStream dataInputStream) throws IOException {
-        return new ConceptNodeWithNids(this, dataInputStream);
+    public final ConceptNodeWithSequences Concept(DataInputStream dataInputStream) throws IOException {
+        return new ConceptNodeWithSequences(this, dataInputStream);
     }
 
     public final ConceptNodeWithUuids ConceptWithUuids(DataInputStream dataInputStream) throws IOException {
         return new ConceptNodeWithUuids(this, dataInputStream);
     }
 
-    public TemplateNodeWithNids Template(int templateConceptSequence, int assemblageConceptSequence) {
-        return new TemplateNodeWithNids(this, templateConceptSequence, assemblageConceptSequence);
+    public TemplateNodeWithSequences Template(int templateConceptSequence, int assemblageConceptSequence) {
+        return new TemplateNodeWithSequences(this, templateConceptSequence, assemblageConceptSequence);
     }
 
-    public final TemplateNodeWithNids Template(DataInputStream dataInputStream) throws IOException {
-        return new TemplateNodeWithNids(this, dataInputStream);
+    public final TemplateNodeWithSequences Template(DataInputStream dataInputStream) throws IOException {
+        return new TemplateNodeWithSequences(this, dataInputStream);
     }
 
     public final TemplateNodeWithUuids TemplateWithUuids(DataInputStream dataInputStream) throws IOException {
