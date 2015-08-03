@@ -367,7 +367,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate<?> coordinate) {
          return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
      }

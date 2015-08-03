@@ -68,7 +68,7 @@ public class RelationshipAdaptorChronologyImpl
     }
     
     @Override
-    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(Class<RelationshipVersionAdaptorImpl> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(Class<RelationshipVersionAdaptorImpl> type, StampCoordinate<?> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         return calc.getLatestVersion(this);
     }

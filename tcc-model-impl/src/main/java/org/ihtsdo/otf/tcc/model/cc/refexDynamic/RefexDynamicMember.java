@@ -572,7 +572,7 @@ public class RefexDynamicMember extends ConceptComponent<RefexDynamicRevision, R
     }
 
     @Override
-    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate<?> coordinate) {
         return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
  
