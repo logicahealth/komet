@@ -11,7 +11,7 @@ import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class RoleNodeAllWithUuids extends TypedNodeWithUuids {
         super(logicGraphVersion, typeConceptUuid, child);
     }
 
-    public RoleNodeAllWithUuids(RoleNodeAllWithNids internalFrom) {
+    public RoleNodeAllWithUuids(RoleNodeAllWithSequences internalFrom) {
         super(internalFrom);
     }
 

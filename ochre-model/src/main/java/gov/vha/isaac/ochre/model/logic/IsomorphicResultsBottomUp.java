@@ -237,7 +237,6 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
         while (!nodesToTry.isEmpty()) {
             possibleMatches.clear();
             SequenceSet nextSetToTry = new SequenceSet();
-            SequenceSet siblingGroups = new SequenceSet();
 
 
 

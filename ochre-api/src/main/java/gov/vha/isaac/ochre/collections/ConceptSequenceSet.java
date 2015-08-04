@@ -68,9 +68,9 @@ public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
     }
     
     public static ConceptSequenceSet of(NidSet nidSet) {
-        IdentifierService sp = Get.identifierService();
+        IdentifierService ids = Get.identifierService();
         return new ConceptSequenceSet(nidSet.stream()
-                .map((nid) -> sp.getConceptSequence(nid)));
+                .map((nid) -> ids.getConceptSequence(nid)));
     }
     protected ConceptSequenceSet(IntStream memberStream) {
         super(memberStream);
@@ -110,6 +110,13 @@ public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
                 Get.conceptDescriptionText(conceptSequence),
                 Get.identifierService().getUuidPrimordialFromConceptSequence(conceptSequence).get())).collect(Collectors.toList()) ;
     }
-    
-    
+
+
+    public void addAll(OpenIntHashSet conceptsReferencedAtNodeOrAbove) {
+        IdentifierService ids = Get.identifierService();
+        conceptsReferencedAtNodeOrAbove.forEachKey((id) -> {
+            rbmp.add(ids.getConceptSequence(id));
+            return true;
+        });
+    }
 }

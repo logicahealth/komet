@@ -11,7 +11,7 @@ import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,9 +35,9 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         this.typeConceptUuid = typeConceptUuid;
     }
 
-    public TypedNodeWithUuids(TypedNodeWithNids internalForm) {
+    public TypedNodeWithUuids(TypedNodeWithSequences internalForm) {
         super(internalForm);
-        this.typeConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTypeConceptNid()).get();
+        this.typeConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTypeConceptSequence()).get();
     }
 
     public UUID getTypeConceptUuid() {

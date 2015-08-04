@@ -193,7 +193,7 @@ public class RelationshipVersion extends Version<RelationshipRevision, Relations
     }
 
     @Override
-    public Optional<LatestVersion<RelationshipVersionBI<?>>> getLatestVersion(Class<RelationshipVersionBI<?>> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<RelationshipVersionBI<?>>> getLatestVersion(Class<RelationshipVersionBI<?>> type, StampCoordinate<?> coordinate) {
         return getCv().getLatestVersion(type, coordinate);
     }
     

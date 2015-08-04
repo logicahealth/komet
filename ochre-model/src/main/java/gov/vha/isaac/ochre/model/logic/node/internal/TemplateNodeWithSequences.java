@@ -20,42 +20,42 @@ import gov.vha.isaac.ochre.util.UuidT5Generator;
  * the assemblage concept that will be used to fill template substitution
  * values. Created by kec on 12/10/14.
  */
-public final class TemplateNodeWithNids extends AbstractNode {
+public final class TemplateNodeWithSequences extends AbstractNode {
 
     /**
      * Sequence of the concept that defines the template
      */
-    int templateConceptNid;
+    int templateConceptSequence;
 
     /**
      * Sequence of the assemblage concept that provides the substitution values
      * for the template.
      */
-    int assemblageConceptNid;
+    int assemblageConceptSequence;
 
-    public TemplateNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
-        templateConceptNid = dataInputStream.readInt();
-        assemblageConceptNid = dataInputStream.readInt();
+        templateConceptSequence = dataInputStream.readInt();
+        assemblageConceptSequence = dataInputStream.readInt();
     }
 
-    public TemplateNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int templateConceptNid, int assemblageConceptNid) {
+    public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int templateConceptNid, int assemblageConceptNid) {
         super(logicGraphVersion);
-        this.templateConceptNid = Get.identifierService().getConceptNid(templateConceptNid);
-        this.assemblageConceptNid = Get.identifierService().getConceptNid(assemblageConceptNid);
+        this.templateConceptSequence = Get.identifierService().getConceptSequence(templateConceptNid);
+        this.assemblageConceptSequence = Get.identifierService().getConceptSequence(assemblageConceptNid);
     }
 
-    public TemplateNodeWithNids(TemplateNodeWithUuids externalForm) {
+    public TemplateNodeWithSequences(TemplateNodeWithUuids externalForm) {
         super(externalForm);
-        this.templateConceptNid = Get.identifierService().getNidForUuids(externalForm.getTemplateConceptUuid());
-        this.assemblageConceptNid = Get.identifierService().getNidForUuids(externalForm.getAssemblageConceptUuid());
+        this.templateConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getTemplateConceptUuid());
+        this.assemblageConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getAssemblageConceptUuid());
     }
 
     @Override
     public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
         super.addConceptsReferencedByNode(conceptSequenceSet); 
-        conceptSequenceSet.add(templateConceptNid);
-        conceptSequenceSet.add(assemblageConceptNid);
+        conceptSequenceSet.add(templateConceptSequence);
+        conceptSequenceSet.add(assemblageConceptSequence);
     }
 
     @Override
@@ -67,8 +67,8 @@ public final class TemplateNodeWithNids extends AbstractNode {
                 break;
             case INTERNAL:
                 super.writeData(dataOutput, dataTarget);
-                dataOutput.writeInt(templateConceptNid);
-                dataOutput.writeInt(assemblageConceptNid);
+                dataOutput.writeInt(templateConceptSequence);
+                dataOutput.writeInt(assemblageConceptSequence);
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
@@ -98,8 +98,8 @@ public final class TemplateNodeWithNids extends AbstractNode {
     @Override
     public String toString(String nodeIdSuffix) {
         return "Template[" + getNodeIndex() + nodeIdSuffix + "] "
-                + "assemblage: " + Get.conceptDescriptionText(assemblageConceptNid)
-                + ", template: " + Get.conceptDescriptionText(templateConceptNid)
+                + "assemblage: " + Get.conceptDescriptionText(assemblageConceptSequence)
+                + ", template: " + Get.conceptDescriptionText(templateConceptSequence)
                 + super.toString(nodeIdSuffix);
     }
 
@@ -115,46 +115,46 @@ public final class TemplateNodeWithNids extends AbstractNode {
             return false;
         }
 
-        TemplateNodeWithNids that = (TemplateNodeWithNids) o;
+        TemplateNodeWithSequences that = (TemplateNodeWithSequences) o;
 
-        if (assemblageConceptNid != that.assemblageConceptNid) {
+        if (assemblageConceptSequence != that.assemblageConceptSequence) {
             return false;
         }
-        return templateConceptNid == that.templateConceptNid;
+        return templateConceptSequence == that.templateConceptSequence;
     }
 
     @Override
     protected int compareFields(Node o) {
-        TemplateNodeWithNids that = (TemplateNodeWithNids) o;
-        if (assemblageConceptNid != that.assemblageConceptNid) {
-            return Integer.compare(this.assemblageConceptNid, that.assemblageConceptNid);
+        TemplateNodeWithSequences that = (TemplateNodeWithSequences) o;
+        if (assemblageConceptSequence != that.assemblageConceptSequence) {
+            return Integer.compare(this.assemblageConceptSequence, that.assemblageConceptSequence);
         }
 
-        return this.templateConceptNid - that.templateConceptNid;
+        return this.templateConceptSequence - that.templateConceptSequence;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + templateConceptNid;
-        result = 31 * result + assemblageConceptNid;
+        result = 31 * result + templateConceptSequence;
+        result = 31 * result + assemblageConceptSequence;
         return result;
     }
 
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                Get.identifierService().getUuidPrimordialForNid(assemblageConceptNid).toString()
-                        + Get.identifierService().getUuidPrimordialForNid(templateConceptNid).toString());
+                Get.identifierService().getUuidPrimordialForNid(assemblageConceptSequence).toString()
+                        + Get.identifierService().getUuidPrimordialForNid(templateConceptSequence).toString());
 
     }
 
     public int getTemplateConceptNid() {
-        return templateConceptNid;
+        return templateConceptSequence;
     }
 
     public int getAssemblageConceptNid() {
-        return assemblageConceptNid;
+        return assemblageConceptSequence;
     }
 
 }

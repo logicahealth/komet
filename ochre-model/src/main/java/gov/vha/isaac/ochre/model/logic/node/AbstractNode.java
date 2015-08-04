@@ -47,7 +47,7 @@ public abstract class AbstractNode implements Node {
      */
     @Override
     public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
-        conceptSequenceSet.add(Get.identifierService().getConceptSequenceForUuids(getNodeUuid()));
+        conceptSequenceSet.add(getNodeSemantic().getConceptSequence());
     }
     
     

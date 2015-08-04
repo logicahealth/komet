@@ -120,7 +120,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate<?> stampCoordinate) {
         return Get.sememeService().getSnapshot(DescriptionSememe.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch((latestVersion) -> latestVersion.value().getText().equals(descriptionText));
@@ -147,18 +147,18 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
         return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
         return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
     public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(
-            StampCoordinate stampCoordinate,
+            StampCoordinate<?> stampCoordinate,
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
@@ -173,7 +173,7 @@ public class ConceptChronologyImpl
     List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipListDefaltCoordinate;
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
         if (conceptOriginRelationshipList == null) {
             conceptOriginRelationshipList = new ArrayList<>();
@@ -187,7 +187,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept() {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept() {
         if (conceptOriginRelationshipList == null) {
             conceptOriginRelationshipList = new ArrayList<>();
             getLogicService().getRelationshipAdaptorsOriginatingWithConcept(this)
@@ -202,7 +202,7 @@ public class ConceptChronologyImpl
     List<RelationshipAdaptorChronologyImpl> relationshipListWithConceptAsDestinationListDefaltCoordinate;
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination() {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination() {
         if (relationshipListWithConceptAsDestinationListDefaltCoordinate == null) {
             relationshipListWithConceptAsDestinationListDefaltCoordinate = new ArrayList<>();
             getLogicService().getRelationshipAdaptorsWithConceptAsDestination(this)
@@ -215,7 +215,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
         if (relationshipListWithConceptAsDestination == null) {
             relationshipListWithConceptAsDestination = new ArrayList<>();
             getLogicService().getRelationshipAdaptorsWithConceptAsDestination(this, logicCoordinate)
@@ -228,7 +228,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public String getLogicalDefinitionChronologyReport(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
          int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
             assemblageSequence = logicCoordinate.getInferredAssemblageSequence();

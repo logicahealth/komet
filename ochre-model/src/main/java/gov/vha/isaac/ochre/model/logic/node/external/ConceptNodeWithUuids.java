@@ -11,7 +11,7 @@ import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -37,9 +37,9 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     }
 
-    public ConceptNodeWithUuids(ConceptNodeWithNids internalForm) {
+    public ConceptNodeWithUuids(ConceptNodeWithSequences internalForm) {
         super(internalForm);
-        this.conceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getConceptNid()).get();
+        this.conceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getConceptSequence()).get();
     }
 
     public UUID getConceptUuid() {
@@ -55,7 +55,7 @@ public class ConceptNodeWithUuids extends AbstractNode {
                 dataOutput.writeLong(conceptUuid.getLeastSignificantBits());
                 break;
             case INTERNAL:
-                ConceptNodeWithNids internalForm =  new ConceptNodeWithNids(this);
+                ConceptNodeWithSequences internalForm =  new ConceptNodeWithSequences(this);
                 internalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);

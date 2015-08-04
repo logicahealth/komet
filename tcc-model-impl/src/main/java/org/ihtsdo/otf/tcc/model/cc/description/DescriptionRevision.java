@@ -326,7 +326,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
     @Override
-    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate<?> coordinate) {
         return primordialComponent.getLatestVersion(type, coordinate);
     }
     

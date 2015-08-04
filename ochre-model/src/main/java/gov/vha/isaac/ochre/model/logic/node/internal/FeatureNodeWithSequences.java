@@ -6,6 +6,7 @@ import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.external.FeatureNodeWithUuids;
 
@@ -18,28 +19,28 @@ import gov.vha.isaac.ochre.util.UuidT5Generator;
 /**
  * Created by kec on 12/9/14.
  */
-public final class FeatureNodeWithNids extends TypedNodeWithNids {
+public final class FeatureNodeWithSequences extends TypedNodeWithSequences {
 
     static ConcreteDomainOperators[] concreteDomainOperators = ConcreteDomainOperators.values();
 
     ConcreteDomainOperators operator;
 
-    int unitsConceptNid;
+    int unitsConceptSequence;
 
-    public FeatureNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
         operator = concreteDomainOperators[dataInputStream.readByte()];
-        unitsConceptNid = dataInputStream.readInt();
+        unitsConceptSequence = dataInputStream.readInt();
     }
 
-    public FeatureNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
-        super(logicGraphVersion, typeConceptNid, child);
+    public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
+        super(logicGraphVersion, typeConceptId, child);
     }
 
-    public FeatureNodeWithNids(FeatureNodeWithUuids externalForm) {
+    public FeatureNodeWithSequences(FeatureNodeWithUuids externalForm) {
         super(externalForm);
         operator = externalForm.getOperator();
-        unitsConceptNid = Get.identifierService().getNidForUuids(externalForm.getUnitsConceptUuid());
+        unitsConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getUnitsConceptUuid());
     }
 
     @Override
@@ -52,7 +53,7 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
             case INTERNAL:
                 super.writeData(dataOutput, dataTarget);
                 dataOutput.writeByte(operator.ordinal());
-                dataOutput.writeInt(unitsConceptNid);
+                dataOutput.writeInt(unitsConceptSequence);
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
@@ -67,9 +68,9 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                Get.identifierService().getUuidPrimordialForNid(typeConceptNid).toString()
+                Get.identifierService().getUuidPrimordialForNid(typeConceptSequence).toString()
                         + operator
-                        + Get.identifierService().getUuidPrimordialForNid(unitsConceptNid).toString());
+                        + Get.identifierService().getUuidPrimordialForNid(unitsConceptSequence).toString());
 
     }
 
@@ -85,9 +86,9 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
             return false;
         }
 
-        FeatureNodeWithNids that = (FeatureNodeWithNids) o;
+        FeatureNodeWithSequences that = (FeatureNodeWithSequences) o;
 
-        if (unitsConceptNid != that.unitsConceptNid) {
+        if (unitsConceptSequence != that.unitsConceptSequence) {
             return false;
         }
         return operator == that.operator;
@@ -97,7 +98,7 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + operator.hashCode();
-        result = 31 * result + unitsConceptNid;
+        result = 31 * result + unitsConceptSequence;
         return result;
     }
 
@@ -110,7 +111,7 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
     public String toString(String nodeIdSuffix) {
         return "Feature[" + getNodeIndex() + nodeIdSuffix +"] "
                 + operator
-                + ", units:" + Get.conceptDescriptionText(unitsConceptNid)
+                + ", units:" + Get.conceptDescriptionText(unitsConceptSequence)
                 + super.toString(nodeIdSuffix);
     }
 
@@ -118,21 +119,27 @@ public final class FeatureNodeWithNids extends TypedNodeWithNids {
         return operator;
     }
 
-    public int getUnitsConceptNid() {
-        return unitsConceptNid;
+    public int getUnitsConceptSequence() {
+        return unitsConceptSequence;
     }
     @Override
 
     protected int compareTypedNodeFields(Node o) {
         // node semantic already determined equals. 
-        FeatureNodeWithNids other = (FeatureNodeWithNids) o;
-        if (unitsConceptNid != other.unitsConceptNid) {
-            return Integer.compare(unitsConceptNid, other.unitsConceptNid);
+        FeatureNodeWithSequences other = (FeatureNodeWithSequences) o;
+        if (unitsConceptSequence != other.unitsConceptSequence) {
+            return Integer.compare(unitsConceptSequence, other.unitsConceptSequence);
         }
         if (operator != other.operator) {
             return operator.compareTo(other.operator);
         }
-        return Integer.compare(unitsConceptNid, other.unitsConceptNid);
+        return Integer.compare(unitsConceptSequence, other.unitsConceptSequence);
+    }
+
+    @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        super.addConceptsReferencedByNode(conceptSequenceSet);
+        conceptSequenceSet.add(unitsConceptSequence);
     }
 
 }

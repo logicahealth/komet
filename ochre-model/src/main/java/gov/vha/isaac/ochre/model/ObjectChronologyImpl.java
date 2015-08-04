@@ -29,6 +29,7 @@ import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +102,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     /**
      * Position in the data where chronicle data ends, and version data starts
      */
-    private int versionStartPosition;
+    private int versionStartPosition = -1;
 
     /**
      * Data previously persisted. Used for lazy instantiation of versions and
@@ -325,6 +326,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     protected void mergeData(byte[] dataToMerge,
             OpenIntHashSet writtenStamps, DataBuffer db) {
         DataBuffer writtenBuffer = new DataBuffer(dataToMerge);
+        if (versionStartPosition == -1) {
+            // object not constructed via serialization. Must compute version start postion. 
+            DataBuffer tempDb = new DataBuffer(512);
+            writeChronicleData(tempDb);
+            versionStartPosition = tempDb.getPosition();
+            
+        }
         int nextPosition = versionStartPosition;
         while (nextPosition < writtenBuffer.getLimit()) {
             writtenBuffer.setPosition(nextPosition);
@@ -593,7 +601,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<?> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         if (versionListReference != null) {
             ArrayList<V> versions = versionListReference.get();

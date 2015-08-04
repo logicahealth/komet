@@ -64,5 +64,14 @@ public class LongSememeImpl extends SememeVersionImpl<LongSememeImpl>
         }
         this.longValue = time;
     }
-    
+        @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Long≤");
+        sb.append(longValue);
+         toString(sb);
+        sb.append('≥');
+        return sb.toString();
+    }
+
 }

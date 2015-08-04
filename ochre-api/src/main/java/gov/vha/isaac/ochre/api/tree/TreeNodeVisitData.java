@@ -9,6 +9,7 @@ import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.SequenceSet;
 
 import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
  *
@@ -24,7 +25,7 @@ public class TreeNodeVisitData {
     private SequenceSet<?> visitStarted = new SequenceSet<>();
     private SequenceSet<?> visitEnded = new SequenceSet<>();
     private SequenceSet<?> leafNodes = new SequenceSet<>();
-    private ConceptSequenceSet[] conceptsReferencedAtNodeOrAbove;
+    private OpenIntHashSet[] conceptsReferencedAtNodeOrAbove;
 
     private int maxDepth = 0;
     private int time = 0;
@@ -61,19 +62,41 @@ public class TreeNodeVisitData {
         leafNodes.add(sequence);
     }
 
-    public ConceptSequenceSet getConceptsReferencedAtNodeOrAbove(int nodeSequence) {
+    public OpenIntHashSet getConceptsReferencedAtNodeOrAbove(int nodeSequence) {
         if (nodeSequence >= 0) {
             // lazy creation to save memory since not all tree traversals want to 
             // use this capability. 
             if (conceptsReferencedAtNodeOrAbove == null) {
-                conceptsReferencedAtNodeOrAbove = new ConceptSequenceSet[graphSize];
+                conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
             }
             if (conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
-                conceptsReferencedAtNodeOrAbove[nodeSequence] = new ConceptSequenceSet();
+                conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(graphSize);
             }
             return conceptsReferencedAtNodeOrAbove[nodeSequence];
         }
-        return new ConceptSequenceSet();
+        return new OpenIntHashSet(graphSize);
+    }
+
+    public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, OpenIntHashSet conceptSet) {
+        if (nodeSequence >= 0) {
+            // lazy creation to save memory since not all tree traversals want to
+            // use this capability.
+            if (conceptsReferencedAtNodeOrAbove == null) {
+                conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+            }
+            conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
+        }
+    }
+
+    public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, ConceptSequenceSet conceptSet) {
+        if (nodeSequence >= 0) {
+            // lazy creation to save memory since not all tree traversals want to
+            // use this capability.
+            if (conceptsReferencedAtNodeOrAbove == null) {
+                conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+            }
+            conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
+        }
     }
 
     public int getPredecessorSequence(int sequence) {

@@ -1,11 +1,8 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
@@ -14,6 +11,12 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,12 +32,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 import org.apache.mahout.math.map.OpenIntIntHashMap;
-import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.PremiseType;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -204,7 +203,7 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.commit(changeSetPolicy, changeSetWriterThreading);
     }
 
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<?> coordinate) {
         return concept.isLatestVersionActive(coordinate);
     }
 
@@ -1492,7 +1491,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<?> coordinate) {
         return concept.getLatestVersion(type, coordinate);
     }
     
@@ -1508,27 +1507,27 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
         return concept.getRelationshipListOriginatingFromConcept(logicCoordinate);
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept() {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept() {
         return concept.getRelationshipListOriginatingFromConcept();
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination() {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination() {
         return concept.getRelationshipListWithConceptAsDestination();
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
         return concept.getRelationshipListWithConceptAsDestination(logicCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
 
@@ -1538,7 +1537,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
     
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public String getLogicalDefinitionChronologyReport(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
        return "Not supported in OTF"; 
     }
 

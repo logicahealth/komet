@@ -35,21 +35,21 @@ import org.jvnet.hk2.annotations.Contract;
 public interface LogicService {
 
     Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId, int logicAssemblageId, 
-            StampCoordinate stampCoordinate);
+            StampCoordinate<?> stampCoordinate);
     
     ClassifierService getClassifierService(
-            StampCoordinate stampCoordinate,
+            StampCoordinate<?> stampCoordinate,
             LogicCoordinate logicCoordinate,
             EditCoordinate editCoordinate);
 
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology<?> conceptChronology);
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology<?> conceptChronology,
                     LogicCoordinate logicCoordinate);
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology<?> conceptChronology);
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology<?> conceptChronology,
                     LogicCoordinate logicCoordinate);
 }

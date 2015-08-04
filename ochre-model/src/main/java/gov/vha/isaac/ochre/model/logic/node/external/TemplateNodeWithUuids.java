@@ -12,7 +12,7 @@ import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class TemplateNodeWithUuids extends AbstractNode {
         this.assemblageConceptUuid = assemblageConceptUuid;
     }
 
-    public TemplateNodeWithUuids(TemplateNodeWithNids internalForm) {
+    public TemplateNodeWithUuids(TemplateNodeWithSequences internalForm) {
         super(internalForm);
         this.templateConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTemplateConceptNid()).get();
         this.assemblageConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getAssemblageConceptNid()).get();
@@ -66,7 +66,7 @@ public class TemplateNodeWithUuids extends AbstractNode {
                 dataOutput.writeLong(assemblageConceptUuid.getLeastSignificantBits());
                 break;
             case INTERNAL:
-                TemplateNodeWithNids internalForm =  new TemplateNodeWithNids(this);
+                TemplateNodeWithSequences internalForm =  new TemplateNodeWithSequences(this);
                 internalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);

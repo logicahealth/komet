@@ -29,7 +29,7 @@ import java.util.UUID;
  *
  * @author kec
  */
-public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdaptor {
+public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdaptor<RelationshipVersionAdaptorImpl> {
     
     RelationshipAdaptorChronicleKeyImpl relationshipAdaptorChronicleKey;
     RelationshipAdaptorChronologyImpl chronology;
