@@ -171,7 +171,11 @@ public class RelationshipAdaptorChronologyImpl
 
     @Override
     public String toString() {
-        return "RelAdaptor{"  + Get.conceptDescriptionText(referencedComponentNid) + ": " + versionList + '}';
+        Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService().getOptionalSememe(referencedComponentNid);
+        if (optionalSememe.isPresent()) {
+            return "RelAdaptor{"  + Get.conceptDescriptionText(optionalSememe.get().getAssemblageSequence()) + ": " + versionList + '}';
+         }
+        return "RelAdaptor{"  + referencedComponentNid + ": " + versionList + '}';
     }
     
 }
