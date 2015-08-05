@@ -330,11 +330,10 @@ public class RelativePositionCalculator implements OchreCache {
         StampSequenceSet result =  stampSequenceStream.collect(StampSequenceSet::new, 
                 new LatestStampAccumulator(), 
                 new LatestStampCombiner());
-        if (coordinate.getAllowedStates().equals(State.ACTIVE_ONLY_SET)) {
-            return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
-                return Get.commitService().getStatusForStamp(stampSequence) == State.ACTIVE;}));
-        }
-        return result;
+          
+           return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
+                return  coordinate.getAllowedStates().contains(Get.commitService().getStatusForStamp(stampSequence));
+           }));
     }
     
     private class LatestStampAccumulator implements ObjIntConsumer<StampSequenceSet> {

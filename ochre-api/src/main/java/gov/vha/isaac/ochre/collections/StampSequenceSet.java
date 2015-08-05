@@ -15,7 +15,9 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import gov.vha.isaac.ochre.api.Get;
 import java.util.Collection;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -61,5 +63,10 @@ public class StampSequenceSet extends SequenceSet<StampSequenceSet> {
     protected StampSequenceSet(OpenIntHashSet members) {
         super(members);
     }
-    
+
+
+   @Override
+   public String toString() {
+       return toString((stampSequence) -> Get.commitService().describeStampSequence(stampSequence));
+   }
 }

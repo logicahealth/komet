@@ -17,7 +17,6 @@ package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.*;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -38,8 +37,8 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordi
         this.taxonomyType = taxonomyType;
         this.stampCoordinate = stampCoordinate;
         this.languageCoordinate = languageCoordinate;
-        uuid = UuidT5Generator.get(UuidT5Generator.TAXONOMY_COORDINATE_NAMESPACE,
-        this.taxonomyType + stampCoordinate.toString() + languageCoordinate.toString());
+        this.logicCoordinate = logicCoordinate;
+        uuid = UUID.randomUUID();
     }
     
     
@@ -116,6 +115,11 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordi
     public TaxonomyCoordinate<TaxonomyCoordinate> makeAnalog(PremiseType taxonomyType) {
         return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate,
                                   languageCoordinate, logicCoordinate);
+    }
+
+    @Override
+    public String toString() {
+        return "TaxonomyCoordinate{" + taxonomyType + ",\n" + stampCoordinate + ", \n" + languageCoordinate + ", \n" + logicCoordinate + ", uuid=" + uuid + '}';
     }
     
     

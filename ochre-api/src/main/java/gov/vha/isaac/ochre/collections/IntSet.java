@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -298,5 +299,22 @@ public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
     public IntIterator getReverseIntIterator() {
         return rbmp.getReverseIntIterator();
     }
-
+    
+   public String toString(IntFunction<String> function) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        int limit = 20;
+        stream().limit(limit).forEach((stampSequence) -> {
+            sb.append(function.apply(stampSequence));
+            sb.append(", ");
+        } );
+        if (size() > 20) {
+             sb.append("...");
+        } else {
+            sb.delete(sb.length() - 2, sb.length() - 1);
+        }
+        sb.append("]");
+        return this.getClass().getSimpleName()
+                + " size: " + size() + " elements: " + sb.toString();
+    }
 }
