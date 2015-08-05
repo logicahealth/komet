@@ -23,7 +23,6 @@ import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -69,8 +68,6 @@ public interface TerminologyDI {
 
     void forget(RefexChronicleBI extension) throws IOException;
     
-    void forget(RefexDynamicChronicleBI extension) throws IOException;
-
     void forget(RelationshipVersionBI rel) throws IOException;
 
     /**

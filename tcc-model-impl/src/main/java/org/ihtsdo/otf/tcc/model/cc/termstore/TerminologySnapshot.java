@@ -22,7 +22,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
@@ -297,11 +296,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public void forget(RefexChronicleBI extension) throws IOException {
-      store.forget(extension);
-   }
-   
-   @Override
-   public void forget(RefexDynamicChronicleBI extension) throws IOException {
       store.forget(extension);
    }
 

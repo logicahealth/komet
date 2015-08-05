@@ -25,8 +25,6 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
@@ -99,12 +97,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
     public boolean addAnnotation(@SuppressWarnings("rawtypes") RefexChronicleBI annotation)
             throws IOException {
         return primordialComponent.addAnnotation(annotation);
-    }
-    
-    @Override
-    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation)
-            throws IOException {
-        return primordialComponent.addDynamicAnnotation(annotation);
     }
 
     abstract protected void addComponentNids(Set<Integer> allNids);
@@ -408,43 +400,6 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
         return primordialComponent.getRefexes();
     }
     
-    /**
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
-    {
-        return primordialComponent.getRefexesDynamic();
-    }
-    
-    /**
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
-    {
-        return primordialComponent.getRefexDynamicMembers();
-    }
-    
-
-    /**
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
-    {
-        return primordialComponent.getRefexDynamicAnnotations();
-    }
-
-    /**
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
-     */
-    @Override
-    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
-    {
-        return primordialComponent.getRefexesDynamicActive(viewCoordinate);
-    }
-
     @Override
     public int getStamp() {
         return stamp;

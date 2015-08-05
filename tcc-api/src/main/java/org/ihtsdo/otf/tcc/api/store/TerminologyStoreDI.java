@@ -22,7 +22,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.jvnet.hk2.annotations.Contract;
 
 @Contract
@@ -62,13 +61,6 @@ public interface TerminologyStoreDI extends TerminologyDI {
      */
     RefexChronicleBI<?> getRefex(int refex);
     
-    /**
-     * Maybe should only be accessible from component? Or {@code PersistentStoreI}
-     * @param refexNid
-     * @return 
-     */
-    RefexDynamicChronicleBI<?> getDynamicRefex(int refex);
-
     /**
      * Maybe should only be accessible from component? Or {@code PersistentStoreI}
      * @param assemblageNid

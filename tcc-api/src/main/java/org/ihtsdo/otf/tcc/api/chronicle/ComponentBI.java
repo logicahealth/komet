@@ -7,8 +7,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -21,8 +19,6 @@ import java.util.UUID;
 public interface ComponentBI extends IdentifiedObjectUniversal {
    boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException;
    
-   boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException;
-
    String toUserString();
 
    //~--- get methods ---------------------------------------------------------
@@ -65,25 +61,4 @@ public interface ComponentBI extends IdentifiedObjectUniversal {
    default List<UUID> getUUIDs() {
        return getUuidList();
    }
-   
-   //TODO [REFEX] RefexDynamicAPI getter definitions
-   /**
-    * Get the annotation style refexes and the member style refexes
-    */
-   Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException;
-   /**
-    * get the annotation style refexes
-    */
-   Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException;
-   
-   /**
-    * get the member style refexes
-    */
-   Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException;
-   
-   /**
-    * Get the annotation style refexes and the member style refexes, filter by active only
-    */
-   Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException;
-
 }

@@ -19,10 +19,11 @@ import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.metadata.ComponentType;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpecWithDescriptions;
 import org.ihtsdo.otf.tcc.api.spec.DynamicRefexConceptSpec;
+
+import gov.vha.isaac.ochre.impl.sememe.RefexDynamicUsageDescription;
 
 /**
  * 
@@ -208,49 +209,5 @@ public class RefexDynamic
 				new RefexDynamicColumnInfo(0, RefexDynamic.DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getPrimodialUuid(), RefexDynamicDataType.STRING, null, false, null, null)},
 			DYNAMIC_SEMEME_METADATA);
 	
-	//An organizational concept which serves as a parent concept for the allowed types of data columns
-	public static ConceptSpecWithDescriptions DYNAMIC_SEMEME_COLUMN_DATA_TYPES = new ConceptSpecWithDescriptions("dynamic sememe column data types", 
-			UUID.fromString("61da7e50-f606-5ba0-a0df-83fd524951e7"),
-			new String[] {"dynamic sememe column data types", "dynamic refex column data types"},
-			new String[] {},
-			DYNAMIC_SEMEME_METADATA);
-	
-	//New data types
-	
-	public static ConceptSpec DYNAMIC_SEMEME_DT_NID = new ConceptSpec("nid", 
-			UUID.fromString("d1a17272-9785-51aa-8bde-cc556ab32ebb"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_BOOLEAN = new ConceptSpec("boolean", 
-			UUID.fromString("08f2fb74-980d-5157-b92c-4ff1eac6a506"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_LONG = new ConceptSpec("long", 
-			UUID.fromString("dea8cdf1-de75-5991-9791-79714e4a964d"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_BYTE_ARRAY = new ConceptSpec("byte array", 
-			UUID.fromString("9a84fecf-708d-5de4-9c5f-e17973229e0f"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_FLOAT = new ConceptSpec("float", 
-			UUID.fromString("fb591801-7b37-525d-980d-98a1c63ceee0"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_DOUBLE = new ConceptSpec("double", 
-			UUID.fromString("7172e6ac-a05a-5a34-8275-aef430b18207"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_POLYMORPHIC = new ConceptSpec("polymorphic", 
-			UUID.fromString("3d634fd6-1498-5e8b-b914-e75b42018397"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_ARRAY = new ConceptSpec("array", 
-			UUID.fromString("318622e6-dd7a-5651-851d-2d5c2af85767"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	
-	//The following data types already exist, but I'm also adding them to our hierarchy for clarity
-	//(assuming you generate concepts from this constants file and load them into the DB, anyway)
-	public static ConceptSpec DYNAMIC_SEMEME_DT_STRING = new ConceptSpec("String (foundation metadata concept)", 
-			UUID.fromString("a46aaf11-b37a-32d6-abdc-707f084ec8f5"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_INTEGER = new ConceptSpec("Signed integer (foundation metadata concept)", 
-			UUID.fromString("1d1c2073-d98b-3dd3-8aad-a19c65aa5a0c"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
-	public static ConceptSpec DYNAMIC_SEMEME_DT_UUID = new ConceptSpec("Universally Unique Identifier (foundation metadata concept)", 
-			UUID.fromString("845274b5-9644-3799-94c6-e0ea37e7d1a4"),
-			DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
+
 }

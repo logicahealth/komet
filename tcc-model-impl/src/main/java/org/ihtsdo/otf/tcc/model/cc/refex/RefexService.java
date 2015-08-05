@@ -17,7 +17,6 @@ package org.ihtsdo.otf.tcc.model.cc.refex;
 
 import gov.vha.isaac.ochre.collections.RefexSequenceSet;
 import java.util.stream.Stream;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.jvnet.hk2.annotations.Contract;
@@ -50,18 +49,7 @@ public interface RefexService {
     
     Stream<RefexMember<?, ?>> getParallelRefexStream();
     
-    Stream<RefexDynamicChronicleBI<?>> getDynamicRefexStream();
-    
-    Stream<RefexDynamicChronicleBI<?>> getParallelDynamicRefexStream();
 
     void forgetXrefPair(int referencedComponentNid, NidPairForRefex nidPairForRefex);
-    
-    Stream<RefexDynamicChronicleBI<?>> getDynamicRefexesForComponent(int componentNid);
-
-    Stream<RefexDynamicChronicleBI<?>> getDynamicRefexesFromAssemblage(int assemblageSequence);
-    
-    RefexDynamicChronicleBI<?> getRefexDynamic(int refexSequence);
-    
-    void writeDynamicRefex(RefexDynamicChronicleBI<?> refex);
 
 }

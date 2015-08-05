@@ -17,7 +17,6 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
@@ -142,7 +141,6 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
         }
 
         processAnnotations(another.getAnnotations());
-        processDynamicAnnotations(another.getRefexDynamicAnnotations());
         this.primordialUuid = another.getPrimordialUuid();
     }
 
@@ -158,7 +156,6 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
             }
             
             processAnnotations(null);
-            processDynamicAnnotations(null);
             this.primordialUuid = another.getPrimordialUuid();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -312,16 +309,6 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
 
             for (RefexChronicleBI<?> r : annotations) {
                 this.annotations.add(TtkConceptChronicle.convertRefex(r));
-            }
-        }
-    }
-
-    private void processDynamicAnnotations(Collection<? extends RefexDynamicChronicleBI<?>> annotationsDynamic) throws IOException {
-        if ((annotationsDynamic != null) && !annotationsDynamic.isEmpty()) {
-            this.annotationsDynamic = new ArrayList<>(annotationsDynamic.size());
-
-            for (RefexDynamicChronicleBI<?> r : annotationsDynamic) {
-                this.annotationsDynamic.add(TtkConceptChronicle.convertRefex(r));
             }
         }
     }

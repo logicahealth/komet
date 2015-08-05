@@ -16,28 +16,35 @@
  */
 package org.ihtsdo.otf.tcc.api.blueprint;
 
-//~--- non-JDK imports --------------------------------------------------------
-import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
-import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
-import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
-
 //~--- JDK imports ------------------------------------------------------------
 
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
+
+import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
+import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
+//~--- non-JDK imports --------------------------------------------------------
+import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipType;
+import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
+
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * The Class ConceptCB contains methods for creating a concept blueprint. This blueprint can be constructed
@@ -77,7 +84,6 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
     private Collection<UUID> parents = new TreeSet<>();
     private boolean annotationRefexExtensionIdentity;
     private List<RefexCAB> sememeCABs = new ArrayList<>();
-    private List<RefexDynamicCAB> sememeCABsDynamic = new ArrayList<>();
 
     /**
      * Gets the uuids of parent concept for this concept blueprint.
@@ -923,23 +929,8 @@ public final class ConceptCB extends CreateOrAmendBlueprint {
         return sememeBlueprint;
     }
 
-    /**
-     * Adds an dynamic sememe blueprint to be associated with this assemblage (concept) blueprint.
-     *
-     * @param sememeDynamicBlueprint the sememe blueprint to associate with this assemblage blueprint
-     * @return The provided sememeDynamicBlueprint to enable method chaining. 
-     */
-    public RefexDynamicCAB addSememeBlueprint(RefexDynamicCAB sememeDynamicBlueprint) {
-        sememeCABsDynamic.add(sememeDynamicBlueprint);
-        return sememeDynamicBlueprint;
-    }
-
     public List<RefexCAB> getSememeCABs() {
         return sememeCABs;
-    }
-
-    public List<RefexDynamicCAB> getSememeCABsDynamic() {
-        return sememeCABsDynamic;
     }
 
     @Override

@@ -18,14 +18,28 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDoubleBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLongBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNidBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequenceBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
-import java.util.logging.Logger;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 
 
 /**
@@ -47,10 +61,14 @@ import java.util.logging.Logger;
  * And for the following two:
  * {@link DynamicSememeValidatorType#IS_CHILD_OF}
  * {@link DynamicSememeValidatorType#IS_KIND_OF}
- * The validatorDefinitionData should be either an {@link DynamicSememeNidBI} or a {@link DynamicSememeUUIDBI}.
+ * The validatorDefinitionData should be either an {@link DynamicSememeNidBI} or {@link DynamicSememeSequenceBI} or a {@link DynamicSememeUUIDBI}.
+ * 
+ * For {@link DynamicSememeValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicSememeArrayBI<DynamicSememeStringBI>} 
+ * where position 0 is a string constant parseable by {@link ObjectChronologyType#parse(String)}.  Postion 1 is optional, and is only applicable when 
+ * position 0 is {@link ObjectChronologyType#SEMEME} - in which case - the value should be parsable by {@link SememeType#parse(String)}
  * 
  * For {@link DynamicSememeValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicSememeArrayBI<DynamicSememeStringBI>} 
- * which contains (in the first position of the array) the name of an HK2 named service which implements {@link ExternalValidatorBI} 
+ * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicSememeExternalValidatorBI} 
  * the name that you provide should be the value of the '@Name' annotation within the class which implements the ExternalValidatorBI class.  
  * This code will request that implementation (by name) and pass the validation call to it.
  * 
@@ -60,7 +78,7 @@ import java.util.logging.Logger;
  * contains an array of strings such as new String[]{"mySuperRefexValidator", "somespecialmappingdata", "some other mapping data"} 
  * then the following HK2 call will be made to locate the validator implementation (and validate):
  * <pre>
- *   ExternalValidatorBI validator = Hk2Looker.get().getService(ExternalValidatorBI.class, "mySuperRefexValidator");
+ *   ExternalValidatorBI validator = LookupService.get().getService(ExternalValidatorBI.class, "mySuperRefexValidator");
  *   return validator.validate(userData, validatorDefinitionData, viewCoordinate);
  * </pre>
  *
@@ -130,6 +148,17 @@ public enum DynamicSememeValidatorType
 					return false;
 				}
 			}
+			case SEQUENCE:  //can't support component type with sequence, because we don't know how to look it up
+			{
+				if (this == IS_CHILD_OF || this == IS_KIND_OF || this == REGEXP)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
 			case STRING: case BYTEARRAY:
 			{
 				if (this == REGEXP)
@@ -148,4 +177,416 @@ public enum DynamicSememeValidatorType
 			}
 		}
 	}
+	
+	/**
+	 * These are all defined from the perspective of the userData - so for passesValidator to return true -
+	 * userData must be LESS_THAN validatorDefinitionData, for example.
+	 * 
+	 * @param userData
+	 * @param validatorDefinitionData
+	 * @param sc The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
+	 * @param tc The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean passesValidator(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate<?> sc, TaxonomyCoordinate<?> tc)
+	{
+		if (validatorDefinitionData == null)
+		{
+			throw new RuntimeException("The validator definition data is required");
+		}
+		if (this == DynamicSememeValidatorType.EXTERNAL)
+		{
+			DynamicSememeExternalValidatorBI validator = null;
+			DynamicSememeStringBI[] valNameInfo = null;
+			DynamicSememeArrayBI<DynamicSememeStringBI> stringValidatorDefData = null;
+			String valName = null;
+			if (validatorDefinitionData != null)
+			{
+				stringValidatorDefData = (DynamicSememeArrayBI<DynamicSememeStringBI>)validatorDefinitionData;
+				valNameInfo = stringValidatorDefData.getDataArray();
+			}
+			if (valNameInfo != null && valNameInfo.length > 0)
+			{
+				valName = valNameInfo[0].getDataString();
+				logger.fine("Looking for an ExternalValidatorBI with the name of '" + valName + "'");
+				validator = LookupService.get().getService(DynamicSememeExternalValidatorBI.class, valName);
+			}
+			else
+			{
+				logger.severe("An external validator type was specified, but no DynamicSememeExternalValidatorBI 'name' was provided.  API misuse!");
+			}
+			if (validator == null)
+			{
+				throw new RuntimeException("Could not locate an implementation of DynamicSememeExternalValidatorBI with the requested name of '" + valName + "'");
+			}
+			return validator.validate(userData, stringValidatorDefData, sc, tc);
+		}
+		else if (this == DynamicSememeValidatorType.REGEXP)
+		{
+			try
+			{
+				if (userData == null)
+				{
+					return false;
+				}
+				return Pattern.matches(((DynamicSememeStringBI)validatorDefinitionData).getDataString(), userData.getDataObject().toString());
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException("The specified validator data object was not a valid regular expression: " + e.getMessage());
+			}
+		}
+		else if (this == DynamicSememeValidatorType.IS_CHILD_OF || this == DynamicSememeValidatorType.IS_KIND_OF)
+		{
+			try
+			{
+				int childNid;
+				int parentNid;
+
+				if (userData instanceof DynamicSememeUUIDBI)
+				{
+					childNid = Get.identifierService().getNidForUuids(((DynamicSememeUUIDBI) userData).getDataUUID());
+				}
+				else if (userData instanceof DynamicSememeNidBI)
+				{
+					childNid = ((DynamicSememeNidBI) userData).getDataNid();
+				}
+				else if (userData instanceof DynamicSememeSequenceBI)
+				{
+					childNid = ((DynamicSememeSequenceBI) userData).getDataSequence();
+				}
+				else
+				{
+					throw new RuntimeException("Userdata is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
+				}
+
+				if (validatorDefinitionData instanceof DynamicSememeUUIDBI)
+				{
+					parentNid = Get.identifierService().getNidForUuids(((DynamicSememeUUIDBI) validatorDefinitionData).getDataUUID());
+				}
+				else if (validatorDefinitionData instanceof DynamicSememeNidBI)
+				{
+					parentNid = ((DynamicSememeNidBI) validatorDefinitionData).getDataNid();
+				}
+				else if (userData instanceof DynamicSememeSequenceBI)
+				{
+					parentNid = ((DynamicSememeSequenceBI) validatorDefinitionData).getDataSequence();
+				}
+				else
+				{
+					throw new RuntimeException("Validator DefinitionData is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
+				}
+
+				return (this == DynamicSememeValidatorType.IS_CHILD_OF ? 
+						Get.taxonomyService().isChildOf(childNid, parentNid, tc) : 
+						Get.taxonomyService().isKindOf(childNid, parentNid, tc));
+			}
+			catch (Exception e)
+			{
+				logger.log(Level.WARNING, "Failure executing validator", e);
+				throw new RuntimeException("Failure executing validator", e);
+			}
+		}
+		else if (this == DynamicSememeValidatorType.COMPONENT_TYPE)
+		{
+			try
+			{
+				int nid;
+				if (userData instanceof DynamicSememeUUIDBI)
+				{
+					DynamicSememeUUIDBI uuid = (DynamicSememeUUIDBI) userData;
+					if (!Get.identifierService().hasUuid(uuid.getDataUUID()))
+					{
+						throw new RuntimeException("The specified UUID can not be found in the database, so the validator cannot execute");
+					}
+					else
+					{
+						nid = Get.identifierService().getNidForUuids(uuid.getDataUUID());
+					}
+				}
+				else if (userData instanceof DynamicSememeNidBI)
+				{
+					nid = ((DynamicSememeNidBI) userData).getDataNid();
+				}
+				else
+				{
+					throw new RuntimeException("Userdata is invalid for a COMPONENT_TYPE comparison");
+				}
+				
+				//Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) SememeType of the assemblage restriction
+				DynamicSememeStringBI[] valData = ((DynamicSememeArrayBI<DynamicSememeStringBI>)validatorDefinitionData).getDataArray();
+				
+				ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString());
+				ObjectChronologyType component = Get.identifierService().getChronologyTypeForNid(nid); 
+				
+				if (expectedCT == ObjectChronologyType.UNKNOWN_NID || expectedCT == ObjectChronologyType.OTHER)
+				{
+					throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");
+				}
+				
+				if (component != expectedCT)
+				{
+					throw new RuntimeException("The specified component must be of type " + expectedCT.toString() + ", not " + component);
+				}
+				
+				if (expectedCT == ObjectChronologyType.SEMEME && valData.length == 2)
+				{
+					//they specified a specific sememe type.  Verify.
+					SememeType st = SememeType.parse(valData[1].getDataString());
+					SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService().getSememe(nid);
+					
+					if (sememe.getSememeType() != st)
+					{
+						throw new RuntimeException("The specified component must be of type " + st.toString() + ", not " + sememe.getSememeType().toString());
+					}
+				}
+				return true;
+			}
+			catch (RuntimeException e)
+			{
+				throw e;
+			}
+			catch (Exception e)
+			{
+				logger.log(Level.WARNING, "Failure executing validator", e);
+				throw new RuntimeException("Failure executing validator", e);
+			}
+		}
+		else
+		{
+			Number userDataNumber = readNumber(userData);
+			Number validatorDefinitionDataNumber;
+			if (this == DynamicSememeValidatorType.INTERVAL)
+			{
+				boolean leftInclusive;
+				boolean rightInclusive;
+
+				String s = validatorDefinitionData.getDataObject().toString().trim();
+
+				if (s.charAt(0) == '[')
+				{
+					leftInclusive = true;
+				}
+				else if (s.charAt(0) == '(')
+				{
+					leftInclusive = false;
+				}
+				else
+				{
+					throw new RuntimeException("Invalid INTERVAL definition in the validator definition data - char 0 should be [ or (");
+				}
+				if (s.charAt(s.length() - 1) == ']')
+				{
+					rightInclusive = true;
+				}
+				else if (s.charAt(s.length() - 1) == ')')
+				{
+					rightInclusive = false;
+				}
+				else
+				{
+					throw new RuntimeException("Invalid INTERVAL definition in the validator definition data - last char should be ] or )");
+				}
+
+				String numeric = s.substring(1, s.length() - 1);
+				numeric = numeric.replaceAll("\\s", "");
+
+				int pos = numeric.indexOf(',');
+				Number left = null;
+				Number right = null;
+				if (pos == 0)
+				{
+					//left is null (- infinity)
+					right = parseUnknown(numeric.substring(1, numeric.length()));
+				}
+				else if (pos > 0)
+				{
+					left = parseUnknown(numeric.substring(0, pos));
+					if (numeric.length() > (pos + 1))
+					{
+						right = parseUnknown(numeric.substring(pos + 1));
+					}
+				}
+				else
+				{
+					throw new RuntimeException("Invalid INTERVAL definition in the validator definition data");
+				}
+				
+				//make sure interval is properly specified
+				if (left != null && right != null)
+				{
+					if (compare(left, right) > 0)
+					{
+						throw new RuntimeException("Invalid INTERVAL definition the left value should be <= the right value");
+					}
+				}
+
+				if (left != null)
+				{
+					int compareLeft = compare(userDataNumber, left);
+					if ((!leftInclusive && compareLeft == 0) || compareLeft < 0)
+					{
+						return false;
+					}
+				}
+				if (right != null)
+				{
+					int compareRight = compare(userDataNumber, right);
+					if ((!rightInclusive && compareRight == 0) || compareRight > 0)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			else
+			{
+				validatorDefinitionDataNumber = readNumber(validatorDefinitionData);
+				int compareResult = compare(userDataNumber, validatorDefinitionDataNumber);
+
+				switch (this)
+				{
+					case LESS_THAN:
+						return compareResult < 0;
+					case GREATER_THAN:
+						return compareResult > 0;
+					case GREATER_THAN_OR_EQUAL:
+						return compareResult >= 0;
+					case LESS_THAN_OR_EQUAL:
+						return compareResult <= 0;
+					default:
+						throw new RuntimeException("oops");
+				}
+			}
+		}
+	}
+	
+	/**
+	 * A convenience wrapper of {@link #passesValidator(DynamicSememeDataBI, DynamicSememeDataBI, ViewCoordinate)} that just returns a string - never
+	 * throws an error
+	 * 
+	 * These are all defined from the perspective of the userData - so for passesValidator to return true -
+	 * userData must be LESS_THAN validatorDefinitionData, for example.
+	 * 
+	 * @param userData
+	 * @param validatorDefinitionData
+	 * @param sc - The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
+	 * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
+	 * @return - empty string if valid, an error message otherwise.
+	 */
+	public String passesValidatorStringReturn(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate<?> sc, TaxonomyCoordinate<?> tc)
+	{
+		try
+		{
+			if (passesValidator(userData, validatorDefinitionData, sc, tc))
+			{
+				return "";
+			}
+			else
+			{
+				return "The value does not pass the validator";
+			}
+		}
+		catch (Exception e)
+		{
+			return e.getMessage();
+		}
+	}
+
+	private static Number parseUnknown(String value)
+	{
+		try
+		{
+			return Integer.parseInt(value);
+		}
+		catch (Exception e)
+		{
+			//noop
+		}
+		try
+		{
+			return Long.parseLong(value);
+		}
+		catch (Exception e)
+		{
+			//noop
+		}
+		try
+		{
+			return Float.parseFloat(value);
+		}
+		catch (Exception e)
+		{
+			//noop
+		}
+		try
+		{
+			return Double.parseDouble(value);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException("Unexpected data passed in to parseUnknown (" + value + ")");
+		}
+	}
+
+	private static Number readNumber(DynamicSememeDataBI value)
+	{
+		if (value instanceof DynamicSememeDoubleBI)
+		{
+			return Double.valueOf(((DynamicSememeDoubleBI) value).getDataDouble());
+		}
+		else if (value instanceof DynamicSememeFloatBI)
+		{
+			return Float.valueOf(((DynamicSememeFloatBI) value).getDataFloat());
+		}
+		else if (value instanceof DynamicSememeIntegerBI)
+		{
+			return Integer.valueOf(((DynamicSememeIntegerBI) value).getDataInteger());
+		}
+		else if (value instanceof DynamicSememeLongBI)
+		{
+			return Long.valueOf(((DynamicSememeLongBI) value).getDataLong());
+		}
+		else
+		{
+			throw new RuntimeException("The value passed in to the validator is not a number");
+		}
+	}
+
+	private static int compare(final Number x, final Number y)
+	{
+		if (isSpecial(x) || isSpecial(y))
+		{
+			return Double.compare(x.doubleValue(), y.doubleValue());
+		}
+		else
+		{
+			return toBigDecimal(x).compareTo(toBigDecimal(y));
+		}
+	}
+
+	private static boolean isSpecial(final Number x)
+	{
+		boolean specialDouble = x instanceof Double && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
+		boolean specialFloat = x instanceof Float && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
+		return specialDouble || specialFloat;
+	}
+
+	private static BigDecimal toBigDecimal(final Number number)
+	{
+		if (number instanceof Integer || number instanceof Long)
+		{
+			return new BigDecimal(number.longValue());
+		}
+		else if (number instanceof Float || number instanceof Double)
+		{
+			return new BigDecimal(number.doubleValue());
+		}
+		else
+		{
+			throw new RuntimeException("Unexpected data type passed in to toBigDecimal (" + number.getClass() + ")");
+		}
+	}
+	
 }

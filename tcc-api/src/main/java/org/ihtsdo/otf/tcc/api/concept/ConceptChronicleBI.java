@@ -15,7 +15,6 @@ import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
 
@@ -79,8 +78,6 @@ public interface ConceptChronicleBI extends ComponentChronicleBI<ConceptVersionB
 
    Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException;
    
-   Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException;
-
    Collection<? extends RelGroupVersionBI> getRelationshipGroupsActive(ViewCoordinate vc)
            throws IOException, ContradictionException;
 

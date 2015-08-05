@@ -24,23 +24,17 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphicBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
 
+//TODO dan needs to fix the refs in these docs....
 
 /**
  * {@link DynamicSememeUsageDescriptionBI}
  * 
- * In the new RefexDynanamicAPI - there are strict requirements on the structure of the 
+ * In the new DynanamicSememeAPI - there are strict requirements on the structure of the 
  * assemblage concept.
  * <br>
  * <br>
- * The assemblage concept must define the combination of data columns being used within this Refex. 
+ * The assemblage concept must define the combination of data columns being used within this Sememe. 
  * To do this, the assemblage concept must itself contain 0 or more {@link DynamicSememeVersionBI} annotation(s) with
  * an assemblage concept that is {@link DynamicSememe#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
  * [{@link DynamicSememeIntegerBI}, {@link DynamicSememeUUIDBI}, {@link DynamicSememeStringBI}, {@link DynamicSememePolymorphicBI},
@@ -84,25 +78,24 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("deprecation")
 public interface DynamicSememeUsageDescriptionBI
 {
 	/**
 	 * @return The nid of the concept that the rest of the attributes of this type were read from.
 	 */
-	public int getRefexUsageDescriptorNid();
+	public int getDynamicSememeUsageDescriptorNid();
 
 	/**
 	 * @return A user-friendly description of the overall purpose of this Refex.
 	 */
-	public String getRefexUsageDescription();
+	public String getDynamicSememeUsageDescription();
 
 	
 	/**
 	 * (Convenience method)
 	 * @return returns the FSN of the assemblage concept this was read from
 	 */
-	public String getRefexName();
+	public String getDyanmicSememeName();
 	
 
 	/**
@@ -110,11 +103,11 @@ public interface DynamicSememeUsageDescriptionBI
 	 * These arrays will be the same size, and in the same order.  Will not return null.
 	 * @return the column information
 	 */
-	public DynamicSememeColumnInfo[] getColumnInfo();
+	public DynamicSememeColumnInfoBI[] getColumnInfo();
 
 	
 	/**
-	 * Return the {@link ComponentType} of the restriction on referenced components for this refex (if any - may return null)
+	 * Return the {@link ObjectChronologyType} of the restriction on referenced components for this refex (if any - may return null)
 	 * 
 	 * If there is a restriction, the nid set for the component type of this refex must resolve to the matching type.
 	 */

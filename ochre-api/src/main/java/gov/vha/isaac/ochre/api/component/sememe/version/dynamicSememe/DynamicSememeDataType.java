@@ -9,6 +9,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLongBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNidBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphicBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequenceBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
 import java.io.DataInput;
@@ -21,8 +22,8 @@ import java.util.UUID;
  * 
  * {@link DynamicSememeDataType}
  * 
- * Most types are fairly straight forward.  NIDs and INTEGERS are identical internally, except NIDs identify concepts.
- * Polymorphic is used when the data type for a refex isn't known at refex creation time.  In this case, a user of the API
+ * Most types are fairly straight forward.  NIDs, SEQUQENCES and INTEGERS are identical internally.
+ * Polymorphic is used when the data type for a dynamic sememe isn't known at dynamic sememe creation time.  In this case, a user of the API
  * will have to examine type types of the actual {@link DynamicSememeDataBI} objects returned, to look at the type.
  * 
  * For all other types, the data type reported within the Refex Definition should exactly match the data type returned with 
@@ -46,6 +47,7 @@ public enum DynamicSememeDataType {
 	UUID(109, DynamicSememeUUIDBI.class, "UUID"),
 	POLYMORPHIC(110, DynamicSememePolymorphicBI.class, "Unspecified"),
 	ARRAY(111, DynamicSememeArrayBI.class, "Array"),
+	SEQUENCE(112, DynamicSememeSequenceBI.class, "Component Sequence"),
 	UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
 
 	private int externalizedToken_;
@@ -76,6 +78,8 @@ public enum DynamicSememeDataType {
 				return POLYMORPHIC;
 			case 111:
 				return ARRAY;
+			case 112:
+				return SEQUENCE;
 			default:
 				return UNKNOWN;
 		}
@@ -93,7 +97,7 @@ public enum DynamicSememeDataType {
 		return this.externalizedToken_;
 	}
 
-	public Class<? extends DynamicSememeDataBI> getRefexMemberClass()
+	public Class<? extends DynamicSememeDataBI> getDynamicSememeMemberClass()
 	{
 		return dataClass_;
 	}
@@ -108,18 +112,19 @@ public enum DynamicSememeDataType {
 		 */
 		switch (this)
 		{
-			case BOOLEAN: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_BOOLEAN.getUuids()[0];
-			case BYTEARRAY: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_BYTE_ARRAY.getUuids()[0];
-			case DOUBLE: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_DOUBLE.getUuids()[0];
-			case FLOAT: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_FLOAT.getUuids()[0];
-			case INTEGER: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_INTEGER.getUuids()[0];
-			case LONG: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_LONG.getUuids()[0];
-			case NID: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_NID.getUuids()[0];
-			case POLYMORPHIC: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_POLYMORPHIC.getUuids()[0];
-			case STRING: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_STRING.getUuids()[0];
-			case UNKNOWN: return DynamicSememeConstants.UNKNOWN_CONCEPT.getUuids()[0];
-			case UUID: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_UUID.getUuids()[0];
-			case ARRAY: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_ARRAY.getUuids()[0];
+			case BOOLEAN: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_BOOLEAN.getUUID();
+			case BYTEARRAY: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_BYTE_ARRAY.getUUID();
+			case DOUBLE: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_DOUBLE.getUUID();
+			case FLOAT: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_FLOAT.getUUID();
+			case INTEGER: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_INTEGER.getUUID();
+			case LONG: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_LONG.getUUID();
+			case NID: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_NID.getUUID();
+			case POLYMORPHIC: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_POLYMORPHIC.getUUID();
+			case STRING: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_STRING.getUUID();
+			case UNKNOWN: return DynamicSememeConstants.UNKNOWN_CONCEPT;
+			case UUID: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_UUID.getUUID();
+			case ARRAY: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_ARRAY.getUUID();
+			case SEQUENCE: return DynamicSememeConstants.DYNAMIC_SEMEME_DT_SEQUENCE.getUUID();
 
 			default: throw new RuntimeException("Implementation error");
 		}
@@ -169,6 +174,9 @@ public enum DynamicSememeDataType {
 		}
 		if (DynamicSememeArrayBI.class.isAssignableFrom(c)) {
 			return ARRAY;
+		}
+		if (DynamicSememeSequenceBI.class.isAssignableFrom(c)) {
+			return SEQUENCE;
 		}
 		return UNKNOWN;
 	}

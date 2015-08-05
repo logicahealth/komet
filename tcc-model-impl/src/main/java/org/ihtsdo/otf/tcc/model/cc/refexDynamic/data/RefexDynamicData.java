@@ -25,7 +25,8 @@ import java.util.logging.Logger;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
 import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicUsageDescription;
+
+import gov.vha.isaac.ochre.impl.sememe.RefexDynamicUsageDescription;
 
 /**
  * {@link RefexDynamicData}

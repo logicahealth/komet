@@ -56,11 +56,12 @@ public interface DynamicSememeDataBI {
      * @return The type information of the data
      */
     public DynamicSememeDataType getRefexDataType();
-    
-    /**
-     * This is only intended to be used by {@link RefexDynamicCAB}. 
-     * Please ignore.
-     * @param name
-     */
-    public void setNameIfAbsent(String name);
+
+//TODO DAN see if this can go away
+//    /**
+//     * This is only intended to be used by {@link RefexDynamicCAB}. 
+//     * Please ignore.
+//     * @param name
+//     */
+//    public void setNameIfAbsent(String name);
 }

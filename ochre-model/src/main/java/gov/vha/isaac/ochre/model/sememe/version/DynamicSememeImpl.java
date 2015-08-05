@@ -16,18 +16,15 @@
 package gov.vha.isaac.ochre.model.sememe.version;
 
 import java.beans.PropertyVetoException;
-import java.io.IOException;
+
 import javax.naming.InvalidNameException;
+
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescriptionBI;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.api.component.sememe.SememeType;
-import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememeData;
-import gov.vha.isaac.ochre.model.sememe.SememeChronicleImpl;
-import gov.vha.isaac.ochre.model.sememe.version.dynamicSememe.DynamicSememeData;
 
 /**
  *
@@ -36,22 +33,16 @@ import gov.vha.isaac.ochre.model.sememe.version.dynamicSememe.DynamicSememeData;
 public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> 
     implements MutableDynamicSememe<DynamicSememeImpl> {
 
-    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
-            int stampSequence, short versionSequence, 
-            DataBuffer db) {
-
 	private DynamicSememeDataBI[] data_;
 	
-    public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence, DataBuffer db) {
+    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence, DataBuffer data) {
         super(container, stampSequence, versionSequence);
-        throw new UnsupportedOperationException();
+        data_ = null;  //TODO dan parse the data  - where is the parser?
     }
-
-    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, 
-            int stampSequence, short versionSequence) {
-    public DynamicSememeImpl(SememeChronicleImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence) {
+    
+    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence) {
         super(container, stampSequence, versionSequence);
-        data_ = new DynamicSememeData[] {};
+        data_ = null; //T?ODO dan figure out how to make an empty one... currently downstream....
     }
     
     @Override
@@ -64,12 +55,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>
         return SememeType.DYNAMIC;
     };
 
-    @Override
-    public DynamicSememeData[] getData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    /**
+   /**
      * @see gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe#getData()
      */
 	@Override
@@ -85,7 +71,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>
 	}
 
 	@Override
-	public DynamicSememeDataBI getData(String columnName) throws InvalidNameException, IndexOutOfBoundsException, IOException
+	public DynamicSememeDataBI getData(String columnName) throws InvalidNameException
 	{
 		// TODO Auto-generated method stub
 		return null;
