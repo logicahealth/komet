@@ -119,4 +119,11 @@ public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
             return true;
         });
     }
+    
+
+   @Override
+   public String toString() {
+       return toString((conceptSequence) -> Get.conceptDescriptionText(conceptSequence));
+   }
+    
 }

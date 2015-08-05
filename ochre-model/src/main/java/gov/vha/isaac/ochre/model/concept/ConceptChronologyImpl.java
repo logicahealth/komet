@@ -16,7 +16,6 @@
 package gov.vha.isaac.ochre.model.concept;
 
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
@@ -30,7 +29,6 @@ import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
-import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import gov.vha.isaac.ochre.model.DataBuffer;
@@ -51,15 +49,6 @@ import java.util.stream.Collectors;
 public class ConceptChronologyImpl
         extends ObjectChronologyImpl<ConceptVersionImpl>
         implements ConceptChronology<ConceptVersionImpl> {
-
-    private static LogicService logicService;
-
-    private static LogicService getLogicService() {
-        if (logicService == null) {
-            logicService = LookupService.getService(LogicService.class);
-        }
-        return logicService;
-    }
 
     public ConceptChronologyImpl(UUID primoridalUuid, int nid, int containerSequence) {
         super(primoridalUuid, nid, containerSequence);
@@ -177,7 +166,7 @@ public class ConceptChronologyImpl
             getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
         if (conceptOriginRelationshipList == null) {
             conceptOriginRelationshipList = new ArrayList<>();
-            getLogicService().getRelationshipAdaptorsOriginatingWithConcept(this, logicCoordinate)
+            Get.logicService().getRelationshipAdaptorsOriginatingWithConcept(this, logicCoordinate)
                     .forEach((relAdaptor) -> {
                         conceptOriginRelationshipList.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                     });
@@ -190,7 +179,7 @@ public class ConceptChronologyImpl
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept() {
         if (conceptOriginRelationshipList == null) {
             conceptOriginRelationshipList = new ArrayList<>();
-            getLogicService().getRelationshipAdaptorsOriginatingWithConcept(this)
+            Get.logicService().getRelationshipAdaptorsOriginatingWithConcept(this)
                     .forEach((relAdaptor) -> {
                         conceptOriginRelationshipList.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                     });
@@ -205,7 +194,7 @@ public class ConceptChronologyImpl
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination() {
         if (relationshipListWithConceptAsDestinationListDefaltCoordinate == null) {
             relationshipListWithConceptAsDestinationListDefaltCoordinate = new ArrayList<>();
-            getLogicService().getRelationshipAdaptorsWithConceptAsDestination(this)
+            Get.logicService().getRelationshipAdaptorsWithConceptAsDestination(this)
                     .forEach((relAdaptor) -> {
                         relationshipListWithConceptAsDestinationListDefaltCoordinate.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                     });
@@ -218,7 +207,7 @@ public class ConceptChronologyImpl
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
         if (relationshipListWithConceptAsDestination == null) {
             relationshipListWithConceptAsDestination = new ArrayList<>();
-            getLogicService().getRelationshipAdaptorsWithConceptAsDestination(this, logicCoordinate)
+            Get.logicService().getRelationshipAdaptorsWithConceptAsDestination(this, logicCoordinate)
                     .forEach((relAdaptor) -> {
                         relationshipListWithConceptAsDestination.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                     });

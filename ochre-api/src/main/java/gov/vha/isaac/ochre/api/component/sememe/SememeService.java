@@ -36,8 +36,18 @@ public interface SememeService {
     
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     
-    SememeChronology<? extends SememeVersion<?>> getSememe(int sememeSequence);
-    Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeSequence);
+    /**
+     * 
+     * @param sememeId sequence or nid for a sememe
+     * @return the identified {@code SememeChronology}
+     */
+    SememeChronology<? extends SememeVersion<?>> getSememe(int sememeId);
+    /**
+     * 
+     * @param sememeId sequence or nid for a sememe
+     * @return the identified {@code SememeChronology}
+     */
+    Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeId);
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);

@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.relationship;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -170,7 +171,20 @@ public class RelationshipAdaptorChronologyImpl
 
     @Override
     public String toString() {
-        return "RelAdaptor{" + "nid=" + nid + ", referencedComponentNid=" + referencedComponentNid + ", versionList=" + versionList + '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        versionList.stream().forEach((version) -> {
+            sb.append(version);
+            sb.append(",\n ");
+        });
+        sb.delete(sb.length() - 4, sb.length() -1);
+        
+        sb.append("]");
+        Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService().getOptionalSememe(referencedComponentNid);
+        if (optionalSememe.isPresent()) {
+            return "RelAdaptor{"  + Get.conceptDescriptionText(optionalSememe.get().getAssemblageSequence()) + ": " + sb.toString() + '}';
+         }
+        return "RelAdaptor{"  + referencedComponentNid + ": " + sb.toString() + '}';
     }
     
 }
