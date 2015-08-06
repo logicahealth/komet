@@ -311,7 +311,7 @@ public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
         if (size() > 20) {
              sb.append("...");
         } else {
-            sb.delete(sb.length() - 2, sb.length() - 1);
+            sb.delete(sb.length() - 3, sb.length() - 1);
         }
         sb.append("]");
         return this.getClass().getSimpleName()
