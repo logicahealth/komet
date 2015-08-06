@@ -30,9 +30,9 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface TaxonomyService {
 
-    TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc);
+    TaxonomySnapshotService getSnapshot(TaxonomyCoordinate<?> tc);
 
-    Tree getTaxonomyTree(TaxonomyCoordinate tc);
+    Tree getTaxonomyTree(TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -43,7 +43,7 @@ public interface TaxonomyService {
      * parentId concept according to the constraints of the
      * {@code TaxonomyCoordinate}
      */
-    boolean isChildOf(int childId, int parentId, TaxonomyCoordinate tc);
+    boolean isChildOf(int childId, int parentId, TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -53,7 +53,7 @@ public interface TaxonomyService {
      * @return true if the childId concept is a kind of the ancestorId concept
      * according to the constraints of the {@code TaxonomyCoordinate}
      */
-    boolean isKindOf(int childId, int ancestorId, TaxonomyCoordinate tc);
+    boolean isKindOf(int childId, int ancestorId, TaxonomyCoordinate<?> tc);
 
     /**
      * Method to determine if a concept was ever a kind of another, without
@@ -65,9 +65,9 @@ public interface TaxonomyService {
      */
     boolean wasEverKindOf(int childId, int parentId);
 
-    ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc);
+    ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate<?> tc);
 
-    ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc);
+    ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -75,7 +75,7 @@ public interface TaxonomyService {
      * @param tc coordinate used to compute the taxonomy
      * @return the ancestor concept sequences for the childId concept.
      */
-    ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate tc);
+    ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -85,7 +85,7 @@ public interface TaxonomyService {
      * relationships, or {@code IntStream.empty()} if there are no such
      * relationships.
      */
-    IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate tc);
+    IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate<?>tc);
 
     /**
      *
@@ -97,13 +97,13 @@ public interface TaxonomyService {
      * circular, or {@code IntStream.empty()} if there are no such
      * relationships.
      */
-    IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc);
+    IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate<?>tc);
 
-    IntStream getAllRelationshipOriginSequences(int destinationId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipOriginSequences(int destinationId, TaxonomyCoordinate<?> tc);
 
     IntStream getAllRelationshipOriginSequences(int destinationId);
 
-    IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -125,7 +125,7 @@ public interface TaxonomyService {
      * @return conceptSequences of all relationship destination concepts
      * (including is-a relationships)
      */
-    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -137,11 +137,11 @@ public interface TaxonomyService {
      * relationships
      * @return
      */
-    IntStream getAllRelationshipDestinationSequencesNotOfType(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipDestinationSequencesNotOfType(int originId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate<?> tc);
 
     IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
 
-    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc);
+    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate<?> tc);
 
     IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
 
@@ -154,17 +154,17 @@ public interface TaxonomyService {
      * @return concept sequences of all relationship types between the origin
      * and destination that meet the taxonomy coordinate criterion.
      */
-    IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate tc);
+    IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate<?> tc);
 
-    IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc);
+    IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate<?> tc);
 
     IntStream getTaxonomyChildSequences(int parentId);
 
-    IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc);
+    IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate<?> tc);
 
     IntStream getTaxonomyParentSequences(int childId);
 
-    IntStream getRoots(TaxonomyCoordinate sc);
+    IntStream getRoots(TaxonomyCoordinate<?> sc);
 
     /**
      * Update the taxonomy by extracting relationships from the logical
