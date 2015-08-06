@@ -22,7 +22,7 @@ import java.io.IOException;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
 /**
- * {@link RefexDynamicDataBI}
+ * {@link DynamicSememeDataBI}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -32,21 +32,21 @@ public interface DynamicSememeDataBI {
      *         probably don't want this method unless you are doing something clever.... 
      *         For a getData() method that doesn't require deserialization, see the {@link #getDataObject()} method. 
      *         For a method that doesn't require casting the output, see the getDataXXX() method available within 
-     *         implementations of the {@link RefexDynamicDataBI} interface.
+     *         implementations of the {@link DynamicSememeDataBI} interface.
      */
     public byte[] getData();
 
     /**
      * @return The data object itself. 
      *         For a getData() method that doesn't  require casting of the output, see the getDataXXX() method
-     *         available within implementations of the {@link RefexDynamicDataBI} interface.
+     *         available within implementations of the {@link DynamicSememeDataBI} interface.
      */
     public Object getDataObject();
     
     /**
      * @return The data object itself. 
      *         For a getDataProperty() method that doesn't  require casting of the output, see the getDataXXXProperty() methods
-     *         available within implementations of the {@link RefexDynamicDataBI} interface.
+     *         available within implementations of the {@link DynamicSememeDataBI} interface.
      * @throws ContradictionException 
      * @throws IOException 
      */
@@ -59,7 +59,7 @@ public interface DynamicSememeDataBI {
 
 //TODO DAN see if this can go away
 //    /**
-//     * This is only intended to be used by {@link RefexDynamicCAB}. 
+//     * This is only intended to be used by {@link DynamicSememeCAB}. 
 //     * Please ignore.
 //     * @param name
 //     */

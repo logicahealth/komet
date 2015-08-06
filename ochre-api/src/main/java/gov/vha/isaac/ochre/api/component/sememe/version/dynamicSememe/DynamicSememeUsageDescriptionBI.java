@@ -19,6 +19,7 @@
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphicBI;
@@ -74,19 +75,19 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * This class provides an implementation for parsing the interesting bits out of an assemblage concept.
  * 
  * For an implementation on creating them, 
- * See {@link org.ihtsdo.otf.tcc.model.cc.refexDynamic.data.DynamicSememeUsageDescriptionBuilder#createNewDynamicSememeUsageDescriptionConcept} 
+ * See {@link gov.vha.isaac.ochre.impl.sememe.DynamicSememeUtility#createNewDynamicSememeUsageDescriptionConcept} 
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeUsageDescriptionBI
 {
 	/**
-	 * @return The nid of the concept that the rest of the attributes of this type were read from.
+	 * @return The sequence of the concept that the rest of the attributes of this type were read from.
 	 */
-	public int getDynamicSememeUsageDescriptorNid();
+	public int getDynamicSememeUsageDescriptorSequence();
 
 	/**
-	 * @return A user-friendly description of the overall purpose of this Refex.
+	 * @return A user-friendly description of the overall purpose of this Dynamic Sememe.
 	 */
 	public String getDynamicSememeUsageDescription();
 
@@ -103,26 +104,22 @@ public interface DynamicSememeUsageDescriptionBI
 	 * These arrays will be the same size, and in the same order.  Will not return null.
 	 * @return the column information
 	 */
-	public DynamicSememeColumnInfoBI[] getColumnInfo();
+	public DynamicSememeColumnInfo[] getColumnInfo();
 
 	
 	/**
-	 * Return the {@link ObjectChronologyType} of the restriction on referenced components for this refex (if any - may return null)
+	 * Return the {@link ObjectChronologyType} of the restriction on referenced components for this sememe (if any - may return null)
 	 * 
-	 * If there is a restriction, the nid set for the component type of this refex must resolve to the matching type.
+	 * If there is a restriction, the nid set for the component type of this sememe must resolve to the matching type.
 	 */
 	public ObjectChronologyType getReferencedComponentTypeRestriction();
-
 	
 	/**
-	 * @see java.lang.Object#hashCode()
+	 * Return the {@link SememeType} of the sub restriction on referenced components for this DynamicSememe (if any - may return null)
+	 * 
+	 * If there is a restriction, the nid set for the component type of this DynamicSememe must resolve to the matching type.
+	 * 
+	 * This is only applicable when {@link #getReferencedComponentTypeRestriction()} returns {@link ObjectChronologyType#SEMEME}
 	 */
-	@Override
-	public int hashCode();
-
-	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj);
+	public SememeType getReferencedComponentTypeSubRestriction();
 }

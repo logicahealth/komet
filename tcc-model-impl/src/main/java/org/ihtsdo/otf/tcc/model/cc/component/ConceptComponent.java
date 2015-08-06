@@ -81,8 +81,6 @@ import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexService;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
 /**
@@ -240,7 +238,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (eComponent.getAnnotationsDynamic() != null) {
 
             for (TtkRefexDynamicMemberChronicle eAnnot : eComponent.getAnnotationsDynamic()) {
-                RefexDynamicMember annot = RefexDynamicMemberFactory.create(eAnnot, enclosingConceptNid);
+//                RefexDynamicMember annot = RefexDynamicMemberFactory.create(eAnnot, enclosingConceptNid);
 //TODO dan I assume things have to go into the sememe service somehow here?
 
             }

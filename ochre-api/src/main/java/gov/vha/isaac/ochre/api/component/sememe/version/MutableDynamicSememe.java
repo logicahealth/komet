@@ -24,29 +24,15 @@ import java.beans.PropertyVetoException;
  */
 public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>> extends MutableSememeVersion<T>, DynamicSememe<T> {
     /**
-     * Set all of the data columns that are part of this Refex. See
-     * {@link #setData(int, RefexMemberBI)}
+     * Set the data (if any) for the DynamicSememe.
+     * 
+     * For a DyanamicSememe that is only establishing membership, there will be no data columns.
+     * 
+     * If there is one or more data columns associated with a DynamicSememe membership, then the type of each of data columns would 
+     * be an extension of {@link DynamicSememeDataBI}
      * 
      * @param data
      * @throws PropertyVetoException
      */
     void setData(DynamicSememeDataBI[] data) throws PropertyVetoException;
-
-    /**
-     * Set the data (if any) in the specified column of the Refex.
-     * 
-     * For a Refex that is only establishing membership, there will be no data
-     * columns.
-     * 
-     * If there is one or more data columns associated with a Refex membership,
-     * then the type of each of data columns would be an extension of
-     * {@link DynamicSememeDataBI}
-     * 
-     * @param columnNumber
-     * @param data
-     * @throws IndexOutOfBoundsException
-     * @throws PropertyVetoException
-     */
-    void setData(int columnNumber, DynamicSememeDataBI data) throws IndexOutOfBoundsException, PropertyVetoException;
-    
 }

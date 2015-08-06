@@ -22,8 +22,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
 
-public class TtkRefexDynamicMemberChronicle extends 
-        TtkComponentChronicle<TtkRefexDynamicRevision, StampedVersion>
+public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRefexDynamicRevision, StampedVersion>
 {
 	public static final long serialVersionUID = 1;
 

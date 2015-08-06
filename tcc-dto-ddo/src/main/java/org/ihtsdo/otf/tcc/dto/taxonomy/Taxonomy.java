@@ -41,8 +41,8 @@ import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
 import org.ihtsdo.otf.tcc.dto.Wrapper;
 
-import gov.vha.isaac.ochre.api.ConceptConstant;
-import gov.vha.isaac.ochre.api.ConceptConstantGroup;
+import gov.vha.isaac.ochre.api.MetadataConceptConstant;
+import gov.vha.isaac.ochre.api.MetadataConceptConstantGroup;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -129,7 +129,7 @@ public class Taxonomy {
       return cb;
    }
    
-   protected ConceptCB createConcept(ConceptConstant cc) throws Exception {
+   protected ConceptCB createConcept(MetadataConceptConstant cc) throws Exception {
        ConceptCB cab = createConcept(cc.getFSN());
        cab.setPreferredName(cc.getPreferredSynonym());
        cab.setComponentUuidNoRecompute(cc.getUUID());
@@ -164,13 +164,13 @@ public class Taxonomy {
        concept.addDescriptionCAB(dCab);
    }
    
-   protected ConceptCB createConcept(ConceptConstantGroup ccg) throws Exception {
-       ConceptCB temp = createConcept((ConceptConstant)ccg);
+   protected ConceptCB createConcept(MetadataConceptConstantGroup ccg) throws Exception {
+       ConceptCB temp = createConcept((MetadataConceptConstant)ccg);
        
        pushParent(current());
-       for (ConceptConstant cc : ccg.getChildren()) {
-           if (cc instanceof ConceptConstantGroup) {
-               createConcept((ConceptConstantGroup)cc);
+       for (MetadataConceptConstant cc : ccg.getChildren()) {
+           if (cc instanceof MetadataConceptConstantGroup) {
+               createConcept((MetadataConceptConstantGroup)cc);
            }
            else {
                createConcept(cc);

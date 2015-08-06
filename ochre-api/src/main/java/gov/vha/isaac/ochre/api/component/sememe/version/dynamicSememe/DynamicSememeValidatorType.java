@@ -355,7 +355,7 @@ public enum DynamicSememeValidatorType
 		}
 		else
 		{
-			Number userDataNumber = readNumber(userData);
+			Number userDataNumber = NumericUtils.readNumber(userData);
 			Number validatorDefinitionDataNumber;
 			if (this == DynamicSememeValidatorType.INTERVAL)
 			{
@@ -398,14 +398,14 @@ public enum DynamicSememeValidatorType
 				if (pos == 0)
 				{
 					//left is null (- infinity)
-					right = parseUnknown(numeric.substring(1, numeric.length()));
+					right = NumericUtils.parseUnknown(numeric.substring(1, numeric.length()));
 				}
 				else if (pos > 0)
 				{
-					left = parseUnknown(numeric.substring(0, pos));
+					left = NumericUtils.parseUnknown(numeric.substring(0, pos));
 					if (numeric.length() > (pos + 1))
 					{
-						right = parseUnknown(numeric.substring(pos + 1));
+						right = NumericUtils.parseUnknown(numeric.substring(pos + 1));
 					}
 				}
 				else
@@ -416,7 +416,7 @@ public enum DynamicSememeValidatorType
 				//make sure interval is properly specified
 				if (left != null && right != null)
 				{
-					if (compare(left, right) > 0)
+					if (NumericUtils.compare(left, right) > 0)
 					{
 						throw new RuntimeException("Invalid INTERVAL definition the left value should be <= the right value");
 					}
@@ -424,7 +424,7 @@ public enum DynamicSememeValidatorType
 
 				if (left != null)
 				{
-					int compareLeft = compare(userDataNumber, left);
+					int compareLeft = NumericUtils.compare(userDataNumber, left);
 					if ((!leftInclusive && compareLeft == 0) || compareLeft < 0)
 					{
 						return false;
@@ -432,7 +432,7 @@ public enum DynamicSememeValidatorType
 				}
 				if (right != null)
 				{
-					int compareRight = compare(userDataNumber, right);
+					int compareRight = NumericUtils.compare(userDataNumber, right);
 					if ((!rightInclusive && compareRight == 0) || compareRight > 0)
 					{
 						return false;
@@ -442,8 +442,8 @@ public enum DynamicSememeValidatorType
 			}
 			else
 			{
-				validatorDefinitionDataNumber = readNumber(validatorDefinitionData);
-				int compareResult = compare(userDataNumber, validatorDefinitionDataNumber);
+				validatorDefinitionDataNumber = NumericUtils.readNumber(validatorDefinitionData);
+				int compareResult = NumericUtils.compare(userDataNumber, validatorDefinitionDataNumber);
 
 				switch (this)
 				{
@@ -493,100 +493,4 @@ public enum DynamicSememeValidatorType
 			return e.getMessage();
 		}
 	}
-
-	private static Number parseUnknown(String value)
-	{
-		try
-		{
-			return Integer.parseInt(value);
-		}
-		catch (Exception e)
-		{
-			//noop
-		}
-		try
-		{
-			return Long.parseLong(value);
-		}
-		catch (Exception e)
-		{
-			//noop
-		}
-		try
-		{
-			return Float.parseFloat(value);
-		}
-		catch (Exception e)
-		{
-			//noop
-		}
-		try
-		{
-			return Double.parseDouble(value);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException("Unexpected data passed in to parseUnknown (" + value + ")");
-		}
-	}
-
-	private static Number readNumber(DynamicSememeDataBI value)
-	{
-		if (value instanceof DynamicSememeDoubleBI)
-		{
-			return Double.valueOf(((DynamicSememeDoubleBI) value).getDataDouble());
-		}
-		else if (value instanceof DynamicSememeFloatBI)
-		{
-			return Float.valueOf(((DynamicSememeFloatBI) value).getDataFloat());
-		}
-		else if (value instanceof DynamicSememeIntegerBI)
-		{
-			return Integer.valueOf(((DynamicSememeIntegerBI) value).getDataInteger());
-		}
-		else if (value instanceof DynamicSememeLongBI)
-		{
-			return Long.valueOf(((DynamicSememeLongBI) value).getDataLong());
-		}
-		else
-		{
-			throw new RuntimeException("The value passed in to the validator is not a number");
-		}
-	}
-
-	private static int compare(final Number x, final Number y)
-	{
-		if (isSpecial(x) || isSpecial(y))
-		{
-			return Double.compare(x.doubleValue(), y.doubleValue());
-		}
-		else
-		{
-			return toBigDecimal(x).compareTo(toBigDecimal(y));
-		}
-	}
-
-	private static boolean isSpecial(final Number x)
-	{
-		boolean specialDouble = x instanceof Double && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
-		boolean specialFloat = x instanceof Float && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
-		return specialDouble || specialFloat;
-	}
-
-	private static BigDecimal toBigDecimal(final Number number)
-	{
-		if (number instanceof Integer || number instanceof Long)
-		{
-			return new BigDecimal(number.longValue());
-		}
-		else if (number instanceof Float || number instanceof Double)
-		{
-			return new BigDecimal(number.doubleValue());
-		}
-		else
-		{
-			throw new RuntimeException("Unexpected data type passed in to toBigDecimal (" + number.getClass() + ")");
-		}
-	}
-	
 }
