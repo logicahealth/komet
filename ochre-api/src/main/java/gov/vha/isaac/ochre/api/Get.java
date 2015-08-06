@@ -241,7 +241,7 @@ public class Get implements OchreCache {
         return sememeService;
     }
 
-    public static SememeBuilderService sememeBuilderService() {
+    public static SememeBuilderService<? extends SememeChronology<? extends SememeVersion<?>>> sememeBuilderService() {
         if (sememeBuilderService == null) {
             sememeBuilderService = LookupService.getService(SememeBuilderService.class);
         }
