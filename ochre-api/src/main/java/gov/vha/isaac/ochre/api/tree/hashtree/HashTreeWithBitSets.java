@@ -5,8 +5,11 @@
  */
 package gov.vha.isaac.ochre.api.tree.hashtree;
 
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.SequenceSet;
+import java.util.Arrays;
 import java.util.stream.IntStream;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
  * A {@code Tree} implemented using a {@code OpenIntObjectHashMap<int[]>}.
@@ -14,27 +17,35 @@ import java.util.stream.IntStream;
  * @author kec
  */
 public class HashTreeWithBitSets extends AbstractHashTree {
-    final SequenceSet<?> conceptSequencesWithParents;
-    final SequenceSet<?> conceptSequencesWithChildren;
-    final SequenceSet<?> conceptSequences;
+    final ConceptSequenceSet conceptSequencesWithParents;
+    final ConceptSequenceSet conceptSequencesWithChildren;
+    final ConceptSequenceSet conceptSequences;
 
     public HashTreeWithBitSets() {
-        conceptSequencesWithParents = new SequenceSet<>();
-        conceptSequencesWithChildren = new SequenceSet<>();
-        conceptSequences = new SequenceSet<>();
+        conceptSequencesWithParents = new ConceptSequenceSet();
+        conceptSequencesWithChildren = new ConceptSequenceSet();
+        conceptSequences = new ConceptSequenceSet();
     }
 
     public HashTreeWithBitSets(int initialSize) {
-        conceptSequencesWithParents = new SequenceSet<>();
-        conceptSequencesWithChildren = new SequenceSet<>();
-        conceptSequences = new SequenceSet<>();
+        conceptSequencesWithParents = new ConceptSequenceSet();
+        conceptSequencesWithChildren = new ConceptSequenceSet();
+        conceptSequences = new ConceptSequenceSet();
     }
 
 
     public void addChildren(int parentSequence, int[] childSequenceArray) {
         maxSequence = Math.max(parentSequence, maxSequence);
         if (childSequenceArray.length > 0) {
-            parentSequence_ChildSequenceArray_Map.put(parentSequence, childSequenceArray);
+            if (!parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+                parentSequence_ChildSequenceArray_Map.put(parentSequence, childSequenceArray);
+            } else {
+                OpenIntHashSet combinedSet = new OpenIntHashSet();
+                Arrays.stream(parentSequence_ChildSequenceArray_Map.get(parentSequence)).forEach((sequence) -> combinedSet.add(sequence));
+                Arrays.stream(childSequenceArray).forEach((sequence) -> combinedSet.add(sequence));
+                parentSequence_ChildSequenceArray_Map.put(parentSequence,combinedSet.keys().elements());
+            }
+            
             IntStream.of(childSequenceArray).forEach((int sequence) -> {
                 conceptSequences.add(sequence);
             });
@@ -47,6 +58,15 @@ public class HashTreeWithBitSets extends AbstractHashTree {
     public void addParents(int childSequence, int[] parentSequenceArray) {
         maxSequence = Math.max(childSequence, maxSequence);
         if (parentSequenceArray.length > 0) {
+            if (!childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
+                childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
+            } else {
+                OpenIntHashSet combinedSet = new OpenIntHashSet();
+                Arrays.stream(childSequence_ParentSequenceArray_Map.get(childSequence)).forEach((sequence) -> combinedSet.add(sequence));
+                Arrays.stream(parentSequenceArray).forEach((sequence) -> combinedSet.add(sequence));
+                childSequence_ParentSequenceArray_Map.put(childSequence,combinedSet.keys().elements());
+            }
+
             childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
             IntStream.of(parentSequenceArray).forEach((int sequence) -> {
                 conceptSequences.add(sequence);

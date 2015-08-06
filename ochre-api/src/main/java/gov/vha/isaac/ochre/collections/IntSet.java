@@ -304,14 +304,17 @@ public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         int limit = 20;
-        stream().limit(limit).forEach((stampSequence) -> {
-            sb.append(function.apply(stampSequence));
+        stream().limit(limit).forEach((element) -> {
+            sb.append(function.apply(element));
+            sb.append("<");
+            sb.append(element);
+            sb.append(">");
             sb.append(", ");
         } );
         if (size() > 20) {
              sb.append("...");
         } else {
-            sb.delete(sb.length() - 2, sb.length() - 1);
+            sb.delete(sb.length() - 2, sb.length());
         }
         sb.append("]");
         return this.getClass().getSimpleName()
