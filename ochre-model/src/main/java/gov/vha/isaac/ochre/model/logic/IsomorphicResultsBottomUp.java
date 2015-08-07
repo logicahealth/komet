@@ -57,8 +57,8 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
      */
     IsomorphicSolution isomorphicSolution;
 
-    SequenceSet comparisonDeletionRoots = new SequenceSet();
-    SequenceSet referenceAdditionRoots = new SequenceSet();
+    SequenceSet<?> comparisonDeletionRoots = new SequenceSet<>();
+    SequenceSet<?> referenceAdditionRoots = new SequenceSet<>();
 
     TreeNodeVisitData referenceVisitData;
     TreeNodeVisitData comparisonVisitData;
@@ -88,21 +88,21 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
 
     @Override
     public Stream<Node> getDeletedRelationshipRoots() {
-        TreeSet<RelationshipKey> deletedRelationshipRoots = new TreeSet(comparisonRelationshipNodesMap.keySet());
+        TreeSet<RelationshipKey> deletedRelationshipRoots = new TreeSet<>(comparisonRelationshipNodesMap.keySet());
         deletedRelationshipRoots.removeAll(referenceRelationshipNodesMap.keySet());
         return deletedRelationshipRoots.stream().map((RelationshipKey key) -> comparisonExpression.getNode(comparisonRelationshipNodesMap.get(key)));
     }
 
     @Override
     public Stream<Node> getAddedRelationshipRoots() {
-        TreeSet<RelationshipKey> addedRelationshipRoots = new TreeSet(referenceRelationshipNodesMap.keySet());
+        TreeSet<RelationshipKey> addedRelationshipRoots = new TreeSet<>(referenceRelationshipNodesMap.keySet());
         addedRelationshipRoots.removeAll(comparisonRelationshipNodesMap.keySet());
         return addedRelationshipRoots.stream().map((RelationshipKey key) -> referenceExpression.getNode(referenceRelationshipNodesMap.get(key)));
     }
 
     @Override
     public Stream<Node> getSharedRelationshipRoots() {
-        TreeSet<RelationshipKey> sharedRelationshipRoots = new TreeSet(referenceRelationshipNodesMap.keySet());
+        TreeSet<RelationshipKey> sharedRelationshipRoots = new TreeSet<>(referenceRelationshipNodesMap.keySet());
         sharedRelationshipRoots.retainAll(comparisonRelationshipNodesMap.keySet());
         return sharedRelationshipRoots.stream().map((RelationshipKey key) -> referenceExpression.getNode(referenceRelationshipNodesMap.get(key)));
     }
@@ -118,8 +118,8 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
     }
     
     private void computeAdditions() {
-        SequenceSet nodesInSolution = new SequenceSet();
-        SequenceSet nodesNotInSolution = new SequenceSet();
+        SequenceSet<?> nodesInSolution = new SequenceSet<>();
+        SequenceSet<?> nodesNotInSolution = new SequenceSet<>();
         for (int i = 0; i < isomorphicSolution.getSolution().length; i++) {
             if (isomorphicSolution.getSolution()[i] >= 0) {
                 nodesInSolution.add(i);
@@ -137,13 +137,13 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
     }
 
     private void computeDeletions() {
-        SequenceSet comparisonNodesInSolution = new SequenceSet();
+        SequenceSet<?> comparisonNodesInSolution = new SequenceSet<>();
         Arrays.stream(isomorphicSolution.getSolution()).forEach((nodeId) -> {
             if (nodeId >= 0) {
                 comparisonNodesInSolution.add(nodeId);
             }
         });
-        SequenceSet comparisonNodesNotInSolution = new SequenceSet();
+        SequenceSet<?> comparisonNodesNotInSolution = new SequenceSet<>();
         IntStream.range(0, comparisonVisitData.getNodesVisited())
                 .forEach((nodeId) -> {
                     if (!comparisonNodesInSolution.contains(nodeId)) {
@@ -200,7 +200,7 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
             }
         }
 
-        SequenceSet nodesProcessed = new SequenceSet();
+        SequenceSet<?> nodesProcessed = new SequenceSet<>();
         Set<IsomorphicSolution> possibleSolutions = new HashSet<>();
         int[] seedSolution = new int[referenceExpression.getNodeCount()];
         Arrays.fill(seedSolution, -1);
@@ -232,11 +232,11 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
         possibleSolutions.add(new IsomorphicSolution(seedSolution, referenceVisitData, comparisonVisitData));
 
         Map<Integer, SortedSet<IsomorphicSearchBottomUpNode>> possibleMatches = new TreeMap<>();
-        SequenceSet nodesToTry = referenceVisitData.getLeafNodes();
+        SequenceSet<?> nodesToTry = referenceVisitData.getLeafNodes();
 
         while (!nodesToTry.isEmpty()) {
             possibleMatches.clear();
-            SequenceSet nextSetToTry = new SequenceSet();
+            SequenceSet<?> nextSetToTry = new SequenceSet<>();
 
 
 

@@ -23,12 +23,12 @@ public interface LanguageCoordinate {
     Optional<LatestVersion<DescriptionSememe<?>>> 
         getFullySpecifiedDescription(
                 List<SememeChronology<DescriptionSememe<?>>> descriptionList,
-                StampCoordinate stampCoordinate);
+                StampCoordinate<?> stampCoordinate);
     
      Optional<LatestVersion<DescriptionSememe<?>>> 
         getPreferredDescription(
                 List<SememeChronology<DescriptionSememe<?>>> descriptionList,
-                StampCoordinate stampCoordinate);
+                StampCoordinate<?> stampCoordinate);
     
     /**
      * Return the description according to the type and dialect preferences 
@@ -41,7 +41,7 @@ public interface LanguageCoordinate {
      Optional<LatestVersion<DescriptionSememe<?>>> 
         getDescription(
                 List<SememeChronology<DescriptionSememe<?>>> descriptionList,
-                StampCoordinate stampCoordinate);
+                StampCoordinate<?> stampCoordinate);
     
     
 }

@@ -58,7 +58,7 @@ public class RelationshipAdaptorChronologyImpl
      */
     private final int referencedComponentNid;
 
-    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList();
+    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList<>();
 
     public RelationshipAdaptorChronologyImpl(int nid, int referencedComponentNid) {
         this.nid = nid;
@@ -75,7 +75,7 @@ public class RelationshipAdaptorChronologyImpl
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<?> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -95,17 +95,17 @@ public class RelationshipAdaptorChronologyImpl
 
     @Override
     public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public <SV extends SememeVersion> List<? extends SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
-         return Collections.EMPTY_LIST;
+         return Collections.emptyList();
     }
 
     @Override

@@ -1,12 +1,11 @@
 package gov.vha.isaac.ochre.model.logic;
 
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
-import org.apache.mahout.math.function.IntObjectProcedure;
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
-import org.apache.mahout.math.set.OpenIntHashSet;
-import org.roaringbitmap.RoaringBitmap;
 
 import java.util.Arrays;
+
+import org.apache.mahout.math.map.OpenIntObjectHashMap;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
  * Created by kec on 7/19/15.

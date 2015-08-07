@@ -39,7 +39,7 @@ import javafx.collections.SetChangeListener;
  *
  * @author kec
  */
-public class StampCoordinateImpl implements StampCoordinate<StampCoordinate> {
+public class StampCoordinateImpl implements StampCoordinate<StampCoordinateImpl> {
 
     StampPrecedence stampPrecedence;
     StampPosition stampPosition;
@@ -119,13 +119,13 @@ public class StampCoordinateImpl implements StampCoordinate<StampCoordinate> {
     
 
     @Override
-    public StampCoordinate makeAnalog(long stampPositionTime) {
+    public StampCoordinateImpl makeAnalog(long stampPositionTime) {
         StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime, stampPosition.getStampPathSequence());
         return new StampCoordinateImpl(stampPrecedence, anotherStampPosition, moduleSequences, allowedStates);
     }
 
     @Override
-    public StampCoordinate makeAnalog(State... states) {
+    public StampCoordinateImpl makeAnalog(State... states) {
         EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
         newAllowedStates.addAll(Arrays.asList(states));
         return new StampCoordinateImpl(stampPrecedence, stampPosition, moduleSequences, newAllowedStates);

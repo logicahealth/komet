@@ -16,15 +16,16 @@
 package gov.vha.isaac.ochre.model.logic.definition;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
-import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.logic.assertions.AllRole;
 import gov.vha.isaac.ochre.api.logic.assertions.Assertion;
 import gov.vha.isaac.ochre.api.logic.assertions.ConceptAssertion;
 import gov.vha.isaac.ochre.api.logic.assertions.Feature;
+import gov.vha.isaac.ochre.api.logic.assertions.LogicalSet;
 import gov.vha.isaac.ochre.api.logic.assertions.NecessarySet;
 import gov.vha.isaac.ochre.api.logic.assertions.SomeRole;
 import gov.vha.isaac.ochre.api.logic.assertions.SufficientSet;
@@ -47,9 +48,6 @@ import gov.vha.isaac.ochre.api.logic.assertions.substitution.IntegerSubstitution
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.StringSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-import gov.vha.isaac.ochre.api.logic.assertions.LogicalSet;
-import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionAssertion;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.LiteralNodeBoolean;
 import gov.vha.isaac.ochre.model.logic.node.LiteralNodeFloat;
@@ -67,6 +65,7 @@ import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithSequences;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +74,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.apache.mahout.math.map.OpenShortObjectHashMap;
 
 /**
@@ -217,7 +217,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public DisjointWith disjointWith(ConceptChronology conceptChronology) {
+    public DisjointWith disjointWith(ConceptChronology<?> conceptChronology) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
         axiomParameters.put(axiom.getIndex(), conceptChronology);
@@ -234,7 +234,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public ConceptAssertion conceptAssertion(ConceptChronology conceptChronology) {
+    public ConceptAssertion conceptAssertion(ConceptChronology<?> conceptChronology) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
         axiomParameters.put(axiom.getIndex(), conceptChronology);
@@ -242,7 +242,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public AllRole allRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
+    public AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
         addToDefinitionTree(axiom, roleRestriction);
@@ -251,7 +251,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
+    public Feature feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
         addToDefinitionTree(axiom, literal);
@@ -260,7 +260,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public SomeRole someRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
+    public SomeRole someRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
         addToDefinitionTree(axiom, roleRestriction);
@@ -269,7 +269,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public Template template(ConceptChronology templateChronology, ConceptChronology assemblageToPopulateTemplateConcept) {
+    public Template template(ConceptChronology<?> templateChronology, ConceptChronology<?> assemblageToPopulateTemplateConcept) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
         axiomParameters.put(axiom.getIndex(), new Object[]{templateChronology, assemblageToPopulateTemplateConcept});
@@ -419,7 +419,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.Feature((Integer) axiomParameters.get(axiom.getIndex()),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
                 }
-                ConceptChronology featureTypeProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
+                ConceptChronology<?> featureTypeProxy = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
                 return definition.Feature(featureTypeProxy.getNid(),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
             case CONCEPT:
@@ -429,7 +429,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                 if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
                     return definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getConceptSequence());
                 }
-                ConceptChronology conceptProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
+                ConceptChronology<?> conceptProxy = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
                 return definition.Concept(conceptProxy.getConceptSequence());
             case ROLE_ALL:
                 if (axiomParameters.get(axiom.getIndex()) instanceof Integer) {
@@ -440,7 +440,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.AllRole(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getNid(),
                             addToDefinition(definitionTree.get(axiom).get(0), definition));
                 }
-                ConceptChronology roleTypeProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
+                ConceptChronology<?> roleTypeProxy = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
                 return definition.AllRole(roleTypeProxy.getNid(),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
             case ROLE_SOME:
@@ -452,7 +452,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.SomeRole(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getNid(),
                             addToDefinition(definitionTree.get(axiom).get(0), definition));
                 }
-                roleTypeProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
+                roleTypeProxy = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
                 return definition.SomeRole(roleTypeProxy.getNid(),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
             case TEMPLATE:
@@ -467,8 +467,8 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.Template(templateConceptProxy.getConceptSequence(),
                             assemblageToPopulateTemplateConceptProxy.getConceptSequence());
                 }
-                ConceptChronology templateConceptProxy = (ConceptChronology) params[0];
-                ConceptChronology assemblageToPopulateTemplateConceptProxy = (ConceptChronology) params[1];
+                ConceptChronology<?> templateConceptProxy = (ConceptChronology<?>) params[0];
+                ConceptChronology<?> assemblageToPopulateTemplateConceptProxy = (ConceptChronology<?>) params[1];
                 return definition.Template(templateConceptProxy.getConceptSequence(),
                         assemblageToPopulateTemplateConceptProxy.getConceptSequence());
             case DISJOINT_WITH:
@@ -478,7 +478,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                 if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
                     return definition.DisjointWith(definition.Concept(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getConceptSequence()));
                 }
-                ConceptChronology disjointConceptProxy = (ConceptChronology) axiomParameters.get(axiom.getIndex());
+                ConceptChronology<?> disjointConceptProxy = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
                 return definition.DisjointWith(definition.Concept(disjointConceptProxy.getConceptSequence()));
             case LITERAL_BOOLEAN:
                 boolean booleanLiteral = (Boolean) axiomParameters.get(axiom.getIndex());

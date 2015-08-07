@@ -60,12 +60,12 @@ public interface ConceptService {
     
     void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept);
 
-    boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
+    boolean isConceptActive(int conceptSequence, StampCoordinate<?> stampCoordinate);
     
-    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
+    ConceptSnapshotService getSnapshot(StampCoordinate<?> stampCoordinate, LanguageCoordinate languageCoordinate);
     
     @Deprecated
-    default ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate) {
+    default ConceptSnapshotService getSnapshot(StampCoordinate<?> stampCoordinate) {
         return getSnapshot(stampCoordinate, Get.configurationService().getDefaultLanguageCoordinate());
     }
     

@@ -1447,7 +1447,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
+    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
        return concept.getConceptDescriptionList();
     }
 
@@ -1527,7 +1527,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
 

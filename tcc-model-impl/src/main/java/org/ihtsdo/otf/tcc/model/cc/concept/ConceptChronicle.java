@@ -1957,8 +1957,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
-        return getDescriptions().stream().collect(Collectors.toList());
+    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+    	List<? extends SememeChronology<? extends DescriptionSememe>> list = getDescriptions().stream().collect(Collectors.toList());
+        return (List<? extends SememeChronology<? extends DescriptionSememe<?>>>)list;
     }
 
     @Override
@@ -2048,15 +2049,15 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
             assemblageSequence = logicCoordinate.getInferredAssemblageSequence();
         } else {
             assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
         }
-        return Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate)
-                .getLatestSememeVersion(assemblageSequence);
+        Optional<?> optional = Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate).getLatestSememeVersion(assemblageSequence);
+        return (Optional<LatestVersion<LogicGraphSememe<?>>>)optional;
     }
 
     @Override

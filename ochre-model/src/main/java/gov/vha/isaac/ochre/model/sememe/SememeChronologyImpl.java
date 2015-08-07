@@ -176,25 +176,25 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
         return referencedComponentNid;
     }
 
-    public static SememeVersionImpl createSememe(byte token, SememeChronologyImpl container,
+    public static SememeVersionImpl<?> createSememe(byte token, SememeChronologyImpl<?> container,
             int stampSequence, short versionSequence, DataBuffer bb) {
 
         SememeType st = SememeType.getFromToken(token);
         switch (st) {
             case MEMBER:
-                return new SememeVersionImpl(container, stampSequence, versionSequence);
+                return (SememeVersionImpl<?>)new SememeVersionImpl(container, stampSequence, versionSequence);
             case COMPONENT_NID:
-                return new ComponentNidSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>)container, stampSequence, versionSequence, bb);
             case LONG:
-                return new LongSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>)container, stampSequence, versionSequence, bb);
             case LOGIC_GRAPH:
-                return new LogicGraphSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>)container, stampSequence, versionSequence, bb);
             case DYNAMIC:
-                return new DynamicSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>)container, stampSequence, versionSequence, bb);
             case STRING:
-                return new StringSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>)container, stampSequence, versionSequence, bb);
             case DESCRIPTION:
-                return new DescriptionSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)(new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>)container, stampSequence, versionSequence, bb));
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }

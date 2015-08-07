@@ -91,20 +91,20 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
 
     @Override
     public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
-            List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+            List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampCoordinate) {
         return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
                 Get.languageCoordinateService().getFullySpecifiedConceptSequence(), this);
     }
 
     @Override
     public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
-            List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+            List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampCoordinate) {
         return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
                 Get.languageCoordinateService().getSynonymConceptSequence(), this);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampCoordinate) {
         return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, 
                 descriptionList, this);
     }

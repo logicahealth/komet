@@ -28,7 +28,7 @@ public class ObservableConceptVersionImpl
     implements ObservableConceptVersion {
     
 
-    public ObservableConceptVersionImpl(ConceptVersionImpl stampedVersion, ObservableConceptChronology chronology) {
+    public ObservableConceptVersionImpl(ConceptVersionImpl stampedVersion, ObservableConceptChronology<ObservableConceptVersionImpl> chronology) {
         super(stampedVersion, chronology);
     }
 

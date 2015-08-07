@@ -97,7 +97,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
+    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
         return Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
     }
 
@@ -117,7 +117,7 @@ public class ConceptChronologyImpl
 
     @Override
     public String toUserString() {
-        List<? extends SememeChronology<? extends DescriptionSememe>> descList = getConceptDescriptionList();
+        List<? extends SememeChronology<? extends DescriptionSememe<?>>> descList = getConceptDescriptionList();
         if (descList.isEmpty()) {
             return "no description for concept: " + getUuidList() + " " + getConceptSequence()
                     + " " + getNid();
@@ -146,7 +146,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(
             StampCoordinate<?> stampCoordinate,
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
@@ -155,8 +155,8 @@ public class ConceptChronologyImpl
         } else {
             assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
         }
-        return Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate)
-                .getLatestSememeVersion(assemblageSequence);
+        Optional<?> optional = Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate).getLatestSememeVersion(assemblageSequence);
+        return (Optional<LatestVersion<LogicGraphSememe<?>>>)optional;
     }
     List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipList;
     List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipListDefaltCoordinate;

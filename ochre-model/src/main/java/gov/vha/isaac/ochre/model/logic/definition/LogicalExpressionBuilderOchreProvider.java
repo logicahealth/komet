@@ -39,7 +39,7 @@ public class LogicalExpressionBuilderOchreProvider implements LogicalExpressionB
     }
 
     @Override
-    public LogicalExpression fromSememe(LogicGraphSememe sememe) {
+    public LogicalExpression fromSememe(LogicGraphSememe<?> sememe) {
         return new LogicalExpressionOchreImpl(sememe.getGraphData(), DataSource.INTERNAL, sememe.getReferencedComponentNid());
     }
 }

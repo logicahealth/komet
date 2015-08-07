@@ -65,7 +65,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
      */
     boolean containsDescription(String descriptionText, StampCoordinate<?> stampCoordinate);
         
-    List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList();
+    List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
     
     Optional<LatestVersion<DescriptionSememe<?>>> 
         getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate);
@@ -92,7 +92,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
         getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate);
         
         
-    Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, 
+    Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate);
     
     /**

@@ -24,15 +24,15 @@ import java.util.UUID;
  *
  * @author kec
  */
-public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordinate> {
+public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordinateImpl> {
 
     PremiseType taxonomyType;
-    StampCoordinate<StampCoordinate> stampCoordinate;
+    StampCoordinate<?> stampCoordinate;
     LanguageCoordinate languageCoordinate;
     LogicCoordinate logicCoordinate;
     UUID uuid;
 
-    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate stampCoordinate,
+    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate<?> stampCoordinate,
                                   LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
         this.taxonomyType = taxonomyType;
         this.stampCoordinate = stampCoordinate;
@@ -50,7 +50,7 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordi
     }
 
     @Override
-    public StampCoordinate<StampCoordinate> getStampCoordinate() {
+    public StampCoordinate<?> getStampCoordinate() {
        return stampCoordinate;
     }
 
@@ -100,19 +100,19 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordi
     }
 
     @Override
-    public TaxonomyCoordinate makeAnalog(long stampPositionTime) {
+    public TaxonomyCoordinateImpl makeAnalog(long stampPositionTime) {
         return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate.makeAnalog(stampPositionTime),
                                   languageCoordinate, logicCoordinate);
     }
 
     @Override
-    public TaxonomyCoordinate makeAnalog(State... state) {
+    public TaxonomyCoordinateImpl makeAnalog(State... state) {
         return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate.makeAnalog(state),
                                   languageCoordinate, logicCoordinate);
     }
 
     @Override
-    public TaxonomyCoordinate<TaxonomyCoordinate> makeAnalog(PremiseType taxonomyType) {
+    public TaxonomyCoordinateImpl makeAnalog(PremiseType taxonomyType) {
         return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate,
                                   languageCoordinate, logicCoordinate);
     }

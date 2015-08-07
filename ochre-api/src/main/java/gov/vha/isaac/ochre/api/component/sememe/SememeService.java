@@ -32,7 +32,7 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface SememeService {
     <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType, 
-            StampCoordinate stampCoordinate);
+            StampCoordinate<?> stampCoordinate);
     
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     

@@ -17,10 +17,8 @@ package gov.vha.isaac.ochre.model.logic;
 
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import org.apache.mahout.math.function.IntProcedure;
-import org.apache.mahout.math.set.OpenIntHashSet;
 
-import java.util.Arrays;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
  *

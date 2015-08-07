@@ -108,17 +108,17 @@ public final class ObservableLanguageCoordinateImpl extends ObservableCoordinate
 
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate stampSequence) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampSequence) {
        return languageCoordinate.getFullySpecifiedDescription(descriptionList, stampSequence);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate stampSequence) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampSequence) {
        return languageCoordinate.getPreferredDescription(descriptionList, stampSequence);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampCoordinate) {
         return languageCoordinate.getDescription(descriptionList, stampCoordinate);
     }
     
