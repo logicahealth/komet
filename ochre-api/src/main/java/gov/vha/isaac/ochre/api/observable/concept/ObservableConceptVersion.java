@@ -6,9 +6,9 @@ import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 /**
  * Created by kec on 6/6/15.
  */
-public interface ObservableConceptVersion extends ObservableVersion, StampedVersion {
+public interface ObservableConceptVersion<T extends ObservableConceptVersion<T>> extends ObservableVersion, StampedVersion {
 
     @Override
-    ObservableConceptChronology<ObservableConceptVersion> getChronology(); 
+    ObservableConceptChronology<T> getChronology(); 
 
 }

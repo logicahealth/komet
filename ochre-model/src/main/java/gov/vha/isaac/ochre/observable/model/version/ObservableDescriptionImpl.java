@@ -39,7 +39,7 @@ public class ObservableDescriptionImpl
     
 
     public ObservableDescriptionImpl(DescriptionSememeImpl stampedVersion, 
-            ObservableSememeChronology chronology) {
+            ObservableSememeChronology<ObservableDescriptionImpl> chronology) {
         super(stampedVersion, chronology);
     }
     

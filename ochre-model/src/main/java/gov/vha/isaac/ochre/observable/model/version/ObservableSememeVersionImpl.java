@@ -50,8 +50,8 @@ public class ObservableSememeVersionImpl<V extends  ObservableSememeVersionImpl<
     }
 
     @Override
-    public ObservableSememeChronology getChronology() {
-        return (ObservableSememeChronology) chronology;
+    public ObservableSememeChronology<V> getChronology() {
+        return (ObservableSememeChronology<V>) chronology;
     }
     
 }
