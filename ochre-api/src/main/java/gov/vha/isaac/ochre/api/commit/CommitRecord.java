@@ -5,11 +5,12 @@
  */
 package gov.vha.isaac.ochre.api.commit;
 
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.time.Instant;
 import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.apache.mahout.math.set.AbstractIntSet;
-import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
  *
@@ -17,19 +18,25 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public class CommitRecord {
     protected Instant commitTime;
-    protected AbstractIntSet stampsInCommit;
+    protected StampSequenceSet stampsInCommit;
     protected AbstractIntIntMap stampAliases;
     protected String commitComment;
+    protected ConceptSequenceSet conceptsInCommit;
+    protected SememeSequenceSet sememesInCommit;
     
     public CommitRecord() {}
 
     public CommitRecord(Instant commitTime, 
-            OpenIntHashSet stampsInCommit, 
+            StampSequenceSet stampsInCommit, 
             OpenIntIntHashMap stampAliases, 
+            ConceptSequenceSet conceptsInCommit,
+            SememeSequenceSet sememesInCommit,
             String commitComment) {
         this.commitTime = commitTime;
-        this.stampsInCommit = stampsInCommit.copy();
+        this.stampsInCommit = StampSequenceSet.of(stampsInCommit);
         this.stampAliases = stampAliases.copy();
+        this.conceptsInCommit = ConceptSequenceSet.of(conceptsInCommit);
+        this.sememesInCommit = SememeSequenceSet.of(sememesInCommit);
         this.commitComment = commitComment;
     }
 
@@ -37,7 +44,7 @@ public class CommitRecord {
         return commitTime;
     }
 
-    public AbstractIntSet getStampsInCommit() {
+    public StampSequenceSet getStampsInCommit() {
         return stampsInCommit;
     }
 
@@ -47,6 +54,14 @@ public class CommitRecord {
 
     public String getCommitComment() {
         return commitComment;
+    }
+
+    public ConceptSequenceSet getConceptsInCommit() {
+        return conceptsInCommit;
+    }
+
+    public SememeSequenceSet getSememesInCommit() {
+        return sememesInCommit;
     }
 
 }

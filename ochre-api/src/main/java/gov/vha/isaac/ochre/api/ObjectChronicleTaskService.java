@@ -50,7 +50,19 @@ public interface ObjectChronicleTaskService {
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(Path... filePaths);
+    default Task<Integer> startLoadTask(Path... filePaths) {
+        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, filePaths);
+    }
+    
+    /**
+     *
+     * @param conceptModel The concept model used to initialize the database
+     * @param filePaths <code>Path</code>s of the input files
+     * @return Task that returns an integer reflecting the number of object chronicles imported
+     */
+    Task<Integer> startLoadTask(ConceptModel conceptModel, Path... filePaths);
+    
+    
 
     /**
      *
@@ -58,7 +70,18 @@ public interface ObjectChronicleTaskService {
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(ConceptProxy stampPath, Path... filePaths);
+    default Task<Integer> startLoadTask(ConceptProxy stampPath, Path... filePaths) {
+        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, stampPath, filePaths);
+    }
+
+    /**
+     *
+     * @param conceptModel The concept model used to initialize the database
+     * @param stampPath All object chronicles will be placed onto this path
+     * @param filePaths <code>Path</code>s of the input files
+     * @return Task that returns an integer reflecting the number of object chronicles imported
+     */
+    Task<Integer> startLoadTask(ConceptModel conceptModel, ConceptProxy stampPath, Path... filePaths);
 
    /**
      *
@@ -66,8 +89,19 @@ public interface ObjectChronicleTaskService {
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(StandardPaths stampPath, Path... filePaths);
+    default Task<Integer> startLoadTask(StandardPaths stampPath, Path... filePaths) {
+        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, stampPath, filePaths);
+    }
 
+
+   /**
+     *
+     * @param conceptModel The concept model used to initialize the database
+     * @param stampPath All object chronicles will be placed onto this path
+     * @param filePaths <code>Path</code>s of the input files
+     * @return Task that returns an integer reflecting the number of object chronicles imported
+     */
+    Task<Integer> startLoadTask(ConceptModel conceptModel, StandardPaths stampPath, Path... filePaths);
     /**
      *
      * @param filePaths <code>Path</code>s of the input files for the verification
@@ -143,7 +177,7 @@ public interface ObjectChronicleTaskService {
      * and pass those chronicles to <code>index(ComponentChronicleBI chronicle)</code>
      * and when complete, to call <code>commitWriter()</code>. <code>IndexerBI</code> services
      * will be discovered using the HK2 dependency injection framework.
-     * @param indexesToRebuild - if null or empty - all indexes found via HK2 will be cleared and
+     * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and
      * reindexed.  Otherwise, only clear and reindex the instances of IndexerBI which match the specified
      * class list.  Classes passed in should be an extension of IndexerBI (but I don't have the type here to 
      * be able to enforce that)

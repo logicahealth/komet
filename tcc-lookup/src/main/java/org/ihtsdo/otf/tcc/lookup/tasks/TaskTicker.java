@@ -25,7 +25,7 @@ public class TaskTicker implements Comparator<WeakReference<TaskTickHandler>> {
     private static final Subscription tickSubscription = EventStreams.ticks(Duration.ofSeconds(10))
             .subscribe(tick -> {
 
-        Set<Task> taskSet = Hk2Looker.get().getService(ActiveTaskSet.class).get();
+        Set<Task<?>> taskSet = Hk2Looker.get().getService(ActiveTaskSet.class).get();
         HashSet<WeakReference<TaskTickHandler>> toRemove = new HashSet<>();
 
         taskSet.stream().map((task) -> {

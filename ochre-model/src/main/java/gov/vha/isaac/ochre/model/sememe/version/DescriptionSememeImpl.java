@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDescriptionSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
@@ -23,10 +24,10 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 /**
  *
  * @author kec
- */
-public class DescriptionSememeImpl 
+  */
+public class DescriptionSememeImpl
     extends SememeVersionImpl<DescriptionSememeImpl>
-    implements MutableDescriptionSememe {
+    implements MutableDescriptionSememe<DescriptionSememeImpl> {
 
     protected int caseSignificanceConceptSequence;
     protected int languageConceptSequence;
@@ -103,17 +104,24 @@ public class DescriptionSememeImpl
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("DescriptionSememeImpl{")
+        sb.append("Description≤")
                 .append("text=")
                 .append(text)
-                .append(", caseSignificanceConceptSequence=")
+                .append(", case=")
+                .append(Get.conceptDescriptionText(caseSignificanceConceptSequence))
+                .append(" <")
                 .append(caseSignificanceConceptSequence)
-                .append(", languageConceptSequence=")
+                .append(">, language=")
+                .append(Get.conceptDescriptionText(languageConceptSequence))
+                .append(" <")
                 .append(languageConceptSequence)
-                .append(", descriptionTypeConceptSequence=")
-                .append(descriptionTypeConceptSequence);
+                .append(">, type=")
+                .append(Get.conceptDescriptionText(descriptionTypeConceptSequence))
+                .append(" <")
+                .append(descriptionTypeConceptSequence)
+                .append(">");
         toString(sb);
-        sb.append('}');
+        sb.append('≥');
         return sb.toString();
     }
     

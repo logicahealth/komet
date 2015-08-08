@@ -6,7 +6,6 @@ import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -26,7 +25,12 @@ public class SubstitutionNodeString extends SubstitutionNodeLiteral {
 
     @Override
     public String toString() {
-        return "SubstitutionNodeString[" + getNodeIndex() + "]:" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "String substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
     }
 
     @Override

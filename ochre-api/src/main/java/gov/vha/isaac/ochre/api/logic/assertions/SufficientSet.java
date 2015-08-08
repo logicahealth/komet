@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.logic.assertions;
  *
  * @author kec
  */
-public interface SufficientSet extends Assertion {
+public interface SufficientSet extends LogicalSet {
     
 }

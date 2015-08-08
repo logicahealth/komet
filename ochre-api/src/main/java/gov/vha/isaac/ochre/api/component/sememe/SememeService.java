@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -31,29 +32,40 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface SememeService {
     <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType, 
-            StampCoordinate stampCoordinate);
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     
-    SememeChronology<? extends SememeVersion> getSememe(int sememeSequence);
+    /**
+     * 
+     * @param sememeId sequence or nid for a sememe
+     * @return the identified {@code SememeChronology}
+     */
+    SememeChronology<? extends SememeVersion<?>> getSememe(int sememeId);
+    /**
+     * 
+     * @param sememeId sequence or nid for a sememe
+     * @return the identified {@code SememeChronology}
+     */
+    Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeId);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageSequence);
-    SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence);
-    SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageSequence, StampPosition position);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
+    SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
+    SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageConceptSequence, StampPosition position);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
-    SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence);
-    SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageSequence);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
+    SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
+    SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptSequence);
     
-    void writeSememe(SememeChronology sememeChronicle);
+    void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints);
     
-    Stream<SememeChronology<? extends SememeVersion>> getSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememeStream();
     
-    Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
     
-    Stream<SememeChronology<DescriptionSememe>> getDescriptionsForComponent(int componentNid);
+    Stream<SememeChronology<DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
     
 }

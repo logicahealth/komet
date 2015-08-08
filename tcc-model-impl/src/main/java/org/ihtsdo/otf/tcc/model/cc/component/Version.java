@@ -16,8 +16,8 @@
 
 package org.ihtsdo.otf.tcc.model.cc.component;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -70,15 +70,7 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
         }
         return terminology;
     }
-    
-    private static IdentifierService sequenceService;
-    protected static IdentifierService getSequenceService() {
-        if (sequenceService == null) {
-            sequenceService = LookupService.getService(IdentifierService.class);
-        }
-        return sequenceService;
-    }    
-    
+
     /**
      * Field description
      */
@@ -827,23 +819,23 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
 
     @Override
     public int getAuthorSequence() {
-        return getSequenceService().getConceptSequence(getAuthorNid());
+        return Get.identifierService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getSequenceService().getConceptSequence(getModuleNid());
+        return Get.identifierService().getConceptSequence(getModuleNid());
     }
 
     @Override
     public int getPathSequence() {
-       return getSequenceService().getConceptSequence(getPathNid());
+       return Get.identifierService().getConceptSequence(getPathNid());
     }
 
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         return cc.getSememeList();
     }
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return cc.getSememeListFromAssemblage(assemblageSequence);
     }
     public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {

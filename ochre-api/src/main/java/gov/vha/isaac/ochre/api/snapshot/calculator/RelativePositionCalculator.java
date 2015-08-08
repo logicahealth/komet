@@ -15,18 +15,19 @@
  */
 package gov.vha.isaac.ochre.api.snapshot.calculator;
 
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.OchreCache;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,28 +37,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
-import java.util.function.Supplier;
+//import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
+import org.jvnet.hk2.annotations.Service;
 import org.roaringbitmap.RoaringBitmap;
 
 /**
  *
  * @author kec
  */
-public class RelativePositionCalculator {
+@Service
+@Singleton // Singleton from the perspective of HK2 managed instances
+public class RelativePositionCalculator implements OchreCache {
     
     private static final Logger log = LogManager.getLogger();
 
 
-    private static final CommitService commitService = LookupService.getService(CommitService.class);
-
-    private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> calculatorCache =
+    private static final ConcurrentHashMap<StampCoordinate<? extends StampCoordinate<?>>, RelativePositionCalculator> calculatorCache =
             new ConcurrentHashMap<>();
 
-    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
+    public static RelativePositionCalculator getCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator pm = calculatorCache.get(coordinate);
 
         if (pm != null) {
@@ -74,7 +77,7 @@ public class RelativePositionCalculator {
 
         return pm;
     }
-    StampCoordinate coordinate;
+    StampCoordinate<? extends StampCoordinate<?>> coordinate;
     /**
      * Mapping from pathNid to each segment for that pathNid.
      * There is one entry for each path reachable antecedent to the destination 
@@ -82,9 +85,19 @@ public class RelativePositionCalculator {
      */
     OpenIntObjectHashMap<Segment> pathSequenceSegmentMap;
 
-    public RelativePositionCalculator(StampCoordinate coordinate) {
+    public RelativePositionCalculator() {
+        // No arg constructor for HK2 managed instance
+    }
+
+    public RelativePositionCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         this.coordinate = coordinate;
         this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
+    }
+
+    @Override
+    public void reset() {
+        log.info("Resetting RelativePositionCalculator.");
+        calculatorCache.clear();
     }
 
     private static class Segment {
@@ -125,10 +138,18 @@ public class RelativePositionCalculator {
             }
             return false;
         }
+
+        @Override
+        public String toString() {
+            return "Segment{" + segmentSequence + ", pathConcept=" + Get.conceptService().getConcept(pathConceptSequence) + "<" + 
+                    pathConceptSequence
+                    + ">, endTime=" + Instant.ofEpochMilli(endTime) + ", precedingSegments=" + precedingSegments + '}';
+        }
     }
 
     private static OpenIntObjectHashMap<Segment>  setupPathSequenceSegmentMap(StampPosition destination) {
-        OpenIntObjectHashMap<Segment> pathSequenceSegmentMap = new OpenIntObjectHashMap<>();
+        OpenIntObjectHashMap<Segment> pathSequenceSegmentMap 
+                = new OpenIntObjectHashMap<>();
         AtomicInteger segmentSequence = new AtomicInteger(0);
         
         // the sequence of the preceding segments is set in the recursive 
@@ -136,7 +157,8 @@ public class RelativePositionCalculator {
         RoaringBitmap precedingSegments = new RoaringBitmap();
         
         // call to recursive method...
-        addOriginsToPathSequenceSegmentMap(destination, pathSequenceSegmentMap, segmentSequence, precedingSegments);
+        addOriginsToPathSequenceSegmentMap(destination, 
+                pathSequenceSegmentMap, segmentSequence, precedingSegments);
 
         return pathSequenceSegmentMap;
 
@@ -145,7 +167,8 @@ public class RelativePositionCalculator {
     // recursively called method
     private static void addOriginsToPathSequenceSegmentMap(StampPosition destination,
             OpenIntObjectHashMap<Segment> pathNidSegmentMap, AtomicInteger segmentSequence, RoaringBitmap precedingSegments) {
-        Segment segment = new Segment(segmentSequence.getAndIncrement(), destination.getStampPathSequence(),
+        Segment segment = new Segment(segmentSequence.getAndIncrement(), 
+                destination.getStampPathSequence(),
                 destination.getTime(), precedingSegments);
         // precedingSegments is cumulative, each recursive call adds another
         precedingSegments.add(segment.segmentSequence);
@@ -162,6 +185,14 @@ public class RelativePositionCalculator {
     public RelativePosition fastRelativePosition(StampedVersion v1, StampedVersion v2, StampPrecedence precedencePolicy) {
         if (v1.getPathSequence() == v2.getPathSequence()) {
             Segment seg = (Segment) pathSequenceSegmentMap.get(v1.getPathSequence());
+            if (seg == null) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Segment cannot be null.");
+                builder.append("\nv1: ").append(v1);
+                builder.append("\nv2: ").append(v1);
+                builder.append("\nno segment in map: ").append(pathSequenceSegmentMap);
+                throw new IllegalStateException(builder.toString());
+            }
             if (seg.containsPosition(v1.getPathSequence(), v1.getTime())
                     && seg.containsPosition(v2.getPathSequence(), v2.getTime())) {
                 if (v1.getTime() < v2.getTime()) {
@@ -206,10 +237,10 @@ public class RelativePositionCalculator {
         return RelativePosition.CONTRADICTION;
     }
     public RelativePosition fastRelativePosition(int stampSequence1, int stampSequence2, StampPrecedence precedencePolicy) {
-        long ss1Time = commitService.getTimeForStamp(stampSequence1);
-        int ss1PathSequence = commitService.getPathSequenceForStamp(stampSequence1);
-        long ss2Time = commitService.getTimeForStamp(stampSequence2);
-        int ss2PathSequence = commitService.getPathSequenceForStamp(stampSequence2);
+        long ss1Time = Get.commitService().getTimeForStamp(stampSequence1);
+        int ss1PathSequence = Get.commitService().getPathSequenceForStamp(stampSequence1);
+        long ss2Time = Get.commitService().getTimeForStamp(stampSequence2);
+        int ss2PathSequence = Get.commitService().getPathSequenceForStamp(stampSequence2);
         
         if (ss1PathSequence == ss2PathSequence) {
             Segment seg = (Segment) pathSequenceSegmentMap.get(ss1PathSequence);
@@ -269,10 +300,10 @@ public class RelativePositionCalculator {
         return false;
     }
     public boolean onRoute(int stampSequence) {
-        Segment seg = (Segment) pathSequenceSegmentMap.get(commitService.getPathSequenceForStamp(stampSequence));
+        Segment seg = (Segment) pathSequenceSegmentMap.get(Get.commitService().getPathSequenceForStamp(stampSequence));
         if (seg != null) {
-            return seg.containsPosition(commitService.getPathSequenceForStamp(stampSequence), 
-                    commitService.getTimeForStamp(stampSequence));
+            return seg.containsPosition(Get.commitService().getPathSequenceForStamp(stampSequence), 
+                    Get.commitService().getTimeForStamp(stampSequence));
         }
         return false;
     }
@@ -299,11 +330,10 @@ public class RelativePositionCalculator {
         StampSequenceSet result =  stampSequenceStream.collect(StampSequenceSet::new, 
                 new LatestStampAccumulator(), 
                 new LatestStampCombiner());
-        if (coordinate.getAllowedStates().equals(State.ACTIVE_ONLY_SET)) {
-            return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
-                return commitService.getStatusForStamp(stampSequence) == State.ACTIVE;}));
-        }
-        return result;
+          
+           return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
+                return  coordinate.getAllowedStates().contains(Get.commitService().getStatusForStamp(stampSequence));
+           }));
     }
     
     private class LatestStampAccumulator implements ObjIntConsumer<StampSequenceSet> {
@@ -331,12 +361,12 @@ public class RelativePositionCalculator {
         
     }
 
-    private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
-        @Override
-        public StampSequenceSet get() {
-            return new StampSequenceSet();
-        }
-    };
+//    private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
+//        @Override
+//        public StampSequenceSet get() {
+//            return new StampSequenceSet();
+//        }
+//    };
 
     /**
      * 
@@ -347,7 +377,7 @@ public class RelativePositionCalculator {
      */
     public boolean isLatestActive(IntStream stampSequences) {
         return Arrays.stream(getLatestStampSequencesAsArray(stampSequences)).anyMatch((int stampSequence) -> 
-                commitService.getStatusForStamp(stampSequence) == State.ACTIVE);
+                Get.commitService().getStatusForStamp(stampSequence) == State.ACTIVE);
     }
     public <C extends ObservableChronology<V>, V extends ObservableVersion> 
                 Optional<LatestVersion<V>>
@@ -369,10 +399,10 @@ public class RelativePositionCalculator {
             return Optional.empty();
         } 
         if (latestVersionList.size() == 1) {
-            return Optional.of(new LatestVersion(latestVersionList.get(0)));
+            return Optional.of(new LatestVersion<V>(latestVersionList.get(0)));
         }
         
-        return Optional.of(new LatestVersion(latestVersionList.get(0),
+        return Optional.of(new LatestVersion<V>(latestVersionList.get(0),
             latestVersionList.subList(1, latestVersionList.size())));
     }
     
@@ -392,7 +422,7 @@ public class RelativePositionCalculator {
             }
         });
         if (coordinate.getAllowedStates().equals(State.ACTIVE_ONLY_SET)) {
-            HashSet<V> inactiveVersions = new HashSet();
+            HashSet<V> inactiveVersions = new HashSet<>();
             latestVersionSet.stream().forEach((version) -> {
                 if (version.getState() != State.ACTIVE) {
                     inactiveVersions.add(version);
@@ -406,10 +436,10 @@ public class RelativePositionCalculator {
             return Optional.empty();
         } 
         if (latestVersionList.size() == 1) {
-            return Optional.of(new LatestVersion(latestVersionList.get(0)));
+            return Optional.of(new LatestVersion<V>(latestVersionList.get(0)));
         }
         
-        return Optional.of(new LatestVersion(latestVersionList.get(0),
+        return Optional.of(new LatestVersion<V>(latestVersionList.get(0),
             latestVersionList.subList(1, latestVersionList.size())));
     }
 
@@ -503,11 +533,11 @@ public class RelativePositionCalculator {
                     }
                     break;
                 case UNREACHABLE:
-                    // Should have failed mapper.onRoute(stampSequence)
-                    // above.
-                    throw new RuntimeException(
-                            RelativePosition.UNREACHABLE
-                            + " should never happen.");
+                    // nothing to do...
+                    break;
+                    default:
+                        throw new UnsupportedOperationException("Can't handle: " + fastRelativePosition(stampSequence,
+                    prevStamp, coordinate.getStampPrecedence()));
             }            
         });
     }

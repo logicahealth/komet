@@ -23,10 +23,24 @@ import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
  */
 public interface SememeObject extends IdentifiedObjectLocal {
     
+    /**
+     * 
+     * @return unique sequential identifier >= 0 for this sememe.  
+     */
     int getSememeSequence();
     
+    /**
+     * 
+     * @return concept sequence for the concept that identifies this assemblage.  
+     */
     int getAssemblageSequence();
     
+    /**
+     * 
+     * @return nid for the component referenced by this sememe. Since the referenced component can either
+     * be a concept or another sememe, nids are used instead of concept sequences or sememe sequences, since the 
+     * concept and sememe namespaces overlap. 
+     */
     int getReferencedComponentNid();
     
 }

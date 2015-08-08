@@ -1,10 +1,12 @@
 package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.external.RoleNodeSomeWithUuids;
+import gov.vha.isaac.ochre.model.logic.node.external.RoleNodeAllWithUuids;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -13,23 +15,23 @@ import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
- * Created by kec on 12/10/14.
+ * Created by kec on 12/6/14.
  */
-public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
+public final class RoleNodeAllWithSequences extends TypedNodeWithSequences {
 
-    public RoleNodeSomeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public RoleNodeAllWithSequences(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
     }
 
-    public RoleNodeSomeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptNid, AbstractNode child) {
-        super(logicGraphVersion, typeConceptNid, child);
+    public RoleNodeAllWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
+        super(logicGraphVersion, typeConceptId, child);
     }
 
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
         switch (dataTarget) {
             case EXTERNAL:
-                RoleNodeSomeWithUuids externalForm = new RoleNodeSomeWithUuids(this);
+                RoleNodeAllWithUuids externalForm = new RoleNodeAllWithUuids(this);
                 externalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             case INTERNAL:
@@ -42,17 +44,30 @@ public final class RoleNodeSomeWithNids extends TypedNodeWithNids {
 
     @Override
     public NodeSemantic getNodeSemantic() {
-        return NodeSemantic.ROLE_SOME;
+        return NodeSemantic.ROLE_ALL;
     }
 
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                getIdentifierService().getUuidPrimordialForNid(typeConceptNid).toString());
+                Get.identifierService().getUuidPrimordialForNid(typeConceptSequence).toString());
+
     }
 
     @Override
     public String toString() {
-        return "RoleNodeSome[" + getNodeIndex() + "]:" + super.toString();
+        return "All[" + getNodeIndex() + "]" + super.toString();
     }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "All[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
+    }
+    
+    @Override
+    protected int compareTypedNodeFields(Node o) {
+        // node semantic already determined equals. 
+        return 0;
+    }
+    
 }

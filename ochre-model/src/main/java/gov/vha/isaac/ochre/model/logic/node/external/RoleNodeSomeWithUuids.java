@@ -7,14 +7,14 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -32,7 +32,7 @@ public class RoleNodeSomeWithUuids extends TypedNodeWithUuids {
         super(logicGraphVersion, typeConceptUuid, child);
     }
 
-    public RoleNodeSomeWithUuids(RoleNodeSomeWithNids internalForm) {
+    public RoleNodeSomeWithUuids(RoleNodeSomeWithSequences internalForm) {
         super(internalForm);
     }
 
@@ -56,6 +56,18 @@ public class RoleNodeSomeWithUuids extends TypedNodeWithUuids {
 
     @Override
     public String toString() {
-        return "RoleNodeSome[" + getNodeIndex() + "]:" + super.toString();
+        return toString("");
     }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "RoleNodeSome[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
+    }
+    
+    @Override
+    protected int compareTypedNodeFields(Node o) {
+        // node semantic already determined equals. 
+        return 0;
+    }
+    
 }

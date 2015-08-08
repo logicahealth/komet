@@ -31,6 +31,10 @@ public abstract class SubstitutionNode extends AbstractNode {
         this.substitutionFieldSpecification = substitutionFieldSpecification;
     }
 
+    public SubstitutionFieldSpecification getSubstitutionFieldSpecification() {
+        return substitutionFieldSpecification;
+    }
+
     @Override
     protected final void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
         super.writeData(dataOutput, dataTarget);
@@ -74,6 +78,11 @@ public abstract class SubstitutionNode extends AbstractNode {
 
     @Override
     public String toString() {
-        return " substitutionFieldSpecification='" + substitutionFieldSpecification + '\''  + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return " Substitution: '" + substitutionFieldSpecification + '\''  + super.toString(nodeIdSuffix);
     }
 }

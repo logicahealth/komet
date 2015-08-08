@@ -26,11 +26,18 @@ import gov.vha.isaac.ochre.api.coordinate.PremiseType;
  * The native identifier will not participate in UUID to nid maps or other aspects 
  * of the identifier service. This object is not allowed to have associated sememes
  * because it is transient. 
+ * <br/>
+ * The RelationshipVersionAdaptor objects cannot be retrieved from the 
+ * {@code IdentifiedObjectService} at this time, since they are transient. They can
+ * only be retrieved by calling getRelationshipListWithConceptAsDestination or 
+ * getRelationshipListOriginatingFromConcept on the ConceptChronology objects. 
+ * <br/>
+ * Components that use relationships should transition to using logic graphs directly. 
  * 
  * @author kec
  */
-public interface RelationshipVersionAdaptor 
-    extends SememeVersion {
+public interface RelationshipVersionAdaptor<T extends RelationshipVersionAdaptor<T>> 
+    extends SememeVersion<T> {
 
     int getOriginSequence();
     

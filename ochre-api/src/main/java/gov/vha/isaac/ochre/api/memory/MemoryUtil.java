@@ -1,7 +1,7 @@
 package gov.vha.isaac.ochre.api.memory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import javax.management.Notification;
 import javax.management.NotificationEmitter;
@@ -19,7 +19,7 @@ import java.util.Locale;
  */
 public class MemoryUtil {
 
-    private static final Logger log = LogManager.getLogger();
+    //private static final Logger log = LogManager.getLogger();
     private static final MemoryMXBean memorymbean = ManagementFactory.getMemoryMXBean();
 
     static class MyListener implements javax.management.NotificationListener {
@@ -49,6 +49,7 @@ public class MemoryUtil {
         Formatter formatter = new Formatter(sb, Locale.US);
         formatter.format(" Heap used: %1$,3.2f/%2$,3.2f GB (%3$,3.1f%%) %4$,3.2f GB requested max", 
                 sizeUsedInGB, committedInGB, percentUsed, maxInGB);
+        formatter.close();
         return sb.toString();
 
     }

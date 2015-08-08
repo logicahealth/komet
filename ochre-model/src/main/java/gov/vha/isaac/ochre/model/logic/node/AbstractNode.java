@@ -1,13 +1,16 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.component.concept.ConceptService;
-import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -15,26 +18,9 @@ import java.util.UUID;
 /**
  * Created by kec on 12/10/14.
  */
-public abstract class AbstractNode implements Node, Comparable<Node> {
+public abstract class AbstractNode implements Node {
 
     protected static final UUID namespaceUuid = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
-    
-    private static IdentifierService idService;
-    protected static IdentifierService getIdentifierService() {
-        if (idService == null) {
-            idService = LookupService.getService(IdentifierService.class);
-        }
-        return idService;
-    }
-    
-    private static ConceptService conceptService;
-    protected static ConceptService getConceptService() {
-        if (conceptService == null) {
-            conceptService = LookupService.getService(ConceptService.class);
-        }
-        return conceptService;
-    }
-
 
     LogicalExpressionOchreImpl logicGraphVersion;
     private short nodeIndex = Short.MIN_VALUE;
@@ -55,6 +41,22 @@ public abstract class AbstractNode implements Node, Comparable<Node> {
     protected AbstractNode(AbstractNode anotherNode) {
         this.nodeIndex = anotherNode.nodeIndex;
         this.nodeUuid = anotherNode.nodeUuid;
+    }
+
+    /**
+     * Should be overridden by subclasses that need to add concepts. 
+     * Concepts from connector nodes should not be added. 
+     * @param conceptSequenceSet 
+     */
+    @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        conceptSequenceSet.add(getNodeSemantic().getConceptSequence());
+    }
+    
+    
+    @Override
+    public void sort() {
+        // override on nodes with multiple children. 
     }
 
     @Override
@@ -105,14 +107,7 @@ public abstract class AbstractNode implements Node, Comparable<Node> {
     protected void writeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
     }
 
-    ;
-
     protected abstract void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException;
-
-    @Override
-    public String toString() {
-        return "";
-    }
 
     @Override
     public int compareTo(Node o) {
@@ -146,4 +141,39 @@ public abstract class AbstractNode implements Node, Comparable<Node> {
     }
     
     protected abstract UUID initNodeUuid();
+    
+    /**
+     * 
+     * @return A string representing the fragment of the expression 
+     * rooted in this node. 
+     */
+    @Override
+    public String fragmentToString() {
+        
+        return fragmentToString("");
+    }
+   @Override
+    public String fragmentToString(String nodeIdSuffix) {
+        StringBuilder builder = new StringBuilder();
+        logicGraphVersion.processDepthFirst(this, (Node node, TreeNodeVisitData graphVisitData) -> {
+            for (int i = 0; i < graphVisitData.getDistance(node.getNodeIndex()); i++) {
+                builder.append("    ");
+            }
+            builder.append(node.toString(nodeIdSuffix));
+            builder.append("\n");
+        });
+        return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toString("");
+    }
+    @Override
+    public String toString(String nodeIdSuffix) {
+         return "";
+    }
+
+    
+    
 }

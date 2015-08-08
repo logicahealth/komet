@@ -7,15 +7,15 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -48,10 +48,10 @@ public class TemplateNodeWithUuids extends AbstractNode {
         this.assemblageConceptUuid = assemblageConceptUuid;
     }
 
-    public TemplateNodeWithUuids(TemplateNodeWithNids internalForm) {
+    public TemplateNodeWithUuids(TemplateNodeWithSequences internalForm) {
         super(internalForm);
-        this.templateConceptUuid = getIdentifierService().getUuidPrimordialForNid(internalForm.getTemplateConceptNid()).get();
-        this.assemblageConceptUuid =getIdentifierService().getUuidPrimordialForNid(internalForm.getAssemblageConceptNid()).get();
+        this.templateConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTemplateConceptNid()).get();
+        this.assemblageConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getAssemblageConceptNid()).get();
     }
 
 
@@ -66,7 +66,7 @@ public class TemplateNodeWithUuids extends AbstractNode {
                 dataOutput.writeLong(assemblageConceptUuid.getLeastSignificantBits());
                 break;
             case INTERNAL:
-                TemplateNodeWithNids internalForm =  new TemplateNodeWithNids(this);
+                TemplateNodeWithSequences internalForm =  new TemplateNodeWithSequences(this);
                 internalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
@@ -91,10 +91,15 @@ public class TemplateNodeWithUuids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "TemplateNode[" + getNodeIndex() + "]: "
-                + "assemblage: " + getConceptService().getConcept(assemblageConceptUuid).toUserString()
-                + ", template: " + getConceptService().getConcept(templateConceptUuid).toUserString()
-                + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "TemplateNode[" + getNodeIndex() + nodeIdSuffix + "] "
+                + "assemblage: " + Get.conceptService().getConcept(assemblageConceptUuid).toUserString()
+                + ", template: " + Get.conceptService().getConcept(templateConceptUuid).toUserString()
+                + super.toString(nodeIdSuffix);
     }
 
     @Override

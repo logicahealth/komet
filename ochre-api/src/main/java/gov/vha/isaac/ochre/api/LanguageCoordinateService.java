@@ -60,7 +60,28 @@ public interface LanguageCoordinateService {
     
     int getAcceptableConceptSequence();
     
-    <V extends DescriptionSememe, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate stampCoordinate, 
+    /**
+     * 
+     * @param <V>
+     * @param <C>
+     * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current. 
+     * @param descriptionList List of descriptions to consider. 
+     * @param typeSequence The specific type to match. 
+     * @param languageCoordinate Used to determine ranking of candidate matches. 
+     * @return 
+     */
+    <V extends DescriptionSememe<?>, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
             List<C> descriptionList, 
             int typeSequence, LanguageCoordinate languageCoordinate);
+    /**
+     * 
+     * @param <V>
+     * @param <C>
+     * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current. 
+     * @param descriptionList List of descriptions to consider. 
+     * @param languageCoordinate Used to determine ranking of candidate matches. 
+     * @return 
+     */
+    <V extends DescriptionSememe<?>, C extends SememeChronology<V>> Optional<LatestVersion<V>> getSpecifiedDescription(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+            List<C> descriptionList, LanguageCoordinate languageCoordinate);
 }

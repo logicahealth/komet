@@ -15,8 +15,11 @@
  */
 package gov.vha.isaac.ochre.api.component.concept;
 
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
@@ -25,33 +28,60 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * @author kec
  */
-//Normally, this would be a contract... but we only want one in the system (and we have two, that we don't want running at the same time)
-//So, force the users to get one via the ConceptServiceManagerI
-//Alternatively, maybe we could do something with:  https://hk2.java.net/custom-resolver-example.html
 @Contract
 public interface ConceptService {
     
-    ConceptChronology<? extends ConceptVersion> getConcept(int conceptSequence);
+    /**
+     * 
+     * @param conceptId either a concept sequence or a concept nid. 
+     * @return the concept chronology associated with the identifier. 
+     */
+    ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId);
     
-    ConceptChronology<? extends ConceptVersion> getConcept(UUID... conceptUuids);
+    /**
+     * 
+     * @param conceptUuids a UUID that identifies a concept.
+     * @return the concept chronology associated with the identifier. 
+     */
+    ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids);
     
-    void writeConcept(ConceptChronology<? extends ConceptVersion> concept);
+    /**
+     * Use in circumstances when not all concepts may have been loaded. 
+     * @param conceptId Either a nid or concept sequence
+     * @return an Optional ConceptChronology.
+     */
+    Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId);
+    /**
+     * Use in circumstances when not all concepts may have been loaded. 
+     * @param conceptUuids uuids that identify the concept
+     * @return an Optional ConceptChronology.
+     */
+    Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids);
+    
+    void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept);
 
-    boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
+    boolean isConceptActive(int conceptSequence, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
-    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate);
+    ConceptSnapshotService getSnapshot(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, LanguageCoordinate languageCoordinate);
+    
+    @Deprecated
+    default ConceptSnapshotService getSnapshot(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+        return getSnapshot(stampCoordinate, Get.configurationService().getDefaultLanguageCoordinate());
+    }
     
     int getConceptCount();
     
-    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream();
-    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream();
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream();
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream();
 
-    Stream<ConceptChronology<? extends ConceptVersion>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
-    Stream<ConceptChronology<? extends ConceptVersion>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(ConceptSequenceSet conceptSequences);
+    Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences);
     
     /**
-     * For compatability reasons only. 
+     * For backward compatibility reasons only. 
      * @return 
+     * @deprecated 
      */
+    @Deprecated
     ConceptService getDelegate();
 }

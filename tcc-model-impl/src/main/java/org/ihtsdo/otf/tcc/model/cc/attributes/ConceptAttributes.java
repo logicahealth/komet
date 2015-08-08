@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.attributes;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -250,7 +251,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new ConceptAttributesVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new ConceptAttributesVersion(this, this, stampAlias));
                 }
             }
@@ -259,7 +260,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
                 for (ConceptAttributesRevision r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
                         list.add(new ConceptAttributesVersion(r, this, r.stamp));
-                        for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                        for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                             list.add(new ConceptAttributesVersion(r, this, stampAlias));
                         }
                     }
@@ -323,7 +324,7 @@ public class ConceptAttributes extends ConceptComponent<ConceptAttributesRevisio
     }
 
     @Override
-    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
          return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
     }

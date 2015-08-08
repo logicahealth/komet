@@ -1,45 +1,52 @@
 package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.external.ConceptNodeWithUuids;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * Created by kec on 12/10/14.
  */
-public final class ConceptNodeWithNids extends AbstractNode {
+public final class ConceptNodeWithSequences extends AbstractNode {
 
-    int conceptNid;
+    int conceptSequence;
 
-    public ConceptNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public ConceptNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
-        conceptNid = dataInputStream.readInt();
+        conceptSequence = dataInputStream.readInt();
     }
 
-    public ConceptNodeWithNids(LogicalExpressionOchreImpl logicGraphVersion, int conceptNid) {
+    public ConceptNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int conceptId) {
         super(logicGraphVersion);
-        this.conceptNid = conceptNid;
+        this.conceptSequence = Get.identifierService().getConceptSequence(conceptId);
 
     }
 
-    public ConceptNodeWithNids(ConceptNodeWithUuids externalForm) {
+    public ConceptNodeWithSequences(ConceptNodeWithUuids externalForm) {
         super(externalForm);
-        this.conceptNid = getIdentifierService().getNidForUuids(externalForm.getConceptUuid());
+        this.conceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getConceptUuid());
 
     }
 
-    public int getConceptNid() {
-        return conceptNid;
+    @Override
+    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+        super.addConceptsReferencedByNode(conceptSequenceSet); 
+        conceptSequenceSet.add(conceptSequence);
+    }
+
+    public int getConceptSequence() {
+        return conceptSequence;
     }
 
     @Override
@@ -51,7 +58,7 @@ public final class ConceptNodeWithNids extends AbstractNode {
                 break;
             case INTERNAL:
                 super.writeData(dataOutput, dataTarget);
-                dataOutput.writeInt(conceptNid);
+                dataOutput.writeInt(conceptSequence);
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
@@ -66,8 +73,7 @@ public final class ConceptNodeWithNids extends AbstractNode {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                getIdentifierService().getUuidPrimordialForNid(conceptNid).toString());
-
+                Get.identifierService().getUuidPrimordialForNid(conceptSequence).toString());
     }
 
     @Override
@@ -82,7 +88,14 @@ public final class ConceptNodeWithNids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "ConceptNode[" + getNodeIndex() + "]: \"" + getConceptService().getConcept(conceptNid).toUserString() + "\"" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "Concept[" + getNodeIndex() + nodeIdSuffix + "] " + Get.conceptDescriptionText(conceptSequence) + " <"
+                + Get.identifierService().getConceptSequence(conceptSequence)
+                + ">" + super.toString(nodeIdSuffix);
     }
 
     @Override
@@ -97,21 +110,21 @@ public final class ConceptNodeWithNids extends AbstractNode {
             return false;
         }
 
-        ConceptNodeWithNids that = (ConceptNodeWithNids) o;
+        ConceptNodeWithSequences that = (ConceptNodeWithSequences) o;
 
-        return conceptNid == that.conceptNid;
+        return conceptSequence == that.conceptSequence;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + conceptNid;
+        result = 31 * result + conceptSequence;
         return result;
     }
 
     @Override
     protected int compareFields(Node o) {
-        return conceptNid - ((ConceptNodeWithNids) o).getConceptNid();
+        return Integer.compare(conceptSequence, ((ConceptNodeWithSequences) o).getConceptSequence());
     }
 
 }

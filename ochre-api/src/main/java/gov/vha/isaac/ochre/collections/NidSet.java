@@ -15,8 +15,8 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import static gov.vha.isaac.ochre.collections.IntSet.getIdentifierService;
 import java.util.Collection;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -25,7 +25,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class NidSet extends IntSet {
+public class NidSet extends IntSet<NidSet> {
     
     public static NidSet of(int... members) {
         return new NidSet(members);
@@ -38,20 +38,20 @@ public class NidSet extends IntSet {
         return new NidSet(memberStream);
     }
     public static NidSet ofAllComponentNids() {
-        return new NidSet(getIdentifierService().getComponentNidStream());
+        return new NidSet(Get.identifierService().getComponentNidStream());
     }
     
     public static NidSet of(Collection<Integer> members) {
         return new NidSet(members.stream().mapToInt(i -> i));
     }
     public static NidSet of(ConceptSequenceSet conceptSequenceSet) {
-        IdentifierService sp = getIdentifierService();
+        IdentifierService sp = Get.identifierService();
         return new NidSet(conceptSequenceSet.stream()
                 .map((sequence) -> sp.getConceptNid(sequence)));
     }
 
     public static NidSet of(SememeSequenceSet sememeSequenceSet) {
-        IdentifierService sp = getIdentifierService();
+        IdentifierService sp = Get.identifierService();
         return new NidSet(sememeSequenceSet.stream()
                 .map((sequence) -> sp.getSememeNid(sequence)));
     }

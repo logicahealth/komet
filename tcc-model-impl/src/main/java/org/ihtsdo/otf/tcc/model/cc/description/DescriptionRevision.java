@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.description;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -30,7 +31,6 @@ import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.Revision;
-import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getIdentifierService;
 import static org.ihtsdo.otf.tcc.model.cc.description.DescriptionVersion.getLanguageCoordinateService;
 
 public class DescriptionRevision extends Revision<DescriptionRevision, Description>
@@ -326,7 +326,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
    }
 
     @Override
-    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return primordialComponent.getLatestVersion(type, coordinate);
     }
     
@@ -363,7 +363,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
 
     @Override
     public int getCaseSignificanceConceptSequence() {
-        return getIdentifierService().getConceptSequence(
+        return Get.identifierService().getConceptSequence(
                 getLanguageCoordinateService().caseSignificanceToConceptSequence(isInitialCaseSignificant()));
     }
 
@@ -374,7 +374,7 @@ public class DescriptionRevision extends Revision<DescriptionRevision, Descripti
 
     @Override
     public int getDescriptionTypeConceptSequence() {
-        return getIdentifierService().getConceptSequence(getTypeNid());
+        return Get.identifierService().getConceptSequence(getTypeNid());
     }
 
     @Override

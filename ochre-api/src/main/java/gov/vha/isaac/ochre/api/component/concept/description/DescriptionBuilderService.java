@@ -26,12 +26,12 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface DescriptionBuilderService {
     
-    DescriptionBuilder getDescriptionBuilder(String descriptionText, 
+    DescriptionBuilder<?,?> getDescriptionBuilder(String descriptionText, 
             int conceptSequence,
             ConceptProxy descriptionType, 
             ConceptProxy languageForDescription);
     
-    DescriptionBuilder getDescriptionBuilder(String descriptionText, 
+    DescriptionBuilder<?,?> getDescriptionBuilder(String descriptionText, 
             ConceptBuilder conceptBuilder,
             ConceptProxy descriptionType, 
             ConceptProxy languageForDescription);

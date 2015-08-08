@@ -2,8 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.relationship.group;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -46,14 +45,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 
 public class RelGroupVersion implements RelGroupVersionBI {
-    
-    private static IdentifierService sequenceService = null; 
-    protected static IdentifierService getSequenceService() {
-        if (sequenceService == null) {
-            sequenceService = LookupService.getService(IdentifierService.class);
-        }
-        return sequenceService;
-    }
     
    private long                time = Long.MIN_VALUE;
    private int                 authorNid;
@@ -507,25 +498,25 @@ public class RelGroupVersion implements RelGroupVersionBI {
 
     @Override
     public int getAuthorSequence() {
-        return getSequenceService().getConceptSequence(getAuthorNid());
+        return Get.identifierService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getSequenceService().getConceptSequence(getModuleNid());
+        return Get.identifierService().getConceptSequence(getModuleNid());
     }
 
     @Override
     public int getPathSequence() {
-       return getSequenceService().getConceptSequence(getPathNid());
+       return Get.identifierService().getConceptSequence(getPathNid());
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     @Override
@@ -538,7 +529,7 @@ public class RelGroupVersion implements RelGroupVersionBI {
     }
 
     @Override
-    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return rg.getLatestVersion(type, coordinate);
     }
 }

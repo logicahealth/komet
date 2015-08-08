@@ -5,9 +5,11 @@
  */
 package gov.vha.isaac.ochre.api.tree;
 
-import java.util.BitSet;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.collections.SequenceSet;
 
 import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
  *
@@ -15,17 +17,34 @@ import org.apache.mahout.math.list.IntArrayList;
  */
 public class TreeNodeVisitData {
 
+    protected final IntArrayList distanceList;
+    protected final IntArrayList discoveryTimeList;
+    protected final IntArrayList finishTimeList;
+    protected final IntArrayList predecessorSequenceList;
+    protected final IntArrayList siblingGroupSequenceList;
+    private SequenceSet<?> visitStarted = new SequenceSet<>();
+    private SequenceSet<?> visitEnded = new SequenceSet<>();
+    private SequenceSet<?> leafNodes = new SequenceSet<>();
+    private OpenIntHashSet[] conceptsReferencedAtNodeOrAbove;
 
-    protected IntArrayList distanceList = new IntArrayList();
-    protected IntArrayList discoveryTimeList = new IntArrayList();
-    protected IntArrayList finishTimeList = new IntArrayList();
-    protected IntArrayList predecessorSequenceList = new IntArrayList();
-    private BitSet visitStarted = new BitSet();
-    private BitSet visitEnded = new BitSet();
-    private BitSet leafNodes = new BitSet();
-    
     private int maxDepth = 0;
     private int time = 0;
+    private int nodesVisited = 0;
+    private final int graphSize;
+
+    public TreeNodeVisitData(int graphSize) {
+
+        this.graphSize = graphSize;
+        this.visitStarted = new SequenceSet<>();
+        this.visitEnded = new SequenceSet<>();
+        this.leafNodes = new SequenceSet<>();
+        this.distanceList = new IntArrayList(new int[graphSize]);
+        this.discoveryTimeList = new IntArrayList(new int[graphSize]);
+        this.finishTimeList = new IntArrayList(new int[graphSize]);
+        this.siblingGroupSequenceList = new IntArrayList(new int[graphSize]);
+        this.predecessorSequenceList = new IntArrayList(new int[graphSize]);
+        this.predecessorSequenceList.fillFromToWith(0, graphSize - 1, -1);
+    }
 
     public int getTime() {
         return time;
@@ -34,27 +53,50 @@ public class TreeNodeVisitData {
     public int getMaxDepth() {
         return maxDepth;
     }
-    
+
     public int getNodesVisited() {
         return nodesVisited;
     }
 
-    private int nodesVisited = 0;
-
     public void setLeafNode(int sequence) {
-        leafNodes.set(sequence);
+        leafNodes.add(sequence);
     }
 
+    public OpenIntHashSet getConceptsReferencedAtNodeOrAbove(int nodeSequence) {
+        if (nodeSequence >= 0) {
+            // lazy creation to save memory since not all tree traversals want to 
+            // use this capability. 
+            if (conceptsReferencedAtNodeOrAbove == null) {
+                conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+            }
+            if (conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
+                conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(graphSize);
+            }
+            return conceptsReferencedAtNodeOrAbove[nodeSequence];
+        }
+        return new OpenIntHashSet(graphSize);
+    }
 
-    public TreeNodeVisitData(int graphSize) {
+    public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, OpenIntHashSet conceptSet) {
+        if (nodeSequence >= 0) {
+            // lazy creation to save memory since not all tree traversals want to
+            // use this capability.
+            if (conceptsReferencedAtNodeOrAbove == null) {
+                conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+            }
+            conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
+        }
+    }
 
-        visitStarted = new BitSet(graphSize);
-        visitEnded = new BitSet(graphSize);
-        leafNodes = new BitSet(graphSize);
-        distanceList = new IntArrayList(new int[graphSize]);
-        discoveryTimeList = new IntArrayList(new int[graphSize]);
-        finishTimeList = new IntArrayList(new int[graphSize]);
-        predecessorSequenceList = new IntArrayList(new int[graphSize]);
+    public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, ConceptSequenceSet conceptSet) {
+        if (nodeSequence >= 0) {
+            // lazy creation to save memory since not all tree traversals want to
+            // use this capability.
+            if (conceptsReferencedAtNodeOrAbove == null) {
+                conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+            }
+            conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
+        }
     }
 
     public int getPredecessorSequence(int sequence) {
@@ -63,7 +105,7 @@ public class TreeNodeVisitData {
 
     public void setPredecessorSequence(int sequence, int predecessorSequence) {
         if (sequence >= predecessorSequenceList.size()) {
-            predecessorSequenceList.setSize(sequence+1);
+            predecessorSequenceList.setSize(sequence + 1);
         }
         predecessorSequenceList.set(sequence, predecessorSequence);
     }
@@ -74,7 +116,7 @@ public class TreeNodeVisitData {
 
     public void setDistance(int sequence, int distance) {
         if (sequence >= distanceList.size()) {
-            distanceList.setSize(sequence+1);
+            distanceList.setSize(sequence + 1);
         }
         distanceList.set(sequence, distance);
         maxDepth = Math.max(maxDepth, distance);
@@ -86,7 +128,7 @@ public class TreeNodeVisitData {
 
     private void setDiscoveryTime(int sequence, int discoveryTime) {
         if (sequence >= discoveryTimeList.size()) {
-            discoveryTimeList.setSize(sequence+1);
+            discoveryTimeList.setSize(sequence + 1);
         }
         discoveryTimeList.set(sequence, discoveryTime);
     }
@@ -97,16 +139,16 @@ public class TreeNodeVisitData {
 
     private void setFinishTime(int sequence, int finishTime) {
         if (sequence >= finishTimeList.size()) {
-            finishTimeList.setSize(sequence+1);
+            finishTimeList.setSize(sequence + 1);
         }
         finishTimeList.set(sequence, finishTime);
     }
 
     public NodeStatus getNodeStatus(int nodeSequence) {
-        if (!visitStarted.get(nodeSequence)) {
+        if (!visitStarted.contains(nodeSequence)) {
             return NodeStatus.UNDISCOVERED;
         }
-        if (visitEnded.get(nodeSequence)) {
+        if (visitEnded.contains(nodeSequence)) {
             return NodeStatus.FINISHED;
         }
         return NodeStatus.PROCESSING;
@@ -127,10 +169,10 @@ public class TreeNodeVisitData {
     public void setNodeStatus(int nodeSequence, NodeStatus nodeStatus) {
         switch (nodeStatus) {
             case FINISHED:
-                visitEnded.set(nodeSequence);
+                visitEnded.add(nodeSequence);
                 break;
             case PROCESSING:
-                visitStarted.set(nodeSequence);
+                visitStarted.add(nodeSequence);
                 break;
             case UNDISCOVERED:
                 throw new UnsupportedOperationException("Can't reset to undiscovered");
@@ -139,17 +181,34 @@ public class TreeNodeVisitData {
         }
     }
 
-
-    public BitSet getLeafNodes() {
+    public SequenceSet<?> getLeafNodes() {
         return leafNodes;
     }
 
-    public BitSet getIntermediateNodes() {
-        BitSet intermediateNodes = new BitSet();
+    public SequenceSet<?> getIntermediateNodes() {
+        SequenceSet intermediateNodes = new SequenceSet<>();
         intermediateNodes.or(visitEnded);
         intermediateNodes.andNot(leafNodes);
 
         return intermediateNodes;
+    }
+
+    public SequenceSet<?> getNodeIdsForDepth(int depth) {
+        SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
+        for (int i = 0; i < distanceList.size(); i++) {
+            if (distanceList.get(i) == depth) {
+                nodeIdsForDepth.add(i);
+            }
+        }
+        return nodeIdsForDepth;
+    }
+
+    public int getSiblingGroupForSequence(int sequence) {
+        return siblingGroupSequenceList.get(sequence);
+    }
+
+    public void setSiblingGroupForSequence(int sequence, int value) {
+        siblingGroupSequenceList.set(sequence, value);
     }
 
 }

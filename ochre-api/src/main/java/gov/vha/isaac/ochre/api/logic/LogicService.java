@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.logic;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.classifier.ClassifierService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -22,6 +23,7 @@ import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -32,19 +34,22 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface LogicService {
 
+    Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId, int logicAssemblageId, 
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+    
     ClassifierService getClassifierService(
-            StampCoordinate stampCoordinate,
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
             LogicCoordinate logicCoordinate,
             EditCoordinate editCoordinate);
 
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology conceptChronology);
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology conceptChronology,
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
+            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology<?> conceptChronology);
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
+            getRelationshipAdaptorsOriginatingWithConcept(ConceptChronology<?> conceptChronology,
                     LogicCoordinate logicCoordinate);
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology conceptChronology);
-    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor>>
-            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology conceptChronology,
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
+            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology<?> conceptChronology);
+    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
+            getRelationshipAdaptorsWithConceptAsDestination(ConceptChronology<?> conceptChronology,
                     LogicCoordinate logicCoordinate);
 }

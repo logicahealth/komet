@@ -15,11 +15,8 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
-import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.PremiseType;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.coordinate.*;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -27,20 +24,25 @@ import java.util.UUID;
  *
  * @author kec
  */
-public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
+public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordinateImpl> {
 
     PremiseType taxonomyType;
-    StampCoordinate stampCoordinate;
+    StampCoordinate<? extends StampCoordinate<?>> stampCoordinate;
     LanguageCoordinate languageCoordinate;
+    LogicCoordinate logicCoordinate;
     UUID uuid;
 
-    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
+                                  LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
         this.taxonomyType = taxonomyType;
         this.stampCoordinate = stampCoordinate;
         this.languageCoordinate = languageCoordinate;
-        uuid = UuidT5Generator.get(UuidT5Generator.TAXONOMY_COORDINATE_NAMESPACE,
-        this.taxonomyType + stampCoordinate.toString() + languageCoordinate.toString());
+        this.logicCoordinate = logicCoordinate;
+        uuid = UUID.randomUUID();
     }
+    
+    
+    
     
     @Override
     public PremiseType getTaxonomyType() {
@@ -48,13 +50,18 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
     }
 
     @Override
-    public StampCoordinate getStampCoordinate() {
+    public StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate() {
        return stampCoordinate;
     }
 
     @Override
     public LanguageCoordinate getLanguageCoordinate() {
         return languageCoordinate;
+    }
+
+    @Override
+    public LogicCoordinate getLogicCoordinate() {
+        return logicCoordinate;
     }
 
     @Override
@@ -81,6 +88,9 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
         if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
             return false;
         }
+        if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
+            return false;
+        }
         return Objects.equals(this.languageCoordinate, other.languageCoordinate);
     }
 
@@ -88,5 +98,30 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
     public UUID getUuid() {
         return uuid;
     }
+
+    @Override
+    public TaxonomyCoordinateImpl makeAnalog(long stampPositionTime) {
+        return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate.makeAnalog(stampPositionTime),
+                                  languageCoordinate, logicCoordinate);
+    }
+
+    @Override
+    public TaxonomyCoordinateImpl makeAnalog(State... state) {
+        return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate.makeAnalog(state),
+                                  languageCoordinate, logicCoordinate);
+    }
+
+    @Override
+    public TaxonomyCoordinateImpl makeAnalog(PremiseType taxonomyType) {
+        return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate,
+                                  languageCoordinate, logicCoordinate);
+    }
+
+    @Override
+    public String toString() {
+        return "TaxonomyCoordinate{" + taxonomyType + ",\n" + stampCoordinate + ", \n" + languageCoordinate + ", \n" + logicCoordinate + ", uuid=" + uuid + '}';
+    }
+    
+    
     
 }

@@ -18,11 +18,14 @@ package gov.vha.isaac.ochre.api.commit;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
+
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -40,25 +43,25 @@ public interface CommitService {
     
     Optional<String> getComment(int stampSequence);
     
-    Task<Void> addUncommitted(ConceptChronology cc);
+    Task<Void> addUncommitted(ConceptChronology<?> cc);
 
-    Task<Void> addUncommittedNoChecks(ConceptChronology cc);
+    Task<Void> addUncommittedNoChecks(ConceptChronology<?> cc);
 
-    Task<Void> addUncommitted(SememeChronology sc);
+    Task<Void> addUncommitted(SememeChronology<?> sc);
 
-    Task<Void> addUncommittedNoChecks(SememeChronology sc);
+    Task<Void> addUncommittedNoChecks(SememeChronology<?> sc);
 
     Task<Void> cancel();
 
-    Task<Void> cancel(ConceptChronology chronicledConcept);
+    Task<Void> cancel(ConceptChronology<?> chronicledConcept);
 
-    Task<Void> cancel(SememeChronology sememeChronicle);
+    Task<Void> cancel(SememeChronology<?> sememeChronicle);
 
     Task<Optional<CommitRecord>> commit(String commitComment);
 
-    Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
+    Task<Optional<CommitRecord>> commit(ConceptChronology<?> chronicledConcept, String commitComment);
     
-    Task<Optional<CommitRecord>> commit(SememeChronology sememeChronicle, String commitComment);
+    Task<Optional<CommitRecord>> commit(SememeChronology<?> sememeChronicle, String commitComment);
     
     ObservableList<Integer> getUncommittedConceptNids();
     
@@ -89,6 +92,14 @@ public interface CommitService {
     boolean isNotCanceled(int stampSequence);
     
     boolean isUncommitted(int stampSequence);
+    
+    /**
+     * 
+     * @param stampSequence a stamp sequence to create an analog of
+     * @return a stampSequence with a State of INACTIVE, but the same
+     * time, author, module, and path as the provided stamp sequence. 
+     */
+    int getRetiredStampSequence(int stampSequence);
     
     int getStampSequence(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);

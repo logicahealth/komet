@@ -196,7 +196,7 @@ public class ConceptAttributesRevision extends Revision<ConceptAttributesRevisio
     }
 
     @Override
-    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
        return primordialComponent.getLatestVersion(type, coordinate);
     }
     

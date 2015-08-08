@@ -18,32 +18,33 @@ package gov.vha.isaac.ochre.observable.model.coordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPath;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
+import gov.vha.isaac.ochre.model.coordinate.StampPathImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import java.util.List;
 import java.util.stream.Collectors;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 
 /**
  *
  * @author kec
  */
-public class ObservableStampPathImpl implements ObservableStampPath {
-    
-    IntegerProperty pathConceptSequenceProperty;
-    ListProperty<ObservableStampPosition> pathOriginsProperty;
-    
-    StampPath stampPath;
+public class ObservableStampPathImpl extends ObservableCoordinateImpl implements ObservableStampPath {
+    StampPathImpl stampPath;
 
+   
+    ReadOnlyIntegerProperty pathConceptSequenceProperty;
+    ReadOnlyListWrapper<ObservableStampPosition> pathOriginsProperty;
+    
     public ObservableStampPathImpl(StampPath stampPath) {
-        this.stampPath = stampPath;
+        this.stampPath = (StampPathImpl) stampPath;
     }
 
     @Override
-    public IntegerProperty pathConceptSequenceProperty() {
+    public ReadOnlyIntegerProperty pathConceptSequenceProperty() {
         if (pathConceptSequenceProperty == null) {
             pathConceptSequenceProperty = new SimpleIntegerProperty(this, 
                     ObservableFields.PATH_SEQUENCE_FOR_STAMP_PATH.toExternalString(), 
@@ -53,9 +54,9 @@ public class ObservableStampPathImpl implements ObservableStampPath {
     }
 
     @Override
-    public ListProperty<ObservableStampPosition> pathOriginsProperty() {
+    public ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty() {
         if (pathOriginsProperty == null) {
-            pathOriginsProperty = new SimpleListProperty(this, 
+            pathOriginsProperty = new ReadOnlyListWrapper<>(this,
                     ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(), 
                     FXCollections.<ObservableStampPosition>observableList(getPathOrigins()));
         }
@@ -78,6 +79,11 @@ public class ObservableStampPathImpl implements ObservableStampPath {
         return stampPath.getPathOrigins().stream()
                 .map((origin) -> new ObservableStampPositionImpl(origin))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public int compareTo(StampPath o) {
+        return stampPath.compareTo(o);
     }
     
     

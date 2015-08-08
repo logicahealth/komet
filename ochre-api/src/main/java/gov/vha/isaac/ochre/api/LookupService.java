@@ -18,12 +18,10 @@ package gov.vha.isaac.ochre.api;
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import gov.vha.isaac.ochre.api.constants.Constants;
 import gov.vha.isaac.ochre.util.HeadlessToolkit;
-import gov.vha.isaac.ochre.util.WorkExecutors;
 import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import com.sun.javafx.application.PlatformImpl;
+import org.glassfish.hk2.api.ServiceLocatorFactory;
 
 /**
  *
@@ -42,7 +41,8 @@ public class LookupService {
     private static final Logger log = LogManager.getLogger();
     private static volatile ServiceLocator looker = null;
     public static final int ISAAC_STARTED_RUNLEVEL = 4;
-    public static final int ISAAC_STOPPED_RUNLEVEL = -1;
+    public static final int WORKERS_STARTED_RUNLEVEL = -1;
+    public static final int ISAAC_STOPPED_RUNLEVEL = -2;
     private static final Object lock = new Object();
 
     /**
@@ -61,14 +61,12 @@ public class LookupService {
                         // No need to do anything here
                         });
                     
-                    ArrayList<String> packagesToSearch = new ArrayList<String>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
+                    ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
 
                     boolean readInhabitantFiles = Boolean.getBoolean(System.getProperty(Constants.READ_INHABITANT_FILES, "false"));
                     if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
                         String[] extraPackagesToSearch = System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH).split(";");
-                        for (String packageToSearch: extraPackagesToSearch) {
-                            packagesToSearch.add(packageToSearch);
-                        }
+                        packagesToSearch.addAll(Arrays.asList(extraPackagesToSearch));
                     }
                     try {
                         String[] packages = packagesToSearch.toArray(new String[]{});
@@ -136,7 +134,7 @@ public class LookupService {
         }
         T service = get().getService(contractOrService, name, new Annotation[0]);
         
-		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+        log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
 
         return service;
     }
@@ -148,7 +146,7 @@ public class LookupService {
      * @param name May be null (to indicate any name is ok), and is the name of the implementation to be returned
      */
     public static <T> T getNamedServiceIfPossible(Class<T> contractOrService, String name) {
-    	T service = null;
+        T service = null;
         if (StringUtils.isEmpty(name)) {
             service = get().getService(contractOrService);
         }
@@ -159,7 +157,7 @@ public class LookupService {
             }
         }
         
-		log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+        log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
 
         return service;
     }
@@ -170,25 +168,19 @@ public class LookupService {
 
     public static void setRunLevel(int runLevel) {
         getService(RunLevelController.class).proceedTo(runLevel);
-        /*
-         * Stop the thread pools - these are handled as a singleton, rather than a runlevel, as other code that reuses these
-         * wants to make use of the thread pools before the DB has been started.  With them configured as a singleton, they will
-         * be started automatically, when needed - and this hook (which is the only obvious path to change the runlevel) will 
-         * ensure they are stopped during an isaac shutdown sequence.
-         */
-        if (runLevel <= ISAAC_STOPPED_RUNLEVEL) {
-            get().getServiceHandle(WorkExecutors.class).destroy();  //stop the thread pools
-        }
+    }
+    
+    /**
+     * Start the WorkExecutor services (without starting ISAAC core services), blocking until started (or failed). 
+     */
+    public static void startupWorkExecutors() {
+        setRunLevel(WORKERS_STARTED_RUNLEVEL);
     }
     
     /**
      * Start all core isaac services, blocking until started (or failed)
      */
     public static void startupIsaac() {
-        //Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial 
-        //init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
-        //should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID. 
-        getService(WorkExecutors.class).getExecutor().execute(() -> UUID.randomUUID());
         setRunLevel(ISAAC_STARTED_RUNLEVEL);
     }
     
@@ -197,6 +189,12 @@ public class LookupService {
      */
     public static void shutdownIsaac() {
         setRunLevel(ISAAC_STOPPED_RUNLEVEL);
+        log.info("Service caches: " + looker.getAllServices(OchreCache.class));
+        looker.getAllServices(OchreCache.class)
+                .forEach((cache) -> {cache.reset();});
+        looker.shutdown();
+        ServiceLocatorFactory.getInstance().destroy(looker);
+        looker = null;
     }
     
     /**
@@ -227,11 +225,5 @@ public class LookupService {
     
     public static boolean isIsaacStarted() {
         return getService(RunLevelController.class).getCurrentRunLevel() == ISAAC_STARTED_RUNLEVEL;
-    }
-    
-    public static boolean hasIsaacBeenStartedAtLeastOnce() {
-        //The starting runlevel of HK2 is -2, before you do anything.  The stop level of isaac 
-        //is -1, so we will never go back to -2.
-        return getCurrentRunLevel() != -2;
     }
 }

@@ -30,7 +30,7 @@ public class ObservableSememeVersionImpl<V extends  ObservableSememeVersionImpl<
 
     implements ObservableSememeVersion<V> {
     
-    public ObservableSememeVersionImpl(SememeVersionImpl<?> stampedVersion, ObservableSememeChronology chronology) {
+    public ObservableSememeVersionImpl(SememeVersionImpl<?> stampedVersion, ObservableSememeChronology<V> chronology) {
         super(stampedVersion, chronology);
     }
 
@@ -50,8 +50,8 @@ public class ObservableSememeVersionImpl<V extends  ObservableSememeVersionImpl<
     }
 
     @Override
-    public ObservableSememeChronology getChronology() {
-        return (ObservableSememeChronology) chronology;
+    public ObservableSememeChronology<V> getChronology() {
+        return (ObservableSememeChronology<V>) chronology;
     }
     
 }

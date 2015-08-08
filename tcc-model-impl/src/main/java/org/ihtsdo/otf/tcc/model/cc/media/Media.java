@@ -1,5 +1,6 @@
 package org.ihtsdo.otf.tcc.model.cc.media;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
@@ -30,8 +31,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicRevision;
 
 public class Media extends ConceptComponent<MediaRevision, Media>
         implements MediaVersionFacade {
@@ -301,7 +300,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new MediaVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new MediaVersion(this, this, stampAlias));
                 }
             }
@@ -310,7 +309,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
                 for (MediaRevision ir : revisions) {
                     if (ir.getTime() != Long.MIN_VALUE) {
                         list.add(new MediaVersion(ir, this, ir.stamp));
-                            for (int stampAlias : getCommitManager().getAliases(ir.stamp)) {
+                            for (int stampAlias : Get.commitService().getAliases(ir.stamp)) {
                             list.add(new MediaVersion(ir, this, stampAlias));
                         }
                  }
@@ -368,7 +367,7 @@ public class Media extends ConceptComponent<MediaRevision, Media>
     }
 
     @Override
-    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
          return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
      }

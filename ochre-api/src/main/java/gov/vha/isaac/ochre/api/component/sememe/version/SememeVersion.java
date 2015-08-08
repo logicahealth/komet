@@ -24,7 +24,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeObject;
  * @author kec
  * @param <V>
  */
-public interface SememeVersion<V extends SememeVersion> extends StampedVersion, SememeObject {
+public interface SememeVersion<V extends SememeVersion<V>> extends StampedVersion, SememeObject {
 
     SememeChronology<V> getChronology();
     

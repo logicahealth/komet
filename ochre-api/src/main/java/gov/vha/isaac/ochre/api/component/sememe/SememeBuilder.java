@@ -23,6 +23,6 @@ import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
  * @author kec
  * @param <C>
  */
-public interface SememeBuilder<C extends SememeChronology<? extends SememeVersion>> extends IdentifiedComponentBuilder<C>{
+public interface SememeBuilder<C extends SememeChronology<? extends SememeVersion<?>>> extends IdentifiedComponentBuilder<C>{
     
 }

@@ -77,7 +77,7 @@ public interface IdentifiedComponentBuilder<T extends IdentifiedObjectLocal> {
      */
     T build(EditCoordinate editCoordinate, 
             ChangeCheckerMode changeCheckerMode,
-            List subordinateBuiltObjects) throws IllegalStateException;
+            List<?> subordinateBuiltObjects) throws IllegalStateException;
 
     /**
      * The caller is responsible to write the component to the proper store when 
@@ -89,6 +89,6 @@ public interface IdentifiedComponentBuilder<T extends IdentifiedObjectLocal> {
      * @return the constructed component, not yet written to the database. 
      * @throws IllegalStateException 
      */
-    T build(int stampSequence, List builtObjects) throws IllegalStateException;
+    T build(int stampSequence, List<?> builtObjects) throws IllegalStateException;
     
 }

@@ -22,7 +22,7 @@ public class ActiveTasksTicker {
 
     public static void start(int intervalInSeconds) {
         ticker.start(intervalInSeconds, (tick) -> {
-            Set<Task> taskSet = LookupService.get().getService(ActiveTasks.class).get();
+            Set<Task<?>> taskSet = LookupService.get().getService(ActiveTasks.class).get();
             taskSet.stream().forEach((task) -> {
                 double percentProgress = task.getProgress() * 100;
                 if (percentProgress < 0) {

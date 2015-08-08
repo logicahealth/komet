@@ -16,8 +16,8 @@
 package org.ihtsdo.otf.tcc.dto.component.sememe;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
@@ -39,18 +39,9 @@ public class SememeFromDtoFactory {
         return byteConverter;
     }
 
-    private static IdentifierService identifierProvider;
-
-    private static IdentifierService getIdentifierService() {
-        if (identifierProvider == null) {
-            identifierProvider = LookupService.getService(IdentifierService.class);
-        }
-        return identifierProvider;
-    }
-
-    public static SememeChronology<?> create(TtkRefexAbstractMemberChronicle<?> eRefsetMember) {
-        IdentifierService ids = getIdentifierService();
-        int nid = getIdentifierService().getNidForUuids(eRefsetMember.primordialUuid);
+     public static SememeChronology<?> create(TtkRefexAbstractMemberChronicle<?> eRefsetMember) {
+        IdentifierService ids = Get.identifierService();
+        int nid = Get.identifierService().getNidForUuids(eRefsetMember.primordialUuid);
         int assemblageSequence = ids.getConceptSequence(ids.getNidForUuids(eRefsetMember.assemblageUuid));
         int referencedComponentNid = ids.getNidForUuids(eRefsetMember.referencedComponentUuid);
         int containerSequence = ids.getSememeSequence(nid);

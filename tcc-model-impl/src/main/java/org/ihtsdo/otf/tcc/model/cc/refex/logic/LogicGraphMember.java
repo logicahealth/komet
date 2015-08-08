@@ -6,6 +6,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import java.io.IOException;
@@ -193,7 +194,7 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new LogicGraphMemberVersion(this, this, primordialStamp));
-                    for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                 list.add(new LogicGraphMemberVersion(this, this, stampAlias));
             }
     }
@@ -201,7 +202,7 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
             if (revisions != null) {
                 revisions.stream().filter((br) -> (br.getTime() != Long.MIN_VALUE)).forEach((br) -> {
                     list.add(new LogicGraphMemberVersion(br, this, br.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(br.stamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(br.stamp)) {
                         list.add(new LogicGraphMemberVersion(br, this, stampAlias));
                     }
                  });

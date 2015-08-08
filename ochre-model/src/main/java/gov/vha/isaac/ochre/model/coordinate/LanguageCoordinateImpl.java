@@ -15,8 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
-import gov.vha.isaac.ochre.api.LanguageCoordinateService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
@@ -25,6 +24,13 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
+import javafx.collections.ArrayChangeListener;
+import javafx.collections.ObservableIntegerArray;
 
 /**
  *
@@ -32,14 +38,6 @@ import java.util.Optional;
  */
 public class LanguageCoordinateImpl implements LanguageCoordinate {
 
-    private static LanguageCoordinateService languageCoordinateService;
-
-    private static LanguageCoordinateService getLanguageCoordinateService() {
-        if (languageCoordinateService == null) {
-            languageCoordinateService = LookupService.getService(LanguageCoordinateService.class);
-        }
-        return languageCoordinateService;
-    }
     int languageConceptSequence;
     int[] dialectAssemblagePreferenceList;
     int[] descriptionTypePreferenceList;
@@ -51,7 +49,7 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
     }
 
     @Override
-    public int getLanugageConceptSequence() {
+    public int getLanguageConceptSequence() {
         return languageConceptSequence;
     }
 
@@ -92,24 +90,54 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(
-            List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
-        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
-                getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+            List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
+                Get.languageCoordinateService().getFullySpecifiedConceptSequence(), this);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(
-            List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
-        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
-                getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
+            List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
+                Get.languageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, StampCoordinate<?> stampCoordinate) {
+        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, 
+                descriptionList, this);
     }
 
     @Override
     public String toString() {
-        return "LanguageCoordinateImpl{languageConceptSequence=" + languageConceptSequence + 
-                ", dialectAssemblagePreferenceList=" + Arrays.toString(dialectAssemblagePreferenceList) + 
-                ", descriptionTypePreferenceList=" + Arrays.toString(descriptionTypePreferenceList) + '}';
+        return "Language Coordinate{" + Get.conceptDescriptionText(languageConceptSequence) + 
+                ", dialect preference: " + Get.conceptDescriptionTextList(dialectAssemblagePreferenceList) + 
+                ", type preference: " + Get.conceptDescriptionTextList(descriptionTypePreferenceList) + '}';
+    }
+    public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
+        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+            descriptionTypePreferenceList = observableArray.toArray(descriptionTypePreferenceList);
+        };
+        descriptionTypePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+        return listener;
     }
 
+    public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
+        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+            dialectAssemblagePreferenceList = observableArray.toArray(dialectAssemblagePreferenceList);
+        };
+        dialectAssemblagePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+        return listener;
+    }
+    
+    public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty languageConceptSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable, 
+                Number oldValue, 
+                Number newValue) -> {
+            languageConceptSequence = newValue.intValue();
+        };
+        languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
 }

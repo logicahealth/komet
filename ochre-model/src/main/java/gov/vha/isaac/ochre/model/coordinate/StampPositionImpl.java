@@ -15,11 +15,14 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 
 /**
  *
@@ -27,30 +30,33 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
  */
 public class StampPositionImpl implements StampPosition, Comparable<StampPosition> {
     
-    private static IdentifiedObjectService identifiedObjectService;
-    private static IdentifiedObjectService getIdentifiedObjectService() {
-        if (identifiedObjectService == null) {
-            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
-        }
-        return identifiedObjectService;
-    }
-    
-    private static IdentifierService identifierService;
-    private static IdentifierService getIdentifierService() {
-        if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return identifierService;
-    }
-    
-    
     long time;
     int stampPathSequence;
 
     public StampPositionImpl(long time, int stampPathSequence) {
         this.time = time;
-        this.stampPathSequence = getIdentifierService().getConceptSequence(stampPathSequence);
+        this.stampPathSequence = Get.identifierService().getConceptSequence(stampPathSequence);
     }
+    public ChangeListener<Number> setStampPathSequenceProperty(IntegerProperty stampPathSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            stampPathSequence = newValue.intValue();
+        };
+        stampPathSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
+    public ChangeListener<Number> setTimeProperty(LongProperty timeProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            time = newValue.longValue();
+        };
+        timeProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
 
     @Override
     public StampPath getStampPath() {
@@ -93,7 +99,7 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("StampPosition:{time=");
+        sb.append("StampPosition:{");
         if (time == Long.MAX_VALUE) {
             sb.append("latest");
         } else if (time == Long.MIN_VALUE) {
@@ -101,7 +107,7 @@ public class StampPositionImpl implements StampPosition, Comparable<StampPositio
         } else {
             sb.append(getTimeAsInstant());
         }
-        sb.append(", stampPathSequence=").append(stampPathSequence).append(" ").append(getIdentifiedObjectService().informAboutObject(stampPathSequence)).append('}');
+        sb.append(" on '").append(Get.conceptDescriptionText(stampPathSequence)).append("' path}");
         return sb.toString();
     }
 

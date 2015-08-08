@@ -15,6 +15,7 @@
  */
 package org.ihtsdo.otf.tcc.model.cc.refex.type_array_of_bytearray;
 
+import gov.vha.isaac.ochre.api.Get;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -206,7 +207,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new ArrayOfByteArrayMemberVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new ArrayOfByteArrayMemberVersion(this, this, stampAlias));
                 }
             }
@@ -215,7 +216,7 @@ public class ArrayOfByteArrayMember extends RefexMember<ArrayOfByteArrayRevision
                 for (ArrayOfByteArrayRevision br : revisions) {
                     if (br.getTime() != Long.MIN_VALUE) {
                         list.add(new ArrayOfByteArrayMemberVersion(br, this, br.stamp));
-                        for (int stampAlias : getCommitManager().getAliases(br.stamp)) {
+                        for (int stampAlias : Get.commitService().getAliases(br.stamp)) {
                             list.add(new ArrayOfByteArrayMemberVersion(br, this, stampAlias));
                         }
                     }

@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
@@ -42,13 +43,6 @@ import java.util.stream.IntStream;
 public abstract class Revision<V extends Revision<V, C>, C extends ConceptComponent<V, C>>
         implements ComponentVersionBI, AnalogBI, AnalogGeneratorBI<V> {
 
-    private static IdentifierService sequenceService = null; 
-    protected static IdentifierService getSequenceService() {
-        if (sequenceService == null) {
-            sequenceService = LookupService.getService(IdentifierService.class);
-        }
-        return sequenceService;
-    }
     protected static final Logger logger = Logger.getLogger(ConceptComponent.class.getName());
     public static SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
     //~--- fields --------------------------------------------------------------
@@ -625,23 +619,23 @@ public abstract class Revision<V extends Revision<V, C>, C extends ConceptCompon
 
     @Override
     public int getAuthorSequence() {
-        return getSequenceService().getConceptSequence(getAuthorNid());
+        return Get.identifierService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getSequenceService().getConceptSequence(getModuleNid());
+        return Get.identifierService().getConceptSequence(getModuleNid());
     }
 
     @Override
     public int getPathSequence() {
-       return getSequenceService().getConceptSequence(getPathNid());
+       return Get.identifierService().getConceptSequence(getPathNid());
     }
 
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         return primordialComponent.getSememeList();
     }
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return primordialComponent.getSememeListFromAssemblage(assemblageSequence);
     }
     public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {

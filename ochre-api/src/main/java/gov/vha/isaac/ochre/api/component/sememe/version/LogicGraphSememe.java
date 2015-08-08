@@ -15,13 +15,17 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version;
 
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
+
 /**
  *
  * @author kec
  */
-public interface LogicGraphSememe extends SememeVersion {
+public interface LogicGraphSememe<T extends LogicGraphSememe<T>> extends SememeVersion<T> {
     
     byte[][] getGraphData();
     
     byte[][] getExternalGraphData();
+    
+    LogicalExpression getLogicalExpression();
 }

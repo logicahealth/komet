@@ -19,6 +19,11 @@
 package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.constants.Constants;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableEditCoordinate;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLogicCoordinate;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableTaxonomyCoordinate;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -190,4 +195,140 @@ public interface ConfigurationService
 		}
 		return result;
 	}
+        
+        /**
+         * Sets the default user for editing and role-based access control. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultUser(int conceptId);
+        
+        /**
+         * Sets the default module for editing operations. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultModule(int conceptId);
+        
+        /**
+         * Sets the default path for editing operations. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultPath(int conceptId);
+        
+        /**
+         * Sets the default language for description retrieval. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultLanguage(int conceptId);
+        
+        /**
+         * Sets the default dialect preference list for description retrieval. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param dialectAssemblagePreferenceList prioritized preference list of 
+         * dialect assemblage sequences
+         */
+        void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList);
+    
+        /**
+         * Sets the default description type preference list for description retrieval. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param descriptionTypePreferenceList prioritized preference list of 
+         * description type sequences
+         */
+        void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
+
+        
+        /**
+         * Sets the default stated definition assemblage. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultStatedAssemblage(int conceptId);
+        /**
+         * Sets the default inferred definition assemblage. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultInferredAssemblage(int conceptId);
+        /**
+         * Sets the default description-logic profile. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId either a nid or conceptSequence
+         */
+        void setDefaultDescriptionLogicProfile(int conceptId);
+        /**
+         * Sets the default classifier. 
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param conceptId 
+         */
+        void setDefaultClassifier(int conceptId);
+        
+        /**
+         * Sets the default time for viewing versions of components
+         * When changed, other default objects that reference this object
+         * will be updated accordingly. 
+         * Default: The value to use if another value is not provided. 
+         * @param timeInMs Time in milliseconds since unix epoch. Long.MAX_VALUE 
+         * is used to represent the latest versions. 
+         */
+        void setDefaultTime(long timeInMs);
+        
+        /**
+         * 
+         * @return an {@code ObservableEditCoordinate} based on the configuration
+         * defaults. 
+         */
+        ObservableEditCoordinate getDefaultEditCoordinate();
+        
+        /**
+         * 
+         * @return an {@code ObservableLanguageCoordinate} based on the configuration
+         * defaults. 
+         */
+        ObservableLanguageCoordinate getDefaultLanguageCoordinate();
+        
+        /**
+         * 
+         * @return an {@code ObservableLogicCoordinate} based on the configuration
+         * defaults. 
+         */
+        ObservableLogicCoordinate getDefaultLogicCoordinate();
+        
+        /**
+         * 
+         * @return an {@code ObservableStampCoordinate} based on the configuration
+         * defaults. 
+         */
+        ObservableStampCoordinate getDefaultStampCoordinate();
+        
+        /**
+         * 
+         * @return an {@code ObservableTaxonomyCoordinate} based on the configuration
+         * defaults. 
+         */
+        ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate();
+        
 }

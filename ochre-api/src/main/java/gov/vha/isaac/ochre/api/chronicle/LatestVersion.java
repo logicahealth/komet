@@ -48,7 +48,7 @@ public final class LatestVersion<V>  {
         if (versions.size() < 2) {
             contradictions = Optional.empty();
         } else {
-            contradictions = Optional.of(new HashSet(versions.subList(1, versions.size())));
+            contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
         }
     }
 

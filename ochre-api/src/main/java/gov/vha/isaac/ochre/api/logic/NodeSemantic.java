@@ -1,12 +1,14 @@
 package gov.vha.isaac.ochre.api.logic;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.UUID;
 
 /**
  * Created by kec on 12/6/14.
  */
-public enum NodeSemantic {
+
+public enum NodeSemantic  {
     NECESSARY_SET(),
     SUFFICIENT_SET(),
 
@@ -39,6 +41,7 @@ public enum NodeSemantic {
     ;
     
     UUID semanticUuid;
+    int conceptSequence = Integer.MIN_VALUE;
 
     private NodeSemantic() {
         this.semanticUuid = UuidT5Generator.get(UUID.fromString("8a834ec8-028d-11e5-a322-1697f925ec7b"),
@@ -46,8 +49,20 @@ public enum NodeSemantic {
     }
     
     
-
+    public int getConceptSequence() {
+        if (this.conceptSequence == Integer.MIN_VALUE) {
+            this.conceptSequence = Get.identifierService().getConceptSequenceForUuids(semanticUuid);
+        }
+        return this.conceptSequence;
+    }
+    
     public UUID getSemanticUuid() {
         return semanticUuid;
+    }
+
+    static void reset() {
+       for(NodeSemantic nodeSemantic: NodeSemantic.values()) {
+           nodeSemantic.conceptSequence = Integer.MIN_VALUE;
+        }
     }
 }

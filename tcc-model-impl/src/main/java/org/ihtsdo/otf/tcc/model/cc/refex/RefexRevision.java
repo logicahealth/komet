@@ -196,7 +196,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     }
 
     @Override
-    public Optional<LatestVersion<RefexVersionBI<V>>> getLatestVersion(Class<RefexVersionBI<V>> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<RefexVersionBI<V>>> getLatestVersion(Class<RefexVersionBI<V>> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return primordialComponent.getLatestVersion(type, coordinate);
     }
     

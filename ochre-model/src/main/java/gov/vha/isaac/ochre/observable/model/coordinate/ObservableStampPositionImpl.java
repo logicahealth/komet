@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.observable.model.coordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
+import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import java.time.Instant;
 import javafx.beans.property.IntegerProperty;
@@ -29,15 +30,16 @@ import javafx.beans.property.SimpleLongProperty;
  *
  * @author kec
  */
-public class ObservableStampPositionImpl implements ObservableStampPosition {
+public class ObservableStampPositionImpl extends ObservableCoordinateImpl implements ObservableStampPosition {
     
-    LongProperty timeProperty;
-    IntegerProperty stampPathSequenceProperty;
+    StampPositionImpl stampPosition;
+    
+   LongProperty timeProperty;
+   IntegerProperty stampPathSequenceProperty;
 
-    StampPosition stampPosition;
 
     public ObservableStampPositionImpl(StampPosition stampPosition) {
-        this.stampPosition = stampPosition;
+        this.stampPosition = (StampPositionImpl) stampPosition;
     }
 
     @Override
@@ -46,6 +48,7 @@ public class ObservableStampPositionImpl implements ObservableStampPosition {
             timeProperty = new SimpleLongProperty(this, 
                     ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(), 
                     getTime());
+            addListenerReference(stampPosition.setTimeProperty(timeProperty));
         }
         return timeProperty;
     }
@@ -56,6 +59,7 @@ public class ObservableStampPositionImpl implements ObservableStampPosition {
             stampPathSequenceProperty = new SimpleIntegerProperty(this, 
                     ObservableFields.PATH_SEQUENCE_FOR_STAMP_POSITION.toExternalString(), 
                     getStampPathSequence());
+            addListenerReference(stampPosition.setStampPathSequenceProperty(stampPathSequenceProperty));
         }
         return stampPathSequenceProperty;
     }

@@ -6,15 +6,15 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 
@@ -37,9 +37,9 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     }
 
-    public ConceptNodeWithUuids(ConceptNodeWithNids internalForm) {
+    public ConceptNodeWithUuids(ConceptNodeWithSequences internalForm) {
         super(internalForm);
-        this.conceptUuid = getIdentifierService().getUuidPrimordialForNid(internalForm.getConceptNid()).get();
+        this.conceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getConceptSequence()).get();
     }
 
     public UUID getConceptUuid() {
@@ -55,7 +55,7 @@ public class ConceptNodeWithUuids extends AbstractNode {
                 dataOutput.writeLong(conceptUuid.getLeastSignificantBits());
                 break;
             case INTERNAL:
-                ConceptNodeWithNids internalForm =  new ConceptNodeWithNids(this);
+                ConceptNodeWithSequences internalForm =  new ConceptNodeWithSequences(this);
                 internalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
@@ -87,7 +87,12 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     @Override
     public String toString() {
-        return "ConceptNode[" + getNodeIndex() + "]: \"" + getConceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString();
+        return toString("");
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" + Get.conceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
     }
 
     @Override

@@ -1,11 +1,10 @@
 package gov.vha.isaac.ochre.api.ticker;
 
-import gov.vha.isaac.ochre.api.memory.MemoryUtil;
-import org.reactfx.EventStreams;
-import org.reactfx.Subscription;
-
 import java.time.Duration;
 import java.util.function.Consumer;
+
+import org.reactfx.EventStreams;
+import org.reactfx.Subscription;
 
 /**
  * Created by kec on 4/9/15.
@@ -13,10 +12,6 @@ import java.util.function.Consumer;
 public class Ticker {
 
     private Subscription tickSubscription;
-
-    public void start(int intervalInSeconds) {
-        start(intervalInSeconds, (tick) -> System.out.println(MemoryUtil.getHeapPercentUse()));
-    }
 
     public void start(int intervalInSeconds, Consumer consumer) {
         stop();

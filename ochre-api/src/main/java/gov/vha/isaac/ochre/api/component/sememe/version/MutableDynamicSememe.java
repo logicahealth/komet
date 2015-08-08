@@ -19,6 +19,6 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface MutableDynamicSememe extends MutableSememeVersion, DynamicSememe {
+public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>> extends MutableSememeVersion<T>, DynamicSememe<T> {
     
 }

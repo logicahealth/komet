@@ -19,8 +19,8 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface MutableComponentNidSememe 
-    extends MutableSememeVersion, ComponentNidSememe{
+public interface MutableComponentNidSememe<T extends MutableComponentNidSememe<T>> 
+    extends MutableSememeVersion<T>, ComponentNidSememe<T> {
     
     void setComponentNid(int componentNid);
     

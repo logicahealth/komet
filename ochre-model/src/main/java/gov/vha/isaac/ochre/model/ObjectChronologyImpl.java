@@ -15,22 +15,27 @@
  */
 package gov.vha.isaac.ochre.model;
 
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.dag.Graph;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.StampedLock;
@@ -46,24 +51,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         implements ObjectChronology<V>, WaitFreeComparable {
-
-    private static CommitService commitManager;
-
-    protected static CommitService getCommitService() {
-        if (commitManager == null) {
-            commitManager = LookupService.getService(CommitService.class);
-        }
-        return commitManager;
-    }
-
-    private static SememeService sememeService;
-
-    protected static SememeService getSememeService() {
-        if (sememeService == null) {
-            sememeService = LookupService.getService(SememeService.class);
-        }
-        return sememeService;
-    }
 
     private static final StampedLock[] stampedLocks = new StampedLock[256];
 
@@ -115,7 +102,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     /**
      * Position in the data where chronicle data ends, and version data starts
      */
-    private int versionStartPosition;
+    private int versionStartPosition = -1;
 
     /**
      * Data previously persisted. Used for lazy instantiation of versions and
@@ -142,7 +129,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      * @param nid A unique internal identifier, that is only valid within this
      * database
      * @param containerSequence Either a concept sequence or a sememe sequence
- depending on the ofType of the underlying object.
+     * depending on the ofType of the underlying object.
      */
     protected ObjectChronologyImpl(UUID primoridalUuid, int nid,
             int containerSequence) {
@@ -206,20 +193,20 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     protected final void constructorEnd(DataBuffer data) {
         versionStartPosition = data.getPosition();
     }
-    
+
     /**
-     * Overwrites existing versions. Use to remove duplicates, etc. 
-     * Deliberately not advertised in standard API, as this call may lose audit
-     * data. 
-     * @param versions 
+     * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
+     * not advertised in standard API, as this call may lose audit data.
+     *
+     * @param versions
      */
     public void setVersions(Collection<V> versions) {
         if (unwrittenData != null) {
             unwrittenData.clear();
         }
         // reset written data
-        writtenData =  null;
-       versions.forEach((V version) -> addVersion(version));
+        writtenData = null;
+        versions.forEach((V version) -> addVersion(version));
     }
 
     /**
@@ -262,25 +249,25 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     public byte[] getDataToWrite(int writeSequence) {
         setWriteSequence(writeSequence);
         if (unwrittenData == null) {
-                // no changes, so nothing to merge. 
-                if (writtenData != null) {
-                    DataBuffer db = new DataBuffer(writtenData);
-                    db.putInt(writeSequence);
-                    return db.getData();
-                }
-                // creating a brand new object
-                DataBuffer db = new DataBuffer(10);
-                writeChronicleData(db);
-                db.putInt(0);
-                db.trimToSize();
+            // no changes, so nothing to merge. 
+            if (writtenData != null) {
+                DataBuffer db = new DataBuffer(writtenData);
+                db.putInt(writeSequence);
                 return db.getData();
-        } 
+            }
+            // creating a brand new object
+            DataBuffer db = new DataBuffer(10);
+            writeChronicleData(db);
+            db.putInt(0);
+            db.trimToSize();
+            return db.getData();
+        }
         DataBuffer db = new DataBuffer(512);
         writeChronicleData(db);
         // add versions..
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
-            if (getCommitService().isNotCanceled(stampSequenceForVersion)) {
+            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
                 int startWritePosition = db.getPosition();
                 db.putInt(0); // placeholder for length
                 version.writeVersionData(db);
@@ -290,7 +277,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 db.setPosition(db.getLimit());
             }
         });
-        
+
         db.putInt(0); // last data is a zero length version record
         db.trimToSize();
         return db.getData();
@@ -309,19 +296,22 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         DataBuffer db = new DataBuffer(512);
         writeChronicleData(db);
         OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
-        unwrittenData.values().forEach((version) -> {
-            int stampSequenceForVersion = version.getStampSequence();
-            if (getCommitService().isNotCanceled(stampSequenceForVersion)) {
-                writtenStamps.add(stampSequenceForVersion);
-                int startWritePosition = db.getPosition();
-                db.putInt(0); // placeholder for length
-                version.writeVersionData(db);
-                int versionLength = db.getPosition() - startWritePosition;
-                db.setPosition(startWritePosition);
-                db.putInt(versionLength);
-                db.setPosition(db.getLimit());
-            }
-        });
+        if (unwrittenData != null) {
+            unwrittenData.values().forEach((version) -> {
+                int stampSequenceForVersion = version.getStampSequence();
+                if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                    writtenStamps.add(stampSequenceForVersion);
+                    int startWritePosition = db.getPosition();
+                    db.putInt(0); // placeholder for length
+                    version.writeVersionData(db);
+                    int versionLength = db.getPosition() - startWritePosition;
+                    db.setPosition(startWritePosition);
+                    db.putInt(versionLength);
+                    db.setPosition(db.getLimit());
+                }
+            });
+        }
+
         if (writtenData != null) {
             mergeData(writtenData, writtenStamps, db);
         }
@@ -336,6 +326,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     protected void mergeData(byte[] dataToMerge,
             OpenIntHashSet writtenStamps, DataBuffer db) {
         DataBuffer writtenBuffer = new DataBuffer(dataToMerge);
+        if (versionStartPosition == -1) {
+            // object not constructed via serialization. Must compute version start postion. 
+            DataBuffer tempDb = new DataBuffer(512);
+            writeChronicleData(tempDb);
+            versionStartPosition = tempDb.getPosition();
+            
+        }
         int nextPosition = versionStartPosition;
         while (nextPosition < writtenBuffer.getLimit()) {
             writtenBuffer.setPosition(nextPosition);
@@ -343,7 +340,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             if (versionLength > 0) {
                 int stampSequenceForVersion = writtenBuffer.getInt();
                 if ((!writtenStamps.contains(stampSequenceForVersion))
-                        && getCommitService().isNotCanceled(stampSequenceForVersion)) {
+                        && Get.commitService().isNotCanceled(stampSequenceForVersion)) {
                     writtenStamps.add(stampSequenceForVersion);
                     db.append(writtenBuffer, nextPosition, versionLength);
                 }
@@ -477,7 +474,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     @Override
     public CommitStates getCommitState() {
         if (getVersionStampSequences().anyMatch((stampSequence)
-                -> getCommitService().isUncommitted(stampSequence))) {
+                -> Get.commitService().isUncommitted(stampSequence))) {
             return CommitStates.UNCOMMITTED;
         }
         return CommitStates.COMMITTED;
@@ -556,12 +553,20 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     public void toString(StringBuilder builder) {
-        builder.append("writeSequence=").append(writeSequence)
-                .append(", primordialUuid=").append(new UUID(primordialUuidMsb, primordialUuidLsb))
-                .append(",\n  nid=").append(nid)
-                .append(", containerSequence=").append(containerSequence)
-                .append(", versionStartPosition=").append(versionStartPosition)
-                .append(",\n  versions").append(getVersionList());
+        builder//.append("write:").append(writeSequence)
+                .append("uuid:").append(new UUID(primordialUuidMsb, primordialUuidLsb))
+                .append(",\n nid:").append(nid)
+                .append("\n container:").append(containerSequence)
+                //.append(", versionStartPosition:").append(versionStartPosition)
+                .append(",\n versions[");
+        getVersionList().forEach((version) -> {
+            builder.append("\n");
+            builder.append(version);
+            builder.append(",");
+        });
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append("]");
+
     }
 
     @Override
@@ -570,25 +575,25 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
-        return getSememeService().getSememesForComponent(nid).collect(Collectors.toList());
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
+        return Get.sememeService().getSememesForComponent(nid).collect(Collectors.toList());
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
-        return getSememeService().
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
+        return Get.sememeService().
                 getSememesForComponentFromAssemblage(nid, assemblageSequence).collect(Collectors.toList());
     }
 
     @Override
-    public <SV extends SememeVersion> List<SememeChronology<SV>> 
-        getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
-            List<SememeChronology<SV>> results = getSememeService().ofType(type).
+    public <SV extends SememeVersion> List<SememeChronology<SV>>
+            getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
+        List<SememeChronology<SV>> results = Get.sememeService().ofType(type).
                 getSememesForComponentFromAssemblage(nid, assemblageSequence)
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
         return results;
     }
-        
+
     private List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
         List<V> versions = new ArrayList<>(stampSequences.size());
         stampSequences.stream().forEach((stampSequence) -> versions.add(getVersionForStamp(stampSequence).get()));
@@ -596,7 +601,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         if (versionListReference != null) {
             ArrayList<V> versions = versionListReference.get();
@@ -616,6 +621,74 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
+    }
+    
+    
+
+    @Override
+    public List<Graph<? extends V>> getVersionGraphList() {
+
+        HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
+        getVersionList().forEach((version) -> {
+            StampPath path = Get.pathService().getStampPath(version.getPathSequence());
+
+            TreeSet<V> versionSet = versionMap.get(path);
+            if (versionSet == null) {
+                versionSet = new TreeSet<>((V v1, V v2) -> {
+                    int comparison = Long.compare(v1.getTime(), v2.getTime());
+                    if (comparison != 0) {
+                        return comparison;
+                    }
+                    return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
+                });
+                 versionMap.put(path, versionSet);
+            }
+            versionSet.add(version);
+        });
+
+        if (versionMap.size() == 1) {
+            // easy case...
+            List<Graph<? extends V>> results = new ArrayList();
+            Graph<V> graph = new Graph<>();
+            results.add(graph);
+            versionMap.entrySet().forEach((entry) -> {
+                entry.getValue().forEach((version) -> {
+                    if (graph.getRoot() == null) {
+                        graph.createRoot(version);
+                    } else {
+                        graph.getLastAddedNode().addChild(version);
+                    }
+                });
+
+            });
+            return results;
+        }
+        // TODO support for more than one path...
+        throw new UnsupportedOperationException("TODO: Implement version graph for more than one path...");
+    }
+
+    @Override
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+        RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+        SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
+            RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());
+            switch (relativePosition) {
+                case BEFORE:
+                    return -1;
+                case EQUAL:
+                    return 0;
+                case AFTER:
+                    return 1;
+                case UNREACHABLE:
+                case CONTRADICTION:
+                default:
+                    throw new UnsupportedOperationException("Can't handle: " + relativePosition);
+            }
+        });
+
+        sortedLogicGraphs.addAll(getVersionList());
+
+        return sortedLogicGraphs.stream().collect(Collectors.toList());
     }
 
 }

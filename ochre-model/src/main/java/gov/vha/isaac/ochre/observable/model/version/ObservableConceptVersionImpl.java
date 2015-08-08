@@ -25,16 +25,16 @@ import gov.vha.isaac.ochre.model.concept.ConceptVersionImpl;
  */
 public class ObservableConceptVersionImpl 
     extends ObservableVersionImpl<ObservableConceptVersionImpl, ConceptVersionImpl> 
-    implements ObservableConceptVersion {
+    implements ObservableConceptVersion<ObservableConceptVersionImpl> {
     
 
-    public ObservableConceptVersionImpl(ConceptVersionImpl stampedVersion, ObservableConceptChronology chronology) {
+    public ObservableConceptVersionImpl(ConceptVersionImpl stampedVersion, ObservableConceptChronology<ObservableConceptVersionImpl> chronology) {
         super(stampedVersion, chronology);
     }
 
     @Override
-    public ObservableConceptChronology getChronology() {
-        return (ObservableConceptChronology) chronology;
+    public ObservableConceptChronology<ObservableConceptVersionImpl> getChronology() {
+        return (ObservableConceptChronology<ObservableConceptVersionImpl>)chronology;
     }
     
 }

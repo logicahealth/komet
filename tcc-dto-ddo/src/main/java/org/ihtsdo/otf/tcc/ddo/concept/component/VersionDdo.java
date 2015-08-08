@@ -2,8 +2,7 @@ package org.ihtsdo.otf.tcc.ddo.concept.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import javafx.beans.property.SimpleObjectProperty;
@@ -46,7 +45,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 public abstract class VersionDdo implements Serializable {
    private static final long                          serialVersionUID    = 1;
    public static UUID                                 unspecifiedUserUuid = TermAux.USER.getUuids()[0];
-   private static IdentifierService identifierService = LookupService.getService(IdentifierService.class);
    private ComponentReference                       authorReference;
    private SimpleObjectProperty<ComponentReference> authorReferenceProperty;
    private TimeReference                                     fxTime;
@@ -68,9 +66,9 @@ public abstract class VersionDdo implements Serializable {
       super();
       status                  = Status.getStatusFromState(another.getState());
       fxTime                  = new TimeReference(another.getTime());
-      authorReference         = new ComponentReference(identifierService.getConceptNid(another.getAuthorSequence()), taxonomyCoordinate);
-      moduleReference         = new ComponentReference(identifierService.getConceptNid(another.getPathSequence()), taxonomyCoordinate);
-      pathReference           = new ComponentReference(identifierService.getConceptNid(another.getModuleSequence()), taxonomyCoordinate);
+      authorReference         = new ComponentReference(Get.identifierService().getConceptNid(another.getAuthorSequence()), taxonomyCoordinate);
+      moduleReference         = new ComponentReference(Get.identifierService().getConceptNid(another.getPathSequence()), taxonomyCoordinate);
+      pathReference           = new ComponentReference(Get.identifierService().getConceptNid(another.getModuleSequence()), taxonomyCoordinate);
       viewCoordinateUuid = taxonomyCoordinate.getUuid();
       assert status != null: "status is null";
       assert fxTime != null: "fxTime is null";

@@ -35,4 +35,14 @@ public abstract class LiteralNode extends AbstractNode {
     public final void addChildren(Node... children) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String toString() {
+        return toString(""); 
+    }
+
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return super.toString(nodeIdSuffix);
+    }
 }

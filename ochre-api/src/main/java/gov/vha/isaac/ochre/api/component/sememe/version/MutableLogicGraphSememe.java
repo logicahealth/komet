@@ -19,7 +19,7 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
  *
  * @author kec
  */
-public interface MutableLogicGraphSememe extends MutableSememeVersion, LogicGraphSememe {
+public interface MutableLogicGraphSememe<T extends MutableLogicGraphSememe<T>> extends MutableSememeVersion<T>, LogicGraphSememe<T> {
     
     void setGraphData(byte[][] setGraphData);
 

@@ -6,11 +6,12 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithNids;
+import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,9 +35,9 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         this.typeConceptUuid = typeConceptUuid;
     }
 
-    public TypedNodeWithUuids(TypedNodeWithNids internalForm) {
+    public TypedNodeWithUuids(TypedNodeWithSequences internalForm) {
         super(internalForm);
-        this.typeConceptUuid = getIdentifierService().getUuidPrimordialForNid(internalForm.getTypeConceptNid()).get();
+        this.typeConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTypeConceptSequence()).get();
     }
 
     public UUID getTypeConceptUuid() {
@@ -45,7 +46,7 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     @Override
     public String toString() {
-        return " type: \"" + getConceptService().getConcept(typeConceptUuid).toUserString() +"\""+ super.toString();
+        return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString() +" "+ super.toString();
     }
 
     public Node getOnlyChild() {
@@ -55,5 +56,16 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         }
         throw new IllegalStateException("Typed nodes can have only one child. Found: " + Arrays.toString(children));
     }
+    
+    @Override
+    protected final int compareNodeFields(Node o) {
+        // node semantic already determined equals. 
+        TypedNodeWithUuids other = (TypedNodeWithUuids) o;
+        if (!typeConceptUuid.equals(other.typeConceptUuid)) {
+            return typeConceptUuid.compareTo(other.typeConceptUuid);
+        }
+        return compareTypedNodeFields(o);
+    }
+    protected abstract int compareTypedNodeFields(Node o);
 }
 

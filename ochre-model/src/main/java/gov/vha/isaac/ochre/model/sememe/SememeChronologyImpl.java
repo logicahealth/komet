@@ -15,10 +15,10 @@
  */
 package gov.vha.isaac.ochre.model.sememe;
 
-import gov.vha.isaac.ochre.api.IdentifiedObjectService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
@@ -44,16 +44,7 @@ import java.util.UUID;
  * @author kec
  * @param <V>
  */
-public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
-
-    private static IdentifiedObjectService identifiedObjectService;
-
-    private static IdentifiedObjectService getIdentifiedObjectService() {
-        if (identifiedObjectService == null) {
-            identifiedObjectService = LookupService.getService(IdentifiedObjectService.class);
-        }
-        return identifiedObjectService;
-    }
+public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
 
     byte sememeTypeToken = -1;
     int assemblageSequence = -1;
@@ -94,7 +85,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
 
     @Override
     protected V makeVersion(int stampSequence, DataBuffer db) {
-        return (V) createSememe(sememeTypeToken, this, stampSequence, 
+        return (V) createSememe(sememeTypeToken, this, stampSequence,
                 db.getShort(), db);
     }
 
@@ -110,7 +101,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
 
     @Override
     public <M extends V> M createMutableVersion(Class<M> type, int stampSequence) {
-        M version = createMutableVersionInternal(type, stampSequence, 
+        M version = createMutableVersionInternal(type, stampSequence,
                 nextVersionSequence());
         addVersion(version);
         return version;
@@ -118,9 +109,9 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
 
     @Override
     public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-        int stampSequence = getCommitService().getStampSequence(status, Long.MAX_VALUE,
+        int stampSequence = Get.commitService().getStampSequence(status, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
-        M version = createMutableVersionInternal(type, stampSequence, 
+        M version = createMutableVersionInternal(type, stampSequence,
                 nextVersionSequence());
         addVersion(version);
         return version;
@@ -171,7 +162,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
                     return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
-                    
+
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + getSememeType());
@@ -184,27 +175,26 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
     public int getReferencedComponentNid() {
         return referencedComponentNid;
     }
-    
 
-    public static SememeVersionImpl createSememe(byte token, SememeChronologyImpl container,
+    public static SememeVersionImpl<?> createSememe(byte token, SememeChronologyImpl<?> container,
             int stampSequence, short versionSequence, DataBuffer bb) {
 
         SememeType st = SememeType.getFromToken(token);
         switch (st) {
             case MEMBER:
-                return new SememeVersionImpl(container, stampSequence, versionSequence);
+                return (SememeVersionImpl<?>)new SememeVersionImpl(container, stampSequence, versionSequence);
             case COMPONENT_NID:
-                return new ComponentNidSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>)container, stampSequence, versionSequence, bb);
             case LONG:
-                return new LongSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>)container, stampSequence, versionSequence, bb);
             case LOGIC_GRAPH:
-                return new LogicGraphSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>)container, stampSequence, versionSequence, bb);
             case DYNAMIC:
-                return new DynamicSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>)container, stampSequence, versionSequence, bb);
             case STRING:
-                return new StringSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>)container, stampSequence, versionSequence, bb);
             case DESCRIPTION:
-                return new DescriptionSememeImpl(container, stampSequence, versionSequence, bb);
+                return (SememeVersionImpl<?>)(new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>)container, stampSequence, versionSequence, bb));
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }
@@ -215,17 +205,26 @@ public class SememeChronologyImpl<V extends SememeVersionImpl> extends ObjectChr
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("SememeChronicleImpl{sememeType=")
+        builder.append("SememeChronology{")
                 .append(SememeType.getFromToken(sememeTypeToken))
-                .append(", assemblageSequence=")
+                .append("\n assemblage:")
+                .append(Get.conceptDescriptionText(assemblageSequence))
+                .append(" <")
                 .append(assemblageSequence)
-                .append(" (")
-                .append(getIdentifiedObjectService().informAboutObject(assemblageSequence))
-                .append("), referencedComponentNid=")
+                .append(">\n rc:");
+        switch (Get.identifierService().getChronologyTypeForNid(referencedComponentNid)) {
+            case CONCEPT:
+                builder.append("CONCEPT: ").append(Get.conceptDescriptionText(referencedComponentNid));
+                break;
+            case SEMEME:
+                builder.append("SEMEME: ").append(Get.sememeService().getSememe(referencedComponentNid));
+                break;
+            default:
+                builder.append(Get.identifierService().getChronologyTypeForNid(referencedComponentNid)).append(" ").append(referencedComponentNid);
+        }
+        builder.append(" <")
                 .append(referencedComponentNid)
-                .append(" (")
-                .append(getIdentifiedObjectService().informAboutObject(referencedComponentNid))
-                .append(")\n ");
+                .append(">\n ");
         super.toString(builder);
         builder.append('}');
 

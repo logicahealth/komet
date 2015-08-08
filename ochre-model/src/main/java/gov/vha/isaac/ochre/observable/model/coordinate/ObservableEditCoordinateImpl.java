@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.observable.model.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableEditCoordinate;
+import gov.vha.isaac.ochre.model.coordinate.EditCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -25,16 +26,16 @@ import javafx.beans.property.SimpleIntegerProperty;
  *
  * @author kec
  */
-public class ObservableEditCoordinateImpl implements ObservableEditCoordinate {
+public class ObservableEditCoordinateImpl extends ObservableCoordinateImpl implements ObservableEditCoordinate {
 
     private IntegerProperty authorSequenceProperty = null;
     private IntegerProperty moduleSequenceProperty = null;
     private IntegerProperty pathSequenceProperty = null;
     
-    private final EditCoordinate editCoordinate;
+    private final EditCoordinateImpl editCoordinate;
 
     public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
-        this.editCoordinate = editCoordinate;
+        this.editCoordinate = (EditCoordinateImpl) editCoordinate;
     }
     
     @Override
@@ -43,6 +44,8 @@ public class ObservableEditCoordinateImpl implements ObservableEditCoordinate {
             authorSequenceProperty = new SimpleIntegerProperty(this, 
                     ObservableFields.AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE.toExternalString(), 
                     getAuthorSequence());
+            addListenerReference(editCoordinate.setAuthorSequenceProperty(authorSequenceProperty));
+
         }
         return authorSequenceProperty;
     }
@@ -52,7 +55,8 @@ public class ObservableEditCoordinateImpl implements ObservableEditCoordinate {
         if (moduleSequenceProperty == null) {
             moduleSequenceProperty = new SimpleIntegerProperty(this, 
                     ObservableFields.MODULE_SEQUENCE_FOR_EDIT_COORDINATE.toExternalString(), 
-                    getAuthorSequence());
+                    getModuleSequence());
+            addListenerReference(editCoordinate.setModuleSequenceProperty(moduleSequenceProperty));
         }
         return moduleSequenceProperty;
     }
@@ -62,7 +66,8 @@ public class ObservableEditCoordinateImpl implements ObservableEditCoordinate {
         if (pathSequenceProperty == null) {
             pathSequenceProperty = new SimpleIntegerProperty(this, 
                     ObservableFields.PATH_SEQUENCE_FOR_EDIT_CORDINATE.toExternalString(), 
-                    getAuthorSequence());
+                    getPathSequence());
+            addListenerReference(editCoordinate.setPathSequenceProperty(pathSequenceProperty()));
         }
         return pathSequenceProperty;
     }

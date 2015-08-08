@@ -25,15 +25,8 @@ import java.util.Optional;
  * @author kec
  * @param <V>
  */
-public interface ConceptChronology<V extends ConceptVersion>
-    extends ObjectChronology<V> {
-    
-    /**
-     * 
-     * @return the sequence of this concept. A contiguously assigned identifier for
-     * concepts >= 0;
-     */
-    int getConceptSequence();
+public interface ConceptChronology<V extends ConceptVersion<V>>
+    extends ObjectChronology<V>, ConceptSpecification {
     
     /**
      * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -70,36 +63,47 @@ public interface ConceptChronology<V extends ConceptVersion>
      * @param stampCoordinate coordinate to determine if description is active. 
      * @return true if any version of a description matches this text. 
      */
-    boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate);
+    boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
         
-    List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList();
+    List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
     
-    Optional<LatestVersion<DescriptionSememe>> 
-        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
+    Optional<LatestVersion<DescriptionSememe<?>>> 
+        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
-    Optional<LatestVersion<DescriptionSememe>> 
-        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
+    Optional<LatestVersion<DescriptionSememe<?>>> 
+        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
 
     /**
      * Uses the default logic coordinate. 
      * @return 
      */
-    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> 
         getRelationshipListOriginatingFromConcept();
-    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> 
         getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate);
         
     /**
      * Uses the default logic coordinate. 
      * @return 
      */
-    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> 
         getRelationshipListWithConceptAsDestination();
-    List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> 
+    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> 
         getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate);
         
         
-    Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, 
+    Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+            PremiseType premiseType, LogicCoordinate logicCoordinate);
+    
+    /**
+     * Return a formatted text report showing chronology of logical definitions
+     * for this concept, according to the provided parameters.
+     * @param stampCoordinate specifies the ordering and currency of versions. 
+     * @param premiseType Stated or inferred premise type
+     * @param logicCoordinate specifies the assemblages where the definitions are stored. 
+     * @return 
+     */
+    String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate);
     /**
      * 

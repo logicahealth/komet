@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.Get;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -173,7 +174,7 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new StringMemberVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new StringMemberVersion(this, this, stampAlias));
                 }
             }
@@ -182,7 +183,7 @@ public class StringMember extends RefexMember<StringRevision, StringMember>
                 for (StringRevision r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
                         list.add(new StringMemberVersion(r, this, r.stamp));
-                        for (int stampAlias : getCommitManager().getAliases(r.getStamp())) {
+                        for (int stampAlias : Get.commitService().getAliases(r.getStamp())) {
                             list.add(new StringMemberVersion(r, this, stampAlias));
                         }
                     }

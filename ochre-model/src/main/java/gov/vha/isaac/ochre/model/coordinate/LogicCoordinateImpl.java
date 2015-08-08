@@ -16,6 +16,10 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 
 /**
  *
@@ -33,6 +37,42 @@ public class LogicCoordinateImpl implements LogicCoordinate {
         this.inferredAssemblageSequence = inferredAssemblageSequnce;
         this.descriptionLogicProfileSequence = descriptionLogicProfileSequence;
         this.classifierSequence = classifierSequence;
+    }
+    public ChangeListener<Number> setStatedAssemblageSequenceProperty(IntegerProperty statedAssemblageSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            statedAssemblageSequence = newValue.intValue();
+        };
+        statedAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+    public ChangeListener<Number> setInferredAssemblageSequenceProperty(IntegerProperty inferredAssemblageSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            inferredAssemblageSequence = newValue.intValue();
+        };
+        inferredAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+    public ChangeListener<Number> setDescriptionLogicProfileSequenceProperty(IntegerProperty descriptionLogicProfileSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            descriptionLogicProfileSequence = newValue.intValue();
+        };
+        descriptionLogicProfileSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+    public ChangeListener<Number> setClassifierSequenceProperty(IntegerProperty classifierSequenceProperty) {
+        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                           Number oldValue,
+                                           Number newValue) -> {
+            classifierSequence = newValue.intValue();
+        };
+        classifierSequenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
     }
 
     

@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.dto.component.refex;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
@@ -40,14 +41,14 @@ public abstract class TtkRefexAbstractMemberChronicle<R extends TtkRevision>
 
    public TtkRefexAbstractMemberChronicle(RefexVersionBI another) throws IOException {
       super(another);
-      Optional<UUID> optionalPrimordialUuid = getIdService().getUuidPrimordialForNid(another.getReferencedComponentNid());
+      Optional<UUID> optionalPrimordialUuid = Get.identifierService().getUuidPrimordialForNid(another.getReferencedComponentNid());
       if (optionalPrimordialUuid.isPresent()) {
           this.referencedComponentUuid = optionalPrimordialUuid.get();
       } else {
           throw new NoSuchElementException("No object for referenced component: " + another.getReferencedComponentNid());
       }
       
-      optionalPrimordialUuid = getIdService().getUuidPrimordialForNid(another.getAssemblageNid());
+      optionalPrimordialUuid = Get.identifierService().getUuidPrimordialForNid(another.getAssemblageNid());
       if (optionalPrimordialUuid.isPresent()) {
           this.assemblageUuid = optionalPrimordialUuid.get();
       } else {
@@ -58,7 +59,7 @@ public abstract class TtkRefexAbstractMemberChronicle<R extends TtkRevision>
    public TtkRefexAbstractMemberChronicle(SememeChronologyImpl<?> another) {
       super(another);
       this.referencedComponentUuid = another.getPrimordialUuid();
-      this.assemblageUuid = getIdService().getUuidPrimordialFromConceptSequence(another.getAssemblageSequence()).get();
+      this.assemblageUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(another.getAssemblageSequence()).get();
    }
 
    public TtkRefexAbstractMemberChronicle(DataInput in, int dataVersion) throws IOException, ClassNotFoundException {

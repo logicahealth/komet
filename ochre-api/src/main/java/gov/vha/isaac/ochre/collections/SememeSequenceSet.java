@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.collections;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import java.util.Collection;
 import java.util.stream.IntStream;
@@ -24,7 +25,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class SememeSequenceSet extends SequenceSet {
+public class SememeSequenceSet extends SequenceSet<SememeSequenceSet> {
     
     public static SememeSequenceSet of(int... members) {
         return new SememeSequenceSet(members);
@@ -39,16 +40,20 @@ public class SememeSequenceSet extends SequenceSet {
     }
     
     public static SememeSequenceSet ofAllSememeSequences() {
-        return new SememeSequenceSet(getIdentifierService().getSememeSequenceStream());
+        return new SememeSequenceSet(Get.identifierService().getSememeSequenceStream());
     }
     
     public static SememeSequenceSet of(NidSet sememeNidSet) {
-        IdentifierService sp = getIdentifierService();
+        IdentifierService sp = Get.identifierService();
         return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
     }
     
     public static SememeSequenceSet of(IntStream sememeSquenceStream) {
         return new SememeSequenceSet(sememeSquenceStream);
+    }
+    
+    public static SememeSequenceSet of(SememeSequenceSet sememeSquenceSet) {
+        return new SememeSequenceSet(sememeSquenceSet.stream());
     }
     
     public SememeSequenceSet() {
@@ -64,5 +69,22 @@ public class SememeSequenceSet extends SequenceSet {
     
     protected SememeSequenceSet(OpenIntHashSet members) {
         super(members);
-    }    
+    }  
+    
+    
+    @Override
+    public boolean contains(int item) {
+        return super.contains(Get.identifierService().getSememeSequence(item)); 
+    }
+
+    @Override
+    public void remove(int item) {
+        super.remove(Get.identifierService().getSememeSequence(item)); 
+    }
+
+    @Override
+    public void addAll(IntStream intStream) {
+        super.addAll(intStream.map((item) -> { return Get.identifierService().getSememeSequence(item);})); 
+    }
+
 }

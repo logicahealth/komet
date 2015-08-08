@@ -21,9 +21,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
-import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
-import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableDescriptionSememe;
+import gov.vha.isaac.ochre.model.coordinate.LanguageCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
+
 import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
@@ -37,26 +37,27 @@ import javafx.collections.ObservableIntegerArray;
  *
  * @author kec
  */
-public class ObservableLanguageCoordinateImpl implements ObservableLanguageCoordinate {
+public final class ObservableLanguageCoordinateImpl extends ObservableCoordinateImpl implements ObservableLanguageCoordinate {
 
-    private final LanguageCoordinate languageCoordinate;
+    private final LanguageCoordinateImpl languageCoordinate;
 
-    IntegerProperty lanugageConceptSequenceProperty;
+    IntegerProperty languageConceptSequenceProperty;
     ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty;
     ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty;
 
     public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
-        this.languageCoordinate = languageCoordinate;
+        this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
     }
 
     @Override
-    public IntegerProperty lanugageConceptSequenceProperty() {
-        if (lanugageConceptSequenceProperty == null) {
-            lanugageConceptSequenceProperty = new SimpleIntegerProperty(this,
+    public IntegerProperty languageConceptSequenceProperty() {
+        if (languageConceptSequenceProperty == null) {
+            languageConceptSequenceProperty = new SimpleIntegerProperty(this,
                     ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE.toExternalString(),
-                    getLanugageConceptSequence());
+                    getLanguageConceptSequence());
+            addListenerReference(languageCoordinate.setLanguageConceptSequenceProperty(languageConceptSequenceProperty));
         }
-        return lanugageConceptSequenceProperty;
+        return languageConceptSequenceProperty;
     }
 
     @Override
@@ -65,6 +66,7 @@ public class ObservableLanguageCoordinateImpl implements ObservableLanguageCoord
             dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                     FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
+            addListenerReference(languageCoordinate.setDialectAssemblagePreferenceListProperty(dialectAssemblagePreferenceListProperty));
         }
         return dialectAssemblagePreferenceListProperty;
     }
@@ -72,19 +74,20 @@ public class ObservableLanguageCoordinateImpl implements ObservableLanguageCoord
     @Override
     public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
         if (descriptionTypePreferenceListProperty == null) {
-            descriptionTypePreferenceListProperty = new SimpleObjectProperty(this,
+            descriptionTypePreferenceListProperty = new SimpleObjectProperty<>(this,
                     ObservableFields.DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                     FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
+            addListenerReference(languageCoordinate.setDescriptionTypePreferenceListProperty(descriptionTypePreferenceListProperty));
         }
         return descriptionTypePreferenceListProperty;
     }
 
     @Override
-    public int getLanugageConceptSequence() {
-        if (lanugageConceptSequenceProperty != null) {
-            return lanugageConceptSequenceProperty.get();
+    public int getLanguageConceptSequence() {
+        if (languageConceptSequenceProperty != null) {
+            return languageConceptSequenceProperty.get();
         }
-        return languageCoordinate.getLanugageConceptSequence();
+        return languageCoordinate.getLanguageConceptSequence();
     }
 
     @Override
@@ -105,13 +108,23 @@ public class ObservableLanguageCoordinateImpl implements ObservableLanguageCoord
 
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampSequence) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+            StampCoordinate<? extends StampCoordinate<?>> stampSequence) {
        return languageCoordinate.getFullySpecifiedDescription(descriptionList, stampSequence);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampSequence) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<DescriptionSememe<?>>> 
+            descriptionList, StampCoordinate<? extends StampCoordinate<?>> stampSequence) {
        return languageCoordinate.getPreferredDescription(descriptionList, stampSequence);
     }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+            StampCoordinate<?> stampCoordinate) {
+        return languageCoordinate.getDescription(descriptionList, stampCoordinate);
+    }
+    
+    
 
 }

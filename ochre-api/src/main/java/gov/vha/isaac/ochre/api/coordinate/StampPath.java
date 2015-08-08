@@ -21,7 +21,7 @@ import java.util.Collection;
  *
  * @author kec
  */
-public interface StampPath {
+public interface StampPath extends Comparable<StampPath> {
     /**
      * 
      * @return the sequence of the concept that defines this STAMP path. 

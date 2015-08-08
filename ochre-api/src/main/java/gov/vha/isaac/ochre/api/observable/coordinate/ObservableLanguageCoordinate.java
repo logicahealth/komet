@@ -26,7 +26,7 @@ import javafx.collections.ObservableIntegerArray;
  */
 public interface ObservableLanguageCoordinate extends LanguageCoordinate {
     
-    IntegerProperty lanugageConceptSequenceProperty();
+    IntegerProperty languageConceptSequenceProperty();
     ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty();
     ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty();
     

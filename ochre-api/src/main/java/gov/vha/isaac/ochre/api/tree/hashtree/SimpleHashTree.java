@@ -16,13 +16,14 @@
 package gov.vha.isaac.ochre.api.tree.hashtree;
 
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import java.util.BitSet;
+import java.util.Arrays;
+
 import java.util.stream.IntStream;
 
 /**
  * Simple implementation that uses less space, but does not have some of the
  * features of the {@code HashTreeWithBitSets} which caches some tree features
- * as {@code BitSet} objects. Meant for use with short-lived and small trees. 
+ * as {@code BitSet} objects. Meant for use with short-lived and small trees.
  *
  * @author kec
  */
@@ -30,7 +31,8 @@ public class SimpleHashTree extends AbstractHashTree {
 
     /**
      * NOTE: not a constant time operation.
-     * @return root sequences for this tree. 
+     *
+     * @return root sequences for this tree.
      */
     @Override
     public int[] getRootSequences() {
@@ -52,8 +54,9 @@ public class SimpleHashTree extends AbstractHashTree {
     }
 
     /**
-     * NOTE: not a constant time operation. 
-     * @return number of unique nodes in this tree. 
+     * NOTE: not a constant time operation.
+     *
+     * @return number of unique nodes in this tree.
      */
     @Override
     public int size() {
@@ -69,23 +72,31 @@ public class SimpleHashTree extends AbstractHashTree {
     public void addChild(int parentSequence, int childSequence) {
         maxSequence = Math.max(parentSequence, maxSequence);
         maxSequence = Math.max(childSequence, maxSequence);
-        
+
         if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-            IntStream.Builder builder = IntStream.builder();
-            builder.add(childSequence);
-            IntStream.of(parentSequence_ChildSequenceArray_Map.get(parentSequence)).forEach((sequence) -> builder.add(sequence));
-            childSequence_ParentSequenceArray_Map.put(childSequence, builder.build().distinct().sorted().toArray());
+            parentSequence_ChildSequenceArray_Map.put(parentSequence,
+                    addToArray(parentSequence_ChildSequenceArray_Map.get(parentSequence), childSequence));
         } else {
-            parentSequence_ChildSequenceArray_Map.put(parentSequence, new int[] {childSequence});
+            parentSequence_ChildSequenceArray_Map.put(parentSequence, new int[]{childSequence});
         }
-        
+
         if (childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-            IntStream.Builder builder = IntStream.builder();
-            builder.add(parentSequence);
-            IntStream.of(childSequence_ParentSequenceArray_Map.get(childSequence)).forEach((sequence) -> builder.add(sequence));
-            childSequence_ParentSequenceArray_Map.put(childSequence, builder.build().distinct().sorted().toArray());
+            childSequence_ParentSequenceArray_Map.put(childSequence,
+                    addToArray(childSequence_ParentSequenceArray_Map.get(childSequence), parentSequence));
         } else {
-            childSequence_ParentSequenceArray_Map.put(childSequence, new int[] {parentSequence});
+            childSequence_ParentSequenceArray_Map.put(childSequence, new int[]{parentSequence});
         }
+    }
+
+    private static int[] addToArray(int[] array, int toAdd) {
+        if (Arrays.binarySearch(array, toAdd) >= 0) {
+            return array;
+        }
+        int length = array.length + 1;
+        int[] result = new int[length];
+        System.arraycopy(array, 0, result, 0, array.length);
+        result[array.length] = toAdd;
+        Arrays.sort(result);
+        return result;
     }
 }

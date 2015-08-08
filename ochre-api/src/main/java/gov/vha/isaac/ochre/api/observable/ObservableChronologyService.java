@@ -30,12 +30,12 @@ public interface ObservableChronologyService {
      * @param id either a nid or a concept sequence
      * @return the ObservableConceptChronology with the provided id
      */
-    ObservableConceptChronology getObservableConceptChronology(int id);
+    ObservableConceptChronology<?> getObservableConceptChronology(int id);
     /**
      * 
      * @param id either a nid or a sememe sequence
      * @return the ObservableSememeChronology with the provided id
      */
-    ObservableSememeChronology getObservableSememeChronology(int id);
+    ObservableSememeChronology<?> getObservableSememeChronology(int id);
     
 }

@@ -15,8 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.snapshot;
 
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.TaxonomyService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.TaxonomySnapshotService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
@@ -24,13 +23,12 @@ import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,7 +36,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class Snapshot {
     
-    private static final Logger log = LogManager.getLogger();
+    //private static final Logger log = LogManager.getLogger();
 
     LanguageCoordinate languageCoordinate;
     LogicCoordinate logicCoordinate;
@@ -54,12 +52,12 @@ public class Snapshot {
         this.positionCalculator = RelativePositionCalculator.getCalculator(stampCoordinate);
     }
 
-    public <V extends SememeVersion> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
-        return LookupService.getService(SememeService.class).getSnapshot(type, stampCoordinate);
+    public <V extends SememeVersion<?>> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
+        return Get.sememeService().getSnapshot(type, stampCoordinate);
     }
 
     public TaxonomySnapshotService getTaxonomySnapshotService() {
-        return LookupService.getService(TaxonomyService.class).getSnapshot(taxonomyCoordinate);
+        return Get.taxonomyService().getSnapshot(taxonomyCoordinate);
     }
 
     public <V extends StampedVersion> Stream<? extends V> getVisible(ObjectChronology<V> chronicle) {

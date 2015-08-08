@@ -15,17 +15,22 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableComponentNidSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import java.util.Optional;
 
 /**
  * Used for description dialect preferences
  *
  * @author kec
  */
-public class ComponentNidSememeImpl extends SememeVersionImpl implements MutableComponentNidSememe {
+public class ComponentNidSememeImpl extends SememeVersionImpl<ComponentNidSememeImpl> 
+    implements MutableComponentNidSememe<ComponentNidSememeImpl> {
 
     int componentNid = Integer.MAX_VALUE;
 
@@ -64,6 +69,32 @@ public class ComponentNidSememeImpl extends SememeVersionImpl implements Mutable
             checkUncommitted();
         }
         this.componentNid = componentNid;
+    }
+    
+ 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Component nid≤");
+        switch (Get.identifierService().getChronologyTypeForNid(componentNid)) {
+            case CONCEPT:
+                 sb.append(Get.conceptDescriptionText(componentNid));
+                break;
+            case SEMEME:
+                Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService().getOptionalSememe(componentNid);
+                if (optionalSememe.isPresent()) {
+                        sb.append(optionalSememe.get().getSememeType());
+                } else {
+                    sb.append("no such sememe: ").append(componentNid);
+                }
+                break;
+            default:
+                 sb.append(Get.identifierService().getChronologyTypeForNid(componentNid))
+                         .append(" ").append(componentNid).append(" ");
+        }
+        toString(sb);
+        sb.append('≥');
+        return sb.toString();
     }
 
 }

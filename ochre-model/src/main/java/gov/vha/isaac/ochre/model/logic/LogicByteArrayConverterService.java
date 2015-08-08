@@ -33,6 +33,6 @@ public class LogicByteArrayConverterService implements LogicalExpressionByteArra
                 throw new UnsupportedOperationException("Can't handle: " + dataTarget);
         }
         
-        return logicGraph.pack(dataTarget);
+        return logicGraph.getData(dataTarget);
     }
 }

@@ -49,10 +49,28 @@ import java.util.UUID;
  */
 public interface ChronologyChangeListener {
     
+    /**
+     * 
+     * @return a unique UUID for this listener. 
+     */
     UUID getListenerUuid();
     
+    /**
+     * Don't do work on or block the calling thread. 
+     * @param cc a ConceptChronology that has changed, but has not been committed. 
+     */
     void handleChange(ConceptChronology<? extends StampedVersion> cc);
     
-    void handleChange(SememeChronology<? extends SememeVersion> sc);
+    /**
+     * Don't do work on or block the calling thread. 
+     * @param sc a SememeChronology that has changed, but has not been committed. 
+     */
+    void handleChange(SememeChronology<? extends SememeVersion<?>> sc);
+    
+    /**
+     * Don't do work on or block the calling thread. 
+     * @param commitRecord a record of a successful commit. 
+     */
+    void handleCommit(CommitRecord commitRecord);
     
 }

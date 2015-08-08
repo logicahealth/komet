@@ -23,7 +23,7 @@ import javafx.beans.property.StringProperty;
  * @author kec
  * @param <V>
  */
-public interface ObservableDescriptionSememe<V extends ObservableDescriptionSememe>
+public interface ObservableDescriptionSememe<V extends ObservableDescriptionSememe<V>>
     extends ObservableSememeVersion<V> {
     
     int getCaseSignificanceConceptSequence();

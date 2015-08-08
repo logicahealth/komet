@@ -15,10 +15,12 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.IdentifierService;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -31,26 +33,31 @@ import org.roaringbitmap.RoaringBitmap;
  * @author kec
  * @param <T>
  */
-public abstract class IntSet<T extends IntSet> {
-    protected static IdentifierService identifierService;
+public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
 
-    protected static IdentifierService getIdentifierService() {
-        if (SequenceSet.identifierService == null) {
-            SequenceSet.identifierService = LookupService.getService(IdentifierService.class);
-        }
-        return SequenceSet.identifierService;
-    }
-    
     RoaringBitmap rbmp;
+    boolean readOnly = false;
 
+    /**
+     * 
+     * @param readOnly true if the set is read only. 
+     */
+    protected IntSet(boolean readOnly) {
+        rbmp = new RoaringBitmap();
+        this.readOnly = readOnly;
+    }
     protected IntSet() {
         rbmp = new RoaringBitmap();
     }
-    
+
     protected IntSet(int... members) {
         rbmp = RoaringBitmap.bitmapOf(members);
     }
-    
+
+    public void setReadOnly() {
+        this.readOnly = true;
+    }
+
     protected IntSet(OpenIntHashSet members) {
         rbmp = new RoaringBitmap();
         members.forEachKey((int element) -> {
@@ -58,77 +65,121 @@ public abstract class IntSet<T extends IntSet> {
             return true;
         });
     }
+
     protected IntSet(IntStream memberStream) {
         rbmp = new RoaringBitmap();
         memberStream.forEach((member) -> rbmp.add(member));
-    }    
-    
+    }
+
+    @Override
+    public int compareTo(T o) {
+        int comparison = Integer.compare(rbmp.getCardinality(), o.rbmp.getCardinality());
+        if (comparison != 0) {
+            return comparison;
+        }
+        IntIterator thisIterator = rbmp.getIntIterator();
+        IntIterator otherIterator = o.rbmp.getIntIterator();
+        while (thisIterator.hasNext()) {
+            comparison = Integer.compare(thisIterator.next(), otherIterator.next());
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        return 0;
+    }
+
     public void clear() {
         rbmp.clear();
     }
-    
-    public void or(T otherSet) {
+
+    public T or(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.or(otherSet.rbmp);
+        return (T) this;
     }
 
-    public void and(T otherSet) {
+    public T and(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.and(otherSet.rbmp);
+        return (T) this;
     }
 
-    public void andNot(T otherSet) {
+    public T andNot(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.andNot(otherSet.rbmp);
+        return (T) this;
     }
 
-    public void xor(T otherSet) {
+    public T xor(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.xor(otherSet.rbmp);
+        return (T) this;
     }
 
     /**
-     * 
-     * @return the number of elements in this set. 
+     *
+     * @return the number of elements in this set.
      */
     public int size() {
         return rbmp.getCardinality();
     }
-    
+
     /**
-     * 
-     * @return true if the set is empty. 
+     *
+     * @return true if the set is empty.
      */
     public boolean isEmpty() {
         return rbmp.isEmpty();
     }
+
     /**
-     * 
+     *
      * @param item to add to set.
      */
     public void add(int item) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         rbmp.add(item);
     }
-    
+
     public void addAll(IntStream intStream) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
         intStream.forEach((anInt) -> rbmp.add(anInt));
     }
-    
+
     /**
-     * 
+     *
      * @param item to remove from set.
      */
     public void remove(int item) {
-        rbmp.remove(item);
+         if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+       rbmp.remove(item);
     }
-    
+
     /**
-     * 
+     *
      * @param item to test for containment in set.
      * @return true if item is contained in set.
      */
     public boolean contains(int item) {
         return rbmp.contains(item);
     }
-    
+
     /**
-     * 
+     *
      * @return the set members as an {@code IntStream}
      */
     public IntStream stream() {
@@ -136,22 +187,61 @@ public abstract class IntSet<T extends IntSet> {
             return IntStream.empty();
         }
         Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-        return StreamSupport.intStream(streamSupplier, 
+        return StreamSupport.intStream(streamSupplier,
                 streamSupplier.get().characteristics(),
                 false);
     }
-    
-    public int[] asArray() {
-         return stream().toArray();
+
+    public OptionalInt findFirst() {
+        return stream().findFirst();
     }
-    
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        IntIterator itr = rbmp.getIntIterator();
+        while (itr.hasNext()) {
+            result = 31 * result + itr.next();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IntSet<?> other = (IntSet<?>) obj;
+        return this.rbmp.equals(other.rbmp);
+    }
+
+    /**
+     *
+     * @return the set members as an {@code IntStream}
+     */
+    public IntStream parallelStream() {
+        if (rbmp.isEmpty()) {
+            return IntStream.empty();
+        }
+        Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
+        return StreamSupport.intStream(streamSupplier,
+                streamSupplier.get().characteristics(),
+                true);
+    }
+
+    public int[] asArray() {
+        return stream().toArray();
+    }
+
     public OpenIntHashSet asOpenIntHashSet() {
         OpenIntHashSet set = new OpenIntHashSet();
         stream().forEach((sequence) -> set.add(sequence));
         return set;
     }
-    
- 
+
     protected Supplier<? extends Spliterator.OfInt> get() {
         return new SpliteratorSupplier();
     }
@@ -195,12 +285,13 @@ public abstract class IntSet<T extends IntSet> {
                     + Spliterator.SORTED;
         }
     }
+
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + 
-                " size: " + size() + " elements: " + rbmp;
+        return this.getClass().getSimpleName()
+                + " size: " + size() + " elements: " + rbmp;
     }
-    
+
     public IntIterator getIntIterator() {
         return rbmp.getIntIterator();
     }
@@ -209,4 +300,24 @@ public abstract class IntSet<T extends IntSet> {
         return rbmp.getReverseIntIterator();
     }
     
+   public String toString(IntFunction<String> function) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        int limit = 20;
+        stream().limit(limit).forEach((element) -> {
+            sb.append(function.apply(element));
+            sb.append("<");
+            sb.append(element);
+            sb.append(">");
+            sb.append(", ");
+        } );
+        if (size() > 20) {
+             sb.append("...");
+        } else {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        sb.append("]");
+        return this.getClass().getSimpleName()
+                + " size: " + size() + " elements: " + sb.toString();
+    }
 }

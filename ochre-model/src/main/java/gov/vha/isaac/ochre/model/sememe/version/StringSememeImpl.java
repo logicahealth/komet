@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableStringSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 
@@ -24,7 +25,7 @@ import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
  *
  * @author kec
  */
-public class StringSememeImpl extends SememeVersionImpl implements MutableStringSememe {
+public class StringSememeImpl extends SememeVersionImpl<StringSememeImpl> implements StringSememe<StringSememeImpl>, MutableStringSememe<StringSememeImpl> {
     
     private String string = null;
 
@@ -33,7 +34,7 @@ public class StringSememeImpl extends SememeVersionImpl implements MutableString
         super(container, stampSequence, versionSequence);
     }
 
-    public StringSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
+    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, 
             int stampSequence, short versionSequence, DataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);
@@ -66,7 +67,12 @@ public class StringSememeImpl extends SememeVersionImpl implements MutableString
 
     @Override
     public String toString() {
-        return "string=" + string + ',' + super.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("String≤");
+        sb.append(string);
+         toString(sb);
+        sb.append('≥');
+        return sb.toString();
     }
-    
+
 }

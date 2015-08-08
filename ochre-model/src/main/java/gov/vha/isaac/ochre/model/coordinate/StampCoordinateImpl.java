@@ -15,40 +15,127 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
+import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.WeakChangeListener;
+import javafx.collections.ArrayChangeListener;
+import javafx.collections.ObservableIntegerArray;
+import javafx.collections.SetChangeListener;
 
 /**
  *
  * @author kec
  */
-public class StampCoordinateImpl implements StampCoordinate {
+public class StampCoordinateImpl implements StampCoordinate<StampCoordinateImpl> {
 
     StampPrecedence stampPrecedence;
     StampPosition stampPosition;
-    int[] moduleSequences;
+    ConceptSequenceSet moduleSequences;
     EnumSet<State> allowedStates;
 
-    public StampCoordinateImpl(StampPrecedence stampPrecedence, 
-            StampPosition stampPosition, 
-            int[] moduleSequences, EnumSet<State> allowedStates) {
+    public StampCoordinateImpl(StampPrecedence stampPrecedence,
+            StampPosition stampPosition,
+            ConceptSequenceSet moduleSequences, EnumSet<State> allowedStates) {
         this.stampPrecedence = stampPrecedence;
         this.stampPosition = stampPosition;
         this.moduleSequences = moduleSequences;
         this.allowedStates = allowedStates;
     }
+    public StampCoordinateImpl(StampPrecedence stampPrecedence,
+            StampPosition stampPosition,
+            List<ConceptSpecification> moduleSpecifications, EnumSet<State> allowedStates) {
+        this(stampPrecedence, stampPosition, 
+                ConceptSequenceSet.of(moduleSpecifications.stream().mapToInt((spec) -> spec.getConceptSequence())), 
+                allowedStates);
+    }
+
+    /**
+     * 
+     * @param stampPrecedence
+     * @param stampPosition
+     * @param moduleSequencesArray
+     * @param allowedStates
+     * @deprecated moduleSequencesArray not typesafe. Use a different constructor. 
+     */
+    @Deprecated
+    public StampCoordinateImpl(StampPrecedence stampPrecedence,
+            StampPosition stampPosition,
+            int[] moduleSequencesArray, EnumSet<State> allowedStates) {
+        this(stampPrecedence, stampPosition, ConceptSequenceSet.of(moduleSequencesArray), allowedStates);
+    }
+
+    public SetChangeListener<State> setAllowedStatesProperty(SetProperty<State> allowedStatesProperty) {
+        SetChangeListener<State> listener = (change) -> {
+            if (change.wasAdded()) {
+                allowedStates.add(change.getElementAdded());
+            } else {
+                allowedStates.remove(change.getElementRemoved());
+            }
+        };
+        allowedStatesProperty.addListener(new WeakSetChangeListener<>(listener));
+        return listener;
+    }
     
+    public ArrayChangeListener<ObservableIntegerArray> setModuleSequencesProperty(
+            ObjectProperty<ObservableIntegerArray> moduleSequencesProperty) {
+        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+            moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
+        };
+        moduleSequencesProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+        return listener;
+    }
+    
+    public ChangeListener<ObservableStampPosition> setStampPositionProperty(ObjectProperty<ObservableStampPosition> stampPositionProperty) {
+        ChangeListener<ObservableStampPosition> listener = (observable, 
+                 oldValue,  newValue) -> {
+            stampPosition = newValue;
+        };
+        stampPositionProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
+    public ChangeListener<StampPrecedence> setStampPrecedenceProperty(ObjectProperty<StampPrecedence> stampPrecedenceProperty) {
+        ChangeListener<StampPrecedence> listener = (observable, 
+                 oldValue,  newValue) -> {
+            stampPrecedence = newValue;
+        };
+        stampPrecedenceProperty.addListener(new WeakChangeListener<>(listener));
+        return listener;
+    }
+
+    
+
+    @Override
+    public StampCoordinateImpl makeAnalog(long stampPositionTime) {
+        StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime, stampPosition.getStampPathSequence());
+        return new StampCoordinateImpl(stampPrecedence, anotherStampPosition, moduleSequences, allowedStates);
+    }
+
+    @Override
+    public StampCoordinateImpl makeAnalog(State... states) {
+        EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
+        newAllowedStates.addAll(Arrays.asList(states));
+        return new StampCoordinateImpl(stampPrecedence, stampPosition, moduleSequences, newAllowedStates);
+    }
 
     @Override
     public EnumSet<State> getAllowedStates() {
         return allowedStates;
     }
-    
+
     @Override
     public StampPrecedence getStampPrecedence() {
         return stampPrecedence;
@@ -60,7 +147,7 @@ public class StampCoordinateImpl implements StampCoordinate {
     }
 
     @Override
-    public int[] getModuleSequences() {
+    public ConceptSequenceSet getModuleSequences() {
         return moduleSequences;
     }
 
@@ -90,16 +177,21 @@ public class StampCoordinateImpl implements StampCoordinate {
         if (!this.allowedStates.equals(other.allowedStates)) {
             return false;
         }
-        
-        return Arrays.equals(this.moduleSequences, other.moduleSequences);
+
+        return this.moduleSequences.equals(other.moduleSequences);
     }
 
     @Override
     public String toString() {
-        return "StampCoordinateImpl{" + "stampPrecedence=" + stampPrecedence + 
-                ", stampPosition=" + stampPosition + 
-                ", moduleSequences=" + Arrays.toString(moduleSequences) + 
-                ", allowedStates=" + allowedStates + '}';
+        StringBuilder builder = new StringBuilder();
+        builder.append("Stamp Coordinate{").append(stampPrecedence).append(", ").append(stampPosition).append(", modules: ");
+        if (moduleSequences.isEmpty()) {
+            builder.append("all, ");
+        } else {
+            builder.append(Get.conceptDescriptionTextList(moduleSequences)).append(", ");
+        }
+         builder.append(allowedStates).append('}');
+        return builder.toString();
     }
-    
+
 }

@@ -1,10 +1,8 @@
 package org.ihtsdo.otf.tcc.model.cc.concept;
 
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
@@ -13,6 +11,12 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,12 +32,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 import org.apache.mahout.math.map.OpenIntIntHashMap;
-import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.PremiseType;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -92,14 +92,8 @@ public class ConceptVersion implements ConceptVersionBI,
         Comparable<ConceptVersion>, ConceptSnapshot {
 
     private static NidSetBI classifierCharacteristics_;
-    private static IdentifierService sequenceService = null; 
-    protected static IdentifierService getSequenceService() {
-        if (sequenceService == null) {
-            sequenceService = LookupService.getService(IdentifierService.class);
-        }
-        return sequenceService;
-    }
-   //~--- fields --------------------------------------------------------------
+
+    //~--- fields --------------------------------------------------------------
     private ConceptChronicle concept;
 
     NidListBI fsnOrder;
@@ -135,8 +129,14 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.getVersionStampSequences();
     }
 
+    @Override
     public int getConceptSequence() {
         return concept.getConceptSequence();
+    }
+
+    @Override
+    public String getConceptDescriptionText() {
+        return concept.getConceptDescriptionText();
     }
     
     @Override
@@ -203,7 +203,7 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.commit(changeSetPolicy, changeSetWriterThreading);
     }
 
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return concept.isLatestVersionActive(coordinate);
     }
 
@@ -681,17 +681,17 @@ public class ConceptVersion implements ConceptVersionBI,
 
     @Override
     public int getAuthorSequence() {
-        return getSequenceService().getConceptSequence(getAuthorNid());
+        return Get.identifierService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getSequenceService().getConceptSequence(getModuleNid());
+        return Get.identifierService().getConceptSequence(getModuleNid());
    }
 
     @Override
     public int getPathSequence() {
-        return getSequenceService().getConceptSequence(getPathNid());
+        return Get.identifierService().getConceptSequence(getPathNid());
    }
 
     @Override
@@ -1427,17 +1427,17 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Stream<SememeChronology<? extends SememeVersion>> getSememeChronicles() {
+    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronicles() {
         return concept.getSememeChronicles();
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         return concept.getSememeList();
     }
 
     @Override
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         return concept.getSememeListFromAssemblage(assemblageSequence);
     }
 
@@ -1447,7 +1447,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
+    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
        return concept.getConceptDescriptionList();
     }
 
@@ -1462,7 +1462,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public ConceptChronology<gov.vha.isaac.ochre.api.component.concept.ConceptVersion> getChronology() {
+    public ConceptChronology<ConceptVersionBI> getChronology() {
         throw new UnsupportedOperationException("Only for OCHRE implementation");
     }
 
@@ -1491,44 +1491,56 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return concept.getLatestVersion(type, coordinate);
     }
     
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+       return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
         return concept.getRelationshipListOriginatingFromConcept(logicCoordinate);
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListOriginatingFromConcept() {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept() {
         return concept.getRelationshipListOriginatingFromConcept();
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination() {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination() {
         return concept.getRelationshipListWithConceptAsDestination();
     }
 
     @Override
-    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
+    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate) {
         return concept.getRelationshipListWithConceptAsDestination(logicCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+            PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
+
+    @Override
+    public LanguageCoordinate getLanguageCoordinate() {
+        return Get.configurationService().getDefaultLanguageCoordinate();
+    }
     
+    @Override
+    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, 
+            LogicCoordinate logicCoordinate) {
+       return "Not supported in OTF"; 
+    }
+
 }

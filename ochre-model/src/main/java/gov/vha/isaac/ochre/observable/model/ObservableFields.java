@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.observable.model;
 
-import static gov.vha.isaac.ochre.api.ConceptProxy.FIELD_SEPERATOR;
+import static gov.vha.isaac.ochre.api.component.concept.ConceptSpecification.FIELD_SEPARATOR;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.util.UUID;
 
@@ -46,6 +46,7 @@ public enum ObservableFields {
     PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("premise type for taxonomy coordinate"),
     STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("stamp coordinate for taxonomy coordinate"),
     LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("language coordinate for taxonomy coordinate"),
+    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("logic coordinate for taxonomy coordinate"),
     UUID_FOR_TAXONOMY_COORDINATE("uuid for taxonomy coordinate"),
     STATUS_FOR_VERSION("status for version"),
     TIME_FOR_VERSION("time for version"),
@@ -84,7 +85,7 @@ public enum ObservableFields {
     public String toExternalString() {
         StringBuilder sb = new StringBuilder();
         sb.append(description);
-        sb.append(FIELD_SEPERATOR).append(getUuid().toString());
+        sb.append(FIELD_SEPARATOR).append(getUuid().toString());
         return sb.toString();
     }
 

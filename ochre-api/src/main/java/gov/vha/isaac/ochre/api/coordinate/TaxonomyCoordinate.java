@@ -20,14 +20,49 @@ import java.util.UUID;
 /**
  *
  * @author kec
+ * @param <T>
+ * TODO can remove generic type on TaxonomyCoordinate once ViewCoordinate is eliminated. 
  */
-public interface TaxonomyCoordinate {
-    
+public interface TaxonomyCoordinate<T extends TaxonomyCoordinate<T>> extends TimeBasedAnalogMaker<T>, StateBasedAnalogMaker<T> {
+
+    /**
+     *
+     * @return a UUID that uniquely identifies this taxonomy coordinate.
+     */
     UUID getUuid();
-    
+
+    /**
+     *
+     * @return PremiseType.STATED if taxonomy operations should be based on stated definitions, or
+     * PremiseType.INFERRED if taxonomy operations should be based on inferred definitions.
+     */
     PremiseType getTaxonomyType();
-    
-    StampCoordinate getStampCoordinate();
-    
+
+    /**
+     *
+     * @return a StampCoordinate that specifies the retrieval and display of
+     * object chronicle versions by indicating the current position on a path, and allowed modules.
+     */
+    StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate();
+
+    /**
+     *
+     * @return a LanguageCoordinate that specifies how to manage the retrieval and display of language.
+     * and dialect information.
+     */
     LanguageCoordinate getLanguageCoordinate();
+
+    /**
+     *
+     * @return a LogicCoordinate that specifies how to manage the retrieval and display of logic information.
+     */
+    LogicCoordinate getLogicCoordinate();
+    
+    /**
+     * 
+     * @param taxonomyType the {@code PremiseType} for the analog 
+     * @return a new taxonomyCoordinate with the specified taxonomy type. 
+     */
+    
+    TaxonomyCoordinate<? extends T> makeAnalog(PremiseType taxonomyType);
 }

@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_nid_boolean;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -326,7 +327,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
 
          if (getTime() != Long.MIN_VALUE) {
             list.add(new NidBooleanMemberVersion(this, this, primordialStamp));
-            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+            for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                 list.add(new NidBooleanMemberVersion(this, this, stampAlias));
             }
          }
@@ -335,7 +336,7 @@ public class NidBooleanMember extends RefexMember<NidBooleanRevision, NidBoolean
             for (NidBooleanRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
                   list.add(new NidBooleanMemberVersion(r, this, r.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                         list.add(new NidBooleanMemberVersion(r, this, stampAlias));
                     }
                }

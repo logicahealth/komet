@@ -15,9 +15,8 @@
  */
 package gov.vha.isaac.ochre.model.relationship;
 
-import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.relationship.RelationshipAdaptorChronicleKey;
@@ -30,16 +29,8 @@ import java.util.UUID;
  *
  * @author kec
  */
-public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdaptor {
+public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdaptor<RelationshipVersionAdaptorImpl> {
     
-    private static CommitService commitManager;
-    
-    protected static CommitService getCommitService() {
-        if (commitManager == null) {
-            commitManager = LookupService.getService(CommitService.class);
-        }
-        return commitManager;
-    }
     RelationshipAdaptorChronicleKeyImpl relationshipAdaptorChronicleKey;
     RelationshipAdaptorChronologyImpl chronology;
     int stampSequence;
@@ -95,27 +86,27 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
 
     @Override
     public State getState() {
-        return getCommitService().getStatusForStamp(stampSequence);
+        return Get.commitService().getStatusForStamp(stampSequence);
     }
 
     @Override
     public long getTime() {
-        return getCommitService().getTimeForStamp(stampSequence);
+        return Get.commitService().getTimeForStamp(stampSequence);
     }
 
     @Override
     public int getAuthorSequence() {
-        return getCommitService().getAuthorSequenceForStamp(stampSequence);
+        return Get.commitService().getAuthorSequenceForStamp(stampSequence);
     }
 
     @Override
     public int getModuleSequence() {
-       return getCommitService().getModuleSequenceForStamp(stampSequence);
+       return Get.commitService().getModuleSequenceForStamp(stampSequence);
     }
 
     @Override
     public int getPathSequence() {
-        return getCommitService().getPathSequenceForStamp(stampSequence);
+        return Get.commitService().getPathSequenceForStamp(stampSequence);
     }
 
     @Override
@@ -190,7 +181,10 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
 
     @Override
     public String toString() {
-        return "RelVersionAdaptor{" + "Key=" + relationshipAdaptorChronicleKey + ", stampSequence=" + stampSequence + '}';
+        return "{[" + Get.conceptDescriptionText(relationshipAdaptorChronicleKey.originSequence) + "]➞(" +
+                Get.conceptDescriptionText(relationshipAdaptorChronicleKey.typeSequence) + ")➞[" +
+                Get.conceptDescriptionText(relationshipAdaptorChronicleKey.destinationSequence) + "]"
+                + " " + Get.commitService().describeStampSequence(stampSequence) + "}";
     }
     
 }

@@ -17,12 +17,14 @@ package gov.vha.isaac.ochre.model.sememe.version;
 
 import gov.vha.isaac.ochre.api.DataSource;
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.model.DataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import org.glassfish.hk2.api.MultiException;
 
@@ -31,7 +33,7 @@ import org.glassfish.hk2.api.MultiException;
  * @author kec
  */
 public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl>
-        implements MutableLogicGraphSememe {
+        implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
 
     private static LogicalExpressionByteArrayConverter converter;
 
@@ -84,6 +86,11 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
     }
 
     @Override
+    public LogicalExpression getLogicalExpression() {
+        return new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getReferencedComponentNid());
+    }
+
+    @Override
     public byte[][] getExternalGraphData() {
         return getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.EXTERNAL);
     }
@@ -99,13 +106,11 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("LogicGraphSememeImpl{");
         sb.append(getSememeType().toString());
-        LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getIdentifierService().getConceptSequence(getReferencedComponentNid()));
+        LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, Get.identifierService().getConceptSequence(getReferencedComponentNid()));
         sb.append("\n ");
         sb.append(lg.toString());
         toString(sb);
-        sb.append('}');
         return sb.toString();
     }
 

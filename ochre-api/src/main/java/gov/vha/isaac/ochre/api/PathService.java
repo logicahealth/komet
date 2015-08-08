@@ -33,4 +33,7 @@ public interface PathService {
     boolean exists(int pathConceptId);
     
     Collection<? extends StampPosition> getOrigins(int stampPathSequence);
+    
+    Collection<? extends StampPath> getPaths();
+    
 }

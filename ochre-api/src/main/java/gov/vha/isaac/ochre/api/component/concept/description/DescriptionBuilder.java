@@ -26,8 +26,8 @@ import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
  * @param <T>
  * @param <V>
  */
-public interface DescriptionBuilder<T extends ObjectChronology, V extends StampedVersion> 
+public interface DescriptionBuilder<T extends ObjectChronology<?>, V extends StampedVersion> 
     extends IdentifiedComponentBuilder<T> {
-    DescriptionBuilder setPreferredInDialectAssemblage(ConceptProxy dialectAssemblage);
-    DescriptionBuilder setAcceptableInDialectAssemblage(ConceptProxy dialectAssemblage);
+    DescriptionBuilder<?,?> setPreferredInDialectAssemblage(ConceptProxy dialectAssemblage);
+    DescriptionBuilder<?,?> setAcceptableInDialectAssemblage(ConceptProxy dialectAssemblage);
 }

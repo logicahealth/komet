@@ -16,12 +16,11 @@
 package gov.vha.isaac.ochre.api.tree;
 
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import java.util.BitSet;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.IntStream;
 
 /**
- * A structure to represent the concept taxonomy from a particular 
+ * A structure to represent the concept taxonomy at a particular point in time. 
  * @author kec
  */
 public interface Tree {

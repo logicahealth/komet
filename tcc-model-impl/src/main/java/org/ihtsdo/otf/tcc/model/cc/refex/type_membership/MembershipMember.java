@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_membership;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import java.io.IOException;
 import java.util.*;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -161,7 +162,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
 
          if (getTime() != Long.MIN_VALUE) {
             list.add(new MembershipMemberVersion(this, this, primordialStamp));
-            for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+            for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                 list.add(new MembershipMemberVersion(this, this, stampAlias));
             }
          }
@@ -170,7 +171,7 @@ public class MembershipMember extends RefexMember<MembershipRevision, Membership
             for (MembershipRevision r : revisions) {
                if (r.getTime() != Long.MIN_VALUE) {
                   list.add(new MembershipMemberVersion(r, this, r.stamp));
-                    for (int stampAlias : getCommitManager().getAliases(r.stamp)) {
+                    for (int stampAlias : Get.commitService().getAliases(r.stamp)) {
                         list.add(new MembershipMemberVersion(r, this, stampAlias));
                     }
                }

@@ -8,7 +8,6 @@ import org.apache.mahout.math.list.ShortArrayList;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Created by kec on 12/6/14.
@@ -41,9 +40,17 @@ public abstract class ConnectorNode extends AbstractNode {
             childIndices.add(child.getNodeIndex());
         }
     }
+    
+    @Override
+    public final void sort() {
+        childIndices.mergeSortFromTo(0, childIndices.size()-1, 
+            (short o1, short o2) 
+                -> logicGraphVersion.getNode(o1).compareTo(logicGraphVersion.getNode(o2)));
+    }
 
     @Override
     protected void writeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
+        sort();
         super.writeData(dataOutput, dataTarget);
         dataOutput.writeShort(childIndices.size());
         for (short value : childIndices.elements()) {
@@ -61,7 +68,6 @@ public abstract class ConnectorNode extends AbstractNode {
         for (int i = 0; i < childNodes.length; i++) {
             childNodes[i] = (AbstractNode) logicGraphVersion.getNode(childIndices.get(i));
         }
-        Arrays.sort(childNodes);
         return childNodes;
     }
 
@@ -70,14 +76,9 @@ public abstract class ConnectorNode extends AbstractNode {
         for (Node child : children) {
             childIndices.add(child.getNodeIndex());
         }
+        sort();
     }
 
-    @Override
-    protected int compareFields(Node o) {
-        return 0;
-    }
-    
-    
 
     @Override
     public boolean equals(Object o) {
@@ -99,14 +100,34 @@ public abstract class ConnectorNode extends AbstractNode {
 
     @Override
     public String toString() {
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
         if (childIndices != null && !childIndices.isEmpty()) {
-            if (childIndices.size() == 1) {
-                return "->" + childIndices
-                        + super.toString();
-            }
-            return "->" + childIndices
-                    + super.toString();
+            StringBuilder builder = new StringBuilder();
+            builder.append("➞[");
+            childIndices.forEach((index) -> {
+                builder.append(index);
+                builder.append(nodeIdSuffix);
+                builder.append(", ");
+                return true;
+            });
+            builder.deleteCharAt(builder.length() -1);
+            builder.deleteCharAt(builder.length() -1);
+            builder.append("]");
+            return builder.toString();
         }
         return "";
     }
+    
+    @Override
+    protected int compareFields(Node o) {
+        // node semantic is already determined to be the same...
+        return compareNodeFields(o);
+    }
+    
+    protected abstract int compareNodeFields(Node o);
+
 }

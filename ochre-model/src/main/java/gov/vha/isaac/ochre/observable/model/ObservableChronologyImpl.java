@@ -15,16 +15,17 @@
  */
 package gov.vha.isaac.ochre.observable.model;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
+import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
@@ -62,15 +63,13 @@ public abstract class ObservableChronologyImpl<
     private static final ObservableChronologyService ocs = 
             LookupService.getService(ObservableChronologyService.class);
 
-    private static final SememeService sememeService = 
-            LookupService.getService(SememeService.class);
     
     private ListProperty<? extends OV> versionListProperty;
     private IntegerProperty nidProperty;
     private ObjectProperty<UUID> primordialUuidProperty;
     private ListProperty<UUID> uuidListProperty;
     private ObjectProperty<CommitStates> commitStateProperty;
-    private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty;
+    private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty;
     private ObservableList<? extends OV> versionList = null;
 
     protected C chronicledObjectLocal;
@@ -106,7 +105,7 @@ public abstract class ObservableChronologyImpl<
     };
     
     @Override
-    public final void handleChange(SememeChronology<? extends SememeVersion> sc) {
+    public final void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
         if (this.getNid() == sc.getNid()) {
             updateChronicle((C) sc);
         }
@@ -115,7 +114,7 @@ public abstract class ObservableChronologyImpl<
                 // check to be sure sememe is in list, if not, add it. 
                 if (sememeListProperty.get().stream().noneMatch(
                         (element) -> element.getNid() == sc.getNid())) {
-                    sememeListProperty.get().add(ocs.getObservableSememeChronology(sc.getNid()));
+                    sememeListProperty.get().add((ObservableSememeChronology<? extends ObservableSememeVersion<?>>)ocs.getObservableSememeChronology(sc.getNid()));
                 }
             }
             // else, nothing to do, since no one is looking...
@@ -128,6 +127,11 @@ public abstract class ObservableChronologyImpl<
             // update descriptions...
             throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public void handleCommit(CommitRecord commitRecord) {
+        //TODO implement handle commit...
     }
 
     @Override
@@ -207,11 +211,11 @@ public abstract class ObservableChronologyImpl<
     }
 
     @Override
-    public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty() {
+    public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty() {
         if (sememeListProperty == null) {
             ObservableList<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeList = 
                     FXCollections.emptyObservableList();
-            sememeService.getSememeSequencesForComponent(getNid()).stream()
+            Get.sememeService().getSememeSequencesForComponent(getNid()).stream()
                     .forEach((sememeSequence) -> 
                             sememeList.add(ocs.getObservableSememeChronology(sememeSequence)));
             sememeListProperty = new SimpleListProperty(this,
@@ -223,7 +227,7 @@ public abstract class ObservableChronologyImpl<
 
     
     @Override
-    public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> getSememeList() {
+    public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> getSememeList() {
         return sememeListProperty().get();
     }
 
@@ -280,7 +284,7 @@ public abstract class ObservableChronologyImpl<
 
 
     @Override
-    public List<? extends ObservableSememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<? extends ObservableSememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

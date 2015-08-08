@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.api.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LanguageCoordinateService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
@@ -15,6 +15,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionManagerBI;
@@ -45,7 +46,6 @@ import org.ihtsdo.otf.tcc.api.contradiction.strategy.LastCommitWins;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import org.ihtsdo.otf.tcc.api.spec.ValidationException;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 @XmlRootElement(name = "viewCoordinate")
 @XmlAccessorType(XmlAccessType.PROPERTY)
@@ -53,8 +53,8 @@ import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
     "languageSort", "languageSpec", "languagePreferenceList",
     "name", "precedence", "relationshipAssertionType", "vcUuid",
     "viewPosition"})
-public class ViewCoordinate implements StampCoordinate,
-        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate, Externalizable {
+public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
+        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate<ViewCoordinate>, Externalizable {
 
     public static final long serialVersionUID = 2;
 
@@ -277,11 +277,7 @@ public class ViewCoordinate implements StampCoordinate,
                 return false;
             }
 
-            if (!testEquals(langSort, another.langSort)) {
-                return false;
-            }
-
-            return true;
+            return testEquals(langSort, another.langSort);
         }
 
         return false;
@@ -371,11 +367,7 @@ public class ViewCoordinate implements StampCoordinate,
             return Arrays.equals(ns1.getListArray(), ns2.getListArray());
         }
 
-        if (o1.equals(o2)) {
-            return true;
-        }
-
-        return false;
+        return o1.equals(o2);
     }
 
     @Override
@@ -443,8 +435,6 @@ public class ViewCoordinate implements StampCoordinate,
             try {
                 this.classifierNid = classifierSpec.getLenient().getNid();
             } catch (ValidationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -527,9 +517,9 @@ public class ViewCoordinate implements StampCoordinate,
         if (langPrefList == null || langPrefList.isEmpty()) {
             langPrefList = new NidList();
             if (langPrefSpecs != null) {
-                for (ConceptSpec spec : langPrefSpecs) {
+                langPrefSpecs.stream().forEach((spec) -> {
                     langPrefList.add(spec.getNid());
-                }
+                });
             } else {
                 if (languageSpec != null) {
                     langPrefList.add(languageSpec.getNid());
@@ -563,9 +553,9 @@ public class ViewCoordinate implements StampCoordinate,
         if (languagePreferenceList != null) {
             this.langPrefSpecs.clear();
             this.langPrefSpecs.addAll(languagePreferenceList.getPreferenceList());
-            for (ConceptSpec conceptSpec : this.langPrefSpecs) {
+            this.langPrefSpecs.stream().forEach((conceptSpec) -> {
                 langPrefList.add(conceptSpec.getNid());
-            }
+            });
         }
     }
 
@@ -701,7 +691,7 @@ public class ViewCoordinate implements StampCoordinate,
                 throw new RuntimeException(ex);
             }
         }
-        return getSequenceProvider().getConceptSequence(this.statedAssemblageNid);
+        return Get.identifierService().getConceptSequence(this.statedAssemblageNid);
     }
 
     @Override
@@ -713,7 +703,7 @@ public class ViewCoordinate implements StampCoordinate,
                 throw new RuntimeException(ex);
             } 
         }
-        return getSequenceProvider().getConceptSequence(this.inferredAssemblageNid);
+        return Get.identifierService().getConceptSequence(this.inferredAssemblageNid);
     }
 
     @Override
@@ -723,24 +713,14 @@ public class ViewCoordinate implements StampCoordinate,
                 this.descriptionLogicProfileNid = descriptionLogicProfileSpec.getLenient().getNid();
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
             }
         }
-        return getSequenceProvider().getConceptSequence(this.descriptionLogicProfileNid);
-    }
-    private static IdentifierService sequenceProvider;
-
-    private static IdentifierService getSequenceProvider() {
-        if (sequenceProvider == null) {
-            sequenceProvider = Hk2Looker.getService(IdentifierService.class);
-        }
-        return sequenceProvider;
+        return Get.identifierService().getConceptSequence(this.descriptionLogicProfileNid);
     }
 
     @Override
     public int getClassifierSequence() {
-        return getSequenceProvider().getConceptSequence(classifierNid);
+        return Get.identifierService().getConceptSequence(classifierNid);
     }
 
     @Override
@@ -773,9 +753,9 @@ public class ViewCoordinate implements StampCoordinate,
         if (descriptionTypePrefList == null || descriptionTypePrefList.isEmpty()) {
             descriptionTypePrefList = new NidList();
             if (descriptionTypePrefSpecs != null) {
-                for (ConceptSpec spec : descriptionTypePrefSpecs) {
+                descriptionTypePrefSpecs.stream().forEach((spec) -> {
                     descriptionTypePrefList.add(spec.getNid());
-                }
+                });
             } 
         }
         return descriptionTypePrefList.getListArray();
@@ -787,13 +767,13 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public StampCoordinate getStampCoordinate() {
+    public StampCoordinate<ViewCoordinate> getStampCoordinate() {
         return this;
     }
 
     @Override
-    public int getLanugageConceptSequence() {
-        return getSequenceProvider().getConceptSequence(getLanguageNid());
+    public int getLanguageConceptSequence() {
+        return Get.identifierService().getConceptSequence(getLanguageNid());
     }
 
     @Override
@@ -802,7 +782,7 @@ public class ViewCoordinate implements StampCoordinate,
         int[] sequences = new int[prefNidList.size()];
         int[] nids = prefNidList.getListArray();
         for (int i = 0; i < sequences.length; i++) {
-            sequences[i] = getSequenceProvider().getConceptSequence(nids[i]);
+            sequences[i] = Get.identifierService().getConceptSequence(nids[i]);
         }
         return sequences;
     }
@@ -813,8 +793,8 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public int[] getModuleSequences() {
-        return new int[0];
+    public ConceptSequenceSet getModuleSequences() {
+        return new ConceptSequenceSet();
     }
     
     private static LanguageCoordinateService languageCoordinateService;
@@ -826,15 +806,23 @@ public class ViewCoordinate implements StampCoordinate,
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+            StampCoordinate<?> stampCoordinate) {
         return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
                 getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
    }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe>> getPreferredDescription(List<SememeChronology<DescriptionSememe>> descriptionList, StampCoordinate stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+            StampCoordinate<?> stampCoordinate) {
         return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
                 getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+            StampCoordinate<?> stampCoordinate) {
+        return getPreferredDescription(descriptionList, stampCoordinate);
     }
 
     @Override
@@ -842,5 +830,24 @@ public class ViewCoordinate implements StampCoordinate,
         return Status.getStateSet(allowedStatus);
     }
 
+    @Override
+    public ViewCoordinate makeAnalog(long stampPositionTime) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public ViewCoordinate makeAnalog(State... state) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public LogicCoordinate getLogicCoordinate() {
+        return this;
+    }
+
+    @Override
+    public TaxonomyCoordinate<ViewCoordinate> makeAnalog(PremiseType taxonomyType) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

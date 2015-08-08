@@ -1,26 +1,23 @@
 package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
+import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
+
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.security.NoSuchAlgorithmException;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -30,7 +27,9 @@ import java.util.stream.IntStream;
 
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
+
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
+
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -50,17 +49,16 @@ import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
+
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-import org.ihtsdo.otf.tcc.api.conattr.ConceptAttributeAnalogBI;
+
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
-import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesRevision;
 import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
@@ -96,33 +94,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
             refexService = LookupService.getService(RefexService.class);
         }
         return refexService;
-    }
-
-    private static SememeService sememeService;
-
-    protected static SememeService getSememeService() {
-        if (sememeService == null) {
-            sememeService = LookupService.getService(SememeService.class);
-        }
-        return sememeService;
-    }
-
-    private static CommitService commitManager;
-
-    protected static CommitService getCommitManager() {
-        if (commitManager == null) {
-            commitManager = Hk2Looker.getService(CommitService.class);
-        }
-        return commitManager;
-    }
-
-    private static IdentifierService sequenceService = null;
-
-    protected static IdentifierService getIdService() {
-        if (sequenceService == null) {
-            sequenceService = LookupService.getService(IdentifierService.class);
-        }
-        return sequenceService;
     }
 
     /**
@@ -290,17 +261,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
     @Override
     public int getAuthorSequence() {
-        return getIdService().getConceptSequence(getAuthorNid());
+        return Get.identifierService().getConceptSequence(getAuthorNid());
     }
 
     @Override
     public int getModuleSequence() {
-        return getIdService().getConceptSequence(getModuleNid());
+        return Get.identifierService().getConceptSequence(getModuleNid());
     }
 
     @Override
     public int getPathSequence() {
-        return getIdService().getConceptSequence(getPathNid());
+        return Get.identifierService().getConceptSequence(getPathNid());
     }
 
     public IntStream getVersionStampSequences() {
@@ -784,8 +755,8 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                 + new UUID(primordialMsb, primordialLsb).toString()
                                 + denotation.toString());
                         int sememeNid = PersistentStore.get().getNidForUuids(strMemberUuid);
-                        int containerSequence = getIdService().getSememeSequence(sememeNid);
-                        int assemblageSequence = getIdService().
+                        int containerSequence = Get.identifierService().getSememeSequence(sememeNid);
+                        int assemblageSequence = Get.identifierService().
                                 getConceptSequence(PersistentStore.get().
                                         getNidForUuids(idv.authorityUuid));
 
@@ -798,14 +769,17 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                         nid, // referenced component
                                         containerSequence
                                 );
-                        int stampSequence = getCommitManager().getStampSequence(State.ACTIVE,
+                        int stampSequence = Get.commitService().getStampSequence(State.ACTIVE,
                                         idv.time,
-                                        getIdService().getConceptSequenceForUuids(idv.authorUuid),
-                                        getIdService().getConceptSequenceForUuids(idv.moduleUuid),
-                                        getIdService().getConceptSequenceForUuids(idv.pathUuid));
-                        StringSememeImpl stringVersion = sememeChronicle.createMutableVersion(StringSememeImpl.class, stampSequence);
+                                        Get.identifierService().getConceptSequenceForUuids(idv.authorUuid),
+                                        Get.identifierService().getConceptSequenceForUuids(idv.moduleUuid),
+                                        Get.identifierService().getConceptSequenceForUuids(idv.pathUuid));
+                        SememeChronologyImpl rawSCI = (SememeChronologyImpl)sememeChronicle;
+                        SememeVersionImpl sememeVersion = rawSCI.createMutableVersion(StringSememeImpl.class, stampSequence);
+                        StringSememeImpl stringVersion = (StringSememeImpl)sememeVersion;
+                        
                         stringVersion.setString(denotation.toString());
-                        getSememeService().writeSememe(sememeChronicle);
+                        Get.sememeService().writeSememe(sememeChronicle);
                         break;
 
                     case UUID:
@@ -2119,7 +2093,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 
         assert primordialStamp != 0 : "Processing nid: " + enclosingConceptNid;
         sapNids.add(primordialStamp);
-        IntStream aliases = IntStream.of(getCommitManager().getAliases(primordialStamp));
+        IntStream aliases = IntStream.of(Get.commitService().getAliases(primordialStamp));
         aliases.forEach((int alias) -> {
             sapNids.add(alias);
         });
@@ -2127,7 +2101,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (revisions != null) {
             for (R r : revisions) {
                 sapNids.add(r.stamp);
-                aliases = IntStream.of(getCommitManager().getAliases(r.stamp));
+                aliases = IntStream.of(Get.commitService().getAliases(r.stamp));
                 aliases.forEach((int alias) -> {
                     sapNids.add(alias);
                 });
@@ -2420,10 +2394,10 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         }
     }
 
-    public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {

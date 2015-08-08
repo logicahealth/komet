@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.model.cc.refex.type_int;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.Get;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
@@ -18,9 +19,6 @@ import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 import java.beans.PropertyVetoException;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,7 +179,7 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
 
             if (getTime() != Long.MIN_VALUE) {
                 list.add(new IntMemberVersion(this, this, primordialStamp));
-                for (int stampAlias : getCommitManager().getAliases(primordialStamp)) {
+                for (int stampAlias : Get.commitService().getAliases(primordialStamp)) {
                     list.add(new IntMemberVersion(this, this, stampAlias));
                 }
             }
@@ -190,7 +188,7 @@ public class IntMember extends RefexMember<IntRevision, IntMember>
                 for (RefexIntAnalogBI r : revisions) {
                     if (r.getTime() != Long.MIN_VALUE) {
                         list.add(new IntMemberVersion(r, this, r.getStamp()));
-                        for (int stampAlias : getCommitManager().getAliases(r.getStamp())) {
+                        for (int stampAlias : Get.commitService().getAliases(r.getStamp())) {
                             list.add(new IntMemberVersion(r, this, stampAlias));
                         }
                     }
