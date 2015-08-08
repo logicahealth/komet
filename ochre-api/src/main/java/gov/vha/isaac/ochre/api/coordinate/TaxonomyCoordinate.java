@@ -43,7 +43,7 @@ public interface TaxonomyCoordinate<T extends TaxonomyCoordinate<T>> extends Tim
      * @return a StampCoordinate that specifies the retrieval and display of
      * object chronicle versions by indicating the current position on a path, and allowed modules.
      */
-    StampCoordinate<?> getStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate();
 
     /**
      *

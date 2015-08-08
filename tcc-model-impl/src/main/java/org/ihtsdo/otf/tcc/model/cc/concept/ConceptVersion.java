@@ -203,7 +203,7 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.commit(changeSetPolicy, changeSetWriterThreading);
     }
 
-    public boolean isLatestVersionActive(StampCoordinate<?> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return concept.isLatestVersionActive(coordinate);
     }
 
@@ -1491,7 +1491,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return concept.getLatestVersion(type, coordinate);
     }
     
@@ -1527,7 +1527,8 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+            PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
 
@@ -1537,7 +1538,8 @@ public class ConceptVersion implements ConceptVersionBI,
     }
     
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, 
+            LogicCoordinate logicCoordinate) {
        return "Not supported in OTF"; 
     }
 

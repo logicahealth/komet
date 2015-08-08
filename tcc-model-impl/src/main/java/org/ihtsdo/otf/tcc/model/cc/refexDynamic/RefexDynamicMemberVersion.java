@@ -204,7 +204,8 @@ public class RefexDynamicMemberVersion extends Version<RefexDynamicRevision, Ref
     }
 
     @Override
-    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, 
+            StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return getCv().getLatestVersion(type, coordinate);
  
     }

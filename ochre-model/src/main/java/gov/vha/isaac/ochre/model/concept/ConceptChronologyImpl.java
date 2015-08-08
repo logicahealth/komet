@@ -109,7 +109,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate<?> stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
         return Get.sememeService().getSnapshot(DescriptionSememe.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch((latestVersion) -> latestVersion.value().getText().equals(descriptionText));
@@ -147,7 +147,7 @@ public class ConceptChronologyImpl
 
     @Override
     public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(
-            StampCoordinate<?> stampCoordinate,
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
@@ -217,7 +217,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
          int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
             assemblageSequence = logicCoordinate.getInferredAssemblageSequence();

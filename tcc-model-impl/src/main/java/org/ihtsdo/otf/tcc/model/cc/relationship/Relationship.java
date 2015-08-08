@@ -485,7 +485,7 @@ public class Relationship extends ConceptComponent<RelationshipRevision, Relatio
    }
 
     @Override
-    public Optional<LatestVersion<RelationshipVersionBI<?>>> getLatestVersion(Class<RelationshipVersionBI<?>> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<RelationshipVersionBI<?>>> getLatestVersion(Class<RelationshipVersionBI<?>> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
          return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
      }

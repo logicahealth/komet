@@ -361,7 +361,8 @@ public class RefexDynamicRevision extends Revision<RefexDynamicRevision, RefexDy
     }
 
     @Override
-    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<RefexDynamicVersionBI<RefexDynamicRevision>>> getLatestVersion(Class<RefexDynamicVersionBI<RefexDynamicRevision>> type, 
+            StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return primordialComponent.getLatestVersion(type, coordinate);
     }
 }

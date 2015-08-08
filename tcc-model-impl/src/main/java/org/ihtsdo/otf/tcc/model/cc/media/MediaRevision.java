@@ -242,7 +242,7 @@ public class MediaRevision extends Revision<MediaRevision, Media>
    }
 
     @Override
-    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return this.primordialComponent.getLatestVersion(type, coordinate);
     }
 }

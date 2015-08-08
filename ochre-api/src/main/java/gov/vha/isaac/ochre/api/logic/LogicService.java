@@ -35,10 +35,10 @@ import org.jvnet.hk2.annotations.Contract;
 public interface LogicService {
 
     Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId, int logicAssemblageId, 
-            StampCoordinate<?> stampCoordinate);
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
     ClassifierService getClassifierService(
-            StampCoordinate<?> stampCoordinate,
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
             LogicCoordinate logicCoordinate,
             EditCoordinate editCoordinate);
 
