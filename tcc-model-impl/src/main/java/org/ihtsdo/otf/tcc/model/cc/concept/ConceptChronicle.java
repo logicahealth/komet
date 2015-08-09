@@ -1985,13 +1985,13 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+       return languageCoordinate.getPreferredDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
     }
 
 

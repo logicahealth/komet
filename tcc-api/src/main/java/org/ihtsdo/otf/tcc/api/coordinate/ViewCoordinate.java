@@ -806,21 +806,21 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(List<SememeChronology<T>> descriptionList, 
             StampCoordinate<?> stampCoordinate) {
         return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
                 getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
    }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(List<SememeChronology<T>> descriptionList, 
             StampCoordinate<?> stampCoordinate) {
         return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
                 getLanguageCoordinateService().getSynonymConceptSequence(), this);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getDescription(List<SememeChronology<T>> descriptionList, 
             StampCoordinate<?> stampCoordinate) {
         return getPreferredDescription(descriptionList, stampCoordinate);
     }
