@@ -20,14 +20,14 @@ public interface LanguageCoordinate {
     int[] getDescriptionTypePreferenceList();
     
         
-    Optional<LatestVersion<DescriptionSememe<?>>> 
+    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
         getFullySpecifiedDescription(
-                List<SememeChronology<DescriptionSememe<?>>> descriptionList,
+                List<SememeChronology<T>> descriptionList,
                 StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
-     Optional<LatestVersion<DescriptionSememe<?>>> 
+    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
         getPreferredDescription(
-                List<SememeChronology<DescriptionSememe<?>>> descriptionList,
+                List<SememeChronology<T>> descriptionList,
                 StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
     /**
@@ -38,9 +38,9 @@ public interface LanguageCoordinate {
      * @return an optional description best matching the {@code LanguageCoordinate}
      * constraints. 
      */
-     Optional<LatestVersion<DescriptionSememe<?>>> 
+    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
         getDescription(
-                List<SememeChronology<DescriptionSememe<?>>> descriptionList,
+                List<SememeChronology<T>> descriptionList,
                 StampCoordinate<?> stampCoordinate);
     
     

@@ -26,7 +26,7 @@ import javafx.collections.ObservableIntegerArray;
  *
  * @author kec
  */
-public interface ObservableStampCoordinate extends StampCoordinate {
+public interface ObservableStampCoordinate extends StampCoordinate<ObservableStampCoordinate> {
     
     SetProperty<State> allowedStatesProperty();
     

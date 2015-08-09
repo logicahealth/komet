@@ -65,12 +65,12 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
      */
     boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
         
-    List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
+    <T extends DescriptionSememe<T>> List<? extends SememeChronology<T>> getConceptDescriptionList();
     
-    Optional<LatestVersion<DescriptionSememe<?>>> 
+    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
         getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
-    Optional<LatestVersion<DescriptionSememe<?>>> 
+    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
         getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
 
     /**

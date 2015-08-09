@@ -15,8 +15,6 @@
  */
 package gov.vha.isaac.ochre.collections;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
@@ -24,6 +22,7 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
+
 import org.apache.mahout.math.set.OpenIntHashSet;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
