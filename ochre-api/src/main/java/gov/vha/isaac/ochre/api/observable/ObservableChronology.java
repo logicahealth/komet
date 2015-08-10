@@ -52,7 +52,7 @@ public interface ObservableChronology<V extends ObservableVersion>
         
 
     Optional<LatestVersion<V>> 
-        getLatestVersion(Class<V> type, StampCoordinate coordinate);
+        getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate);
         
     /**
      * 

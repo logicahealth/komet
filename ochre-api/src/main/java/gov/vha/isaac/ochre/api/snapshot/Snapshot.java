@@ -40,11 +40,11 @@ public class Snapshot {
 
     LanguageCoordinate languageCoordinate;
     LogicCoordinate logicCoordinate;
-    StampCoordinate stampCoordinate;
-    TaxonomyCoordinate taxonomyCoordinate;
+    StampCoordinate<? extends StampCoordinate<?>> stampCoordinate;
+    TaxonomyCoordinate<? extends TaxonomyCoordinate<?>> taxonomyCoordinate;
     RelativePositionCalculator positionCalculator;
 
-    public Snapshot(LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate, StampCoordinate stampCoordinate, TaxonomyCoordinate taxonomyCoordinate) {
+    public Snapshot(LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, TaxonomyCoordinate<? extends TaxonomyCoordinate<?>> taxonomyCoordinate) {
         this.languageCoordinate = languageCoordinate;
         this.logicCoordinate = logicCoordinate;
         this.stampCoordinate = stampCoordinate;

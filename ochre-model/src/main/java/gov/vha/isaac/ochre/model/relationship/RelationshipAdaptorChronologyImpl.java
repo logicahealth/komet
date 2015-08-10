@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.relationship;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -57,7 +58,7 @@ public class RelationshipAdaptorChronologyImpl
      */
     private final int referencedComponentNid;
 
-    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList();
+    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList<>();
 
     public RelationshipAdaptorChronologyImpl(int nid, int referencedComponentNid) {
         this.nid = nid;
@@ -68,13 +69,13 @@ public class RelationshipAdaptorChronologyImpl
     }
     
     @Override
-    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(Class<RelationshipVersionAdaptorImpl> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(Class<RelationshipVersionAdaptorImpl> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         return calc.getLatestVersion(this);
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -94,17 +95,17 @@ public class RelationshipAdaptorChronologyImpl
 
     @Override
     public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     public <SV extends SememeVersion> List<? extends SememeChronology<SV>> getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type) {
-         return Collections.EMPTY_LIST;
+         return Collections.emptyList();
     }
 
     @Override
@@ -170,7 +171,20 @@ public class RelationshipAdaptorChronologyImpl
 
     @Override
     public String toString() {
-        return "RelAdaptor{" + "nid=" + nid + ", referencedComponentNid=" + referencedComponentNid + ", versionList=" + versionList + '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        versionList.stream().forEach((version) -> {
+            sb.append(version);
+            sb.append(",\n ");
+        });
+        sb.delete(sb.length() - 4, sb.length() -1);
+        
+        sb.append("]");
+        Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService().getOptionalSememe(referencedComponentNid);
+        if (optionalSememe.isPresent()) {
+            return "RelAdaptor{"  + Get.conceptDescriptionText(optionalSememe.get().getAssemblageSequence()) + ": " + sb.toString() + '}';
+         }
+        return "RelAdaptor{"  + referencedComponentNid + ": " + sb.toString() + '}';
     }
     
 }

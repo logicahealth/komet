@@ -28,9 +28,9 @@ public interface ObjectChronology<V extends StampedVersion>
     extends IdentifiedObjectLocal, CommittableComponent {
     
     Optional<LatestVersion<V>> 
-        getLatestVersion(Class<V> type, StampCoordinate<?> coordinate);    
+        getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate);    
         
-    boolean isLatestVersionActive(StampCoordinate<?> coordinate);
+    boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate);
     /**
      * 
      * @return a list of all versions of this object chronology, with no order guarantee. . 
@@ -58,7 +58,7 @@ public interface ObjectChronology<V extends StampedVersion>
      * @return a list of all visible versions of this object chronology, sorted in
      * ascending order (oldest version first, newest version last). 
      */
-    default List<? extends V> getVisibleOrderedVersionList(StampCoordinate<?> stampCoordinate) {
+    default List<? extends V> getVisibleOrderedVersionList(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
         SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
             RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());

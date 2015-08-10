@@ -185,7 +185,7 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     }
 
     @Override
-    public Optional<LatestVersion<RefexVersionBI<R>>> getLatestVersion(Class<RefexVersionBI<R>> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<RefexVersionBI<R>>> getLatestVersion(Class<RefexVersionBI<R>> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return ((RefexMember) cc).getLatestVersion(type, coordinate);
     }
 

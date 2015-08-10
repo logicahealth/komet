@@ -44,7 +44,7 @@ public interface CoordinateFactory extends LanguageCoordinateService {
      * @param second the second-of-minute to represent, from 0 to 59
      * @return a new instance that implements {@code StampCoordinate} with the provided temporal information
      */
-    StampCoordinate createStampCoordinate(ConceptSpecification stampPath, 
+    StampCoordinate<? extends StampCoordinate<?>> createStampCoordinate(ConceptSpecification stampPath, 
                                StampPrecedence precedence,
                                List<ConceptSpecification> moduleSpecificationList, 
                                EnumSet<State> allowedStateSet,
@@ -64,7 +64,7 @@ public interface CoordinateFactory extends LanguageCoordinateService {
     * @param temporal the temporal object to specify the time on a path for the returned  {@code StampCoordinate} 
      * @return a new instance that implements {@code StampCoordinate} with the provided temporal information
      */
-    StampCoordinate createStampCoordinate(ConceptSpecification stampPath, 
+    StampCoordinate<? extends StampCoordinate<?>> createStampCoordinate(ConceptSpecification stampPath, 
                                StampPrecedence precedence,
                                List<ConceptSpecification> moduleSpecificationList, 
                                EnumSet<State> allowedStateSet,
@@ -79,7 +79,7 @@ public interface CoordinateFactory extends LanguageCoordinateService {
      * @param dateTimeText the text to parse such as "2007-12-03T10:15:30", which is specified by the ISO-8601 extended offset date-time format. 
      * @return a new instance that implements {@code StampCoordinate} with the provided temporal information
      */
-    StampCoordinate createStampCoordinate(ConceptSpecification stampPath, 
+    StampCoordinate<? extends StampCoordinate<?>> createStampCoordinate(ConceptSpecification stampPath, 
                                StampPrecedence precedence,
                                List<ConceptSpecification> moduleSpecificationList, 
                                EnumSet<State> allowedStateSet,
@@ -90,25 +90,25 @@ public interface CoordinateFactory extends LanguageCoordinateService {
      * @return a {@code StampCoordinate} representing the latest version on the development path
      * of components in all modules.
      */
-    StampCoordinate<StampCoordinate> createDevelopmentLatestStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> createDevelopmentLatestStampCoordinate();
     /**
      * 
      * @return a {@code StampCoordinate} representing the latest active version on the development path
      * of components in all modules. Inactive versions are not included in computed results. 
      */
-    StampCoordinate<StampCoordinate> createDevelopmentLatestActiveOnlyStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> createDevelopmentLatestActiveOnlyStampCoordinate();
     /**
      * 
      * @return a {@code StampCoordinate} representing the latest version on the master path
      * of components in all modules.
      */
-    StampCoordinate<StampCoordinate> createMasterLatestStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> createMasterLatestStampCoordinate();
     /**
      * 
      * @return a {@code StampCoordinate} representing the latest active version on the master path
      * of components in all modules. Inactive versions are not included in computed results. 
      */
-    StampCoordinate<StampCoordinate> createMasterLatestActiveOnlyStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> createMasterLatestActiveOnlyStampCoordinate();
     
     /**
      * 
@@ -116,21 +116,21 @@ public interface CoordinateFactory extends LanguageCoordinateService {
      */
     LogicCoordinate createStandardElProfileLogicCoordinate();
     
-   TaxonomyCoordinate<TaxonomyCoordinate> createInferredTaxonomyCoordinate(
-            StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate,
+   TaxonomyCoordinate<? extends TaxonomyCoordinate<?>> createInferredTaxonomyCoordinate(
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, LanguageCoordinate languageCoordinate,
             LogicCoordinate logicCoordinate);
    
-    TaxonomyCoordinate<TaxonomyCoordinate> createStatedTaxonomyCoordinate(
-            StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate,
+    TaxonomyCoordinate<? extends TaxonomyCoordinate<?>> createStatedTaxonomyCoordinate(
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, LanguageCoordinate languageCoordinate,
             LogicCoordinate logicCoordinate);
  /**
   * active only
   * latest on dev path
   * @return 
   */
-   TaxonomyCoordinate<TaxonomyCoordinate> createDefaultInferredTaxonomyCoordinate();
+   TaxonomyCoordinate<?> createDefaultInferredTaxonomyCoordinate();
    
-    TaxonomyCoordinate<TaxonomyCoordinate> createDefaultStatedTaxonomyCoordinate();
+    TaxonomyCoordinate<?> createDefaultStatedTaxonomyCoordinate();
 
 
     EditCoordinate createDefaultUserSolorOverlayEditCoordinate();

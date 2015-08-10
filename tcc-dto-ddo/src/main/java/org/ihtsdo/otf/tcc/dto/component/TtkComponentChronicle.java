@@ -163,7 +163,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate<?> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -810,7 +810,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return RelativePositionCalculator.getCalculator(coordinate).getLatestVersion(this);
     }
 

@@ -50,35 +50,37 @@ public enum SememeType {
         this.niceName_ = niceName;
     }
 
-    public Class getSememeVersionClass() {
+    @SuppressWarnings("rawtypes")
+	public Class<? extends SememeVersion> getSememeVersionClass() {
         switch (this) {
             case COMPONENT_NID:
-                return ComponentNidSememe.class;
+                return (Class<? extends SememeVersion>)ComponentNidSememe.class;
             case DESCRIPTION:
-                return DescriptionSememe.class;
+                return (Class<? extends SememeVersion>)DescriptionSememe.class;
             case MEMBER:
-                return SememeVersion.class;
+                return (Class<? extends SememeVersion>)SememeVersion.class;
             case DYNAMIC:
-                return DynamicSememe.class;
+                return (Class<? extends SememeVersion>)DynamicSememe.class;
             case LOGIC_GRAPH:
-                return LogicGraphSememe.class;
+                return (Class<? extends SememeVersion>)LogicGraphSememe.class;
             case LONG:
-                return LongSememe.class;
+                return (Class<? extends SememeVersion>)LongSememe.class;
             case STRING:
-                return StringSememe.class;
+                return (Class<? extends SememeVersion>)StringSememe.class;
             default:
                 throw new RuntimeException("Can't handle: " + this);
         }
     }
 
-    public Class getObservableSememeVersionClass() {
+    @SuppressWarnings("rawtypes")
+	public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
         switch (this) {
             case COMPONENT_NID:
-                return ObservableComponentNidSememe.class;
+                return (Class<? extends ObservableSememeVersion>)ObservableComponentNidSememe.class;
             case DESCRIPTION:
-                return ObservableDescriptionSememe.class;
+                return (Class<? extends ObservableSememeVersion>)ObservableDescriptionSememe.class;
             case MEMBER:
-                return ObservableSememeVersion.class;
+                return (Class<? extends ObservableSememeVersion>)ObservableSememeVersion.class;
             case DYNAMIC:
             //TODO
             case LOGIC_GRAPH:

@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
-import java.util.function.Supplier;
+//import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
@@ -57,10 +57,10 @@ public class RelativePositionCalculator implements OchreCache {
     private static final Logger log = LogManager.getLogger();
 
 
-    private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> calculatorCache =
+    private static final ConcurrentHashMap<StampCoordinate<? extends StampCoordinate<?>>, RelativePositionCalculator> calculatorCache =
             new ConcurrentHashMap<>();
 
-    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
+    public static RelativePositionCalculator getCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator pm = calculatorCache.get(coordinate);
 
         if (pm != null) {
@@ -77,7 +77,7 @@ public class RelativePositionCalculator implements OchreCache {
 
         return pm;
     }
-    StampCoordinate coordinate;
+    StampCoordinate<? extends StampCoordinate<?>> coordinate;
     /**
      * Mapping from pathNid to each segment for that pathNid.
      * There is one entry for each path reachable antecedent to the destination 
@@ -89,7 +89,7 @@ public class RelativePositionCalculator implements OchreCache {
         // No arg constructor for HK2 managed instance
     }
 
-    public RelativePositionCalculator(StampCoordinate coordinate) {
+    public RelativePositionCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         this.coordinate = coordinate;
         this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
     }
@@ -330,11 +330,10 @@ public class RelativePositionCalculator implements OchreCache {
         StampSequenceSet result =  stampSequenceStream.collect(StampSequenceSet::new, 
                 new LatestStampAccumulator(), 
                 new LatestStampCombiner());
-        if (coordinate.getAllowedStates().equals(State.ACTIVE_ONLY_SET)) {
-            return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
-                return Get.commitService().getStatusForStamp(stampSequence) == State.ACTIVE;}));
-        }
-        return result;
+          
+           return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
+                return  coordinate.getAllowedStates().contains(Get.commitService().getStatusForStamp(stampSequence));
+           }));
     }
     
     private class LatestStampAccumulator implements ObjIntConsumer<StampSequenceSet> {
@@ -362,12 +361,12 @@ public class RelativePositionCalculator implements OchreCache {
         
     }
 
-    private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
-        @Override
-        public StampSequenceSet get() {
-            return new StampSequenceSet();
-        }
-    };
+//    private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
+//        @Override
+//        public StampSequenceSet get() {
+//            return new StampSequenceSet();
+//        }
+//    };
 
     /**
      * 
@@ -400,10 +399,10 @@ public class RelativePositionCalculator implements OchreCache {
             return Optional.empty();
         } 
         if (latestVersionList.size() == 1) {
-            return Optional.of(new LatestVersion(latestVersionList.get(0)));
+            return Optional.of(new LatestVersion<V>(latestVersionList.get(0)));
         }
         
-        return Optional.of(new LatestVersion(latestVersionList.get(0),
+        return Optional.of(new LatestVersion<V>(latestVersionList.get(0),
             latestVersionList.subList(1, latestVersionList.size())));
     }
     
@@ -423,7 +422,7 @@ public class RelativePositionCalculator implements OchreCache {
             }
         });
         if (coordinate.getAllowedStates().equals(State.ACTIVE_ONLY_SET)) {
-            HashSet<V> inactiveVersions = new HashSet();
+            HashSet<V> inactiveVersions = new HashSet<>();
             latestVersionSet.stream().forEach((version) -> {
                 if (version.getState() != State.ACTIVE) {
                     inactiveVersions.add(version);
@@ -437,10 +436,10 @@ public class RelativePositionCalculator implements OchreCache {
             return Optional.empty();
         } 
         if (latestVersionList.size() == 1) {
-            return Optional.of(new LatestVersion(latestVersionList.get(0)));
+            return Optional.of(new LatestVersion<V>(latestVersionList.get(0)));
         }
         
-        return Optional.of(new LatestVersion(latestVersionList.get(0),
+        return Optional.of(new LatestVersion<V>(latestVersionList.get(0),
             latestVersionList.subList(1, latestVersionList.size())));
     }
 

@@ -181,7 +181,10 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
 
     @Override
     public String toString() {
-        return "RelVersionAdaptor{" + "Key=" + relationshipAdaptorChronicleKey + ", stampSequence=" + stampSequence + '}';
+        return "{[" + Get.conceptDescriptionText(relationshipAdaptorChronicleKey.originSequence) + "]➞(" +
+                Get.conceptDescriptionText(relationshipAdaptorChronicleKey.typeSequence) + ")➞[" +
+                Get.conceptDescriptionText(relationshipAdaptorChronicleKey.destinationSequence) + "]"
+                + " " + Get.commitService().describeStampSequence(stampSequence) + "}";
     }
     
 }

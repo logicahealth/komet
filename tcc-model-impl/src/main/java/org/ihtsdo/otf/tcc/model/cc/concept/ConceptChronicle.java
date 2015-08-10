@@ -1802,8 +1802,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe>> getConceptDescriptionList() {
-        return getDescriptions().stream().collect(Collectors.toList());
+    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+    	List<? extends SememeChronology<? extends DescriptionSememe>> list = getDescriptions().stream().collect(Collectors.toList());
+        return (List<? extends SememeChronology<? extends DescriptionSememe<?>>>)list;
     }
 
     @Override
@@ -1813,7 +1814,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate<?> stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
         return getDescriptions().stream().anyMatch((desc) -> (desc.getVersions((ViewCoordinate) stampCoordinate).stream().
                 anyMatch((descv) -> (descv.getText().equals(descriptionText)))));
     }
@@ -1824,18 +1825,18 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return Optional.of(new LatestVersion(new ConceptVersion(this, (ViewCoordinate) coordinate)));
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+       return languageCoordinate.getPreferredDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
     }
 
 
@@ -1893,15 +1894,16 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe>> getLogicalDefinition(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+            PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
             assemblageSequence = logicCoordinate.getInferredAssemblageSequence();
         } else {
             assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
         }
-        return Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate)
-                .getLatestSememeVersion(assemblageSequence);
+        Optional<?> optional = Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate).getLatestSememeVersion(assemblageSequence);
+        return (Optional<LatestVersion<LogicGraphSememe<?>>>)optional;
     }
 
     @Override

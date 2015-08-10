@@ -1,13 +1,16 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;

@@ -23,7 +23,7 @@ import java.util.UUID;
  * @param <T>
  * TODO can remove generic type on TaxonomyCoordinate once ViewCoordinate is eliminated. 
  */
-public interface TaxonomyCoordinate<T extends TaxonomyCoordinate> extends TimeBasedAnalogMaker<T>, StateBasedAnalogMaker<T> {
+public interface TaxonomyCoordinate<T extends TaxonomyCoordinate<T>> extends TimeBasedAnalogMaker<T>, StateBasedAnalogMaker<T> {
 
     /**
      *
@@ -43,7 +43,7 @@ public interface TaxonomyCoordinate<T extends TaxonomyCoordinate> extends TimeBa
      * @return a StampCoordinate that specifies the retrieval and display of
      * object chronicle versions by indicating the current position on a path, and allowed modules.
      */
-    StampCoordinate<StampCoordinate> getStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate();
 
     /**
      *
@@ -64,5 +64,5 @@ public interface TaxonomyCoordinate<T extends TaxonomyCoordinate> extends TimeBa
      * @return a new taxonomyCoordinate with the specified taxonomy type. 
      */
     
-    TaxonomyCoordinate<T> makeAnalog(PremiseType taxonomyType);
+    TaxonomyCoordinate<? extends T> makeAnalog(PremiseType taxonomyType);
 }
