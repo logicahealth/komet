@@ -43,9 +43,9 @@ public class DynamicSememeUUID extends DynamicSememeData implements DynamicSemem
 		super(data);
 	}
 
-	protected DynamicSememeUUID(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeUUID(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeUUID(UUID uuid) throws PropertyVetoException {

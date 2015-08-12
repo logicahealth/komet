@@ -40,9 +40,9 @@ public class DynamicSememeSequence extends DynamicSememeData implements DynamicS
 	{
 		super(data);
 	}
-	protected DynamicSememeSequence(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeSequence(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeSequence(int nid) throws PropertyVetoException {

@@ -142,7 +142,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>imple
 	}
 
 	@Override
-	public void setData(DynamicSememeDataBI[] data) throws PropertyVetoException
+	public void setData(DynamicSememeDataBI[] data)
 	{
 		if (data_ != null)
 		{

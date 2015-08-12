@@ -40,9 +40,9 @@ public class DynamicSememeNid extends DynamicSememeData implements DynamicSememe
 	{
 		super(data);
 	}
-	protected DynamicSememeNid(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeNid(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeNid(int nid) throws PropertyVetoException {

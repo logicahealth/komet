@@ -42,9 +42,9 @@ public class DynamicSememeLong extends DynamicSememeData implements DynamicSemem
 		super(data);
 	}
 
-	protected DynamicSememeLong(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeLong(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeLong(long l) throws PropertyVetoException {

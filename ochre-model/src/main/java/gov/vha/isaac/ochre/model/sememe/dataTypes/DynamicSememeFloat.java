@@ -42,9 +42,9 @@ public class DynamicSememeFloat extends DynamicSememeData implements DynamicSeme
 		super(data);
 	}
 
-	protected DynamicSememeFloat(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeFloat(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeFloat(float f) throws PropertyVetoException {

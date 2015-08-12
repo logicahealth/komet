@@ -42,9 +42,9 @@ public class DynamicSememeDouble extends DynamicSememeData implements DynamicSem
 		super(data);
 	}
 
-	protected DynamicSememeDouble(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeDouble(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeDouble(double d) throws PropertyVetoException {

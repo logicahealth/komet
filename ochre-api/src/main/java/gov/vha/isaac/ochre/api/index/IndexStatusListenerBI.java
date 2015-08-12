@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ihtsdo.otf.tcc.model.index.service;
+package gov.vha.isaac.ochre.api.index;
 
 import org.jvnet.hk2.annotations.Contract;
 
@@ -35,17 +35,17 @@ public interface IndexStatusListenerBI
 	 * Called when an index configuration change happens that listeners might be interested in.
 	 * @param indexConfigurationThatChanged - the indexer that had a change
 	 */
-	public void indexConfigurationChanged(IndexerBI indexConfigurationThatChanged);
+	public void indexConfigurationChanged(IndexServiceBI indexConfigurationThatChanged);
 	
 	/**
 	 * Called when a reindex sequence begins
 	 * @param index - the index being recreated
 	 */
-	public void reindexBegan(IndexerBI index);
+	public void reindexBegan(IndexServiceBI index);
 	
 	/**
 	 * Called when a reindex sequence completes
 	 * @param index - the index that was recreated
 	 */
-	public void reindexCompleted(IndexerBI index);
+	public void reindexCompleted(IndexServiceBI index);
 }

@@ -162,7 +162,6 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
                     return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
                             stampSequence, versionSequence);
                 }
-
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + getSememeType());

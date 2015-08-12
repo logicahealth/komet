@@ -253,6 +253,10 @@ public class Taxonomy {
       for (ConceptCB concept : conceptBpsInInsertionOrder) {
          String preferredName = concept.getPreferredName();
          String constantName  = preferredName.toUpperCase();
+         
+         if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
+            throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
+         }
 
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");

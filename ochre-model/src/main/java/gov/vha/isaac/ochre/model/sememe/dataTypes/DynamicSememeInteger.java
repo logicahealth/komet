@@ -41,9 +41,9 @@ public class DynamicSememeInteger extends DynamicSememeData implements DynamicSe
 		super(data);
 	}
 
-	protected DynamicSememeInteger(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeInteger(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeInteger(int integer) throws PropertyVetoException {

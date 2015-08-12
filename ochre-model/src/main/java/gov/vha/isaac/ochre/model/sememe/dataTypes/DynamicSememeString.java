@@ -42,9 +42,9 @@ public class DynamicSememeString extends DynamicSememeData implements DynamicSem
 		super(data);
 	}
 
-	protected DynamicSememeString(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeString(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeString(String string) throws PropertyVetoException {

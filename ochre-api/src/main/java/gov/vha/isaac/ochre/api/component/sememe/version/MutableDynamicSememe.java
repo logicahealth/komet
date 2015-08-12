@@ -32,7 +32,6 @@ public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>> extends
      * be an extension of {@link DynamicSememeDataBI}
      * 
      * @param data
-     * @throws PropertyVetoException
      */
-    void setData(DynamicSememeDataBI[] data) throws PropertyVetoException;
+    void setData(DynamicSememeDataBI[] data);
 }

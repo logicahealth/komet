@@ -25,11 +25,14 @@ public class DynamicSememeConstants
 	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_SEQUENCE = new MetadataConceptConstant("sequence", UUID.fromString("5bfd7cfb-ca7e-584d-8672-e089dbb4e912")) {};
 
 	//The following data types already exist, but I'm also adding them to our hierarchy for clarity
-	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_STRING = new MetadataConceptConstant("String (foundation metadata concept)", 
+	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_STRING = new MetadataConceptConstant("String (foundation metadata concept)",
+			"String",
 			UUID.fromString("a46aaf11-b37a-32d6-abdc-707f084ec8f5")) {};
-	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_INTEGER = new MetadataConceptConstant("Signed integer (foundation metadata concept)", 
+	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_INTEGER = new MetadataConceptConstant("Signed integer (foundation metadata concept)",
+			"Signed integer",
 			UUID.fromString("1d1c2073-d98b-3dd3-8aad-a19c65aa5a0c")) {};
-	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_UUID = new MetadataConceptConstant("Universally Unique Identifier (foundation metadata concept)", 
+	public static final MetadataConceptConstant DYNAMIC_SEMEME_DT_UUID = new MetadataConceptConstant("Universally Unique Identifier (foundation metadata concept)",
+			"Universally Unique Identifier",
 			UUID.fromString("845274b5-9644-3799-94c6-e0ea37e7d1a4")) {};
 	
 	

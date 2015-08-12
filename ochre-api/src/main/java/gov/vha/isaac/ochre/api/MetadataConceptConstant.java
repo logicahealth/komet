@@ -15,7 +15,7 @@ public abstract class MetadataConceptConstant {
 	protected MetadataConceptConstant(String fsn, String preferredSynonym, UUID uuid)
 	{
 		fsn_ = fsn;
-		preferredSynonym_ = preferredSynonym;
+		preferredSynonym_ = (preferredSynonym == null ? fsn_ : preferredSynonym);
 		uuid_ = uuid;
 	}
 	

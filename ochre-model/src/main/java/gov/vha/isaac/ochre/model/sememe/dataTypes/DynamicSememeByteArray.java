@@ -34,9 +34,9 @@ public class DynamicSememeByteArray extends DynamicSememeData implements Dynamic
 
 	private ObjectProperty<byte[]> property_;
 
-	protected DynamicSememeByteArray(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeByteArray(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeByteArray(byte[] bytes) {

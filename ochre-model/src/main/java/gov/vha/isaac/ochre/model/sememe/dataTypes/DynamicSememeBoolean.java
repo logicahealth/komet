@@ -41,9 +41,9 @@ public class DynamicSememeBoolean extends DynamicSememeData implements DynamicSe
 		super(data);
 	}
 	
-	protected DynamicSememeBoolean(byte[] data, int assemblageNid, int columnNumber)
+	protected DynamicSememeBoolean(byte[] data, int assemblageSequence, int columnNumber)
 	{
-		super(data, assemblageNid, columnNumber);
+		super(data, assemblageSequence, columnNumber);
 	}
 	
 	public DynamicSememeBoolean(boolean b) throws PropertyVetoException {

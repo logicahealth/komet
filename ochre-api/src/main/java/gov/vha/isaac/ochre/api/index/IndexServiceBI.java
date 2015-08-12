@@ -1,11 +1,14 @@
-/*
- * Copyright 2015 U.S. Department of Veterans Affairs.
+/**
+ * Copyright Notice
+ *
+ * This is a work of the U.S. Government and is not subject to copyright
+ * protection in the United States. Foreign copyrights may apply.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,17 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package gov.vha.isaac.ochre.api.index;
 
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.Future;
 import org.jvnet.hk2.annotations.Contract;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 
 /**
  * The contract interface for indexing services.
  * <br>
- * {@code IndexerBI} implementations
+ * {@code IndexService} implementations
  * must not throw exceptions. Throwing exceptions could cause the underlying
  * source data to corrupt. Since indexes can be regenerated, indexes should
  * mark themselves as invalid somehow, and recreate themselves when necessary.
@@ -31,7 +36,7 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface IndexService {
+public interface IndexServiceBI {
 
     /**
      * Clear index, resulting in an empty index. Used prior to the
@@ -112,6 +117,32 @@ public interface IndexService {
      * @param enabled true if the indexer is enabled, otherwise false.
      */
     void setEnabled(boolean enabled);
-
     
+    /**
+     * Query index with no specified target generation of the index.
+     *
+     * @param query The query to apply.
+     * @param sizeLimit The maximum size of the result list.
+     * @return a List of {@code SearchResult</codes> that contains the nid of the
+     * component that matched, and the score of that match relative to other
+     * matches.
+     */
+    List<SearchResult> query(String query, int sizeLimit);
+
+    /**
+     * Query index with the specified target generation of the index.
+     * 
+     * @param query The query to apply
+     * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null, 
+     * searches all indexed content.  This would be set to the concept sequence of {@link IsaacMetadataAuxiliaryBinding#DESCRIPTION_ASSEMBLAGE}
+     * or the concept sequence {@link IsaacMetadataAuxiliaryBinding#SNOMED_INTEGER_ID} for example.
+     * @param sizeLimit The maximum size of the result list.  Pass Integer.MAX_VALUE for unlimited results.
+     * @param targetGeneration target generation that must be included in the search
+     * or Long.MIN_VALUE if there is no need to wait for a target generation.
+     * @return a List of {@code SearchResult</codes> that contains the nid of the
+     * component that matched, and the score of that match relative to other
+     * matches.
+     */
+    List<SearchResult> query(String query, Integer sememeConceptSequence, int sizeLimit, long targetGeneration);
+
 }
