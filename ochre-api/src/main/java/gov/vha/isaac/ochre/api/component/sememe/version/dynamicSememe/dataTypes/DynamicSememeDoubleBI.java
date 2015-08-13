@@ -33,5 +33,5 @@ public interface DynamicSememeDoubleBI extends DynamicSememeDataBI
 {
 	public double getDataDouble();
 	
-	public ReadOnlyObjectProperty<Double> getDataDoubleProperty() throws IOException;
+	public ReadOnlyObjectProperty<Double> getDataDoubleProperty();
 }

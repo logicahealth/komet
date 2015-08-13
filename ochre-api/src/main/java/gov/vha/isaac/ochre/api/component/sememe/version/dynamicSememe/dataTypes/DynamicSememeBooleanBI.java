@@ -33,5 +33,5 @@ public interface DynamicSememeBooleanBI extends DynamicSememeDataBI
 {
 	public boolean getDataBoolean();
 	
-	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() throws IOException;
+	public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty();
 }

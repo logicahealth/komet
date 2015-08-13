@@ -18,11 +18,9 @@
  */
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
@@ -48,12 +46,12 @@ public class DynamicSememeArray<T extends DynamicSememeDataBI> extends DynamicSe
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeArray(T[] dataArray) throws PropertyVetoException {
+	public DynamicSememeArray(T[] dataArray) {
 		super();
 		
 		if (dataArray == null)
 		{
-			throw new PropertyVetoException("The dataArray cannot be null", null);
+			throw new RuntimeException("The dataArray cannot be null", null);
 		}
 		byte[][] allData = new byte[dataArray.length][];
 		
@@ -68,7 +66,7 @@ public class DynamicSememeArray<T extends DynamicSememeDataBI> extends DynamicSe
 		//data size + 4 bytes for the leading type token, + 4 bytes for the length of each data item
 		if ((totalBytes + 4 + ((i + 1) * 4)) > Integer.MAX_VALUE)
 		{
-			throw new PropertyVetoException("To much data to store", null);
+			throw new RuntimeException("To much data to store", null);
 		}
 		
 		int expectedDataSize = (int)totalBytes + 4 + (i * 4);

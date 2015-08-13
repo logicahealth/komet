@@ -33,5 +33,5 @@ public interface DynamicSememeFloatBI extends DynamicSememeDataBI
 {
 	public float getDataFloat();
 	
-	public ReadOnlyObjectProperty<Float> getDataFloatProperty() throws IOException;
+	public ReadOnlyObjectProperty<Float> getDataFloatProperty();
 }

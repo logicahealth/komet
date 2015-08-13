@@ -33,5 +33,5 @@ public interface DynamicSememeLongBI extends DynamicSememeDataBI
 {
 	public long getDataLong();
 	
-	public ReadOnlyObjectProperty<Long> getDataLongProperty() throws IOException;
+	public ReadOnlyObjectProperty<Long> getDataLongProperty();
 }

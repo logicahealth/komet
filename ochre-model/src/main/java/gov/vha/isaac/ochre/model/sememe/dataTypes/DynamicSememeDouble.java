@@ -19,7 +19,6 @@
 
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDoubleBI;
@@ -47,7 +46,7 @@ public class DynamicSememeDouble extends DynamicSememeData implements DynamicSem
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeDouble(double d) throws PropertyVetoException {
+	public DynamicSememeDouble(double d) {
 		super();
 		data_ = ByteBuffer.allocate(8).putDouble(d).array();
 	}

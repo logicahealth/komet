@@ -19,9 +19,8 @@
 
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
-import java.io.IOException;
 import java.util.UUID;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
 /**
@@ -34,5 +33,5 @@ public interface DynamicSememeUUIDBI extends DynamicSememeDataBI
 {
 	public UUID getDataUUID();
 	
-	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() throws IOException;
+	public ReadOnlyObjectProperty<UUID> getDataUUIDProperty();
 }

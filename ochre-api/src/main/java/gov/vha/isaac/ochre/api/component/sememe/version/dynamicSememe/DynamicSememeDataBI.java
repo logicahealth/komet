@@ -50,7 +50,7 @@ public interface DynamicSememeDataBI {
      * @throws ContradictionException 
      * @throws IOException 
      */
-    public ReadOnlyObjectProperty<?> getDataObjectProperty() throws IOException;
+    public ReadOnlyObjectProperty<?> getDataObjectProperty();
 
     /**
      * @return The type information of the data

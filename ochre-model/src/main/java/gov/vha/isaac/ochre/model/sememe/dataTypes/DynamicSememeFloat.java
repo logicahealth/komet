@@ -19,9 +19,6 @@
 
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -47,7 +44,7 @@ public class DynamicSememeFloat extends DynamicSememeData implements DynamicSeme
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeFloat(float f) throws PropertyVetoException {
+	public DynamicSememeFloat(float f) {
 		super();
 		data_ = DynamicSememeInteger.intToByteArray(Float.floatToIntBits(f));
 	}
@@ -73,12 +70,10 @@ public class DynamicSememeFloat extends DynamicSememeData implements DynamicSeme
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty()  {
-            return getDataFloatProperty();
+		return getDataFloatProperty();
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloatProperty()
 	 */
 	@Override

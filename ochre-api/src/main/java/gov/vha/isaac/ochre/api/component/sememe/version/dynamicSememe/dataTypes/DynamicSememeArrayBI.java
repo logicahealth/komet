@@ -42,5 +42,5 @@ public interface DynamicSememeArrayBI<T extends DynamicSememeDataBI> extends Dyn
 	
 	public T[] getDataArray();
 	
-	public ReadOnlyObjectProperty<T[]> getDataArrayProperty() throws IOException;
+	public ReadOnlyObjectProperty<T[]> getDataArrayProperty();
 }

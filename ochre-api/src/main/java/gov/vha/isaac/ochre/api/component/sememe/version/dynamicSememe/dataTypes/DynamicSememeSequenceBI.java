@@ -33,5 +33,5 @@ public interface DynamicSememeSequenceBI extends DynamicSememeDataBI
 {
 	public int getDataSequence();
 	
-	public ReadOnlyObjectProperty<Integer> getDataSequenceProperty() throws IOException;
+	public ReadOnlyObjectProperty<Integer> getDataSequenceProperty();
 }

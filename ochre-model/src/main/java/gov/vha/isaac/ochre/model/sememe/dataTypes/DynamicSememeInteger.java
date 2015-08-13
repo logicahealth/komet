@@ -19,8 +19,6 @@
 
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
-
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -46,7 +44,7 @@ public class DynamicSememeInteger extends DynamicSememeData implements DynamicSe
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeInteger(int integer) throws PropertyVetoException {
+	public DynamicSememeInteger(int integer) {
 		super();
 		data_ = intToByteArray(integer);
 	}

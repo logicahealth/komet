@@ -19,9 +19,6 @@
 
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -47,11 +44,11 @@ public class DynamicSememeString extends DynamicSememeData implements DynamicSem
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeString(String string) throws PropertyVetoException {
+	public DynamicSememeString(String string) {
 		super();
 		if (string == null)
 		{
-			throw new PropertyVetoException("The string value cannot be null", null);
+			throw new RuntimeException("The string value cannot be null", null);
 		}
 		data_ = string.getBytes();
 	}
@@ -81,8 +78,6 @@ public class DynamicSememeString extends DynamicSememeData implements DynamicSem
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI#getDataStringProperty()
 	 */
 	@Override

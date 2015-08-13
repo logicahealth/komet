@@ -18,6 +18,11 @@ public abstract class MetadataConceptConstantGroup extends MetadataConceptConsta
 		super(fsn, fsn, uuid);
 	}
 	
+	protected MetadataConceptConstantGroup(String fsn, UUID uuid, String definition) 
+	{
+		super(fsn, uuid, definition);
+	}
+	
 	protected void addChild(MetadataConceptConstant child)
 	{
 		children_.add(child);

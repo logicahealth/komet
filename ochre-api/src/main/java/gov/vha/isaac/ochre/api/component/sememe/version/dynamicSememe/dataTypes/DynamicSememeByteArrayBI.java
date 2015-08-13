@@ -33,5 +33,5 @@ public interface DynamicSememeByteArrayBI extends DynamicSememeDataBI
 {
 	public byte[] getDataByteArray();
 	
-	public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() throws IOException;
+	public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty();
 }

@@ -19,10 +19,8 @@
 
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
-
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -48,11 +46,11 @@ public class DynamicSememeUUID extends DynamicSememeData implements DynamicSemem
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeUUID(UUID uuid) throws PropertyVetoException {
+	public DynamicSememeUUID(UUID uuid) {
 		super();
 		if (uuid == null)
 		{
-			throw new PropertyVetoException("The uuid value cannot be null", null);
+			throw new RuntimeException("The uuid value cannot be null", null);
 		}
 		ByteBuffer b = ByteBuffer.allocate(16);
 		b.putLong(uuid.getMostSignificantBits());

@@ -33,5 +33,5 @@ public interface DynamicSememeStringBI extends DynamicSememeDataBI
 {
 	public String getDataString();
 	
-	public ReadOnlyObjectProperty<String> getDataStringProperty() throws IOException;
+	public ReadOnlyObjectProperty<String> getDataStringProperty();
 }

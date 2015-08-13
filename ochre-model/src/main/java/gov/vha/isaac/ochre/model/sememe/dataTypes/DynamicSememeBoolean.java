@@ -18,9 +18,6 @@
  */
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBooleanBI;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -46,14 +43,12 @@ public class DynamicSememeBoolean extends DynamicSememeData implements DynamicSe
 		super(data, assemblageSequence, columnNumber);
 	}
 	
-	public DynamicSememeBoolean(boolean b) throws PropertyVetoException {
+	public DynamicSememeBoolean(boolean b) {
 		super();
 		data_ = (b ? new byte[] { 1 } : new byte[] { 0 });
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBooleanProperty()
 	 */
 	@Override
@@ -65,8 +60,6 @@ public class DynamicSememeBoolean extends DynamicSememeData implements DynamicSe
 	}
 
 	/**
-	 * @throws ContradictionException 
-	 * @throws IOException 
 	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
 	 */
 	@Override
