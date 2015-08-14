@@ -64,6 +64,8 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>imple
 		}
 	}
 
+	//TODO setData and constructor with data will need to run the validator!
+	
 	public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence)
 	{
 		super(container, stampSequence, versionSequence);

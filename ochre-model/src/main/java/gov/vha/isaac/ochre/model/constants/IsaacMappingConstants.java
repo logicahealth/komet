@@ -75,6 +75,6 @@ public class IsaacMappingConstants
 					new DynamicSememeValidatorType[] {DynamicSememeValidatorType.IS_KIND_OF},
 					new DynamicSememeUUID[] {new DynamicSememeUUID(MAPPING_STATUS.getUUID())}),
 				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_MAPPING_PURPOSE.getUUID(), DynamicSememeDataType.STRING, 
-						null, false, null, null)},
+						null, false)},
 			null) {}; 
 }

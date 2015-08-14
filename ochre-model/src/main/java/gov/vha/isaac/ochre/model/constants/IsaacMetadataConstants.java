@@ -206,28 +206,28 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase
 			"This concept is used as an assemblage for defining new Sememe extensions.  "
 				+ "The attached data columns describe what columns are required to define a new Sememe.",
 			new DynamicSememeColumnInfo[] {
-				new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_ORDER.getUUID(), DynamicSememeDataType.INTEGER, null, true, null, null),
-				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_NAME.getUUID(), DynamicSememeDataType.UUID, null, true, null, null),
-				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(), DynamicSememeDataType.STRING, null, true, null, null),
-				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.POLYMORPHIC, null, false, null, null),
-				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(), DynamicSememeDataType.BOOLEAN, null, false, null, null),
+				new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_ORDER.getUUID(), DynamicSememeDataType.INTEGER, null, true),
+				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_NAME.getUUID(), DynamicSememeDataType.UUID, null, true),
+				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(), DynamicSememeDataType.STRING, null, true),
+				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.POLYMORPHIC, null, false),
+				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(), DynamicSememeDataType.BOOLEAN, null, false),
 				new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(), DynamicSememeDataType.ARRAY, null, false, 
-						new DynamicSememeValidatorType[] {DynamicSememeValidatorType.REGEXP}, 
-							new DynamicSememeString[] {new DynamicSememeString(
-									DynamicSememeDataType.ARRAY.name() + "|"
-									+ DynamicSememeDataType.BOOLEAN.name() + "|"
-									+ DynamicSememeDataType.BYTEARRAY.name() + "|"
-									+ DynamicSememeDataType.DOUBLE.name() + "|"
-									+ DynamicSememeDataType.FLOAT.name() + "|"
-									+ DynamicSememeDataType.INTEGER.name() + "|"
-									+ DynamicSememeDataType.LONG.name() + "|"
-									+ DynamicSememeDataType.NID.name() + "|"
-									+ DynamicSememeDataType.POLYMORPHIC.name() + "|"
-									+ DynamicSememeDataType.SEQUENCE.name() + "|"
-									+ DynamicSememeDataType.STRING.name() + "|"
-									+ DynamicSememeDataType.UUID.name() + "|"
-									)}),
-				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(), DynamicSememeDataType.ARRAY, null, false, null, null)
+						DynamicSememeValidatorType.REGEXP, 
+						new DynamicSememeString(
+								DynamicSememeDataType.ARRAY.name() + "|"
+								+ DynamicSememeDataType.BOOLEAN.name() + "|"
+								+ DynamicSememeDataType.BYTEARRAY.name() + "|"
+								+ DynamicSememeDataType.DOUBLE.name() + "|"
+								+ DynamicSememeDataType.FLOAT.name() + "|"
+								+ DynamicSememeDataType.INTEGER.name() + "|"
+								+ DynamicSememeDataType.LONG.name() + "|"
+								+ DynamicSememeDataType.NID.name() + "|"
+								+ DynamicSememeDataType.POLYMORPHIC.name() + "|"
+								+ DynamicSememeDataType.SEQUENCE.name() + "|"
+								+ DynamicSememeDataType.STRING.name() + "|"
+								+ DynamicSememeDataType.UUID.name() + "|"
+								)),
+				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(), DynamicSememeDataType.ARRAY, null, false)
 				},
 			null) {};
 	
@@ -256,15 +256,15 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase
 		"A Dynamic Sememe which contains the indexer configuration for Dynamic Sememes within ISAAC.  "
 			+ "The referenced component ID will be the assemblage being configured for indexing.", 
 		new DynamicSememeColumnInfo[] {
-			new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getUUID(), DynamicSememeDataType.STRING, null, false, null, null)},
+			new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getUUID(), DynamicSememeDataType.STRING, null, false)},
 		null) {};
 			
 	public static final MetadataDynamicSememeConstant DYNAMIC_SEMEME_COMMENT_ATTRIBUTE = new MetadataDynamicSememeConstant("Comment", 
 		UUID.fromString("147832d4-b9b8-5062-8891-19f9c4e4760a"),
 		"A Sememe used to store comments on arbitrary items (concepts, relationships, sememes, etc)", 
 		new DynamicSememeColumnInfo[] {
-			new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT.getUUID(), DynamicSememeDataType.STRING, null, true, null, null),
-			new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT.getUUID(), DynamicSememeDataType.STRING, null, false, null, null)},
+			new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT.getUUID(), DynamicSememeDataType.STRING, null, true),
+			new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT.getUUID(), DynamicSememeDataType.STRING, null, false)},
 		new Integer[] {0,1}) {};  //Index the comments, and the columns
 			
 	public static final MetadataDynamicSememeConstant DYNAMIC_SEMEME_ASSOCIATION_SEMEME = new MetadataDynamicSememeConstant("sememe represents association", 

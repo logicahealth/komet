@@ -120,14 +120,14 @@ public class InformationModelsConstants
 			UUID.fromString("ef4a1189-8fe0-56c3-9ca9-334c40b78fc1"),
 			"Used to capture information about information model properties", 
 			new DynamicSememeColumnInfo[] {
-				new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_LABEL.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_TYPE.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_NAME.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_VALUE.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_CARDINALITY_MIN.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_CARDINALITY_MAX.getUUID(), DynamicSememeDataType.STRING, null, false, null, null),
-				new DynamicSememeColumnInfo(7, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_VISIBILITY.getUUID(), DynamicSememeDataType.STRING, null, false, null, null)},
+				new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_LABEL.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_TYPE.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_NAME.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_VALUE.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_CARDINALITY_MIN.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_CARDINALITY_MAX.getUUID(), DynamicSememeDataType.STRING, null, false),
+				new DynamicSememeColumnInfo(7, DYNAMIC_SEMEME_COLUMN_INFO_MODEL_VISIBILITY.getUUID(), DynamicSememeDataType.STRING, null, false)},
 				null);
 	
 	public static final MetadataConceptConstant HAS_TERMINOLOGY_CONCEPT = new MetadataConceptConstant("Has terminology concept", 

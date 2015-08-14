@@ -64,6 +64,27 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	}
 	
 	/**
+	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
+	 * with a null assemblage concept, null validator info
+	 */
+	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeDataBI defaultData, Boolean columnRequired)
+	{
+		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, null, null); 
+	}
+	
+	/**
+	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
+	 * with a null assemblage concept, and a single array item for the validator info
+	 */
+	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeDataBI defaultData, Boolean columnRequired,
+			DynamicSememeValidatorType validatorType, DynamicSememeDataBI validatorData)
+	{
+		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, 
+				validatorType == null ? null : new DynamicSememeValidatorType[] {validatorType}, 
+				validatorData == null ? null : new DynamicSememeDataBI[] {validatorData});
+	}
+	
+	/**
 	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType, DynamicSememeDataBI)
 	 * with a null assemblage concept
 	 */
