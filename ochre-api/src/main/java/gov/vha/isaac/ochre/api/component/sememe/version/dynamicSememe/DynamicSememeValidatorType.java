@@ -18,11 +18,9 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
-import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
@@ -40,6 +38,8 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import gov.vha.isaac.ochre.util.Interval;
+import gov.vha.isaac.ochre.util.NumericUtils;
 
 
 /**
@@ -359,81 +359,21 @@ public enum DynamicSememeValidatorType
 			Number validatorDefinitionDataNumber;
 			if (this == DynamicSememeValidatorType.INTERVAL)
 			{
-				boolean leftInclusive;
-				boolean rightInclusive;
-
 				String s = validatorDefinitionData.getDataObject().toString().trim();
+				Interval interval = new Interval(s);
 
-				if (s.charAt(0) == '[')
+				if (interval.getLeft() != null)
 				{
-					leftInclusive = true;
-				}
-				else if (s.charAt(0) == '(')
-				{
-					leftInclusive = false;
-				}
-				else
-				{
-					throw new RuntimeException("Invalid INTERVAL definition in the validator definition data - char 0 should be [ or (");
-				}
-				if (s.charAt(s.length() - 1) == ']')
-				{
-					rightInclusive = true;
-				}
-				else if (s.charAt(s.length() - 1) == ')')
-				{
-					rightInclusive = false;
-				}
-				else
-				{
-					throw new RuntimeException("Invalid INTERVAL definition in the validator definition data - last char should be ] or )");
-				}
-
-				String numeric = s.substring(1, s.length() - 1);
-				numeric = numeric.replaceAll("\\s", "");
-
-				int pos = numeric.indexOf(',');
-				Number left = null;
-				Number right = null;
-				if (pos == 0)
-				{
-					//left is null (- infinity)
-					right = NumericUtils.parseUnknown(numeric.substring(1, numeric.length()));
-				}
-				else if (pos > 0)
-				{
-					left = NumericUtils.parseUnknown(numeric.substring(0, pos));
-					if (numeric.length() > (pos + 1))
-					{
-						right = NumericUtils.parseUnknown(numeric.substring(pos + 1));
-					}
-				}
-				else
-				{
-					throw new RuntimeException("Invalid INTERVAL definition in the validator definition data");
-				}
-				
-				//make sure interval is properly specified
-				if (left != null && right != null)
-				{
-					if (NumericUtils.compare(left, right) > 0)
-					{
-						throw new RuntimeException("Invalid INTERVAL definition the left value should be <= the right value");
-					}
-				}
-
-				if (left != null)
-				{
-					int compareLeft = NumericUtils.compare(userDataNumber, left);
-					if ((!leftInclusive && compareLeft == 0) || compareLeft < 0)
+					int compareLeft = NumericUtils.compare(userDataNumber, interval.getLeft());
+					if ((!interval.isLeftInclusive() && compareLeft == 0) || compareLeft < 0)
 					{
 						return false;
 					}
 				}
-				if (right != null)
+				if (interval.getRight() != null)
 				{
-					int compareRight = NumericUtils.compare(userDataNumber, right);
-					if ((!rightInclusive && compareRight == 0) || compareRight > 0)
+					int compareRight = NumericUtils.compare(userDataNumber, interval.getRight());
+					if ((!interval.isRightInclusive() && compareRight == 0) || compareRight > 0)
 					{
 						return false;
 					}
