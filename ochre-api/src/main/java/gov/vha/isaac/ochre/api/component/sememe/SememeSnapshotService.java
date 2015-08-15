@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  */
 public interface SememeSnapshotService<V extends SememeVersion> {
     
-    Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequence);
+    Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequenceOrNid);
     
     /**
      * 
