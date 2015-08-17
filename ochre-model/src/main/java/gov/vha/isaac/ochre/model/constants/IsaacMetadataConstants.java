@@ -211,21 +211,19 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase
 				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(), DynamicSememeDataType.STRING, null, true),
 				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.POLYMORPHIC, null, false),
 				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(), DynamicSememeDataType.BOOLEAN, null, false),
-				new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(), DynamicSememeDataType.ARRAY, null, false, 
+				new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(), DynamicSememeDataType.ARRAY, null, false,
 						DynamicSememeValidatorType.REGEXP, 
 						new DynamicSememeString(
-								DynamicSememeDataType.ARRAY.name() + "|"
-								+ DynamicSememeDataType.BOOLEAN.name() + "|"
-								+ DynamicSememeDataType.BYTEARRAY.name() + "|"
-								+ DynamicSememeDataType.DOUBLE.name() + "|"
-								+ DynamicSememeDataType.FLOAT.name() + "|"
-								+ DynamicSememeDataType.INTEGER.name() + "|"
-								+ DynamicSememeDataType.LONG.name() + "|"
-								+ DynamicSememeDataType.NID.name() + "|"
-								+ DynamicSememeDataType.POLYMORPHIC.name() + "|"
-								+ DynamicSememeDataType.SEQUENCE.name() + "|"
-								+ DynamicSememeDataType.STRING.name() + "|"
-								+ DynamicSememeDataType.UUID.name() + "|"
+								DynamicSememeValidatorType.COMPONENT_TYPE.name() + "|"
+								+ DynamicSememeValidatorType.EXTERNAL.name() + "|"
+								+ DynamicSememeValidatorType.GREATER_THAN.name() + "|"
+								+ DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.name() + "|"
+								+ DynamicSememeValidatorType.INTERVAL.name() + "|"
+								+ DynamicSememeValidatorType.IS_CHILD_OF.name() + "|"
+								+ DynamicSememeValidatorType.IS_KIND_OF.name() + "|"
+								+ DynamicSememeValidatorType.LESS_THAN.name() + "|"
+								+ DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.name() + "|"
+								+ DynamicSememeValidatorType.REGEXP.name()
 								)),
 				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(), DynamicSememeDataType.ARRAY, null, false)
 				},

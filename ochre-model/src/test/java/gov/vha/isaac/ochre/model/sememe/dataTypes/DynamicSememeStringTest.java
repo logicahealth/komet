@@ -51,7 +51,7 @@ public class DynamicSememeStringTest
 		assertEquals(value, i.getDataString());
 		assertEquals(value, (String) i.getDataObject());
 		assertEquals(value, (String) i.getDataObjectProperty().get());
-		assertEquals(i.getRefexDataType(), DynamicSememeDataType.STRING);
+		assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.STRING);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
 }

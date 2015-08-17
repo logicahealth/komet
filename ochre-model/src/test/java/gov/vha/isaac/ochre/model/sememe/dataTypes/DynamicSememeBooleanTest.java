@@ -51,7 +51,7 @@ public class DynamicSememeBooleanTest
 		assertEquals(value, i.getDataBoolean());
 		assertEquals(value, (Boolean) i.getDataObject());
 		assertEquals(value, (Boolean) i.getDataObjectProperty().get());
-		assertEquals(i.getRefexDataType(), DynamicSememeDataType.BOOLEAN);
+		assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BOOLEAN);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
 }

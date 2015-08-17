@@ -54,7 +54,7 @@ public class DyanmicSememeArrayTest
 		assertEquals(8, ((DynamicSememeInteger[])testOne.getDataObjectProperty().get())[1].getDataInteger());
 		assertEquals(Integer.MAX_VALUE, ((DynamicSememeInteger[])testOne.getDataObjectProperty().get())[2].getDataInteger());
 		
-		assertEquals(testOne.getRefexDataType(), DynamicSememeDataType.ARRAY);
+		assertEquals(testOne.getDynamicSememeDataType(), DynamicSememeDataType.ARRAY);
 		assertEquals(testOne.getArrayDataType(), DynamicSememeDataType.INTEGER);
 		assertEquals(testOne.getDataObjectProperty().getName(), "bar");
 	}
@@ -79,7 +79,7 @@ public class DyanmicSememeArrayTest
 		assertEquals("hi", ((DynamicSememeString[])testTwo.getDataObjectProperty().get())[0].getDataString());
 		assertEquals("bye", ((DynamicSememeString[])testTwo.getDataObjectProperty().get())[1].getDataString());
 		
-		assertEquals(testTwo.getRefexDataType(), DynamicSememeDataType.ARRAY);
+		assertEquals(testTwo.getDynamicSememeDataType(), DynamicSememeDataType.ARRAY);
 		assertEquals(testTwo.getArrayDataType(), DynamicSememeDataType.STRING);
 		assertEquals(testTwo.getDataObjectProperty().getName(), "bar");
 	}

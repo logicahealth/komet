@@ -23,6 +23,7 @@ import java.util.UUID;
  * @param <T>
  * TODO can remove generic type on TaxonomyCoordinate once ViewCoordinate is eliminated. 
  */
+//TODO Keith, shouldn't this just extend STampCoordinate?
 public interface TaxonomyCoordinate<T extends TaxonomyCoordinate<T>> extends TimeBasedAnalogMaker<T>, StateBasedAnalogMaker<T> {
 
     /**

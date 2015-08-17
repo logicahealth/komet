@@ -33,7 +33,7 @@ public class TtkRefexDynamicRevision extends TtkRevision
 		this.data_ = new TtkRefexDynamicData[another.getData().length];
 		for (int i = 0; i < data_.length; i++)
 		{
-			data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getRefexDataType(), another.getData()[i].getData());
+			data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getDynamicSememeDataType(), another.getData()[i].getData());
 		}
 	}
 

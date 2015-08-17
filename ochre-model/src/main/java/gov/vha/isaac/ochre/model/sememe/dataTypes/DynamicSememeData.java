@@ -98,10 +98,10 @@ public abstract class DynamicSememeData implements DynamicSememeDataBI
 	}
 	
 	/**
-	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.DynamicSememeDataBI#getRefexDataType()
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.DynamicSememeDataBI#getDynamicSememeDataType()
 	 */
 	@Override
-	public DynamicSememeDataType getRefexDataType()
+	public DynamicSememeDataType getDynamicSememeDataType()
 	{
 		return DynamicSememeDataType.classToType(this.getClass());
 	}
@@ -132,7 +132,7 @@ public abstract class DynamicSememeData implements DynamicSememeDataBI
 			name = "???";
 		}
 		
-		return "(" + getRefexDataType().name() + " - " + name + " - " + getDataObject() +")";
+		return "(" + getDynamicSememeDataType().name() + " - " + name + " - " + getDataObject() +")";
 	}
 
 	/**

@@ -57,7 +57,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 			}
 			else
 			{
-				data_[i] = TtkRefexDynamicData.typeToClass(rv.getData()[i].getRefexDataType(), rv.getData()[i].getData());
+				data_[i] = TtkRefexDynamicData.typeToClass(rv.getData()[i].getDynamicSememeDataType(), rv.getData()[i].getData());
 			}
 		}
 

@@ -88,7 +88,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>imple
 				}
 				else
 				{
-					data.putInt(column.getRefexDataType().getTypeToken());
+					data.putInt(column.getDynamicSememeDataType().getTypeToken());
 					data.put(column.getData());
 				}
 			}

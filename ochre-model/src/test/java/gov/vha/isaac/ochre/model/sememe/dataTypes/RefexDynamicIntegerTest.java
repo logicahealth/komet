@@ -51,7 +51,7 @@ public class RefexDynamicIntegerTest
 		assertEquals(value, i.getDataInteger());
 		assertEquals(value, ((Integer) i.getDataObject()).intValue());
 		assertEquals(value, ((Integer) i.getDataObjectProperty().get()).intValue());
-		assertEquals(i.getRefexDataType(), DynamicSememeDataType.INTEGER);
+		assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.INTEGER);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
 }

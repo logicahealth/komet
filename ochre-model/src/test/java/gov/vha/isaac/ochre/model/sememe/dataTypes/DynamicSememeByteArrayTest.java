@@ -51,7 +51,7 @@ public class DynamicSememeByteArrayTest
 		assertEquals(value, i.getDataByteArray());
 		assertEquals(value, (byte[]) i.getDataObject());
 		assertEquals(value, (byte[]) i.getDataObjectProperty().get());
-		assertEquals(i.getRefexDataType(), DynamicSememeDataType.BYTEARRAY);
+		assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BYTEARRAY);
 		assertEquals(i.getDataObjectProperty().getName(), "foo");
 	}
 }

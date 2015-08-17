@@ -55,7 +55,7 @@ public interface DynamicSememeDataBI {
     /**
      * @return The type information of the data
      */
-    public DynamicSememeDataType getRefexDataType();
+    public DynamicSememeDataType getDynamicSememeDataType();
 
 //TODO DAN see if this can go away
 //    /**
