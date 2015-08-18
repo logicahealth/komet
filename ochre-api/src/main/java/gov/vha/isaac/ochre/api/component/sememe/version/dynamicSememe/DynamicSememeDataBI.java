@@ -56,12 +56,4 @@ public interface DynamicSememeDataBI {
      * @return The type information of the data
      */
     public DynamicSememeDataType getDynamicSememeDataType();
-
-//TODO DAN see if this can go away
-//    /**
-//     * This is only intended to be used by {@link DynamicSememeCAB}. 
-//     * Please ignore.
-//     * @param name
-//     */
-//    public void setNameIfAbsent(String name);
 }

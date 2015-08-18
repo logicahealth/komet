@@ -20,13 +20,11 @@ package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
-import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphicBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
 
-//TODO dan needs to fix the refs in these docs....
 
 /**
  * {@link DynamicSememeUsageDescriptionBI}
@@ -37,9 +35,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * <br>
  * The assemblage concept must define the combination of data columns being used within this Sememe. 
  * To do this, the assemblage concept must itself contain 0 or more {@link DynamicSememeVersionBI} annotation(s) with
- * an assemblage concept that is {@link DynamicSememe#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
+ * an assemblage concept that is {@link IsaacMetadataConstants#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
  * [{@link DynamicSememeIntegerBI}, {@link DynamicSememeUUIDBI}, {@link DynamicSememeStringBI}, {@link DynamicSememePolymorphicBI},
- * {@link RefexBooleanBI}, {@link DynamicSememeStringBI}, {@link DynamicSememePolymorphicBI}] 
+ * {@link RefexBooleanBI}, {@link DynamicSememeArrayBI<DynamicSememeStringBI>}, {@link DynamicSememeDataBI<DynamicSememePolymorphicBI>}] 
  * 
  * <ul>
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
@@ -54,25 +52,28 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * <li>An (optional) polymorphic column (any supported data type, but MUST match the data type specified in column 2) which contains 
  *       the default value (if any) for this column.  
  * <li>An (optional) boolean column which specifies if this column is required (true) or optional (false or null) for this column.  
- * <li>An (optional) string column which can be parsed as a member of the {@link DynamicSememeValidatorType} class, which represents
- *       the validator type assigned to the the column (if any).
- * <li>An (optional) polymorphic column (any supported data type, but MUST match the requirements of the validator specified in column 6) 
+ * <li>An (optional) array column which contains strings which can be parsed as a member of the {@link DynamicSememeValidatorType} class, which represents
+ *       the validator type(s) assigned to the the column (if any).
+ * <li>An (optional) array column which contains polymorphic data (any supported data type, but MUST match the requirements of the validator specified in column 6) 
  *       which contains validator data (if any) for this column.  
+ *       
+ *       The validator data array must match in size to the validator type data.  They will be evaluated as pairs.
  * </ul>
  * <br>
- * Note that while 0 rows of attached data is allowed, this would not allow the attachment of any data on the refex.
+ * Note that while 0 rows of attached data is allowed, this would not allow the attachment of any data on the sememe.
  * <br>
- * The assemblage concept must also contain a description of type {@link Snomed#DEFINITION_DESCRIPTION_TYPE} which 
- * itself has a refex extension of type {@link DynamicSememe#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
- * this description should explain the the overall purpose of this Refex.
+ * The assemblage concept must also contain a description of type {@link IsaacMetadataAuxiliaryBinding#DEFINITION_DESCRIPTION_TYPE} which 
+ * itself has a refex extension of type {@link IsaacMetadataConstants#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
+ * this description should explain the the overall purpose of this Sememe.
  * <br>
  * <br>
- * The assemblage concept may also contain a single {@link DynamicSememeVersionBI} annotation of type {@link DynamicSememe#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION}
- * with a single string column which can be parsed as a {@link ComponentType} - which will restrict the type of nid that can be placed 
+ * The assemblage concept may also contain a single {@link DynamicSememeVersionBI} annotation of type 
+ * {@link IsaacMetadataConstants#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as 
+ * a {@link ObjectChronologyType} and a {@link SememeType}- which will restrict the type of nid that can be placed 
  * into the referenced component field when creating an instance of the assemblage.
  * <br>
  * <br>
- * This class provides an implementation for parsing the interesting bits out of an assemblage concept.
+ * The class {@link DynamicSememeUsageDescription} provides an implementation for parsing the interesting bits out of an assemblage concept.
  * 
  * For an implementation on creating them, 
  * See {@link gov.vha.isaac.ochre.impl.sememe.DynamicSememeUtility#createNewDynamicSememeUsageDescriptionConcept} 

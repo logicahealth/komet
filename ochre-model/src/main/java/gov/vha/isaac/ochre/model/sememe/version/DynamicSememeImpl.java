@@ -19,7 +19,6 @@
 
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import java.beans.PropertyVetoException;
 import java.util.Arrays;
 import javax.naming.InvalidNameException;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;

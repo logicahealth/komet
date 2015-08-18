@@ -25,11 +25,11 @@ import org.junit.Test;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 
 /**
- * {@link DyanmicSememeArrayTest}
+ * {@link DynamicSememeArrayTest}
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class DyanmicSememeArrayTest
+public class DynamicSememeArrayTest
 {
 	@Test
 	public void testSerializationOne() throws PropertyVetoException, IOException

@@ -83,13 +83,12 @@ public abstract class DynamicSememeData implements DynamicSememeDataBI
 		}
 		return name_;
 	}
-//TODO dan remove	
-//	/**
-//	 * This method is not intended for public use.
-//	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.DynamicSememeDataBI#setNameIfAbsent(java.lang.String)
-//	 */
-
-	public void setNameIfAbsent(String name)
+	
+	/**
+	 * This method is not intended for public use.
+	 * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.DynamicSememeDataBI#setNameIfAbsent(java.lang.String)
+	 */
+	protected void setNameIfAbsent(String name)
 	{
 		if (name_ == null && columnNumber_ == -1)
 		{
