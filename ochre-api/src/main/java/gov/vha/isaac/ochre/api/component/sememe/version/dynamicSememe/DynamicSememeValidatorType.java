@@ -320,7 +320,7 @@ public enum DynamicSememeValidatorType
 				ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString());
 				ObjectChronologyType component = Get.identifierService().getChronologyTypeForNid(nid); 
 				
-				if (expectedCT == ObjectChronologyType.UNKNOWN_NID || expectedCT == ObjectChronologyType.OTHER)
+				if (expectedCT == ObjectChronologyType.UNKNOWN_NID)
 				{
 					throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");
 				}

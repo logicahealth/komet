@@ -2,7 +2,6 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.Get;
-
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
@@ -18,7 +17,6 @@ import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
-
 import java.beans.PropertyVetoException;
 import java.io.*;
 import java.util.*;
@@ -44,9 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
-
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
-
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -64,9 +60,7 @@ import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
@@ -80,7 +74,6 @@ import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexService;
 import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
 /**
@@ -102,14 +95,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 //        return RelativePositionCalculator.getCalculator(coordinate)
 //                .getLatestVersion((ObjectChronology<V>) this);
 //    }
-    private static RefexService refexService;
-
-    protected static RefexService getRefexService() {
-        if (refexService == null) {
-            refexService = LookupService.getService(RefexService.class);
-        }
-        return refexService;
-    }
 
     /**
      * Field description
@@ -401,8 +386,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @SuppressWarnings("rawtypes")
     @Override
     public final boolean addAnnotation(RefexChronicleBI annotation) throws IOException {
-       getRefexService().writeRefex((RefexMember<?, ?>) annotation);
-       return true;
+        throw new UnsupportedOperationException();
     }
 
     /**

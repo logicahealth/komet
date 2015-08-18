@@ -20,8 +20,7 @@ package gov.vha.isaac.ochre.api.chronicle;
  * @author kec
  */
 public enum ObjectChronologyType {
-	//TODO dan find out why other exists
-    CONCEPT("Concept"), SEMEME("Sememe"), REFEX("Refex"), OTHER("Other"), UNKNOWN_NID("Unknown");
+	CONCEPT("Concept"), SEMEME("Sememe"), UNKNOWN_NID("Unknown");
 	
 	private String niceName_;
 	

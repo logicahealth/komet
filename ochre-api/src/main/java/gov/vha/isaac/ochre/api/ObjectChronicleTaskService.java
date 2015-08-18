@@ -46,14 +46,6 @@ public interface ObjectChronicleTaskService {
      */
     Task<Integer> startImportLogTask(Path... filePaths);
 
-    /**
-     *
-     * @param filePaths <code>Path</code>s of the input files
-     * @return Task that returns an integer reflecting the number of object chronicles imported
-     */
-    default Task<Integer> startLoadTask(Path... filePaths) {
-        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, filePaths);
-    }
     
     /**
      *
@@ -63,18 +55,6 @@ public interface ObjectChronicleTaskService {
      */
     Task<Integer> startLoadTask(ConceptModel conceptModel, Path... filePaths);
     
-    
-
-    /**
-     *
-     * @param stampPath All object chronicles will be placed onto this path
-     * @param filePaths <code>Path</code>s of the input files
-     * @return Task that returns an integer reflecting the number of object chronicles imported
-     */
-    default Task<Integer> startLoadTask(ConceptProxy stampPath, Path... filePaths) {
-        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, stampPath, filePaths);
-    }
-
     /**
      *
      * @param conceptModel The concept model used to initialize the database
@@ -83,17 +63,6 @@ public interface ObjectChronicleTaskService {
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
     Task<Integer> startLoadTask(ConceptModel conceptModel, ConceptProxy stampPath, Path... filePaths);
-
-   /**
-     *
-     * @param stampPath All object chronicles will be placed onto this path
-     * @param filePaths <code>Path</code>s of the input files
-     * @return Task that returns an integer reflecting the number of object chronicles imported
-     */
-    default Task<Integer> startLoadTask(StandardPaths stampPath, Path... filePaths) {
-        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, stampPath, filePaths);
-    }
-
 
    /**
      *
