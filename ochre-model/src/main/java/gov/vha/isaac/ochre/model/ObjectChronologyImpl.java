@@ -542,6 +542,12 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
         }
     }
+    
+    public void addAdditionalUuids(UUID uuid) {
+        List<UUID> temp = getUuidList();
+        temp.add(uuid);
+        setAdditionalUuids(temp);
+    }
 
     @Override
     public String toString() {
