@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
+import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 
 
 /**
@@ -45,14 +46,6 @@ public interface ObjectChronicleTaskService {
      */
     Task<Integer> startImportLogTask(Path... filePaths);
 
-    /**
-     *
-     * @param filePaths <code>Path</code>s of the input files
-     * @return Task that returns an integer reflecting the number of object chronicles imported
-     */
-    default Task<Integer> startLoadTask(Path... filePaths) {
-        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, filePaths);
-    }
     
     /**
      *
@@ -62,18 +55,6 @@ public interface ObjectChronicleTaskService {
      */
     Task<Integer> startLoadTask(ConceptModel conceptModel, Path... filePaths);
     
-    
-
-    /**
-     *
-     * @param stampPath All object chronicles will be placed onto this path
-     * @param filePaths <code>Path</code>s of the input files
-     * @return Task that returns an integer reflecting the number of object chronicles imported
-     */
-    default Task<Integer> startLoadTask(ConceptProxy stampPath, Path... filePaths) {
-        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, stampPath, filePaths);
-    }
-
     /**
      *
      * @param conceptModel The concept model used to initialize the database
@@ -82,17 +63,6 @@ public interface ObjectChronicleTaskService {
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
     Task<Integer> startLoadTask(ConceptModel conceptModel, ConceptProxy stampPath, Path... filePaths);
-
-   /**
-     *
-     * @param stampPath All object chronicles will be placed onto this path
-     * @param filePaths <code>Path</code>s of the input files
-     * @return Task that returns an integer reflecting the number of object chronicles imported
-     */
-    default Task<Integer> startLoadTask(StandardPaths stampPath, Path... filePaths) {
-        return startLoadTask(ConceptModel.OTF_CONCEPT_MODEL, stampPath, filePaths);
-    }
-
 
    /**
      *
@@ -172,18 +142,17 @@ public interface ObjectChronicleTaskService {
     /**
      * Perform indexing according to all installed indexers.
      * 
-     * Cause all index generators implementing the <code>IndexerBI</code> to first
-     * <code>clearIndex()</code> then iterate over all chronicles in the database
-     * and pass those chronicles to <code>index(ComponentChronicleBI chronicle)</code>
-     * and when complete, to call <code>commitWriter()</code>. <code>IndexerBI</code> services
+     * Cause all index generators implementing the {@link IndexServiceBI} to first
+     * <code>clearIndex()</code> then iterate over all concepts and sememes in the database
+     * and pass those chronicles to {@link IndexServiceBI#index(gov.vha.isaac.ochre.api.chronicle.ObjectChronology)}
+     * and when complete, to call <code>commitWriter()</code>. {@link IndexServiceBI} services
      * will be discovered using the HK2 dependency injection framework.
      * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and
-     * reindexed.  Otherwise, only clear and reindex the instances of IndexerBI which match the specified
-     * class list.  Classes passed in should be an extension of IndexerBI (but I don't have the type here to 
-     * be able to enforce that)
+     * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexServiceBI} which match the specified
+     * class list.  Classes passed in should be an extension of {@link IndexServiceBI} 
      * 
      * @return Task that indicates progress.
      */
-    Task<Void> startIndexTask(Class<?> ... indexersToReindex);
+    Task<Void> startIndexTask(@SuppressWarnings("unchecked") Class<? extends IndexServiceBI> ... indexersToReindex);
         
 }

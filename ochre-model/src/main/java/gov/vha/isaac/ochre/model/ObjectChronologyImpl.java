@@ -27,9 +27,9 @@ import gov.vha.isaac.ochre.api.dag.Graph;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
+
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +42,7 @@ import java.util.concurrent.locks.StampedLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
@@ -522,7 +523,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
     @Override
     public List<UUID> getUuidList() {
-        List<UUID> uuids = new ArrayList();
+        List<UUID> uuids = new ArrayList<>();
         uuids.add(getPrimordialUuid());
         if (additionalUuidParts != null) {
             for (int i = 0; i < additionalUuidParts.length; i = i + 2) {
@@ -540,6 +541,12 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             additionalUuidParts[2 * i] = uuid.getMostSignificantBits();
             additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
         }
+    }
+    
+    public void addAdditionalUuids(UUID uuid) {
+        List<UUID> temp = getUuidList();
+        temp.add(uuid);
+        setAdditionalUuids(temp);
     }
 
     @Override
@@ -601,7 +608,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         if (versionListReference != null) {
             ArrayList<V> versions = versionListReference.get();
@@ -617,7 +624,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -648,7 +655,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
         if (versionMap.size() == 1) {
             // easy case...
-            List<Graph<? extends V>> results = new ArrayList();
+            List<Graph<? extends V>> results = new ArrayList<>();
             Graph<V> graph = new Graph<>();
             results.add(graph);
             versionMap.entrySet().forEach((entry) -> {
@@ -668,7 +675,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
         SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
             RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());

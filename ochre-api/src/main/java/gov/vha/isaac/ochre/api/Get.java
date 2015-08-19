@@ -130,7 +130,7 @@ public class Get implements OchreCache {
      * {@code "No desc for: " + conceptId;} will be returned.
      */
     public static String conceptDescriptionText(int conceptId) {
-        Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional
+        Optional<LatestVersion<DescriptionSememe>> descriptionOptional
                 = conceptSnapshot().getDescriptionOptional(conceptId);
         if (descriptionOptional.isPresent()) {
             return descriptionOptional.get().value().getText();

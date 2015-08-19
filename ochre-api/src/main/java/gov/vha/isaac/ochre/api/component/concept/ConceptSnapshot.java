@@ -47,7 +47,7 @@ public interface ConceptSnapshot extends IdentifiedStampedVersion, ConceptSpecif
      * @return the {@code StampCoordinate} that defines the latest
      * version used by this snapshot. 
      */
-    StampCoordinate<?> getStampCoordinate();
+    StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate();
     
     /**
      * 

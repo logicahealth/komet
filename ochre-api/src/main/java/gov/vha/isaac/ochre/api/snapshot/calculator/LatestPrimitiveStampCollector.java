@@ -28,7 +28,7 @@ public class LatestPrimitiveStampCollector implements ObjIntConsumer<StampSequen
 
     private final RelativePositionCalculator computer;
 
-    public LatestPrimitiveStampCollector(StampCoordinate stampCoordinate) {
+    public LatestPrimitiveStampCollector(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
         this.computer = RelativePositionCalculator.getCalculator(stampCoordinate);
     }
 

@@ -49,8 +49,6 @@ import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologyDI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
@@ -763,49 +761,6 @@ implements ComponentVersionBI, AnalogGeneratorBI<R>, StampedVersion {
     public void setTime(long time) throws PropertyVetoException {
         ((AnalogBI) cv).setTime(time);
     }
-
-    @Override
-    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
-    {
-        return cc.getRefexesDynamicActive(viewCoordinate);
-    }
-    /**
-     * @return 
-     * @throws java.io.IOException 
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
-    {
-        return cc.getRefexesDynamic();
-    }
-
-    /**
-     * @return 
-     * @throws java.io.IOException
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
-    {
-        return cc.getRefexDynamicAnnotations();
-    }
-    /**
-     * @return 
-     * @throws java.io.IOException
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
-    {
-        return cc.getRefexDynamicMembers();
-    }
-
-    @Override
-    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
-        return cc.addDynamicAnnotation(annotation);
-    }
-    
 
     @Override
     public int getStampSequence() {

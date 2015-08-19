@@ -15,10 +15,23 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version;
 
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
+import java.beans.PropertyVetoException;
+
 /**
  *
  * @author kec
  */
 public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>> extends MutableSememeVersion<T>, DynamicSememe<T> {
-    
+    /**
+     * Set the data (if any) for the DynamicSememe.
+     * 
+     * For a DyanamicSememe that is only establishing membership, there will be no data columns.
+     * 
+     * If there is one or more data columns associated with a DynamicSememe membership, then the type of each of data columns would 
+     * be an extension of {@link DynamicSememeDataBI}
+     * 
+     * @param data
+     */
+    void setData(DynamicSememeDataBI[] data);
 }

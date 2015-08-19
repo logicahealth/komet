@@ -39,7 +39,6 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 /**
@@ -59,7 +58,6 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      * Field description
      */
     private List<RefexCAB> annotations = new ArrayList<>();
-    private List<RefexDynamicCAB> annotationsDynamic = new ArrayList<>();
     
     /**
      * Field description
@@ -198,7 +196,6 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
             }
             else {
                 getAnnotationBlueprintsFromOriginal(componentVersion.get(), viewCoordinate.get());
-                getAnnotationDynamicBlueprintsFromOriginal(componentVersion.get(), viewCoordinate.get());
             }
         }
         
@@ -214,15 +211,6 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         annotations.add(annotationBlueprint);
     }
 
-    /**
-     * Adds an annotation blueprint to be associated with this component blueprint.
-     *
-     * @param annotationBlueprint the annotation blueprint to associate with this component blueprint
-     */
-    public void addAnnotationBlueprint(RefexDynamicCAB annotationBlueprint) {
-        annotationsDynamic.add(annotationBlueprint);
-    }
-    
     /**
      * Adds an additional
      * {@code UUID} ID to the component specified by this component blueprint. This is a UUID in addition
@@ -342,16 +330,6 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
     }
     
     /**
-     * Replace the annotation blueprints associated with this blueprint with the given list of
-     * {@code annoationBlueprints}.
-     *
-     * @param annotationBlueprints the annotation blueprints to associate with this component blueprint
-     */
-    public void replaceAnnotationDynamicBlueprints(List<RefexDynamicCAB> annotationDynamicBlueprints) {
-        this.annotationsDynamic = annotationDynamicBlueprints;
-    }
-
-    /**
      * Returns list of annotation blueprints associated with this component blueprint.
      *
      * @return a list of annotation blueprints associated with this component
@@ -361,18 +339,6 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
      */
     public List<RefexCAB> getAnnotationBlueprints() throws IOException, InvalidCAB, ContradictionException {
         return annotations;
-    }
-    
-    /**
-     * Returns list of annotation blueprints associated with this component blueprint.
-     *
-     * @return a list of annotation blueprints associated with this component
-     * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
-     * @throws ContradictionException if more then one version is found for a particular view coordinate
-     */
-    public List<RefexDynamicCAB> getAnnotationDynamicBlueprints() throws IOException, InvalidCAB, ContradictionException {
-        return annotationsDynamic;
     }
 
     /**
@@ -429,59 +395,6 @@ public abstract class CreateOrAmendBlueprint implements PropertyChangeListener {
         return annotations;
     }
     
-    /**
-     * Returns list of annotation blueprints associated with this component blueprint. Gets a list from the
-     * original component if null.
-     *
-     * @return a list of annotation blueprints associated with this component
-     * @throws IOException signals that an I/O exception has occurred
-     * @throws InvalidCAB if the any of the values in blueprint to make are invalid
-     * @throws ContradictionException if more then one version is found for a particular view coordinate
-     */
-    private List<RefexDynamicCAB> getAnnotationDynamicBlueprintsFromOriginal(ComponentVersionBI componentVersion, ViewCoordinate vc)
-            throws IOException, InvalidCAB, ContradictionException {
-        if (annotationsDynamic.isEmpty()) {
-            if (refexDirective == RefexDirective.INCLUDE) {
-                if (componentVersion.getRefexesDynamicActive(vc) != null) {
-                    Collection<? extends RefexDynamicVersionBI<?>> originalRefexes = componentVersion.getRefexesDynamicActive(vc);
-
-                    if (!originalRefexes.isEmpty()) {
-                        IdDirective refexIdDirective = idDirective;
-
-                        switch (idDirective) {
-                            case GENERATE_RANDOM:
-                            case GENERATE_HASH:
-                            case GENERATE_RANDOM_CONCEPT_REST_HASH:
-                            case PRESERVE_CONCEPT_REST_HASH:
-                                idDirective = IdDirective.GENERATE_HASH;
-
-                                break;
-
-                            case GENERATE_REFEX_CONTENT_HASH:
-                                idDirective = IdDirective.GENERATE_REFEX_CONTENT_HASH;
-
-                                break;
-
-                            case PRESERVE:
-                                idDirective = IdDirective.PRESERVE;
-
-                                break;
-                        }
-
-                        for (RefexDynamicVersionBI<?> refex : originalRefexes) {
-                            RefexDynamicCAB refexCab = refex.makeBlueprint(vc, refexIdDirective, refexDirective);
-
-                            refexCab.setReferencedComponentUuid(getComponentUuid());
-                            refexCab.recomputeUuid();
-                            annotationsDynamic.add(refexCab);
-                        }
-                    }
-                }
-            }
-        }
-
-        return annotationsDynamic;
-    }
 
     /**
      * Gets the nid of the component specified by this blueprint.

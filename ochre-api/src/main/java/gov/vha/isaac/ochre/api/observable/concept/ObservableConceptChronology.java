@@ -79,18 +79,18 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
      * @param stampCoordinate coordinate to determine if description is active. 
      * @return true if any version of a description matches this text. 
      */
-    boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
+    boolean containsActiveDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
         
-    ObservableList<? extends ObservableSememeChronology<? extends ObservableDescriptionSememe>> getConceptDescriptionList();
+    <T extends ObservableDescriptionSememe<T>> ObservableList<? extends ObservableSememeChronology<T>> getConceptDescriptionList();
     
-    ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>>
+    <T extends ObservableDescriptionSememe<T>> ListProperty<ObservableSememeChronology<T>>
         conceptDescriptionListProperty();
     
     Optional<LatestVersion<ObservableDescriptionSememe<?>>> 
-        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
+        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
-    Optional<LatestVersion<ObservableDescriptionSememe<?>>> 
-        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
+    <T extends ObservableDescriptionSememe<T>> Optional<LatestVersion<T>> 
+        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
     
     
 }

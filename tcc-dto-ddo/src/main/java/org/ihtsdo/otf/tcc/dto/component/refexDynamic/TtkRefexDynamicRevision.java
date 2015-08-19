@@ -7,11 +7,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
+
 import javax.xml.bind.annotation.XmlElement;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
+
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
 
 public class TtkRefexDynamicRevision extends TtkRevision
 {
@@ -24,13 +27,13 @@ public class TtkRefexDynamicRevision extends TtkRevision
 		super();
 	}
 
-	public TtkRefexDynamicRevision(RefexDynamicVersionBI<?> another) throws IOException
+	public TtkRefexDynamicRevision(DynamicSememeImpl another)
 	{
 		super(another);
 		this.data_ = new TtkRefexDynamicData[another.getData().length];
 		for (int i = 0; i < data_.length; i++)
 		{
-			data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getRefexDataType(), another.getData()[i].getData());
+			data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getDynamicSememeDataType(), another.getData()[i].getData());
 		}
 	}
 
@@ -103,8 +106,8 @@ public class TtkRefexDynamicRevision extends TtkRevision
 		data_ = new TtkRefexDynamicData[colCount];
 		for (int i = 0; i < colCount; i++)
 		{
-			RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(input.readInt());
-			if (dt == RefexDynamicDataType.UNKNOWN)
+			DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(input.readInt());
+			if (dt == DynamicSememeDataType.UNKNOWN)
 			{
 				data_[i] = null;
 			}
@@ -130,7 +133,7 @@ public class TtkRefexDynamicRevision extends TtkRevision
 			{
 				if (column == null)
 				{
-					output.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+					output.writeInt(DynamicSememeDataType.UNKNOWN.getTypeToken());
 				}
 				else
 				{

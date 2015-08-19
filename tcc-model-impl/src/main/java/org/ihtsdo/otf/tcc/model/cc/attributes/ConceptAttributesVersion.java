@@ -146,7 +146,7 @@ public class ConceptAttributesVersion extends Version<ConceptAttributesRevision,
     }
     
     @Override
-    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<ConceptAttributeVersionBI>> getLatestVersion(Class<ConceptAttributeVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
        return getCv().getLatestVersion(type, coordinate);
     }
 

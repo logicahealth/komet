@@ -97,8 +97,9 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
-        return Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
+    public <T extends DescriptionSememe<T>> List<? extends SememeChronology<T>> getConceptDescriptionList() {
+    	List<?> list = Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
+        return (List<? extends SememeChronology<T>>)list;
     }
 
     @Override
@@ -109,7 +110,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate<?> stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
         return Get.sememeService().getSnapshot(DescriptionSememe.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch((latestVersion) -> latestVersion.value().getText().equals(descriptionText));
@@ -136,18 +137,20 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
-        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
+        List<?> list = getConceptDescriptionList();
+        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<T>>) list, stampCoordinate);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
-        return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
+        List<?> list = getConceptDescriptionList();
+    	return languageCoordinate.getPreferredDescription((List<SememeChronology<T>>) list, stampCoordinate);
     }
 
     @Override
     public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(
-            StampCoordinate<?> stampCoordinate,
+            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
@@ -217,7 +220,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate<?> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
          int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
             assemblageSequence = logicCoordinate.getInferredAssemblageSequence();

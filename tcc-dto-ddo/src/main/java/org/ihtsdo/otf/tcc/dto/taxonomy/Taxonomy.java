@@ -6,39 +6,48 @@
 package org.ihtsdo.otf.tcc.dto.taxonomy;
 
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import gov.vha.isaac.ochre.observable.model.ObservableFields;
-import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
-import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
-import org.ihtsdo.otf.tcc.dto.JaxbForDto;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
-
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-
 import java.security.NoSuchAlgorithmException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.dto.Wrapper;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
+import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
+import org.ihtsdo.otf.tcc.dto.JaxbForDto;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
+import org.ihtsdo.otf.tcc.dto.Wrapper;
+
+import gov.vha.isaac.ochre.api.MetadataConceptConstant;
+import gov.vha.isaac.ochre.api.MetadataConceptConstantGroup;
+
+//~--- non-JDK imports --------------------------------------------------------
+
+import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  *
@@ -119,6 +128,57 @@ public class Taxonomy {
 
       return cb;
    }
+   
+   protected ConceptCB createConcept(MetadataConceptConstant cc) throws Exception {
+       ConceptCB cab = createConcept(cc.getFSN());
+       cab.setPreferredName(cc.getPreferredSynonym());
+       cab.setComponentUuidNoRecompute(cc.getUUID());
+       
+       for (String definition : cc.getDefinitions()) {
+           addDescription(definition, cab, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid());
+       }
+       
+       for (String definition : cc.getSynonyms()) {
+           addDescription(definition, cab, Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimodialUuid());
+       }
+       
+       return cab;
+   }
+   
+   /**
+    * type should be either Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid() or Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimodialUuid()
+    */
+   private void addDescription(String description, ConceptCB concept, UUID type) throws IOException, InvalidCAB, ContradictionException
+   {
+       DescriptionCAB dCab = new DescriptionCAB(concept.getComponentUuid(), type, lang, description, true,
+               IdDirective.GENERATE_HASH);
+       dCab.getProperties().put(ComponentProperty.MODULE_ID, moduleSpec.getUuids()[0]);
+
+       //Mark it as acceptable
+       RefexCAB rCabAcceptable = new RefexCAB(RefexType.CID, dCab.getComponentUuid(),  Snomed.US_LANGUAGE_REFEX.getPrimodialUuid(),
+               IdDirective.GENERATE_HASH, RefexDirective.EXCLUDE);
+       rCabAcceptable.put(ComponentProperty.COMPONENT_EXTENSION_1_ID,  SnomedMetadataRf2.ACCEPTABLE_RF2.getPrimodialUuid());
+       rCabAcceptable.getProperties().put(ComponentProperty.MODULE_ID, moduleSpec.getUuids()[0]);
+       dCab.addAnnotationBlueprint(rCabAcceptable);
+       
+       concept.addDescriptionCAB(dCab);
+   }
+   
+   protected ConceptCB createConcept(MetadataConceptConstantGroup ccg) throws Exception {
+       ConceptCB temp = createConcept((MetadataConceptConstant)ccg);
+       
+       pushParent(current());
+       for (MetadataConceptConstant cc : ccg.getChildren()) {
+           if (cc instanceof MetadataConceptConstantGroup) {
+               createConcept((MetadataConceptConstantGroup)cc);
+           }
+           else {
+               createConcept(cc);
+           }
+       }
+       popParent();
+       return temp;
+   }
 
    protected ConceptCB createModuleConcept(String name) throws Exception {
       ConceptCB cb = new ConceptCB(name + " " + semanticTag, 
@@ -193,6 +253,10 @@ public class Taxonomy {
       for (ConceptCB concept : conceptBpsInInsertionOrder) {
          String preferredName = concept.getPreferredName();
          String constantName  = preferredName.toUpperCase();
+         
+         if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
+            throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
+         }
 
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");

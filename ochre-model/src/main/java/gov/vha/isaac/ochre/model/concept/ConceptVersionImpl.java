@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.model.concept;
 
-import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
 
@@ -32,7 +31,7 @@ public class ConceptVersionImpl
     }
 
     @Override
-    public ConceptChronology getChronology() {
+    public ConceptChronologyImpl getChronology() {
         return chronicle;
     }
     

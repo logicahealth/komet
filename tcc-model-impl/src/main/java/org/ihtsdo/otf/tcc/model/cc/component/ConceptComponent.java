@@ -2,6 +2,8 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.Get;
+import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -15,21 +17,32 @@ import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
-
 import java.beans.PropertyVetoException;
 import java.io.*;
 import java.util.*;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
-
 import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
-
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentChronicleBI;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
@@ -44,14 +57,10 @@ import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.time.TimeHelper;
-
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
@@ -59,14 +68,13 @@ import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.model.cc.NidPairForRefex;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
+import org.ihtsdo.otf.tcc.model.cc.concept.ConceptChronicle;
 import org.ihtsdo.otf.tcc.model.cc.concept.ModificationTracker;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersion;
 import org.ihtsdo.otf.tcc.model.cc.identifier.IdentifierVersionUuid;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
-import org.ihtsdo.otf.tcc.model.cc.refex.RefexService;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
+import org.ihtsdo.otf.tcc.model.cc.termstore.PersistentStoreI;
 
 /**
  * Class description
@@ -87,14 +95,6 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
 //        return RelativePositionCalculator.getCalculator(coordinate)
 //                .getLatestVersion((ObjectChronology<V>) this);
 //    }
-    private static RefexService refexService;
-
-    protected static RefexService getRefexService() {
-        if (refexService == null) {
-            refexService = LookupService.getService(RefexService.class);
-        }
-        return refexService;
-    }
 
     /**
      * Field description
@@ -223,9 +223,9 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         if (eComponent.getAnnotationsDynamic() != null) {
 
             for (TtkRefexDynamicMemberChronicle eAnnot : eComponent.getAnnotationsDynamic()) {
-                RefexDynamicMember annot = RefexDynamicMemberFactory.create(eAnnot, enclosingConceptNid);
+//                RefexDynamicMember annot = RefexDynamicMemberFactory.create(eAnnot, enclosingConceptNid);
+//TODO dan I assume things have to go into the sememe service somehow here?
 
-                addDynamicAnnotation(annot);
             }
         }
     }
@@ -386,14 +386,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
     @SuppressWarnings("rawtypes")
     @Override
     public final boolean addAnnotation(RefexChronicleBI annotation) throws IOException {
-       getRefexService().writeRefex((RefexMember<?, ?>) annotation);
-       return true;
-    }
-
-    @Override
-    public final boolean addDynamicAnnotation(RefexDynamicChronicleBI annotation) throws IOException {
-        getRefexService().writeDynamicRefex(annotation);
-        return true;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -932,22 +925,23 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     protected void modified() {
 //TODO-AKF-KEC: should this be implemented?
-//        try {
-//            if (enclosingConceptNid != Integer.MIN_VALUE) {
-//                if ((P.s != null) && P.s.hasConcept(enclosingConceptNid)) {
+        try {
+            if (enclosingConceptNid != Integer.MIN_VALUE) {
+            	PersistentStoreI ps = PersistentStore.get();
+                if (ps != null && ps.hasConcept(enclosingConceptNid)) {
 //                    P.s.setIndexed(nid, false);
-//                    ConceptChronicle c = (ConceptChronicle) P.s.getConcept(enclosingConceptNid);
-//
-//                    if (c != null) {
-//                        c.modified();
-//                    }
-//                }
-//            } else {
-//                logger.log(Level.WARNING, "No enclosingConceptNid for: {0}", this);
-//            }
-//        } catch (IOException ex) {
-//            logger.log(Level.SEVERE, null, ex);
-//        }
+                    ConceptChronicle c = (ConceptChronicle)ps.getConcept(enclosingConceptNid);
+
+                    if (c != null) {
+                        c.modified(c.getConceptAttributes());
+                    }
+                }
+            } else {
+                logger.log(Level.WARNING, "No enclosingConceptNid for: {0}", this);
+            }
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -1869,54 +1863,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
         return Ts.get().getRefexesForAssemblage(refsetNid);
     }
 
-    /**
-     * @return @throws java.io.IOException
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException {
-        return Collections.unmodifiableCollection(getRefexService().
-                getDynamicRefexesForComponent(nid).collect(Collectors.toList()));
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
-     */
-    @Override
-    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException {
-        Collection<? extends RefexDynamicChronicleBI<?>> refexes = getRefexesDynamic();
-        List<RefexDynamicVersionBI<?>> returnValues = new ArrayList<>(refexes.size());
-
-        for (RefexDynamicChronicleBI<?> refex : refexes) {
-            for (RefexDynamicVersionBI<?> version : refex.getVersions(viewCoordinate)) {
-                returnValues.add(version);
-            }
-        }
-
-        return Collections.unmodifiableCollection(returnValues);
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException {
-        return getRefexesDynamic();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException {
-        return Collections.unmodifiableCollection(getRefexService().
-                getDynamicRefexesFromAssemblage(nid).collect(Collectors.toList()));
-    }
-
-    /**
+     /**
      * Method description
      *
      *

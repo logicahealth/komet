@@ -140,7 +140,7 @@ public class MediaVersion extends Version<MediaRevision, Media> implements Media
     }
 
     @Override
-    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate<?> coordinate) {
+    public Optional<LatestVersion<MediaVersionBI>> getLatestVersion(Class<MediaVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
         return this.getCv().getLatestVersion(type, coordinate);
     }
     

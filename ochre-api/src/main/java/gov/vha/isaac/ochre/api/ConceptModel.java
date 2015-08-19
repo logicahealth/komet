@@ -29,12 +29,4 @@ public enum ConceptModel {
      * sufficient sets, and full nesting of logical axioms is supported. 
      */
     OCHRE_CONCEPT_MODEL, 
-    
-    /**
-     * The OTF concept model, based on classic SNOMED RF2 distribution files, 
-     * where definitions are represented as relationships, and multiple necessary
-     * and sufficient sets are not supported, and the only nesting allowed is
-     * role groupings. 
-     */
-    OTF_CONCEPT_MODEL;
 }

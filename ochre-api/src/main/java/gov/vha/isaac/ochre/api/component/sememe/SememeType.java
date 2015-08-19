@@ -32,19 +32,22 @@ import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableSememeVersion
  */
 public enum SememeType {
 
-    MEMBER((byte) 0),
-    COMPONENT_NID((byte) 1),
-    LONG((byte) 2),
-    LOGIC_GRAPH((byte) 4),
-    STRING((byte) 5),
-    DYNAMIC((byte) 6),
-    DESCRIPTION((byte) 7),
-    RELATIONSHIP_ADAPTOR((byte) 8);
+    MEMBER((byte) 0, "Member"),
+    COMPONENT_NID((byte) 1, "Component Nid"),
+    LONG((byte) 2, "Long"),
+    LOGIC_GRAPH((byte) 4, "Logic Graph"),
+    STRING((byte) 5, "String"),
+    DYNAMIC((byte) 6, "Dynamic Sememe"),
+    DESCRIPTION((byte) 7, "Description"),
+    RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
+    UNKNOWN((byte)Byte.MAX_VALUE, "Unknown");
 
     final byte sememeToken;
+    final String niceName_;
 
-    private SememeType(byte sememeToken) {
+    private SememeType(byte sememeToken, String niceName) {
         this.sememeToken = sememeToken;
+        this.niceName_ = niceName;
     }
 
     @SuppressWarnings("rawtypes")
@@ -114,5 +117,17 @@ public enum SememeType {
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }
+    }
+    
+    public static SememeType parse(String name)
+    {
+        for (SememeType ct : values())
+        {
+            if (ct.name().equals(name) || ct.niceName_.equals(name))
+            {
+                return ct;
+            }
+        }
+        return UNKNOWN;
     }
 }

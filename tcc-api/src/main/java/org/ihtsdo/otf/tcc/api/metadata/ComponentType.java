@@ -24,7 +24,6 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 
 /**
@@ -45,7 +44,6 @@ public enum ComponentType
 	CONCEPT("Concept"), 
 	DESCRIPTION("Description"), 
 	RELATIONSHIP("Relationship"), 
-	SEMEME_DYNAMIC("Dynamic Sememe"), 
 	SEMEME("Sememe"), 
 	CONCEPT_ATTRIBUTES("Concept Attributes"),
 	MEDIA("Media"), 
@@ -93,10 +91,6 @@ public enum ComponentType
 		else if (component instanceof RefexVersionBI)
 		{
 			return SEMEME;
-		}
-		else if (component instanceof RefexDynamicVersionBI)
-		{
-			return SEMEME_DYNAMIC;
 		}
 		else if (component instanceof MediaVersionBI)
 		{

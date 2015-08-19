@@ -49,7 +49,7 @@ public class ObservableConceptChronologyImpl extends
 
     private ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>> descriptionListProperty;
 
-    public ObservableConceptChronologyImpl(ConceptChronology chronicledObjectLocal) {
+    public ObservableConceptChronologyImpl(ConceptChronology<ConceptVersionImpl> chronicledObjectLocal) {
         super(chronicledObjectLocal);
     }
 

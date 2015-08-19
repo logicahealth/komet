@@ -10,7 +10,6 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.NidSet;
-import gov.vha.isaac.ochre.collections.RefexSequenceSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
 import java.util.Collection;
 import java.util.List;
@@ -59,7 +58,7 @@ public interface IdentifierService {
      * @param sememeNid
      * @return a concept sequence for the provided sememeNid.  
      */
-   int getSememeSequence(int sememeNid);
+    int getSememeSequence(int sememeNid);
     int getSememeNid(int sememeSequence);
     int getSememeSequenceForUuids(Collection<UUID> uuids);
     int getSememeSequenceForUuids(UUID... uuids);
@@ -103,20 +102,4 @@ public interface IdentifierService {
 
     @Deprecated
     int getConceptSequenceForComponentNid(int nid);
-    
-    @Deprecated
-    int getRefexSequence(int nid);
-    @Deprecated
-    int getRefexNid(int refexSequence);
-
-    @Deprecated
-    IntStream getRefexSequenceStream();
-    @Deprecated
-    IntStream getParallelRefexSequenceStream();
-
-    @Deprecated
-    IntStream getRefexNidsForSequences(IntStream refexSequences);
-    @Deprecated
-    RefexSequenceSet getRefexSequencesForNids(int[] refexNidArray);
-
 }

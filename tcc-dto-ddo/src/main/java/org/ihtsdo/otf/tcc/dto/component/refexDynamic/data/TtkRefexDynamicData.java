@@ -19,8 +19,7 @@
 package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data;
 
 import java.util.Arrays;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicBoolean;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicByteArray;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicDouble;
@@ -29,8 +28,12 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDyna
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicLong;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicNid;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicPolymorphic;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicSequence;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
+
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 
 /**
  * {@link TtkRefexDynamicData}
@@ -53,39 +56,42 @@ public abstract class TtkRefexDynamicData
 	/**
 	 * @return The type information of the data
 	 */
-	public RefexDynamicDataType getRefexDataType()
+	public DynamicSememeDataType getRefexDataType()
 	{
 		if (this instanceof TtkRefexDynamicNid) {
-			return RefexDynamicDataType.NID;
+			return DynamicSememeDataType.NID;
 		}
 		if (this instanceof TtkRefexDynamicString) {
-			return RefexDynamicDataType.STRING;
+			return DynamicSememeDataType.STRING;
 		}
 		if (this instanceof TtkRefexDynamicInteger) {
-			return RefexDynamicDataType.INTEGER;
+			return DynamicSememeDataType.INTEGER;
 		}
 		if (this instanceof TtkRefexDynamicBoolean) {
-			return RefexDynamicDataType.BOOLEAN;
+			return DynamicSememeDataType.BOOLEAN;
 		}
 		if (this instanceof TtkRefexDynamicLong) {
-			return RefexDynamicDataType.LONG;
+			return DynamicSememeDataType.LONG;
 		}
 		if (this instanceof TtkRefexDynamicByteArray) {
-			return RefexDynamicDataType.BYTEARRAY;
+			return DynamicSememeDataType.BYTEARRAY;
 		}
 		if (this instanceof TtkRefexDynamicFloat) {
-			return RefexDynamicDataType.FLOAT;
+			return DynamicSememeDataType.FLOAT;
 		}
 		if (this instanceof TtkRefexDynamicDouble) {
-			return RefexDynamicDataType.DOUBLE;
+			return DynamicSememeDataType.DOUBLE;
 		}
 		if (this instanceof TtkRefexDynamicUUID) {
-			return RefexDynamicDataType.UUID;
+			return DynamicSememeDataType.UUID;
 		}
 		if (this instanceof TtkRefexDynamicPolymorphic) {
-			return RefexDynamicDataType.POLYMORPHIC;
+			return DynamicSememeDataType.POLYMORPHIC;
 		}
-		return RefexDynamicDataType.UNKNOWN;
+		if (this instanceof TtkRefexDynamicSequence) {
+			return DynamicSememeDataType.SEQUENCE;
+		}
+		return DynamicSememeDataType.UNKNOWN;
 	}
 
 	/**
@@ -103,7 +109,7 @@ public abstract class TtkRefexDynamicData
 	/**
 	 * @return The data object itself.
 	 * For a getData() method that doesn't require casting of the output, see the getDataXXX() method
-	 * available within implementations of the {@link RefexDynamicDataBI} interface.
+	 * available within implementations of the {@link DynamicSememeDataBI} interface.
 	 */
 	public abstract Object getDataObject();
 
@@ -146,49 +152,49 @@ public abstract class TtkRefexDynamicData
 		return true;
 	}
 
-	public static TtkRefexDynamicData typeToClass(RefexDynamicDataType type, byte[] data)
+	public static TtkRefexDynamicData typeToClass(DynamicSememeDataType type, byte[] data)
 	{
-		if (RefexDynamicDataType.NID == type)
+		if (DynamicSememeDataType.NID == type)
 		{
 			return new TtkRefexDynamicNid(data);
 		}
-		else if (RefexDynamicDataType.STRING == type)
+		else if (DynamicSememeDataType.STRING == type)
 		{
 			return new TtkRefexDynamicString(data);
 		}
-		else if (RefexDynamicDataType.INTEGER == type)
+		else if (DynamicSememeDataType.INTEGER == type)
 		{
 			return new TtkRefexDynamicInteger(data);
 		}
-		else if (RefexDynamicDataType.BOOLEAN == type)
+		else if (DynamicSememeDataType.BOOLEAN == type)
 		{
 			return new TtkRefexDynamicBoolean(data);
 		}
-		else if (RefexDynamicDataType.LONG == type)
+		else if (DynamicSememeDataType.LONG == type)
 		{
 			return new TtkRefexDynamicLong(data);
 		}
-		else if (RefexDynamicDataType.BYTEARRAY == type)
+		else if (DynamicSememeDataType.BYTEARRAY == type)
 		{
 			return new TtkRefexDynamicByteArray(data);
 		}
-		else if (RefexDynamicDataType.FLOAT == type)
+		else if (DynamicSememeDataType.FLOAT == type)
 		{
 			return new TtkRefexDynamicFloat(data);
 		}
-		else if (RefexDynamicDataType.DOUBLE == type)
+		else if (DynamicSememeDataType.DOUBLE == type)
 		{
 			return new TtkRefexDynamicDouble(data);
 		}
-		else if (RefexDynamicDataType.UUID == type)
+		else if (DynamicSememeDataType.UUID == type)
 		{
 			return new TtkRefexDynamicUUID(data);
 		}
-		else if (RefexDynamicDataType.POLYMORPHIC == type)
+		else if (DynamicSememeDataType.POLYMORPHIC == type)
 		{
 			return new TtkRefexDynamicPolymorphic(data);
 		}
-		else if (RefexDynamicDataType.UNKNOWN == type)
+		else if (DynamicSememeDataType.UNKNOWN == type)
 		{
 			throw new RuntimeException("No implementation exists for type unknown");
 		}

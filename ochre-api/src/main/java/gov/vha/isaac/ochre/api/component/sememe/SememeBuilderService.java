@@ -18,7 +18,9 @@ package gov.vha.isaac.ochre.api.component.sememe;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 
 import org.jvnet.hk2.annotations.Contract;
@@ -87,4 +89,9 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             String text,
             int referencedComponentNid, 
             int assemblageConceptSequence);
+    
+    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence);
+    
+    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, 
+    		DynamicSememeDataBI[] data);
 }

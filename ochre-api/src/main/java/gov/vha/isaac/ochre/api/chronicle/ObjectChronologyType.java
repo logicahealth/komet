@@ -20,5 +20,33 @@ package gov.vha.isaac.ochre.api.chronicle;
  * @author kec
  */
 public enum ObjectChronologyType {
-    CONCEPT, SEMEME, REFEX, OTHER, UNKNOWN_NID;
+	CONCEPT("Concept"), SEMEME("Sememe"), UNKNOWN_NID("Unknown");
+	
+	private String niceName_;
+	
+	private ObjectChronologyType(String niceName)
+	{
+		niceName_ = niceName;
+	}
+
+	/**
+	 * @see java.lang.Enum#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return niceName_;
+	}
+	
+	public static ObjectChronologyType parse(String name)
+	{
+		for (ObjectChronologyType ct : values())
+		{
+			if (ct.name().equals(name) || ct.niceName_.equals(name))
+			{
+				return ct;
+			}
+		}
+		return UNKNOWN_NID;
+	}
 }
