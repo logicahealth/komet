@@ -5,7 +5,9 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.RefexSequenceSet;
@@ -86,6 +88,12 @@ public interface IdentifierService {
 
     Optional<UUID> getUuidPrimordialForNid(int nid);
     Optional<UUID> getUuidPrimordialFromConceptSequence(int conceptSequence);
+    
+    Optional<LatestVersion<String>> getIdentifierForAuthority(int nid, UUID identifierAuthorityUuid, 
+            StampCoordinate stampCoordinate);
+    
+    Optional<LatestVersion<String>> getConceptIdentifierForAuthority(int conceptId, UUID identifierAuthorityUuid, 
+            StampCoordinate stampCoordinate);
 
     List<UUID> getUuidsForNid(int nid);
 

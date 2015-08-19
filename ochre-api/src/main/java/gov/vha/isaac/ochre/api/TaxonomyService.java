@@ -85,7 +85,7 @@ public interface TaxonomyService {
      * relationships, or {@code IntStream.empty()} if there are no such
      * relationships.
      */
-    IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate<?>tc);
+    IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate<?> tc);
 
     /**
      *
@@ -97,7 +97,7 @@ public interface TaxonomyService {
      * circular, or {@code IntStream.empty()} if there are no such
      * relationships.
      */
-    IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate<?>tc);
+    IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate<?> tc);
 
     IntStream getAllRelationshipOriginSequences(int destinationId, TaxonomyCoordinate<?> tc);
 
