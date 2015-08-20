@@ -30,9 +30,9 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * @param uuid - optional - the UUID to assign to this sememe
 	 * @param sememeDescription - describe the purpose of the use of this dynamic sememe
 	 * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
-	 * @param requiresIndex - optional - used to specify that this particular DynamicRefex should always be indexed.  If null - no indexing will 
-	 * be performed.  If passed as an empty set, then the refex WILL be indexed - but no columns of the refex will be indexed.  Otherwise, the Integer 
-	 * array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that should also be indexed.
+	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
+	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
+	 * should also be indexed.
 	 */
 	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns, Integer[] requiresIndex)
 	{
@@ -45,9 +45,9 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * @param sememeDescription - describe the purpose of the use of this dynamic sememe
 	 * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
 	 * @param synonyms - optional - extra synonyms
-	 * @param requiresIndex - optional - used to specify that this particular DynamicRefex should always be indexed.  If null - no indexing will 
-	 * be performed.  If passed as an empty set, then the refex WILL be indexed - but no columns of the refex will be indexed.  Otherwise, the Integer 
-	 * array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that should also be indexed.
+	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
+	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
+	 * should also be indexed.
 	 */
 	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns,
 			String[] synonyms, Integer[] requiresIndex)
@@ -62,9 +62,9 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
 	 * @param synonyms - optional - extra synonyms
 	 * @param definitions - optional - extra definitions
-	 * @param requiresIndex - optional - used to specify that this particular DynamicRefex should always be indexed.  If null - no indexing will 
-	 * be performed.  If passed as an empty set, then the refex WILL be indexed - but no columns of the refex will be indexed.  Otherwise, the Integer 
-	 * array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that should also be indexed.
+	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
+	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
+	 * should also be indexed.
 	 */
 	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns,
 			String[] synonyms, String[] definitions, Integer[] requiresIndex)
@@ -84,9 +84,9 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * of this sememe.
 	 * @param referencedComponentSubRestriction - optional - used to limit the type of sememe that can be used as the referenced component in an instance
 	 * of this sememe.
-	 * @param requiresIndex - optional - used to specify that this particular DynamicRefex should always be indexed.  If null - no indexing will 
-	 * be performed.  If passed as an empty set, then the refex WILL be indexed - but no columns of the refex will be indexed.  Otherwise, the Integer 
-	 * array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that should also be indexed.
+	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
+	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
+	 * should also be indexed.
 	 */
 	public MetadataDynamicSememeConstant(String fsn, String preferredSynonym, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns,
 			String[] synonyms, String[] definitions, ObjectChronologyType referencedComponentRestriction, SememeType refererenceComponentSubRestriction,
@@ -115,9 +115,9 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	}
 	
 	/**
-	 * @return the refexDescription_
+	 * @return the dynamicSememeDescription_
 	 */
-	public String getRefexDescription()
+	public String getSememeAssemblageDescription()
 	{
 		return dynamicSememeDescription_;
 	}
