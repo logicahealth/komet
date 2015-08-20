@@ -18,8 +18,12 @@
  */
 package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data;
 
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import java.beans.PropertyVetoException;
 import java.util.Arrays;
-
+import java.util.UUID;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicArray;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicBoolean;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicByteArray;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicDouble;
@@ -31,9 +35,6 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDyna
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicSequence;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
-
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 
 /**
  * {@link TtkRefexDynamicData}
@@ -199,5 +200,96 @@ public abstract class TtkRefexDynamicData
 			throw new RuntimeException("No implementation exists for type unknown");
 		}
 		throw new RuntimeException("Implementation error");
+	}
+	
+	protected static Class<? extends TtkRefexDynamicData> implClassForType(DynamicSememeDataType type)
+	{
+		switch (type)
+		{
+			case ARRAY: return TtkRefexDynamicArray.class;
+			case BOOLEAN: return TtkRefexDynamicBoolean.class;
+			case BYTEARRAY: return TtkRefexDynamicByteArray.class;
+			case DOUBLE: return TtkRefexDynamicDouble.class;
+			case FLOAT: return TtkRefexDynamicFloat.class;
+			case INTEGER: return TtkRefexDynamicInteger.class;
+			case LONG: return TtkRefexDynamicLong.class;
+			case NID: return TtkRefexDynamicNid.class;
+			case STRING: return TtkRefexDynamicString.class;
+			case UUID: return TtkRefexDynamicUUID.class;
+			case SEQUENCE: return TtkRefexDynamicSequence.class;
+			case UNKNOWN: case POLYMORPHIC: throw new RuntimeException("Should be impossible");
+			default:
+				throw new RuntimeException("Design failure");
+		}
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static TtkRefexDynamicData convertPolymorphicDataColumn(DynamicSememeDataBI defaultValue, DynamicSememeDataType columnType) throws PropertyVetoException
+	{
+		TtkRefexDynamicData result;
+
+		if (defaultValue != null)
+		{
+			try
+			{
+				if (DynamicSememeDataType.ARRAY == columnType)
+				{
+					result = new TtkRefexDynamicArray((TtkRefexDynamicData[]) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.BOOLEAN == columnType)
+				{
+					result = new TtkRefexDynamicBoolean((Boolean) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.BYTEARRAY == columnType)
+				{
+					result = new TtkRefexDynamicByteArray((byte[]) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.DOUBLE == columnType)
+				{
+					result = new TtkRefexDynamicDouble((Double) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.FLOAT == columnType)
+				{
+					result = new TtkRefexDynamicFloat((Float) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.INTEGER == columnType)
+				{
+					result = new TtkRefexDynamicInteger((Integer) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.LONG == columnType)
+				{
+					result = new TtkRefexDynamicLong((Long) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.NID == columnType)
+				{
+					result = new TtkRefexDynamicNid((Integer) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.STRING == columnType)
+				{
+					result = new TtkRefexDynamicString((String) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.UUID == columnType)
+				{
+					result = new TtkRefexDynamicUUID((UUID) defaultValue.getDataObject());
+				}
+				else if (DynamicSememeDataType.POLYMORPHIC == columnType)
+				{
+					throw new RuntimeException("Error in column - if default value is provided, the type cannot be polymorphic");
+				}
+				else
+				{
+					throw new RuntimeException("Actually, the implementation is broken.  Ooops.");
+				}
+			}
+			catch (ClassCastException e)
+			{
+				throw new RuntimeException("Error in column - if default value is provided, the type must be compatible with the the column descriptor type");
+			}
+		}
+		else
+		{
+			result = null;
+		}
+		return result;
 	}
 }
