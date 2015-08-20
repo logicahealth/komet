@@ -92,7 +92,7 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase
 	//used for index config
 	public static final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX = new MetadataConceptConstant("columns to index", 
 		UUID.fromString("cede7677-3759-5dce-b28b-20a40fddf5d6"),
-		"Contains a String which has a comma seperated list of the column positions within the referenced sememe assemblage which should have their values indexed.") {};
+		"Contains an array of integers that denote the column positions within the referenced sememe assemblage which should have their values indexed.") {};
 	
 	//Used for referenced component type restrictions
 	public static final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE = new MetadataConceptConstant("referenced component type restriction", 
@@ -254,7 +254,7 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase
 		"A Dynamic Sememe which contains the indexer configuration for Dynamic Sememes within ISAAC.  "
 			+ "The referenced component ID will be the assemblage being configured for indexing.", 
 		new DynamicSememeColumnInfo[] {
-			new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getUUID(), DynamicSememeDataType.STRING, null, false)},
+			new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getUUID(), DynamicSememeDataType.ARRAY, null, false)},
 		null) {};
 			
 	public static final MetadataDynamicSememeConstant DYNAMIC_SEMEME_COMMENT_ATTRIBUTE = new MetadataDynamicSememeConstant("Comment", 
