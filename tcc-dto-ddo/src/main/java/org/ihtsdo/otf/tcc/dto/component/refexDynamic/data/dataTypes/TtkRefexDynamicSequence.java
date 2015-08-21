@@ -38,7 +38,7 @@ public class TtkRefexDynamicSequence extends TtkRefexDynamicData
 		data_ = intToByteArray(integer);
 	}
 
-	public int getDataInteger()
+	public int getDataSequence()
 	{
 		return getIntFromByteArray(data_);
 	}
@@ -49,7 +49,7 @@ public class TtkRefexDynamicSequence extends TtkRefexDynamicData
 	@Override
 	public Object getDataObject()
 	{
-		return getDataInteger();
+		return getDataSequence();
 	}
 
 	protected static byte[] intToByteArray(int integer)
