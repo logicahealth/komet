@@ -64,4 +64,9 @@ public class CommitRecord {
         return sememesInCommit;
     }
 
+	@Override
+	public String toString() {
+		return "CommitRecord{" + "commitTime=" + commitTime + ", stampsInCommit=" + stampsInCommit + ", stampAliases=" + stampAliases + ", commitComment=" + commitComment + ", conceptsInCommit=" + conceptsInCommit + ", sememesInCommit=" + sememesInCommit + '}';
+	}
+
 }
