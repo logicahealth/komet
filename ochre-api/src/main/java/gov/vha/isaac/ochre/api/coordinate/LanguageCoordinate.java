@@ -1,10 +1,12 @@
 package gov.vha.isaac.ochre.api.coordinate;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Coordinate to manage the retrieval and display of language and dialect information.
@@ -19,6 +21,19 @@ public interface LanguageCoordinate {
     
     int[] getDescriptionTypePreferenceList();
     
+    /**
+     * Convenience method - returns true if FSN is at the top of the description list.
+     * @return
+     */
+    public default boolean isFSNPreferred() {
+        for (int descType : getDescriptionTypePreferenceList()) {
+            if (descType == Get.identifierService().getConceptSequenceForUuids(UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"))) {
+                return true;
+            }
+            break;
+        }
+        return false;
+    }
         
     <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
         getFullySpecifiedDescription(
