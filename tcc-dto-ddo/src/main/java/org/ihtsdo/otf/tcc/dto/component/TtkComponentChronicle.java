@@ -655,6 +655,9 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     public List<TtkRefexDynamicMemberChronicle> getAnnotationsDynamic() {
+        if (annotationsDynamic == null) {
+            annotationsDynamic = new ArrayList<>();
+        }
         return annotationsDynamic;
     }
 
