@@ -20,8 +20,6 @@
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import java.io.IOException;
 import javafx.beans.property.ReadOnlyObjectProperty;
 
 /**
@@ -35,11 +33,6 @@ import javafx.beans.property.ReadOnlyObjectProperty;
  */
 public interface DynamicSememeArrayBI<T extends DynamicSememeDataBI> extends DynamicSememeDataBI
 {
-	/**
-	 * Returns the specific type of the items in the array.
-	 */
-	public DynamicSememeDataType getArrayDataType();
-	
 	public T[] getDataArray();
 	
 	public ReadOnlyObjectProperty<T[]> getDataArrayProperty();
