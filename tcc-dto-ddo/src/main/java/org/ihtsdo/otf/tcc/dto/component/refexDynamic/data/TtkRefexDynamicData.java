@@ -20,9 +20,21 @@ package org.ihtsdo.otf.tcc.dto.component.refexDynamic.data;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArray;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeBoolean;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeByteArray;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDouble;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeFloat;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeInteger;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeNid;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeSequence;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeString;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUID;
 import java.beans.PropertyVetoException;
 import java.util.Arrays;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAttribute;
+import org.apache.logging.log4j.LogManager;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicArray;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicBoolean;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicByteArray;
@@ -43,6 +55,7 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDyna
  */
 public abstract class TtkRefexDynamicData
 {
+	@XmlAttribute
 	protected byte[] data_;
 
 	protected TtkRefexDynamicData(byte[] data)
@@ -91,6 +104,9 @@ public abstract class TtkRefexDynamicData
 		}
 		if (this instanceof TtkRefexDynamicSequence) {
 			return DynamicSememeDataType.SEQUENCE;
+		}
+		if (this instanceof TtkRefexDynamicArray) {
+			return DynamicSememeDataType.ARRAY;
 		}
 		return DynamicSememeDataType.UNKNOWN;
 	}
@@ -195,6 +211,10 @@ public abstract class TtkRefexDynamicData
 		{
 			return new TtkRefexDynamicPolymorphic(data);
 		}
+		else if (DynamicSememeDataType.ARRAY== type)
+		{
+			return new TtkRefexDynamicArray<TtkRefexDynamicData>(data);
+		}
 		else if (DynamicSememeDataType.UNKNOWN == type)
 		{
 			throw new RuntimeException("No implementation exists for type unknown");
@@ -291,5 +311,94 @@ public abstract class TtkRefexDynamicData
 			result = null;
 		}
 		return result;
+	}
+	
+	public static DynamicSememeDataBI[] convertFromTTK(TtkRefexDynamicData[] data)
+	{
+		DynamicSememeDataBI[] convertedData = data == null ? null : new DynamicSememeDataBI[data.length];
+		if (data != null)
+		{
+			for (int i = 0; i < data.length; i++)
+			{
+				convertedData[i] = convertFromTTK(data[i]);
+			}
+		}
+		return convertedData;
+	}
+	
+	public static DynamicSememeDataBI convertFromTTK(TtkRefexDynamicData data)
+	{
+		if (data == null)
+		{
+			return null;
+		}
+		switch (data.getRefexDataType())
+		{
+			case ARRAY: 
+			{
+				TtkRefexDynamicData[] castData = (TtkRefexDynamicData[])data.getDataObject();
+				DynamicSememeDataBI[] convertedData = new DynamicSememeDataBI[castData.length];
+				for (int i = 0; i < convertedData.length; i++)
+				{
+					convertedData[i] = convertFromTTK(castData[i]);
+				}
+				
+				return new DynamicSememeArray<>(convertedData);
+			}
+			case BOOLEAN: return new DynamicSememeBoolean(((TtkRefexDynamicBoolean)data).getDataBoolean());
+			case BYTEARRAY: return new DynamicSememeByteArray(((TtkRefexDynamicByteArray)data).getDataByteArray());
+			case DOUBLE: return new DynamicSememeDouble(((TtkRefexDynamicDouble)data).getDataDouble());
+			case FLOAT: return new DynamicSememeFloat(((TtkRefexDynamicFloat)data).getDataFloat());
+			case INTEGER:  return new DynamicSememeInteger(((TtkRefexDynamicInteger)data).getDataInteger());
+			case NID: return new DynamicSememeNid(((TtkRefexDynamicNid)data).getDataNid());
+			case STRING: return new DynamicSememeString(((TtkRefexDynamicString)data).getDataString());
+			case UUID: return new DynamicSememeUUID(((TtkRefexDynamicUUID)data).getDataUUID());
+			case SEQUENCE: return new DynamicSememeSequence(((TtkRefexDynamicSequence)data).getDataSequence());
+			case UNKNOWN: case POLYMORPHIC: throw new RuntimeException("Should be impossible");
+			default:
+				throw new RuntimeException("Design failure");
+		}
+	}
+	
+	public static DynamicSememeDataType classToType(Class<?> c) 
+	{
+		if (TtkRefexDynamicNid.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.NID;
+		}
+		if (TtkRefexDynamicString.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.STRING;
+		}
+		if (TtkRefexDynamicInteger.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.INTEGER;
+		}
+		if (TtkRefexDynamicBoolean.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.BOOLEAN;
+		}
+		if (TtkRefexDynamicLong.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.LONG;
+		}
+		if (TtkRefexDynamicByteArray.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.BYTEARRAY;
+		}
+		if (TtkRefexDynamicFloat.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.FLOAT;
+		}
+		if (TtkRefexDynamicDouble.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.DOUBLE;
+		}
+		if (TtkRefexDynamicUUID.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.UUID;
+		}
+		if (TtkRefexDynamicPolymorphic.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.POLYMORPHIC;
+		}
+		if (TtkRefexDynamicArray.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.ARRAY;
+		}
+		if (TtkRefexDynamicSequence.class.isAssignableFrom(c)) {
+			return DynamicSememeDataType.SEQUENCE;
+		}
+		LogManager.getLogger().warn("Couldn't map class {} to type!", c);
+		return DynamicSememeDataType.UNKNOWN;
 	}
 }
