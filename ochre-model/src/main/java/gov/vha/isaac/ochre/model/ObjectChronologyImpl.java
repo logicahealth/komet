@@ -253,18 +253,22 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             // no changes, so nothing to merge. 
             if (writtenData != null) {
                 DataBuffer db = new DataBuffer(writtenData);
-                db.putInt(writeSequence);
                 return db.getData();
             }
             // creating a brand new object
             DataBuffer db = new DataBuffer(10);
             writeChronicleData(db);
-            db.putInt(0);
+            db.putInt(0); // zero length version record. 
             db.trimToSize();
             return db.getData();
         }
         DataBuffer db = new DataBuffer(512);
-        writeChronicleData(db);
+	
+	 writeChronicleData(db);		
+	 if (writtenData != null) {
+		 db.put(writtenData, versionStartPosition, writtenData.length - versionStartPosition - 4); // 4 for the zero length version at the end. 
+	 }
+        
         // add versions..
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
@@ -571,7 +575,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             builder.append(version);
             builder.append(",");
         });
-        builder.deleteCharAt(builder.length() - 1);
+	 if (getVersionList() != null) {
+		builder.deleteCharAt(builder.length() - 1);	  
+	 }
+        
         builder.append("]");
 
     }
