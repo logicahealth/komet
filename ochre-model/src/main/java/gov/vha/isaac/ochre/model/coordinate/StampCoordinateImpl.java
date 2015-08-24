@@ -39,7 +39,7 @@ import javafx.collections.SetChangeListener;
  *
  * @author kec
  */
-public class StampCoordinateImpl implements StampCoordinate<StampCoordinateImpl> {
+public class StampCoordinateImpl implements StampCoordinate {
 
     StampPrecedence stampPrecedence;
     StampPosition stampPosition;

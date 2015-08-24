@@ -615,7 +615,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         if (versionListReference != null) {
             ArrayList<V> versions = versionListReference.get();
@@ -631,7 +631,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -682,7 +682,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     @Override
-    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
         SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
             RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());

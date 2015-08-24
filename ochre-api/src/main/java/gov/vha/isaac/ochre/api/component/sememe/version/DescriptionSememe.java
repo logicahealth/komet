@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe.version;
 
+
 /**
  * Describes the referenced component in a way appropriate for the type and 
  * language specified by the sememe.
@@ -28,5 +29,4 @@ public interface DescriptionSememe<V extends DescriptionSememe<V>>
     int getLanguageConceptSequence();
     String getText();
     int getDescriptionTypeConceptSequence();
-    
 }

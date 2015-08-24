@@ -57,10 +57,10 @@ public class RelativePositionCalculator implements OchreCache {
     private static final Logger log = LogManager.getLogger();
 
 
-    private static final ConcurrentHashMap<StampCoordinate<? extends StampCoordinate<?>>, RelativePositionCalculator> calculatorCache =
+    private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> calculatorCache =
             new ConcurrentHashMap<>();
 
-    public static RelativePositionCalculator getCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
         RelativePositionCalculator pm = calculatorCache.get(coordinate);
 
         if (pm != null) {
@@ -77,7 +77,7 @@ public class RelativePositionCalculator implements OchreCache {
 
         return pm;
     }
-    StampCoordinate<? extends StampCoordinate<?>> coordinate;
+    StampCoordinate coordinate;
     /**
      * Mapping from pathNid to each segment for that pathNid.
      * There is one entry for each path reachable antecedent to the destination 
@@ -89,7 +89,7 @@ public class RelativePositionCalculator implements OchreCache {
         // No arg constructor for HK2 managed instance
     }
 
-    public RelativePositionCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public RelativePositionCalculator(StampCoordinate coordinate) {
         this.coordinate = coordinate;
         this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
     }

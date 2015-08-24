@@ -163,7 +163,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -184,7 +184,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
         readExternal(in, dataVersion);
     }
     @Override
-    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate<?> stampCoordinate) {
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
         SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
             RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());
@@ -813,7 +813,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
         return RelativePositionCalculator.getCalculator(coordinate).getLatestVersion(this);
     }
 

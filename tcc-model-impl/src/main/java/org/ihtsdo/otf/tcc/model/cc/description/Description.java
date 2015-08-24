@@ -409,7 +409,7 @@ public class Description extends ConceptComponent<DescriptionRevision, Descripti
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<DescriptionVersionBI>> getLatestVersion(Class<DescriptionVersionBI> type, StampCoordinate coordinate) {
          return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
     }

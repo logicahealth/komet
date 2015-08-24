@@ -383,7 +383,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     }
 
     @Override
-    public Optional<LatestVersion<RefexVersionBI<R>>> getLatestVersion(Class<RefexVersionBI<R>> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<RefexVersionBI<R>>> getLatestVersion(Class<RefexVersionBI<R>> type, StampCoordinate coordinate) {
          return RelativePositionCalculator.getCalculator(coordinate)
                 .getLatestVersion(this);
     }

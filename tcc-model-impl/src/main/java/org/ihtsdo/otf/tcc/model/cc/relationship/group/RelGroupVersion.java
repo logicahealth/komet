@@ -479,7 +479,7 @@ public class RelGroupVersion implements RelGroupVersionBI {
     }
 
     @Override
-    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate coordinate) {
         return rg.getLatestVersion(type, coordinate);
     }
 }

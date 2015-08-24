@@ -132,7 +132,7 @@ public class ObservableTaxonomyCoordinateImpl extends ObservableCoordinateImpl i
     }
 
     @Override
-    public TaxonomyCoordinate<ObservableTaxonomyCoordinate> makeAnalog(PremiseType taxonomyType) {
+    public TaxonomyCoordinate makeAnalog(PremiseType taxonomyType) {
         return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(taxonomyType));
     }
     

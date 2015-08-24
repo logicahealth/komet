@@ -277,7 +277,7 @@ public abstract class ObservableChronologyImpl<
     }
 
     @Override
-    public Optional<LatestVersion<OV>> getLatestVersion(Class<OV> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<OV>> getLatestVersion(Class<OV> type, StampCoordinate coordinate) {
        RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
        return calculator.getLatestVersion(this);
     }

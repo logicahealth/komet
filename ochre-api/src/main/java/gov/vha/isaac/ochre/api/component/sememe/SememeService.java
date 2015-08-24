@@ -35,7 +35,7 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface SememeService {
     <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType, 
-            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+            StampCoordinate stampCoordinate);
     
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     
@@ -69,7 +69,7 @@ public interface SememeService {
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
     
-    <T extends DescriptionSememe<T>> Stream<SememeChronology<T>> getDescriptionsForComponent(int componentNid);
+    Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
     
     /**
      * @return the sequence identifiers of all assemblage concepts that are actually in use by a sememe

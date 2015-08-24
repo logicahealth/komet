@@ -68,13 +68,13 @@ public class ObservableConceptChronologyImpl extends
         return getSpecifiedDescription(optionalFsn);
     }
 
-    private Optional<LatestVersion<ObservableDescriptionSememe<?>>> getSpecifiedDescription(Optional<LatestVersion<DescriptionSememe<?>>> optionalSpecifiedDescription) {
+    private Optional<LatestVersion<ObservableDescriptionSememe<?>>> getSpecifiedDescription(Optional<LatestVersion<DescriptionSememe<?>>>optionalSpecifiedDescription) {
         if (optionalSpecifiedDescription.isPresent()) {
             LatestVersion<DescriptionSememe<?>> latestPreferred = optionalSpecifiedDescription.get();
-            int latestStampSequence = latestPreferred.value().getStampSequence();
+            int latestStampSequence = ((DescriptionSememe)latestPreferred.value()).getStampSequence();
             
             ObservableSememeChronologyImpl<ObservableDescriptionImpl, SememeChronology<DescriptionSememe>> observableSpecified = 
-                    new ObservableSememeChronologyImpl(latestPreferred.value().getChronology());
+                    new ObservableSememeChronologyImpl(((DescriptionSememe)latestPreferred.value()).getChronology());
                    
             LatestVersion<ObservableDescriptionSememe> rawLatest = new LatestVersion<>(ObservableDescriptionSememe.class);
             
@@ -117,7 +117,7 @@ public class ObservableConceptChronologyImpl extends
                     observableList);
 
             chronicledObjectLocal.getConceptDescriptionList().stream().forEach((conceptDescriptionChronicle) -> {
-                ObservableSememeChronologyImpl observableConceptDescriptionChronicle = new ObservableSememeChronologyImpl(conceptDescriptionChronicle);
+                ObservableSememeChronologyImpl observableConceptDescriptionChronicle = new ObservableSememeChronologyImpl((SememeChronology)conceptDescriptionChronicle);
                 observableList.add(observableConceptDescriptionChronicle);
             });
         }

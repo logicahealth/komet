@@ -95,11 +95,12 @@ public class ConceptChronologyImpl
     public int getConceptSequence() {
         return getContainerSequence();
     }
-
+    
+    
     @Override
-    public <T extends DescriptionSememe<T>> List<? extends SememeChronology<T>> getConceptDescriptionList() {
-    	List<?> list = Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
-        return (List<? extends SememeChronology<T>>)list;
+    public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList()
+    {
+        return Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
     }
 
     @Override
@@ -110,7 +111,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
         return Get.sememeService().getSnapshot(DescriptionSememe.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch((latestVersion) -> latestVersion.value().getText().equals(descriptionText));
@@ -118,7 +119,7 @@ public class ConceptChronologyImpl
 
     @Override
     public String toUserString() {
-        List<? extends SememeChronology<? extends DescriptionSememe<?>>> descList = getConceptDescriptionList();
+        List<SememeChronology<? extends DescriptionSememe<?>>> descList = getConceptDescriptionList();
         if (descList.isEmpty()) {
             return "no description for concept: " + getUuidList() + " " + getConceptSequence()
                     + " " + getNid();
@@ -135,22 +136,22 @@ public class ConceptChronologyImpl
         toString(builder);
         return builder.toString();
     }
-
+    
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
-        List<?> list = getConceptDescriptionList();
-        return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<T>>) list, stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>>  getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
+            StampCoordinate stampCoordinate) {
+      return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<?> stampCoordinate) {
-        List<?> list = getConceptDescriptionList();
-    	return languageCoordinate.getPreferredDescription((List<SememeChronology<T>>) list, stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>>  getPreferredDescription(LanguageCoordinate languageCoordinate,
+            StampCoordinate stampCoordinate) {
+        return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
     public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(
-            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
+            StampCoordinate stampCoordinate,
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
@@ -220,7 +221,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
          int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {
             assemblageSequence = logicCoordinate.getInferredAssemblageSequence();
@@ -237,7 +238,7 @@ public class ConceptChronologyImpl
             
 //            Collection<LogicGraphSememeImpl> versionsList = new ArrayList<>();
 //            for (LogicGraphSememeImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
-//            	
+//                
 //            }
             StringBuilder builder = new StringBuilder();
             builder.append("_______________________________________________________________________\n");

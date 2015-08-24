@@ -35,15 +35,11 @@ public interface LanguageCoordinate {
         return false;
     }
         
-    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
-        getFullySpecifiedDescription(
-                List<SememeChronology<T>> descriptionList,
-                StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+    Optional<LatestVersion<DescriptionSememe<?>>> 
+        getFullySpecifiedDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate);
     
-    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
-        getPreferredDescription(
-                List<SememeChronology<T>> descriptionList,
-                StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+    Optional<LatestVersion<DescriptionSememe<?>>> 
+        getPreferredDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate);
     
     /**
      * Return the description according to the type and dialect preferences 
@@ -53,10 +49,7 @@ public interface LanguageCoordinate {
      * @return an optional description best matching the {@code LanguageCoordinate}
      * constraints. 
      */
-    <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> 
-        getDescription(
-                List<SememeChronology<T>> descriptionList,
-                StampCoordinate<?> stampCoordinate);
-    
+    Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate);
     
 }

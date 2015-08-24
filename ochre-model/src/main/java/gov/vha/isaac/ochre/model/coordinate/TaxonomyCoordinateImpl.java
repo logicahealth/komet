@@ -24,15 +24,15 @@ import java.util.UUID;
  *
  * @author kec
  */
-public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordinateImpl> {
+public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
 
     PremiseType taxonomyType;
-    StampCoordinate<? extends StampCoordinate<?>> stampCoordinate;
+    StampCoordinate stampCoordinate;
     LanguageCoordinate languageCoordinate;
     LogicCoordinate logicCoordinate;
     UUID uuid;
 
-    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate,
+    public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate stampCoordinate,
                                   LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
         this.taxonomyType = taxonomyType;
         this.stampCoordinate = stampCoordinate;
@@ -50,7 +50,7 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate<TaxonomyCoordi
     }
 
     @Override
-    public StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate() {
+    public StampCoordinate getStampCoordinate() {
        return stampCoordinate;
     }
 

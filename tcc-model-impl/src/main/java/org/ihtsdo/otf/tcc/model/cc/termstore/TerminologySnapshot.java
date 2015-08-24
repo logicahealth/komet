@@ -686,7 +686,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this.getViewCoordinate(), c, RefexPolicy.REFEX_MEMBERS,
+      return new ConceptChronicleDdo(this.getViewCoordinate().getTaxonomyCoordinate(), c, RefexPolicy.REFEX_MEMBERS,
                            RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
    }
 
@@ -715,7 +715,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
          c = getConceptVersion(ref.getUuid());
       }
 
-      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate().getTaxonomyCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
@@ -737,7 +737,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate().getTaxonomyCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
