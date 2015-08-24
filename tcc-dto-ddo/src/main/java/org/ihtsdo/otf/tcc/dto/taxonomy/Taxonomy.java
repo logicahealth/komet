@@ -166,7 +166,7 @@ public class Taxonomy {
        
        DescriptionCAB dcab = addDescription(cc.getSememeAssemblageDescription(), cab, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid());
        //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-       addDynamicAnnotation(dcab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_ASSEMBLAGES.getUUID(), new TtkRefexDynamicData[0]);
+       addDynamicAnnotation(dcab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), new TtkRefexDynamicData[0]);
        
        
         if (cc.getDynamicSememeColumns() != null) {
@@ -316,16 +316,16 @@ public class Taxonomy {
             }
         }
         for (TtkDescriptionChronicle d : ttkConcept.getDescriptions()) {
-        	addNestedDynamicSememes(d);
+            addNestedDynamicSememes(d);
         }
         for (TtkRelationshipChronicle r : ttkConcept.getRelationships()) {
-        	addNestedDynamicSememes(r);
+            addNestedDynamicSememes(r);
         }
     }
     
     private void addNestedDynamicSememes(TtkComponentChronicle<?, ?> component)
     {
-    	List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(component.getPrimordialUuid());
+        List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(component.getPrimordialUuid());
         if (ds != null) {
             for (TtkRefexDynamicMemberChronicle s : ds) {
                 component.getAnnotationsDynamic().add(s);
@@ -458,6 +458,7 @@ public class Taxonomy {
         List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(component);
         if (ds == null) {
             ds = new ArrayList<>();
+            dynamicSememes.put(component, ds);
         }
         ds.add(dynamicSememe);
         return dynamicSememe;
