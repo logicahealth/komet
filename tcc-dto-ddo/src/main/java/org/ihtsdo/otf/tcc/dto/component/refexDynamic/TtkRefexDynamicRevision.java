@@ -101,7 +101,7 @@ public class TtkRefexDynamicRevision extends TtkRevision
 	{
 		super.readExternal(input, dataVersion);
 		//read the following format - 
-		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+		//dataFieldCount [dataFieldType [dataFieldSize dataFieldBytes]] [dataFieldType [dataFieldSize dataFieldBytes]] ...
 		int colCount = input.readInt();
 		data_ = new TtkRefexDynamicData[colCount];
 		for (int i = 0; i < colCount; i++)
@@ -125,7 +125,7 @@ public class TtkRefexDynamicRevision extends TtkRevision
 	public void writeExternal(DataOutput output) throws IOException
 	{
 		super.writeExternal(output);
-		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+		//dataFieldCount [dataFieldType [dataFieldSize dataFieldBytes]] [dataFieldType [dataFieldSize dataFieldBytes]] ...
 		if (getData() != null)
 		{
 			output.writeInt(getData().length);
