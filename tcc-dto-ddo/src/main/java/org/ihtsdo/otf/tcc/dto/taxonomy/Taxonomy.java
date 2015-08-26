@@ -51,6 +51,7 @@ import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
 import org.ihtsdo.otf.tcc.dto.Wrapper;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
@@ -164,9 +165,11 @@ public class Taxonomy {
        
        // See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
        
+       //TODO note that when this class gets updated to stop using blueprints, a version of this that builds directly to TTK already exists in TtkRefexDynamicUtils
        DescriptionCAB dcab = addDescription(cc.getSememeAssemblageDescription(), cab, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid());
        //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-       addDynamicAnnotation(dcab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), new TtkRefexDynamicData[0]);
+       addDynamicAnnotation(TtkUtils.createDynamicAnnotation(dcab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), 
+                new TtkRefexDynamicData[0], (refex-> setRevisionAttributes(refex, null))));
        
        
         if (cc.getDynamicSememeColumns() != null) {
@@ -202,7 +205,8 @@ public class Taxonomy {
                     data[6] = null;
                 }
                 
-                addDynamicAnnotation(cab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), data);
+                addDynamicAnnotation(TtkUtils.createDynamicAnnotation(cab.getComponentUuid(), 
+                        IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), data, (refex-> setRevisionAttributes(refex, null))));
             }
         }
         
@@ -215,14 +219,16 @@ public class Taxonomy {
             TtkRefexDynamicData[] data = new TtkRefexDynamicData[size];
             data[0] = new TtkRefexDynamicString(cc.getReferencedComponentTypeRestriction().name());
             if (size == 2) {
-                data[1] = new TtkRefexDynamicString(cc.getReferencedComponentTypeRestriction().name());
+                data[1] = new TtkRefexDynamicString(cc.getReferencedComponentSubTypeRestriction().name());
             }
             
-            addDynamicAnnotation(cab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), data);
+            addDynamicAnnotation(TtkUtils.createDynamicAnnotation(cab.getComponentUuid(), 
+                    IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), data, (refex-> setRevisionAttributes(refex, null))));
         }
         
         if (cc.getRequiredIndexes() != null) {
-            configureDynamicRefexIndexes(cab.getComponentUuid(), cc.getRequiredIndexes());
+            addDynamicAnnotation(TtkUtils.configureDynamicRefexIndexes(cab.getComponentUuid(), cc.getRequiredIndexes(), 
+                    (refex-> setRevisionAttributes(refex, null))));
         }
        return cab;
    }
@@ -445,20 +451,13 @@ public class Taxonomy {
       return cb;
    }  
      
-    protected TtkRefexDynamicMemberChronicle addDynamicAnnotation(UUID component, UUID assemblageID, TtkRefexDynamicData[] data) 
+    protected TtkRefexDynamicMemberChronicle addDynamicAnnotation(TtkRefexDynamicMemberChronicle dynamicSememe) 
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        //TODO this should have a validator for data columns aligning with the refex description
-        TtkRefexDynamicMemberChronicle dynamicSememe = new TtkRefexDynamicMemberChronicle();
-        dynamicSememe.setComponentUuid(component);
-        dynamicSememe.setRefexAssemblageUuid(assemblageID);
-        dynamicSememe.setData(data);
-        setUUIDForDynamicSememe(dynamicSememe, data, null);
-        setRevisionAttributes(dynamicSememe, null);
 
-        List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(component);
+        List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(dynamicSememe.getComponentUuid());
         if (ds == null) {
             ds = new ArrayList<>();
-            dynamicSememes.put(component, ds);
+            dynamicSememes.put(dynamicSememe.getComponentUuid(), ds);
         }
         ds.add(dynamicSememe);
         return dynamicSememe;
@@ -478,44 +477,5 @@ public class Taxonomy {
         object.setTime(time);
     }
      
-    /**
-     * @param namespace - optional - uses {@link DynamicSememe#DYNAMIC_SEMEME_NAMESPACE} if not specified
-     * @return - the generated string used for refex creation 
-     */
-    public static String setUUIDForDynamicSememe(TtkRefexDynamicMemberChronicle dynamicSememe, TtkRefexDynamicData[] data, UUID namespace) throws NoSuchAlgorithmException, 
-        UnsupportedEncodingException {
-        //TODO dan - need to look and see how I am generating UUIDs for dynamic refexes in the Builder...
-        StringBuilder sb = new StringBuilder();
-        sb.append(dynamicSememe.getRefexAssemblageUuid().toString()); 
-        sb.append(dynamicSememe.getComponentUuid().toString());
-        if (data != null) {
-            for (TtkRefexDynamicData d : data) {
-                if (d == null) {
-                    sb.append("null");
-                }
-                else {
-                    sb.append(d.getRefexDataType().getDisplayName());
-                    sb.append(new String(d.getData()));
-                }
-            }
-        }
-        dynamicSememe.setPrimordialComponentUuid(UuidT5Generator.get((namespace == null ? RefexCAB.refexSpecNamespace : namespace), sb.toString()));
-        return sb.toString();
-    }
-    
-    protected void configureDynamicRefexIndexes(UUID sememeToIndex, Integer[] columnConfiguration) 
-            throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException {
-        TtkRefexDynamicData[] data = null;
-        if (columnConfiguration != null && columnConfiguration.length > 0) {
-            data = new TtkRefexDynamicData[1];
-            TtkRefexDynamicInteger[] cols = new TtkRefexDynamicInteger[columnConfiguration.length];
-            for (int i = 0; i < columnConfiguration.length; i++) {
-                cols[i] = new TtkRefexDynamicInteger(columnConfiguration[i]);
-            }
 
-            data[0] = new TtkRefexDynamicArray<TtkRefexDynamicData>(cols);
-        }
-        
-        addDynamicAnnotation(sememeToIndex, IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID(), data);
-    }
 }
