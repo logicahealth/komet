@@ -260,7 +260,7 @@ public class Property
 						TtkUtils.configureConceptAsRefex(concept, 
 								(StringUtils.isNotEmpty(Property.this.getSourcePropertyDefinition()) ? Property.this.getSourcePropertyDefinition() : "Dynamic Sememe"),
 								Property.this.getDataColumnsForDynamicRefex(), null, null, 
-								(rev) -> (utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
+								((rev) -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
 					}
 					catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
 					{

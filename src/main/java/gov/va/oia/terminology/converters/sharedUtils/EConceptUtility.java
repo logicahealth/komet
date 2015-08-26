@@ -120,7 +120,7 @@ public class EConceptUtility
 		ConverterUUID.configureNamespace(module);
 		
 		moduleUuid_ = module;
-		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on MASTER path");
+		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on DEVELOPMENT path");
 	}
 
 	/**
