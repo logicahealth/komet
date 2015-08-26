@@ -18,7 +18,7 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 
 /**
  * Invented property with special handling for root node in workbench.
@@ -32,7 +32,7 @@ public class BPT_ContentVersion extends PropertyType
 
 	public BPT_ContentVersion()
 	{
-		super("Content Version", true, RefexDynamicDataType.STRING);
+		super("Content Version", true, DynamicSememeDataType.STRING);
 		RELEASE = addProperty("Release");
 		LOADER_VERSION = addProperty("Loader Version");
 	}

@@ -18,8 +18,7 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 
 /**
  * @author Daniel Armbrust
@@ -29,11 +28,11 @@ public class BPT_Associations extends PropertyType
 {
 	public BPT_Associations(String terminologyName)
 	{
-		super("Associations Types", terminologyName + " Association Type", true, RefexDynamicDataType.STRING);
+		super("Associations Types", terminologyName + " Association Type", true, DynamicSememeDataType.STRING);
 	}
 	
 	public BPT_Associations(String propertyTypeDescription, String terminologyName)
 	{
-		super(propertyTypeDescription, terminologyName + " Association Type", true, RefexDynamicDataType.STRING);
+		super(propertyTypeDescription, terminologyName + " Association Type", true, DynamicSememeDataType.STRING);
 	}
 }

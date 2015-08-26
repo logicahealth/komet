@@ -19,6 +19,8 @@ import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_
 import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_UMLS_Relationships;
 import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.rrf.REL;
 import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.util.UuidT3Generator;
 import java.beans.PropertyVetoException;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -42,8 +44,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import org.apache.maven.plugin.logging.Log;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT3Generator;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
@@ -275,7 +275,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 		loadTerminologySpecificMetadata();
 		
 		//STYPE values
-		ptSTypes_= new PropertyType("STYPEs", true, RefexDynamicDataType.STRING){};
+		ptSTypes_= new PropertyType("STYPEs", true, DynamicSememeDataType.STRING){};
 		{
 			ConsoleUtil.println("Creating STYPE types");
 			ptSTypes_.indexByAltNames();
@@ -319,7 +319,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 		// Handle the languages
 		{
 			ConsoleUtil.println("Creating language types");
-			ptLanguages_ = new PropertyType("Languages", true, RefexDynamicDataType.STRING){};
+			ptLanguages_ = new PropertyType("Languages", true, DynamicSememeDataType.STRING){};
 			Statement s = db_.getConnection().createStatement();
 			ResultSet rs = s.executeQuery("SELECT * from " + tablePrefix_ + "DOC where DOCKEY = 'LAT' and VALUE in (select distinct LAT from " 
 					+ tablePrefix_ + "CONSO " + (sabQueryString_.length() > 0 ? " where " + sabQueryString_ : "") + ")");
@@ -361,7 +361,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 		// And Source Restriction Levels
 		{
 			ConsoleUtil.println("Creating Source Restriction Level types");
-			ptSourceRestrictionLevels_ = new PropertyType("Source Restriction Levels", true, RefexDynamicDataType.UUID){};
+			ptSourceRestrictionLevels_ = new PropertyType("Source Restriction Levels", true, DynamicSememeDataType.UUID){};
 			PreparedStatement ps = db_.getConnection().prepareStatement("SELECT VALUE, TYPE, EXPL from " + tablePrefix_ + "DOC where DOCKEY=? ORDER BY VALUE");
 			ps.setString(1, "SRL");
 			ResultSet rs = ps.executeQuery();
@@ -432,7 +432,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 		final PreparedStatement getSABMetadata = db_.getConnection().prepareStatement("Select * from " + tablePrefix_ + "SAB where (VSAB = ? or (RSAB = ? and CURVER='Y' ))");
 		{
 			ConsoleUtil.println("Creating Source Vocabulary types");
-			ptSABs_ = new PropertyType("Source Vocabularies", true, RefexDynamicDataType.STRING){};
+			ptSABs_ = new PropertyType("Source Vocabularies", true, DynamicSememeDataType.STRING){};
 			ptSABs_.indexByAltNames();
 			
 			HashSet<String> sabList = new HashSet<>();
@@ -529,7 +529,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 		// And semantic types
 		{
 			ConsoleUtil.println("Creating semantic types");
-			PropertyType ptSemanticTypes = new PropertyType("Semantic Types", true, RefexDynamicDataType.UUID){};
+			PropertyType ptSemanticTypes = new PropertyType("Semantic Types", true, DynamicSememeDataType.UUID){};
 			Statement s = db_.getConnection().createStatement();
 			ResultSet rs = s.executeQuery("SELECT distinct TUI, STN, STY from " + tablePrefix_+ "STY");
 			while (rs.next())
@@ -568,7 +568,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 	protected PropertyType xDocLoaderHelper(String dockey, String niceName, boolean loadAsDefinition) throws Exception
 	{
 		ConsoleUtil.println("Creating '" + niceName + "' types");
-		PropertyType pt = new PropertyType(niceName, true, RefexDynamicDataType.UUID) {};
+		PropertyType pt = new PropertyType(niceName, true, DynamicSememeDataType.UUID) {};
 		{
 			if (!loadAsDefinition)
 			{
@@ -891,7 +891,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 	 * return true, if the value is considered handled, and should not have 'normal' handling by the default code.  Else, return false,
 	 * and this code will behave as if no function was passed.
 	 */
-	protected abstract void processSAT(TtkComponentChronicle<?> itemToAnnotate, ResultSet rs, String itemCode, String itemSab, 
+	protected abstract void processSAT(TtkComponentChronicle<?, ?> itemToAnnotate, ResultSet rs, String itemCode, String itemSab, 
 			List<BiFunction<String, String, Boolean>> customHandle) throws SQLException, PropertyVetoException;
 	
 	private void loadRelationshipMetadata(String terminologyName, String sab, UUID terminologyMetadataRoot) throws Exception
@@ -1176,7 +1176,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 	/**
 	 * Add the attribute value(s) for each given type, with nested attributes linking to the AUI(s) that they came from.  
 	 */
-	protected void loadGroupStringAttributes(TtkComponentChronicle<?> component, UUID annotationRefset, HashMap<UUID, HashMap<String, HashSet<String>>> values, boolean skipNestedAUIs)
+	protected void loadGroupStringAttributes(TtkComponentChronicle<?, ?> component, UUID annotationRefset, HashMap<UUID, HashMap<String, HashSet<String>>> values, boolean skipNestedAUIs)
 	{
 		for (Entry<UUID, HashMap<String, HashSet<String>>> dataType : values.entrySet())
 		{
@@ -1198,7 +1198,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 	/**
 	 * Add the attribute value(s) for each given type, with nested attributes linking to the AUI(s) that they came from.  
 	 */
-	protected void loadGroupUUIDAttributes(TtkComponentChronicle<?> component, UUID annotationRefset, HashMap<UUID, HashMap<UUID, HashSet<String>>> values, boolean skipNestedAUIs)
+	protected void loadGroupUUIDAttributes(TtkComponentChronicle<?, ?> component, UUID annotationRefset, HashMap<UUID, HashMap<UUID, HashSet<String>>> values, boolean skipNestedAUIs)
 	{
 		for (Entry<UUID, HashMap<UUID, HashSet<String>>> dataType : values.entrySet())
 		{
