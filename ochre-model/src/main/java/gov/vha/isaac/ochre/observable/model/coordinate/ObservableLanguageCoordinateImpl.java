@@ -106,25 +106,24 @@ public final class ObservableLanguageCoordinateImpl extends ObservableCoordinate
         return languageCoordinate.getDescriptionTypePreferenceList();
     }
 
-
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(List<SememeChronology<T>> descriptionList, 
-            StampCoordinate<? extends StampCoordinate<?>> stampSequence) {
-       return languageCoordinate.getFullySpecifiedDescription(descriptionList, stampSequence);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
+    {
+        return languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
     }
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(List<SememeChronology<T>> 
-            descriptionList, StampCoordinate<? extends StampCoordinate<?>> stampSequence) {
-       return languageCoordinate.getPreferredDescription(descriptionList, stampSequence);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
+    {
+        return languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
     }
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getDescription(List<SememeChronology<T>> descriptionList, 
-            StampCoordinate<?> stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
+    {
         return languageCoordinate.getDescription(descriptionList, stampCoordinate);
     }
-    
-    
-
 }

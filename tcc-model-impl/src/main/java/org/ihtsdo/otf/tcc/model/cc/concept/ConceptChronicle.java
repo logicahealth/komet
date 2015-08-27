@@ -29,7 +29,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javafx.beans.InvalidationListener;
 import org.apache.mahout.math.set.OpenIntHashSet;
-
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -79,7 +78,6 @@ import org.ihtsdo.otf.tcc.dto.component.sememe.SememeFromDtoFactory;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.*;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
@@ -1802,9 +1800,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
-    	List<? extends SememeChronology<? extends DescriptionSememe>> list = getDescriptions().stream().collect(Collectors.toList());
-        return (List<? extends SememeChronology<? extends DescriptionSememe<?>>>)list;
+    public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+        throw new UnsupportedOperationException();
+        //return getDescriptions().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -1814,7 +1812,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
         return getDescriptions().stream().anyMatch((desc) -> (desc.getVersions((ViewCoordinate) stampCoordinate).stream().
                 anyMatch((descv) -> (descv.getText().equals(descriptionText)))));
     }
@@ -1825,22 +1823,21 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate coordinate) {
         return Optional.of(new LatestVersion(new ConceptVersion(this, (ViewCoordinate) coordinate)));
     }
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
-    }
+	public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+    	return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
+	}
 
-    @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
-    }
+	@Override
+	public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+		return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
+	}
 
-
-    @Override
+	@Override
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
         if (conceptOriginRelationshipList == null) {
@@ -1894,7 +1891,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {

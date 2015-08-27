@@ -18,11 +18,9 @@ import java.util.Set;
  * 
  *<p\>
  * Created by kec on 2/16/15.
- * @param <T>
- *  * TODO can remove generic type on StampCoordinate once ViewCoordinate is eliminated. 
 
  */
-public interface StampCoordinate<T extends StampCoordinate<T>> extends TimeBasedAnalogMaker<T>, StateBasedAnalogMaker<T> {
+public interface StampCoordinate extends TimeBasedAnalogMaker<StampCoordinate>, StateBasedAnalogMaker<StampCoordinate> {
     
     /**
      * Determine if the stamp coordinate is time based, or path based. Generally

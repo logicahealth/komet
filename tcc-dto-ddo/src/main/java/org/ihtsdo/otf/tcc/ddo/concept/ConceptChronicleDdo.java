@@ -147,7 +147,7 @@ public class ConceptChronicleDdo implements Serializable {
             _descriptions
                     = FXCollections.observableArrayList(new ArrayList<DescriptionChronicleDdo>(concept.getConceptDescriptionList().size()));
 
-            for (SememeChronology<? extends DescriptionSememe> desc : concept.getConceptDescriptionList()) {
+            for (SememeChronology<? extends DescriptionSememe<?>> desc : concept.getConceptDescriptionList()) {
                 DescriptionChronicleDdo dc = new DescriptionChronicleDdo(taxonomyCoordinate, this, desc);
 
                 if (!dc.getVersions().isEmpty()) {

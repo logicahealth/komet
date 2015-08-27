@@ -189,7 +189,7 @@ public enum DynamicSememeValidatorType
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean passesValidator(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate<?> sc, TaxonomyCoordinate<?> tc)
+	public boolean passesValidator(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate sc, TaxonomyCoordinate tc)
 	{
 		if (validatorDefinitionData == null)
 		{
@@ -415,7 +415,7 @@ public enum DynamicSememeValidatorType
 	 * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
 	 * @return - empty string if valid, an error message otherwise.
 	 */
-	public String passesValidatorStringReturn(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate<?> sc, TaxonomyCoordinate<?> tc)
+	public String passesValidatorStringReturn(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate sc, TaxonomyCoordinate tc)
 	{
 		try
 		{

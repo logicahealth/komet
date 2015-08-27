@@ -38,11 +38,11 @@ import java.util.stream.Collectors;
 public class ConceptSnapshotImpl implements ConceptSnapshot {
 
     private final ConceptChronologyImpl conceptChronology;
-    private final StampCoordinate<? extends StampCoordinate<?>> stampCoordinate;
+    private final StampCoordinate stampCoordinate;
     private final LanguageCoordinate languageCoordinate;
     private final LatestVersion<ConceptVersionImpl> snapshotVersion;
 
-    public ConceptSnapshotImpl(ConceptChronologyImpl conceptChronology, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, LanguageCoordinate languageCoordinate) {
+    public ConceptSnapshotImpl(ConceptChronologyImpl conceptChronology, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
         this.conceptChronology = conceptChronology;
         this.stampCoordinate = stampCoordinate;
         this.languageCoordinate = languageCoordinate;
@@ -141,27 +141,26 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
         return languageCoordinate;
     }
 
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription() {
-        Optional<?> optional = languageCoordinate.getFullySpecifiedDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
-        return (Optional<LatestVersion<T>>)optional;
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
+        return languageCoordinate.getFullySpecifiedDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
     }
 
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription() {
-        Optional<?> optional = languageCoordinate.getPreferredDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
-        return (Optional<LatestVersion<T>>)optional;
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
+    	return languageCoordinate.getPreferredDescription(
+    			Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
     }
 
-    public <T extends DescriptionSememe<T>> T getDescription() {
-        Optional<LatestVersion<T>> fsd = getFullySpecifiedDescription();
+    public DescriptionSememe<?> getDescription() {
+        Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
         if (fsd.isPresent()) {
             return fsd.get().value();
         }
-        Optional<LatestVersion<T>> pd = getPreferredDescription();
+        Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
         if (pd.isPresent()) {
             return pd.get().value();
         }
         
-        return (T)Get.sememeService().getDescriptionsForComponent(getNid()).findAny().get().getVersionList().get(0);
+        return Get.sememeService().getDescriptionsForComponent(getNid()).findAny().get().getVersionList().get(0);
     }
     
 }

@@ -192,7 +192,7 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.commit(changeSetPolicy, changeSetWriterThreading);
     }
 
-    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
         return concept.isLatestVersionActive(coordinate);
     }
 
@@ -1388,7 +1388,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+    public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
        return concept.getConceptDescriptionList();
     }
 
@@ -1432,19 +1432,19 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate coordinate) {
         return concept.getLatestVersion(type, coordinate);
     }
     
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+       return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
-    public  <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<T>>) getConceptDescriptionList(), stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+       return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
@@ -1468,7 +1468,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
@@ -1479,7 +1479,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
     
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, 
+    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, 
             LogicCoordinate logicCoordinate) {
        return "Not supported in OTF"; 
     }

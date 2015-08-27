@@ -98,7 +98,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		componentUuid = new UUID(in.readLong(), in.readLong());
 
 		//read the following format - 
-		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+		//dataFieldCount [dataFieldType [dataFieldSize dataFieldBytes]] [dataFieldType [dataFieldSize dataFieldBytes]] ... versionCount [versionData]
 		int colCount = in.readInt();
 		data_ = new TtkRefexDynamicData[colCount];
 		for (int i = 0; i < colCount; i++)
@@ -139,7 +139,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		out.writeLong(componentUuid.getMostSignificantBits());
 		out.writeLong(componentUuid.getLeastSignificantBits());
 
-		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+		//dataFieldCount [dataFieldType [dataFieldSize dataFieldBytes]] [dataFieldType [dataFieldSize dataFieldBytes]] ... versionCount [versionData]
 		if (getData() != null)
 		{
 			out.writeInt(getData().length);

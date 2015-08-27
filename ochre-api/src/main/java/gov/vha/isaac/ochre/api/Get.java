@@ -126,25 +126,26 @@ public class Get implements OchreCache {
 		}
 		return conceptSnapshot;
 	}
+    /**
+     * Simple method for getting text of the description of a concept. This
+     * method will try first to return the fully specified description, or the
+     * preferred description, as specified in the default
+     * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
+     *
+     * @param conceptId nid or sequence of the concept to get the description
+     * for
+     * @return a description for this concept. If no description can be found,
+     * {@code "No desc for: " + conceptId;} will be returned.
+     */
+    public static String conceptDescriptionText(int conceptId) {
+        Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional
+                = conceptSnapshot().getDescriptionOptional(conceptId);
+        if (descriptionOptional.isPresent()) {
+            return descriptionOptional.get().value().getText();
+        }
+        return "No desc for: " + conceptId;
+    }
 
-	/**
-	 * Simple method for getting text of the description of a concept. This
-	 * method will try first to return the fully specified description, or the
-	 * preferred description, as specified in the default {@code StampCoordinate}
-	 * and the default {@code LanguageCoordinate}.
-	 *
-	 * @param conceptId nid or sequence of the concept to get the description for
-	 * @return a description for this concept. If no description can be found,
-	 * {@code "No desc for: " + conceptId;} will be returned.
-	 */
-	public static String conceptDescriptionText(int conceptId) {
-		Optional<LatestVersion<DescriptionSememe>> descriptionOptional
-				  = conceptSnapshot().getDescriptionOptional(conceptId);
-		if (descriptionOptional.isPresent()) {
-			return descriptionOptional.get().value().getText();
-		}
-		return "No desc for: " + conceptId;
-	}
 
 	public static String conceptDescriptionTextList(int[] conceptIds) {
 		if (conceptIds.length > 0) {

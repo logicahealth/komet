@@ -1,9 +1,5 @@
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.UUID;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBooleanBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArrayBI;
@@ -17,6 +13,8 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
 import gov.vha.isaac.ochre.api.constants.IsaacMetadataConstantsBase;
+import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -136,11 +134,6 @@ public enum DynamicSememeDataType {
 		return displayName_;
 	}
 
-	public void writeType(DataOutput output) throws IOException
-	{
-		output.writeByte(externalizedToken_);
-	}
-
 	public static DynamicSememeDataType classToType(Class<?> c) 
 	{
 		if (DynamicSememeNidBI.class.isAssignableFrom(c)) {
@@ -179,12 +172,7 @@ public enum DynamicSememeDataType {
 		if (DynamicSememeSequenceBI.class.isAssignableFrom(c)) {
 			return SEQUENCE;
 		}
+		LogManager.getLogger().warn("Couldn't map class {} to type!", c);
 		return UNKNOWN;
-	}
-
-	public static DynamicSememeDataType readType(DataInput input) throws IOException
-	{
-		int type = input.readByte();
-		return getFromToken(type);
 	}
 }

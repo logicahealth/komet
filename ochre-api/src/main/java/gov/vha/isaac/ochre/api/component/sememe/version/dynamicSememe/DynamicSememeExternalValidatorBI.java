@@ -48,8 +48,8 @@ public interface DynamicSememeExternalValidatorBI
 	 * @return - true if valid, exception otherwise.
 	 * @throws RuntimeException - if it fails the validator, this exception should contain a user-friendly reason why.
 	 */
-	public boolean validate(DynamicSememeDataBI userData, DynamicSememeArrayBI<DynamicSememeStringBI> validatorDefinitionData, StampCoordinate<?> sc, 
-			TaxonomyCoordinate<?> tc) throws RuntimeException;
+	public boolean validate(DynamicSememeDataBI userData, DynamicSememeArrayBI<DynamicSememeStringBI> validatorDefinitionData, StampCoordinate sc, 
+			TaxonomyCoordinate tc) throws RuntimeException;
 	
 	/**
 	 * Return true or false, depending on whether this validator implementation supports the specified data type.

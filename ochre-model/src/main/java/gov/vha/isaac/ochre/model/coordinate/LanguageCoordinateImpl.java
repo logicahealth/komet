@@ -88,25 +88,25 @@ public class LanguageCoordinateImpl implements LanguageCoordinate {
         }
         return Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList);
     }
-
+    
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getFullySpecifiedDescription(
-            List<SememeChronology<T>> descriptionList, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
+    {
         return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
-                Get.languageCoordinateService().getFullySpecifiedConceptSequence(), this);
+              Get.languageCoordinateService().getFullySpecifiedConceptSequence(), this);
     }
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(
-            List<SememeChronology<T>> descriptionList, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
+    {
         return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
-                Get.languageCoordinateService().getSynonymConceptSequence(), this);
+              Get.languageCoordinateService().getSynonymConceptSequence(), this);
     }
 
     @Override
-    public <T extends DescriptionSememe<T>> Optional<LatestVersion<T>> getDescription(List<SememeChronology<T>> descriptionList, StampCoordinate<?> stampCoordinate) {
-        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, 
-                descriptionList, this);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, this);
     }
 
     @Override

@@ -18,12 +18,13 @@
  */
 package gov.vha.isaac.ochre.model.sememe.dataTypes;
 
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashSet;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -56,31 +57,31 @@ public class DynamicSememeArray<T extends DynamicSememeDataBI> extends DynamicSe
 		byte[][] allData = new byte[dataArray.length][];
 		
 		long totalBytes = 0;
-		int i = 0;
-		for (T item : dataArray)
+		
+		for (int i = 0; i < dataArray.length; i++)
 		{
-			allData[i] = item.getData();
-			totalBytes += allData[i++].length;
+			allData[i] = dataArray[i].getData();
+			totalBytes += allData[i].length;
 		}
 		
-		//data size + 4 bytes for the leading type token, + 4 bytes for the length of each data item
-		if ((totalBytes + 4 + ((i + 1) * 4)) > Integer.MAX_VALUE)
+		
+		//data size + 4 bytes for the type token (per item) + 4 bytes for the length of each data item
+		if ((totalBytes + (new Integer(dataArray.length).longValue() * 8l)) > Integer.MAX_VALUE)
 		{
 			throw new RuntimeException("To much data to store", null);
 		}
 		
-		int expectedDataSize = (int)totalBytes + 4 + (i * 4);
+		int expectedDataSize = (int)totalBytes + (dataArray.length * 8);
 		data_ = new byte[expectedDataSize];
 		ByteBuffer data = ByteBuffer.wrap(data_);
 		
-		//First 4 bytes will be the type token
-		data.putInt(DynamicSememeDataType.classToType(dataArray.getClass().getComponentType()).getTypeToken());
-		
-		//Then, for each data item, 4 bytes for the int size marker of the data, then the data.
-		for (byte[] item : allData)
+		//Then, for each data item, 4 bytes for the type, 4 bytes for the int size marker of the data, then the data.
+		for (int i = 0; i < dataArray.length; i++)
 		{
-			data.putInt(item.length);
-			data.put(item);
+			//First 4 bytes will be the type token
+			data.putInt(DynamicSememeDataType.classToType(dataArray[i].getClass()).getTypeToken());
+			data.putInt(allData[i].length);
+			data.put(allData[i]);
 		}
 	}
 
@@ -101,18 +102,6 @@ public class DynamicSememeArray<T extends DynamicSememeDataBI> extends DynamicSe
 	{
 		return getDataArrayProperty();
 	}
-
-	/**
-	 * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.dataTypes.DynamicSememeArrayBI#getArrayDataType()
-	 */
-	@Override
-	public DynamicSememeDataType getArrayDataType()
-	{
-		// read the first 4 bytes
-		ByteBuffer bb = ByteBuffer.wrap(data_);
-		int type = bb.getInt();
-		return DynamicSememeDataType.getFromToken(type);
-	}
 	
 	/**
 	 * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.dataTypes.DynamicSememeArrayBI#getDataArray()
@@ -122,21 +111,23 @@ public class DynamicSememeArray<T extends DynamicSememeDataBI> extends DynamicSe
 	public T[] getDataArray()
 	{
 		ArrayList<T> result = new ArrayList<>();
-		
-		DynamicSememeDataType dt = getArrayDataType();
 		ByteBuffer bb = ByteBuffer.wrap(data_);
-		bb.getInt();  //skip the first 4
+		
+		HashSet<DynamicSememeDataType> foundTypes = new HashSet<>();
 		
 		while (bb.hasRemaining())
 		{
+			int type = bb.getInt();
+			DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(type);
+			foundTypes.add(dt);
 			int nextReadSize = bb.getInt();
 			byte[] dataArray = new byte[nextReadSize];
 			bb.get(dataArray);
 			T data = (T)DynamicSememeTypeToClassUtility.typeToClass(dt, dataArray);
 			result.add(data);
 		}
-
-		return (T[]) result.toArray((T[])Array.newInstance(DynamicSememeTypeToClassUtility.implClassForType(dt), result.size()));
+		return (T[]) result.toArray((T[])Array.newInstance(foundTypes.size() > 1 ? DynamicSememeData.class 
+				: DynamicSememeTypeToClassUtility.implClassForType(foundTypes.iterator().next()), result.size()));
 	}
 
 	/**
