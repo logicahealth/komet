@@ -100,15 +100,7 @@ public interface CommitService {
      * time, author, module, and path as the provided stamp sequence. 
      */
     int getRetiredStampSequence(int stampSequence);
-    
-    /**
-     * 
-     * @param stampSequence a stamp sequence to create an analog of
-     * @return a stampSequence with a State of {@link State#ACTIVE}, but the same
-     * time, author, module, and path as the provided stamp sequence. 
-     */
-    int getActivatedStampSequence(int stampSequence);
-    
+
     int getStampSequence(State status, long time, 
             int authorSequence, int moduleSequence, int pathSequence);
     
