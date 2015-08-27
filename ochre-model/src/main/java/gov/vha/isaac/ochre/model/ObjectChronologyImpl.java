@@ -51,6 +51,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @param <V>
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
+
         implements ObjectChronology<V>, WaitFreeComparable {
 
     private static final StampedLock[] stampedLocks = new StampedLock[256];

@@ -34,7 +34,7 @@ public class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends Obje
     
     protected final C chronicle;   
     private int stampSequence;
-    private final short versionSequence;
+    private short versionSequence;
 
     public ObjectVersionImpl(C chronicle, int stampSequence, short versionSequence) {
         this.chronicle = chronicle;
@@ -51,10 +51,21 @@ public class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends Obje
         return versionSequence;
     }
         
+    public void setVersionSequence(short versionSequence) {
+       this.versionSequence = versionSequence;
+    }
+        
     @Override
     public int getStampSequence() {
         return stampSequence;
     }
+	 
+	 public void cancel() {
+		 if (!isUncommitted()) {
+			 throw new RuntimeException("Attempt to cancel an already committed version: " + this);
+		 }
+		 this.stampSequence = -1;
+	 }
 
     @Override
     public State getState() {

@@ -56,9 +56,8 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     boolean containsDescription(String descriptionText);
 
     /**
-     * A test for validating that a concept contains a description as specified by
-     * the stampCoordinate. Used
-     * to validate concept proxies or concept specs at runtime.
+     * A test for validating that a concept contains an active description. Used
+     * to validate concept proxies or concept specifications at runtime.
      * @param descriptionText text to match against. 
      * @param stampCoordinate coordinate to determine if description is active. 
      * @return true if any version of a description matches this text. 
