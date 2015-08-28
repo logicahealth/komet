@@ -16,21 +16,40 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.coordinate.*;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.PremiseType;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import java.util.Objects;
 import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
  * @author kec
  */
+@XmlRootElement(name = "taxonomyCoordinate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
 
     PremiseType taxonomyType;
+    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
     StampCoordinate stampCoordinate;
+    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
     LanguageCoordinate languageCoordinate;
+    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
     LogicCoordinate logicCoordinate;
     UUID uuid;
+    
+    private TaxonomyCoordinateImpl (){
+        //for jaxb
+    }
 
     public TaxonomyCoordinateImpl(PremiseType taxonomyType, StampCoordinate stampCoordinate,
                                   LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
@@ -40,9 +59,6 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
         this.logicCoordinate = logicCoordinate;
         uuid = UUID.randomUUID();
     }
-    
-    
-    
     
     @Override
     public PremiseType getTaxonomyType() {
@@ -122,6 +138,9 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
         return "TaxonomyCoordinate{" + taxonomyType + ",\n" + stampCoordinate + ", \n" + languageCoordinate + ", \n" + logicCoordinate + ", uuid=" + uuid + '}';
     }
     
-    
+    private static class AnyTypeAdapter extends XmlAdapter<Object,Object> {
+        public Object unmarshal(Object v) { return v; }
+        public Object marshal(Object v) { return v; }
+    }
     
 }

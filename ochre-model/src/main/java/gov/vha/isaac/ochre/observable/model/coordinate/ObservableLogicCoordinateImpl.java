@@ -15,6 +15,10 @@
  */
 package gov.vha.isaac.ochre.observable.model.coordinate;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLogicCoordinate;
 import gov.vha.isaac.ochre.model.coordinate.LogicCoordinateImpl;
@@ -26,14 +30,23 @@ import javafx.beans.property.SimpleIntegerProperty;
  *
  * @author kec
  */
+@XmlRootElement(name = "observableLogicCoordinate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ObservableLogicCoordinateImpl extends ObservableCoordinateImpl implements ObservableLogicCoordinate {
     LogicCoordinateImpl logicCoordinate;
 
-
+    @XmlTransient
     IntegerProperty statedAssemblageSequenceProperty;
+    @XmlTransient
     IntegerProperty inferredAssemblageSequenceProperty;
+    @XmlTransient
     IntegerProperty descriptionLogicProfileSequenceProperty;
+    @XmlTransient
     IntegerProperty classifierSequenceProperty;
+    
+    private ObservableLogicCoordinateImpl() {
+        //for jaxb
+    }
 
     public ObservableLogicCoordinateImpl(LogicCoordinate logicCoordinate) {
         this.logicCoordinate = (LogicCoordinateImpl) logicCoordinate;
@@ -115,5 +128,18 @@ public class ObservableLogicCoordinateImpl extends ObservableCoordinateImpl impl
         return logicCoordinate.getClassifierSequence();
     }
     
-    
+    @Override
+    public int hashCode() {
+        return logicCoordinate.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return logicCoordinate.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return "ObservableLogicCoordinateImpl{" + logicCoordinate.toString() + '}';
+    }
 }
