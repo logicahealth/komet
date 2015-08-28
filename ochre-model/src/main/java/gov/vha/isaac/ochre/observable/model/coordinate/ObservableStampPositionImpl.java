@@ -39,7 +39,12 @@ public class ObservableStampPositionImpl extends ObservableCoordinateImpl implem
 
 
     public ObservableStampPositionImpl(StampPosition stampPosition) {
-        this.stampPosition = (StampPositionImpl) stampPosition;
+        if (stampPosition instanceof ObservableStampPositionImpl) {
+            this.stampPosition = ((ObservableStampPositionImpl)stampPosition).stampPosition;
+        }
+        else {
+            this.stampPosition = (StampPositionImpl) stampPosition;
+        }
     }
 
     @Override

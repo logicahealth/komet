@@ -24,6 +24,9 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -36,11 +39,17 @@ import javafx.collections.ObservableIntegerArray;
  *
  * @author kec
  */
+@XmlRootElement(name = "languageCoordinate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class LanguageCoordinateImpl implements LanguageCoordinate {
 
     int languageConceptSequence;
     int[] dialectAssemblagePreferenceList;
     int[] descriptionTypePreferenceList;
+    
+    private LanguageCoordinateImpl() {
+        //for jaxb
+    }
 
     public LanguageCoordinateImpl(int languageConceptSequence, int[] dialectAssemblagePreferenceList, int[] descriptionTypePreferenceList) {
         this.languageConceptSequence = languageConceptSequence;

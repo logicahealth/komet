@@ -34,17 +34,32 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ArrayChangeListener;
 import javafx.collections.ObservableIntegerArray;
 import javafx.collections.SetChangeListener;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
  * @author kec
  */
+@XmlRootElement(name = "stampCoordinate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class StampCoordinateImpl implements StampCoordinate {
 
     StampPrecedence stampPrecedence;
+    @XmlElement(type=StampPositionImpl.class)
     StampPosition stampPosition;
+    @XmlJavaTypeAdapter(ConceptSequenceSetAdapter.class)
     ConceptSequenceSet moduleSequences;
+    @XmlJavaTypeAdapter(EnumSetAdapter.class)
     EnumSet<State> allowedStates;
+    
+    private StampCoordinateImpl() {
+        //for jaxb
+    }
 
     public StampCoordinateImpl(StampPrecedence stampPrecedence,
             StampPosition stampPosition,
@@ -194,4 +209,29 @@ public class StampCoordinateImpl implements StampCoordinate {
         return builder.toString();
     }
 
+    
+    private static class ConceptSequenceSetAdapter extends XmlAdapter<int[], ConceptSequenceSet> {
+        public int[] marshal(ConceptSequenceSet c) {
+            return c.asArray();
+        }
+
+        @Override
+        public ConceptSequenceSet unmarshal(int[] v) throws Exception {
+            return ConceptSequenceSet.of(v);
+        }
+    }
+    
+    private static class EnumSetAdapter extends XmlAdapter<State[], EnumSet<State>> {
+        public State[] marshal(EnumSet<State> c) {
+            return c.toArray(new State[c.size()]);
+        }
+
+        @Override
+        public EnumSet<State> unmarshal(State[] v) throws Exception {
+            EnumSet<State> s = EnumSet.noneOf(State.class);
+            s.addAll(Arrays.asList(v));
+            return s;
+        }
+    }
+    
 }

@@ -9,7 +9,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
 
 public class NumericUtils 
 {
-	public static Number parseUnknown(String value)
+	public static Number parseUnknown(String value) throws NumberFormatException
 	{
 		try
 		{
@@ -35,17 +35,10 @@ public class NumericUtils
 		{
 			//noop
 		}
-		try
-		{
-			return Double.parseDouble(value);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException("Unexpected data passed in to parseUnknown (" + value + ")");
-		}
+		return Double.parseDouble(value);
 	}
 
-	public static Number readNumber(DynamicSememeDataBI value)
+	public static Number readNumber(DynamicSememeDataBI value) throws NumberFormatException
 	{
 		if (value instanceof DynamicSememeDoubleBI)
 		{
@@ -65,7 +58,7 @@ public class NumericUtils
 		}
 		else
 		{
-			throw new RuntimeException("The value passed in to the validator is not a number");
+			throw new NumberFormatException("The value passed in to the validator is not a number");
 		}
 	}
 
@@ -88,7 +81,7 @@ public class NumericUtils
 		return specialDouble || specialFloat;
 	}
 
-	public static BigDecimal toBigDecimal(final Number number)
+	public static BigDecimal toBigDecimal(final Number number) throws NumberFormatException
 	{
 		if (number instanceof Integer || number instanceof Long)
 		{
@@ -100,7 +93,7 @@ public class NumericUtils
 		}
 		else
 		{
-			throw new RuntimeException("Unexpected data type passed in to toBigDecimal (" + number.getClass() + ")");
+			throw new NumberFormatException("Unexpected data type passed in to toBigDecimal (" + number.getClass() + ")");
 		}
 	}
 }

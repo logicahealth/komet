@@ -15,6 +15,9 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
@@ -28,10 +31,16 @@ import javafx.beans.value.WeakChangeListener;
  *
  * @author kec
  */
+@XmlRootElement(name = "stampPosition")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class StampPositionImpl implements StampPosition, Comparable<StampPosition> {
     
     long time;
     int stampPathSequence;
+    
+    private StampPositionImpl() {
+        //for jaxb
+    }
 
     public StampPositionImpl(long time, int stampPathSequence) {
         this.time = time;

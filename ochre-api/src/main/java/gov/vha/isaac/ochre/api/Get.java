@@ -148,7 +148,7 @@ public class Get implements OchreCache {
 
 
 	public static String conceptDescriptionTextList(int[] conceptIds) {
-		if (conceptIds.length > 0) {
+		if (conceptIds != null && conceptIds.length > 0) {
 			StringBuilder builder = new StringBuilder();
 			builder.append("[");
 			Arrays.stream(conceptIds).forEach((conceptId) -> {

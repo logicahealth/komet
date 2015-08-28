@@ -23,9 +23,12 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
 import gov.vha.isaac.ochre.model.coordinate.LanguageCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
-
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -37,13 +40,22 @@ import javafx.collections.ObservableIntegerArray;
  *
  * @author kec
  */
+@XmlRootElement(name = "observableLanguageCoordinate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public final class ObservableLanguageCoordinateImpl extends ObservableCoordinateImpl implements ObservableLanguageCoordinate {
 
-    private final LanguageCoordinateImpl languageCoordinate;
+    private LanguageCoordinateImpl languageCoordinate;
 
-    IntegerProperty languageConceptSequenceProperty;
-    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty;
-    ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty;
+    @XmlTransient
+    IntegerProperty languageConceptSequenceProperty = null;
+    @XmlTransient
+    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
+    @XmlTransient
+    ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
+    
+    private ObservableLanguageCoordinateImpl() {
+        //for jaxb
+    }
 
     public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
         this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
