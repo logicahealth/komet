@@ -24,46 +24,57 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @author kec
  * @param <T>
  */
-public class SequenceSet<T extends SequenceSet<T>> extends IntSet<T> {
+public class SequenceSet<T extends SequenceSet<T>> extends AbstractIntSet<T> {
 
-    protected SequenceSet(boolean readOnly) {
-        super(readOnly);
-    }
+	protected SequenceSet(boolean readOnly) {
+		super(readOnly);
+	}
 
+	protected SequenceSet(IntStream memberStream) {
+		super(memberStream);
+	}
 
-    protected SequenceSet(IntStream memberStream) {
-        super(memberStream);
-    }
+	protected SequenceSet(int... members) {
+		super(members);
+	}
 
-    protected SequenceSet(int... members) {
-        super(members);
-    }
+	protected SequenceSet(OpenIntHashSet members) {
+		super(members);
+	}
 
-    protected SequenceSet(OpenIntHashSet members) {
-        super(members);
-    }
+	public SequenceSet() {
+	}
 
-    public SequenceSet() {
-    }
-    
-    public static SequenceSet<?> of(int... members) {
-        return new SequenceSet<>(members);
-    }
+	protected SequenceSet(Concurrency concurrency) {
+		super(concurrency);
+	}
 
-    public static SequenceSet<?> of(OpenIntHashSet members) {
-        return new SequenceSet<>(members);
-    }
-    
-    public static SequenceSet<?> of(Collection<Integer> members) {
-        return new SequenceSet<>(members.stream().mapToInt(i -> i));
-    }
+	public static SequenceSet concurrent() {
+		return new SequenceSet(Concurrency.THREAD_SAFE);
+	}
 
-    public static SequenceSet<?> of(IntStream memberStream) {
-        return new SequenceSet<>(memberStream);
-    }
+	public static SequenceSet<?> of(int... members) {
+		return new SequenceSet<>(members);
+	}
 
-    public static SequenceSet<?> of(StampSequenceSet other) {
-        return new SequenceSet<>(other.stream());
-    }
-    
+	public static SequenceSet<?> of(OpenIntHashSet members) {
+		return new SequenceSet<>(members);
+	}
+
+	public static SequenceSet<?> of(Collection<Integer> members) {
+		return new SequenceSet<>(members.stream().mapToInt(i -> i));
+	}
+
+	public static SequenceSet<?> of(IntStream memberStream) {
+		return new SequenceSet<>(memberStream);
+	}
+
+	public static SequenceSet<?> of(StampSequenceSet other) {
+		return new SequenceSet<>(other.stream());
+	}
+	@Override
+	public String toString() {
+		return toString((sequence) -> Integer.toString(sequence));
+	}
+
 }

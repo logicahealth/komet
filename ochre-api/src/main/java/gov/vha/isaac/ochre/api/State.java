@@ -45,6 +45,10 @@ public enum State {
         return isActive;
     }
     
+    public boolean isActive() {
+        return isActive;
+    }
+    
     public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);
     public static EnumSet<State> ANY_STATE_SET = EnumSet.allOf(State.class);
     

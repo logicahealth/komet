@@ -31,99 +31,108 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @author kec
  */
 public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
-    
-    public final static ConceptSequenceSet EMPTY = new ConceptSequenceSet(true);
 
-    private ConceptSequenceSet(boolean readOnly) {
-        super(readOnly);
-    }
-    
-    public static ConceptSequenceSet of(int... members) {
-        IdentifierService sp = Get.identifierService();
-        return new ConceptSequenceSet(Arrays.stream(members).map((id) -> sp.getConceptSequence(id)));
-    }
+	public final static ConceptSequenceSet EMPTY = new ConceptSequenceSet(true);
 
-    public static ConceptSequenceSet of(OpenIntHashSet members) {
-        return new ConceptSequenceSet(members.keys().elements());
-    }
-    
-    public static ConceptSequenceSet of(Collection<Integer> members) {
-        IdentifierService sp = Get.identifierService();
-        return new ConceptSequenceSet(members.stream().mapToInt((id) -> sp.getConceptSequence(id)));
-    }
+	private ConceptSequenceSet(boolean readOnly) {
+		super(readOnly);
+	}
 
-    public static ConceptSequenceSet of(IntStream memberStream) {
-        return new ConceptSequenceSet(memberStream);
-    }
+	public ConceptSequenceSet() {
+	}
 
-    public static ConceptSequenceSet of(ConceptSequenceSet another) {
-        return new ConceptSequenceSet(another.stream());
-    }
+	protected ConceptSequenceSet(Concurrency concurrency) {
+		super(concurrency);
+	}
 
-    public static ConceptSequenceSet ofAllConceptSequences() {
-        return new ConceptSequenceSet(Get.identifierService().getConceptSequenceStream());
-    }
+	public static ConceptSequenceSet concurrent() {
+		return new ConceptSequenceSet(Concurrency.THREAD_SAFE);
+	}
 
-    public ConceptSequenceSet() {
-    }
-    
-    public static ConceptSequenceSet of(NidSet nidSet) {
-        IdentifierService ids = Get.identifierService();
-        return new ConceptSequenceSet(nidSet.stream()
-                .map((nid) -> ids.getConceptSequence(nid)));
-    }
-    protected ConceptSequenceSet(IntStream memberStream) {
-        super(memberStream);
-    }
+	public static ConceptSequenceSet of(int... members) {
+		IdentifierService sp = Get.identifierService();
+		return new ConceptSequenceSet(Arrays.stream(members).map((id) -> sp.getConceptSequence(id)));
+	}
 
-    public ConceptSequenceSet(int[] members) {
-        super(members);
-    }
+	public static ConceptSequenceSet of(OpenIntHashSet members) {
+		return new ConceptSequenceSet(members.keys().elements());
+	}
 
-    protected ConceptSequenceSet(OpenIntHashSet members) {
-        super(members);
-    }
-    
-    @Override
-    public void add(int item) {
-        rbmp.add(Get.identifierService().getConceptSequence(item));
-    }
+	public static ConceptSequenceSet of(Collection<Integer> members) {
+		IdentifierService sp = Get.identifierService();
+		return new ConceptSequenceSet(members.stream().mapToInt((id) -> sp.getConceptSequence(id)));
+	}
 
-    @Override
-    public boolean contains(int item) {
-        return super.contains(Get.identifierService().getConceptSequence(item)); 
-    }
+	public static ConceptSequenceSet of(IntStream memberStream) {
+		return new ConceptSequenceSet(memberStream);
+	}
 
-    @Override
-    public void remove(int item) {
-        super.remove(Get.identifierService().getConceptSequence(item)); 
-    }
+	public static ConceptSequenceSet of(ConceptSequenceSet another) {
+		return new ConceptSequenceSet(another.stream());
+	}
 
-    @Override
-    public void addAll(IntStream intStream) {
-        IdentifierService sp = Get.identifierService();
-        super.addAll(intStream.map((item) -> { return sp.getConceptSequence(item);})); 
-    }
-    
-    public List<ConceptSpecification> toConceptSpecificationList() {
-       return stream().mapToObj((int conceptSequence) -> new ConceptProxy(
-                Get.conceptDescriptionText(conceptSequence),
-                Get.identifierService().getUuidPrimordialFromConceptSequence(conceptSequence).get())).collect(Collectors.toList()) ;
-    }
+	public static ConceptSequenceSet ofAllConceptSequences() {
+		return new ConceptSequenceSet(Get.identifierService().getConceptSequenceStream());
+	}
 
+	public static ConceptSequenceSet of(NidSet nidSet) {
+		IdentifierService ids = Get.identifierService();
+		return new ConceptSequenceSet(nidSet.stream()
+				  .map((nid) -> ids.getConceptSequence(nid)));
+	}
 
-    public void addAll(OpenIntHashSet conceptsReferencedAtNodeOrAbove) {
-        IdentifierService ids = Get.identifierService();
-        conceptsReferencedAtNodeOrAbove.forEachKey((id) -> {
-            rbmp.add(ids.getConceptSequence(id));
-            return true;
-        });
-    }
-    
+	protected ConceptSequenceSet(IntStream memberStream) {
+		super(memberStream);
+	}
 
-   @Override
-   public String toString() {
-       return toString((conceptSequence) -> Get.conceptDescriptionText(conceptSequence));
-   }
-    
+	public ConceptSequenceSet(int[] members) {
+		super(members);
+	}
+
+	protected ConceptSequenceSet(OpenIntHashSet members) {
+		super(members);
+	}
+
+	@Override
+	public void add(int item) {
+		super.add(Get.identifierService().getConceptSequence(item));
+	}
+
+	@Override
+	public boolean contains(int item) {
+		return super.contains(Get.identifierService().getConceptSequence(item));
+	}
+
+	@Override
+	public void remove(int item) {
+		super.remove(Get.identifierService().getConceptSequence(item));
+	}
+
+	@Override
+	public void addAll(IntStream intStream) {
+		IdentifierService sp = Get.identifierService();
+		super.addAll(intStream.map((item) -> {
+			return sp.getConceptSequence(item);
+		}));
+	}
+
+	public List<ConceptSpecification> toConceptSpecificationList() {
+		return stream().mapToObj((int conceptSequence) -> new ConceptProxy(
+				  Get.conceptDescriptionText(conceptSequence),
+				  Get.identifierService().getUuidPrimordialFromConceptSequence(conceptSequence).get())).collect(Collectors.toList());
+	}
+
+	public void addAll(OpenIntHashSet conceptsReferencedAtNodeOrAbove) {
+		IdentifierService ids = Get.identifierService();
+		conceptsReferencedAtNodeOrAbove.forEachKey((id) -> {
+			super.add(ids.getConceptSequence(id));
+			return true;
+		});
+	}
+
+	@Override
+	public String toString() {
+		return toString((conceptSequence) -> Get.conceptDescriptionText(conceptSequence));
+	}
+
 }

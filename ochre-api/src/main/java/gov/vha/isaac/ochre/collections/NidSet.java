@@ -25,7 +25,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  *
  * @author kec
  */
-public class NidSet extends IntSet<NidSet> {
+public class NidSet extends AbstractIntSet<NidSet> {
     
     public static NidSet of(int... members) {
         return new NidSet(members);
@@ -70,4 +70,10 @@ public class NidSet extends IntSet<NidSet> {
 
     public NidSet() {
     }
+	 
+	@Override
+	public String toString() {
+		return toString((nid) -> Integer.toString(nid));
+	}
+	 
 }
