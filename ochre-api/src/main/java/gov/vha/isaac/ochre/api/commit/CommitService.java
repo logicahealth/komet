@@ -235,4 +235,9 @@ public interface CommitService {
 	 */
 	boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2);
 
+	/**
+	 * 
+	 * @return a summary of the uncommitted components being managed by the commit manager. 
+	 */
+	String getTextSummary();
 }
