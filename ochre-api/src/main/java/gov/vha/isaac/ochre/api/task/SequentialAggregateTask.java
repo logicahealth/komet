@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.api.task;
 
 import gov.vha.isaac.ochre.api.Get;
+import java.util.Collection;
 import javafx.concurrent.Task;
 
 /**
@@ -24,60 +25,64 @@ import javafx.concurrent.Task;
  */
 public class SequentialAggregateTask<T> extends TimedTask<T> {
 
-    
-    Task<?>[] subTasks;
-    int currentTask = 0;
+	Task<?>[] subTasks;
+	int currentTask = 0;
 
-    /**
-     * 
-     * @param title Title for the aggregate task
-     * @param subTasks 
-     */
-    public SequentialAggregateTask(String title, Task<?>[] subTasks) {
-        this.subTasks = subTasks;
-        this.updateTitle(title);
-        this.setProgressMessageGenerator((task) -> {
-            int taskId = currentTask;
-            if (taskId < subTasks.length) {
-                updateMessage("Executing subtask: " + subTasks[taskId].getTitle()
-                    + " [" + Integer.toString(currentTask + 1) + " of " + subTasks.length + " tasks]");
-                updateProgress((currentTask * 100) + Math.max(0, subTasks[taskId].getProgress() * 100),
-                subTasks.length * 100);
-            }
-        });
-        this.setCompleteMessageGenerator((task) -> {
-            updateMessage(getState() + " in " + getFormattedDuration());
-            updateProgress(subTasks.length * 100, subTasks.length * 100);
-        });
-    }
+	public SequentialAggregateTask(String title, Collection<Task<?>> subTasks) {
+		this(title, subTasks.toArray(new Task<?>[subTasks.size()]));
+	}
 
-    /**
-     * 
-     * @return the sub tasks of this aggregate task. 
-     */
-    public Task<?>[] getSubTasks() {
-        return subTasks;
-    }
-    
-    /**
-     * Sequentially execute the subTasks using the WorkExecutor service, and 
-     * return the value of the last task in the sequence. 
-     * @return T value returned by call() method of the last task
-     * @throws Exception exception thrown by any subtask
-     */
-    @Override
-    protected T call() throws Exception {
-        setStartTime();
-        try {
-        Object returnValue = null;
-        for (; currentTask < subTasks.length; currentTask++) {
-            Get.workExecutors().getExecutor().execute(subTasks[currentTask]);
-            returnValue = subTasks[currentTask].get();
-        }
-        return (T) returnValue;
-        } finally {
-            Get.activeTasks().remove(this);
-        }
-    }
-    
+	/**
+	 *
+	 * @param title Title for the aggregate task
+	 * @param subTasks
+	 */
+	public SequentialAggregateTask(String title, Task<?>[] subTasks) {
+		this.subTasks = subTasks;
+		this.updateTitle(title);
+		this.setProgressMessageGenerator((task) -> {
+			int taskId = currentTask;
+			if (taskId < subTasks.length) {
+				updateMessage("Executing subtask: " + subTasks[taskId].getTitle()
+						  + " [" + Integer.toString(currentTask + 1) + " of " + subTasks.length + " tasks]");
+				updateProgress((currentTask * 100) + Math.max(0, subTasks[taskId].getProgress() * 100),
+						  subTasks.length * 100);
+			}
+		});
+		this.setCompleteMessageGenerator((task) -> {
+			updateMessage(getState() + " in " + getFormattedDuration());
+			updateProgress(subTasks.length * 100, subTasks.length * 100);
+		});
+	}
+
+	/**
+	 *
+	 * @return the sub tasks of this aggregate task.
+	 */
+	public Task<?>[] getSubTasks() {
+		return subTasks;
+	}
+
+	/**
+	 * Sequentially execute the subTasks using the WorkExecutor service, and
+	 * return the value of the last task in the sequence.
+	 *
+	 * @return T value returned by call() method of the last task
+	 * @throws Exception exception thrown by any subtask
+	 */
+	@Override
+	protected T call() throws Exception {
+		setStartTime();
+		try {
+			Object returnValue = null;
+			for (; currentTask < subTasks.length; currentTask++) {
+				Get.workExecutors().getExecutor().execute(subTasks[currentTask]);
+				returnValue = subTasks[currentTask].get();
+			}
+			return (T) returnValue;
+		} finally {
+			Get.activeTasks().remove(this);
+		}
+	}
+
 }

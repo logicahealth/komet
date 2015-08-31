@@ -43,110 +43,115 @@ import javafx.collections.ObservableIntegerArray;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LanguageCoordinateImpl implements LanguageCoordinate {
 
-    int languageConceptSequence;
-    int[] dialectAssemblagePreferenceList;
-    int[] descriptionTypePreferenceList;
-    
-    private LanguageCoordinateImpl() {
-        //for jaxb
-    }
+	int languageConceptSequence;
+	int[] dialectAssemblagePreferenceList;
+	int[] descriptionTypePreferenceList;
 
-    public LanguageCoordinateImpl(int languageConceptSequence, int[] dialectAssemblagePreferenceList, int[] descriptionTypePreferenceList) {
-        this.languageConceptSequence = languageConceptSequence;
-        this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
-        this.descriptionTypePreferenceList = descriptionTypePreferenceList;
-    }
+	private LanguageCoordinateImpl() {
+		//for jaxb
+	}
 
-    @Override
-    public int getLanguageConceptSequence() {
-        return languageConceptSequence;
-    }
+	public LanguageCoordinateImpl(int languageConceptId, int[] dialectAssemblagePreferenceList, int[] descriptionTypePreferenceList) {
+		this.languageConceptSequence = Get.identifierService().getConceptSequence(languageConceptId);
+		this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
+		for (int i = 0; i < this.dialectAssemblagePreferenceList.length; i++) {
+			this.dialectAssemblagePreferenceList [i] = Get.identifierService().getConceptSequence(this.dialectAssemblagePreferenceList [i]);
+		}
+		this.descriptionTypePreferenceList = descriptionTypePreferenceList;
+		for (int i = 0; i < this.descriptionTypePreferenceList.length; i++) {
+			this.descriptionTypePreferenceList [i] = Get.identifierService().getConceptSequence(this.descriptionTypePreferenceList [i]);
+		}
+	}
 
-    @Override
-    public int[] getDialectAssemblagePreferenceList() {
-        return dialectAssemblagePreferenceList;
-    }
+	@Override
+	public int getLanguageConceptSequence() {
+		return languageConceptSequence;
+	}
 
-    @Override
-    public int[] getDescriptionTypePreferenceList() {
-        return descriptionTypePreferenceList;
-    }
+	@Override
+	public int[] getDialectAssemblagePreferenceList() {
+		return dialectAssemblagePreferenceList;
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 79 * hash + this.languageConceptSequence;
-        hash = 79 * hash + Arrays.hashCode(this.dialectAssemblagePreferenceList);
-        return hash;
-    }
+	@Override
+	public int[] getDescriptionTypePreferenceList() {
+		return descriptionTypePreferenceList;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final LanguageCoordinateImpl other = (LanguageCoordinateImpl) obj;
-        if (this.languageConceptSequence != other.languageConceptSequence) {
-            return false;
-        }
-        if (!Arrays.equals(this.dialectAssemblagePreferenceList, other.dialectAssemblagePreferenceList)) {
-            return false;
-        }
-        return Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList);
-    }
-    
-    @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
-            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
-    {
-        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
-              Get.languageCoordinateService().getFullySpecifiedConceptSequence(), this);
-    }
+	@Override
+	public int hashCode() {
+		int hash = 3;
+		hash = 79 * hash + this.languageConceptSequence;
+		hash = 79 * hash + Arrays.hashCode(this.dialectAssemblagePreferenceList);
+		return hash;
+	}
 
-    @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate)
-    {
-        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
-              Get.languageCoordinateService().getSynonymConceptSequence(), this);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final LanguageCoordinateImpl other = (LanguageCoordinateImpl) obj;
+		if (this.languageConceptSequence != other.languageConceptSequence) {
+			return false;
+		}
+		if (!Arrays.equals(this.dialectAssemblagePreferenceList, other.dialectAssemblagePreferenceList)) {
+			return false;
+		}
+		return Arrays.equals(this.descriptionTypePreferenceList, other.descriptionTypePreferenceList);
+	}
 
-    @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
-        return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, this);
-    }
+	@Override
+	public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+			  List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+		return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
+				  Get.languageCoordinateService().getFullySpecifiedConceptSequence(), this);
+	}
 
-    @Override
-    public String toString() {
-        return "Language Coordinate{" + Get.conceptDescriptionText(languageConceptSequence) + 
-                ", dialect preference: " + Get.conceptDescriptionTextList(dialectAssemblagePreferenceList) + 
-                ", type preference: " + Get.conceptDescriptionTextList(descriptionTypePreferenceList) + '}';
-    }
-    public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
-        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
-            descriptionTypePreferenceList = observableArray.toArray(descriptionTypePreferenceList);
-        };
-        descriptionTypePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
-        return listener;
-    }
+	@Override
+	public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+		return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList,
+				  Get.languageCoordinateService().getSynonymConceptSequence(), this);
+	}
 
-    public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
-        ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
-            dialectAssemblagePreferenceList = observableArray.toArray(dialectAssemblagePreferenceList);
-        };
-        dialectAssemblagePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
-        return listener;
-    }
-    
-    public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty languageConceptSequenceProperty) {
-        ChangeListener<Number> listener = (ObservableValue<? extends Number> observable, 
-                Number oldValue, 
-                Number newValue) -> {
-            languageConceptSequence = newValue.intValue();
-        };
-        languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
-        return listener;
-    }
+	@Override
+	public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+		return Get.languageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, this);
+	}
+
+	@Override
+	public String toString() {
+		return "Language Coordinate{" + Get.conceptDescriptionText(languageConceptSequence)
+				  + ", dialect preference: " + Get.conceptDescriptionTextList(dialectAssemblagePreferenceList)
+				  + ", type preference: " + Get.conceptDescriptionTextList(descriptionTypePreferenceList) + '}';
+	}
+
+	public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
+		ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+			descriptionTypePreferenceList = observableArray.toArray(descriptionTypePreferenceList);
+		};
+		descriptionTypePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+		return listener;
+	}
+
+	public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
+		ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) -> {
+			dialectAssemblagePreferenceList = observableArray.toArray(dialectAssemblagePreferenceList);
+		};
+		dialectAssemblagePreferenceListProperty.getValue().addListener(new WeakArrayChangeListener(listener));
+		return listener;
+	}
+
+	public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty languageConceptSequenceProperty) {
+		ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+				  Number oldValue,
+				  Number newValue) -> {
+			languageConceptSequence = newValue.intValue();
+		};
+		languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
+		return listener;
+	}
 }

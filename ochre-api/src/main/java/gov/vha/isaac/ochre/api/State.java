@@ -34,7 +34,11 @@ public enum State {
 		 /**
 		  * Not yet created. 
 		  */
-       PRIMORDIAL(false);
+       PRIMORDIAL(false),
+		 /**
+		  * Canceled prior to commit. 
+		  */
+       CANCELED(false);
 
     boolean isActive;
 

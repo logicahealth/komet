@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
@@ -31,10 +32,10 @@ public class EditCoordinateImpl implements EditCoordinate {
     int moduleSequence;
     int pathSequence;
 
-    public EditCoordinateImpl(int authorSequence, int moduleSequence, int pathSequence) {
-        this.authorSequence = authorSequence;
-        this.moduleSequence = moduleSequence;
-        this.pathSequence = pathSequence;
+    public EditCoordinateImpl(int authorId, int moduleId, int pathId) {
+        this.authorSequence = Get.identifierService().getConceptSequence(authorId);
+        this.moduleSequence = Get.identifierService().getConceptSequence(moduleId);
+        this.pathSequence = Get.identifierService().getConceptSequence(pathId);
     }
 
 
@@ -84,16 +85,16 @@ public class EditCoordinateImpl implements EditCoordinate {
         return pathSequence;
     }
 
-    public void setAuthorSequence(int authorSequence) {
-        this.authorSequence = authorSequence;
+    public void setAuthorSequence(int authorId) {
+        this.authorSequence =  Get.identifierService().getConceptSequence(authorId);
     }
 
-    public void setModuleSequence(int moduleSequence) {
-        this.moduleSequence = moduleSequence;
+    public void setModuleSequence(int moduleId) {
+        this.moduleSequence =  Get.identifierService().getConceptSequence(moduleId);
     }
 
-    public void setPathSequence(int pathSequence) {
-        this.pathSequence = pathSequence;
+    public void setPathSequence(int pathId) {
+        this.pathSequence =  Get.identifierService().getConceptSequence(pathId);
     }
 
     @Override
@@ -125,5 +126,12 @@ public class EditCoordinateImpl implements EditCoordinate {
         }
         return true;
     }
+
+	@Override
+	public String toString() {
+		return "EditCoordinate{a: " +  Get.conceptDescriptionText(authorSequence) + ", m: " + 
+				  Get.conceptDescriptionText(moduleSequence) + 
+				  ", p: " + Get.conceptDescriptionText(pathSequence) + '}';
+	}
     
 }
