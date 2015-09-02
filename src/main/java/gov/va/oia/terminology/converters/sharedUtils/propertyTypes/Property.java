@@ -96,7 +96,7 @@ public class Property
 		
 		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
 		{
-			throw new RuntimeException("Tried to attach dynamic refex data where it isn't allowed.");
+			throw new RuntimeException("Tried to attach dynamic sememe data where it isn't allowed.");
 		}
 	}
 
@@ -187,7 +187,7 @@ public class Property
 		}
 		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
 		{
-			throw new RuntimeException("Tried to attach dynamic refex data where it isn't allowed.");
+			throw new RuntimeException("Tried to attach dynamic sememe data where it isn't allowed.");
 		}
 		
 	}

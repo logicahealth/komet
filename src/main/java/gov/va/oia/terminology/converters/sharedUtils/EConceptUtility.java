@@ -453,7 +453,7 @@ public class EConceptUtility
 	 * @param UuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
 	 * @param values - the values to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
 	 * of the sememe represented by refexDynamicTypeUuid
-	 * @param refexDynamicTypeUuid - the uuid of the dynamic refex type - 
+	 * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type - 
 	 * @param status
 	 * @param time - if null, uses the component time
 	 * @return
@@ -511,7 +511,7 @@ public class EConceptUtility
 			DynamicSememeColumnInfo[] colInfo = refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
 			if (colInfo == null || colInfo.length == 0)
 			{
-				throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic refex");
+				throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
 			}
 			for (int i = 0; i < values.length; i++)
 			{

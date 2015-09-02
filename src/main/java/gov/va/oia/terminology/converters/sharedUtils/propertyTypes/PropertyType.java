@@ -48,7 +48,7 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	private String propertyTypeReferenceSetName_;
 	private UUID propertyTypeReferenceSetUUID;
 	private boolean createAsDynamicRefex_ = false;  //It could make sense to set this at the individual Property level... but in general, everything of the same type 
-	//will be handled in the same way - relationships are not dynamic refexes, assoications are, for example.
+	//will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
 	private DynamicSememeDataType defaultDataColumn_;  //If the property is specified without further column instructions, and createAsDynamicRefex is true, 
 	//use this information to configure the (single) data column.
 
