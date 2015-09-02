@@ -37,13 +37,13 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * To do this, the assemblage concept must itself contain 0 or more {@link DynamicSememeVersionBI} annotation(s) with
  * an assemblage concept that is {@link IsaacMetadataConstants#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
  * [{@link DynamicSememeIntegerBI}, {@link DynamicSememeUUIDBI}, {@link DynamicSememeStringBI}, {@link DynamicSememePolymorphicBI},
- * {@link RefexBooleanBI}, {@link DynamicSememeArrayBI<DynamicSememeStringBI>}, {@link DynamicSememeDataBI<DynamicSememePolymorphicBI>}] 
+ * {@link DynamicSememBooleanBI}, {@link DynamicSememeArrayBI<DynamicSememeStringBI>}, {@link DynamicSememeDataBI<DynamicSememePolymorphicBI>}] 
  * 
  * <ul>
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
  * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FSN that is
- *       suitable for the name of the DynamicRefex data column, and a description suitable for use as the description of the 
- *       Dynamic Refex data column.  Note, while any concept can be used here, and there are no specific requirements for this 
+ *       suitable for the name of the DynamicSememe data column, and a description suitable for use as the description of the 
+ *       Dynamic Sememe data column.  Note, while any concept can be used here, and there are no specific requirements for this 
  *       concept - there is a convenience method for creating one of these concepts in 
  *       {@link DynamicSememeColumnInfo#createNewDynamicSememeColumnInfoConcept(String, String, 
  *           org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate, org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)}
@@ -63,7 +63,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * Note that while 0 rows of attached data is allowed, this would not allow the attachment of any data on the sememe.
  * <br>
  * The assemblage concept must also contain a description of type {@link IsaacMetadataAuxiliaryBinding#DEFINITION_DESCRIPTION_TYPE} which 
- * itself has a refex extension of type {@link IsaacMetadataConstants#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
+ * itself has a sememe extension of type {@link IsaacMetadataConstants#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
  * this description should explain the the overall purpose of this Sememe.
  * <br>
  * <br>

@@ -223,7 +223,7 @@ public class TtkUtils
 	public static String setUUIDForDynamicSememe(TtkRefexDynamicMemberChronicle dynamicSememe, TtkRefexDynamicData[] data, UUID namespace)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
-		//TODO dan - need to look and see how I am generating UUIDs for dynamic refexes in the Builder...
+		//TODO dan - need to look and see how I am generating UUIDs for dynamic sememes in the Builder...
 		StringBuilder sb = new StringBuilder();
 		sb.append(dynamicSememe.getRefexAssemblageUuid().toString());
 		sb.append(dynamicSememe.getComponentUuid().toString());

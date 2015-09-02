@@ -288,7 +288,7 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase
 
 	
 	
-	//An organizational concept which serves as a parent concept for dynamic refexes defined in the system
+	//An organizational concept which serves as a parent concept for dynamic sememes defined in the system
 	//(unless they choose to put them some where else, this isn't required, is only for convenience)
 	public static final MetadataConceptConstantGroup DYNAMIC_SEMEME_ASSEMBLAGES = new MetadataConceptConstantGroup("dynamic sememe assemblages", 
 		UUID.fromString("e18265b7-5406-52b6-baf0-4cfb867829b4"))
