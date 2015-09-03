@@ -17,7 +17,6 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierLong;
@@ -142,7 +141,6 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
         }
 
         processAnnotations(another.getAnnotations());
-        processDynamicAnnotations(another.getRefexDynamicAnnotations());
         this.primordialUuid = another.getPrimordialUuid();
     }
 
@@ -158,7 +156,6 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
             }
             
             processAnnotations(null);
-            processDynamicAnnotations(null);
             this.primordialUuid = another.getPrimordialUuid();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -166,7 +163,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
@@ -187,7 +184,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
         readExternal(in, dataVersion);
     }
     @Override
-    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate<?> stampCoordinate) {
+    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
         SortedSet<V> sortedLogicGraphs = new TreeSet<>((V graph1, V graph2) -> {
             RelativePosition relativePosition = calc.fastRelativePosition(graph1, graph2, stampCoordinate.getStampPrecedence());
@@ -312,16 +309,6 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
 
             for (RefexChronicleBI<?> r : annotations) {
                 this.annotations.add(TtkConceptChronicle.convertRefex(r));
-            }
-        }
-    }
-
-    private void processDynamicAnnotations(Collection<? extends RefexDynamicChronicleBI<?>> annotationsDynamic) throws IOException {
-        if ((annotationsDynamic != null) && !annotationsDynamic.isEmpty()) {
-            this.annotationsDynamic = new ArrayList<>(annotationsDynamic.size());
-
-            for (RefexDynamicChronicleBI<?> r : annotationsDynamic) {
-                this.annotationsDynamic.add(TtkConceptChronicle.convertRefex(r));
             }
         }
     }
@@ -668,6 +655,9 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     public List<TtkRefexDynamicMemberChronicle> getAnnotationsDynamic() {
+        if (annotationsDynamic == null) {
+            annotationsDynamic = new ArrayList<>();
+        }
         return annotationsDynamic;
     }
 
@@ -823,7 +813,7 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
     }
 
     @Override
-    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
         return RelativePositionCalculator.getCalculator(coordinate).getLatestVersion(this);
     }
 

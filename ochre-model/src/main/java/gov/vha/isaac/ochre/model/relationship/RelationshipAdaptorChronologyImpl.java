@@ -69,13 +69,13 @@ public class RelationshipAdaptorChronologyImpl
     }
     
     @Override
-    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(Class<RelationshipVersionAdaptorImpl> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(Class<RelationshipVersionAdaptorImpl> type, StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         return calc.getLatestVersion(this);
     }
 
     @Override
-    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
         RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();

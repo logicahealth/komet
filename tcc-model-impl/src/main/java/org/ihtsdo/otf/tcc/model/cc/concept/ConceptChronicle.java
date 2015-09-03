@@ -29,7 +29,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javafx.beans.InvalidationListener;
 import org.apache.mahout.math.set.OpenIntHashSet;
-
 import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
@@ -63,8 +62,6 @@ import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid.RefexNidVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
@@ -81,7 +78,6 @@ import org.ihtsdo.otf.tcc.dto.component.sememe.SememeFromDtoFactory;
 import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.*;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
-import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributesVersion;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
@@ -93,8 +89,6 @@ import org.ihtsdo.otf.tcc.model.cc.media.Media;
 import org.ihtsdo.otf.tcc.model.cc.media.MediaVersion;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberFactory;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMember;
-import org.ihtsdo.otf.tcc.model.cc.refexDynamic.RefexDynamicMemberFactory;
 import org.ihtsdo.otf.tcc.model.cc.relationship.Relationship;
 import org.ihtsdo.otf.tcc.model.cc.relationship.RelationshipVersion;
 import org.ihtsdo.otf.tcc.model.cc.relationship.group.RelGroupChronicle;
@@ -193,11 +187,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException {
         return getConceptAttributes().addAnnotation(annotation);
-    }
-
-    @Override
-    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
-        return getConceptAttributes().addDynamicAnnotation(annotation);
     }
 
     @Override
@@ -458,51 +447,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             }
         }
 
-        if (!eConcept.getRefsetMembersDynamic().isEmpty()) {
-            if (c.isAnnotationStyleRefex()) {
-                for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
-                    ConceptComponent cc;
-                    Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
-
-                    if (referencedComponent != null) {
-                        if (referencedComponent instanceof ConceptChronicle) {
-                            cc = ((ConceptChronicle) referencedComponent).getConceptAttributes();
-                        } else {
-                            cc = (ConceptComponent) referencedComponent;
-                        }
-
-                        RefexDynamicMember r = (RefexDynamicMember) PersistentStore.get().getComponent(er.getPrimordialComponentUuid());
-
-                        if (r == null) {
-                            cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
-                        } else {
-                            r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er,
-                                    PersistentStore.get().getConceptNidForNid(cc.getNid())));
-                        }
-                    } else {
-                        unresolvedAnnotationsDynamic.add(er);
-                    }
-                }
-            } else {
-                if (c.getRefsetDynamicMembers().isEmpty()) {
-                    setRefsetMembersDynamicFromEConcept(eConcept, c);
-                } else {
-                    Set<Integer> currentMemberNids = c.data.getDynamicMemberNids();
-
-                    for (TtkRefexDynamicMemberChronicle er : eConcept.getRefsetMembersDynamic()) {
-                        int rNid = PersistentStore.get().getNidForUuids(er.primordialUuid);
-                        Optional<RefexDynamicMember> r = c.getRefsetDynamicMember(rNid);
-
-                        if (currentMemberNids.contains(rNid) && (r.isPresent())) {
-                            r.get().merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, c.getNid()));
-                        } else {
-                            c.getData().add(RefexDynamicMemberFactory.create(er, c.getNid()));
-                        }
-                    }
-                }
-            }
-        }
-
         return c;
     }
 
@@ -533,10 +477,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
 
         if (eConcept.getRefsetMembers() != null) {
             setRefsetMembersFromEConcept(eConcept, c);
-        }
-
-        if (eConcept.getRefsetMembersDynamic() != null) {
-            setRefsetMembersDynamicFromEConcept(eConcept, c);
         }
 
         return c;
@@ -612,7 +552,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         processComponentList(getNativeSourceRels(), processor);
         processComponentList(getImages(), processor);
         processComponentList(getRefsetMembers(), processor);
-        processComponentList(getRefsetDynamicMembers(), processor);
     }
 
     private void processComponentList(Collection<? extends ComponentChronicleBI> componentCollection, ProcessComponentChronicleBI processor) throws Exception {
@@ -632,7 +571,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             ProcessComponentChronicleBI processor) throws Exception {
         processor.process(cc);
         processComponentList(cc.getAnnotations(), processor);
-        processComponentList(cc.getRefexDynamicAnnotations(), processor);
     }
 
     public boolean readyToWrite() {
@@ -665,27 +603,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
                     cc.addAnnotation(RefexMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                 } else {
                     r.merge((RefexMember) RefexMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
-                }
-            }
-        }
-
-        for (TtkRefexDynamicMemberChronicle er : unresolvedAnnotationsDynamic) {
-            ConceptComponent cc;
-            Object referencedComponent = PersistentStore.get().getComponent(er.getComponentUuid());
-
-            if (referencedComponent != null) {
-                if (referencedComponent instanceof ConceptChronicle) {
-                    cc = ((ConceptChronicle) referencedComponent).getConceptAttributes();
-                } else {
-                    cc = (ConceptComponent) referencedComponent;
-                }
-
-                RefexDynamicMember r = (RefexDynamicMember) PersistentStore.get().getComponent(er.getPrimordialComponentUuid());
-
-                if (r == null) {
-                    cc.addDynamicAnnotation(RefexDynamicMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
-                } else {
-                    r.merge((RefexDynamicMember) RefexDynamicMemberFactory.create(er, PersistentStore.get().getConceptNidForNid(cc.getNid())));
                 }
             }
         }
@@ -728,8 +645,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
             if (!isAnnotationStyleRefex()) {
                 buff.append("\n refset members: ");
                 formatCollection(buff, getExtensions());
-                buff.append("\n refset dynamic members: ");
-                formatCollection(buff, getExtensionsDynamic());
             }
 
             buff.append("\n desc nids: ");
@@ -1214,14 +1129,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         return data.getRefsetMembers();
     }
 
-    public Collection<RefexDynamicMember> getExtensionsDynamic() throws IOException {
-        if (isCanceled()) {
-            return new ArrayList<>();
-        }
-
-        return data.getRefsetDynamicMembers();
-    }
-
     public static ConceptChronicle getIfInMap(int nid) {
         lazyInit();
         return conceptsCRHM.get(nid);
@@ -1403,11 +1310,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public RefexMember<?, ?> getRefsetMember(int memberNid) throws IOException {
         return data.getRefsetMember(memberNid);
     }
-
-    public Optional<RefexDynamicMember> getRefsetDynamicMember(int memberNid) throws IOException {
-        return data.getRefsetDynamicMember(memberNid);
-    }
-
     @Override
     public RefexMember<?, ?> getRefsetMemberForComponent(int componentNid) throws IOException {
         if (isCanceled()) {
@@ -1420,11 +1322,6 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     @Override
     public Collection<RefexMember<?, ?>> getRefsetMembers() throws IOException {
         return data.getRefsetMembers();
-    }
-
-    @Override
-    public Collection<RefexDynamicMember> getRefsetDynamicMembers() throws IOException {
-        return data.getRefsetDynamicMembers();
     }
 
     @Override
@@ -1877,66 +1774,12 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
         }
     }
 
-    private static void setRefsetMembersDynamicFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
-        for (TtkRefexDynamicMemberChronicle eRefsetMember : eConcept.getRefsetMembersDynamic()) {
-            RefexDynamicMember refsetMember = RefexDynamicMemberFactory.create(eRefsetMember, c.getConceptNid());
-
-            c.data.add(refsetMember);
-        }
-    }
-
     private static void setRelationshipsFromEConcept(TtkConceptChronicle eConcept, ConceptChronicle c) throws IOException {
         for (TtkRelationshipChronicle eRel : eConcept.getRelationships()) {
             Relationship rel = new Relationship(eRel, c);
 
             c.data.getSourceRels().add(rel);
         }
-    }
-    /**
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException {
-        if (getConceptAttributes() != null) {
-            return getConceptAttributes().getRefexesDynamic();
-        }
-        return new ArrayList<>();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException {
-        if (getConceptAttributes() != null) {
-            return getConceptAttributes().getRefexDynamicAnnotations();
-        }
-        return new ArrayList<>();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException {
-        if (getConceptAttributes() != null) {
-            return getConceptAttributes().getRefexDynamicMembers();
-        }
-        return new ArrayList<>();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
-     */
-    @Override
-    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException {
-        if (getConceptAttributes() != null) {
-            return getConceptAttributes().getRefexesDynamicActive(viewCoordinate);
-        }
-        return new ArrayList<>();
     }
 
     @Override
@@ -1957,9 +1800,9 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
-    	List<? extends SememeChronology<? extends DescriptionSememe>> list = getDescriptions().stream().collect(Collectors.toList());
-        return (List<? extends SememeChronology<? extends DescriptionSememe<?>>>)list;
+    public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+        throw new UnsupportedOperationException();
+        //return getDescriptions().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -1969,7 +1812,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
         return getDescriptions().stream().anyMatch((desc) -> (desc.getVersions((ViewCoordinate) stampCoordinate).stream().
                 anyMatch((descv) -> (descv.getText().equals(descriptionText)))));
     }
@@ -1980,22 +1823,21 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate coordinate) {
         return Optional.of(new LatestVersion(new ConceptVersion(this, (ViewCoordinate) coordinate)));
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
-    }
+	public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+    	return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
+	}
 
-    @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
-    }
+	@Override
+	public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
+		return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
+	}
 
-
-    @Override
+	@Override
     public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>>
             getRelationshipListOriginatingFromConcept(LogicCoordinate logicCoordinate) {
         if (conceptOriginRelationshipList == null) {
@@ -2049,7 +1891,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         int assemblageSequence;
         if (premiseType == PremiseType.INFERRED) {

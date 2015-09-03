@@ -81,15 +81,15 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
      */
     boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
         
-    ObservableList<? extends ObservableSememeChronology<? extends ObservableDescriptionSememe>> getConceptDescriptionList();
+    <T extends ObservableDescriptionSememe<T>> ObservableList<? extends ObservableSememeChronology<T>> getConceptDescriptionList();
     
-    ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>>
+    <T extends ObservableDescriptionSememe<T>> ListProperty<ObservableSememeChronology<T>>
         conceptDescriptionListProperty();
     
     Optional<LatestVersion<ObservableDescriptionSememe<?>>> 
         getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
     
-    Optional<LatestVersion<ObservableDescriptionSememe<?>>> 
+    <T extends ObservableDescriptionSememe<T>> Optional<LatestVersion<T>> 
         getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
     
     

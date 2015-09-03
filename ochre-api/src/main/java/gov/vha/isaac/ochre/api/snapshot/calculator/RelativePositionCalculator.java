@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
-//import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
@@ -53,15 +52,15 @@ import org.roaringbitmap.RoaringBitmap;
 @Service
 @Singleton // Singleton from the perspective of HK2 managed instances
 public class RelativePositionCalculator implements OchreCache {
-    
-    private static final Logger log = LogManager.getLogger();
+	
+	private static final Logger log = LogManager.getLogger();
 
 
-    private static final ConcurrentHashMap<StampCoordinate<? extends StampCoordinate<?>>, RelativePositionCalculator> calculatorCache =
+    private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> CALCULATOR_CACHE =
             new ConcurrentHashMap<>();
 
-    public static RelativePositionCalculator getCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
-        RelativePositionCalculator pm = calculatorCache.get(coordinate);
+    public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
+        RelativePositionCalculator pm = CALCULATOR_CACHE.get(coordinate);
 
         if (pm != null) {
             return pm;
@@ -69,7 +68,7 @@ public class RelativePositionCalculator implements OchreCache {
 
         pm = new RelativePositionCalculator(coordinate);
 
-        RelativePositionCalculator existing = calculatorCache.putIfAbsent(coordinate, pm);
+        RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, pm);
 
         if (existing != null) {
             pm = existing;
@@ -77,7 +76,7 @@ public class RelativePositionCalculator implements OchreCache {
 
         return pm;
     }
-    StampCoordinate<? extends StampCoordinate<?>> coordinate;
+    StampCoordinate coordinate;
     /**
      * Mapping from pathNid to each segment for that pathNid.
      * There is one entry for each path reachable antecedent to the destination 
@@ -89,7 +88,7 @@ public class RelativePositionCalculator implements OchreCache {
         // No arg constructor for HK2 managed instance
     }
 
-    public RelativePositionCalculator(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public RelativePositionCalculator(StampCoordinate coordinate) {
         this.coordinate = coordinate;
         this.pathSequenceSegmentMap = setupPathSequenceSegmentMap(coordinate.getStampPosition());
     }
@@ -97,7 +96,7 @@ public class RelativePositionCalculator implements OchreCache {
     @Override
     public void reset() {
         log.info("Resetting RelativePositionCalculator.");
-        calculatorCache.clear();
+        CALCULATOR_CACHE.clear();
     }
 
     private static class Segment {
@@ -133,7 +132,8 @@ public class RelativePositionCalculator implements OchreCache {
 
         // Could check for modules here...
         private boolean containsPosition(int pathConceptSequence, long time) {
-            if (this.pathConceptSequence == pathConceptSequence && time != Long.MIN_VALUE) {
+            if (this.pathConceptSequence == pathConceptSequence 
+						  && time != Long.MIN_VALUE) {
                 return time <= endTime;
             }
             return false;
@@ -302,7 +302,8 @@ public class RelativePositionCalculator implements OchreCache {
     public boolean onRoute(int stampSequence) {
         Segment seg = (Segment) pathSequenceSegmentMap.get(Get.commitService().getPathSequenceForStamp(stampSequence));
         if (seg != null) {
-            return seg.containsPosition(Get.commitService().getPathSequenceForStamp(stampSequence), 
+            return seg.containsPosition(
+						  Get.commitService().getPathSequenceForStamp(stampSequence), 
                     Get.commitService().getTimeForStamp(stampSequence));
         }
         return false;

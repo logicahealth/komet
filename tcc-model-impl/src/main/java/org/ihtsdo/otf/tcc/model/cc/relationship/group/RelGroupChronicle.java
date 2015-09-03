@@ -17,8 +17,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.group.RelGroupVersionBI;
@@ -85,15 +83,6 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
     }
    
    
-
-   /**
-    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
-    */
-   @Override
-   public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException
-   {
-       throw new UnsupportedOperationException("Not supported.");
-   }
 
 @Override
    public boolean makeAdjudicationAnalogs(EditCoordinate ec, ViewCoordinate vc) throws IOException {
@@ -235,44 +224,6 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
       throw new UnsupportedOperationException("Not supported.");
    }
    
-   /**
-    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
-    */
-   @Override
-   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException
-   {
-      throw new UnsupportedOperationException("Not supported.");
-   }
-   
-   
-
-   /**
-    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
-    */
-   @Override
-   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException
-   {
-      throw new UnsupportedOperationException("Not supported.");
-   }
-   
-   /**
-    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
-    */
-   @Override
-   public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException
-   {
-      throw new UnsupportedOperationException("Not supported.");
-   }
-
-   /**
-    * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
-    */
-   @Override
-   public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException
-   {
-      throw new UnsupportedOperationException("Not supported.");
-   }
-
    @Override
    public int getRelGroup() {
       return relGroup;
@@ -343,7 +294,7 @@ public class RelGroupChronicle implements RelGroupChronicleBI {
     }
 
     @Override
-    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<RelGroupVersionBI>> getLatestVersion(Class<RelGroupVersionBI> type, StampCoordinate coordinate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    

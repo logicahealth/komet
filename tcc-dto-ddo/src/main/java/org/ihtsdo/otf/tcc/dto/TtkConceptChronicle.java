@@ -1,16 +1,31 @@
 package org.ihtsdo.otf.tcc.dto;
 
-//~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
-import gov.vha.isaac.ochre.api.commit.CommitStates;
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
-import org.ihtsdo.otf.tcc.api.refex.RefexType;
+//~--- JDK imports ------------------------------------------------------------
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.IntStream.Builder;
+
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.media.MediaChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.type_array_of_bytearray.RefexArrayOfBytearrayVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_boolean.RefexBooleanVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_int.RefexIntVersionBI;
@@ -25,8 +40,8 @@ import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_nid.RefexNidNidNidVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_nid_string.RefexNidNidStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_nid_string.RefexNidStringVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_string.RefexStringVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
+import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevisionProcessorBI;
@@ -34,6 +49,7 @@ import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_array_of_bytearray.TtkRefexArrayOfByteArrayMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_boolean.TtkRefexBooleanMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_int.TtkRefexIntMemberChronicle;
@@ -56,25 +72,13 @@ import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid_uuid_uuid_string.TtkRefe
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_FLOAT;
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_INT;
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_LONG;
-import static org.ihtsdo.otf.tcc.api.refex.RefexType.CID_CID_CID_STRING;
-
-//~--- JDK imports ------------------------------------------------------------
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.StringWriter;
-
-import java.util.*;
-import java.util.stream.IntStream;
-import java.util.stream.IntStream.Builder;
-import javax.xml.bind.JAXB;
-
-import javax.xml.bind.annotation.*;
-import org.ihtsdo.otf.tcc.dto.component.TtkChronicleProcessor;
-import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
+//~--- non-JDK imports --------------------------------------------------------
+import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
+import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
+import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
+import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 
 /**
  * Class description
@@ -238,21 +242,6 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
                     }
                 }
             }
-            Collection<? extends RefexDynamicChronicleBI<?>> membersDynamic = c.getRefsetDynamicMembers();
-
-            if (membersDynamic != null) {
-                refsetMembersDynamic = new ArrayList<>(membersDynamic.size());
-
-                for (RefexDynamicChronicleBI<?> m : membersDynamic) {
-                    TtkRefexDynamicMemberChronicle member = convertRefex(m);
-
-                    if (member != null) {
-                        refsetMembersDynamic.add(member);
-                    } else {
-                        throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + c);
-                    }
-                }
-            }
         }
     }
 
@@ -365,17 +354,19 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         }
     }
 
-    public static TtkRefexAbstractMemberChronicle<?> convertSememeChronicle(SememeChronology<?> sc) {
-        SememeChronologyImpl<LogicGraphSememeImpl> sci = (SememeChronologyImpl<LogicGraphSememeImpl>) sc;
-        switch (sci.getSememeType()) {
+    public static TtkComponentChronicle<?, ?> convertSememeChronicle(SememeChronology<?> sc) {
+        switch (sc.getSememeType()) {
             case LOGIC_GRAPH:
-                return new TtkLogicGraphMemberChronicle(sci);
+            {
+                return new TtkLogicGraphMemberChronicle((SememeChronologyImpl<LogicGraphSememeImpl>) sc);
+            }
+            case DYNAMIC:
+                return new TtkRefexDynamicMemberChronicle((SememeChronologyImpl<DynamicSememeImpl>) sc);
             case COMPONENT_NID:
             case LONG:
-            case DYNAMIC:
             case MEMBER:
             default:
-                throw new UnsupportedOperationException("Can't handle: " + sci.getSememeType());
+                throw new UnsupportedOperationException("Can't handle: " + sc.getSememeType());
         }
 
     }
@@ -422,10 +413,6 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         } else {
             throw new UnsupportedOperationException("Cannot handle: " + m);
         }
-    }
-
-    public static TtkRefexDynamicMemberChronicle convertRefex(RefexDynamicChronicleBI<?> m) throws IOException {
-        return new TtkRefexDynamicMemberChronicle(m);
     }
 
     /**

@@ -22,7 +22,6 @@ import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
@@ -297,11 +296,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     */
    @Override
    public void forget(RefexChronicleBI extension) throws IOException {
-      store.forget(extension);
-   }
-   
-   @Override
-   public void forget(RefexDynamicChronicleBI extension) throws IOException {
       store.forget(extension);
    }
 
@@ -692,7 +686,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this.getViewCoordinate(), c, RefexPolicy.REFEX_MEMBERS,
+      return new ConceptChronicleDdo(this.getViewCoordinate().getTaxonomyCoordinate(), c, RefexPolicy.REFEX_MEMBERS,
                            RelationshipPolicy.ORIGINATING_RELATIONSHIPS);
    }
 
@@ -721,7 +715,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
          c = getConceptVersion(ref.getUuid());
       }
 
-      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate().getTaxonomyCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
@@ -743,7 +737,7 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
            throws IOException, ContradictionException {
       ConceptVersionBI c = getConceptVersion(conceptUUID);
 
-      return new ConceptChronicleDdo(this.getViewCoordinate(), c, refexPolicy, relationshipPolicy);
+      return new ConceptChronicleDdo(this.getViewCoordinate().getTaxonomyCoordinate(), c, refexPolicy, relationshipPolicy);
    }
 
    /**
@@ -1013,15 +1007,6 @@ public class TerminologySnapshot implements TerminologySnapshotDI, FxTerminology
     @Override
     public NativeIdSetBI getAllComponentNids() throws IOException {
         return store.getAllComponentNids();
-    }
-
-    /**
-     * @return 
-     * @see org.ihtsdo.otf.tcc.api.store.TerminologyDI#index(java.lang.Class[])
-     */
-    @Override
-    public Task<?> index(Class<?> ... indexesToRebuild) {
-        return store.index(indexesToRebuild);
     }
 
     @Override

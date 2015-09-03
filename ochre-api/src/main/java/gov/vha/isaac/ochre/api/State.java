@@ -23,8 +23,22 @@ import java.util.EnumSet;
  */
 public enum State {
     
-    
-       INACTIVE(false), ACTIVE(true);
+		/**
+		 * Currently inactive.
+		 */
+       INACTIVE(false), 
+		 /**
+		  * Currently active.
+		  */
+       ACTIVE(true), 
+		 /**
+		  * Not yet created. 
+		  */
+       PRIMORDIAL(false),
+		 /**
+		  * Canceled prior to commit. 
+		  */
+       CANCELED(false);
 
     boolean isActive;
 
@@ -34,12 +48,9 @@ public enum State {
     public boolean getBoolean() {
         return isActive;
     }
-
-    public static State getFromBoolean(boolean isActive) {
-        if (isActive) {
-            return ACTIVE;
-        }
-        return INACTIVE;
+    
+    public boolean isActive() {
+        return isActive;
     }
     
     public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);

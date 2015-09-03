@@ -89,13 +89,8 @@ public class WorkExecutors
 		TimeUnit timeUnit = TimeUnit.SECONDS;
 		
 		//The blocking executor
-		blockingThreadPoolExecutor_ = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, timeUnit, new SynchronousQueue<Runnable>(), ((runnable) -> 
-		{
-			Thread t = Executors.defaultThreadFactory().newThread(runnable);
-			t.setDaemon(true);
-			t.setName("ISAAC-B-work-thread-" + t.getId());
-			return t;
-		}));
+		blockingThreadPoolExecutor_ = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, timeUnit, new SynchronousQueue<Runnable>(),
+				new NamedThreadFactory("ISAAC-B-work-thread", true));
 		blockingThreadPoolExecutor_.setRejectedExecutionHandler((runnable, executor) -> 
 		{
 			try
@@ -110,13 +105,8 @@ public class WorkExecutors
 		
 		//The non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
 		//with an unbounded queue.
-		threadPoolExecutor_ = new ThreadPoolExecutor(maximumPoolSize, maximumPoolSize, keepAliveTime, timeUnit, new LinkedBlockingQueue<Runnable>(), ((runnable) -> 
-		{
-			Thread t = Executors.defaultThreadFactory().newThread(runnable);
-			t.setDaemon(true);
-			t.setName("ISAAC-Q-work-thread-" + t.getId());
-			return t;
-		}));
+		threadPoolExecutor_ = new ThreadPoolExecutor(maximumPoolSize, maximumPoolSize, keepAliveTime, timeUnit, new LinkedBlockingQueue<Runnable>(),
+				new NamedThreadFactory("ISAAC-Q-work-thread", true));
 		threadPoolExecutor_.allowCoreThreadTimeOut(true);
 		//Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial 
 		//init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process

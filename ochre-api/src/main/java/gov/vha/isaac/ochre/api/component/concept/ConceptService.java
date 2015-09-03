@@ -54,18 +54,20 @@ public interface ConceptService {
     /**
      * Use in circumstances when not all concepts may have been loaded. 
      * @param conceptUuids uuids that identify the concept
+     * 
+     * This implementation should not have a side effect of adding the UUID to any indexes, if the UUID isn't yet present.
      * @return an Optional ConceptChronology.
      */
     Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids);
     
     void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept);
 
-    boolean isConceptActive(int conceptSequence, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+    boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
     
-    ConceptSnapshotService getSnapshot(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, LanguageCoordinate languageCoordinate);
+    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
     
     @Deprecated
-    default ConceptSnapshotService getSnapshot(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate) {
+    default ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate) {
         return getSnapshot(stampCoordinate, Get.configurationService().getDefaultLanguageCoordinate());
     }
     

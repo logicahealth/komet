@@ -1,6 +1,5 @@
 package org.ihtsdo.otf.tcc.dto.component.refexDynamic;
 
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -10,18 +9,20 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
-import org.ihtsdo.otf.tcc.api.store.TerminologyStoreDI;
-import org.ihtsdo.otf.tcc.api.store.Ts;
+
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 
-public class TtkRefexDynamicMemberChronicle extends 
-        TtkComponentChronicle<TtkRefexDynamicRevision, StampedVersion>
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
+import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
+
+public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRefexDynamicRevision, StampedVersion>
 {
 	public static final long serialVersionUID = 1;
 
@@ -35,53 +36,18 @@ public class TtkRefexDynamicMemberChronicle extends
 		super();
 	}
 
-	public TtkRefexDynamicMemberChronicle(RefexDynamicVersionBI<?> another) throws IOException
+	public TtkRefexDynamicMemberChronicle(SememeChronologyImpl<DynamicSememeImpl> another)
 	{
 		super(another);
-		this.componentUuid = Ts.get().getComponent(another.getReferencedComponentNid()).getPrimordialUuid();
-		this.refexAssemblageUuid = Ts.get().getComponent(another.getAssemblageNid()).getPrimordialUuid();
+		
+		this.componentUuid = Get.identifierService().getUuidPrimordialForNid(another.getReferencedComponentNid()).get();
+		this.refexAssemblageUuid = Get.identifierService().getUuidPrimordialForNid(another.getAssemblageSequence()).get();
 
-		this.data_ = new TtkRefexDynamicData[another.getData().length];
-		for (int i = 0; i < data_.length; i++)
-		{
-			if (another.getData()[i] == null)
-			{
-				data_[i] = null;
-			}
-			else
-			{
-				data_[i] = TtkRefexDynamicData.typeToClass(another.getData()[i].getRefexDataType(), another.getData()[i].getData());
-			}
-		}
-
-		Collection<? extends RefexDynamicVersionBI<?>> refexes = another.getVersions();
+		Collection<? extends DynamicSememeImpl> refexes = another.getVersions();
 		int partCount = refexes.size();
-		Iterator<? extends RefexDynamicVersionBI<?>> itr = refexes.iterator();
-		RefexDynamicVersionBI<?> rv = itr.next();
+		Iterator<? extends DynamicSememeImpl> itr = refexes.iterator();
+		DynamicSememeImpl rv = itr.next();
 
-		if (partCount > 1)
-		{
-			revisions = new ArrayList<>(partCount - 1);
-
-			while (itr.hasNext())
-			{
-				rv = itr.next();
-				revisions.add(new TtkRefexDynamicRevision(rv));
-			}
-		}
-	}
-
-	public TtkRefexDynamicMemberChronicle(RefexDynamicChronicleBI<?> another) throws IOException
-	{
-		this((RefexDynamicVersionBI<?>) another.getPrimordialVersion());
-
-		TerminologyStoreDI ts = Ts.get();
-		Collection<? extends RefexDynamicVersionBI<?>> refexes = another.getVersions();
-		int partCount = refexes.size();
-		Iterator<? extends RefexDynamicVersionBI<?>> itr = refexes.iterator();
-		RefexDynamicVersionBI<?> rv = itr.next();
-
-		//TODO (artf231859) [REFEX] seems to be duplicating work done in the other constructor called above... look at this closer.
 		this.data_ = new TtkRefexDynamicData[rv.getData().length];
 		for (int i = 0; i < data_.length; i++)
 		{
@@ -91,7 +57,7 @@ public class TtkRefexDynamicMemberChronicle extends
 			}
 			else
 			{
-				data_[i] = TtkRefexDynamicData.typeToClass(rv.getData()[i].getRefexDataType(), rv.getData()[i].getData());
+				data_[i] = TtkRefexDynamicData.typeToClass(rv.getData()[i].getDynamicSememeDataType(), rv.getData()[i].getData());
 			}
 		}
 
@@ -132,13 +98,13 @@ public class TtkRefexDynamicMemberChronicle extends
 		componentUuid = new UUID(in.readLong(), in.readLong());
 
 		//read the following format - 
-		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+		//dataFieldCount [dataFieldType [dataFieldSize dataFieldBytes]] [dataFieldType [dataFieldSize dataFieldBytes]] ... versionCount [versionData]
 		int colCount = in.readInt();
 		data_ = new TtkRefexDynamicData[colCount];
 		for (int i = 0; i < colCount; i++)
 		{
-			RefexDynamicDataType dt = RefexDynamicDataType.getFromToken(in.readInt());
-			if (dt == RefexDynamicDataType.UNKNOWN)
+			DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(in.readInt());
+			if (dt == DynamicSememeDataType.UNKNOWN)
 			{
 				data_[i] = null;
 			}
@@ -173,7 +139,7 @@ public class TtkRefexDynamicMemberChronicle extends
 		out.writeLong(componentUuid.getMostSignificantBits());
 		out.writeLong(componentUuid.getLeastSignificantBits());
 
-		//dataFieldCount [dataFieldType dataFieldSize dataFieldBytes] [dataFieldType dataFieldSize dataFieldBytes] ...
+		//dataFieldCount [dataFieldType [dataFieldSize dataFieldBytes]] [dataFieldType [dataFieldSize dataFieldBytes]] ... versionCount [versionData]
 		if (getData() != null)
 		{
 			out.writeInt(getData().length);
@@ -181,7 +147,7 @@ public class TtkRefexDynamicMemberChronicle extends
 			{
 				if (column == null)
 				{
-					out.writeInt(RefexDynamicDataType.UNKNOWN.getTypeToken());
+					out.writeInt(DynamicSememeDataType.UNKNOWN.getTypeToken());
 				}
 				else
 				{

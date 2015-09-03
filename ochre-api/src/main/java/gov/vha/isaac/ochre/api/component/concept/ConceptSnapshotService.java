@@ -47,7 +47,7 @@ public interface ConceptSnapshotService {
      * 
      * @return the {@code StampCoordinate} associated with this snapshot. 
      */
-    StampCoordinate<? extends StampCoordinate<?>> getStampCoordinate();
+    StampCoordinate getStampCoordinate();
     
    /**
      * 

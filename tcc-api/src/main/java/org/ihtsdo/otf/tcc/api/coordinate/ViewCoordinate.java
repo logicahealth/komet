@@ -53,8 +53,8 @@ import org.ihtsdo.otf.tcc.api.spec.ValidationException;
     "languageSort", "languageSpec", "languagePreferenceList",
     "name", "precedence", "relationshipAssertionType", "vcUuid",
     "viewPosition"})
-public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
-        LogicCoordinate, LanguageCoordinate, TaxonomyCoordinate<ViewCoordinate>, Externalizable {
+public class ViewCoordinate implements StampCoordinate,
+        LogicCoordinate, LanguageCoordinate, Externalizable {
 
     public static final long serialVersionUID = 2;
 
@@ -615,11 +615,6 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
         return vcUuid;
     }
 
-    @Override
-    public UUID getUuid() {
-        return vcUuid;
-    }
-
     public void setVcUuid(UUID vcUuid) {
         this.vcUuid = vcUuid;
     }
@@ -723,7 +718,6 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
         return Get.identifierService().getConceptSequence(classifierNid);
     }
 
-    @Override
     public PremiseType getTaxonomyType() {
         switch (getRelationshipAssertionType()) {
             case INFERRED:
@@ -767,11 +761,6 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
     }
 
     @Override
-    public StampCoordinate<ViewCoordinate> getStampCoordinate() {
-        return this;
-    }
-
-    @Override
     public int getLanguageConceptSequence() {
         return Get.identifierService().getConceptSequence(getLanguageNid());
     }
@@ -788,11 +777,6 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
     }
 
     @Override
-    public LanguageCoordinate getLanguageCoordinate() {
-        return this;
-    }
-
-    @Override
     public ConceptSequenceSet getModuleSequences() {
         return new ConceptSequenceSet();
     }
@@ -806,23 +790,23 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
-            StampCoordinate<?> stampCoordinate) {
-        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
-                getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
-   }
-
-    @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
-            StampCoordinate<?> stampCoordinate) {
-        return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
-                getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+      return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
+      getLanguageCoordinateService().getFullySpecifiedConceptSequence(), this);
     }
 
     @Override
-    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<DescriptionSememe<?>>> descriptionList, 
-            StampCoordinate<?> stampCoordinate) {
-        return getPreferredDescription(descriptionList, stampCoordinate);
+    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+      return getLanguageCoordinateService().getSpecifiedDescription(stampCoordinate, descriptionList, 
+      getLanguageCoordinateService().getSynonymConceptSequence(), this);
+    }
+
+    @Override
+    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
+            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+         return getPreferredDescription(descriptionList, stampCoordinate);
     }
 
     @Override
@@ -839,15 +823,59 @@ public class ViewCoordinate implements StampCoordinate<ViewCoordinate>,
     public ViewCoordinate makeAnalog(State... state) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    @Override
-    public LogicCoordinate getLogicCoordinate() {
-        return this;
-    }
-
-    @Override
-    public TaxonomyCoordinate<ViewCoordinate> makeAnalog(PremiseType taxonomyType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
+    public TaxonomyCoordinate getTaxonomyCoordinate()
+    {
+        return new TaxonomyCoordinate()
+        {
+            
+            @Override
+            public TaxonomyCoordinate makeAnalog(State... state)
+            {
+                throw new UnsupportedOperationException("Not supported yet."); 
+            }
+            
+            @Override
+            public TaxonomyCoordinate makeAnalog(long stampPositionTime)
+            {
+                throw new UnsupportedOperationException("Not supported yet."); 
+            }
+            
+            @Override
+            public TaxonomyCoordinate makeAnalog(PremiseType taxonomyType)
+            {
+                throw new UnsupportedOperationException("Not supported yet."); 
+            }
+            
+            @Override
+            public UUID getUuid()
+            {
+                return ViewCoordinate.this.getVcUuid();
+            }
+            
+            @Override
+            public PremiseType getTaxonomyType()
+            {
+                return ViewCoordinate.this.getTaxonomyType();
+            }
+            
+            @Override
+            public StampCoordinate getStampCoordinate()
+            {
+                return ViewCoordinate.this;
+            }
+            
+            @Override
+            public LogicCoordinate getLogicCoordinate()
+            {
+                return ViewCoordinate.this;
+            }
+            
+            @Override
+            public LanguageCoordinate getLanguageCoordinate()
+            {
+                return ViewCoordinate.this;
+            }
+        };
+    }
 }

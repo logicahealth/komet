@@ -44,7 +44,12 @@ public class ObservableStampCoordinateImpl extends ObservableCoordinateImpl impl
     SetProperty<State> allowedStates;
 
     public ObservableStampCoordinateImpl(StampCoordinate stampCoordinate) {
-        this.stampCoordinate = (StampCoordinateImpl) stampCoordinate;
+        if (stampCoordinate instanceof ObservableStampCoordinateImpl) {
+            this.stampCoordinate = ((ObservableStampCoordinateImpl)stampCoordinate).stampCoordinate;
+        }
+        else {
+            this.stampCoordinate = (StampCoordinateImpl) stampCoordinate;
+        }
     }
 
     @Override

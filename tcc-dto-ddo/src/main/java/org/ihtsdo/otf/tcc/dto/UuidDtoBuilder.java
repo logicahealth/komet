@@ -28,7 +28,6 @@ import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.MediaCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
-import org.ihtsdo.otf.tcc.api.blueprint.RefexDynamicCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RelationshipCAB;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
@@ -162,10 +161,6 @@ public class UuidDtoBuilder {
                constructSememe(sememeCAB, newC);
            }
            
-           for (RefexDynamicCAB sememeDynamicCAB: blueprint.getSememeCABsDynamic()) {
-               constructSememe(sememeDynamicCAB, newC);
-           }
-           
            return newC;
        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
            throw new IOException(ex);
@@ -198,9 +193,6 @@ public class UuidDtoBuilder {
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, ca);
       }
-      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-          construct(annotBp, ca);
-       }
 
       c.conceptAttributes = ca;
    }
@@ -236,10 +228,6 @@ public class UuidDtoBuilder {
          construct(annotBp, d);
       }
       
-      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-          construct(annotBp, d);
-      }
-
       c.getDescriptions().add(d);
    }
 
@@ -273,10 +261,6 @@ public class UuidDtoBuilder {
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, img);
       }
-      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-          construct(annotBp, img);
-      }
-
       c.getMedia().add(img);
    }
 
@@ -300,25 +284,7 @@ public class UuidDtoBuilder {
       for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
          construct(childBp, annot);
       }
-      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-          construct(annotBp, annot);
-      }
    }
-   
-   private void construct(RefexDynamicCAB blueprint, TtkComponentChronicle component)
-           throws IOException, InvalidCAB, ContradictionException {
-	      TtkRefexDynamicMemberChronicle annot = createRefex(blueprint);
-
-	      component.getAnnotations().add(annot);
-
-	      for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
-	         construct(childBp, annot);
-	      }
-	      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-	          construct(annotBp, annot);
-	      }
-   }
-
    private void constructSememe(RefexCAB blueprint, TtkConceptChronicle component)
            throws IOException, InvalidCAB, ContradictionException {
       TtkRefexAbstractMemberChronicle annot = createRefex(blueprint);
@@ -328,23 +294,6 @@ public class UuidDtoBuilder {
       for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
          construct(childBp, annot);
       }
-      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-          construct(annotBp, annot);
-      }
-   }
-   
-   private void constructSememe(RefexDynamicCAB blueprint, TtkConceptChronicle component)
-           throws IOException, InvalidCAB, ContradictionException {
-	      TtkRefexDynamicMemberChronicle annot = createRefex(blueprint);
-
-	      component.getRefsetMembersDynamic().add(annot);
-
-	      for (RefexCAB childBp : blueprint.getAnnotationBlueprints()) {
-	         construct(childBp, annot);
-	      }
-	      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-	          construct(annotBp, annot);
-	      }
    }
    
    /**
@@ -377,9 +326,6 @@ public class UuidDtoBuilder {
 
       for (RefexCAB annotBp : blueprint.getAnnotationBlueprints()) {
          construct(annotBp, r);
-      }
-      for (RefexDynamicCAB annotBp : blueprint.getAnnotationDynamicBlueprints()) {
-          construct(annotBp, r);
       }
 
       c.getRelationships().add(r);
@@ -597,28 +543,4 @@ public class UuidDtoBuilder {
       rm1.moduleUuid         = moduleUuid;
       rm1.pathUuid           = pathUuid;
    }
-   
-	private TtkRefexDynamicMemberChronicle createRefex(RefexDynamicCAB blueprint) throws IOException, InvalidCAB, ContradictionException
-	{
-		TtkRefexDynamicMemberChronicle rm1 = new TtkRefexDynamicMemberChronicle();
-
-		if (blueprint.getData() != null)
-		{
-			TtkRefexDynamicData[] data = new TtkRefexDynamicData[blueprint.getData().length];
-			for (int i = 0; i < data.length; i++)
-			{
-				data[i] = TtkRefexDynamicData.typeToClass(blueprint.getData()[i].getRefexDataType(), blueprint.getData()[i].getData());
-			}
-			rm1.setData(data);
-		}
-
-		rm1.primordialUuid = blueprint.getMemberUUID();
-		rm1.componentUuid = blueprint.getComponentUuid();
-		rm1.refexAssemblageUuid = blueprint.getRefexAssemblageUuid();
-		rm1.status = blueprint.getStatus();
-		rm1.time = time;
-		rm1.authorUuid = authorUuid;
-		rm1.moduleUuid = moduleUuid;
-		return rm1;
-	}
 }

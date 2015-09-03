@@ -56,22 +56,21 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     boolean containsDescription(String descriptionText);
 
     /**
-     * A test for validating that a concept contains a description as specified by
-     * the stampCoordinate. Used
-     * to validate concept proxies or concept specs at runtime.
+     * A test for validating that a concept contains an active description. Used
+     * to validate concept proxies or concept specifications at runtime.
      * @param descriptionText text to match against. 
      * @param stampCoordinate coordinate to determine if description is active. 
      * @return true if any version of a description matches this text. 
      */
-    boolean containsDescription(String descriptionText, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+    boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate);
         
-    List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
+    List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
     
     Optional<LatestVersion<DescriptionSememe<?>>> 
-        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+        getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
     
     Optional<LatestVersion<DescriptionSememe<?>>> 
-        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+        getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate);
 
     /**
      * Uses the default logic coordinate. 
@@ -92,7 +91,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
         getRelationshipListWithConceptAsDestination(LogicCoordinate logicCoordinate);
         
         
-    Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+    Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate);
     
     /**
@@ -103,7 +102,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
      * @param logicCoordinate specifies the assemblages where the definitions are stored. 
      * @return 
      */
-    String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+    String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate);
     /**
      * 

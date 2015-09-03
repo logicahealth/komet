@@ -20,6 +20,7 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 /**
  *
  * @author kec
+ * @param <T>
  */
 public interface LogicGraphSememe<T extends LogicGraphSememe<T>> extends SememeVersion<T> {
     

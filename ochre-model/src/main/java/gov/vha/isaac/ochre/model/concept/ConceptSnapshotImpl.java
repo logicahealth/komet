@@ -146,7 +146,8 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
     }
 
     public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
-        return languageCoordinate.getPreferredDescription(Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
+    	return languageCoordinate.getPreferredDescription(
+    			Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList()), stampCoordinate);
     }
 
     public DescriptionSememe<?> getDescription() {
@@ -158,6 +159,7 @@ public class ConceptSnapshotImpl implements ConceptSnapshot {
         if (pd.isPresent()) {
             return pd.get().value();
         }
+        
         return Get.sememeService().getDescriptionsForComponent(getNid()).findAny().get().getVersionList().get(0);
     }
     

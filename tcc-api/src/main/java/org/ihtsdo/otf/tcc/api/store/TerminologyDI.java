@@ -1,6 +1,7 @@
 package org.ihtsdo.otf.tcc.api.store;
 
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
+import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import org.ihtsdo.otf.tcc.api.db.DbDependency;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
 import org.jvnet.hk2.annotations.Contract;
 
@@ -69,28 +69,7 @@ public interface TerminologyDI {
 
     void forget(RefexChronicleBI extension) throws IOException;
     
-    void forget(RefexDynamicChronicleBI extension) throws IOException;
-
     void forget(RelationshipVersionBI rel) throws IOException;
-
-    /**
-     * Cause all index generators implementing the {@code IndexerBI} to
-     * first {@code clearIndex()} then iterate over all chronicles in the
-     * database and pass those chronicles to
-     * {@code index(ComponentChronicleBI chronicle)} and when complete, to
-     * call {@code commitWriter()}. {@code IndexerBI} services will be
-     * discovered using the HK2 dependency injection framework.
-     * @param indexesToRebuild - if null or empty - all indexes found via HK2 will be cleared and
-     * reindexed.  Otherwise, only clear and reindex the instances of IndexerBI which match the specified
-     * class list.  Classes passed in should be an extension of IndexerBI (but I don't have the type here to 
-     * be able to enforce that)
-     * 
-     * Note that this runs in a background thread - and hands back a task handle.  To wait for completion, 
-     * call get() on the returned task.
-     * 
-     * @throws IOException
-     */
-    Task<?> index(Class<?> ... indexesToRebuild);
 
     @Deprecated
     void iterateConceptDataInParallel(ProcessUnfetchedConceptDataBI processor) throws Exception;

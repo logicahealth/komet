@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
@@ -32,7 +33,7 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface SememeService {
     <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType, 
-            StampCoordinate<? extends StampCoordinate<?>> stampCoordinate);
+            StampCoordinate stampCoordinate);
     
     <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
     
@@ -56,7 +57,7 @@ public interface SememeService {
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
     
-    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence);
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptSequence);
     
@@ -66,6 +67,11 @@ public interface SememeService {
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
     
-    Stream<SememeChronology<DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
+    Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
     
+    /**
+     * @return the sequence identifiers of all assemblage concepts that are actually in use by a sememe
+     */
+    Stream<Integer> getAssemblageTypes();
+
 }

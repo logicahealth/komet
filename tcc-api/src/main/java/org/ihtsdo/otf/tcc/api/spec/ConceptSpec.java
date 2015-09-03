@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.store.Ts;
@@ -299,7 +300,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws IOException
      * @throws ValidationException
      */
-    public int getNid(ViewCoordinate vc) throws ValidationException, IOException {
+    public int getNid(StampCoordinate vc) throws ValidationException, IOException {
         ConceptSnapshot conceptVersion = getStrict(vc);
         return conceptVersion.getNid();
     }
@@ -325,7 +326,7 @@ public class ConceptSpec extends ConceptProxy implements SpecBI {
      * @throws IOException
      * @throws ValidationException
      */
-    public ConceptSnapshot getStrict(ViewCoordinate vc) throws ValidationException, IOException {
+    public ConceptSnapshot getStrict(StampCoordinate vc) throws ValidationException, IOException {
         ConceptChronology conceptChronology = getLenient();
         
         ConceptSnapshot conceptSnapshot = Get.conceptService().getSnapshot(vc).getConceptSnapshot(conceptChronology.getConceptSequence());

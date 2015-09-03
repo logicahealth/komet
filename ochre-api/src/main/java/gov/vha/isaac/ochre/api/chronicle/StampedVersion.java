@@ -21,18 +21,18 @@ import gov.vha.isaac.ochre.api.State;
  *
  * @author kec
  */
-public interface StampedVersion  {
-    
-    int getStampSequence();
-    
-    State getState();
-    
-    long getTime();
-    
-    int getAuthorSequence();
-    
-    int getModuleSequence();
-    
-    int getPathSequence();
+public interface StampedVersion {
+
+	int getStampSequence();
+
+	State getState();
+
+	long getTime();
+
+	int getAuthorSequence();
+
+	int getModuleSequence();
+
+	int getPathSequence();
 
 }

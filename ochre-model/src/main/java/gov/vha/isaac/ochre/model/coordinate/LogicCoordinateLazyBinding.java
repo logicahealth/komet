@@ -17,17 +17,33 @@ package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import java.util.UUID;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
  * @author kec
  */
+@XmlRootElement(name = "logicCoordinateLazyBinding")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     
-    private final ConceptProxy statedAssemblageProxy;
-    private final ConceptProxy inferredAssemblageProxy;
-    private final ConceptProxy descriptionLogicProfileProxy;
-    private final ConceptProxy classifierProxy;
+    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
+    private ConceptProxy statedAssemblageProxy = null;
+    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
+    private ConceptProxy inferredAssemblageProxy = null;
+    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
+    private ConceptProxy descriptionLogicProfileProxy = null;
+    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
+    private ConceptProxy classifierProxy = null;
+    
+    private LogicCoordinateLazyBinding() {
+        //for jaxb
+    }
 
     public LogicCoordinateLazyBinding(ConceptProxy statedAssemblageProxy, 
             ConceptProxy inferredAssemblageProxy, 
@@ -89,9 +105,7 @@ public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+        //Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
         final LogicCoordinate other = (LogicCoordinate) obj;
         if (this.getStatedAssemblageSequence() != other.getStatedAssemblageSequence()) {
             return false;
@@ -110,4 +124,14 @@ public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
         return "LogicCoordinateLazyBinding{" + "statedAssemblageProxy=" + statedAssemblageProxy + ", inferredAssemblageProxy=" + inferredAssemblageProxy + ", descriptionLogicProfileProxy=" + descriptionLogicProfileProxy + ", classifierProxy=" + classifierProxy + '}';
     }
     
+    private static class ConceptProxyAdapter extends XmlAdapter<UUID[], ConceptProxy> {
+        public UUID[] marshal(ConceptProxy c) {
+            return c.getUuidList().toArray(new UUID[c.getUuidList().size()]);
+        }
+
+        @Override
+        public ConceptProxy unmarshal(UUID[] v) throws Exception {
+            return new ConceptProxy("", v);
+        }
+    }
 }

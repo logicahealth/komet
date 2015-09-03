@@ -6,39 +6,61 @@
 package org.ihtsdo.otf.tcc.dto.taxonomy;
 
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import gov.vha.isaac.ochre.api.MetadataConceptConstant;
+import gov.vha.isaac.ochre.api.MetadataConceptConstantGroup;
+import gov.vha.isaac.ochre.api.MetadataDynamicSememeConstant;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
-import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
-import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
-import org.ihtsdo.otf.tcc.dto.JaxbForDto;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
-
-//~--- JDK imports ------------------------------------------------------------
-
+import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-
 import java.security.NoSuchAlgorithmException;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
-import org.ihtsdo.otf.tcc.dto.Wrapper;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
+import org.ihtsdo.otf.tcc.api.blueprint.ConceptCB;
+import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
+import org.ihtsdo.otf.tcc.api.blueprint.RefexDirective;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
+import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
+import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
+import org.ihtsdo.otf.tcc.api.refex.RefexType;
+import org.ihtsdo.otf.tcc.api.spec.ConceptSpec;
+import org.ihtsdo.otf.tcc.dto.JaxbForDto;
+import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.dto.UuidDtoBuilder;
+import org.ihtsdo.otf.tcc.dto.Wrapper;
+import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
+import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
+import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicArray;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicBoolean;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicInteger;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
+import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
+import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 
 /**
  *
@@ -55,6 +77,8 @@ public class Taxonomy {
    private final ConceptSpec                authorSpec;
    private final String                     semanticTag;
    private final LanguageCode                lang;
+   private final HashMap<UUID, List<TtkRefexDynamicMemberChronicle>> dynamicSememes = new HashMap<>();  //dynamic sememes are not supported by blueprints.  
+   private final long time = System.currentTimeMillis();
 
    public Taxonomy(ConceptSpec path, ConceptSpec author, ConceptSpec module,
                    ConceptSpec isaType, String semanticTag, LanguageCode lang) {
@@ -119,6 +143,134 @@ public class Taxonomy {
 
       return cb;
    }
+   
+   protected ConceptCB createConcept(MetadataConceptConstant cc) throws Exception {
+       ConceptCB cab = createConcept(cc.getFSN());
+       cab.setPreferredName(cc.getPreferredSynonym());
+       cab.setComponentUuidNoRecompute(cc.getUUID());
+       
+       for (String definition : cc.getDefinitions()) {
+           addDescription(definition, cab, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid());
+       }
+       
+       for (String definition : cc.getSynonyms()) {
+           addDescription(definition, cab, Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimodialUuid());
+       }
+       
+       return cab;
+   }
+   
+   protected ConceptCB createConcept(MetadataDynamicSememeConstant cc) throws Exception {
+       ConceptCB cab = createConcept((MetadataConceptConstant) cc);
+       
+       // See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
+       
+       //TODO note that when this class gets updated to stop using blueprints, a version of this that builds directly to TTK already exists in TtkRefexDynamicUtils
+       DescriptionCAB dcab = addDescription(cc.getSememeAssemblageDescription(), cab, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid());
+       //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
+       addDynamicAnnotation(TtkUtils.createDynamicAnnotation(dcab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), 
+                new TtkRefexDynamicData[0], (refex-> setRevisionAttributes(refex, null))));
+       
+       
+        if (cc.getDynamicSememeColumns() != null) {
+            for (DynamicSememeColumnInfo col : cc.getDynamicSememeColumns()) {
+                TtkRefexDynamicData[] data = new TtkRefexDynamicData[7];
+                data[0] = new TtkRefexDynamicInteger(col.getColumnOrder());
+                data[1] = new TtkRefexDynamicUUID(col.getColumnDescriptionConcept());
+                data[2] = new TtkRefexDynamicString(col.getColumnDataType().name());
+                data[3] = TtkRefexDynamicData.convertPolymorphicDataColumn(col.getDefaultColumnValue(), col.getColumnDataType());
+                data[4] = new TtkRefexDynamicBoolean(col.isColumnRequired());
+                
+                if (col.getValidator() != null) {
+                    ArrayList<TtkRefexDynamicString> validators = new ArrayList<>();
+                    for (int i = 0; i < col.getValidator().length; i++)
+                    {
+                        validators.add(new TtkRefexDynamicString(col.getValidator()[i].name()));
+                    }
+                    data[5] = new TtkRefexDynamicArray<TtkRefexDynamicString>(validators.toArray(new TtkRefexDynamicString[validators.size()]));
+                }
+                else {
+                    data[5] = null;
+                }
+                
+                if (col.getValidatorData() != null) {
+                    ArrayList<TtkRefexDynamicData> validators = new ArrayList<>();
+                    for (int i = 0; i < col.getValidatorData().length; i++)
+                    {
+                        validators.add(TtkRefexDynamicData.convertPolymorphicDataColumn(col.getValidatorData()[i], col.getValidatorData()[i].getDynamicSememeDataType()));
+                    }
+                    data[6] = new TtkRefexDynamicArray<TtkRefexDynamicData>(validators.toArray(new TtkRefexDynamicData[validators.size()]));
+                }
+                else {
+                    data[6] = null;
+                }
+                
+                addDynamicAnnotation(TtkUtils.createDynamicAnnotation(cab.getComponentUuid(), 
+                        IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), data, (refex-> setRevisionAttributes(refex, null))));
+            }
+        }
+        
+        if (cc.getReferencedComponentTypeRestriction() != null && ObjectChronologyType.UNKNOWN_NID != cc.getReferencedComponentTypeRestriction()) {
+            int size = 1;
+            if (cc.getReferencedComponentSubTypeRestriction() != null &&  SememeType.UNKNOWN != cc.getReferencedComponentSubTypeRestriction()) {
+                size = 2;
+            }
+
+            TtkRefexDynamicData[] data = new TtkRefexDynamicData[size];
+            data[0] = new TtkRefexDynamicString(cc.getReferencedComponentTypeRestriction().name());
+            if (size == 2) {
+                data[1] = new TtkRefexDynamicString(cc.getReferencedComponentSubTypeRestriction().name());
+            }
+            
+            addDynamicAnnotation(TtkUtils.createDynamicAnnotation(cab.getComponentUuid(), 
+                    IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), data, (refex-> setRevisionAttributes(refex, null))));
+        }
+        
+        if (cc.getRequiredIndexes() != null) {
+            addDynamicAnnotation(TtkUtils.configureDynamicRefexIndexes(cab.getComponentUuid(), cc.getRequiredIndexes(), 
+                    (refex-> setRevisionAttributes(refex, null))));
+        }
+       return cab;
+   }
+   
+   /**
+    * type should be either Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid() or Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimodialUuid()
+    */
+   private DescriptionCAB addDescription(String description, ConceptCB concept, UUID type) throws IOException, InvalidCAB, ContradictionException
+   {
+       DescriptionCAB dCab = new DescriptionCAB(concept.getComponentUuid(), type, lang, description, true,
+               IdDirective.GENERATE_HASH);
+       dCab.getProperties().put(ComponentProperty.MODULE_ID, moduleSpec.getUuids()[0]);
+
+       //Mark it as acceptable
+       RefexCAB rCabAcceptable = new RefexCAB(RefexType.CID, dCab.getComponentUuid(),  Snomed.US_LANGUAGE_REFEX.getPrimodialUuid(),
+               IdDirective.GENERATE_HASH, RefexDirective.EXCLUDE);
+       rCabAcceptable.put(ComponentProperty.COMPONENT_EXTENSION_1_ID,  SnomedMetadataRf2.ACCEPTABLE_RF2.getPrimodialUuid());
+       rCabAcceptable.getProperties().put(ComponentProperty.MODULE_ID, moduleSpec.getUuids()[0]);
+       dCab.addAnnotationBlueprint(rCabAcceptable);
+       
+       concept.addDescriptionCAB(dCab);
+       return dCab;
+   }
+   
+   protected ConceptCB createConcept(MetadataConceptConstantGroup ccg) throws Exception {
+       ConceptCB temp = createConcept((MetadataConceptConstant)ccg);
+       
+       pushParent(current());
+       for (MetadataConceptConstant cc : ccg.getChildren()) {
+           if (cc instanceof MetadataConceptConstantGroup) {
+               createConcept((MetadataConceptConstantGroup)cc);
+           }
+           else if (cc instanceof MetadataDynamicSememeConstant) {
+               createConcept((MetadataDynamicSememeConstant)cc);
+           }
+           else {
+               createConcept(cc);
+           }
+       }
+       popParent();
+       return temp;
+   }
 
    protected ConceptCB createModuleConcept(String name) throws Exception {
       ConceptCB cb = new ConceptCB(name + " " + semanticTag, 
@@ -142,7 +294,7 @@ public class Taxonomy {
    }
 
    public void exportEConcept(DataOutputStream out) throws Exception {
-      UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(System.currentTimeMillis(),
+      UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(time,
                                  authorSpec.getUuids()[0],
                                  pathSpec.getUuids()[0],
                                  moduleSpec.getUuids()[0]);
@@ -154,11 +306,43 @@ public class Taxonomy {
 
     private void constructAndWrite(UuidDtoBuilder dtoBuilder, ConceptCB concept, DataOutputStream out) throws ContradictionException, InvalidCAB, IOException {
         TtkConceptChronicle ttkConcept = dtoBuilder.construct(concept);
+        addDynamicSememes(ttkConcept);
         ttkConcept.writeExternal(out);
     }
+    
+    /**
+     * Since the CAB support was ripped out for dynamic sememes, we just write them directly into the TTKConcept before the TTKConcept is serialized.
+     */
+    private void addDynamicSememes(TtkConceptChronicle ttkConcept) {
+        List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(ttkConcept.getPrimordialUuid());
+        if (ds != null) {
+            for (TtkRefexDynamicMemberChronicle s : ds) {
+                ttkConcept.getRefsetMembersDynamic().add(s);
+                addNestedDynamicSememes(s);  //In case the annotation has an annotation
+            }
+        }
+        for (TtkDescriptionChronicle d : ttkConcept.getDescriptions()) {
+            addNestedDynamicSememes(d);
+        }
+        for (TtkRelationshipChronicle r : ttkConcept.getRelationships()) {
+            addNestedDynamicSememes(r);
+        }
+    }
+    
+    private void addNestedDynamicSememes(TtkComponentChronicle<?, ?> component)
+    {
+        List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(component.getPrimordialUuid());
+        if (ds != null) {
+            for (TtkRefexDynamicMemberChronicle s : ds) {
+                component.getAnnotationsDynamic().add(s);
+                addNestedDynamicSememes(s);  //In case the annoation has an annotation
+            }
+        }
+    }
+    
 
     public void exportJaxb(DataOutputStream out) throws Exception {
-        UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(System.currentTimeMillis(),
+        UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(time,
                 authorSpec.getUuids()[0],
                 pathSpec.getUuids()[0],
                 moduleSpec.getUuids()[0]);
@@ -170,7 +354,9 @@ public class Taxonomy {
 
         ArrayList<TtkConceptChronicle> taxonomyList = new ArrayList<>();
         for (ConceptCB concept : conceptBpsInInsertionOrder) {
-            taxonomyList.add(dtoBuilder.construct(concept));
+            TtkConceptChronicle ttkConcept = dtoBuilder.construct(concept);
+            addDynamicSememes(ttkConcept);
+            taxonomyList.add(ttkConcept);
         }
 
 
@@ -193,6 +379,10 @@ public class Taxonomy {
       for (ConceptCB concept : conceptBpsInInsertionOrder) {
          String preferredName = concept.getPreferredName();
          String constantName  = preferredName.toUpperCase();
+         
+         if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
+            throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
+         }
 
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");
@@ -260,5 +450,32 @@ public class Taxonomy {
       cb.setComponentUuidNoRecompute(observableFields.getUuid());
       return cb;
    }  
+     
+    protected TtkRefexDynamicMemberChronicle addDynamicAnnotation(TtkRefexDynamicMemberChronicle dynamicSememe) 
+            throws NoSuchAlgorithmException, UnsupportedEncodingException {
+
+        List<TtkRefexDynamicMemberChronicle> ds = dynamicSememes.get(dynamicSememe.getComponentUuid());
+        if (ds == null) {
+            ds = new ArrayList<>();
+            dynamicSememes.put(dynamicSememe.getComponentUuid(), ds);
+        }
+        ds.add(dynamicSememe);
+        return dynamicSememe;
+    }
+    
+    /**
+     * Set up all the boilerplate stuff.
+     * 
+     * @param object - The object to do the setting to
+     * @param statusUuid - Uuid or null (for current)
+     */
+    public void setRevisionAttributes(TtkRevision object, Status status) {
+        object.setAuthorUuid(authorSpec.getPrimodialUuid());
+        object.setModuleUuid(moduleSpec.getPrimodialUuid());
+        object.setPathUuid(pathSpec.getPrimodialUuid());
+        object.setStatus(status == null ? Status.ACTIVE : status);
+        object.setTime(time);
+    }
+     
 
 }

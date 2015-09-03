@@ -71,7 +71,14 @@ public class SememeSequenceSet extends SequenceSet<SememeSequenceSet> {
         super(members);
     }  
     
-    
+    	protected SememeSequenceSet(Concurrency concurrency) {
+		super(concurrency);
+	}
+
+	public static SememeSequenceSet concurrent() {
+		return new SememeSequenceSet(Concurrency.THREAD_SAFE);
+	}
+
     @Override
     public boolean contains(int item) {
         return super.contains(Get.identifierService().getSememeSequence(item)); 
@@ -87,4 +94,9 @@ public class SememeSequenceSet extends SequenceSet<SememeSequenceSet> {
         super.addAll(intStream.map((item) -> { return Get.identifierService().getSememeSequence(item);})); 
     }
 
+	@Override
+	public String toString() {
+		return toString((sememeSequence) -> Integer.toString(sememeSequence));
+	}
+	 
 }

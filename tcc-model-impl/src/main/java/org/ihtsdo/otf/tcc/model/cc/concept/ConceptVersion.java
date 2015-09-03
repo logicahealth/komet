@@ -71,8 +71,6 @@ import org.ihtsdo.otf.tcc.api.nid.NidSet;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI;
-import org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicVersionBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipChronicleBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelationshipVersionBI;
@@ -144,15 +142,6 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.addAnnotation(annotation);
     }
 
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#addDynamicAnnotation(org.ihtsdo.otf.tcc.api.refexDynamic.RefexDynamicChronicleBI)
-     */
-    @Override
-    public boolean addDynamicAnnotation(RefexDynamicChronicleBI<?> annotation) throws IOException {
-        return concept.addDynamicAnnotation(annotation);
-    }
-
     @Override
     public void cancel() throws IOException {
         concept.cancel();
@@ -203,7 +192,7 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.commit(changeSetPolicy, changeSetWriterThreading);
     }
 
-    public boolean isLatestVersionActive(StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public boolean isLatestVersionActive(StampCoordinate coordinate) {
         return concept.isLatestVersionActive(coordinate);
     }
 
@@ -736,41 +725,6 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.getRefexes();
     }
 
-    /**
-     * @see org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamic()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexesDynamic() throws IOException {
-        return concept.getRefexesDynamic();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicAnnotations()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicAnnotations() throws IOException {
-        return concept.getRefexDynamicAnnotations();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexDynamicMembers()
-     */
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefexDynamicMembers() throws IOException {
-        return concept.getRefexDynamicMembers();
-    }
-
-    /**
-     * @see
-     * org.ihtsdo.otf.tcc.api.chronicle.ComponentBI#getRefexesDynamicActive(org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)
-     */
-    @Override
-    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive(ViewCoordinate viewCoordinate) throws IOException {
-        return concept.getRefexesDynamicActive(viewCoordinate);
-    }
-
     @Override
     public RefexChronicleBI<?> getRefsetMemberForComponent(int componentNid) throws IOException {
         return concept.getRefsetMemberForComponent(componentNid);
@@ -779,11 +733,6 @@ public class ConceptVersion implements ConceptVersionBI,
     @Override
     public Collection<? extends RefexChronicleBI<?>> getRefsetMembers() throws IOException {
         return concept.getRefsetMembers();
-    }
-
-    @Override
-    public Collection<? extends RefexDynamicChronicleBI<?>> getRefsetDynamicMembers() throws IOException {
-        return concept.getRefsetDynamicMembers();
     }
 
     @Override
@@ -1252,14 +1201,6 @@ public class ConceptVersion implements ConceptVersionBI,
         return concept.hasCurrentAnnotationMember(vc, refsetNid);
     }
 
-    /**
-     * Get the annotation style refexes and the member style refexes, filter by active only
-     */
-    @Override
-    public Collection<? extends RefexDynamicVersionBI<?>> getRefexesDynamicActive() throws IOException {
-        return this.getRefexesDynamicActive(vc);
-    }
-
     @Override
     public boolean hasChildren() throws IOException, ContradictionException {
         Collection<? extends RelationshipVersionBI<?>> children = this.getRelationshipsIncomingActive();
@@ -1447,7 +1388,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public List<? extends SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+    public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
        return concept.getConceptDescriptionList();
     }
 
@@ -1491,19 +1432,19 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate<? extends StampCoordinate<?>> coordinate) {
+    public Optional<LatestVersion<ConceptVersionBI>> getLatestVersion(Class<ConceptVersionBI> type, StampCoordinate coordinate) {
         return concept.getLatestVersion(type, coordinate);
     }
     
 
     @Override
     public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-       return languageCoordinate.getFullySpecifiedDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+       return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
     public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate, StampCoordinate stampCoordinate) {
-       return languageCoordinate.getPreferredDescription((List<SememeChronology<DescriptionSememe<?>>>) getConceptDescriptionList(), stampCoordinate);
+       return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
     }
 
     @Override
@@ -1527,7 +1468,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
 
     @Override
-    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, 
+    public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate) {
         return concept.getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
     }
@@ -1538,7 +1479,7 @@ public class ConceptVersion implements ConceptVersionBI,
     }
     
     @Override
-    public String getLogicalDefinitionChronologyReport(StampCoordinate<? extends StampCoordinate<?>> stampCoordinate, PremiseType premiseType, 
+    public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, 
             LogicCoordinate logicCoordinate) {
        return "Not supported in OTF"; 
     }

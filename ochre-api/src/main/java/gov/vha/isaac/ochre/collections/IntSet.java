@@ -1,323 +1,84 @@
 /*
- * Copyright 2015 kec.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package gov.vha.isaac.ochre.collections;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.Spliterator;
-import java.util.function.IntConsumer;
+import java.util.PrimitiveIterator;
 import java.util.function.IntFunction;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import org.roaringbitmap.IntIterator;
-import org.roaringbitmap.RoaringBitmap;
 
 /**
  *
  * @author kec
- * @param <T>
  */
-public abstract class IntSet<T extends IntSet<T>> implements Comparable<T> {
+public interface IntSet  {
 
-    RoaringBitmap rbmp;
-    boolean readOnly = false;
+	/**
+	 *
+	 * @param item to add to set.
+	 */
+	void add(int item);
 
-    /**
-     * 
-     * @param readOnly true if the set is read only. 
-     */
-    protected IntSet(boolean readOnly) {
-        rbmp = new RoaringBitmap();
-        this.readOnly = readOnly;
-    }
-    protected IntSet() {
-        rbmp = new RoaringBitmap();
-    }
+	void addAll(IntStream intStream);
 
-    protected IntSet(int... members) {
-        rbmp = RoaringBitmap.bitmapOf(members);
-    }
+	IntSet and(IntSet otherSet);
 
-    public void setReadOnly() {
-        this.readOnly = true;
-    }
+	IntSet andNot(IntSet otherSet);
 
-    protected IntSet(OpenIntHashSet members) {
-        rbmp = new RoaringBitmap();
-        members.forEachKey((int element) -> {
-            rbmp.add(element);
-            return true;
-        });
-    }
+	int[] asArray();
 
-    protected IntSet(IntStream memberStream) {
-        rbmp = new RoaringBitmap();
-        memberStream.forEach((member) -> rbmp.add(member));
-    }
+	void clear();
 
-    @Override
-    public int compareTo(T o) {
-        int comparison = Integer.compare(rbmp.getCardinality(), o.rbmp.getCardinality());
-        if (comparison != 0) {
-            return comparison;
-        }
-        IntIterator thisIterator = rbmp.getIntIterator();
-        IntIterator otherIterator = o.rbmp.getIntIterator();
-        while (thisIterator.hasNext()) {
-            comparison = Integer.compare(thisIterator.next(), otherIterator.next());
-            if (comparison != 0) {
-                return comparison;
-            }
-        }
-        return 0;
-    }
+	/**
+	 *
+	 * @param item to test for containment in set.
+	 * @return true if item is contained in set.
+	 */
+	boolean contains(int item);
 
-    public void clear() {
-        rbmp.clear();
-    }
+	OptionalInt findFirst();
 
-    public T or(T otherSet) {
-        if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-        rbmp.or(otherSet.rbmp);
-        return (T) this;
-    }
+	PrimitiveIterator.OfInt getIntIterator();
 
-    public T and(T otherSet) {
-        if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-        rbmp.and(otherSet.rbmp);
-        return (T) this;
-    }
+	PrimitiveIterator.OfInt getReverseIntIterator();
 
-    public T andNot(T otherSet) {
-        if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-        rbmp.andNot(otherSet.rbmp);
-        return (T) this;
-    }
+	/**
+	 *
+	 * @return true if the set is empty.
+	 */
+	boolean isEmpty();
 
-    public T xor(T otherSet) {
-        if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-        rbmp.xor(otherSet.rbmp);
-        return (T) this;
-    }
+	IntSet or(IntSet otherSet);
 
-    /**
-     *
-     * @return the number of elements in this set.
-     */
-    public int size() {
-        return rbmp.getCardinality();
-    }
+	/**
+	 *
+	 * @return the set members as an {@code IntStream}
+	 */
+	IntStream parallelStream();
 
-    /**
-     *
-     * @return true if the set is empty.
-     */
-    public boolean isEmpty() {
-        return rbmp.isEmpty();
-    }
+	/**
+	 *
+	 * @param item to remove from set.
+	 */
+	void remove(int item);
 
-    /**
-     *
-     * @param item to add to set.
-     */
-    public void add(int item) {
-        if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-        rbmp.add(item);
-    }
+	/**
+	 *
+	 * @return the number of elements in this set.
+	 */
+	int size();
 
-    public void addAll(IntStream intStream) {
-        if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-        intStream.forEach((anInt) -> rbmp.add(anInt));
-    }
+	/**
+	 *
+	 * @return the set members as an {@code IntStream}
+	 */
+	IntStream stream();
 
-    /**
-     *
-     * @param item to remove from set.
-     */
-    public void remove(int item) {
-         if (readOnly) {
-            throw new UnsupportedOperationException("Read only set");
-        }
-       rbmp.remove(item);
-    }
-
-    /**
-     *
-     * @param item to test for containment in set.
-     * @return true if item is contained in set.
-     */
-    public boolean contains(int item) {
-        return rbmp.contains(item);
-    }
-
-    /**
-     *
-     * @return the set members as an {@code IntStream}
-     */
-    public IntStream stream() {
-        if (rbmp.isEmpty()) {
-            return IntStream.empty();
-        }
-        Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-        return StreamSupport.intStream(streamSupplier,
-                streamSupplier.get().characteristics(),
-                false);
-    }
-
-    public OptionalInt findFirst() {
-        return stream().findFirst();
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 1;
-        IntIterator itr = rbmp.getIntIterator();
-        while (itr.hasNext()) {
-            result = 31 * result + itr.next();
-        }
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final IntSet<?> other = (IntSet<?>) obj;
-        return this.rbmp.equals(other.rbmp);
-    }
-
-    /**
-     *
-     * @return the set members as an {@code IntStream}
-     */
-    public IntStream parallelStream() {
-        if (rbmp.isEmpty()) {
-            return IntStream.empty();
-        }
-        Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-        return StreamSupport.intStream(streamSupplier,
-                streamSupplier.get().characteristics(),
-                true);
-    }
-
-    public int[] asArray() {
-        return stream().toArray();
-    }
-
-    public OpenIntHashSet asOpenIntHashSet() {
-        OpenIntHashSet set = new OpenIntHashSet();
-        stream().forEach((sequence) -> set.add(sequence));
-        return set;
-    }
-
-    protected Supplier<? extends Spliterator.OfInt> get() {
-        return new SpliteratorSupplier();
-    }
-
-    private class SpliteratorSupplier implements Supplier<Spliterator.OfInt> {
-
-        @Override
-        public Spliterator.OfInt get() {
-            return new BitSetSpliterator();
-        }
-
-    }
-
-    private class BitSetSpliterator implements Spliterator.OfInt {
-
-        IntIterator intIterator = rbmp.getIntIterator();
-
-        @Override
-        public Spliterator.OfInt trySplit() {
-            return null;
-        }
-
-        @Override
-        public boolean tryAdvance(IntConsumer action) {
-            action.accept(intIterator.next());
-            return intIterator.hasNext();
-        }
-
-        @Override
-        public long estimateSize() {
-            return IntSet.this.size();
-        }
-
-        @Override
-        public int characteristics() {
-            return Spliterator.DISTINCT
-                    + Spliterator.IMMUTABLE
-                    + Spliterator.NONNULL
-                    + Spliterator.ORDERED
-                    + Spliterator.SIZED
-                    + Spliterator.SORTED;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName()
-                + " size: " + size() + " elements: " + rbmp;
-    }
-
-    public IntIterator getIntIterator() {
-        return rbmp.getIntIterator();
-    }
-
-    public IntIterator getReverseIntIterator() {
-        return rbmp.getReverseIntIterator();
-    }
-    
-   public String toString(IntFunction<String> function) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        int limit = 20;
-        stream().limit(limit).forEach((element) -> {
-            sb.append(function.apply(element));
-            sb.append("<");
-            sb.append(element);
-            sb.append(">");
-            sb.append(", ");
-        } );
-        if (size() > 20) {
-             sb.append("...");
-        } else {
-            sb.delete(sb.length() - 2, sb.length());
-        }
-        sb.append("]");
-        return this.getClass().getSimpleName()
-                + " size: " + size() + " elements: " + sb.toString();
-    }
+	IntSet xor(IntSet otherSet);
+	
 }

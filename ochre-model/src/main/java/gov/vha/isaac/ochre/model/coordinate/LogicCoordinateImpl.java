@@ -15,6 +15,9 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
@@ -25,12 +28,18 @@ import javafx.beans.value.WeakChangeListener;
  *
  * @author kec
  */
+@XmlRootElement(name = "logicCoordinate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class LogicCoordinateImpl implements LogicCoordinate {
     
     int statedAssemblageSequence;
     int inferredAssemblageSequence;
     int descriptionLogicProfileSequence;
     int classifierSequence;
+    
+    protected LogicCoordinateImpl() {
+        //for jaxb and subclass
+    }
 
     public LogicCoordinateImpl(int statedAssemblageSequence, int inferredAssemblageSequnce, int descriptionLogicProfileSequence, int classifierSequence) {
         this.statedAssemblageSequence = statedAssemblageSequence;
@@ -111,20 +120,23 @@ public class LogicCoordinateImpl implements LogicCoordinate {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        //Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
+        final LogicCoordinate other = (LogicCoordinate) obj;
+        if (this.statedAssemblageSequence != other.getStatedAssemblageSequence()) {
             return false;
         }
-        final LogicCoordinateImpl other = (LogicCoordinateImpl) obj;
-        if (this.statedAssemblageSequence != other.statedAssemblageSequence) {
+        if (this.inferredAssemblageSequence != other.getInferredAssemblageSequence()) {
             return false;
         }
-        if (this.inferredAssemblageSequence != other.inferredAssemblageSequence) {
+        if (this.descriptionLogicProfileSequence != other.getDescriptionLogicProfileSequence()) {
             return false;
         }
-        if (this.descriptionLogicProfileSequence != other.descriptionLogicProfileSequence) {
-            return false;
-        }
-        return this.classifierSequence == other.classifierSequence;
+        return this.classifierSequence == other.getClassifierSequence();
     }
     
+    @Override
+    public String toString() {
+        return "LogicCoordinateImpl{" + statedAssemblageSequence + ",\n" + inferredAssemblageSequence + ", \n" 
+                + descriptionLogicProfileSequence + ", \n" + classifierSequence + '}';
+    }
 }
