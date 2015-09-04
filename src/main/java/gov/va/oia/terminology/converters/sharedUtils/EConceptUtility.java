@@ -983,7 +983,7 @@ public class EConceptUtility
 				{
 					DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] {
 							new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true)};
-					TtkUtils.configureConceptAsRefex(concept, "Carries the source description type information",
+					TtkUtils.configureConceptAsDynamicRefex(concept, "Carries the source description type information",
 							colInfo,
 							null, 
 							null,
