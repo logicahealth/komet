@@ -1,10 +1,5 @@
 package org.ihtsdo.otf.tcc.dto.component;
 
-import gov.vha.isaac.ochre.api.component.sememe.SememeType;
-import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.beans.PropertyVetoException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -12,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.StringUtils;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
@@ -30,6 +26,12 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDyna
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicInteger;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 
 /**
  * In general, code that helps in writing TTK econcepts - mostly ported from the EConceptUtility in the common converter code
@@ -43,7 +45,7 @@ public class TtkUtils
 	private static final UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getPrimodialUuid();
 	private static final UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getPrimodialUuid();
 	
-	public static void configureConceptAsRefex(TtkConceptChronicle concept, String refexDescription,
+	public static void configureConceptAsDynamicRefex(TtkConceptChronicle concept, String refexDescription,
 			DynamicSememeColumnInfo[] columns, ComponentType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
 			Consumer<TtkRevision> revSetter) throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
 	{
@@ -127,6 +129,33 @@ public class TtkUtils
 			nested.add(createDynamicAnnotation(concept.getConceptAttributes().getPrimordialUuid(), 
 					IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), data, revSetter));
 		}
+	}
+	
+	public static void configureConceptAsAssociation(TtkConceptChronicle concept, String refexDescription, String associationInverseName,
+			ComponentType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
+			Consumer<TtkRevision> revSetter) throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
+	{
+		DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] {
+				new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(), 
+						DynamicSememeDataType.UUID, null, false)};
+		
+		configureConceptAsDynamicRefex(concept, refexDescription, columns, referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, revSetter);
+		
+		List<TtkRefexDynamicMemberChronicle> members = concept.getConceptAttributes().getAnnotationsDynamic();
+		if (members == null)
+		{
+			members = new ArrayList<>();
+		}
+		members.add(configureDynamicRefexIndexes(concept.getPrimordialUuid(), new Integer[] {0}, revSetter));
+		
+		//Then add the inverse name, if present.
+		if (!StringUtils.isBlank(associationInverseName))
+		{
+			addDescription(concept, associationInverseName, Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimodialUuid(), false, LanguageCode.EN, revSetter);
+		}
+		
+		members.add(createDynamicAnnotation(concept.getPrimordialUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), 
+				new TtkRefexDynamicData[] {}, revSetter));
 	}
 	
 	/**

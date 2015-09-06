@@ -19,8 +19,10 @@ package org.ihtsdo.otf.tcc.model.path;
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.PathService;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,223 +53,221 @@ import org.ihtsdo.otf.tcc.model.cc.refex.type_nid_long.NidLongMember;
  * instead marshals to to the Extension termstore (indirectly).
  *
  */
+@Deprecated
 public class PathManager implements PathService {
 
-    private static final Logger logger = Logger.getLogger(PathManager.class.getName());
-    private static Lock l = new ReentrantLock();
+	private static final Logger logger = Logger.getLogger(PathManager.class.getName());
+	private static Lock l = new ReentrantLock();
 
-    //~--- fields --------------------------------------------------------------
-    private ConcurrentHashMap<Integer, Path> pathMap_;
-    private ConceptChronicle pathRefsetConcept;
-    private ConceptChronicle refsetPathOriginsConcept;
+	//~--- fields --------------------------------------------------------------
+	private ConcurrentHashMap<Integer, Path> pathMap_;
+	private ConceptChronicle pathRefsetConcept;
+	private ConceptChronicle refsetPathOriginsConcept;
 
-    /**
-     * You likely shouldn't use this constructor - it instead, should be managed by the PathProvider.
-     * 
-     * This legacy class will go away entirely, in the future.
-     */
-    public PathManager() {
-    }
+	/**
+	 * You likely shouldn't use this constructor - it instead, should be managed
+	 * by the PathProvider.
+	 *
+	 * This legacy class will go away entirely, in the future.
+	 */
+	public PathManager() {
+	}
 
-    //~--- methods -------------------------------------------------------------
-    @Override
-    public boolean exists(int pathConceptId) {
-        if (pathConceptId >= 0) {
-            pathConceptId = Get.identifierService().getConceptNid(pathConceptId);
-        }
-        try {
-            if (getPathMap().containsKey(pathConceptId)) {
-                return true;
-            }
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+	//~--- methods -------------------------------------------------------------
+	@Override
+	public boolean exists(int pathConceptId) {
+		if (pathConceptId >= 0) {
+			pathConceptId = Get.identifierService().getConceptNid(pathConceptId);
+		}
+		try {
+			if (getPathMap().containsKey(pathConceptId)) {
+				return true;
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
-        return getFromDisk(pathConceptId) != null;
-    }
+		return getFromDisk(pathConceptId) != null;
+	}
 
-    private ConcurrentHashMap<Integer, Path> getPathMap() throws IOException {
-        if (pathMap_ == null) {
-            l.lock();
-            pathMap_ = new ConcurrentHashMap<>();
-            try {
-                getPathRefsetConcept();
+	private ConcurrentHashMap<Integer, Path> getPathMap() throws IOException {
+		if (pathMap_ == null) {
+			l.lock();
+			pathMap_ = new ConcurrentHashMap<>();
+			try {
+				getPathRefsetConcept();
 
-                for (RefexMember<?, ?> extPart : getPathRefsetConcept().getExtensions()) {
-                    if (extPart instanceof NidMember) {
-                        NidMember conceptExtension = (NidMember) extPart;
-                        int pathId = conceptExtension.getC1Nid();
-                        pathMap_.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
-                    } else {
-                        int pathId = extPart.getReferencedComponentNid();
-                        pathMap_.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
-                    }
-                }
-            } catch (Exception e) {
-                throw new IOException("Unable to retrieve all paths.", e);
-            } finally {
-                l.unlock();
-            }
-        }
-        return pathMap_;
-    }
+				for (RefexMember<?, ?> extPart : getPathRefsetConcept().getExtensions()) {
+					if (extPart instanceof NidMember) {
+						NidMember conceptExtension = (NidMember) extPart;
+						int pathId = conceptExtension.getC1Nid();
+						pathMap_.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
+					} else {
+						int pathId = extPart.getReferencedComponentNid();
+						pathMap_.put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
+					}
+				}
+			} catch (Exception e) {
+				throw new IOException("Unable to retrieve all paths.", e);
+			} finally {
+				l.unlock();
+			}
+		}
+		return pathMap_;
+	}
 
+	private Path getFromDisk(int cNid) {
+		try {
+			for (RefexMember<?, ?> extPart : getPathRefsetConcept().getExtensions()) {
+				int pathId;
+				if (extPart instanceof NidMember) {
+					NidMember conceptExtension = (NidMember) extPart;
+					pathId = conceptExtension.getC1Nid();
+				} else {
+					pathId = extPart.getReferencedComponentNid();
+				}
+				if (pathId == cNid) {
+					getPathMap().put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
+					return getPathMap().get(cNid);
+				}
 
-    private Path getFromDisk(int cNid) {
-        try {
-            for (RefexMember<?, ?> extPart : getPathRefsetConcept().getExtensions()) {
-                int pathId;
-                if (extPart instanceof NidMember) {
-                    NidMember conceptExtension = (NidMember) extPart;
-                    pathId = conceptExtension.getC1Nid();
-                } else {
-                    pathId = extPart.getReferencedComponentNid();
-                }
-                if (pathId == cNid) {
-                    getPathMap().put(pathId, new Path(pathId, getPathOriginsFromDb(pathId)));
-                    return getPathMap().get(cNid);
-                }
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to retrieve all paths.", e);
+		}
 
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to retrieve all paths.", e);
-        }
+		return null;
+	}
 
-        return null;
-    }
+	@Override
+	public Collection<? extends StampPosition> getOrigins(int stampPathSequence) {
+		if (stampPathSequence < 0) {
+			stampPathSequence = Get.identifierService().getConceptSequence(stampPathSequence);
+		}
+		return getPathOriginsFromDb(stampPathSequence);
+	}
 
-    @Override
-    public Collection<? extends StampPosition> getOrigins(int stampPathSequence) {
-        if (stampPathSequence < 0) {
-            stampPathSequence = Get.identifierService().getConceptSequence(stampPathSequence);
-        }
-        return getPathOriginsFromDb(stampPathSequence);
-    }
+	private List<Position> getPathOriginsFromDb(int nid) {
+		return getPathOriginsWithDepth(nid, 0);
+	}
 
-    private List<Position> getPathOriginsFromDb(int nid) {
-        return getPathOriginsWithDepth(nid, 0);
-    }
+	private List<Position> getPathOriginsWithDepth(int nid, int depth) {
+		try {
+			ArrayList<Position> result = new ArrayList<>();
+			ConceptChronicle pathConcept = (ConceptChronicle) Ts.get().getConcept(nid);
 
-    private List<Position> getPathOriginsWithDepth(int nid, int depth) {
-        try {
-            ArrayList<Position> result = new ArrayList<>();
-            ConceptChronicle pathConcept = (ConceptChronicle) Ts.get().getConcept(nid);
+			for (RefexChronicleBI<?> extPart : pathConcept.getRefexMembers(ReferenceConcepts.REFSET_PATH_ORIGINS.getNid())) {
+				if (extPart == null) {
+					logger.log(Level.SEVERE, "", new Exception("Null path origins for: "
+							  + pathConcept.toLongString() + "\n\nin refset: \n\n"
+							  + getRefsetPathOriginsConcept().toLongString()));
+				} else if (extPart instanceof NidLongMember) {
+					NidLongMember conceptExtension = (NidLongMember) extPart;
 
-            for (RefexChronicleBI<?> extPart : pathConcept.getRefexMembers(ReferenceConcepts.REFSET_PATH_ORIGINS.getNid())) {
-                if (extPart == null) {
-                    logger.log(Level.SEVERE, "", new Exception("Null path origins for: "
-                            + pathConcept.toLongString() + "\n\nin refset: \n\n"
-                            + getRefsetPathOriginsConcept().toLongString()));
-                } else {
-                    if (extPart instanceof NidLongMember) {
-                        NidLongMember conceptExtension = (NidLongMember) extPart;
+					if (conceptExtension.getC1Nid() == nid) {
+						logger.log(Level.SEVERE, "Self-referencing origin in path: {0}",
+								  pathConcept.getDescriptions().iterator().next());
+					} else if (getPathMap().containsKey(conceptExtension.getC1Nid())) {
+						result.add(new Position(conceptExtension.getLong1(),
+								  getPathMap().get(conceptExtension.getC1Nid())));
+					} else if (depth > 40) {
+						logger.log(Level.SEVERE, "",
+								  new Exception(
+											 "\n\n****************************************\nDepth limit exceeded. Path concept: \n"
+											 + pathConcept.toLongString() + "\n\n extensionPart: \n\n"
+											 + extPart.toString() + "\n\n origin refset: \n\n"
+											 + ConceptChronicle.get(extPart.getAssemblageNid()).toLongString()
+											 + "\n-------------------------------------------\n\n"));
+					} else {
+						result.add(new Position(conceptExtension.getLong1(),
+								  new Path(conceptExtension.getC1Nid(),
+											 getPathOriginsWithDepth(conceptExtension.getC1Nid(),
+														depth + 1))));
+					}
+				} else {
+					// TODO remove after paths convert to NidLongMembers automatically on import...
 
-                        if (conceptExtension.getC1Nid() == nid) {
-                            logger.log(Level.SEVERE, "Self-referencing origin in path: {0}",
-                                    pathConcept.getDescriptions().iterator().next());
-                        } else {
-                            if (getPathMap().containsKey(conceptExtension.getC1Nid())) {
-                                result.add(new Position(conceptExtension.getLong1(),
-                                        getPathMap().get(conceptExtension.getC1Nid())));
-                            } else {
-                                if (depth > 40) {
-                                    logger.log(Level.SEVERE, "",
-                                            new Exception(
-                                                    "\n\n****************************************\nDepth limit exceeded. Path concept: \n"
-                                                    + pathConcept.toLongString() + "\n\n extensionPart: \n\n"
-                                                    + extPart.toString() + "\n\n origin refset: \n\n"
-                                                    + ConceptChronicle.get(extPart.getAssemblageNid()).toLongString()
-                                                    + "\n-------------------------------------------\n\n"));
-                                } else {
-                                    result.add(new Position(conceptExtension.getLong1(),
-                                            new Path(conceptExtension.getC1Nid(),
-                                                    getPathOriginsWithDepth(conceptExtension.getC1Nid(),
-                                                            depth + 1))));
-                                }
-                            }
-                        }
-                    } else {
-                        // TODO remove after paths convert to NidLongMembers automatically on import...
+					NidIntMember conceptExtension = (NidIntMember) extPart;
 
-                        NidIntMember conceptExtension = (NidIntMember) extPart;
+					if (conceptExtension.getC1Nid() == nid) {
+						logger.log(Level.SEVERE, "Self-referencing origin in path[2]: {0}",
+								  pathConcept.getDescriptions().iterator().next());
+					} else if (getPathMap().containsKey(conceptExtension.getC1Nid())) {
+						result.add(new Position(ThinVersionHelper.convert(conceptExtension.getInt1()),
+								  getPathMap().get(conceptExtension.getC1Nid())));
+					} else if (depth > 40) {
+						logger.log(Level.SEVERE, "",
+								  new Exception(
+											 "\n\n****************************************\nDepth limit exceeded[2]. Path concept: \n"
+											 + pathConcept.toLongString() + "\n\n extensionPart: \n\n"
+											 + extPart.toString() + "\n\n origin refset: \n\n"
+											 + ConceptChronicle.get(extPart.getAssemblageNid()).toLongString()
+											 + "\n-------------------------------------------\n\n"));
+					} else {
+						result.add(new Position(ThinVersionHelper.convert(conceptExtension.getInt1()),
+								  new Path(conceptExtension.getC1Nid(),
+											 getPathOriginsWithDepth(conceptExtension.getC1Nid(),
+														depth + 1))));
+					}
+				}
+			}
 
-                        if (conceptExtension.getC1Nid() == nid) {
-                            logger.log(Level.SEVERE, "Self-referencing origin in path[2]: {0}",
-                                    pathConcept.getDescriptions().iterator().next());
-                        } else {
-                            if (getPathMap().containsKey(conceptExtension.getC1Nid())) {
-                                result.add(new Position(ThinVersionHelper.convert(conceptExtension.getInt1()),
-                                        getPathMap().get(conceptExtension.getC1Nid())));
-                            } else {
-                                if (depth > 40) {
-                                    logger.log(Level.SEVERE, "",
-                                            new Exception(
-                                                    "\n\n****************************************\nDepth limit exceeded[2]. Path concept: \n"
-                                                    + pathConcept.toLongString() + "\n\n extensionPart: \n\n"
-                                                    + extPart.toString() + "\n\n origin refset: \n\n"
-                                                    + ConceptChronicle.get(extPart.getAssemblageNid()).toLongString()
-                                                    + "\n-------------------------------------------\n\n"));
-                                } else {
-                                    result.add(new Position(ThinVersionHelper.convert(conceptExtension.getInt1()),
-                                            new Path(conceptExtension.getC1Nid(),
-                                                    getPathOriginsWithDepth(conceptExtension.getC1Nid(),
-                                                            depth + 1))));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to retrieve path origins.", e);
+		}
+	}
 
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to retrieve path origins.", e);
-        }
-    }
+	private ConceptChronicle getPathRefsetConcept() throws IOException {
+		if (pathRefsetConcept == null) {
+			pathRefsetConcept = (ConceptChronicle) Ts.get().getConcept(ReferenceConcepts.REFSET_PATHS.getNid());
+		}
 
-    private ConceptChronicle getPathRefsetConcept() throws IOException {
-        if (pathRefsetConcept == null) {
-            pathRefsetConcept = (ConceptChronicle) Ts.get().getConcept(ReferenceConcepts.REFSET_PATHS.getNid());
-        }
+		return pathRefsetConcept;
+	}
 
-        return pathRefsetConcept;
-    }
+	private ConceptChronicle getRefsetPathOriginsConcept() throws IOException {
+		if (this.refsetPathOriginsConcept == null) {
+			this.refsetPathOriginsConcept = ConceptChronicle.get(ReferenceConcepts.REFSET_PATH_ORIGINS.getNid());
+		}
 
-    private ConceptChronicle getRefsetPathOriginsConcept() throws IOException {
-        if (this.refsetPathOriginsConcept == null) {
-            this.refsetPathOriginsConcept = ConceptChronicle.get(ReferenceConcepts.REFSET_PATH_ORIGINS.getNid());
-        }
+		return refsetPathOriginsConcept;
+	}
 
-        return refsetPathOriginsConcept;
-    }
+	@Override
+	public StampPath getStampPath(int stampPathSequence) {
+		if (stampPathSequence >= 0) {
+			stampPathSequence = Get.identifierService().getConceptNid(stampPathSequence);
+		}
+		if (exists(stampPathSequence)) {
+			try {
+				return getPathMap().get(stampPathSequence);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			Path p = getFromDisk(stampPathSequence);
 
-    @Override
-    public StampPath getStampPath(int stampPathSequence) {
-        if (stampPathSequence >= 0) {
-            stampPathSequence = Get.identifierService().getConceptNid(stampPathSequence);
-        }
-        if (exists(stampPathSequence)) {
-            try {
-                return getPathMap().get(stampPathSequence);
-            }
-            catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            Path p = getFromDisk(stampPathSequence);
+			if (p != null) {
+				return p;
+			}
+		}
+		return null;
+	}
 
-            if (p != null) {
-                return p;
-            }
-        }
-        return null;
-    }
+	@Override
+	public Collection<? extends StampPath> getPaths() {
+		return pathMap_.values();
+	}
 
-    @Override
-    public Collection<? extends StampPath> getPaths() {
-        return pathMap_.values();
-    }
-    
-    
+	@Override
+	public RelativePosition getRelativePosition(StampedVersion v1, StampedVersion v2) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public RelativePosition getRelativePosition(int stampSequence1, int stampSequence2) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
 }

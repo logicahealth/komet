@@ -165,7 +165,7 @@ public class Taxonomy {
        
        // See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
        
-       //TODO note that when this class gets updated to stop using blueprints, a version of this that builds directly to TTK already exists in TtkRefexDynamicUtils
+       //TODO note that when this class gets updated to stop using blueprints, a version of this that builds directly to TTK already exists in TtkUtils
        DescriptionCAB dcab = addDescription(cc.getSememeAssemblageDescription(), cab, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid());
        //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
        addDynamicAnnotation(TtkUtils.createDynamicAnnotation(dcab.getComponentUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), 
