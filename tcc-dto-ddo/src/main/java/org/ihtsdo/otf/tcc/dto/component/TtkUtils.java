@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
 import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
-import org.ihtsdo.otf.tcc.api.metadata.ComponentType;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
@@ -26,6 +25,7 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDyna
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicInteger;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
@@ -46,7 +46,7 @@ public class TtkUtils
 	private static final UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getPrimodialUuid();
 	
 	public static void configureConceptAsDynamicRefex(TtkConceptChronicle concept, String refexDescription,
-			DynamicSememeColumnInfo[] columns, ComponentType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
+			DynamicSememeColumnInfo[] columns, ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
 			Consumer<TtkRevision> revSetter) throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
 	{
 		// See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
@@ -111,7 +111,7 @@ public class TtkUtils
 			}
 		}
 		
-		if (referencedComponentTypeRestriction != null && ComponentType.UNKNOWN != referencedComponentTypeRestriction)
+		if (referencedComponentTypeRestriction != null && ObjectChronologyType.UNKNOWN_NID != referencedComponentTypeRestriction)
 		{
 			int size = 1;
 			if (referencedComponentTypeSubRestriction!= null && SememeType.UNKNOWN != referencedComponentTypeSubRestriction)
@@ -132,7 +132,7 @@ public class TtkUtils
 	}
 	
 	public static void configureConceptAsAssociation(TtkConceptChronicle concept, String refexDescription, String associationInverseName,
-			ComponentType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
+			ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
 			Consumer<TtkRevision> revSetter) throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
 	{
 		DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] {
@@ -255,6 +255,35 @@ public class TtkUtils
 		//TODO dan - need to look and see how I am generating UUIDs for dynamic sememes in the Builder...
 		StringBuilder sb = new StringBuilder();
 		sb.append(dynamicSememe.getRefexAssemblageUuid().toString());
+		sb.append(dynamicSememe.getComponentUuid().toString());
+		if (data != null)
+		{
+			for (TtkRefexDynamicData d : data)
+			{
+				if (d == null)
+				{
+					sb.append("null");
+				}
+				else
+				{
+					sb.append(d.getRefexDataType().getDisplayName());
+					sb.append(new String(d.getData()));
+				}
+			}
+		}
+		dynamicSememe.setPrimordialComponentUuid(UuidT5Generator.get((namespace == null ? RefexCAB.refexSpecNamespace : namespace), sb.toString()));
+		return sb.toString();
+	}
+	
+	/**
+	 * @param namespace - optional - uses {@link RefexCAB#refexSpecNamespace} if not specified
+	 * @return - the generated string used for refex creation 
+	 */
+	public static String setUUIDForRefex(TtkRefexDynamicMemberChronicle dynamicSememe, TtkRefexDynamicData[] data, UUID namespace) throws NoSuchAlgorithmException, 
+		UnsupportedEncodingException
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(dynamicSememe.getRefexAssemblageUuid().toString()); 
 		sb.append(dynamicSememe.getComponentUuid().toString());
 		if (data != null)
 		{
