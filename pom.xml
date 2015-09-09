@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>gov.vha.isaac</groupId>
 		<artifactId>isaac-parent</artifactId>
-		<version>1.10-SNAPSHOT</version>
+		<version>1.9</version>
 	</parent>
 	
 	<groupId>gov.vha.isaac.terminology.converters</groupId>
@@ -15,7 +15,7 @@
 	<name>Converters Common Code</name>
 
 	<properties>
-		<isaac-mojo.version>1.10-SNAPSHOT</isaac-mojo.version>
+		<isaac-mojo.version>1.11</isaac-mojo.version>
 	</properties>
 
 	<scm>

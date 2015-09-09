@@ -257,7 +257,7 @@ public class Property
 				{
 					try
 					{
-						TtkUtils.configureConceptAsRefex(concept, 
+						TtkUtils.configureConceptAsDynamicRefex(concept, 
 								(StringUtils.isNotEmpty(Property.this.getSourcePropertyDefinition()) ? Property.this.getSourcePropertyDefinition() : "Dynamic Sememe"),
 								Property.this.getDataColumnsForDynamicRefex(), null, null, 
 								((rev) -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));

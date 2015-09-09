@@ -478,7 +478,7 @@ public class EConceptUtility
 		{
 			try
 			{
-				String hashValue = GenerateMetadataEConcepts.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
+				String hashValue = TtkUtils.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
 			
 			ConverterUUID.addMapping(hashValue, annotation.getPrimordialComponentUuid());
 			}
@@ -663,7 +663,7 @@ public class EConceptUtility
 		{
 			try
 			{
-				String hashValue = GenerateMetadataEConcepts.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
+				String hashValue = TtkUtils.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
 			
 			ConverterUUID.addMapping(hashValue, member.getPrimordialComponentUuid());
 			}
@@ -983,7 +983,7 @@ public class EConceptUtility
 				{
 					DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] {
 							new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true)};
-					TtkUtils.configureConceptAsRefex(concept, "Carries the source description type information",
+					TtkUtils.configureConceptAsDynamicRefex(concept, "Carries the source description type information",
 							colInfo,
 							null, 
 							null,
