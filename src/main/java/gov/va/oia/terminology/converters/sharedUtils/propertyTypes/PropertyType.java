@@ -20,6 +20,8 @@ package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import gov.va.oia.terminology.converters.sharedUtils.ConsoleUtil;
 import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
@@ -48,8 +48,8 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	private String propertyTypeReferenceSetName_;
 	private UUID propertyTypeReferenceSetUUID;
 	private boolean createAsDynamicRefex_ = false;  //It could make sense to set this at the individual Property level... but in general, everything of the same type 
-	//will be handled in the same way - relationships are not dynamic refexes, assoications are, for example.
-	private RefexDynamicDataType defaultDataColumn_;  //If the property is specified without further column instructions, and createAsDynamicRefex is true, 
+	//will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
+	private DynamicSememeDataType defaultDataColumn_;  //If the property is specified without further column instructions, and createAsDynamicRefex is true, 
 	//use this information to configure the (single) data column.
 
 	private Map<String, Property> properties_;
@@ -63,12 +63,12 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 		srcVersion_ = version;
 	}
 	
-	protected PropertyType(String propertyTypeDescription, boolean createAsDynamicRefex, RefexDynamicDataType defaultDynamicRefexColumnType)
+	protected PropertyType(String propertyTypeDescription, boolean createAsDynamicRefex, DynamicSememeDataType defaultDynamicRefexColumnType)
 	{
 		this(propertyTypeDescription, null, createAsDynamicRefex, defaultDynamicRefexColumnType);
 	}
 	
-	protected PropertyType(String propertyTypeDescription, String propertyTypeRefSetName, boolean createAsDynamicRefex, RefexDynamicDataType defaultDynamicRefexColumnType)
+	protected PropertyType(String propertyTypeDescription, String propertyTypeRefSetName, boolean createAsDynamicRefex, DynamicSememeDataType defaultDynamicRefexColumnType)
 	{
 		this.properties_ = new HashMap<String, Property>();
 		this.propertyTypeDescription_ = propertyTypeDescription;
@@ -197,7 +197,7 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 	}
 
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition, 
-			boolean disabled, int propertySubType, RefexDynamicColumnInfo[] dataColumnForDynamicRefex)
+			boolean disabled, int propertySubType, DynamicSememeColumnInfo[] dataColumnForDynamicRefex)
 	{
 		return addProperty(new Property(this, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, sourcePropertyDefinition, disabled, 
 				propertySubType, dataColumnForDynamicRefex));
@@ -268,7 +268,7 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 		//default, noop method.
 	}
 	
-	protected RefexDynamicDataType getDefaultColumnInfo()
+	protected DynamicSememeDataType getDefaultColumnInfo()
 	{
 		return defaultDataColumn_;
 	}

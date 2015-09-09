@@ -29,29 +29,29 @@ import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
 import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
 import gov.vha.isaac.mojo.GenerateMetadataEConcepts;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
+import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
@@ -80,7 +80,7 @@ public class EConceptUtility
 	public final static UUID isARelUuid_ = IsaacMetadataAuxiliaryBinding.IS_A.getPrimodialUuid();
 	public final static UUID authorUuid_ = IsaacMetadataAuxiliaryBinding.USER.getPrimodialUuid();
 	public final static UUID synonymUuid_ = IsaacMetadataAuxiliaryBinding.SYNONYM.getPrimodialUuid();
-	public final static UUID definitionUuid_ = IsaacMetadataAuxiliaryBinding.DEFINITION.getPrimodialUuid();
+	public final static UUID definitionUuid_ = IsaacMetadataAuxiliaryBinding.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid();
 	public final static UUID fullySpecifiedNameUuid_ = IsaacMetadataAuxiliaryBinding.FULLY_SPECIFIED_NAME.getPrimodialUuid();
 	public final static UUID descriptionAcceptableUuid_ = IsaacMetadataAuxiliaryBinding.ACCEPTABLE.getPrimodialUuid();
 	public final static UUID descriptionPreferredUuid_ = IsaacMetadataAuxiliaryBinding.PREFERRED.getPrimodialUuid();
@@ -95,7 +95,7 @@ public class EConceptUtility
 	public final long defaultTime_;
 	private final String lang_ = "en";
 	public UUID moduleUuid_ = null;
-	private HashMap<UUID, RefexDynamicColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();;
+	private HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();;
 
 	private LoadStats ls_ = new LoadStats();
 
@@ -120,7 +120,7 @@ public class EConceptUtility
 		ConverterUUID.configureNamespace(module);
 		
 		moduleUuid_ = module;
-		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on MASTER path");
+		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on DEVELOPMENT path");
 	}
 
 	/**
@@ -421,7 +421,7 @@ public class EConceptUtility
 	/**
 	 * uses the concept time, UUID is created from the component UUID, the annotation value and type.
 	 */
-	public TtkRefexDynamicMemberChronicle addStringAnnotation(TtkComponentChronicle<?> component, String annotationValue, UUID refsetUuid, Status status)
+	public TtkRefexDynamicMemberChronicle addStringAnnotation(TtkComponentChronicle<?, ?> component, String annotationValue, UUID refsetUuid, Status status)
 	{
 		if (annotationValue == null)
 		{
@@ -437,12 +437,12 @@ public class EConceptUtility
 		}
 	}
 	
-	public TtkRefexDynamicMemberChronicle addAnnotationStyleRefsetMembership(TtkComponentChronicle<?> component, UUID refexDynamicTypeUuid, Status status, Long time)
+	public TtkRefexDynamicMemberChronicle addAnnotationStyleRefsetMembership(TtkComponentChronicle<?, ?> component, UUID refexDynamicTypeUuid, Status status, Long time)
 	{
 		return addAnnotation(component, null, (TtkRefexDynamicData[])null, refexDynamicTypeUuid, status, time);
 	}
 	
-	public TtkRefexDynamicMemberChronicle addAnnotation(TtkComponentChronicle<?> component, UUID uuidForCreatedAnnotation, TtkRefexDynamicData value, 
+	public TtkRefexDynamicMemberChronicle addAnnotation(TtkComponentChronicle<?, ?> component, UUID uuidForCreatedAnnotation, TtkRefexDynamicData value, 
 			UUID refexDynamicTypeUuid, Status status, Long time)
 	{
 		return addAnnotation(component, uuidForCreatedAnnotation, new TtkRefexDynamicData[] {value}, refexDynamicTypeUuid, status, time);
@@ -453,12 +453,12 @@ public class EConceptUtility
 	 * @param UuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
 	 * @param values - the values to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
 	 * of the sememe represented by refexDynamicTypeUuid
-	 * @param refexDynamicTypeUuid - the uuid of the dynamic refex type - 
+	 * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type - 
 	 * @param status
 	 * @param time - if null, uses the component time
 	 * @return
 	 */
-	public TtkRefexDynamicMemberChronicle addAnnotation(TtkComponentChronicle<?> component, UUID uuidForCreatedAnnotation, TtkRefexDynamicData[] values, 
+	public TtkRefexDynamicMemberChronicle addAnnotation(TtkComponentChronicle<?, ?> component, UUID uuidForCreatedAnnotation, TtkRefexDynamicData[] values, 
 			UUID refexDynamicTypeUuid, Status status, Long time)
 	{
 		List<TtkRefexDynamicMemberChronicle> annotations = component.getAnnotationsDynamic();
@@ -478,7 +478,7 @@ public class EConceptUtility
 		{
 			try
 			{
-				String hashValue = GenerateMetadataEConcepts.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
+				String hashValue = TtkUtils.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
 			
 			ConverterUUID.addMapping(hashValue, annotation.getPrimordialComponentUuid());
 			}
@@ -508,15 +508,15 @@ public class EConceptUtility
 		//generateMetadataEConcepts
 		if (values != null && values.length > 0)
 		{
-			RefexDynamicColumnInfo[] colInfo = refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
+			DynamicSememeColumnInfo[] colInfo = refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
 			if (colInfo == null || colInfo.length == 0)
 			{
-				throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic refex");
+				throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
 			}
 			for (int i = 0; i < values.length; i++)
 			{
-				RefexDynamicColumnInfo column = null;
-				for (RefexDynamicColumnInfo x : colInfo)
+				DynamicSememeColumnInfo column = null;
+				for (DynamicSememeColumnInfo x : colInfo)
 				{
 					if(x.getColumnOrder() == i)
 					{
@@ -542,7 +542,7 @@ public class EConceptUtility
 	/**
 	 * uses the component time, creates the UUID from the component UUID, the value UUID, and the type UUID.
 	 */
-	public TtkRefexDynamicMemberChronicle addUuidAnnotation(TtkComponentChronicle<?> component, UUID value, UUID refsetUuid)
+	public TtkRefexDynamicMemberChronicle addUuidAnnotation(TtkComponentChronicle<?, ?> component, UUID value, UUID refsetUuid)
 	{
 		if (value == null)
 		{
@@ -582,7 +582,7 @@ public class EConceptUtility
 	 * @param time - If time is null, uses the component time.
 	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
 	 */
-	private TtkRefexUuidMemberChronicle addLegacyUuidAnnotation(TtkComponentChronicle<?> component, UUID annotationPrimordialUuid, UUID valueConcept, UUID refsetUuid, 
+	private TtkRefexUuidMemberChronicle addLegacyUuidAnnotation(TtkComponentChronicle<?, ?> component, UUID annotationPrimordialUuid, UUID valueConcept, UUID refsetUuid, 
 			Status status, Long time)
 	{
 		List<TtkRefexAbstractMemberChronicle<?>> annotations = component.getAnnotations();
@@ -612,7 +612,7 @@ public class EConceptUtility
 		return conceptRefexMember;
 	}
 
-	private void annotationLoadStats(TtkComponentChronicle<?> component, UUID refsetUuid)
+	private void annotationLoadStats(TtkComponentChronicle<?, ?> component, UUID refsetUuid)
 	{
 		if (component instanceof TtkConceptAttributesChronicle)
 		{
@@ -663,7 +663,7 @@ public class EConceptUtility
 		{
 			try
 			{
-				String hashValue = GenerateMetadataEConcepts.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
+				String hashValue = TtkUtils.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
 			
 			ConverterUUID.addMapping(hashValue, member.getPrimordialComponentUuid());
 			}
@@ -771,7 +771,7 @@ public class EConceptUtility
 	 * @param statusUuid - Uuid or null (for current)
 	 * @param time - time or null (for default)
 	 */
-	private void setRevisionAttributes(TtkRevision object, Status status, Long time)
+	public void setRevisionAttributes(TtkRevision object, Status status, Long time)
 	{
 		object.setAuthorUuid(authorUuid_);
 		object.setModuleUuid(moduleUuid_);
@@ -816,7 +816,8 @@ public class EConceptUtility
 	/**
 	 * Utility method to build and store a metadata concept.
 	 */
-	public TtkConceptChronicle createAndStoreMetaDataConcept(UUID primordial, String name, UUID relParentPrimordial, Consumer<TtkConceptChronicle> callback,
+	public TtkConceptChronicle createAndStoreMetaDataConcept(UUID primordial, String name, UUID relParentPrimordial, 
+			BiConsumer<TtkConceptChronicle, EConceptUtility> callback,
 			DataOutputStream dos) throws Exception
 	{
 		return createMetaDataConcept(primordial, name, null, null, null, relParentPrimordial, null, callback, dos);
@@ -829,7 +830,7 @@ public class EConceptUtility
 	 * @param secondParent - optional
 	 */
 	public TtkConceptChronicle createMetaDataConcept(UUID primordial, String fsnName, String preferredName, String altName, String definition, 
-			UUID relParentPrimordial, UUID secondParent, Consumer<TtkConceptChronicle> callback, DataOutputStream dos)
+			UUID relParentPrimordial, UUID secondParent, BiConsumer<TtkConceptChronicle, EConceptUtility> callback, DataOutputStream dos)
 			throws Exception
 	{
 		TtkConceptChronicle concept = createConcept(primordial, fsnName);
@@ -854,7 +855,7 @@ public class EConceptUtility
 		//Fire the callback
 		if (callback != null)
 		{
-			callback.accept(concept);
+			callback.accept(concept, this);
 		}
 		
 		if (dos != null)
@@ -882,8 +883,7 @@ public class EConceptUtility
 	 */
 	public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial, DataOutputStream dos) throws Exception
 	{
-		ArrayList<UUID> typesThatNeedIndexes = new ArrayList<>();
-		ArrayList<Integer[]> columnsThatNeedIndexes = new ArrayList<>();
+		List<TtkRefexDynamicMemberChronicle> attrs = new ArrayList<>();
 		for (PropertyType pt : propertyTypes)
 		{
 			if (pt instanceof BPT_Skip)
@@ -932,7 +932,6 @@ public class EConceptUtility
 					else
 					{
 						refexAllowedColumnTypes_.put(p.getUUID(), p.getDataColumnsForDynamicRefex());
-						typesThatNeedIndexes.add(p.getUUID());
 						if (p.getDataColumnsForDynamicRefex() != null)
 						{
 							Integer[] temp = new Integer[p.getDataColumnsForDynamicRefex().length];
@@ -940,18 +939,20 @@ public class EConceptUtility
 							{
 								temp[i] = i;
 							}
-							columnsThatNeedIndexes.add(temp);
-						}
-						else
-						{
-							columnsThatNeedIndexes.add(new Integer[] {});
+							
+							
+							
+							attrs.add(TtkUtils.configureDynamicRefexIndexes(p.getUUID(), temp, (rev -> setRevisionAttributes(rev, Status.ACTIVE, defaultTime_))));
 						}
 					}
 				}
 			}
 		}
 		
-		TtkConceptChronicle indexConcept = GenerateMetadataEConcepts.indexRefex(typesThatNeedIndexes, columnsThatNeedIndexes);
+		//For lack of a better place to put them, drop them an the index concept:
+		
+		TtkConceptChronicle indexConcept = createConcept(IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID());
+		indexConcept.getConceptAttributes().setAnnotationsDynamic(attrs);
 		indexConcept.writeExternal(dos);
 	}
 	
@@ -973,22 +974,28 @@ public class EConceptUtility
 		}
 		
 		//Create the terminology specific refset type
-		Consumer<TtkConceptChronicle> callback = new Consumer<TtkConceptChronicle>()
+		BiConsumer<TtkConceptChronicle, EConceptUtility> callback = new BiConsumer<TtkConceptChronicle, EConceptUtility>()
 		{
 			@Override
-			public void accept(TtkConceptChronicle concept)
+			public void accept(TtkConceptChronicle concept, EConceptUtility util)
 			{
 				try
 				{
-					RefexDynamicColumnInfo[] colInfo = new RefexDynamicColumnInfo[] {
-							new RefexDynamicColumnInfo(0, RefexDynamic.DYNAMIC_SEMEME_COLUMN_VALUE.getPrimodialUuid(), RefexDynamicDataType.UUID, null, true, null, null)};
-					GenerateMetadataEConcepts.turnConceptIntoDynamicRefexAssemblageConcept(concept, true, "Carries the source description type information",
+					DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] {
+							new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true)};
+					TtkUtils.configureConceptAsDynamicRefex(concept, "Carries the source description type information",
 							colInfo,
-							null);
+							null, 
+							null,
+							(rev -> setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
 					refexAllowedColumnTypes_.put(concept.getPrimordialUuid(), colInfo);
-					TtkConceptChronicle indexConcept = GenerateMetadataEConcepts.indexRefex(Arrays.asList(new UUID[] {concept.getPrimordialUuid()}),
-							Arrays.asList(new Integer[][] {new Integer[] {0}}));
-					indexConcept.writeExternal(dos);
+					List<TtkRefexDynamicMemberChronicle> attrs = concept.getConceptAttributes().getAnnotationsDynamic();
+					if (attrs == null)
+					{
+						attrs = new ArrayList<>();
+					}
+					attrs.add(TtkUtils.configureDynamicRefexIndexes(concept.getPrimordialUuid(), new Integer[] {0}, 
+							(rev -> setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime()))));
 				}
 				catch (NoSuchAlgorithmException | PropertyVetoException | IOException e)
 				{

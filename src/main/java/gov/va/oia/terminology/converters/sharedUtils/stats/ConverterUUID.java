@@ -20,6 +20,7 @@ package gov.va.oia.terminology.converters.sharedUtils.stats;
 
 import gov.va.oia.terminology.converters.sharedUtils.ConsoleUtil;
 import gov.va.oia.terminology.converters.sharedUtils.ConverterBaseMojo;
+import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.uuid.UuidT5Generator;
 
 /**
  * A utility class for generating UUIDs which keeps track of what was used to generate the UUIDs - which

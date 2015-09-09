@@ -18,7 +18,7 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 
 
 /**
@@ -29,6 +29,6 @@ public class BPT_Annotations extends PropertyType
 {
 	public BPT_Annotations()
 	{
-		super("Attribute Types", true, RefexDynamicDataType.STRING);
+		super("Attribute Types", true, DynamicSememeDataType.STRING);
 	}
 }

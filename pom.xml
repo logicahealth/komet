@@ -4,18 +4,18 @@
 	<parent>
 		<groupId>gov.vha.isaac</groupId>
 		<artifactId>isaac-parent</artifactId>
-		<version>1.6</version>
+		<version>1.9</version>
 	</parent>
 	
 	<groupId>gov.vha.isaac.terminology.converters</groupId>
 	<artifactId>term-convert-common-base</artifactId>
-	<version>4.1</version>
+	<version>4.2</version>
 	<packaging>jar</packaging>
 	
 	<name>Converters Common Code</name>
 
 	<properties>
-		<isaac-gui.version>1.6</isaac-gui.version>
+		<isaac-mojo.version>1.11</isaac-mojo.version>
 	</properties>
 
 	<scm>
@@ -49,19 +49,7 @@
 		<dependency>
 			<groupId>gov.vha.isaac</groupId>
 			<artifactId>isaac-mojo</artifactId>
-			<version>${isaac-gui.version}</version>
+			<version>${isaac-mojo.version}</version>
 		</dependency>
-
-		<!--
-		<dependency>
-			<groupId>org.ihtsdo.otf</groupId>
-			<artifactId>tcc-mojo</artifactId>
-			<version>${otf-vs.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ihtsdo.otf</groupId>
-			<artifactId>tcc-dto-ddo</artifactId>
-			<version>${otf-vs.version}</version>
-		</dependency-->
 	</dependencies>
 </project>

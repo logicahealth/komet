@@ -18,17 +18,19 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import gov.vha.isaac.mojo.GenerateMetadataEConcepts;
+import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import java.beans.PropertyVetoException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
-import org.ihtsdo.otf.tcc.api.metadata.binding.RefexDynamic;
-import org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicColumnInfo;
+import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
 
 /**
  * 
@@ -52,7 +54,7 @@ public class Property
 	private PropertyType owner_;
 	private UUID propertyUUID = null;;
 	private UUID useWBPropertyTypeInstead = null;  //see comments in setter
-	private RefexDynamicColumnInfo[] dataColumnsForDynamicRefex_ = null;
+	private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex_ = null;
 	
 	private ArrayList<ConceptCreationNotificationListener> listeners_ = new ArrayList<>(1);
 
@@ -61,7 +63,7 @@ public class Property
 	 * uses as provided here (even if empty)
 	 */
 	public Property(PropertyType owner, String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, 
-			String sourcePropertyDefinition, boolean disabled, int propertySubType, RefexDynamicColumnInfo[] columnInforForDynamicRefex)
+			String sourcePropertyDefinition, boolean disabled, int propertySubType, DynamicSememeColumnInfo[] columnInforForDynamicRefex)
 	{
 		this.owner_ = owner;
 		this.sourcePropertyNameFSN_ = sourcePropertyNameFSN;
@@ -84,7 +86,7 @@ public class Property
 		if (columnInforForDynamicRefex == null && owner != null && owner_.getDefaultColumnInfo() != null)
 		{
 			//Create a single required column, with the column name just set to 'value'
-			dataColumnsForDynamicRefex_ = new RefexDynamicColumnInfo[] { new RefexDynamicColumnInfo(null, 0, RefexDynamic.DYNAMIC_SEMEME_COLUMN_VALUE.getPrimodialUuid(),
+			dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
 					owner_.getDefaultColumnInfo(), null, true, null, null)};
 		}
 		else
@@ -94,7 +96,7 @@ public class Property
 		
 		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
 		{
-			throw new RuntimeException("Tried to attach dynamic refex data where it isn't allowed.");
+			throw new RuntimeException("Tried to attach dynamic sememe data where it isn't allowed.");
 		}
 	}
 
@@ -180,12 +182,12 @@ public class Property
 			//Create a single required column, with the column name concept tied back to the assemblage concept itself.
 			//leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
 			//at the time this code runs.  We make sure it is set down below, in the getter.
-			dataColumnsForDynamicRefex_ = new RefexDynamicColumnInfo[] { new RefexDynamicColumnInfo(null, 0, getUUID(),
+			dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, getUUID(),
 					owner_.getDefaultColumnInfo(), null, true, null, null)};
 		}
 		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
 		{
-			throw new RuntimeException("Tried to attach dynamic refex data where it isn't allowed.");
+			throw new RuntimeException("Tried to attach dynamic sememe data where it isn't allowed.");
 		}
 		
 	}
@@ -219,7 +221,7 @@ public class Property
 		return owner_;
 	}
 	
-	public RefexDynamicColumnInfo[] getDataColumnsForDynamicRefex()
+	public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex()
 	{
 		if (dataColumnsForDynamicRefex_ != null && dataColumnsForDynamicRefex_.length == 1 && dataColumnsForDynamicRefex_[0].getAssemblageConcept() == null)
 		{
@@ -244,21 +246,21 @@ public class Property
 	 * Any the created concept will be passed to any registered listeners before the concept is written.
 	 * @param concept
 	 */
-	public Consumer<TtkConceptChronicle> getCallback()
+	public BiConsumer<TtkConceptChronicle, EConceptUtility> getCallback()
 	{
-		return new Consumer<TtkConceptChronicle>()
+		return new BiConsumer<TtkConceptChronicle, EConceptUtility>()
 		{
 			@Override
-			public void accept(TtkConceptChronicle concept)
+			public void accept(TtkConceptChronicle concept, EConceptUtility utility)
 			{
 				if (Property.this.getPropertyType().createAsDynamicRefex())
 				{
 					try
 					{
-						GenerateMetadataEConcepts.turnConceptIntoDynamicRefexAssemblageConcept(concept, 
-								(Property.this.getPropertyType() instanceof BPT_MemberRefsets ? false :  true),
+						TtkUtils.configureConceptAsDynamicRefex(concept, 
 								(StringUtils.isNotEmpty(Property.this.getSourcePropertyDefinition()) ? Property.this.getSourcePropertyDefinition() : "Dynamic Sememe"),
-								Property.this.getDataColumnsForDynamicRefex(), null);
+								Property.this.getDataColumnsForDynamicRefex(), null, null, 
+								((rev) -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
 					}
 					catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
 					{
