@@ -253,19 +253,46 @@ public class Property
 			@Override
 			public void accept(TtkConceptChronicle concept, EConceptUtility utility)
 			{
-				if (Property.this.getPropertyType().createAsDynamicRefex())
+				try
 				{
-					try
+					if (Property.this.getPropertyType().createAsDynamicRefex())
 					{
 						TtkUtils.configureConceptAsDynamicRefex(concept, 
 								(StringUtils.isNotEmpty(Property.this.getSourcePropertyDefinition()) ? Property.this.getSourcePropertyDefinition() : "Dynamic Sememe"),
 								Property.this.getDataColumnsForDynamicRefex(), null, null, 
 								((rev) -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
+						
+						utility.registerDynamicSememeColumnInfo(Property.this.getUUID(), Property.this.getDataColumnsForDynamicRefex());
+						
+						if (Property.this.getDataColumnsForDynamicRefex() != null && Property.this.getDataColumnsForDynamicRefex().length > 0)
+						{
+							if (Property.this.getDataColumnsForDynamicRefex() != null)
+							{
+								Integer[] temp = new Integer[Property.this.getDataColumnsForDynamicRefex().length];
+								for (int i = 0; i < temp.length; i++)
+								{
+									temp[i] = i;
+								}
+								
+								//Not really the right place to put this sememe... but it will get moved appropriate when loaded in ochre.
+								concept.getConceptAttributes().getAnnotationsDynamic().add(
+										TtkUtils.configureDynamicRefexIndexes(Property.this.getUUID(), temp, (rev -> utility.setRevisionAttributes(rev, Status.ACTIVE, 
+												concept.getConceptAttributes().getTime()))));
+							}
+						}
 					}
-					catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
+					
+					if (Property.this instanceof PropertyAssociation)
 					{
-						throw new RuntimeException("Unexpected");
+						PropertyAssociation item = (PropertyAssociation)Property.this;
+						TtkUtils.configureConceptAsAssociation(concept, item.getSourcePropertyDefinition(), item.getAssociationInverseName(), 
+								item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction(),
+								(rev -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
 					}
+				}
+				catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
+				{
+					throw new RuntimeException("Unexpected");
 				}
 				
 				for (ConceptCreationNotificationListener ccn : listeners_)

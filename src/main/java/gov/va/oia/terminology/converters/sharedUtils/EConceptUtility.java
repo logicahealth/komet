@@ -18,20 +18,6 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils;
 
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Skip;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
-import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
-import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
-import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
-import gov.vha.isaac.mojo.GenerateMetadataEConcepts;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -62,6 +48,19 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Skip;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
+import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
+import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
+import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 
 /**
  * 
@@ -478,7 +477,7 @@ public class EConceptUtility
 		{
 			try
 			{
-				String hashValue = GenerateMetadataEConcepts.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
+				String hashValue = TtkUtils.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
 			
 			ConverterUUID.addMapping(hashValue, annotation.getPrimordialComponentUuid());
 			}
@@ -663,7 +662,7 @@ public class EConceptUtility
 		{
 			try
 			{
-				String hashValue = GenerateMetadataEConcepts.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
+				String hashValue = TtkUtils.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
 			
 			ConverterUUID.addMapping(hashValue, member.getPrimordialComponentUuid());
 			}
@@ -883,7 +882,6 @@ public class EConceptUtility
 	 */
 	public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial, DataOutputStream dos) throws Exception
 	{
-		List<TtkRefexDynamicMemberChronicle> attrs = new ArrayList<>();
 		for (PropertyType pt : propertyTypes)
 		{
 			if (pt instanceof BPT_Skip)
@@ -921,39 +919,8 @@ public class EConceptUtility
 				createMetaDataConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), p.getSourcePropertyAltName(), 
 						p.getSourcePropertyDefinition(), pt.getPropertyTypeUUID(), secondParent, p.getCallback(), 
 						(pt instanceof BPT_MemberRefsets ? null : dos));
-				
-				//cache the indexing info
-				if (pt.createAsDynamicRefex())
-				{
-					if (pt instanceof BPT_MemberRefsets && (p.getDataColumnsForDynamicRefex() == null || p.getDataColumnsForDynamicRefex().length == 0))
-					{
-						//no index required - this is a member style refex
-					}
-					else
-					{
-						refexAllowedColumnTypes_.put(p.getUUID(), p.getDataColumnsForDynamicRefex());
-						if (p.getDataColumnsForDynamicRefex() != null)
-						{
-							Integer[] temp = new Integer[p.getDataColumnsForDynamicRefex().length];
-							for (int i = 0; i < temp.length; i++)
-							{
-								temp[i] = i;
-							}
-							
-							
-							
-							attrs.add(TtkUtils.configureDynamicRefexIndexes(p.getUUID(), temp, (rev -> setRevisionAttributes(rev, Status.ACTIVE, defaultTime_))));
-						}
-					}
-				}
 			}
 		}
-		
-		//For lack of a better place to put them, drop them an the index concept:
-		
-		TtkConceptChronicle indexConcept = createConcept(IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID());
-		indexConcept.getConceptAttributes().setAnnotationsDynamic(attrs);
-		indexConcept.writeExternal(dos);
 	}
 	
 	public void storeRefsetConcepts(BPT_MemberRefsets refsets, DataOutputStream dos) throws IOException
@@ -1012,5 +979,10 @@ public class EConceptUtility
 		//I have a case in UMLS and RxNorm loaders where this makes a duplicate, but its ok, it should merge.
 		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
 				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParent, null, dos).getPrimordialUuid();
+	}
+	
+	public void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo)
+	{
+		refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
 	}
 }

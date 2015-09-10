@@ -1,26 +1,5 @@
 package gov.va.oia.terminology.converters.sharedUtils.umlsUtils;
 
-import gov.va.oia.terminology.converters.sharedUtils.ConsoleUtil;
-import gov.va.oia.terminology.converters.sharedUtils.ConverterBaseMojo;
-import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility;
-import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility.DescriptionType;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Annotations;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_ContentVersion;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ConceptCreationNotificationListener;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
-import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
-import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_Descriptions;
-import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_Refsets;
-import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_Relationship_Metadata;
-import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_SAB_Metadata;
-import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_UMLS_Relationships;
-import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.rrf.REL;
-import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.util.UuidT3Generator;
 import java.beans.PropertyVetoException;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -48,6 +27,28 @@ import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
+import gov.va.oia.terminology.converters.sharedUtils.ConsoleUtil;
+import gov.va.oia.terminology.converters.sharedUtils.ConverterBaseMojo;
+import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility;
+import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility.DescriptionType;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Annotations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_ContentVersion;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ConceptCreationNotificationListener;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyAssociation;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
+import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
+import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_Descriptions;
+import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_Refsets;
+import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_Relationship_Metadata;
+import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes.PT_SAB_Metadata;
+import gov.va.oia.terminology.converters.sharedUtils.umlsUtils.rrf.REL;
+import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.util.UuidT3Generator;
 
 public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 {
@@ -62,10 +63,9 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 	protected PropertyType ptLanguages_;
 	protected PropertyType ptSourceRestrictionLevels_;
 	protected PropertyType ptSABs_;
-	protected PT_UMLS_Relationships ptUMLSRelationships_;
 	protected HashMap<String, PropertyType> ptDescriptions_ = new HashMap<>();;
-	protected HashMap<String, PropertyType> ptRelationshipGeneric_ = new HashMap<>();;
-	protected HashMap<String, PropertyType> ptRelationshipSpecificTypes_ = new HashMap<>();;
+	protected HashMap<String, BPT_Relations> ptRelationships_ = new HashMap<>();;
+	protected HashMap<String, BPT_Associations> ptAssociations_ = new HashMap<>();;
 	protected PropertyType ptRelationshipMetadata_;
 	public HashMap<String, Relationship> nameToRel_ = new HashMap<>();
 	protected HashMap<String, UUID> semanticTypes_ = new HashMap<>();
@@ -116,7 +116,8 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 			mapToIsa.addAll(relsToMapToIsA);
 		}
 		mapToIsa.add("isa");
-		mapToIsa.add("CHD");
+		//not translating this one to isa for now
+		//		mapToIsa.add("CHD");
 		
 		if (sabList != null && sabList.size() > 0)
 		{
@@ -266,10 +267,9 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 		ptContentVersion_ = new BPT_ContentVersion();
 		final PropertyType sourceMetadata = new PT_SAB_Metadata();
 		ptRelationshipMetadata_ = new PT_Relationship_Metadata();
-		ptUMLSRelationships_ = new PT_UMLS_Relationships();
 
 		//don't load ptContentVersion_ yet - custom code might add to it
-		eConcepts_.loadMetaDataItems(Arrays.asList(ptUMLSRefsets_, sourceMetadata, ptRelationshipMetadata_, ptUMLSAttributes_, ptUMLSRelationships_),
+		eConcepts_.loadMetaDataItems(Arrays.asList(ptUMLSRefsets_, sourceMetadata, ptRelationshipMetadata_, ptUMLSAttributes_),
 				metaDataRoot_, dos_);
 		
 		loadTerminologySpecificMetadata();
@@ -1027,9 +1027,10 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 			
 		}
 		
-		final PropertyType relationshipGeneric = new BPT_Relations("Relation Types Generic", terminologyName + " Generic") {};  
-		relationshipGeneric.indexByAltNames();
-		final PropertyType relationshipSpecificType = new BPT_Relations(terminologyName) {}; //Relation Types - default metadata node
+		final BPT_Relations relationships = new BPT_Relations(terminologyName) {};  
+		relationships.indexByAltNames();
+		final BPT_Associations associations = new BPT_Associations(terminologyName) {};
+		associations.indexByAltNames();
 		
 		s = db_.getConnection().createStatement();
 		rs = s.executeQuery("select distinct REL, RELA from " + tablePrefix_ + "REL where SAB='" + sab + "'");
@@ -1055,31 +1056,18 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 			}
 			
 			Property p;
-			if (r.getIsRela())
+			if (mapToIsa.contains(r.getFSNName()))
 			{
-				if (mapToIsa.contains(r.getFSNName()))
-				{
-					p = new Property(r.getFSNName(), null, r.getDescription(), EConceptUtility.isARelUuid_);  //map to isA
-					relationshipSpecificType.addProperty(p);
-				}
-				else
-				{
-					p = relationshipSpecificType.addProperty(r.getFSNName(), null, r.getDescription());
-				}
+				p = new Property((r.getAltName() == null ? r.getFSNName() : r.getAltName()), null, (r.getAltName() == null ? null : r.getFSNName()),
+						r.getDescription(), EConceptUtility.isARelUuid_);  //map to isA
+				relationships.addProperty(p);  //conveniently, the only thing we will treat as relationships are things mapped to isa.
 			}
 			else
 			{
-				if (mapToIsa.contains(r.getFSNName()))
-				{
-					p = new Property((r.getAltName() == null ? r.getFSNName() : r.getAltName()), null, (r.getAltName() == null ? null : r.getFSNName()),
-							r.getDescription(), EConceptUtility.isARelUuid_);  //map to isA
-					relationshipGeneric.addProperty(p);
-				}
-				else
-				{
-					p = relationshipGeneric.addProperty((r.getAltName() == null ? r.getFSNName() : r.getAltName()), null, 
-							(r.getAltName() == null ? null : r.getFSNName()), r.getDescription());
-				}
+				p = new PropertyAssociation(null, (r.getAltName() == null ? r.getFSNName() : r.getAltName()), 
+						(r.getAltName() == null ? null : r.getFSNName()), (r.getInverseAltName() == null ? r.getInverseFSNName() : r.getInverseAltName()),
+						r.getDescription(), false);
+				associations.addProperty(p);
 			}
 			
 			p.registerConceptCreationListener(new ConceptCreationNotificationListener()
@@ -1087,7 +1075,8 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 				@Override
 				public void conceptCreated(Property property, TtkConceptChronicle concept)
 				{
-					if (r.getInverseFSNName() != null)
+					//associations already handle inverse names 
+					if (!(property instanceof PropertyAssociation) && r.getInverseFSNName() != null)
 					{
 						eConcepts_.addDescription(concept, (r.getInverseAltName() == null ? r.getInverseFSNName() : r.getInverseAltName()), DescriptionType.FSN, 
 								false, ptDescriptions_.get(sab).getProperty("Inverse FSN").getUUID(),
@@ -1096,7 +1085,7 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 					
 					if (r.getAltName() != null)
 					{
-						//Need to create this UUID to be different that forward name, in case forward and reverse are identical (like 'RO')
+						//Need to create this UUID to be different than forward name, in case forward and reverse are identical (like 'RO')
 						UUID descUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), r.getInverseFSNName(), 
 								DescriptionType.SYNONYM.name(), "false", "inverse");
 						//Yes, this looks funny, no its not a copy/paste error.  We swap the FSN and alt names for... it a long story.  42.
@@ -1116,15 +1105,16 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 					{
 						Relationship generalRel = nameToRel_.get(r.getRelType());
 						
-						eConcepts_.addUuidAnnotation(concept, relationshipGeneric.getProperty(generalRel.getFSNName()).getUUID(), 
-								ptRelationshipMetadata_.getProperty("General Rel Type").getUUID());
+						eConcepts_.addUuidAnnotation(concept, (mapToIsa.contains(generalRel.getFSNName()) ? relationships.getProperty(generalRel.getFSNName()) : 
+							associations.getProperty(generalRel.getFSNName())).getUUID(), ptRelationshipMetadata_.getProperty("General Rel Type").getUUID());
 					}
 					
 					if (r.getInverseRelType() != null)
 					{
 						Relationship generalRel = nameToRel_.get(r.getInverseRelType());
 						
-						eConcepts_.addUuidAnnotation(concept, relationshipGeneric.getProperty(generalRel.getFSNName()).getUUID(), 
+						eConcepts_.addUuidAnnotation(concept, (mapToIsa.contains(generalRel.getFSNName()) ? relationships.getProperty(generalRel.getFSNName()) : 
+							associations.getProperty(generalRel.getFSNName())).getUUID(), 
 								ptRelationshipMetadata_.getProperty("Inverse General Rel Type").getUUID());
 					}
 					
@@ -1143,16 +1133,16 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 			});
 		}
 		
-		if (relationshipGeneric.getProperties().size() > 0)
+		if (relationships.getProperties().size() > 0)
 		{
-			eConcepts_.loadMetaDataItems(relationshipGeneric, terminologyMetadataRoot, dos_);
+			eConcepts_.loadMetaDataItems(relationships, terminologyMetadataRoot, dos_);
 		}
-		ptRelationshipGeneric_.put(sab, relationshipGeneric);
-		if (relationshipSpecificType.getProperties().size() > 0)
+		ptRelationships_.put(sab, relationships);
+		if (associations.getProperties().size() > 0)
 		{
-			eConcepts_.loadMetaDataItems(relationshipSpecificType, terminologyMetadataRoot, dos_);
+			eConcepts_.loadMetaDataItems(associations, terminologyMetadataRoot, dos_);
 		}
-		ptRelationshipSpecificTypes_.put(sab, relationshipSpecificType);
+		ptAssociations_.put(sab, associations);
 	}
 	
 	protected void processSemanticTypes(TtkConceptChronicle concept, ResultSet rs) throws SQLException
@@ -1324,15 +1314,12 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 					continue;
 				}
 				
-				Property relType = null;
-				if (duplicateRels.get(0).getRela() == null)
-				{
-					relType = ptRelationshipGeneric_.get(duplicateRels.get(0).getSab()).getProperty(duplicateRels.get(0).getRel());
-				}
-				else
-				{
-					relType = ptRelationshipSpecificTypes_.get(duplicateRels.get(0).getSab()).getProperty(duplicateRels.get(0).getRela());
-				}
+				Property relType = ptAssociations_.get(duplicateRels.get(0).getSab()).getProperty(duplicateRels.get(0).getRela() == null ? 
+						duplicateRels.get(0).getRel() : duplicateRels.get(0).getRela()) == null ? 
+								ptRelationships_.get(duplicateRels.get(0).getSab()).getProperty(
+										(duplicateRels.get(0).getRela() == null ? duplicateRels.get(0).getRel() : duplicateRels.get(0).getRela())) : 
+								ptAssociations_.get(duplicateRels.get(0).getSab()).getProperty(
+										(duplicateRels.get(0).getRela() == null ? duplicateRels.get(0).getRel() : duplicateRels.get(0).getRela()));
 				
 				TtkRelationshipChronicle r;
 				
@@ -1365,21 +1352,19 @@ public abstract class RRFBaseConverterMojo extends ConverterBaseMojo
 				HashSet<String> addedRUIs = new HashSet<>();
 				for (REL dupeRel : duplicateRels)
 				{
-					//on second thought, don't really need these on UMLS terms either.
-					//if (!isRxNorm)  //dropped for space concerns
-					//{
-					//	addAttributeToGroup(stringAttributes, ptUMLSAttributes_.getProperty("STYPE1").getUUID(), dupeRel.getStype1(), dupeRel.getSourceTargetAnnotationLabel());
-					//	addAttributeToGroup(stringAttributes, ptUMLSAttributes_.getProperty("STYPE2").getUUID(), dupeRel.getStype2(), dupeRel.getSourceTargetAnnotationLabel());
-					//}
 					if (dupeRel.getRela() != null)  //we already used rela - annotate with rel.
 					{
-						Property genericType = ptRelationshipGeneric_.get(dupeRel.getSab()).getProperty(dupeRel.getRel());
+						Property genericType = ptAssociations_.get(dupeRel.getSab()).getProperty(dupeRel.getRel()) == null ? 
+								ptRelationships_.get(dupeRel.getSab()).getProperty(dupeRel.getRel()) :
+									ptAssociations_.get(dupeRel.getSab()).getProperty(dupeRel.getRel());
 						boolean reversed = false;
 						if (genericType == null && dupeRel.getRela().equals("mapped_from"))
 						{
 							//This is to handle non-sensical data in UMLS... they have no consistency in the generic rel they assign - sometimes RB, sometimes RN.
 							//reverse it - currently, only an issue on 'mapped_from' rels - as the code in Relationship.java has some exceptions for this type.
-							genericType = ptRelationshipGeneric_.get(dupeRel.getSab()).getProperty(reverseRel(dupeRel.getRel()));
+							genericType = ptAssociations_.get(dupeRel.getSab()).getProperty(reverseRel(dupeRel.getRel())) == null ? 
+									ptRelationships_.get(dupeRel.getSab()).getProperty(reverseRel(dupeRel.getRel())) :
+										ptAssociations_.get(dupeRel.getSab()).getProperty(reverseRel(dupeRel.getRel()));
 							reversed = true;
 						}
 						addAttributeToGroup(uuidAttributes, ptUMLSAttributes_.getProperty(reversed ? "Generic rel type (inverse)" : "Generic rel type").getUUID(),

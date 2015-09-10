@@ -18,21 +18,94 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 
 /**
  * @author Daniel Armbrust
+ * 
+ * Associations get loaded using the new add-on association API (internally represented as sememes)
+ * 
+ * These get ignored by the classifier, for example.
  * 
  */
 public class BPT_Associations extends PropertyType
 {
 	public BPT_Associations(String terminologyName)
 	{
-		super("Associations Types", terminologyName + " Association Type", true, DynamicSememeDataType.STRING);
+		super("Associations Types", terminologyName + " Association Type", false, null);
 	}
 	
 	public BPT_Associations(String propertyTypeDescription, String terminologyName)
 	{
-		super(propertyTypeDescription, terminologyName + " Association Type", true, DynamicSememeDataType.STRING);
+		super(propertyTypeDescription, terminologyName + " Association Type", false, null);
+	}
+
+	@Override
+	public Property addProperty(Property property)
+	{
+		if (!(property instanceof PropertyAssociation))
+		{
+			throw new RuntimeException("Must add PropertyAssociation objects to BPT_Associations type");
+		}
+		return super.addProperty(property);
+	}
+
+	//Override all of these as unsupported, as, we require only PropertyAssociation object here.
+	
+	@Override
+	public Property addProperty(String propertyNameFSN)
+	{
+		throw new UnsupportedOperationException();	}
+
+	@Override
+	public Property addProperty(String propertyNameFSN, int propertySubType)
+	{
+		throw new UnsupportedOperationException();	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition)
+	{
+		throw new UnsupportedOperationException();	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition)
+	{
+		throw new UnsupportedOperationException();	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, boolean disabled)
+	{
+		throw new UnsupportedOperationException();	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, boolean disabled, int propertySubType)
+	{
+		throw new UnsupportedOperationException();	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition,
+			boolean disabled, int propertySubType, DynamicSememeColumnInfo[] dataColumnForDynamicRefex)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion)
+	{
+		return super.addProperty(propertyNameFSN, minVersion, maxVersion);
+	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, int minVersion, int maxVersion,
+			boolean disabled)
+	{
+		return super.addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyDefinition, minVersion, maxVersion, disabled);
+	}
+
+	@Override
+	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, int minVersion, int maxVersion,
+			boolean disabled, int propertySubType)
+	{
+		return super.addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyDefinition, minVersion, maxVersion, disabled, propertySubType);
 	}
 }
