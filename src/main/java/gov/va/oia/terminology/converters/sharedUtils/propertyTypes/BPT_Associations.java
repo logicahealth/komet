@@ -19,6 +19,8 @@
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * @author Daniel Armbrust
@@ -30,6 +32,8 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
  */
 public class BPT_Associations extends PropertyType
 {
+	private static HashSet<UUID> allAssociations_ = new HashSet<>();
+	
 	public BPT_Associations(String terminologyName)
 	{
 		super("Associations Types", terminologyName + " Association Type", false, null);
@@ -47,7 +51,15 @@ public class BPT_Associations extends PropertyType
 		{
 			throw new RuntimeException("Must add PropertyAssociation objects to BPT_Associations type");
 		}
-		return super.addProperty(property);
+		Property p = super.addProperty(property);
+		
+		allAssociations_.add(p.getUUID());  //For stats, later
+		return p;
+	}
+	
+	public static boolean isAssociation(UUID uuid)
+	{
+		return allAssociations_.contains(uuid);
 	}
 
 	//Override all of these as unsupported, as, we require only PropertyAssociation object here.
@@ -55,33 +67,37 @@ public class BPT_Associations extends PropertyType
 	@Override
 	public Property addProperty(String propertyNameFSN)
 	{
-		throw new UnsupportedOperationException();	}
+		throw new UnsupportedOperationException();	
+	}
 
 	@Override
 	public Property addProperty(String propertyNameFSN, int propertySubType)
 	{
-		throw new UnsupportedOperationException();	}
+		throw new UnsupportedOperationException();	
+	}
 
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition)
 	{
-		throw new UnsupportedOperationException();	}
+		throw new UnsupportedOperationException();	
+	}
 
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition)
 	{
-		throw new UnsupportedOperationException();	}
+		throw new UnsupportedOperationException();	
+	}
 
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, boolean disabled)
 	{
-		throw new UnsupportedOperationException();	}
-
+		throw new UnsupportedOperationException();	
+	}
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, boolean disabled, int propertySubType)
 	{
-		throw new UnsupportedOperationException();	}
-
+		throw new UnsupportedOperationException();	
+	}
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyAltName, String sourcePropertyDefinition,
 			boolean disabled, int propertySubType, DynamicSememeColumnInfo[] dataColumnForDynamicRefex)
@@ -92,20 +108,20 @@ public class BPT_Associations extends PropertyType
 	@Override
 	public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion)
 	{
-		return super.addProperty(propertyNameFSN, minVersion, maxVersion);
+		throw new UnsupportedOperationException();	
 	}
-
+	
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, int minVersion, int maxVersion,
 			boolean disabled)
 	{
-		return super.addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyDefinition, minVersion, maxVersion, disabled);
+		throw new UnsupportedOperationException();	
 	}
-
+	
 	@Override
 	public Property addProperty(String sourcePropertyNameFSN, String sourcePropertyPreferredName, String sourcePropertyDefinition, int minVersion, int maxVersion,
 			boolean disabled, int propertySubType)
 	{
-		return super.addProperty(sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyDefinition, minVersion, maxVersion, disabled, propertySubType);
+		throw new UnsupportedOperationException();	
 	}
 }
