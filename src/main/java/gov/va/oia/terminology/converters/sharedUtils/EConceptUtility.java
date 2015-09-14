@@ -18,6 +18,20 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils;
 
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Skip;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
+import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
+import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
+import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -40,6 +54,8 @@ import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
@@ -48,19 +64,6 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Skip;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
-import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
-import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
-import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 
 /**
  * 
@@ -187,15 +190,15 @@ public class EConceptUtility
 	 */
 	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, Long time, Status status)
 	{
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
-		TtkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
+		TtkConceptChronicle ttkConceptChronicle = new TtkConceptChronicleWrapper(this);
+		ttkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
 		conceptAttributes.setDefined(false);
 		conceptAttributes.setPrimordialComponentUuid(conceptPrimordialUuid);
 		setRevisionAttributes(conceptAttributes, status, time);
-		TtkConceptChronicle.setConceptAttributes(conceptAttributes);
+		ttkConceptChronicle.setConceptAttributes(conceptAttributes);
 		ls_.addConcept();
-		return TtkConceptChronicle;
+		return ttkConceptChronicle;
 	}
 	
 	/**
@@ -327,6 +330,7 @@ public class EConceptUtility
 	{
 		return addDescription(TtkConceptChronicle, null, descriptionValue, wbDescriptionType, preferred, sourceDescriptionTypeUUID, sourceDescriptionRefsetUUID, status);
 	}
+	
 
 	/**
 	 * Add a description to the concept.
@@ -396,6 +400,34 @@ public class EConceptUtility
 				":" + getOriginStringForUuid(sourceDescriptionTypeUUID) + ":")
 					+ (sourceDescriptionRefsetUUID == null ? "" : getOriginStringForUuid(sourceDescriptionRefsetUUID)));
 		return description;
+	}
+	
+	/**
+	 * Add an alternate ID to the concept.
+	 */
+	public TtkIdentifierUuid addUUID(TtkConceptChronicle ttkConceptChronicle, UUID uuid, UUID authorityUUID)
+	{
+		TtkConceptAttributesChronicle attributes = ttkConceptChronicle.getConceptAttributes();
+		if (attributes == null)
+		{
+			attributes = new TtkConceptAttributesChronicle();
+			ttkConceptChronicle.setConceptAttributes(attributes);
+		}
+		
+		List<TtkIdentifier> ids = attributes.getAdditionalIdComponents();
+		if (ids == null)
+		{
+			ids = new ArrayList<>();
+			attributes.setAdditionalIdComponents(ids);
+		}
+		
+		TtkIdentifierUuid id = new TtkIdentifierUuid(uuid);
+		id.setAuthorityUuid(authorityUUID);
+		setRevisionAttributes(id, null, ttkConceptChronicle.getConceptAttributes().getTime());
+		
+		ids.add(id);
+		
+		return id;
 	}
 	
 	/**
@@ -615,11 +647,11 @@ public class EConceptUtility
 	{
 		if (component instanceof TtkConceptAttributesChronicle)
 		{
-			ls_.addAnnotation("Concept", getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation("Concept", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkDescriptionChronicle)
 		{
-			ls_.addAnnotation("Description", getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation("Description", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkRelationshipChronicle)
 		{
@@ -627,7 +659,8 @@ public class EConceptUtility
 		}
 		else if (component instanceof TtkRefexStringMemberChronicle)
 		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), 
+					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkRefexUuidMemberChronicle)
 		{
@@ -635,11 +668,13 @@ public class EConceptUtility
 		}
 		else if (component instanceof TtkRefexDynamicMemberChronicle)
 		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation((BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "") 
+				+ getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
 		}
 		else
 		{
-			ls_.addAnnotation(getOriginStringForUuid(component.getPrimordialComponentUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation(getOriginStringForUuid(component.getPrimordialComponentUuid()), 
+					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 	}
 	
@@ -682,7 +717,27 @@ public class EConceptUtility
 		return member;
 	}
 	
-	//TODO write addAssociation methods
+	/**
+	 * Add an association. The source of the association is assumed to be the specified concept.
+	 * 
+	 * @param associationPrimordialUuid - optional - if not provided, created from the source, target and type.
+	 * @param associationTypeUuid required
+	 * @param time - if null, default is used
+	 */
+	public TtkRefexDynamicMemberChronicle addAssociation(TtkComponentChronicle<?, ?> ttkConceptChronicle, UUID associationPrimordialUuid, UUID targetUuid, 
+			UUID associationTypeUuid, Status status, Long time)
+	{
+		try
+		{
+			return addAnnotation(ttkConceptChronicle, associationPrimordialUuid, 
+					new TtkRefexDynamicData[]{new TtkRefexDynamicUUID(targetUuid)}, 
+					associationTypeUuid, status, time);
+		}
+		catch (PropertyVetoException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Add an IS_A_REL relationship, with the time set to now.
