@@ -163,6 +163,14 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 				throw new RuntimeException("Alt Indexing Error - duplicate!");
 			}
 		}
+		if (altNamePropertyMap_ != null && StringUtils.isNotEmpty(property.getSourcePropertyPreferredName()))
+		{
+			String s = altNamePropertyMap_.put(property.getSourcePropertyPreferredName(), property.getSourcePropertyNameFSN());
+			if (s != null)
+			{
+				throw new RuntimeException("Alt Indexing Error - duplicate!");
+			}
+		}
 		return property;
 	}
 
