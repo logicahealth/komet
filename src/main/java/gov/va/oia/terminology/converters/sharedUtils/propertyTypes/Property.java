@@ -285,9 +285,10 @@ public class Property
 					if (Property.this instanceof PropertyAssociation)
 					{
 						PropertyAssociation item = (PropertyAssociation)Property.this;
-						TtkUtils.configureConceptAsAssociation(concept, item.getSourcePropertyDefinition(), item.getAssociationInverseName(), 
+						DynamicSememeColumnInfo[] columns = TtkUtils.configureConceptAsAssociation(concept, item.getSourcePropertyDefinition(), item.getAssociationInverseName(), 
 								item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction(),
 								(rev -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
+						utility.registerDynamicSememeColumnInfo(Property.this.getUUID(), columns);
 					}
 				}
 				catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
