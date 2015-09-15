@@ -17,6 +17,8 @@ package gov.vha.isaac.ochre.api.component.concept.description;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableDescriptionSememe;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -26,12 +28,12 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface DescriptionBuilderService {
     
-    DescriptionBuilder<?,?> getDescriptionBuilder(String descriptionText, 
+    DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>>  getDescriptionBuilder(String descriptionText, 
             int conceptSequence,
             ConceptProxy descriptionType, 
             ConceptProxy languageForDescription);
     
-    DescriptionBuilder<?,?> getDescriptionBuilder(String descriptionText, 
+    DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>>  getDescriptionBuilder(String descriptionText, 
             ConceptBuilder conceptBuilder,
             ConceptProxy descriptionType, 
             ConceptProxy languageForDescription);

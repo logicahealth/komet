@@ -131,7 +131,7 @@ public class TtkUtils
 		}
 	}
 	
-	public static void configureConceptAsAssociation(TtkConceptChronicle concept, String refexDescription, String associationInverseName,
+	public static DynamicSememeColumnInfo[] configureConceptAsAssociation(TtkConceptChronicle concept, String refexDescription, String associationInverseName,
 			ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
 			Consumer<TtkRevision> revSetter) throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
 	{
@@ -156,6 +156,7 @@ public class TtkUtils
 		
 		members.add(createDynamicAnnotation(concept.getPrimordialUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), 
 				new TtkRefexDynamicData[] {}, revSetter));
+		return columns;
 	}
 	
 	/**
