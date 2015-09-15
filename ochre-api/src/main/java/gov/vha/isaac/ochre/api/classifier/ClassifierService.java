@@ -25,8 +25,22 @@ import javafx.concurrent.Task;
  */
 public interface ClassifierService {
     
+	/**
+	 * 
+	 * @return A task that can be used to block, if the caller wishes to wait
+	 * for the results. 
+	 */
     Task<ClassifierResults> classify();
 
+	 /**
+	  * NOTE: this method call may cause a full or incremental classification if 
+	  * changes have been made to the axioms since the last classify. 
+	  * @param expression Expression to identify the concept identifier for. 
+	  * @param editCoordinate edit coordinate in case the expression represents a 
+	  * new concept, and thus needs to be added, and classified/ 
+	  * @return  A task that can be used to block, if the caller wishes to wait
+	 * for the results.
+	  */
     Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, 
             EditCoordinate editCoordinate);
     
