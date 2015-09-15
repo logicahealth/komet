@@ -533,7 +533,7 @@ public class RelativePositionCalculator implements OchreCache {
 					}
 					// Duplicate values encountered.
 					errorCount++;
-					if (errorCount < 5) {
+					if (errorCount < 20) {
 						log.warn("{} should never happen. "
 								  + "\n  Data is malformed. stamp: {}  Part to test: {}",
 								  new Object[]{RelativePosition.EQUAL,
