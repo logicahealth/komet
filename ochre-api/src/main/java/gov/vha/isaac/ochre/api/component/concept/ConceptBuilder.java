@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api.component.concept;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilder;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 
 /**
  *
@@ -38,4 +39,12 @@ public interface ConceptBuilder extends IdentifiedComponentBuilder<ConceptChrono
      * @return a ConceptBuilder for use in method chaining/fluent api. 
      */
     ConceptBuilder addLogicalDefinition(SememeBuilder<?> logicalDefinitionBuilder);
+    
+    /**
+     * Use when adding a secondary definition in a different description logic 
+     * profile. 
+     * @param logicalDefinitionBuilder
+     * @return a ConceptBuilder for use in method chaining/fluent api. 
+     */
+    ConceptBuilder addLogicalExpression(LogicalExpression logicalExpression);
 }
