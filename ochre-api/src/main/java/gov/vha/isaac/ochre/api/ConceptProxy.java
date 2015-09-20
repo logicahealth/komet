@@ -1,5 +1,6 @@
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import java.util.ArrayList;
 import javax.xml.bind.annotation.XmlTransient;
@@ -23,6 +24,12 @@ public class ConceptProxy implements ConceptSpecification {
     protected String description;
 
     public ConceptProxy() {
+    }
+    
+    public ConceptProxy(int conceptSequenceOrNid) {
+        ConceptChronology<?> cc = Get.conceptService().getConcept(conceptSequenceOrNid);
+        this.uuids = cc.getUuidList().toArray(new UUID[0]);
+        this.description = cc.getConceptDescriptionText();
     }
 
     public ConceptProxy(String description, UUID... uuids) {
