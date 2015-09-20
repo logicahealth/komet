@@ -26,7 +26,7 @@ import javafx.concurrent.Task;
 public interface ClassifierService {
     
 	/**
-	 * 
+	 * Will perform a full or incremental classification as necessary.
 	 * @return A task that can be used to block, if the caller wishes to wait
 	 * for the results. 
 	 */
@@ -34,7 +34,9 @@ public interface ClassifierService {
 
 	 /**
 	  * NOTE: this method call may cause a full or incremental classification if 
-	  * changes have been made to the axioms since the last classify. 
+	  * changes have been made to the axioms since the last classify. If the expression 
+	  * does not exist, and therfore this method adds the axioms for it, 
+	  * a classification will be performed. 
 	  * @param expression Expression to identify the concept identifier for. 
 	  * @param editCoordinate edit coordinate in case the expression represents a 
 	  * new concept, and thus needs to be added, and classified/ 
