@@ -20,11 +20,13 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -49,6 +51,8 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
     public RefexMemberVersion(){
         super();
     }
+    
+    public short getVersionSequence() { throw new RuntimeException("Unsupported"); } // Must be reimplemented to be used
 
     //~--- methods ----------------------------------------------------------
     @Override

@@ -28,4 +28,8 @@ public interface SememeVersion<V extends SememeVersion<V>> extends StampedVersio
 
     SememeChronology<V> getChronology();
     
+    // TODO eliminate default implementation when OTF goes away
+    //default short getVersionSequence() { return 0; }    
+    short getVersionSequence();
+
 }

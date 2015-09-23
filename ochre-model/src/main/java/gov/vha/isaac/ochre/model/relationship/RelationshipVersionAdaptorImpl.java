@@ -186,5 +186,10 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
                 Get.conceptDescriptionText(relationshipAdaptorChronicleKey.destinationSequence) + "]"
                 + " " + Get.commitService().describeStampSequence(stampSequence) + "}";
     }
+
+	@Override
+	public short getVersionSequence() {
+		throw new RuntimeException("Unsupported");
+	}
     
 }
