@@ -27,9 +27,4 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeObject;
 public interface SememeVersion<V extends SememeVersion<V>> extends StampedVersion, SememeObject {
 
     SememeChronology<V> getChronology();
-    
-    // TODO eliminate default implementation when OTF goes away
-    //default short getVersionSequence() { return 0; }    
-    short getVersionSequence();
-
 }

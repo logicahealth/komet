@@ -43,8 +43,6 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     public int referencedComponentNid;
     public int assemblageNid;
     protected List<? extends RefexMemberVersion> versions;
-
-    public short getVersionSequence() { throw new RuntimeException("Unsupported"); } // Must be reimplemented to be used
     
     //~--- constructors --------------------------------------------------------
     public RefexMember() {

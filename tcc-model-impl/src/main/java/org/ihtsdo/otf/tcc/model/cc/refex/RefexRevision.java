@@ -54,8 +54,6 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
         super(status, time, authorNid, moduleNid, pathNid, primordialComponent);
     }
     
-    public short getVersionSequence() { throw new RuntimeException("Unsupported"); } // Must be reimplemented to be used
-
     //~--- methods -------------------------------------------------------------
     @Override
     protected void addComponentNids(Set<Integer> allNids) {

@@ -52,8 +52,6 @@ public class RefexMemberVersion<R extends RefexRevision<R, C>, C extends RefexMe
         super();
     }
     
-    public short getVersionSequence() { throw new RuntimeException("Unsupported"); } // Must be reimplemented to be used
-
     //~--- methods ----------------------------------------------------------
     @Override
     public RefexType getRefexType() {

@@ -30,9 +30,6 @@ import java.util.regex.Pattern;
 public interface DescriptionVersionBI<A extends DescriptionAnalogBI>
         extends TypedComponentVersionBI, DescriptionChronicleBI, AnalogGeneratorBI<A>, 
         DescriptionSememe {
-	
-	@Override
-    default short getVersionSequence() { throw new RuntimeException("Unsupported"); }
 
     @Override
     default int getAssociatedConceptNid() {
