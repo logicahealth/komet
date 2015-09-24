@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.coordinate;
 
+import gov.vha.isaac.ochre.api.Get;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -136,7 +137,13 @@ public class LogicCoordinateImpl implements LogicCoordinate {
     
     @Override
     public String toString() {
-        return "LogicCoordinateImpl{" + statedAssemblageSequence + ",\n" + inferredAssemblageSequence + ", \n" 
-                + descriptionLogicProfileSequence + ", \n" + classifierSequence + '}';
+        return "LogicCoordinateImpl{" + Get.conceptDescriptionText(statedAssemblageSequence)
+					 + "<" + statedAssemblageSequence + ">,\n"
+					 + Get.conceptDescriptionText(inferredAssemblageSequence) 
+					 + "<" + inferredAssemblageSequence + ">, \n"
+					 + Get.conceptDescriptionText(descriptionLogicProfileSequence) 
+					 + "<" + descriptionLogicProfileSequence + ">, \n"
+					 + Get.conceptDescriptionText(classifierSequence) 
+					 + "<" + classifierSequence + ">}";
     }
 }

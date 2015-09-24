@@ -132,7 +132,9 @@ public class ConceptChronologyImpl
         StringBuilder builder = new StringBuilder();
         builder.append("ConceptChronologyImpl{");
         builder.append(toUserString());
-        builder.append(" ");
+        builder.append(" <");
+        builder.append(getConceptSequence());
+        builder.append("> ");
         toString(builder);
         return builder.toString();
     }
@@ -159,7 +161,7 @@ public class ConceptChronologyImpl
         } else {
             assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
         }
-        Optional<?> optional = Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate).getLatestSememeVersion(assemblageSequence);
+        Optional<?> optional = Get.sememeService().getSnapshot(LogicGraphSememe.class, stampCoordinate).getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence).findFirst();
         return (Optional<LatestVersion<LogicGraphSememe<?>>>)optional;
     }
     List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipList;
