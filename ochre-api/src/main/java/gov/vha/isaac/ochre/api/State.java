@@ -26,24 +26,26 @@ public enum State {
 		/**
 		 * Currently inactive.
 		 */
-       INACTIVE(false), 
+       INACTIVE(false, "Inactive"), 
 		 /**
 		  * Currently active.
 		  */
-       ACTIVE(true), 
+       ACTIVE(true, "Active"), 
 		 /**
 		  * Not yet created. 
 		  */
-       PRIMORDIAL(false),
+       PRIMORDIAL(false, "Primordial"),
 		 /**
 		  * Canceled prior to commit. 
 		  */
-       CANCELED(false);
+       CANCELED(false, "Canceled");
 
     boolean isActive;
+    String	name;
 
-    State(boolean isActive) {
+    State(boolean isActive, String name) {
         this.isActive = isActive;
+        this.name = name;
     }
     public boolean getBoolean() {
         return isActive;
@@ -51,6 +53,21 @@ public enum State {
     
     public boolean isActive() {
         return isActive;
+    }
+    
+    public String toString() {
+    	return name;
+    }
+    
+    public State inverse() {
+    	switch (this) {
+		case ACTIVE:
+			return INACTIVE;
+		case INACTIVE:
+			return ACTIVE;
+		default:
+			return this;
+    	}
     }
     
     public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);
