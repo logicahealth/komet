@@ -35,6 +35,7 @@ public final class FeatureNodeWithSequences extends TypedNodeWithSequences {
 
     public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
         super(logicGraphVersion, typeConceptId, child);
+        operator = ConcreteDomainOperators.EQUALS;  //TODO - Keith, Dan hardcoded it, it broke when not set.
     }
 
     public FeatureNodeWithSequences(FeatureNodeWithUuids externalForm) {
