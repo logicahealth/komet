@@ -23,6 +23,8 @@ import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
 /**
  * @author Daniel Armbrust
  * 
+ * These get represented as native relationships within the OCHRE APIS (meaning the classifier 
+ * pays attention, etc)
  */
 public class BPT_Relations extends PropertyType
 {

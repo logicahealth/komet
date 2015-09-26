@@ -18,6 +18,7 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils;
 
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
@@ -28,7 +29,6 @@ import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValueProperty
 import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
 import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
-import gov.vha.isaac.mojo.GenerateMetadataEConcepts;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
@@ -54,6 +54,8 @@ import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
 import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
 import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
+import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
@@ -173,9 +175,9 @@ public class EConceptUtility
 	 */
 	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String preferredDescription, Long time, Status status)
 	{
-		TtkConceptChronicle TtkConceptChronicle = createConcept(conceptPrimordialUuid, time, status);
-		addFullySpecifiedName(TtkConceptChronicle, preferredDescription);
-		return TtkConceptChronicle;
+		TtkConceptChronicle ttkConceptChronicle = createConcept(conceptPrimordialUuid, time, status);
+		addFullySpecifiedName(ttkConceptChronicle, preferredDescription);
+		return ttkConceptChronicle;
 	}
 
 	/**
@@ -188,42 +190,29 @@ public class EConceptUtility
 	 */
 	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, Long time, Status status)
 	{
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
-		TtkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
+		TtkConceptChronicle ttkConceptChronicle = new TtkConceptChronicleWrapper(this);
+		ttkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
 		conceptAttributes.setDefined(false);
 		conceptAttributes.setPrimordialComponentUuid(conceptPrimordialUuid);
 		setRevisionAttributes(conceptAttributes, status, time);
-		TtkConceptChronicle.setConceptAttributes(conceptAttributes);
+		ttkConceptChronicle.setConceptAttributes(conceptAttributes);
 		ls_.addConcept();
-		return TtkConceptChronicle;
+		return ttkConceptChronicle;
 	}
 	
 	/**
 	 * Clones the minimum required items for creating and merging a concept - except the path - path is set per normal 
 	 */
-	public TtkConceptChronicle createSkeletonClone(TtkConceptChronicle cloneSource)
+	public TtkConceptChronicle createSkeletonClone(UUID primordial)
 	{
-		if (cloneSource == null)
-		{
-			return null;
-		}
-		TtkConceptChronicle TtkConceptChronicle = new TtkConceptChronicleWrapper(this);
-		TtkConceptChronicle.setPrimordialUuid(cloneSource.getPrimordialUuid());
+		TtkConceptChronicle ttkConceptChronicle = new TtkConceptChronicle();
+		ttkConceptChronicle.setPrimordialUuid(primordial);
 		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
-		if (cloneSource.getConceptAttributes() != null)
-		{
-			conceptAttributes.setDefined(cloneSource.getConceptAttributes().isDefined());
-			conceptAttributes.setPrimordialComponentUuid(cloneSource.getConceptAttributes().getPrimordialComponentUuid());
-			conceptAttributes.setAuthorUuid(cloneSource.getConceptAttributes().getAuthorUuid());
-			conceptAttributes.setModuleUuid(cloneSource.getConceptAttributes().getModuleUuid());
-			conceptAttributes.setStatus(cloneSource.getConceptAttributes().getStatus());
-			conceptAttributes.setTime(cloneSource.getConceptAttributes().getTime());
-		}
 		conceptAttributes.setPathUuid(terminologyPathUUID_);
-		TtkConceptChronicle.setConceptAttributes(conceptAttributes);
+		ttkConceptChronicle.setConceptAttributes(conceptAttributes);
 		ls_.addConceptClone();
-		return TtkConceptChronicle;
+		return ttkConceptChronicle;
 	}
 
 	/**
@@ -238,9 +227,9 @@ public class EConceptUtility
 	/**
 	 * Add a workbench official "Fully Specified Name".  Convenience method for adding a description of type FSN
 	 */
-	public TtkDescriptionChronicle addFullySpecifiedName(TtkConceptChronicle TtkConceptChronicle, String fullySpecifiedName)
+	public TtkDescriptionChronicle addFullySpecifiedName(TtkConceptChronicle ttkConceptChronicle, String fullySpecifiedName)
 	{
-		return addDescription(TtkConceptChronicle, fullySpecifiedName, DescriptionType.FSN, true, null, null, Status.ACTIVE);
+		return addDescription(ttkConceptChronicle, fullySpecifiedName, DescriptionType.FSN, true, null, null, Status.ACTIVE);
 	}
 	
 	
@@ -248,7 +237,7 @@ public class EConceptUtility
 	 * Add a batch of WB descriptions, following WB rules in always generating a FSN (picking the value based on the propertySubType order). 
 	 * And then adding other types as specified by the propertySubType value, setting preferred / acceptable according to their ranking. 
 	 */
-	public List<TtkDescriptionChronicle> addDescriptions(TtkConceptChronicle TtkConceptChronicle, List<? extends ValuePropertyPair> descriptions)
+	public List<TtkDescriptionChronicle> addDescriptions(TtkConceptChronicle ttkConceptChronicle, List<? extends ValuePropertyPair> descriptions)
 	{
 		ArrayList<TtkDescriptionChronicle> result = new ArrayList<>(descriptions.size());
 		Collections.sort(descriptions);
@@ -313,7 +302,7 @@ public class EConceptUtility
 			}
 			BPT_Descriptions descPropertyType = (BPT_Descriptions) vpp.getProperty().getPropertyType();
 			
-			result.add(addDescription(TtkConceptChronicle, vpp.getUUID(), vpp.getValue(), descriptionType, preferred, vpp.getProperty().getUUID(), 
+			result.add(addDescription(ttkConceptChronicle, vpp.getUUID(), vpp.getValue(), descriptionType, preferred, vpp.getProperty().getUUID(), 
 					descPropertyType.getPropertyTypeReferenceSetUUID(), (vpp.isDisabled() ? Status.INACTIVE : Status.ACTIVE)));
 		}
 		
@@ -323,11 +312,12 @@ public class EConceptUtility
 	/**
 	 * Add a description to the concept.  UUID for the description is calculated from the target concept, description value, type, and preferred flag.
 	 */
-	public TtkDescriptionChronicle addDescription(TtkConceptChronicle TtkConceptChronicle, String descriptionValue, DescriptionType wbDescriptionType, 
+	public TtkDescriptionChronicle addDescription(TtkConceptChronicle ttkConceptChronicle, String descriptionValue, DescriptionType wbDescriptionType, 
 			boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, Status status)
 	{
-		return addDescription(TtkConceptChronicle, null, descriptionValue, wbDescriptionType, preferred, sourceDescriptionTypeUUID, sourceDescriptionRefsetUUID, status);
+		return addDescription(ttkConceptChronicle, null, descriptionValue, wbDescriptionType, preferred, sourceDescriptionTypeUUID, sourceDescriptionRefsetUUID, status);
 	}
+	
 
 	/**
 	 * Add a description to the concept.
@@ -397,6 +387,34 @@ public class EConceptUtility
 				":" + getOriginStringForUuid(sourceDescriptionTypeUUID) + ":")
 					+ (sourceDescriptionRefsetUUID == null ? "" : getOriginStringForUuid(sourceDescriptionRefsetUUID)));
 		return description;
+	}
+	
+	/**
+	 * Add an alternate ID to the concept.
+	 */
+	public TtkIdentifierUuid addUUID(TtkConceptChronicle ttkConceptChronicle, UUID uuid, UUID authorityUUID)
+	{
+		TtkConceptAttributesChronicle attributes = ttkConceptChronicle.getConceptAttributes();
+		if (attributes == null)
+		{
+			attributes = new TtkConceptAttributesChronicle();
+			ttkConceptChronicle.setConceptAttributes(attributes);
+		}
+		
+		List<TtkIdentifier> ids = attributes.getAdditionalIdComponents();
+		if (ids == null)
+		{
+			ids = new ArrayList<>();
+			attributes.setAdditionalIdComponents(ids);
+		}
+		
+		TtkIdentifierUuid id = new TtkIdentifierUuid(uuid);
+		id.setAuthorityUuid(authorityUUID);
+		setRevisionAttributes(id, null, ttkConceptChronicle.getConceptAttributes().getTime());
+		
+		ids.add(id);
+		
+		return id;
 	}
 	
 	/**
@@ -616,11 +634,11 @@ public class EConceptUtility
 	{
 		if (component instanceof TtkConceptAttributesChronicle)
 		{
-			ls_.addAnnotation("Concept", getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation("Concept", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkDescriptionChronicle)
 		{
-			ls_.addAnnotation("Description", getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation("Description", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkRelationshipChronicle)
 		{
@@ -628,7 +646,8 @@ public class EConceptUtility
 		}
 		else if (component instanceof TtkRefexStringMemberChronicle)
 		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), 
+					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 		else if (component instanceof TtkRefexUuidMemberChronicle)
 		{
@@ -636,11 +655,13 @@ public class EConceptUtility
 		}
 		else if (component instanceof TtkRefexDynamicMemberChronicle)
 		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation((BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "") 
+				+ getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
 		}
 		else
 		{
-			ls_.addAnnotation(getOriginStringForUuid(component.getPrimordialComponentUuid()), getOriginStringForUuid(refsetUuid));
+			ls_.addAnnotation(getOriginStringForUuid(component.getPrimordialComponentUuid()), 
+					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
 		}
 	}
 	
@@ -664,8 +685,7 @@ public class EConceptUtility
 			try
 			{
 				String hashValue = TtkUtils.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
-			
-			ConverterUUID.addMapping(hashValue, member.getPrimordialComponentUuid());
+				ConverterUUID.addMapping(hashValue, member.getPrimordialComponentUuid());
 			}
 			catch (NoSuchAlgorithmException | UnsupportedEncodingException e)
 			{
@@ -683,14 +703,34 @@ public class EConceptUtility
 		return member;
 	}
 	
-	//TODO write addAssociation methods
+	/**
+	 * Add an association. The source of the association is assumed to be the specified concept.
+	 * 
+	 * @param associationPrimordialUuid - optional - if not provided, created from the source, target and type.
+	 * @param associationTypeUuid required
+	 * @param time - if null, default is used
+	 */
+	public TtkRefexDynamicMemberChronicle addAssociation(TtkComponentChronicle<?, ?> ttkConceptChronicle, UUID associationPrimordialUuid, UUID targetUuid, 
+			UUID associationTypeUuid, Status status, Long time)
+	{
+		try
+		{
+			return addAnnotation(ttkConceptChronicle, associationPrimordialUuid, 
+					new TtkRefexDynamicData[]{new TtkRefexDynamicUUID(targetUuid)}, 
+					associationTypeUuid, status, time);
+		}
+		catch (PropertyVetoException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Add an IS_A_REL relationship, with the time set to now.
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle TtkConceptChronicle, UUID targetUuid)
+	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID targetUuid)
 	{
-		return addRelationship(TtkConceptChronicle, null, targetUuid, null, null, null, null);
+		return addRelationship(ttkConceptChronicle, null, targetUuid, null, null, null, null);
 	}
 
 	/**
@@ -700,24 +740,24 @@ public class EConceptUtility
 	 * @param relTypeUuid - is optional - if not provided, the default value of IS_A_REL is used.
 	 * @param time - if null, default is used
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle TtkConceptChronicle, UUID targetUuid, UUID relTypeUuid, Long time)
+	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID targetUuid, UUID relTypeUuid, Long time)
 	{
-		return addRelationship(TtkConceptChronicle, null, targetUuid, relTypeUuid, null, null, time);
+		return addRelationship(ttkConceptChronicle, null, targetUuid, relTypeUuid, null, null, time);
 	}
 	
 	/**
 	 * This rel add method handles the advanced cases where a rel type 'foo' is actually being loaded as "is_a" (or some other arbitrary type)
 	 * it makes the swap, and adds the second value as a UUID annotation on the created relationship. 
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle TtkConceptChronicle, UUID targetUuid, Property p, Long time)
+	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID targetUuid, Property p, Long time)
 	{
 		if (p.getWBTypeUUID() == null)
 		{
-			return addRelationship(TtkConceptChronicle, null, targetUuid, p.getUUID(), null, null, time);
+			return addRelationship(ttkConceptChronicle, null, targetUuid, p.getUUID(), null, null, time);
 		}
 		else
 		{
-			return addRelationship(TtkConceptChronicle, null, targetUuid, p.getWBTypeUUID(), p.getUUID(), p.getPropertyType().getPropertyTypeReferenceSetUUID(), time);
+			return addRelationship(ttkConceptChronicle, null, targetUuid, p.getWBTypeUUID(), p.getUUID(), p.getPropertyType().getPropertyTypeReferenceSetUUID(), time);
 		}
 	}
 	
@@ -728,21 +768,21 @@ public class EConceptUtility
 	 * @param relTypeUuid - is optional - if not provided, the default value of IS_A_REL is used.
 	 * @param time - if null, default is used
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle TtkConceptChronicle, UUID relPrimordialUuid, UUID targetUuid, UUID relTypeUuid, 
+	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID relPrimordialUuid, UUID targetUuid, UUID relTypeUuid, 
 			UUID sourceRelTypeUUID, UUID sourceRelRefsetUUID, Long time)
 	{
-		List<TtkRelationshipChronicle> relationships = TtkConceptChronicle.getRelationships();
+		List<TtkRelationshipChronicle> relationships = ttkConceptChronicle.getRelationships();
 		if (relationships == null)
 		{
 			relationships = new ArrayList<TtkRelationshipChronicle>();
-			TtkConceptChronicle.setRelationships(relationships);
+			ttkConceptChronicle.setRelationships(relationships);
 		}
 
 		TtkRelationshipChronicle rel = new TtkRelationshipChronicle();
 		rel.setPrimordialComponentUuid(relPrimordialUuid != null ? relPrimordialUuid : 
-			ConverterUUID.createNamespaceUUIDFromStrings(TtkConceptChronicle.getPrimordialUuid().toString(), targetUuid.toString(), 
+			ConverterUUID.createNamespaceUUIDFromStrings(ttkConceptChronicle.getPrimordialUuid().toString(), targetUuid.toString(), 
 					(relTypeUuid == null ? isARelUuid_.toString() : relTypeUuid.toString())));
-		rel.setC1Uuid(TtkConceptChronicle.getPrimordialUuid());
+		rel.setC1Uuid(ttkConceptChronicle.getPrimordialUuid());
 		rel.setTypeUuid(relTypeUuid == null ? isARelUuid_ : relTypeUuid);
 		rel.setC2Uuid(targetUuid);
 		rel.setCharacteristicUuid(definingCharacteristicUuid_);
@@ -883,7 +923,6 @@ public class EConceptUtility
 	 */
 	public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial, DataOutputStream dos) throws Exception
 	{
-		List<TtkRefexDynamicMemberChronicle> attrs = new ArrayList<>();
 		for (PropertyType pt : propertyTypes)
 		{
 			if (pt instanceof BPT_Skip)
@@ -921,39 +960,8 @@ public class EConceptUtility
 				createMetaDataConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), p.getSourcePropertyAltName(), 
 						p.getSourcePropertyDefinition(), pt.getPropertyTypeUUID(), secondParent, p.getCallback(), 
 						(pt instanceof BPT_MemberRefsets ? null : dos));
-				
-				//cache the indexing info
-				if (pt.createAsDynamicRefex())
-				{
-					if (pt instanceof BPT_MemberRefsets && (p.getDataColumnsForDynamicRefex() == null || p.getDataColumnsForDynamicRefex().length == 0))
-					{
-						//no index required - this is a member style refex
-					}
-					else
-					{
-						refexAllowedColumnTypes_.put(p.getUUID(), p.getDataColumnsForDynamicRefex());
-						if (p.getDataColumnsForDynamicRefex() != null)
-						{
-							Integer[] temp = new Integer[p.getDataColumnsForDynamicRefex().length];
-							for (int i = 0; i < temp.length; i++)
-							{
-								temp[i] = i;
-							}
-							
-							
-							
-							attrs.add(TtkUtils.configureDynamicRefexIndexes(p.getUUID(), temp, (rev -> setRevisionAttributes(rev, Status.ACTIVE, defaultTime_))));
-						}
-					}
-				}
 			}
 		}
-		
-		//For lack of a better place to put them, drop them an the index concept:
-		
-		TtkConceptChronicle indexConcept = createConcept(IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID());
-		indexConcept.getConceptAttributes().setAnnotationsDynamic(attrs);
-		indexConcept.writeExternal(dos);
 	}
 	
 	public void storeRefsetConcepts(BPT_MemberRefsets refsets, DataOutputStream dos) throws IOException
@@ -1012,5 +1020,10 @@ public class EConceptUtility
 		//I have a case in UMLS and RxNorm loaders where this makes a duplicate, but its ok, it should merge.
 		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
 				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParent, null, dos).getPrimordialUuid();
+	}
+	
+	public void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo)
+	{
+		refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
 	}
 }

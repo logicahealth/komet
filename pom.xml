@@ -4,18 +4,18 @@
 	<parent>
 		<groupId>gov.vha.isaac</groupId>
 		<artifactId>isaac-parent</artifactId>
-		<version>1.9</version>
+		<version>1.10</version>
 	</parent>
 	
 	<groupId>gov.vha.isaac.terminology.converters</groupId>
 	<artifactId>term-convert-common-base</artifactId>
-	<version>4.2</version>
+	<version>4.3</version>
 	<packaging>jar</packaging>
 	
 	<name>Converters Common Code</name>
 
 	<properties>
-		<isaac-mojo.version>1.11</isaac-mojo.version>
+		<isaac-mojo.version>1.12</isaac-mojo.version>
 	</properties>
 
 	<scm>

@@ -36,8 +36,6 @@ public class LoadStats
 	private AtomicInteger skippedPropertiesCounter_ = new AtomicInteger();
 	private AtomicInteger generatedPreferredTermCount_ = new AtomicInteger();
 	private TreeMap<String, Integer> descriptions_ = new TreeMap<String, Integer>();
-	private TreeMap<String, Integer> conceptIds_ = new TreeMap<String, Integer>();
-	private TreeMap<String, TreeMap<String, Integer>> componentIds_ = new TreeMap<String, TreeMap<String, Integer>>();
 	private TreeMap<String, Integer> refsetMembers_ = new TreeMap<String, Integer>();
 	private TreeMap<String, Integer> relationships_ = new TreeMap<String, Integer>();
 	private TreeMap<String, Integer> associations_ = new TreeMap<String, Integer>();
@@ -83,16 +81,6 @@ public class LoadStats
 	public void addDescription(String descName)
 	{
 		increment(descriptions_, descName);
-	}
-
-	public void addConceptId(String idName)
-	{
-		increment(conceptIds_, idName);
-	}
-
-	public void addComponentId(String annotatedItem, String annotationName)
-	{
-		increment(componentIds_, annotatedItem, annotationName);
 	}
 
 	public void addAnnotation(String annotatedItem, String annotationName)
@@ -143,32 +131,6 @@ public class LoadStats
 		result.add("Associations Total: " + sum);
 
 		sum = 0;
-		for (Map.Entry<String, Integer> value : conceptIds_.entrySet())
-		{
-			sum += value.getValue();
-			result.add("Concept ID '" + value.getKey() + "': " + value.getValue());
-		}
-		result.add("Concept IDs Total: " + sum);
-
-		sum = 0;
-		int nestedSum = 0;
-		for (Map.Entry<String, TreeMap<String, Integer>> value : componentIds_.entrySet())
-		{
-			nestedSum = 0;
-			for (Map.Entry<String, Integer> nestedValue : value.getValue().entrySet())
-			{
-				result.add("Component ID '" + value.getKey() + ":" + nestedValue.getKey() + "': " + nestedValue.getValue());
-				nestedSum += nestedValue.getValue();
-			}
-			sum += nestedSum;
-			if (value.getValue().size() > 1)
-			{
-				result.add("Component ID '" + value.getKey() + "' Total: " + nestedSum);
-			}
-		}
-		result.add("Component IDs Total: " + sum);
-
-		sum = 0;
 		for (Map.Entry<String, Integer> value : descriptions_.entrySet())
 		{
 			sum += value.getValue();
@@ -181,7 +143,7 @@ public class LoadStats
 		}
 
 		sum = 0;
-		nestedSum = 0;
+		int nestedSum = 0;
 		for (Map.Entry<String, TreeMap<String, Integer>> value : annotations_.entrySet())
 		{
 			nestedSum = 0;
