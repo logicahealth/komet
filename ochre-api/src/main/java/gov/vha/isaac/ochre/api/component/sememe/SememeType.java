@@ -51,7 +51,7 @@ public enum SememeType {
     }
 
     @SuppressWarnings("rawtypes")
-	public Class<? extends SememeVersion> getSememeVersionClass() {
+    public Class<? extends SememeVersion> getSememeVersionClass() {
         switch (this) {
             case COMPONENT_NID:
                 return (Class<? extends SememeVersion>)ComponentNidSememe.class;
@@ -73,7 +73,7 @@ public enum SememeType {
     }
 
     @SuppressWarnings("rawtypes")
-	public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
+    public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
         switch (this) {
             case COMPONENT_NID:
                 return (Class<? extends ObservableSememeVersion>)ObservableComponentNidSememe.class;
@@ -129,5 +129,11 @@ public enum SememeType {
             }
         }
         return UNKNOWN;
+    }
+
+    @Override
+    public String toString()
+    {
+        return niceName_;
     }
 }

@@ -5,6 +5,9 @@ ISAAC Object Chronicle Project
 ISAAC's Object Chronicle (OCHRE) project provides the ability to store, retrieve, and edit identified objects, and maintains a complete chronicle of all changes.
 
 
+Release Notes
+mvn jgitflow:release-start jgitflow:release-finish -DreleaseVersion=2.33 -DdevelopmentVersion=2.34-SNAPSHOT -DaltDeploymentRepository=maestro::default::https://va.maestrodev.com/archiva/repository/va-releases  -DdefaultOriginUrl=https://github.com/Apelon-VA/va-ochre.git
+
 NetBeans API
 ------
 

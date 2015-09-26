@@ -21,6 +21,7 @@ import gov.vha.isaac.ochre.api.chronicle.IdentifiedStampedVersion;
 import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -182,5 +183,32 @@ public class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends Obje
     public List<UUID> getUuidList() {
         return chronicle.getUuidList();
     }
+
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 29 * hash + this.stampSequence;
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ObjectVersionImpl<?, ?> other = (ObjectVersionImpl<?, ?>) obj;
+		if (this.stampSequence != other.stampSequence) {
+			return false;
+		}
+		return this.chronicle.getNid() == other.chronicle.getNid();
+	}
+	 
+	 
 
 }

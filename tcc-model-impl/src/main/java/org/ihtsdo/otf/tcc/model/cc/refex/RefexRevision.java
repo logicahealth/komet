@@ -6,6 +6,7 @@ import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
 import org.ihtsdo.otf.tcc.api.blueprint.InvalidCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
@@ -52,7 +53,7 @@ public abstract class RefexRevision<V extends RefexRevision<V, C>, C extends Ref
     public RefexRevision(Status status, long time, int authorNid, int moduleNid, int pathNid, C primordialComponent) {
         super(status, time, authorNid, moduleNid, pathNid, primordialComponent);
     }
-
+    
     //~--- methods -------------------------------------------------------------
     @Override
     protected void addComponentNids(Set<Integer> allNids) {

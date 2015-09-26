@@ -15,16 +15,17 @@
  */
 package gov.vha.isaac.ochre.observable.model.coordinate;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLogicCoordinate;
 import gov.vha.isaac.ochre.model.coordinate.LogicCoordinateImpl;
 import gov.vha.isaac.ochre.observable.model.ObservableFields;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -48,8 +49,12 @@ public class ObservableLogicCoordinateImpl extends ObservableCoordinateImpl impl
         //for jaxb
     }
 
-    public ObservableLogicCoordinateImpl(LogicCoordinate logicCoordinate) {
-        this.logicCoordinate = (LogicCoordinateImpl) logicCoordinate;
+    public ObservableLogicCoordinateImpl(LogicCoordinate logicCoordinate) {        
+        if (logicCoordinate instanceof ObservableLogicCoordinateImpl) {
+            this.logicCoordinate = ((ObservableLogicCoordinateImpl)logicCoordinate).logicCoordinate;
+        } else {
+            this.logicCoordinate = (LogicCoordinateImpl) logicCoordinate;
+        }
     }
 
     @Override

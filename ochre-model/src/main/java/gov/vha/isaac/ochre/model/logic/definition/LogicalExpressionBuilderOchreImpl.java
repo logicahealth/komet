@@ -419,6 +419,10 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
                     return definition.Feature((Integer) axiomParameters.get(axiom.getIndex()),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));
                 }
+                if (axiomParameters.get(axiom.getIndex()) instanceof ConceptProxy) {
+                    return definition.Feature(((ConceptProxy) axiomParameters.get(axiom.getIndex())).getNid(),
+                            addToDefinition(definitionTree.get(axiom).get(0), definition));
+                }
                 ConceptChronology<?> featureTypeProxy = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
                 return definition.Feature(featureTypeProxy.getNid(),
                         addToDefinition(definitionTree.get(axiom).get(0), definition));

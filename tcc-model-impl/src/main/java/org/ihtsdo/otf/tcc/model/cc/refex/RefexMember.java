@@ -7,6 +7,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
+
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -24,11 +25,10 @@ import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
 import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.api.hash.Hashcode;
 
+
 //~--- JDK imports ------------------------------------------------------------
 import java.beans.PropertyVetoException;
-
 import java.io.IOException;
-
 import java.util.*;
 
 import org.ihtsdo.otf.tcc.api.blueprint.IdDirective;
@@ -43,7 +43,7 @@ public abstract class RefexMember<R extends RefexRevision<R, C>, C extends Refex
     public int referencedComponentNid;
     public int assemblageNid;
     protected List<? extends RefexMemberVersion> versions;
-
+    
     //~--- constructors --------------------------------------------------------
     public RefexMember() {
         super();
