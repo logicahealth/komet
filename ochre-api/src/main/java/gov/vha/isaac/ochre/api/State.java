@@ -26,26 +26,28 @@ public enum State {
 		/**
 		 * Currently inactive.
 		 */
-       INACTIVE(false, "Inactive"), 
+       INACTIVE(false, "Inactive", "I"), 
 		 /**
 		  * Currently active.
 		  */
-       ACTIVE(true, "Active"), 
+       ACTIVE(true, "Active", "A"), 
 		 /**
 		  * Not yet created. 
 		  */
-       PRIMORDIAL(false, "Primordial"),
+       PRIMORDIAL(false, "Primordial", "P"),
 		 /**
 		  * Canceled prior to commit. 
 		  */
-       CANCELED(false, "Canceled");
+       CANCELED(false, "Canceled", "C");
 
     boolean isActive;
     String	name;
+    String	abbreviation;
 
-    State(boolean isActive, String name) {
+    State(boolean isActive, String name, String abbreviation) {
         this.isActive = isActive;
         this.name = name;
+        this.abbreviation = abbreviation;
     }
     public boolean getBoolean() {
         return isActive;
@@ -57,6 +59,10 @@ public enum State {
     
     public String toString() {
     	return name;
+    }
+    
+    public String getAbbreviation() {
+    	return abbreviation;
     }
     
     public State inverse() {
