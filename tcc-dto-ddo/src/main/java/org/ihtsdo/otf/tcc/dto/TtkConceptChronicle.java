@@ -262,9 +262,11 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
     public IntStream getStampSequenceStream() {
         Builder builder = IntStream.builder();
         processComponentChronicles((TtkComponentChronicle<?, ?> cc) -> {
-            builder.accept(cc.getStampSequence());
-            if (cc.revisions != null) {
-                cc.revisions.forEach((revision) -> builder.accept(revision.getStampSequence()));
+            if (cc != null) {
+                builder.accept(cc.getStampSequence());
+                if (cc.revisions != null) {
+                    cc.revisions.forEach((revision) -> builder.accept(revision.getStampSequence()));
+                }
             }
         });
         
@@ -289,9 +291,11 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
     }
 
     private void processChronicle(TtkComponentChronicle chronicle, TtkChronicleProcessor processor) {
-        processor.process(chronicle);
-        processChronicle(chronicle.getAnnotations(), processor);
-        processChronicle(chronicle.getAnnotationsDynamic(), processor);
+        if (chronicle != null) {
+            processor.process(chronicle);
+            processChronicle(chronicle.getAnnotations(), processor);
+            processChronicle(chronicle.getAnnotationsDynamic(), processor);
+        }
     }
 
     @Override
