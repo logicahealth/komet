@@ -9,13 +9,13 @@
 	
 	<groupId>gov.vha.isaac.terminology.converters</groupId>
 	<artifactId>term-convert-common-base</artifactId>
-	<version>4.3</version>
+	<version>4.4</version>
 	<packaging>jar</packaging>
 	
 	<name>Converters Common Code</name>
 
 	<properties>
-		<isaac-mojo.version>1.12</isaac-mojo.version>
+		<isaac-mojo.version>1.13</isaac-mojo.version>
 	</properties>
 
 	<scm>
