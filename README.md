@@ -6,7 +6,7 @@ ISAAC's Object Chronicle (OCHRE) project provides the ability to store, retrieve
 
 
 Release Notes
-mvn jgitflow:release-start jgitflow:release-finish -DreleaseVersion=2.33 -DdevelopmentVersion=2.34-SNAPSHOT -DaltDeploymentRepository=maestro::default::https://va.maestrodev.com/archiva/repository/va-releases  -DdefaultOriginUrl=https://github.com/Apelon-VA/va-ochre.git
+mvn jgitflow:release-start jgitflow:release-finish -DreleaseVersion=2.34 -DdevelopmentVersion=2.35-SNAPSHOT -DaltDeploymentRepository=maestro::default::https://va.maestrodev.com/archiva/repository/va-releases  -DdefaultOriginUrl=https://github.com/Apelon-VA/va-ochre.git
 
 NetBeans API
 ------

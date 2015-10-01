@@ -143,4 +143,8 @@ public abstract class TimedTask<T> extends Task<T>  {
         });
     }
 
+    @Override
+    protected void failed() {
+        log.warn("Timed task failed!", this.getException());
+    }
 }
