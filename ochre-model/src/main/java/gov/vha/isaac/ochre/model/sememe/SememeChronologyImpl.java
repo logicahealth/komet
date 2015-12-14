@@ -53,16 +53,6 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     int assemblageSequence = -1;
     int referencedComponentNid = Integer.MAX_VALUE;
 
-    public SememeChronologyImpl(ByteArrayDataBuffer data) {
-        super(data);
-        sememeTypeToken = data.getByte();
-        assemblageSequence = data.getConceptSequence();
-        referencedComponentNid = data.getNid();
-        if (data.isExternalData()) {
-            constructorEnd(data);
-        }
-    }
-
     public SememeChronologyImpl(SememeType sememeType,
             UUID primoridalUuid,
             int nid,
@@ -74,29 +64,40 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
         this.assemblageSequence = assemblageSequence;
         this.referencedComponentNid = referencedComponentNid;
     }
+    private SememeChronologyImpl() {}
+    
+    public static SememeChronologyImpl make(ByteArrayDataBuffer data) {
+        SememeChronologyImpl sememeChronology = new SememeChronologyImpl();
+        sememeChronology.readData(data);
+        return sememeChronology;
+    }
 
     @Override
-    public byte getDataFormatVersion() {
-        return 0;
+    protected void readAdditionalChronicleFields(ByteArrayDataBuffer in) {
+        sememeTypeToken = in.getByte();
+        assemblageSequence = in.getConceptSequence();
+        referencedComponentNid = in.getNid();
+    }
+    
+    @Override
+    protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
+        out.putByte(sememeTypeToken);
+        out.putConceptSequence(assemblageSequence);
+        out.putNid(referencedComponentNid);
     }
 
     @Override
     public OchreExternalizableObjectType getOchreObjectType() {
         return OchreExternalizableObjectType.SEMEME;
     }
-
-    @Override
-    public void putExternal(ByteArrayDataBuffer out) {
-        TODO
-        super.putExternal(out); //To change body of generated methods, choose Tools | Templates.
-    }
-
     @Override
     public void writeChronicleData(ByteArrayDataBuffer data) {
         super.writeChronicleData(data);
-        data.putByte(sememeTypeToken);
-        data.putConceptSequence(assemblageSequence);
-        data.putNid(referencedComponentNid);
+    }
+    
+    @Override
+    public byte getDataFormatVersion() {
+        return 0;
     }
 
     @Override

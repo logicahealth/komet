@@ -80,11 +80,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     /**
      * Primordial uuid most significant bits for this component
      */
-    private final long primordialUuidMsb;
+    private long primordialUuidMsb;
     /**
      * Primordial uuid least significant bits for this component
      */
-    private final long primordialUuidLsb;
+    private long primordialUuidLsb;
     /**
      * additional uuid most and least significant bits for this component
      */
@@ -92,12 +92,12 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     /**
      * Native identifier of this component
      */
-    private final int nid;
+    private int nid;
     /**
      * Concept sequence if a concept or description, Sememe sequence if a
      * sememe.
      */
-    private final int containerSequence;
+    private int containerSequence;
 
     /**
      * Counter to give versions unique sequences within the chronicle.
@@ -145,11 +145,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     /**
-     * For reconstituting an object previously serialized.
+     * No argument constructor for reconstituting an object previously serialized together with the 
+     * readData(ByteArrayDataBuffer data) method.
      *
-     * @param data The data from which to reconstitute this chronicle.
-     */
-    protected ObjectChronologyImpl(ByteArrayDataBuffer data) {
+      */
+    protected ObjectChronologyImpl() {}
+
+    protected void readData(ByteArrayDataBuffer data) {
         if (data.getObjectDataFormatVersion() != 0) {
             throw new UnsupportedOperationException("Can't handle data format version: " + data.getObjectDataFormatVersion());
         }
@@ -172,6 +174,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             } else {
                 throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
             }
+            readAdditionalChronicleFields(data);
             readVersionList(data);
         } else {
             this.containerSequence = data.getInt();
@@ -179,6 +182,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             constructorEnd(data);
         }
     }
+    
+    
+    protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
+    protected abstract void readAdditionalChronicleFields(ByteArrayDataBuffer in);
 
     private void getAdditionalUuids(ByteArrayDataBuffer data) {
         int additionalUuidPartsSize = data.getInt();
@@ -190,7 +197,8 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         }
     }
     
-    public void putExternal(ByteArrayDataBuffer out) {
+    
+    public final void putExternal(ByteArrayDataBuffer out) {
         assert out.isExternalData() == true;
         out.putLong(primordialUuidMsb);
         out.putLong(primordialUuidLsb);
@@ -203,6 +211,9 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             }
         }
         out.putNid(nid);
+        
+        putAdditionalChronicleFields(out);
+        
         // add versions...
          for (V version: getVersionList()) {
             int stampSequenceForVersion = version.getStampSequence();

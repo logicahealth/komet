@@ -56,19 +56,24 @@ public class ConceptChronologyImpl
         super(primoridalUuid, nid, containerSequence);
     }
 
-    public ConceptChronologyImpl(ByteArrayDataBuffer data) {
-        super(data);
-        if (data.isExternalData()) {
-            constructorEnd(data);
-        }
-        
-    }
+    private ConceptChronologyImpl() {}
 
     @Override
-    public void putExternal(ByteArrayDataBuffer out) {
-        super.putExternal(out);
+    protected void readAdditionalChronicleFields(ByteArrayDataBuffer in) {
+        // nothing to read for ConceptChronology...
     }
-
+    
+    @Override
+    protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
+        // nothing to put for ConceptChronology...
+    }
+    
+    public static ConceptChronologyImpl make(ByteArrayDataBuffer data) {
+        ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl();
+        conceptChronology.readData(data);
+        return conceptChronology;
+    }
+    
     @Override
     public byte getDataFormatVersion() {
         return 0;

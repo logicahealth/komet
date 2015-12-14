@@ -41,7 +41,7 @@ public class OchreLogHandler {
             try {
                 buffer.reset();
                 ochreObject.putExternal(buffer);
-                
+
                 output.writeByte(ochreObject.getOchreObjectType().getToken());
                 output.writeByte(ochreObject.getDataFormatVersion());
                 output.writeInt(buffer.getLimit());
@@ -51,7 +51,7 @@ public class OchreLogHandler {
             }
         }
     }
-    
+
     public static class OchreLogReader {
 
         DataInput input;
@@ -70,18 +70,17 @@ public class OchreLogHandler {
                     case COMMIT_RECORD:
                         return Optional.of(new CommitRecordImpl(dataFormatVersion, buffer));
                     case CONCEPT:
-                        return Optional.of(new ConceptChronologyImpl(buffer));
+                        return Optional.of(ConceptChronologyImpl.make(buffer));
                     case SEMEME:
-                        return Optional.of(new SememeChronologyImpl(dataFormatVersion, buffer));
-                        default: 
-                            throw new UnsupportedOperationException("Can't handle: " + type);
+                        return Optional.of(SememeChronologyImpl.make(buffer));
+                    default:
+                        throw new UnsupportedOperationException("Can't handle: " + type);
                 }
             } catch (EOFException ex) {
                 return Optional.empty();
-             } catch (IOException ex) {
+            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
     }
-    
 }
