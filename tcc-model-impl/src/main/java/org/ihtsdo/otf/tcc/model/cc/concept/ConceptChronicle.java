@@ -50,7 +50,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetPolicy;
 import org.ihtsdo.otf.tcc.api.cs.ChangeSetWriterThreading;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.nid.NativeIdSetBI;
@@ -75,7 +75,6 @@ import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 import org.ihtsdo.otf.tcc.dto.component.sememe.SememeFromDtoFactory;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.*;
 import org.ihtsdo.otf.tcc.model.cc.LanguageSortPrefs.LANGUAGE_SORT_PREF;
 import org.ihtsdo.otf.tcc.model.cc.attributes.ConceptAttributes;
@@ -732,7 +731,7 @@ public class ConceptChronicle implements ConceptChronicleBI, Comparable<ConceptC
     public static ConceptChronicle get(TtkConceptChronicle eConcept)
             throws IOException {
         int conceptNid;
-        PersistentStoreI store = Hk2Looker.get().getService(PersistentStoreI.class);
+        PersistentStoreI store = LookupService.get().getService(PersistentStoreI.class);
         if (store.hasUuid(eConcept.getPrimordialUuid())) {
             conceptNid = PersistentStore.get().getNidForUuids(eConcept.getPrimordialUuid());
         } else if (eConcept.getConceptAttributes() != null) {

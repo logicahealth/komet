@@ -22,63 +22,70 @@ import java.util.EnumSet;
  * @author kec
  */
 public enum State {
-    
-		/**
-		 * Currently inactive.
-		 */
-       INACTIVE(false, "Inactive", "I"), 
-		 /**
-		  * Currently active.
-		  */
-       ACTIVE(true, "Active", "A"), 
-		 /**
-		  * Not yet created. 
-		  */
-       PRIMORDIAL(false, "Primordial", "P"),
-		 /**
-		  * Canceled prior to commit. 
-		  */
-       CANCELED(false, "Canceled", "C");
+
+    /**
+     * Currently inactive.
+     */
+    INACTIVE(false, "Inactive", "I"),
+    /**
+     * Currently active.
+     */
+    ACTIVE(true, "Active", "A"),
+    /**
+     * Not yet created.
+     */
+    PRIMORDIAL(false, "Primordial", "P"),
+    /**
+     * Canceled prior to commit.
+     */
+    CANCELED(false, "Canceled", "C");
 
     boolean isActive;
-    String	name;
-    String	abbreviation;
+    String name;
+    String abbreviation;
 
     State(boolean isActive, String name, String abbreviation) {
         this.isActive = isActive;
         this.name = name;
         this.abbreviation = abbreviation;
     }
+
     public boolean getBoolean() {
         return isActive;
     }
-    
+
     public boolean isActive() {
         return isActive;
     }
-    
+
     public String toString() {
-    	return name;
+        return name;
     }
-    
+
     public String getAbbreviation() {
-    	return abbreviation;
+        return abbreviation;
     }
-    
+
     public State inverse() {
-    	switch (this) {
-		case ACTIVE:
-			return INACTIVE;
-		case INACTIVE:
-			return ACTIVE;
-		default:
-			return this;
-    	}
+        switch (this) {
+            case ACTIVE:
+                return INACTIVE;
+            case INACTIVE:
+                return ACTIVE;
+            default:
+                return this;
+        }
     }
-    
+
     public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);
     public static EnumSet<State> ANY_STATE_SET = EnumSet.allOf(State.class);
+
+    public static State getFromBoolean(boolean isActive) {
+        if (isActive) {
+            return ACTIVE; 
+        }
+        return INACTIVE;
+    }
+
     
 }
- 
-

@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.sememe.version;
 
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLongSememe;
@@ -30,7 +30,7 @@ public class LongSememeImpl extends SememeVersionImpl<LongSememeImpl>
     long longValue = Long.MAX_VALUE;
     
     public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container,  
-            int stampSequence, short versionSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(container, stampSequence, versionSequence);
         this.longValue = data.getLong();
     }
@@ -42,7 +42,7 @@ public class LongSememeImpl extends SememeVersionImpl<LongSememeImpl>
 
     
     @Override
-    protected void writeVersionData(DataBuffer data) {
+    protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
         data.putLong(longValue);
     }

@@ -17,7 +17,7 @@
 package org.ihtsdo.otf.tcc.api.contradiction;
 
 
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 
 public class PositionForSet implements Comparable<PositionForSet> {
     long time;

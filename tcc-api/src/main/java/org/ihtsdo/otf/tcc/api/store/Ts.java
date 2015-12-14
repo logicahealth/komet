@@ -1,7 +1,7 @@
 package org.ihtsdo.otf.tcc.api.store;
 
+import gov.vha.isaac.ochre.api.LookupService;
 import org.glassfish.hk2.api.ServiceHandle;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 
 /**
  * Ts is short for Terminology termstore...
@@ -18,7 +18,7 @@ public class Ts {
 
    public static TerminologyStoreDI get() {
       if (store == null) {
-          store = Hk2Looker.get().getService(TerminologyStoreDI.class);
+          store = LookupService.get().getService(TerminologyStoreDI.class);
       }
       return store;
    }
@@ -31,7 +31,7 @@ public class Ts {
     */
    public static boolean hasActiveTermStore()
    {
-       ServiceHandle<TerminologyStoreDI> sh = Hk2Looker.get().getServiceHandle(TerminologyStoreDI.class);
+       ServiceHandle<TerminologyStoreDI> sh = LookupService.get().getServiceHandle(TerminologyStoreDI.class);
        if (sh == null)
        {
            return false;

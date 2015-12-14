@@ -5,19 +5,20 @@
  */
 package gov.vha.isaac.ochre.mojo;
 
+import gov.vha.isaac.ochre.api.IsaacTaxonomy;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.ihtsdo.otf.tcc.dto.taxonomy.Taxonomy;
 
 /**
  *
@@ -29,21 +30,27 @@ public class ExportTaxonomy extends AbstractMojo {
     @Parameter(required = true)
     private String taxonomyClass;
     
+    @Parameter(required = true)
+    private String bindingPackage;
+    
+    @Parameter(required = true)
+    private String bindingClass;
+    
     @Parameter(required = true, defaultValue = "${project.build.directory}") 
     File buildDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            Taxonomy taxonomy = (Taxonomy) Class.forName(taxonomyClass).newInstance();
+            IsaacTaxonomy taxonomy = (IsaacTaxonomy) Class.forName(taxonomyClass).newInstance();
             File javaDir = new File(buildDirectory, "src/generated");
             javaDir.mkdirs();
             File metadataDirectory = new File(buildDirectory, "generated-resources");
             metadataDirectory.mkdirs();
             File metadataBinaryDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".econ");
             File metadataXmlDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
-            String bindingFileDirectory = taxonomyClass.replace('.', '/');
-            File bindingFile = new File(javaDir, bindingFileDirectory + "Binding.java");
+            String bindingFileDirectory = bindingPackage.concat(".").concat(bindingClass).replace('.', '/');
+            File bindingFile = new File(javaDir, bindingFileDirectory + ".java");
             bindingFile.getParentFile().mkdirs();
             try (Writer writer = new BufferedWriter(new FileWriter(bindingFile));
                  DataOutputStream binaryData = new DataOutputStream(
@@ -51,13 +58,12 @@ public class ExportTaxonomy extends AbstractMojo {
                  DataOutputStream xmlData = new DataOutputStream(
                          new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)))) {
                 
-                taxonomy.exportJavaBinding(writer, taxonomy.getClass().getPackage().getName(), 
-                        taxonomy.getClass().getSimpleName() + "Binding");
+                taxonomy.exportJavaBinding(writer, bindingPackage,  bindingClass);
                 
-                taxonomy.exportEConcept(binaryData);
-                taxonomy.exportJaxb(xmlData);
+                 //taxonomy.exportEConcept(binaryData);
+                //taxonomy.exportJaxb(xmlData);
             }
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IOException ex) {
             throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
         }
     }

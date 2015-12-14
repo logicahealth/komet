@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableComponentNidSememe;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -41,14 +41,14 @@ public class ComponentNidSememeImpl extends SememeVersionImpl<ComponentNidSememe
     }
 
     public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container, 
-            int stampSequence, short versionSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);
         this.componentNid = data.getInt();
     }
 
     @Override
-    protected void writeVersionData(DataBuffer data) {
+    protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
         data.putInt(componentNid);
     }

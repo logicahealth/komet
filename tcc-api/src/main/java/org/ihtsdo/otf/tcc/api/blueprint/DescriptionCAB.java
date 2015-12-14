@@ -27,7 +27,7 @@ import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionChronicleBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import gov.vha.isaac.ochre.api.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;

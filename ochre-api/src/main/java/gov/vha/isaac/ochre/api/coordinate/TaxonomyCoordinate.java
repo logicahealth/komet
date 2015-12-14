@@ -63,4 +63,10 @@ public interface TaxonomyCoordinate extends TimeBasedAnalogMaker<TaxonomyCoordin
      */
     
     TaxonomyCoordinate makeAnalog(PremiseType taxonomyType);
+    
+    /**
+     * Convenience method, buffers concept sequence in a cache-sensitive manner.  
+     * @return the concept sequence that defines the is-a relationship type. 
+     */
+    int getIsaConceptSequence();
 }

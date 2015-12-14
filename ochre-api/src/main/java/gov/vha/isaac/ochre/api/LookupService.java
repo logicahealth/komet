@@ -29,6 +29,8 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.runlevel.RunLevelController;
 import com.sun.javafx.application.PlatformImpl;
+import java.io.IOException;
+import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 
 /**
@@ -38,30 +40,31 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
  */
 @SuppressWarnings("restriction")
 public class LookupService {
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
     private static volatile ServiceLocator looker = null;
     public static final int ISAAC_STARTED_RUNLEVEL = 4;
     public static final int WORKERS_STARTED_RUNLEVEL = -1;
     public static final int ISAAC_STOPPED_RUNLEVEL = -2;
-    private static final Object lock = new Object();
+    private static final Object STARTUP_LOCK = new Object();
 
     /**
      * @return the {@link ServiceLocator} that is managing this ISAAC instance
      */
     public static ServiceLocator get() {
         if (looker == null) {
-            synchronized (lock) {
+            synchronized (STARTUP_LOCK) {
                 if (looker == null) {
+                    System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
                     if (GraphicsEnvironment.isHeadless()) {
-                        log.info("Installing headless toolkit");
+                        LOG.info("Installing headless toolkit");
                         HeadlessToolkit.installToolkit();
                     }
 
                     PlatformImpl.startup(() -> {
                         // No need to do anything here
-                        });
+                    });
                     
-                    ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish"));
+                    ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("gov.va", "gov.vha", "org.ihtsdo", "org.glassfish", "com.informatics"));
 
                     boolean readInhabitantFiles = Boolean.getBoolean(System.getProperty(Constants.READ_INHABITANT_FILES, "false"));
                     if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
@@ -70,14 +73,15 @@ public class LookupService {
                     }
                     try {
                         String[] packages = packagesToSearch.toArray(new String[]{});
-                        log.info("Looking for HK2 annotations " + (readInhabitantFiles ? "from inhabitant files" : "skipping inhabitant files") 
+                        LOG.info("Looking for HK2 annotations " + (readInhabitantFiles ? "from inhabitant files" : "skipping inhabitant files") 
                                 + "; and scanning in the packages: " + Arrays.toString(packages));
                         looker = HK2RuntimeInitializer.init("ISAAC", readInhabitantFiles, packages);
-                        log.info("HK2 initialized.  Identifed " + looker.getAllServiceHandles((criteria) -> {return true;}).size() + " services");
+                        LOG.info("HK2 initialized.  Identifed " + looker.getAllServiceHandles((criteria) -> {return true;}).size() + " services");
                     }
-                    catch (Exception e) {
+                    catch (IOException | ClassNotFoundException | MultiException e) {
                         throw new RuntimeException(e);
                     }
+                    LookupService.startupWorkExecutors();
                 }
             }
         }
@@ -114,7 +118,7 @@ public class LookupService {
      */
     public static <T> T getService(Class<T> contractOrImpl) {
         T service = get().getService(contractOrImpl, new Annotation[0]);
-        log.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
+        LOG.debug("LookupService returning {} for {}", (service != null ? service.getClass().getName() : null), contractOrImpl.getName());
 
         return service;
     }
@@ -134,7 +138,7 @@ public class LookupService {
         }
         T service = get().getService(contractOrService, name, new Annotation[0]);
         
-        log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+        LOG.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
 
         return service;
     }
@@ -157,7 +161,7 @@ public class LookupService {
             }
         }
         
-        log.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
+        LOG.debug("LookupService returning {} for {} with name={}", (service != null ? service.getClass().getName() : null), contractOrService.getName(), name);
 
         return service;
     }
@@ -189,7 +193,7 @@ public class LookupService {
      */
     public static void shutdownIsaac() {
         setRunLevel(ISAAC_STOPPED_RUNLEVEL);
-        log.info("Service caches: " + looker.getAllServices(OchreCache.class));
+        LOG.info("Service caches: " + looker.getAllServices(OchreCache.class));
         looker.getAllServices(OchreCache.class)
                 .forEach((cache) -> {cache.reset();});
         looker.shutdown();
@@ -203,18 +207,18 @@ public class LookupService {
      * notifying of successfully start of ISAAC, or providing the Exception, if the startup sequence failed.
      */
     public static void startupIsaac(BiConsumer<Boolean, Exception> callWhenStartComplete) {
-        log.info("Background starting ISAAC services");
+        LOG.info("Background starting ISAAC services");
         Thread backgroundLoad = new Thread(() ->
         {
             try {
                 startupIsaac();
-                log.info("Background start complete - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel());
+                LOG.info("Background start complete - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel());
                 if (callWhenStartComplete != null) {
                     callWhenStartComplete.accept(isIsaacStarted(), null);
                 }
             }
             catch (Exception e) {
-                log.warn("Background start failed - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel(), e);
+                LOG.warn("Background start failed - runlevel now " + getService(RunLevelController.class).getCurrentRunLevel(), e);
                 if (callWhenStartComplete != null) {
                     callWhenStartComplete.accept(false, e);
                 }

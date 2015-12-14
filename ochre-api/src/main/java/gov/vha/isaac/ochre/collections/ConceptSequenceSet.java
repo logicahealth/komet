@@ -22,6 +22,7 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -97,6 +98,10 @@ public class ConceptSequenceSet extends SequenceSet<ConceptSequenceSet> {
 	public void add(int item) {
 		super.add(Get.identifierService().getConceptSequence(item));
 	}
+        
+                 public void add(UUID conceptUuid) {
+                     super.add(Get.identifierService().getConceptSequenceForUuids(conceptUuid));
+                 }
 
 	@Override
 	public boolean contains(int item) {

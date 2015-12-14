@@ -6,7 +6,7 @@ import gov.vha.isaac.ochre.api.Get;
 import java.io.IOException;
 import java.util.*;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.type_member.RefexMemberAnalogBI;

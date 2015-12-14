@@ -15,13 +15,13 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
+
 /**
  *
  * @author kec
  */
-public interface IdentifiedObjectLocal extends IdentifiedObjectUniversal {
-    
-    int getNid();
+public interface IdentifiedObjectLocal extends CommittableComponent {
     
     String toUserString();
 }

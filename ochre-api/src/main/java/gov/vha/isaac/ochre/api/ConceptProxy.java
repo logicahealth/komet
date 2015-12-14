@@ -36,6 +36,10 @@ public class ConceptProxy implements ConceptSpecification {
         this.uuids       = uuids;
         this.description = description;
     }
+    public ConceptProxy(String description, String... uuidStrings) {
+        this.uuids       = Arrays.stream(uuidStrings).map(uuidString -> UUID.fromString(uuidString)).toArray(UUID[]::new);
+        this.description = description;
+    }
     public ConceptProxy(String externalString) {
         String[] parts = externalString.split(FIELD_SEPARATOR);
         this.description = parts[0];
@@ -49,7 +53,6 @@ public class ConceptProxy implements ConceptSpecification {
         }
         this.uuids = uuidList.toArray(new UUID[uuidList.size()]);
     }
-
 
     @Override
     public int hashCode() {
@@ -123,7 +126,8 @@ public class ConceptProxy implements ConceptSpecification {
      * @return the first UUID in the UUID list, or null, if not present
      */
     @XmlTransient
-    public UUID getPrimodialUuid() {
+    @Override
+    public UUID getPrimordialUuid() {
        if (uuids == null || uuids.length < 1)
        {
            return null;

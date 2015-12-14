@@ -15,7 +15,6 @@
  */
 package gov.vha.isaac.ochre.api.component.concept;
 
-import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import org.jvnet.hk2.annotations.Contract;
@@ -30,18 +29,18 @@ public interface ConceptBuilderService {
     ConceptBuilder getDefaultConceptBuilder(String conceptName, 
             String semanticTag, LogicalExpression logicalExpression);
     
-    ConceptBuilderService setDefaultLanguageForDescriptions(ConceptProxy languageForDescriptions);
-    ConceptProxy getDefaultLanguageForDescriptions();
+    ConceptBuilderService setDefaultLanguageForDescriptions(ConceptSpecification languageForDescriptions);
+    ConceptSpecification getDefaultLanguageForDescriptions();
     
-    ConceptBuilderService setDefaultDialectAssemblageForDescriptions(ConceptProxy dialectForDescriptions);
-    ConceptProxy getDefaultDialectForDescriptions();
+    ConceptBuilderService setDefaultDialectAssemblageForDescriptions(ConceptSpecification dialectForDescriptions);
+    ConceptSpecification getDefaultDialectForDescriptions();
     
     ConceptBuilderService setDefaultLogicCoordinate(LogicCoordinate logicCoordinate);
     LogicCoordinate getDefaultLogicCoordinate();
     
     ConceptBuilder getConceptBuilder(String conceptName, String semanticTag, 
             LogicalExpression logicalExpression,
-            ConceptProxy languageForDescriptions, 
-            ConceptProxy dialectForDescriptions,
+            ConceptSpecification languageForDescriptions, 
+            ConceptSpecification dialectForDescriptions,
             LogicCoordinate logicCoordinate);
 }

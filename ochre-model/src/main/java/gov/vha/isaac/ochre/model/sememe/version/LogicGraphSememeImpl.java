@@ -21,7 +21,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
@@ -48,7 +48,7 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
 
     public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container, 
             int stampSequence, short versionSequence,
-            DataBuffer data) {
+            ByteArrayDataBuffer data) {
         super(container, stampSequence, versionSequence);
         int graphNodes = data.getInt();
         this.graphData = new byte[graphNodes][];
@@ -67,7 +67,7 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
     }
 
     @Override
-    protected void writeVersionData(DataBuffer data) {
+    protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
         data.putInt(graphData.length);
         for (byte[] graphDataElement : graphData) {

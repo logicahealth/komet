@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
@@ -26,7 +27,7 @@ import java.util.UUID;
  * @author kec
  * @param <T>
  */
-public interface IdentifiedComponentBuilder<T extends IdentifiedObjectLocal> {
+public interface IdentifiedComponentBuilder<T extends IdentifiedObjectLocal> extends IdentifiedObject {
     
     /**
      * If not set, a randomly generated UUID will be automatically used. 
@@ -36,18 +37,21 @@ public interface IdentifiedComponentBuilder<T extends IdentifiedObjectLocal> {
     IdentifiedComponentBuilder<T> setPrimordialUuid(UUID uuid);
     
     /**
+     * If not set, a randomly generated UUID will be automatically used. 
+     * @param uuidString the primordial uuid for the component to be built. 
+     * @return the builder for chaining of operations in a fluent pattern. 
+     */
+    default IdentifiedComponentBuilder<T> setPrimordialUuid(String uuidString) {
+        return setPrimordialUuid(UUID.fromString(uuidString));
+    }
+    
+    /**
      * Add additional uuids as identifiers for this component. 
      * @param uuids the additional uuids to add as identifiers for this component
      * @return  the builder for chaining of operations in a fluent pattern.
      */
     IdentifiedComponentBuilder<T> addUuids(UUID... uuids);
-    
-    /**
-     * 
-     * @return the list of all UUID that identify this component. 
-     */
-    UUID[] getUuids();
-    
+
     /**
      * 
      * @param identifier a string identifier such as a SNOMED CT id, or a LOINC id. 

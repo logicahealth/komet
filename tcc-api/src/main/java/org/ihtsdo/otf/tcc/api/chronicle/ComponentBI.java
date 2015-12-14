@@ -2,7 +2,7 @@ package org.ihtsdo.otf.tcc.api.chronicle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectUniversal;
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public interface ComponentBI extends IdentifiedObjectUniversal {
+public interface ComponentBI extends CommittableComponent {
    boolean addAnnotation(RefexChronicleBI<?> annotation) throws IOException;
    
    String toUserString();
@@ -47,8 +47,6 @@ public interface ComponentBI extends IdentifiedObjectUniversal {
    Collection<? extends RefexVersionBI<?>> getRefexMembersActive(ViewCoordinate xyz) throws IOException;
 
    Collection<? extends RefexVersionBI<?>> getRefexMembersInactive(ViewCoordinate xyz) throws IOException;
-
-   int getNid();
 
    Collection<? extends RefexChronicleBI<?>> getRefexMembers(int refsetNid) throws IOException;
 

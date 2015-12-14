@@ -3,7 +3,7 @@ package org.ihtsdo.otf.tcc.model.cc.identifier;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
 import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;

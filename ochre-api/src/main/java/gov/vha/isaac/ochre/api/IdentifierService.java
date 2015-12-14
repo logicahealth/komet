@@ -7,6 +7,7 @@ package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.collections.NidSet;
@@ -77,16 +78,17 @@ public interface IdentifierService {
     
     int getNidForUuids(Collection<UUID> uuids);
     int getNidForUuids(UUID... uuids);
-    int getNidForProxy(ConceptProxy conceptProxy);
+    int getNidForProxy(ConceptSpecification conceptProxy);
     
     int getConceptSequenceForUuids(Collection<UUID> uuids);
     int getConceptSequenceForUuids(UUID... uuids);
-    int getConceptSequenceForProxy(ConceptProxy conceptProxy);
+    int getConceptSequenceForProxy(ConceptSpecification conceptProxy);
     
     void addUuidForNid(UUID uuid, int nid);
 
     Optional<UUID> getUuidPrimordialForNid(int nid);
     Optional<UUID> getUuidPrimordialFromConceptSequence(int conceptSequence);
+    Optional<UUID> getUuidPrimordialFromSememeSequence(int sememeSequence);
     
     Optional<LatestVersion<String>> getIdentifierForAuthority(int nid, UUID identifierAuthorityUuid, 
             StampCoordinate stampCoordinate);
@@ -96,6 +98,10 @@ public interface IdentifierService {
 
     List<UUID> getUuidsForNid(int nid);
 
+    default UUID[] getUuidArrayForNid(int nid) {
+        List<UUID> uuids = getUuidsForNid(nid);
+        return uuids.toArray(new UUID[uuids.size()]);
+    }
     boolean hasUuid(UUID... uuids);
 
     boolean hasUuid(Collection<UUID> uuids);

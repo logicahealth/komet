@@ -26,7 +26,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.api.description.DescriptionAnalogBI;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import gov.vha.isaac.ochre.api.LanguageCode;
 import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionRevision;
 import org.ihtsdo.otf.tcc.model.cc.PersistentStore;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;

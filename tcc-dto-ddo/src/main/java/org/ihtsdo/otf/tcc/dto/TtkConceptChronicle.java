@@ -1071,7 +1071,7 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
     @Override
     public List<UUID> getUuidList() {
         if (getConceptAttributes() != null) {
-            return getConceptAttributes().getUuids();
+            return getConceptAttributes().getUuidList();
         }
         return Arrays.asList(new UUID[]{getPrimordialUuid()});
     }

@@ -135,5 +135,10 @@ public class ObservableTaxonomyCoordinateImpl extends ObservableCoordinateImpl i
     public TaxonomyCoordinate makeAnalog(PremiseType taxonomyType) {
         return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(taxonomyType));
     }
+
+    @Override
+    public int getIsaConceptSequence() {
+        return taxonomyCoordinate.getIsaConceptSequence();
+    }
     
 }

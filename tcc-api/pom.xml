@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-lookup</artifactId>
+            <artifactId>ochre-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

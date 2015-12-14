@@ -16,19 +16,19 @@
 
 package org.ihtsdo.otf.tcc.model.services;
 
+import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javafx.concurrent.Task;
 import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
-import org.ihtsdo.otf.lookup.contracts.contracts.ActiveTaskSet;
 /**
  *
  * @author kec
  */
 @Singleton
 @Service
-public class ConcurrentActiveTaskSet implements ActiveTaskSet {
+public class ConcurrentActiveTaskSet implements ActiveTasks {
     private final Set<Task<?>> taskSet = new CopyOnWriteArraySet<>();
 
     @Override

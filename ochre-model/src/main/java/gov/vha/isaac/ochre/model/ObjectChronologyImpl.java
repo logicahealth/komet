@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.model;
 
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -27,6 +28,8 @@ import gov.vha.isaac.ochre.api.dag.Graph;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -51,19 +54,18 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @param <V>
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
-
         implements ObjectChronology<V>, WaitFreeComparable {
 
-    private static final StampedLock[] stampedLocks = new StampedLock[256];
+    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
 
     static {
-        for (int i = 0; i < stampedLocks.length; i++) {
-            stampedLocks[i] = new StampedLock();
+        for (int i = 0; i < STAMPED_LOCKS.length; i++) {
+            STAMPED_LOCKS[i] = new StampedLock();
         }
     }
 
     protected static StampedLock getLock(int key) {
-        return stampedLocks[((int) ((byte) key)) - Byte.MIN_VALUE];
+        return STAMPED_LOCKS[((int) ((byte) key)) - Byte.MIN_VALUE];
     }
 
     /**
@@ -80,7 +82,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      */
     private final long primordialUuidMsb;
     /**
-     * Primoridal uuid least significant bits for this component
+     * Primordial uuid least significant bits for this component
      */
     private final long primordialUuidLsb;
     /**
@@ -147,11 +149,38 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      *
      * @param data The data from which to reconstitute this chronicle.
      */
-    protected ObjectChronologyImpl(DataBuffer data) {
-        this.writeSequence = data.getInt();
-        this.writtenData = data.getData();
+    protected ObjectChronologyImpl(ByteArrayDataBuffer data) {
+        if (data.getObjectDataFormatVersion() != 0) {
+            throw new UnsupportedOperationException("Can't handle data format version: " + data.getObjectDataFormatVersion());
+        }
+
+        if (data.isExternalData()) {
+            this.writeSequence = Integer.MIN_VALUE;
+        } else {
+            this.writeSequence = data.getInt();
+            this.writtenData = data.getData();
+        }
         this.primordialUuidMsb = data.getLong();
         this.primordialUuidLsb = data.getLong();
+        getAdditionalUuids(data);
+        this.nid = data.getNid();
+        if (data.isExternalData()) {
+            if (this instanceof ConceptChronologyImpl) {
+                this.containerSequence = Get.identifierService().getConceptSequence(nid);
+            } else if (this instanceof SememeChronologyImpl) {
+                this.containerSequence = Get.identifierService().getSememeSequence(nid);
+            } else {
+                throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
+            }
+            readVersionList(data);
+        } else {
+            this.containerSequence = data.getInt();
+            this.versionSequence = data.getShort();
+            constructorEnd(data);
+        }
+    }
+
+    private void getAdditionalUuids(ByteArrayDataBuffer data) {
         int additionalUuidPartsSize = data.getInt();
         if (additionalUuidPartsSize > 0) {
             additionalUuidParts = new long[additionalUuidPartsSize];
@@ -159,14 +188,38 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 additionalUuidParts[i] = data.getLong();
             }
         }
-
-        this.nid = data.getInt();
-        this.containerSequence = data.getInt();
-        this.versionSequence = data.getShort();
-        constructorEnd(data);
+    }
+    
+    public void putExternal(ByteArrayDataBuffer out) {
+        assert out.isExternalData() == true;
+        out.putLong(primordialUuidMsb);
+        out.putLong(primordialUuidLsb);
+        if (additionalUuidParts == null) {
+            out.putInt(0);
+        } else {
+            out.putInt(additionalUuidParts.length/2);
+            for (long part: additionalUuidParts) {
+                out.putLong(part);
+            }
+        }
+        out.putNid(nid);
+        // add versions...
+         for (V version: getVersionList()) {
+            int stampSequenceForVersion = version.getStampSequence();
+            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                int startWritePosition = out.getPosition();
+                out.putInt(0); // placeholder for length
+                version.writeVersionData(out);
+                int versionLength = out.getPosition() - startWritePosition;
+                out.setPosition(startWritePosition);
+                out.putInt(versionLength);
+                out.setPosition(out.getLimit());
+            }
+         }
+        out.putInt(0); // last data is a zero length version record
     }
 
-    protected void writeChronicleData(DataBuffer data) {
+    protected void writeChronicleData(ByteArrayDataBuffer data) {
         data.putInt(writeSequence);
         data.putLong(primordialUuidMsb);
         data.putLong(primordialUuidLsb);
@@ -192,7 +245,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      *
      * @param data the buffer from which to derive the location data.
      */
-    protected final void constructorEnd(DataBuffer data) {
+    protected final void constructorEnd(ByteArrayDataBuffer data) {
         versionStartPosition = data.getPosition();
     }
 
@@ -253,23 +306,23 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         if (unwrittenData == null) {
             // no changes, so nothing to merge. 
             if (writtenData != null) {
-                DataBuffer db = new DataBuffer(writtenData);
+                ByteArrayDataBuffer db = new ByteArrayDataBuffer(writtenData);
                 return db.getData();
             }
             // creating a brand new object
-            DataBuffer db = new DataBuffer(10);
+            ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
             writeChronicleData(db);
             db.putInt(0); // zero length version record. 
             db.trimToSize();
             return db.getData();
         }
-        DataBuffer db = new DataBuffer(512);
-	
-	 writeChronicleData(db);		
-	 if (writtenData != null) {
-		 db.put(writtenData, versionStartPosition, writtenData.length - versionStartPosition - 4); // 4 for the zero length version at the end. 
-	 }
-        
+        ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
+
+        writeChronicleData(db);
+        if (writtenData != null) {
+            db.put(writtenData, versionStartPosition, writtenData.length - versionStartPosition - 4); // 4 for the zero length version at the end. 
+        }
+
         // add versions..
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
@@ -299,7 +352,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      */
     public byte[] mergeData(int writeSequence, byte[] dataToMerge) {
         setWriteSequence(writeSequence);
-        DataBuffer db = new DataBuffer(512);
+        ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
         writeChronicleData(db);
         OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
         if (unwrittenData != null) {
@@ -330,14 +383,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     protected void mergeData(byte[] dataToMerge,
-            OpenIntHashSet writtenStamps, DataBuffer db) {
-        DataBuffer writtenBuffer = new DataBuffer(dataToMerge);
+            OpenIntHashSet writtenStamps, ByteArrayDataBuffer db) {
+        ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
         if (versionStartPosition == -1) {
             // object not constructed via serialization. Must compute version start postion. 
-            DataBuffer tempDb = new DataBuffer(512);
+            ByteArrayDataBuffer tempDb = new ByteArrayDataBuffer(512);
             writeChronicleData(tempDb);
             versionStartPosition = tempDb.getPosition();
-            
+
         }
         int nextPosition = versionStartPosition;
         while (nextPosition < writtenBuffer.getLimit()) {
@@ -370,7 +423,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         while (results == null) {
             results = new ArrayList<>();
             if (writtenData != null) {
-                DataBuffer bb = new DataBuffer(writtenData);
+                ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
                 bb.setPosition(versionStartPosition);
                 makeVersions(bb, results);
             }
@@ -380,6 +433,26 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             versionListReference = new SoftReference<>(results);
         }
         return results;
+    }
+
+    private void readVersionList(ByteArrayDataBuffer bb) {
+        if (bb.isExternalData()) {
+            int nextPosition = bb.getPosition();
+            while (nextPosition < bb.getLimit()) {
+                int versionLength = bb.getInt();
+                if (versionLength > 0) {
+                    nextPosition = nextPosition + versionLength;
+                    int stampSequence = bb.getInt();
+                    if (stampSequence >= 0) {
+                        unwrittenData.put(stampSequence, makeVersion(stampSequence, bb));
+                    }
+                } else {
+                    nextPosition = Integer.MAX_VALUE;
+                }
+            }
+        } else {
+            throw new UnsupportedOperationException("This method only supports external data");
+        }
     }
 
     /**
@@ -404,13 +477,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         if (unwrittenData != null && unwrittenData.containsKey(stampSequence)) {
             return Optional.of(unwrittenData.get(stampSequence));
         }
-        DataBuffer bb = new DataBuffer(writtenData);
+        ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
         bb.setPosition(versionStartPosition);
         int nextPosition = bb.getPosition();
         while (nextPosition < bb.getLimit()) {
             int versionLength = bb.getInt();
             nextPosition = nextPosition + versionLength;
-            int stampSequenceForVersion = bb.getInt();
+            int stampSequenceForVersion = bb.getStampSequence();
             if (stampSequence == stampSequenceForVersion) {
                 return Optional.of(makeVersion(stampSequence, bb));
             }
@@ -425,13 +498,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      * @param bb the byte buffer containing previously written data
      * @param results list of the reconstituted version objects
      */
-    protected void makeVersions(DataBuffer bb, ArrayList<V> results) {
+    protected void makeVersions(ByteArrayDataBuffer bb, ArrayList<V> results) {
         int nextPosition = bb.getPosition();
         while (nextPosition < bb.getLimit()) {
             int versionLength = bb.getInt();
             if (versionLength > 0) {
                 nextPosition = nextPosition + versionLength;
-                int stampSequence = bb.getInt();
+                int stampSequence = bb.getStampSequence();
                 if (stampSequence >= 0) {
                     results.add(makeVersion(stampSequence, bb));
                 }
@@ -451,7 +524,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      * @param bb the data buffer
      * @return the version object
      */
-    protected abstract V makeVersion(int stampSequence, DataBuffer bb);
+    protected abstract V makeVersion(int stampSequence, ByteArrayDataBuffer bb);
 
     /**
      *
@@ -468,7 +541,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         if (versions != null) {
             versions.forEach((version) -> builder.accept(version.getStampSequence()));
         } else if (writtenData != null) {
-            DataBuffer bb = new DataBuffer(writtenData);
+            ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
             getVersionStampSequences(versionStartPosition, bb, builder);
         }
         if (unwrittenData != null) {
@@ -486,14 +559,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         return CommitStates.COMMITTED;
     }
 
-    protected void getVersionStampSequences(int index, DataBuffer bb,
+    protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb,
             IntStream.Builder builder) {
         int limit = bb.getLimit();
         while (index < limit) {
             bb.setPosition(index);
             int versionLength = bb.getInt();
             if (versionLength > 0) {
-                int stampSequence = bb.getInt();
+                int stampSequence = bb.getStampSequence();
                 builder.accept(stampSequence);
                 index = index + versionLength;
             } else {
@@ -547,7 +620,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
         }
     }
-    
+
     public void addAdditionalUuids(UUID uuid) {
         List<UUID> temp = getUuidList();
         temp.add(uuid);
@@ -576,10 +649,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             builder.append(version);
             builder.append(",");
         });
-	 if (getVersionList() != null) {
-		builder.deleteCharAt(builder.length() - 1);	  
-	 }
-        
+        if (getVersionList() != null) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+
         builder.append("]");
 
     }
@@ -637,8 +710,6 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
         return !latestStampSequences.isEmpty();
     }
-    
-    
 
     @Override
     public List<Graph<? extends V>> getVersionGraphList() {
@@ -656,7 +727,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                     }
                     return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
                 });
-                 versionMap.put(path, versionSet);
+                versionMap.put(path, versionSet);
             }
             versionSet.add(version);
         });

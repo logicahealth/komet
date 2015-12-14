@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcc-model-impl</artifactId>
+            <artifactId>ochre-api</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>

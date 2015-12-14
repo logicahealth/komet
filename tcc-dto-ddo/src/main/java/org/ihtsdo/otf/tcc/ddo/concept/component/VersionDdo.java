@@ -11,7 +11,7 @@ import org.ihtsdo.otf.tcc.api.chronicle.ComponentBI;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 import org.ihtsdo.otf.tcc.api.concept.ConceptChronicleBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
 import org.ihtsdo.otf.tcc.ddo.TimeReference;
 import org.ihtsdo.otf.tcc.ddo.concept.component.attribute.ConceptAttributesVersionDdo;
@@ -56,6 +56,7 @@ public abstract class VersionDdo implements Serializable {
    private Status                                     status;
    private SimpleObjectProperty<Status>               statusProperty;
    private UUID                                       viewCoordinateUuid;
+   private int stampSequence;
 
    public VersionDdo() {
       super();
@@ -64,6 +65,7 @@ public abstract class VersionDdo implements Serializable {
    public VersionDdo(TaxonomyCoordinate taxonomyCoordinate, StampedVersion another)
            throws IOException, ContradictionException {
       super();
+      stampSequence = another.getStampSequence();
       status                  = Status.getStatusFromState(another.getState());
       fxTime                  = new TimeReference(another.getTime());
       authorReference         = new ComponentReference(Get.identifierService().getConceptNid(another.getAuthorSequence()), taxonomyCoordinate);
@@ -77,6 +79,12 @@ public abstract class VersionDdo implements Serializable {
       assert pathReference != null: "pathReference is null";
       assert viewCoordinateUuid != null: "viewCoordinateUuid is null";
    }
+   
+    public int getStampSequence() {
+        return stampSequence;
+    }
+   
+
 
    public SimpleObjectProperty<ComponentReference> authorReferenceProperty() {
       if (authorReferenceProperty == null) {

@@ -18,7 +18,7 @@ import java.util.*;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 
 @XmlRootElement(name="relationship")
 public class TtkRelationshipChronicle 

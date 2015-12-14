@@ -16,14 +16,13 @@
 package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.Get;
-import java.util.List;
-import java.util.UUID;
+import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
 
 /**
  *
  * @author kec
  */
-public interface ConceptSpecification {
+public interface ConceptSpecification extends IdentifiedObject {
 
     public static final String FIELD_SEPARATOR = "⦙";
 
@@ -57,5 +56,4 @@ public interface ConceptSpecification {
 
     }
 
-     List<UUID> getUuidList();
 }

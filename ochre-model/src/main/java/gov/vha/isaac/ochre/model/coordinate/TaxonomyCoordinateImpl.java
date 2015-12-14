@@ -16,11 +16,13 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
+import java.beans.Transient;
 import java.util.Objects;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -46,7 +48,9 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
     @XmlJavaTypeAdapter(AnyTypeAdapter.class)
     LogicCoordinate logicCoordinate;
     UUID uuid;
-    
+ 
+    transient int isaConceptSequence = TermAux.IS_A.getConceptSequence();
+
     private TaxonomyCoordinateImpl (){
         //for jaxb
     }
@@ -57,7 +61,12 @@ public class TaxonomyCoordinateImpl implements TaxonomyCoordinate {
         this.stampCoordinate = stampCoordinate;
         this.languageCoordinate = languageCoordinate;
         this.logicCoordinate = logicCoordinate;
-        uuid = UUID.randomUUID();
+        this.uuid = UUID.randomUUID();
+    }
+    
+    @Override
+    public int getIsaConceptSequence() {
+        return isaConceptSequence;
     }
     
     @Override

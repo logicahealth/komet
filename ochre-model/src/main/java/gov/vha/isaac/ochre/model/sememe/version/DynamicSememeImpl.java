@@ -27,7 +27,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescriptionBI;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeData;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeTypeToClassUtility;
@@ -42,7 +42,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>imple
 {
 	private DynamicSememeDataBI[] data_ = null;
 
-	public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence, DataBuffer data)
+	public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence, ByteArrayDataBuffer data)
 	{
 		super(container, stampSequence, versionSequence);
 
@@ -71,7 +71,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl>imple
 	}
 
 	@Override
-	protected void writeVersionData(DataBuffer data)
+	protected void writeVersionData(ByteArrayDataBuffer data)
 	{
 		super.writeVersionData(data);
 		//Write with the following format - 

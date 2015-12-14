@@ -730,26 +730,10 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
      *
      * @return
      */
-    public List<UUID> getUuids() {
-        List<UUID> uuids;
-
-        if (additionalIds != null) {
-            uuids = new ArrayList<>(additionalIds.size() + 1);
-        } else {
-            uuids = new ArrayList<>(1);
-        }
-
-        uuids.add(primordialUuid);
-
-        if (additionalIds != null) {
-            for (TtkIdentifier idv : additionalIds) {
-                if (TtkIdentifierUuid.class.isAssignableFrom(idv.getClass())) {
-                    uuids.add((UUID) idv.getDenotation());
-                }
-            }
-        }
-
-        return uuids;
+    @Override
+    public UUID[] getUuids() {
+        List<UUID> uuids = getUuidList();
+         return uuids.toArray(new UUID[uuids.size()]);
     }
 
     /**
@@ -869,7 +853,25 @@ public abstract class TtkComponentChronicle<R extends TtkRevision, V extends Sta
 
     @Override
     public List<UUID> getUuidList() {
-        return getUuids();
+       List<UUID> uuids;
+
+        if (additionalIds != null) {
+            uuids = new ArrayList<>(additionalIds.size() + 1);
+        } else {
+            uuids = new ArrayList<>(1);
+        }
+
+        uuids.add(primordialUuid);
+
+        if (additionalIds != null) {
+            for (TtkIdentifier idv : additionalIds) {
+                if (TtkIdentifierUuid.class.isAssignableFrom(idv.getClass())) {
+                    uuids.add((UUID) idv.getDenotation());
+                }
+            }
+        }
+
+        return uuids;
     }
 
     @Override

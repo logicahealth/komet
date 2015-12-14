@@ -30,12 +30,17 @@
     <modules>
         <module>tcc-api</module>
         <module>tcc-dto-ddo</module>
-        <module>tcc-lookup</module>
         <module>tcc-model-impl</module>
         <module>tcc-serializer</module>
-        <module>tcc-build-extension</module>
         <module>ochre-api</module>
         <module>ochre-model</module>
         <module>ochre-mojo</module>
+        <module>identifier-provider</module>
+        <module>taxonomy-provider</module>
+        <module>wait-free</module>
+        <module>concept-provider</module>
+        <module>path-provider</module>
+        <module>sememe-provider</module>
+        <module>commit-manager</module>
     </modules>
 </project>

@@ -15,7 +15,7 @@
  */
 package org.ihtsdo.lang;
 
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import gov.vha.isaac.ochre.api.LanguageCode;
 import org.junit.*;
 import static org.junit.Assert.*;
 

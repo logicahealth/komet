@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.model.coordinate;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -33,22 +34,22 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class LogicCoordinateLazyBinding extends LogicCoordinateImpl {
     
     @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-    private ConceptProxy statedAssemblageProxy = null;
+    private ConceptSpecification statedAssemblageProxy = null;
     @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-    private ConceptProxy inferredAssemblageProxy = null;
+    private ConceptSpecification inferredAssemblageProxy = null;
     @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-    private ConceptProxy descriptionLogicProfileProxy = null;
+    private ConceptSpecification descriptionLogicProfileProxy = null;
     @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-    private ConceptProxy classifierProxy = null;
+    private ConceptSpecification classifierProxy = null;
     
     private LogicCoordinateLazyBinding() {
         //for jaxb
     }
 
-    public LogicCoordinateLazyBinding(ConceptProxy statedAssemblageProxy, 
-            ConceptProxy inferredAssemblageProxy, 
-            ConceptProxy descriptionLogicProfileProxy, 
-            ConceptProxy classifierProxy) {
+    public LogicCoordinateLazyBinding(ConceptSpecification statedAssemblageProxy, 
+            ConceptSpecification inferredAssemblageProxy, 
+            ConceptSpecification descriptionLogicProfileProxy, 
+            ConceptSpecification classifierProxy) {
         super(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.statedAssemblageProxy = statedAssemblageProxy;
         this.inferredAssemblageProxy = inferredAssemblageProxy;

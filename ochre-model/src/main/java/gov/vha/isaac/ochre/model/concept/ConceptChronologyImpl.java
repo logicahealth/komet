@@ -31,8 +31,10 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
+import gov.vha.isaac.ochre.model.OchreExternalizable;
+import gov.vha.isaac.ochre.model.OchreExternalizableObjectType;
 import gov.vha.isaac.ochre.model.relationship.RelationshipAdaptorChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import java.util.ArrayList;
@@ -48,16 +50,33 @@ import java.util.stream.Collectors;
  */
 public class ConceptChronologyImpl
         extends ObjectChronologyImpl<ConceptVersionImpl>
-        implements ConceptChronology<ConceptVersionImpl> {
+        implements ConceptChronology<ConceptVersionImpl>, OchreExternalizable {
 
     public ConceptChronologyImpl(UUID primoridalUuid, int nid, int containerSequence) {
         super(primoridalUuid, nid, containerSequence);
     }
 
-    public ConceptChronologyImpl(DataBuffer data) {
+    public ConceptChronologyImpl(ByteArrayDataBuffer data) {
         super(data);
-        constructorEnd(data);
+        if (data.isExternalData()) {
+            constructorEnd(data);
+        }
+        
+    }
 
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        super.putExternal(out);
+    }
+
+    @Override
+    public byte getDataFormatVersion() {
+        return 0;
+    }
+
+    @Override
+    public OchreExternalizableObjectType getOchreObjectType() {
+        return OchreExternalizableObjectType.CONCEPT;
     }
 
     @Override
@@ -66,7 +85,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    public void writeChronicleData(DataBuffer data) {
+    public void writeChronicleData(ByteArrayDataBuffer data) {
         super.writeChronicleData(data);
     }
 
@@ -87,7 +106,7 @@ public class ConceptChronologyImpl
     }
 
     @Override
-    protected ConceptVersionImpl makeVersion(int stampSequence, DataBuffer bb) {
+    protected ConceptVersionImpl makeVersion(int stampSequence, ByteArrayDataBuffer bb) {
         return new ConceptVersionImpl(this, stampSequence, bb.getShort());
     }
 

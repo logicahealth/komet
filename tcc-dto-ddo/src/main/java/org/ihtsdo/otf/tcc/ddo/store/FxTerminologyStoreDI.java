@@ -20,6 +20,7 @@ package org.ihtsdo.otf.tcc.ddo.store;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.ddo.ComponentReference;
@@ -41,21 +42,20 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface FxTerminologyStoreDI extends TerminologyStoreDI {
-   ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc) throws IOException, ContradictionException;
+   ConceptChronicleDdo getFxConcept(UUID conceptUUID, TaxonomyCoordinate tc) throws IOException, ContradictionException;
 
    ConceptChronicleDdo getFxConcept(ComponentReference ref, UUID viewCoordinateUuid,
                           RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 
-   ConceptChronicleDdo getFxConcept(ComponentReference ref, ViewCoordinate vc,
-                          RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
+   ConceptChronicleDdo getFxConcept(ComponentReference ref, TaxonomyCoordinate vc, RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 
    ConceptChronicleDdo getFxConcept(UUID conceptUUID, UUID viewCoordinateUuid,
                           RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
 
-   ConceptChronicleDdo getFxConcept(UUID conceptUUID, ViewCoordinate vc,
-                          RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
+   ConceptChronicleDdo getFxConcept(UUID conceptUUID, TaxonomyCoordinate tc, RefexPolicy refexPolicy, RelationshipPolicy relationshipPolicy)
            throws IOException, ContradictionException;
+   
 }

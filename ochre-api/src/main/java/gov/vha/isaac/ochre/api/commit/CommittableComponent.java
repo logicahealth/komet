@@ -15,11 +15,13 @@
  */
 package gov.vha.isaac.ochre.api.commit;
 
+import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
+
 /**
  *
  * @author kec
  */
-public interface CommittableComponent {
+public interface CommittableComponent extends IdentifiedObject {
     CommitStates getCommitState();
     
     default boolean isUncommitted() {

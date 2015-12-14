@@ -15,15 +15,18 @@
  */
 package gov.vha.isaac.ochre.observable.model;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import static gov.vha.isaac.ochre.api.component.concept.ConceptSpecification.FIELD_SEPARATOR;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
  *
  * @author kec
  */
-public enum ObservableFields {
+public enum ObservableFields implements ConceptSpecification {
 
     AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE("author sequence for edit coordinate"),
     MODULE_SEQUENCE_FOR_EDIT_COORDINATE("module sequence for edit coordinate"),
@@ -91,6 +94,16 @@ public enum ObservableFields {
 
     public UUID getUuid() {
         return UuidT5Generator.get(namespace, name());
+    }
+
+    @Override
+    public String getConceptDescriptionText() {
+        return getDescription();
+    }
+
+    @Override
+    public List<UUID> getUuidList() {
+       return Arrays.asList(new UUID[] {getUuid() });
     }
 
 }

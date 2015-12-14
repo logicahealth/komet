@@ -14,7 +14,7 @@ import java.util.Collection;
 import org.apache.mahout.math.set.AbstractIntSet;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.VersionPointBI;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 import org.ihtsdo.otf.tcc.api.store.Ts;
 
 public class Stamp implements Comparable<Stamp>, VersionPointBI {

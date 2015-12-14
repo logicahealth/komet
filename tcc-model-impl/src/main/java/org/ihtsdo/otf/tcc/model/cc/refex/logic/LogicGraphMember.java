@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import org.ihtsdo.otf.tcc.api.blueprint.ComponentProperty;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
@@ -24,7 +24,6 @@ import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphVersionBI;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.component.ConceptComponent;
 import org.ihtsdo.otf.tcc.model.cc.component.RevisionSet;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMember;
@@ -49,7 +48,7 @@ public class LogicGraphMember extends RefexMember<LogicGraphRevision, LogicGraph
 
     public LogicGraphMember(TtkLogicGraphMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
         super(refsetMember, enclosingConceptNid);
-        LogicalExpressionByteArrayConverter converter = Hk2Looker.get().getService(LogicalExpressionByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = LookupService.get().getService(LogicalExpressionByteArrayConverter.class);
         logicGraphBytes =  converter.convertLogicGraphForm(logicGraphBytes, DataTarget.INTERNAL);
 
         if (refsetMember.getRevisionList() != null) {

@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.ihtsdo.otf.tcc.api.blueprint.DescriptionCAB;
 import org.ihtsdo.otf.tcc.api.blueprint.RefexCAB;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import gov.vha.isaac.ochre.api.LanguageCode;
 import org.ihtsdo.otf.tcc.api.metadata.binding.Snomed;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
@@ -41,9 +41,9 @@ import gov.vha.isaac.ochre.util.UuidT5Generator;
  */
 public class TtkUtils	
 {
-	private static final UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getPrimodialUuid();
-	private static final UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getPrimodialUuid();
-	private static final UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getPrimodialUuid();
+	private static final UUID descriptionAcceptableUuid_ = SnomedMetadataRf2.ACCEPTABLE_RF2.getPrimordialUuid();
+	private static final UUID descriptionPreferredUuid_ = SnomedMetadataRf2.PREFERRED_RF2.getPrimordialUuid();
+	private static final UUID usEnRefsetUuid_ = SnomedMetadataRf2.US_ENGLISH_REFSET_RF2.getPrimordialUuid();
 	
 	public static void configureConceptAsDynamicRefex(TtkConceptChronicle concept, String refexDescription,
 			DynamicSememeColumnInfo[] columns, ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction,
@@ -51,7 +51,7 @@ public class TtkUtils
 	{
 		// See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
 		//Add the special synonym to establish this as an assemblage concept
-		TtkDescriptionChronicle description = addDescription(concept, refexDescription, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid(), true, 
+		TtkDescriptionChronicle description = addDescription(concept, refexDescription, Snomed.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid(), true, 
 				LanguageCode.EN, revSetter);
 		
 		//Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
@@ -151,7 +151,7 @@ public class TtkUtils
 		//Then add the inverse name, if present.
 		if (!StringUtils.isBlank(associationInverseName))
 		{
-			addDescription(concept, associationInverseName, Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimodialUuid(), false, LanguageCode.EN, revSetter);
+			addDescription(concept, associationInverseName, Snomed.SYNONYM_DESCRIPTION_TYPE.getPrimordialUuid(), false, LanguageCode.EN, revSetter);
 		}
 		
 		members.add(createDynamicAnnotation(concept.getPrimordialUuid(), IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), 

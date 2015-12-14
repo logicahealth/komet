@@ -2,15 +2,13 @@ package org.ihtsdo.otf.tcc.ddo.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -163,13 +161,16 @@ public class ConceptChronicleDdo implements Serializable {
                     _refsetMembers = FXCollections.observableArrayList(new ArrayList<RefexChronicleDdo<?, ?>>(members.size()));
 
                     for (SememeChronology<? extends SememeVersion> m : members) {
-                        Optional<RefexChronicleDdo<?, ?>> member = convertRefex(taxonomyCoordinate, m);
+                        if (m.getSememeType() != SememeType.DESCRIPTION) {
+                            Optional<RefexChronicleDdo<?, ?>> member = convertRefex(taxonomyCoordinate, m);
 
-                        if (member.isPresent()) {
-                            _refsetMembers.add(member.get());
-                        } else {
-                            throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + concept);
+                            if (member.isPresent()) {
+                                _refsetMembers.add(member.get());
+                            } else {
+                                throw new IOException("Could not convert refset member: " + m + "\nfrom refset: " + concept);
+                            }
                         }
+
                     }
                 }
             }

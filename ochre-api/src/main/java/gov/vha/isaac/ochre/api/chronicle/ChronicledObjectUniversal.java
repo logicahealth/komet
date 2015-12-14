@@ -5,10 +5,12 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
+
 /**
  *
  * @author kec
  */
-public interface ChronicledObjectUniversal extends IdentifiedObjectUniversal {
+public interface ChronicledObjectUniversal extends CommittableComponent {
     
 }

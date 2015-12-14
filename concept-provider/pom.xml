@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>gov.vha.isaac.ochre</groupId>
+        <artifactId>ochre-parent</artifactId>
+        <version>2.35-SNAPSHOT</version>
+    </parent>
+    <groupId>gov.vha.isaac.ochre.modules</groupId>
+    <artifactId>concept-provider</artifactId>
+    <packaging>jar</packaging>
+    <name>woolsthorpe: OCHRE Concept Provider</name>
+    <dependencies>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>wait-free</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -6,13 +6,13 @@
 package org.ihtsdo.otf.tcc.model.cc.refex.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import org.ihtsdo.otf.tcc.api.refex.logicgraph.LogicGraphAnalogBI;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphMemberChronicle;
 import org.ihtsdo.otf.tcc.dto.component.refex.logicgraph.TtkLogicGraphRevision;
-import org.ihtsdo.otf.tcc.lookup.Hk2Looker;
 import org.ihtsdo.otf.tcc.model.cc.refex.RefexMemberVersion;
 
 /**
@@ -55,7 +55,7 @@ public class LogicGraphMemberVersion extends RefexMemberVersion<LogicGraphRevisi
    
         @Override
     public byte[][] getExternalLogicGraphBytes() {
-        LogicalExpressionByteArrayConverter converter = Hk2Looker.get().getService(LogicalExpressionByteArrayConverter.class);
+        LogicalExpressionByteArrayConverter converter = LookupService.get().getService(LogicalExpressionByteArrayConverter.class);
         return converter.convertLogicGraphForm(getCv().getLogicGraphBytes(), DataTarget.EXTERNAL);
     }
 

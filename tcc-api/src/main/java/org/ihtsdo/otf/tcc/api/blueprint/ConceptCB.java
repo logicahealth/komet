@@ -37,7 +37,7 @@ import org.ihtsdo.otf.tcc.api.concept.ConceptVersionBI;
 //~--- non-JDK imports --------------------------------------------------------
 import org.ihtsdo.otf.tcc.api.contradiction.ContradictionException;
 import org.ihtsdo.otf.tcc.api.description.DescriptionVersionBI;
-import org.ihtsdo.otf.tcc.api.lang.LanguageCode;
+import gov.vha.isaac.ochre.api.LanguageCode;
 import org.ihtsdo.otf.tcc.api.media.MediaVersionBI;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;

@@ -24,7 +24,7 @@ import org.ihtsdo.otf.tcc.api.nid.NidListBI;
 import org.ihtsdo.otf.tcc.api.nid.NidSetBI;
 import org.ihtsdo.otf.tcc.api.relationship.RelAssertionType;
 import org.ihtsdo.otf.tcc.api.store.TerminologySnapshotDI;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.Externalizable;
@@ -875,6 +875,11 @@ public class ViewCoordinate implements StampCoordinate,
             public LanguageCoordinate getLanguageCoordinate()
             {
                 return ViewCoordinate.this;
+            }
+
+            @Override
+            public int getIsaConceptSequence() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
     }

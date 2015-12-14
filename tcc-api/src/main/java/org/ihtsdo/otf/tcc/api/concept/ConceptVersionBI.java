@@ -1,7 +1,6 @@
 package org.ihtsdo.otf.tcc.api.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshot;
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import org.ihtsdo.otf.tcc.api.chronicle.ComponentVersionBI;

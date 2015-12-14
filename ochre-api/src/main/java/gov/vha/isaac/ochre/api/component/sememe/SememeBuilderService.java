@@ -79,16 +79,14 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             int descriptionTypeConceptSequence,
             int languageConceptSequence,
             String text,
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
-            int assemblageConceptSequence);
+            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent);
     
     SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
             int caseSignificanceConceptSequence,
             int languageConceptSequence,
             int descriptionTypeConceptSequence,
             String text,
-            int referencedComponentNid, 
-            int assemblageConceptSequence);
+            int referencedComponentNid);
     
     SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence);
     

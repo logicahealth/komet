@@ -27,8 +27,10 @@ import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
+import gov.vha.isaac.ochre.model.OchreExternalizable;
+import gov.vha.isaac.ochre.model.OchreExternalizableObjectType;
 import gov.vha.isaac.ochre.model.sememe.version.ComponentNidSememeImpl;
 import gov.vha.isaac.ochre.model.sememe.version.DescriptionSememeImpl;
 import gov.vha.isaac.ochre.model.sememe.version.DynamicSememeImpl;
@@ -44,18 +46,21 @@ import java.util.UUID;
  * @author kec
  * @param <V>
  */
-public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends ObjectChronologyImpl<V> implements SememeChronology<V> {
+public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends ObjectChronologyImpl<V> 
+        implements SememeChronology<V>, OchreExternalizable {
 
     byte sememeTypeToken = -1;
     int assemblageSequence = -1;
     int referencedComponentNid = Integer.MAX_VALUE;
 
-    public SememeChronologyImpl(DataBuffer data) {
+    public SememeChronologyImpl(ByteArrayDataBuffer data) {
         super(data);
         sememeTypeToken = data.getByte();
-        assemblageSequence = data.getInt();
-        referencedComponentNid = data.getInt();
-        constructorEnd(data);
+        assemblageSequence = data.getConceptSequence();
+        referencedComponentNid = data.getNid();
+        if (data.isExternalData()) {
+            constructorEnd(data);
+        }
     }
 
     public SememeChronologyImpl(SememeType sememeType,
@@ -71,11 +76,27 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     }
 
     @Override
-    public void writeChronicleData(DataBuffer data) {
+    public byte getDataFormatVersion() {
+        return 0;
+    }
+
+    @Override
+    public OchreExternalizableObjectType getOchreObjectType() {
+        return OchreExternalizableObjectType.SEMEME;
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        TODO
+        super.putExternal(out); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void writeChronicleData(ByteArrayDataBuffer data) {
         super.writeChronicleData(data);
         data.putByte(sememeTypeToken);
-        data.putInt(assemblageSequence);
-        data.putInt(referencedComponentNid);
+        data.putConceptSequence(assemblageSequence);
+        data.putNid(referencedComponentNid);
     }
 
     @Override
@@ -84,7 +105,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     }
 
     @Override
-    protected V makeVersion(int stampSequence, DataBuffer db) {
+    protected V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
         return (V) createSememe(sememeTypeToken, this, stampSequence,
                 db.getShort(), db);
     }
@@ -176,7 +197,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     }
 
     public static SememeVersionImpl<?> createSememe(byte token, SememeChronologyImpl<?> container,
-            int stampSequence, short versionSequence, DataBuffer bb) {
+            int stampSequence, short versionSequence, ByteArrayDataBuffer bb) {
 
         SememeType st = SememeType.getFromToken(token);
         switch (st) {

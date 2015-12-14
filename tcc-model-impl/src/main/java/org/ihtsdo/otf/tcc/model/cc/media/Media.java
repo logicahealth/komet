@@ -16,7 +16,7 @@ import org.ihtsdo.otf.tcc.api.coordinate.Precedence;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaChronicle;
 import org.ihtsdo.otf.tcc.dto.component.media.TtkMediaRevision;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.io.IOException;

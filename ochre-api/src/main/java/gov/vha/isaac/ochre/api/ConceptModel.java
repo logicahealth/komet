@@ -19,6 +19,7 @@ package gov.vha.isaac.ochre.api;
  *
  * @author kec
  */
+@Deprecated
 public enum ConceptModel {
     
     /**

@@ -15,10 +15,10 @@
  */
 package gov.vha.isaac.ochre.api.component.concept.description;
 
-import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 
 /**
  *
@@ -28,6 +28,6 @@ import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
  */
 public interface DescriptionBuilder<T extends ObjectChronology<?>, V extends StampedVersion> 
     extends IdentifiedComponentBuilder<T> {
-    DescriptionBuilder<?,?> setPreferredInDialectAssemblage(ConceptProxy dialectAssemblage);
-    DescriptionBuilder<?,?> setAcceptableInDialectAssemblage(ConceptProxy dialectAssemblage);
+    DescriptionBuilder<?,?> setPreferredInDialectAssemblage(ConceptSpecification dialectAssemblage);
+    DescriptionBuilder<?,?> setAcceptableInDialectAssemblage(ConceptSpecification dialectAssemblage);
 }

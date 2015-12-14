@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDescriptionSememe;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 
 /**
@@ -39,7 +39,7 @@ public class DescriptionSememeImpl
         super(chronicle, stampSequence, versionSequence);
     }
     public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle, 
-            int stampSequence, short versionSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(chronicle, stampSequence, versionSequence);
         this.caseSignificanceConceptSequence = data.getInt();
         this.languageConceptSequence = data.getInt();
@@ -53,7 +53,7 @@ public class DescriptionSememeImpl
     }
     
     @Override
-    protected void writeVersionData(DataBuffer data) {
+    protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
         data.putInt(caseSignificanceConceptSequence);
         data.putInt(languageConceptSequence);

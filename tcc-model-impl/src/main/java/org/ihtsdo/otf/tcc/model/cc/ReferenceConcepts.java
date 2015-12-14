@@ -7,14 +7,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 
 //TODO this needs to be moved out so that this module is independent of terminologies
 public enum ReferenceConcepts {
 
-    REFSET_PATHS(TermAux.PATH_REFSET.getUuids()),
+    REFSET_PATHS(TermAux.PATH_ASSEMBLAGE.getUuids()),
     PATH(TermAux.PATH.getUuids()),
-    REFSET_PATH_ORIGINS(TermAux.PATH_ORIGIN_REFSET.getUuids()),
+    REFSET_PATH_ORIGINS(TermAux.PATH_ORIGIN_ASSEMBLAGE.getUuids()),
     TERM_AUXILIARY_PATH(TermAux.WB_AUX_PATH.getUuids()),
 
     SNOROCKET(TermAux.IHTSDO_CLASSIFIER.getUuids()),

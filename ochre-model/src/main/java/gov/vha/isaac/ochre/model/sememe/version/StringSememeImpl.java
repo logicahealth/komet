@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableStringSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
-import gov.vha.isaac.ochre.model.DataBuffer;
+import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 
 /**
@@ -35,14 +35,14 @@ public class StringSememeImpl extends SememeVersionImpl<StringSememeImpl> implem
     }
 
     public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, 
-            int stampSequence, short versionSequence, DataBuffer data) {
+            int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);
         this.string = data.readUTF();
     }
 
     @Override
-    protected void writeVersionData(DataBuffer data) {
+    protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
         data.putUTF(string);
     }

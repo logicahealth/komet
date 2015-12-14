@@ -15,6 +15,7 @@
 
 package gov.vha.isaac.ochre.api;
 
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import java.nio.file.Path;
 import java.time.Instant;
 import javafx.concurrent.Task;
@@ -37,7 +38,7 @@ public interface ObjectChronicleTaskService {
      * @param originTime The time of the origin.
      * @return A task for tracking progress.
      */
-    Task<Void> addStampPathOrigin(ConceptProxy stampPath, ConceptProxy originStampPath, Instant originTime);
+    Task<Void> addStampPathOrigin(ConceptSpecification stampPath, ConceptSpecification originStampPath, Instant originTime);
 
     /**
      *
@@ -62,7 +63,7 @@ public interface ObjectChronicleTaskService {
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(ConceptModel conceptModel, ConceptProxy stampPath, Path... filePaths);
+    Task<Integer> startLoadTask(ConceptModel conceptModel, ConceptSpecification stampPath, Path... filePaths);
 
    /**
      *
@@ -84,7 +85,7 @@ public interface ObjectChronicleTaskService {
      * @param filePaths <code>Path</code>s of the input files for the verification
      * @return Task that returns an integer reflecting the number of object chronicles verified
      */
-    Task<Boolean> startVerifyTask(ConceptProxy stampPath, Path... filePaths);
+    Task<Boolean> startVerifyTask(ConceptSpecification stampPath, Path... filePaths);
 
     /**
      *
@@ -106,7 +107,7 @@ public interface ObjectChronicleTaskService {
      * @param filePath <code>Path</code> of the export file
      * @return Task that returns an integer reflecting the number of object chronicles exported
      */
-    Task<Integer> startExportTask(ConceptProxy stampPath, Path filePath);
+    Task<Integer> startExportTask(ConceptSpecification stampPath, Path filePath);
 
     /**
      * 
@@ -129,7 +130,7 @@ public interface ObjectChronicleTaskService {
      * @param filePath <code>Path</code> of the export file
      * @return Task that returns an integer reflecting the number of object chronicles exported
      */
-    Task<Integer> startLogicGraphExportTask(ConceptProxy stampPath, Path filePath);
+    Task<Integer> startLogicGraphExportTask(ConceptSpecification stampPath, Path filePath);
 
     /**
      * Removes all relationships from the object chronicle concepts, so that only the logic graph remains.

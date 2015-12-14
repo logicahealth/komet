@@ -2,29 +2,22 @@ package org.ihtsdo.otf.tcc.model.cc.component;
 
 //~--- non-JDK imports --------------------------------------------------------
 import gov.vha.isaac.ochre.api.Get;
-import static org.ihtsdo.otf.tcc.api.blueprint.RefexCAB.refexSpecNamespace;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
-import java.io.*;
-import java.util.*;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +31,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.ihtsdo.otf.tcc.api.AnalogBI;
 import org.ihtsdo.otf.tcc.api.AnalogGeneratorBI;
@@ -51,9 +43,9 @@ import org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate;
 import org.ihtsdo.otf.tcc.api.coordinate.Position;
 import org.ihtsdo.otf.tcc.api.coordinate.Status;
 import org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate;
-import org.ihtsdo.otf.tcc.api.hash.Hashcode;
+import gov.vha.isaac.ochre.util.Hashcode;
 import org.ihtsdo.otf.tcc.api.id.IdBI;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
 import org.ihtsdo.otf.tcc.api.refex.RefexType;
 import org.ihtsdo.otf.tcc.api.refex.RefexVersionBI;
@@ -1444,11 +1436,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
      */
     @Override
     public final int getAuthorityNid() {
-        try {
-            return TermAux.GENERATED_UUID.getLenient().getNid();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return TermAux.GENERATED_UUID.getNid();
     }
 
     /**
