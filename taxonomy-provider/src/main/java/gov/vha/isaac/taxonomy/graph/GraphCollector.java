@@ -13,7 +13,7 @@ import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.tree.hashtree.HashTreeBuilder;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.waitfree.CasSequenceObjectMap;
+import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 
 import java.util.Optional;
 import java.util.UUID;

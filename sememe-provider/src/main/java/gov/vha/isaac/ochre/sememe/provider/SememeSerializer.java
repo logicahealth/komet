@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.sememe.provider;
 
 import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.waitfree.WaitFreeMergeSerializer;
+import gov.vha.isaac.ochre.model.waitfree.WaitFreeMergeSerializer;
 
 /**
  *

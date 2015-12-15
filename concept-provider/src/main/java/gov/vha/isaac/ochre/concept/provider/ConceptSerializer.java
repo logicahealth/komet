@@ -3,7 +3,7 @@ package gov.vha.isaac.ochre.concept.provider;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
-import gov.vha.isaac.ochre.waitfree.WaitFreeMergeSerializer;
+import gov.vha.isaac.ochre.model.waitfree.WaitFreeMergeSerializer;
 
 /**
  * The concept serializer is currently updating the taxonomy records every time a concept is serialized. 
