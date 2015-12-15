@@ -2,6 +2,7 @@ package org.ihtsdo.otf.tcc.dto.component.refex.type_string;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import org.ihtsdo.otf.tcc.api.refex.RefexChronicleBI;
@@ -61,7 +62,7 @@ public class TtkRefexStringMemberChronicle extends TtkRefexAbstractMemberChronic
       this.string1 = stringVersions.get(0).getString();
 
       for (int index = 1; index < stringVersions.size(); index++) {
-         TtkRefexStringRevision rev = new TtkRefexStringRevision(stringVersions.get(index));
+         TtkRefexStringRevision rev = new TtkRefexStringRevision((StringSememe) stringVersions.get(index));
          revisions.add(rev);
       }
    }

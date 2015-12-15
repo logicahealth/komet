@@ -477,4 +477,14 @@ public class HeadlessToolkit extends Toolkit
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public boolean canStartNestedEventLoop() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ScreenConfigurationAccessor getScreenConfigurationAccessor() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

@@ -44,13 +44,13 @@ public class ComponentNidSememeImpl extends SememeVersionImpl<ComponentNidSememe
             int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(container, 
                 stampSequence, versionSequence);
-        this.componentNid = data.getInt();
+        this.componentNid = data.getNid();
     }
 
     @Override
     protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
-        data.putInt(componentNid);
+        data.putNid(componentNid);
     }
 
     @Override

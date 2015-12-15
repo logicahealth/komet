@@ -36,12 +36,12 @@ public class SememeSerializer implements WaitFreeMergeSerializer<SememeChronolog
     public SememeChronologyImpl<?> merge(SememeChronologyImpl<?> a, SememeChronologyImpl<?> b, int writeSequence) {
         byte[] dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
         ByteArrayDataBuffer db = new ByteArrayDataBuffer(dataBytes);
-        return new SememeChronologyImpl<>(db);
+        return SememeChronologyImpl.make(db);
     }
 
     @Override
     public SememeChronologyImpl<?> deserialize(ByteArrayDataBuffer db) {
-       return new SememeChronologyImpl<>(db);
+       return SememeChronologyImpl.make(db);
     }
     
 }

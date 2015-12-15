@@ -41,10 +41,10 @@ public class DescriptionSememeImpl
     public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle, 
             int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(chronicle, stampSequence, versionSequence);
-        this.caseSignificanceConceptSequence = data.getInt();
-        this.languageConceptSequence = data.getInt();
+        this.caseSignificanceConceptSequence = data.getConceptSequence();
+        this.languageConceptSequence = data.getConceptSequence();
         this.text = data.readUTF();
-        this.descriptionTypeConceptSequence = data.getInt();
+        this.descriptionTypeConceptSequence = data.getConceptSequence();
     }
 
     @Override
@@ -55,10 +55,10 @@ public class DescriptionSememeImpl
     @Override
     protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
-        data.putInt(caseSignificanceConceptSequence);
-        data.putInt(languageConceptSequence);
+        data.putConceptSequence(caseSignificanceConceptSequence);
+        data.putConceptSequence(languageConceptSequence);
         data.putUTF(text);
-        data.putInt(descriptionTypeConceptSequence);
+        data.putConceptSequence(descriptionTypeConceptSequence);
     }
 
     @Override

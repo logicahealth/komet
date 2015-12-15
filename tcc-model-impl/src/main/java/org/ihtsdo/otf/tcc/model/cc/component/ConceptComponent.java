@@ -11,7 +11,6 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.beans.PropertyVetoException;
 import java.io.DataInputStream;
@@ -746,7 +745,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                         getNidForUuids(idv.authorityUuid));
 
                         SememeChronologyImpl<StringSememeImpl> sememeChronicle
-                                = new SememeChronologyImpl<>(
+                                = new SememeChronologyImpl<StringSememeImpl>(
                                         SememeType.STRING,
                                         strMemberUuid,
                                         sememeNid,
@@ -759,9 +758,7 @@ public abstract class ConceptComponent<R extends Revision<R, C>, C extends Conce
                                         Get.identifierService().getConceptSequenceForUuids(idv.authorUuid),
                                         Get.identifierService().getConceptSequenceForUuids(idv.moduleUuid),
                                         Get.identifierService().getConceptSequenceForUuids(idv.pathUuid));
-                        SememeChronologyImpl rawSCI = (SememeChronologyImpl)sememeChronicle;
-                        SememeVersionImpl sememeVersion = rawSCI.createMutableVersion(StringSememeImpl.class, stampSequence);
-                        StringSememeImpl stringVersion = (StringSememeImpl)sememeVersion;
+                        StringSememeImpl stringVersion = sememeChronicle.createMutableVersion(StringSememeImpl.class, stampSequence);
                         
                         stringVersion.setString(denotation.toString());
                         Get.sememeService().writeSememe(sememeChronicle);
