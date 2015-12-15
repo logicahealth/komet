@@ -9,7 +9,7 @@
 
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>tcc-serializer</artifactId>
-    <name>${branch}: OCHRE serializers</name>
+    <name>DEPRECATED: serializers</name>
 
     <dependencies>
         <dependency>

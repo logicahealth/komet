@@ -9,7 +9,7 @@
     
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>tcc-dto-ddo</artifactId>
-    <name>${branch}: Data display and transfer objects</name>
+    <name>DEPRECATED: Data display and transfer objects</name>
 
     <dependencies>
         <dependency>

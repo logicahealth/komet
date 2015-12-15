@@ -9,7 +9,7 @@
 
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>tcc-model-impl</artifactId>
-    <name>${branch}: Model implementation</name>
+    <name>DEPRECATED: Model implementation</name>
     
     <description>Classes that provide state and behaviour to implement the concepts and concept components defined by the API. </description>
 

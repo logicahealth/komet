@@ -37,7 +37,6 @@
         <module>ochre-mojo</module>
         <module>identifier-provider</module>
         <module>taxonomy-provider</module>
-        <module>wait-free</module>
         <module>concept-provider</module>
         <module>path-provider</module>
         <module>sememe-provider</module>

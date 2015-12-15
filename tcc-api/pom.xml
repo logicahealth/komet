@@ -10,7 +10,7 @@
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>tcc-api</artifactId>
     <packaging>jar</packaging>
-    <name>${branch}: API</name>
+    <name>DEPRECATED: API</name>
     
     <dependencies>
         <dependency>
