@@ -10,7 +10,7 @@
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>ochre-mojo</artifactId>
     <packaging>maven-plugin</packaging>
-    <name>${branch}: ochre-mojo</name>
+    <name>OCHRE: Mojo</name>
 
     <dependencies>
         <dependency>

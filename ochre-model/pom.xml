@@ -9,7 +9,7 @@
 
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>ochre-model</artifactId>
-    <name>${branch}: OCHRE Model</name>
+    <name>OCHRE: Model</name>
 
     <dependencies>
         <dependency>

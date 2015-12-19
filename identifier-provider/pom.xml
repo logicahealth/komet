@@ -10,7 +10,7 @@
     </parent>
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>identifier-provider</artifactId>
-    <name>woolsthorpe: OCHRE Identifier Provider</name>
+    <name>OCHRE: Identifier Provider</name>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>

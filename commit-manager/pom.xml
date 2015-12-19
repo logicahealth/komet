@@ -8,7 +8,7 @@
     </parent>
     <artifactId>commit-manager</artifactId>
     <packaging>jar</packaging>
-    <name>woolsthorpe: OCHRE Commit Provider</name>
+    <name>OCHRE: Commit Provider</name>
     <dependencies>
         <dependency>
             <groupId>gov.vha.isaac.ochre.modules</groupId>

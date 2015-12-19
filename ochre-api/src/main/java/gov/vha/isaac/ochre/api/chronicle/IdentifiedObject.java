@@ -35,7 +35,7 @@ public interface IdentifiedObject {
         return getUuidList().get(0);
     }
     
-     default int getNid() {
+    default int getNid() {
          return Get.identifierService().getNidForUuids(getUuidList());
      }
 

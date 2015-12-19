@@ -11,7 +11,7 @@
     <artifactId>ochre-parent</artifactId>
     <version>2.35-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>${branch}: (MMP) ISAAC Object Chronicle Project</name>
+    <name>OCHRE: (MMP) ISAAC Object Chronicle Project</name>
     
     <description>ISAAC's Object Chronicle (OCHRE) project provides the ability to
         store, retrieve, and edit identified objects, and maintains a complete chronicle
@@ -27,6 +27,41 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.8.1</version>
+            </plugin>
+       <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.10.3</version>
+            <configuration>
+                <doclet>org.dbdoclet.doclet.docbook.DocBookDoclet</doclet>
+
+               <!-- <docletPath>/path/to/UmlGraph.jar</docletPath> -->
+                <docletArtifact>
+                    <groupId>org.dbdoclet</groupId>
+                    <artifactId>dbdoclet</artifactId>
+                    <version>8.0.2</version>
+                </docletArtifact>
+                <author>false</author>
+                <bottom>false</bottom>
+                <!-- <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+              <docletArtifact>
+                    <groupId>org.umlgraph</groupId>
+                    <artifactId>doclet</artifactId>
+                    <version>5.6.6</version>
+                </docletArtifact>-->
+<!--                <additionalparam>-views</additionalparam>-->
+<!--                <useStandardDocletOptions>true</useStandardDocletOptions>-->
+            </configuration>
+        </plugin>
+        </plugins>
+    </reporting>
+
     <modules>
         <module>tcc-api</module>
         <module>tcc-dto-ddo</module>
@@ -41,5 +76,8 @@
         <module>path-provider</module>
         <module>sememe-provider</module>
         <module>commit-manager</module>
+        <module>metadata-source</module>
+        <module>metadata</module>
+        <module>observable-provider</module>
     </modules>
 </project>

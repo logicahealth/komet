@@ -9,7 +9,7 @@
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>sememe-provider</artifactId>
     <packaging>jar</packaging>
-    <name>woolsthorpe: OCHRE Sememe Provider</name>
+    <name>OCHRE: Sememe Provider</name>
     <dependencies>
         <dependency>
             <groupId>gov.vha.isaac.ochre.modules</groupId>
