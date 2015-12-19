@@ -33,7 +33,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.collections.NidSet;
 import gov.vha.isaac.ochre.collections.SememeSequenceSet;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.waitfree.CasSequenceObjectMap;
+import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;

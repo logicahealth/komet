@@ -46,7 +46,7 @@ import gov.vha.isaac.ochre.model.logic.IsomorphicResultsBottomUp;
 import gov.vha.isaac.ochre.model.logic.node.AndNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
-import gov.vha.isaac.ochre.waitfree.CasSequenceObjectMap;
+import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 import gov.vha.isaac.taxonomy.graph.GraphCollector;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

@@ -47,4 +47,4 @@
  *  data...
  *  stamp // if stamp < 0; then end of record.
 */
-package gov.vha.isaac.ochre.waitfree;
+package gov.vha.isaac.ochre.model.waitfree;

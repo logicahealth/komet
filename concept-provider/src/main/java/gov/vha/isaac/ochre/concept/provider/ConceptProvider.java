@@ -35,7 +35,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
 import gov.vha.isaac.ochre.model.concept.ConceptSnapshotImpl;
-import gov.vha.isaac.ochre.waitfree.CasSequenceObjectMap;
+import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

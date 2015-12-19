@@ -6,7 +6,7 @@
 package gov.vha.isaac.taxonomy;
 
 import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
-import gov.vha.isaac.ochre.waitfree.WaitFreeMergeSerializer;
+import gov.vha.isaac.ochre.model.waitfree.WaitFreeMergeSerializer;
 
 /**
  *
