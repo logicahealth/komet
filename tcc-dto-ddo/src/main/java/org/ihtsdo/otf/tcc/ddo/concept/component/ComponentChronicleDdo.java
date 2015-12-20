@@ -56,7 +56,7 @@ public abstract class ComponentChronicleDdo<V extends ComponentVersionDdo, T ext
         this.componentNid = another.getNid();
 
         processRefexes(taxonomyCoordinate, another);
-        this.versions = FXCollections.observableArrayList(new ArrayList<V>(another.getVersions().size()));
+        this.versions = FXCollections.observableArrayList(new ArrayList<V>(another.getVersionList().size()));
         for (T v : another.getVersionList()) {
             this.versions.add(makeVersion(taxonomyCoordinate, v));
         }

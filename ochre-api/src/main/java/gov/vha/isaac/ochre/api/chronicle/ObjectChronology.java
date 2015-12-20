@@ -100,14 +100,4 @@ public interface ObjectChronology<V extends StampedVersion>
 
     <SV extends SememeVersion> List<? extends SememeChronology<SV>> 
         getSememeListFromAssemblageOfType(int assemblageSequence, Class<SV> type);
-
-    /**
-     * 
-     * @return a list of all versions of this object chronology. 
-     * @deprecated use getVersionList() instead. 
-     */
-    @Deprecated 
-    default List<? extends V> getVersions() {
-        return getVersionList();
-    }  
 }

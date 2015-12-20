@@ -43,7 +43,7 @@ public class TtkRefexDynamicMemberChronicle extends TtkComponentChronicle<TtkRef
 		this.componentUuid = Get.identifierService().getUuidPrimordialForNid(another.getReferencedComponentNid()).get();
 		this.refexAssemblageUuid = Get.identifierService().getUuidPrimordialForNid(another.getAssemblageSequence()).get();
 
-		Collection<? extends DynamicSememeImpl> refexes = another.getVersions();
+		Collection<? extends DynamicSememeImpl> refexes = another.getVersionList();
 		int partCount = refexes.size();
 		Iterator<? extends DynamicSememeImpl> itr = refexes.iterator();
 		DynamicSememeImpl rv = itr.next();

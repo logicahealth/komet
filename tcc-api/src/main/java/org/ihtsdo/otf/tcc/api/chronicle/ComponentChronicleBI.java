@@ -23,6 +23,17 @@ public interface ComponentChronicleBI<T extends ComponentVersionBI>
     default List<? extends T> getVersionList() {
         return getVersions();
     }
+
+
+    /**
+     *
+     * @return a list of all versions of this object chronology.
+     * @deprecated use getVersionList() instead.
+     */
+    @Deprecated
+    default List<? extends T> getVersions() {
+        return getVersionList();
+    }
     
     
     
