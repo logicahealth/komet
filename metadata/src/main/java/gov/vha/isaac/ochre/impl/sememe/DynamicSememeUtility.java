@@ -173,7 +173,6 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 	 * The concept will be created under the concept {@link IsaacMetadataConstants#DYNAMIC_SEMEME_ASSEMBLAGES} if a parent is not specified
 	 * 
 	 * //TODO (artf231856) [REFEX] figure out language details (how we know what language to put on the name/description
-	 * @param refexFSN - The FSN for this refex concept that will be created.
 	 * @param sememePreferredTerm - The preferred term for this refex concept that will be created.
 	 * @param sememeDescription - A user friendly string the explains the overall intended purpose of this sememe (what it means, what it stores)
 	 * @param columns - The column information for this new refex.  May be an empty list or null.

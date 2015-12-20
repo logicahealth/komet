@@ -157,8 +157,6 @@ public class DynamicSememeUsageDescription implements DynamicSememeUsageDescript
      * utilizes a cache. This always reads directly from the DB.
      *
      * @param refexUsageDescriptorSequence
-     * @throws IOException
-     * @throws ContradictionException
      */
     @SuppressWarnings("unchecked")
     public DynamicSememeUsageDescription(int refexUsageDescriptorSequence) {
