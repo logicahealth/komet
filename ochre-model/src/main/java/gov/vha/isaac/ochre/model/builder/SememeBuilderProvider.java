@@ -16,8 +16,12 @@
 package gov.vha.isaac.ochre.model.builder;
 
 import java.util.concurrent.atomic.AtomicReference;
+
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
@@ -28,92 +32,97 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import org.jvnet.hk2.annotations.Service;
 
 /**
- *
  * @author kec
  */
 @Service
-public class SememeBuilderProvider implements SememeBuilderService {
+public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVersion<?>>> implements SememeBuilderService<C> {
 
     @Override
-    public SememeBuilder getComponentSememeBuilder(int memeComponentNid, IdentifiedComponentBuilder referencedComponent, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.COMPONENT_NID, new Object[] {memeComponentNid});
+    public SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
+                                                   IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                                   int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.COMPONENT_NID, new Object[]{memeComponentNid});
     }
 
     @Override
-    public SememeBuilder getComponentSememeBuilder(int memeComponentNid, int referencedComponentNid, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.COMPONENT_NID, new Object[] {memeComponentNid});
+    public SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
+                                                   int referencedComponentNid,
+                                                   int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.COMPONENT_NID, new Object[]{memeComponentNid});
     }
 
     @Override
-    public SememeBuilder getLongSememeBuilder(long longValue, IdentifiedComponentBuilder referencedComponent, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.LONG, new Object[] {longValue});
+    public SememeBuilder<C> getLongSememeBuilder(long longValue,
+                                              IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                              int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.LONG, new Object[]{longValue});
     }
 
     @Override
-    public SememeBuilder getLongSememeBuilder(long longValue, int referencedComponentNid, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.LONG, new Object[] {longValue});
+    public SememeBuilder<C> getLongSememeBuilder(long longValue, int referencedComponentNid, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.LONG, new Object[]{longValue});
     }
 
     @Override
-    public SememeBuilder getLogicalExpressionSememeBuilder(LogicalExpression expression, IdentifiedComponentBuilder referencedComponent, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.LOGIC_GRAPH, new Object[] {expression});
+    public SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression, IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.LOGIC_GRAPH, new Object[]{expression});
     }
 
     @Override
-    public SememeBuilder getLogicalExpressionSememeBuilder(LogicalExpression expression, int referencedComponentNid, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.LOGIC_GRAPH, new Object[] {expression});
+    public SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression, int referencedComponentNid, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.LOGIC_GRAPH, new Object[]{expression});
     }
 
     @Override
-    public SememeBuilder getMembershipSememeBuilder(IdentifiedComponentBuilder referencedComponent, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.MEMBER, new Object[] {});
+    public SememeBuilder<C> getMembershipSememeBuilder(IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.MEMBER, new Object[]{});
     }
 
     @Override
-    public SememeBuilder getMembershipSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.MEMBER, new Object[] {});
+    public SememeBuilder<C> getMembershipSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.MEMBER, new Object[]{});
     }
 
     @Override
-    public SememeBuilder getStringSememeBuilder(String memeString, IdentifiedComponentBuilder referencedComponent, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.STRING, new Object[] {memeString});
+    public SememeBuilder<C> getStringSememeBuilder(String memeString, IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.STRING, new Object[]{memeString});
     }
 
     @Override
-    public SememeBuilder getStringSememeBuilder(String memeString, int referencedComponentNid, int assemblageConceptSequence) {
-        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.STRING, new Object[] {memeString});
+    public SememeBuilder<C> getStringSememeBuilder(String memeString, int referencedComponentNid, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.STRING, new Object[]{memeString});
     }
 
     @Override
-    public SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> getDescriptionSememeBuilder(int caseSignificanceConceptSequence, 
-            int descriptionTypeConceptSequence, 
-            int languageConceptSequence, 
-            String text, 
-            IdentifiedComponentBuilder referencedComponent) {
-        return new SememeBuilderImpl(referencedComponent, TermAux.getDescriptionAssemblageConceptSequence(languageConceptSequence), 
-                SememeType.DESCRIPTION, new Object[] {caseSignificanceConceptSequence, 
-                    descriptionTypeConceptSequence, languageConceptSequence, text});
+    public SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(int caseSignificanceConceptSequence,
+                                                                                                              int descriptionTypeConceptSequence,
+                                                                                                              int languageConceptSequence,
+                                                                                                              String text,
+                                                                                                              IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent) {
+        return new SememeBuilderImpl(referencedComponent, TermAux.getDescriptionAssemblageConceptSequence(languageConceptSequence),
+                SememeType.DESCRIPTION, new Object[]{caseSignificanceConceptSequence,
+                descriptionTypeConceptSequence, languageConceptSequence, text});
     }
 
     @Override
-    public SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> getDescriptionSememeBuilder(
-            int caseSignificanceConceptSequence, 
-            int languageConceptSequence, 
-            int descriptionTypeConceptSequence, 
-            String text, 
+    public SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
+            int caseSignificanceConceptSequence,
+            int languageConceptSequence,
+            int descriptionTypeConceptSequence,
+            String text,
             int referencedComponentNid) {
-        return new SememeBuilderImpl(referencedComponentNid, TermAux.getDescriptionAssemblageConceptSequence(languageConceptSequence), 
-                SememeType.DESCRIPTION, new Object[] {caseSignificanceConceptSequence, 
-                    descriptionTypeConceptSequence, languageConceptSequence, text});
+        return new SememeBuilderImpl(referencedComponentNid, TermAux.getDescriptionAssemblageConceptSequence(languageConceptSequence),
+                SememeType.DESCRIPTION, new Object[]{caseSignificanceConceptSequence,
+                descriptionTypeConceptSequence, languageConceptSequence, text});
     }
 
     @Override
-    public SememeBuilder getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
+    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
         return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.DYNAMIC);
     }
-    
+
     @Override
-    public SememeBuilder getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, DynamicSememeDataBI[] data) {
+    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, DynamicSememeDataBI[] data) {
         //Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the 
         //parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to 
         //the array type we want... so just wrap it in something to stop java from being stupid. 

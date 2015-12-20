@@ -15,13 +15,14 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
+
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 
 /**
  *
  * @author kec
  */
-public interface SememeObject extends IdentifiedObjectLocal {
+public interface SememeObject extends CommittableComponent {
     
     /**
      * 

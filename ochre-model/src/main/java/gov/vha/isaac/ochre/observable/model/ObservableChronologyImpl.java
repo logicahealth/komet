@@ -17,13 +17,13 @@ package gov.vha.isaac.ochre.observable.model;
 
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
 import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -58,7 +58,7 @@ import org.apache.mahout.math.map.OpenShortObjectHashMap;
 public abstract class ObservableChronologyImpl<
         OV extends ObservableVersionImpl, 
         C extends ObjectChronology<?>>
-        implements ObservableChronology<OV>, ChronologyChangeListener, IdentifiedObjectLocal {
+        implements ObservableChronology<OV>, ChronologyChangeListener, CommittableComponent {
     
     private static final ObservableChronologyService ocs = 
             LookupService.getService(ObservableChronologyService.class);

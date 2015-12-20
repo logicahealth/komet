@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 * @param <V> the Version type this chronicled object contains. 
  */
 public interface ObjectChronology<V extends StampedVersion> 
-    extends IdentifiedObjectLocal, CommittableComponent {
+    extends CommittableComponent {
     
     Optional<LatestVersion<V>> 
         getLatestVersion(Class<V> type, StampCoordinate coordinate);    

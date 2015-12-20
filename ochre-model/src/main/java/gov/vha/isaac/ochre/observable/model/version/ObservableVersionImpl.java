@@ -15,11 +15,11 @@
  */
 package gov.vha.isaac.ochre.observable.model.version;
 
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.observable.model.CommitAwareIntegerProperty;
 import gov.vha.isaac.ochre.observable.model.CommitAwareLongProperty;
 import gov.vha.isaac.ochre.observable.model.CommitAwareObjectProperty;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
@@ -41,7 +41,7 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, 
         V extends ObjectVersionImpl<?,?>> 
-    implements ObservableVersion,  IdentifiedObjectLocal {
+    implements ObservableVersion, CommittableComponent {
 
     ObjectProperty<State> stateProperty;
     LongProperty timeProperty;

@@ -18,8 +18,8 @@ package gov.vha.isaac.ochre.model.builder;
 import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * @author kec
  * @param <T>
  */
-public abstract class ComponentBuilder<T extends IdentifiedObjectLocal> 
+public abstract class ComponentBuilder<T extends CommittableComponent>
         implements IdentifiedComponentBuilder<T> {
    
 

@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api.component.sememe;
 
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObjectLocal;
+import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
@@ -34,8 +34,8 @@ import org.jvnet.hk2.annotations.Contract;
 public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion<?>>> {
     
     SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
-            int assemblageConceptSequence);
+                                               IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                               int assemblageConceptSequence);
     
     SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
             int referencedComponentNid, 
@@ -43,23 +43,23 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     
     
     SememeBuilder<C> getLongSememeBuilder(long longValue,
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
-            int assemblageConceptSequence);
+                                          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                          int assemblageConceptSequence);
     
     SememeBuilder<C> getLongSememeBuilder(long longValue,
             int referencedComponentNid, 
             int assemblageConceptSequence);    
     
     SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
-            int assemblageConceptSequence);
+                                                       IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                                       int assemblageConceptSequence);
     
     SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
             int referencedComponentNid, 
             int assemblageConceptSequence);
     
     SememeBuilder<C> getMembershipSememeBuilder(
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
+            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
             int assemblageConceptSequence);
     
     SememeBuilder<C> getMembershipSememeBuilder(
@@ -67,8 +67,8 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             int assemblageConceptSequence);
     
     SememeBuilder<C> getStringSememeBuilder(String memeString,
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent, 
-            int assemblageConceptSequence);
+                                            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                            int assemblageConceptSequence);
     
     SememeBuilder<C> getStringSememeBuilder(String memeString,
             int referencedComponentNid, 
@@ -79,7 +79,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             int descriptionTypeConceptSequence,
             int languageConceptSequence,
             String text,
-            IdentifiedComponentBuilder<? extends IdentifiedObjectLocal> referencedComponent);
+            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent);
     
     SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
             int caseSignificanceConceptSequence,

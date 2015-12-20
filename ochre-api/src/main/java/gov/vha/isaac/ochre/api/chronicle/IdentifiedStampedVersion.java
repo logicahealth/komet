@@ -22,6 +22,6 @@ import gov.vha.isaac.ochre.api.commit.CommittableComponent;
  * @author kec
  */
 public interface IdentifiedStampedVersion 
-    extends CommittableComponent, IdentifiedObjectLocal, StampedVersion {
+    extends CommittableComponent, StampedVersion {
     
 }
