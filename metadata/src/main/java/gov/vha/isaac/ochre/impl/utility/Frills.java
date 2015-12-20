@@ -180,9 +180,9 @@ public class Frills {
      *
      * @param conceptNid The concept to read descriptions for
      * @param descriptionType expected to be one of
-     * {@link IsaacMetadataAuxiliaryBinding#SYNONYM} or
-     * {@link IsaacMetadataAuxiliaryBinding#FULLY_SPECIFIED_NAME} or
-     * {@link IsaacMetadataAuxiliaryBinding#DEFINITION_DESCRIPTION_TYPE}
+     * {@link MetaData#SYNONYM} or
+     * {@link MetaData#FULLY_SPECIFIED_NAME} or
+     * {@link MetaData#DEFINITION_DESCRIPTION_TYPE}
      * @param stamp - optional - if not provided gets the default from the
      * config service
      * @return the descriptions - may be empty, will not be null

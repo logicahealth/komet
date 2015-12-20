@@ -23,5 +23,4 @@ import gov.vha.isaac.ochre.api.commit.CommittableComponent;
  */
 public interface IdentifiedObjectLocal extends CommittableComponent {
     
-    String toUserString();
 }

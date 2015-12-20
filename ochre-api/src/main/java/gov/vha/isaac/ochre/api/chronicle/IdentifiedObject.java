@@ -39,4 +39,9 @@ public interface IdentifiedObject {
          return Get.identifierService().getNidForUuids(getUuidList());
      }
 
+    default String toUserString() {
+        return toString();
+    }
+
+
 }
