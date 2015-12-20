@@ -73,7 +73,6 @@ import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChroni
 import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
 
 //~--- non-JDK imports --------------------------------------------------------
-import gov.vha.isaac.ochre.api.chronicle.ChronicledObjectUniversal;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
@@ -89,7 +88,7 @@ import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "concept")
-public class TtkConceptChronicle implements ChronicledObjectUniversal {
+public class TtkConceptChronicle {
 
     /**
      * Field description
@@ -298,14 +297,12 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         }
     }
 
-    @Override
     public boolean isUncommitted() {
         UncommittedTestProcessor uncommittedTestProcessor = new UncommittedTestProcessor();
         processComponentRevisions(uncommittedTestProcessor);
         return uncommittedTestProcessor.uncommitted;
     }
 
-    @Override
     public CommitStates getCommitState() {
         if (isUncommitted()) {
             return CommitStates.UNCOMMITTED;
@@ -1068,7 +1065,6 @@ public class TtkConceptChronicle implements ChronicledObjectUniversal {
         return sw.toString().substring("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".length());
     }
 
-    @Override
     public List<UUID> getUuidList() {
         if (getConceptAttributes() != null) {
             return getConceptAttributes().getUuidList();
