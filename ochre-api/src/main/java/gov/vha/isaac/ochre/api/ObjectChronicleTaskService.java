@@ -50,29 +50,26 @@ public interface ObjectChronicleTaskService {
     
     /**
      *
-     * @param conceptModel The concept model used to initialize the database
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(ConceptModel conceptModel, Path... filePaths);
+    Task<Integer> startLoadTask(Path... filePaths);
     
     /**
      *
-     * @param conceptModel The concept model used to initialize the database
      * @param stampPath All object chronicles will be placed onto this path
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(ConceptModel conceptModel, ConceptSpecification stampPath, Path... filePaths);
+    Task<Integer> startLoadTask(ConceptSpecification stampPath, Path... filePaths);
 
    /**
      *
-     * @param conceptModel The concept model used to initialize the database
      * @param stampPath All object chronicles will be placed onto this path
      * @param filePaths <code>Path</code>s of the input files
      * @return Task that returns an integer reflecting the number of object chronicles imported
      */
-    Task<Integer> startLoadTask(ConceptModel conceptModel, StandardPaths stampPath, Path... filePaths);
+    Task<Integer> startLoadTask(StandardPaths stampPath, Path... filePaths);
     /**
      *
      * @param filePaths <code>Path</code>s of the input files for the verification

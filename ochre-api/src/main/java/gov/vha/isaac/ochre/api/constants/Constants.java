@@ -62,12 +62,4 @@ public class Constants
 	 */
 	public static final String SEARCH_ROOT_LOCATION_PROPERTY = "gov.vha.isaac.ochre.api.constants.search-root-location";
 	
-	/**
-	 * May be optionally used to specify which concept model should be used on startup.  This value may be ignored, however, if other code
-	 * calls {@link ConfigurationService#setConceptModel(gov.vha.isaac.ochre.api.ConceptModel)} (depending on the implementation of the 
-	 * ConfigurationService which is being used)
-	 * 
-	 * The value should be set to the string constant OTF_CONCEPT_MODEL or OCHRE_CONCEPT_MODEL, from the {@code ConceptModel} enum.
-	 */
-	public static final String CONCEPT_MODEL_PROPERTY = "CONCEPT_MODEL_PROPERTY";
 }
