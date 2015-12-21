@@ -13,30 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model;
-
-import javafx.beans.property.SimpleObjectProperty;
+package gov.vha.isaac.ochre.model.data;
 
 /**
  *
  * @author kec
  */
-public class CommitAwareObjectProperty<T> extends SimpleObjectProperty<T> {
-
-    public CommitAwareObjectProperty(Object bean, String name, T initialValue) {
-        super(bean, name, initialValue);
-    }
-
-    @Override
-    public void set(T newValue) {
-        CommitAwareIntegerProperty.checkChangesAllowed(getBean());
-        super.set(newValue); 
-    }
-
-    @Override
-    public void setValue(T v) {
-        CommitAwareIntegerProperty.checkChangesAllowed(getBean());
-        super.setValue(v); 
-    }
+public interface IsaacBinaryDataFileListener {
     
 }

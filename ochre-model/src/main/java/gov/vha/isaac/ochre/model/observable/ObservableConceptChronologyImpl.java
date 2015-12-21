@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model;
+package gov.vha.isaac.ochre.model.observable;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
@@ -27,8 +27,8 @@ import gov.vha.isaac.ochre.api.observable.concept.ObservableConceptChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableDescriptionSememe;
 import gov.vha.isaac.ochre.model.concept.ConceptVersionImpl;
-import gov.vha.isaac.ochre.observable.model.version.ObservableConceptVersionImpl;
-import gov.vha.isaac.ochre.observable.model.version.ObservableDescriptionImpl;
+import gov.vha.isaac.ochre.model.observable.version.ObservableConceptVersionImpl;
+import gov.vha.isaac.ochre.model.observable.version.ObservableDescriptionImpl;
 import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;

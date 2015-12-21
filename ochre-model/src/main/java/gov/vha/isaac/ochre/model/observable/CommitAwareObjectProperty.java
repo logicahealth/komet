@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model;
+package gov.vha.isaac.ochre.model.observable;
 
-import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  *
  * @author kec
  */
-public class CommitAwareLongProperty extends SimpleLongProperty {
+public class CommitAwareObjectProperty<T> extends SimpleObjectProperty<T> {
 
-    public CommitAwareLongProperty(Object bean, String name, long initialValue) {
+    public CommitAwareObjectProperty(Object bean, String name, T initialValue) {
         super(bean, name, initialValue);
     }
 
     @Override
-    public void set(long newValue) {
+    public void set(T newValue) {
         CommitAwareIntegerProperty.checkChangesAllowed(getBean());
         super.set(newValue); 
     }
 
     @Override
-    public void setValue(Number v) {
+    public void setValue(T v) {
         CommitAwareIntegerProperty.checkChangesAllowed(getBean());
         super.setValue(v); 
     }

@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model.version;
+package gov.vha.isaac.ochre.model.observable.version;
 
 import gov.vha.isaac.ochre.api.commit.CommittableComponent;
-import gov.vha.isaac.ochre.observable.model.CommitAwareIntegerProperty;
-import gov.vha.isaac.ochre.observable.model.CommitAwareLongProperty;
-import gov.vha.isaac.ochre.observable.model.CommitAwareObjectProperty;
+import gov.vha.isaac.ochre.model.observable.CommitAwareIntegerProperty;
+import gov.vha.isaac.ochre.model.observable.CommitAwareLongProperty;
+import gov.vha.isaac.ochre.model.observable.CommitAwareObjectProperty;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
-import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import gov.vha.isaac.ochre.model.observable.ObservableFields;
 import java.util.List;
 import java.util.UUID;
 import javafx.beans.binding.ObjectBinding;

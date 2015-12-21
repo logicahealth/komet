@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.model;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.commit.CommitService;
-import gov.vha.isaac.ochre.model.log.StampUniversal;
+import gov.vha.isaac.ochre.model.data.StampUniversal;
 import java.io.UTFDataFormatException;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;

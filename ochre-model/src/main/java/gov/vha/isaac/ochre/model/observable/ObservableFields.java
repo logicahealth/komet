@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model;
+package gov.vha.isaac.ochre.model.observable;
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import static gov.vha.isaac.ochre.api.component.concept.ConceptSpecification.FIELD_SEPARATOR;

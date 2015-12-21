@@ -37,11 +37,5 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>${org.apache.lucene.version}</version>
         </dependency>
-        <dependency>
-            <groupId>gov.vha.isaac.ochre.modules</groupId>
-            <artifactId>metadata</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
      </dependencies>
 </project>

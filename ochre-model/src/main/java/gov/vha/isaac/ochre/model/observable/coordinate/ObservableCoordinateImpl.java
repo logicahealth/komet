@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.observable.model.coordinate;
+package gov.vha.isaac.ochre.model.observable.coordinate;
 
 import java.util.ArrayList;
 import java.util.List;

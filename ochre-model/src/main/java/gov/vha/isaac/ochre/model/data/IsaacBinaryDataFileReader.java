@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.model.log;
+package gov.vha.isaac.ochre.model.data;
 
 /**
  *
  * @author kec
  */
-public class OchreLogReader {
+public class IsaacBinaryDataFileReader {
     
     
     

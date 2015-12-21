@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model;
+package gov.vha.isaac.ochre.model.observable;
 
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
@@ -34,7 +34,7 @@ import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableSememeVersion;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
-import gov.vha.isaac.ochre.observable.model.version.ObservableVersionImpl;
+import gov.vha.isaac.ochre.model.observable.version.ObservableVersionImpl;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

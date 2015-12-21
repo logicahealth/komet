@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model.version;
+package gov.vha.isaac.ochre.model.observable.version;
 
-import gov.vha.isaac.ochre.observable.model.CommitAwareIntegerProperty;
-import gov.vha.isaac.ochre.observable.model.CommitAwareStringProperty;
+import gov.vha.isaac.ochre.model.observable.CommitAwareIntegerProperty;
+import gov.vha.isaac.ochre.model.observable.CommitAwareStringProperty;
 import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableDescriptionSememe;
 import gov.vha.isaac.ochre.model.sememe.version.DescriptionSememeImpl;
-import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import gov.vha.isaac.ochre.model.observable.ObservableFields;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 

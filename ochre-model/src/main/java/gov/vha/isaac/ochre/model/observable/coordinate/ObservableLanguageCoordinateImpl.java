@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model.coordinate;
+package gov.vha.isaac.ochre.model.observable.coordinate;
 
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -22,7 +22,7 @@ import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableLanguageCoordinate;
 import gov.vha.isaac.ochre.model.coordinate.LanguageCoordinateImpl;
-import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import gov.vha.isaac.ochre.model.observable.ObservableFields;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;

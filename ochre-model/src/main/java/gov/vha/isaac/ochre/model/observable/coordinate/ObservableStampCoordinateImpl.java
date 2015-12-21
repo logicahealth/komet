@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model.coordinate;
+package gov.vha.isaac.ochre.model.observable.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
@@ -22,7 +22,7 @@ import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
 import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
-import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import gov.vha.isaac.ochre.model.observable.ObservableFields;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;

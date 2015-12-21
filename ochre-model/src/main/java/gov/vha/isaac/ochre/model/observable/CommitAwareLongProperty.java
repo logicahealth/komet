@@ -13,12 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.model.log;
+package gov.vha.isaac.ochre.model.observable;
+
+import javafx.beans.property.SimpleLongProperty;
 
 /**
  *
  * @author kec
  */
-public interface OchreLogListener {
+public class CommitAwareLongProperty extends SimpleLongProperty {
+
+    public CommitAwareLongProperty(Object bean, String name, long initialValue) {
+        super(bean, name, initialValue);
+    }
+
+    @Override
+    public void set(long newValue) {
+        CommitAwareIntegerProperty.checkChangesAllowed(getBean());
+        super.set(newValue); 
+    }
+
+    @Override
+    public void setValue(Number v) {
+        CommitAwareIntegerProperty.checkChangesAllowed(getBean());
+        super.setValue(v); 
+    }
     
 }

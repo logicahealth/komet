@@ -13,7 +13,7 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.model.constants.InformationModelsConstants;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
-import static gov.vha.isaac.ochre.observable.model.ObservableFields.*;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 

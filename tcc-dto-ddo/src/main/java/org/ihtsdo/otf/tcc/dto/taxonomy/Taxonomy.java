@@ -13,7 +13,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
-import gov.vha.isaac.ochre.observable.model.ObservableFields;
+import gov.vha.isaac.ochre.model.observable.ObservableFields;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.model.log;
+package gov.vha.isaac.ochre.model.data;
 
 import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.OchreExternalizable;
@@ -30,9 +30,9 @@ import java.util.Optional;
  *
  * @author kec
  */
-public class OchreLogHandler {
+public class IsaacBinaryDataFileHandler {
 
-    public static class OchreLogWriter {
+    public static class BinaryFileWriter {
 
         ByteArrayDataBuffer buffer;
         DataOutput output;
@@ -52,7 +52,7 @@ public class OchreLogHandler {
         }
     }
 
-    public static class OchreLogReader {
+    public static class BinaryFileReader {
 
         DataInput input;
 

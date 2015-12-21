@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.model.log;
+package gov.vha.isaac.ochre.model.data;
 
 import javafx.concurrent.Task;
 
@@ -21,7 +21,7 @@ import javafx.concurrent.Task;
  *
  * @author kec
  */
-public class WriteCradleLogFile extends Task<Integer> {
+public class WriteIsaacBinaryDataFile extends Task<Integer> {
 
     @Override
     protected Integer call() throws Exception {

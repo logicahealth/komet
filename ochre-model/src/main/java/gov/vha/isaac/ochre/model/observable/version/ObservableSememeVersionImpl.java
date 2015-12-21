@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.observable.model.version;
+package gov.vha.isaac.ochre.model.observable.version;
 
 import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.version.ObservableSememeVersion;
