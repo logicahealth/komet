@@ -10,4 +10,11 @@
     <artifactId>observable-provider</artifactId>
     <packaging>jar</packaging>
     <name>OCHRE: Observable provider</name>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ochre-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>    
 </project>
