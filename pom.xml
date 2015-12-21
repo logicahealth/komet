@@ -95,6 +95,7 @@
         <module>metadata</module>
         <module>observable-provider</module>
         <module>logic-provider</module>
+        <module>query-provider</module>
     </modules>
     <profiles>
         <profile>
