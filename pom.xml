@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>gov.vha.isaac</groupId>
@@ -19,48 +21,61 @@
     </description>
     
     <scm>
-        <url>https://github.com/Apelon-VA/va-ochre.git</url>
+        <url>https://github.com/OSEHRA/ISAAC.git</url>
     </scm>
     
     <properties>
         <branch>woolsthorpe</branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven-project-info-reports-plugin.version>2.8.2-SNAPSHOT</maven-project-info-reports-plugin.version>
     </properties>
+<!--
 
-    <reporting>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.8.1</version>
-            </plugin>
-       <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
-            <configuration>
-                <doclet>org.dbdoclet.doclet.docbook.DocBookDoclet</doclet>
+                <version>${maven-project-info-reports-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.shared</groupId>
+                        <artifactId>maven-shared-jar</artifactId>
+                        <version>1.1</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.apache.bcel</groupId>
+                                <artifactId>bcel</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>bcel-findbugs</artifactId>
+                        <version>6.0</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 
-               <!-- <docletPath>/path/to/UmlGraph.jar</docletPath> -->
-                <docletArtifact>
-                    <groupId>org.dbdoclet</groupId>
-                    <artifactId>dbdoclet</artifactId>
-                    <version>8.0.2</version>
-                </docletArtifact>
-                <author>false</author>
-                <bottom>false</bottom>
-                <!-- <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-              <docletArtifact>
-                    <groupId>org.umlgraph</groupId>
-                    <artifactId>doclet</artifactId>
-                    <version>5.6.6</version>
-                </docletArtifact>-->
-<!--                <additionalparam>-views</additionalparam>-->
-<!--                <useStandardDocletOptions>true</useStandardDocletOptions>-->
-            </configuration>
-        </plugin>
+                    <showAvatarImages>true</showAvatarImages>
+
+                    <remoteRepositories>
+
+                        <remoteRepository>
+                            <snapshots>
+                                <enabled>false</enabled>
+                            </snapshots>
+                            <id>central</id>
+                            <name>Central Repository</name>
+                            <url>https://repo.maven.apache.org/maven2</url>
+                        </remoteRepository>
+                    </remoteRepositories>
+                </configuration>
+            </plugin>
         </plugins>
-    </reporting>
+    </build>
+-->
 
     <modules>
         <module>tcc-api</module>
@@ -79,5 +94,54 @@
         <module>metadata-source</module>
         <module>metadata</module>
         <module>observable-provider</module>
+        <module>logic-provider</module>
     </modules>
+    <profiles>
+        <profile>
+            <id>dbdoclet</id>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <configuration>
+                            <doclet>org.dbdoclet.doclet.docbook.DocBookDoclet</doclet>
+                            <docletArtifact>
+                                <groupId>org.dbdoclet</groupId>
+                                <artifactId>dbdoclet</artifactId>
+                                <version>8.0.2</version>
+                            </docletArtifact>
+                            <author>false</author>
+                            <bottom>false</bottom>
+                            </configuration>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+        <profile>
+            <id>umlgraph</id>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <configuration>
+
+                            <docletPath>/path/to/UmlGraph.jar</docletPath>
+                            <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+                          <docletArtifact>
+                                <groupId>org.umlgraph</groupId>
+                                <artifactId>doclet</artifactId>
+                                <version>5.6.6</version>
+                            </docletArtifact>
+                            <additionalparam>-views</additionalparam>
+                            <useStandardDocletOptions>true</useStandardDocletOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
+    </profiles>
 </project>

@@ -24,6 +24,7 @@
             <plugin>
                 <groupId>gov.vha.isaac.ochre.modules</groupId>
                 <artifactId>ochre-mojo</artifactId>
+                <version>${project.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>${project.groupId}</groupId>
