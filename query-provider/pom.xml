@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>OCHRE: Query provider</name>
     <properties>
-       <org.apache.lucene.version>4.10.3</org.apache.lucene.version>        
+       <org.apache.lucene.version>4.10.3</org.apache.lucene.version>
     </properties>
     <dependencies>
         <dependency>
