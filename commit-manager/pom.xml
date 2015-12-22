@@ -6,6 +6,7 @@
         <artifactId>isaac-parent</artifactId>
         <version>3.01-SNAPSHOT</version>
     </parent>
+    <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>commit-manager</artifactId>
     <packaging>jar</packaging>
     <name>OCHRE: Commit Provider</name>
