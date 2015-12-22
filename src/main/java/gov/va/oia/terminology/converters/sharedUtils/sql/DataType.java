@@ -1,14 +1,21 @@
-package gov.va.oia.terminology.converters.sharedUtils.umlsUtils.sql;
+package gov.va.oia.terminology.converters.sharedUtils.sql;
 
 public class DataType
 {
-	private static short STRING = 0;
-	private static short INTEGER = 1;
-	private static short LONG = 2;
-	private static short BOOLEAN = 3;
-	private static short BIGDECIMAL= 4;
+	public enum SUPPORTED_DATA_TYPE {STRING, INTEGER, LONG, BOOLEAN, BIGDECIMAL;
 
-	private short type_;
+	public static SUPPORTED_DATA_TYPE parse(String value)
+	{
+		for (SUPPORTED_DATA_TYPE s : SUPPORTED_DATA_TYPE.values())
+		{
+			if (value.toUpperCase().equals(s.name())) {
+				return s;
+			}
+		}
+		throw new RuntimeException("Unknown type " + value);
+	}};
+
+	private SUPPORTED_DATA_TYPE type_;
 	private int dataSize_ = -1;
 	private int scale_ = -1;
 	private boolean allowsNull_;
@@ -17,19 +24,19 @@ public class DataType
 	{
 		if (sql92Type.startsWith("varchar"))
 		{
-			type_ = STRING;
+			type_ = SUPPORTED_DATA_TYPE.STRING;
 		}
 		else if (sql92Type.startsWith("numeric"))
 		{
-			type_ = BIGDECIMAL;
+			type_ = SUPPORTED_DATA_TYPE.BIGDECIMAL;
 		}
 		else if (sql92Type.startsWith("integer"))
 		{
-			type_ = INTEGER;
+			type_ = SUPPORTED_DATA_TYPE.INTEGER;
 		}
 		else if (sql92Type.startsWith("char"))
 		{
-			type_ = STRING;
+			type_ = SUPPORTED_DATA_TYPE.STRING;
 		}
 		else
 		{
@@ -37,11 +44,11 @@ public class DataType
 		}
 		
 		int index = sql92Type.indexOf('(');
-		if (index > 0 && type_ == STRING)
+		if (index > 0 && type_ == SUPPORTED_DATA_TYPE.STRING)
 		{
 			dataSize_ = Integer.parseInt(sql92Type.substring((index + 1), sql92Type.indexOf(')', index)));
 		}
-		if (index > 0 && type_ == BIGDECIMAL)
+		if (index > 0 && type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL)
 		{
 			int commaPos = sql92Type.indexOf(',', index);
 			if (commaPos > 0)
@@ -65,35 +72,10 @@ public class DataType
 		}
 	}
 	
-	/**
-	 * Takes constants: STRING,INTEGER, LONG, BOOLEAN, BIGDECIMAL
-	 */
-	public DataType(String type, Integer size, Boolean allowsNull)
+
+	public DataType(SUPPORTED_DATA_TYPE type, Integer size, Boolean allowsNull)
 	{
-		if (type.equals("STRING"))
-		{
-			type_ = STRING;
-		}
-		else if (type.equals("INTEGER"))
-		{
-			type_ = INTEGER;
-		}
-		else if (type.equals("LONG"))
-		{
-			type_ = LONG;
-		}
-		else if (type.equals("BOOLEAN"))
-		{
-			type_ = BOOLEAN;
-		}
-		else if (type.equals("BIGDECIMAL"))
-		{
-			type_ = BIGDECIMAL;
-		}
-		else
-		{
-			throw new RuntimeException("oops");
-		}
+		type_ = type;
 		
 		if (size != null)
 		{
@@ -112,50 +94,53 @@ public class DataType
 	
 	public boolean isString()
 	{
-		return type_ == STRING;
+		return type_ == SUPPORTED_DATA_TYPE.STRING;
 	}
 	
 	public boolean isBoolean()
 	{
-		return type_ == BOOLEAN;
+		return type_ == SUPPORTED_DATA_TYPE.BOOLEAN;
 	}
 	
 	public boolean isInteger()
 	{
-		return type_ == INTEGER;
+		return type_ == SUPPORTED_DATA_TYPE.INTEGER;
 	}
 	
 	public boolean isLong()
 	{
-		return type_ == LONG;
+		return type_ == SUPPORTED_DATA_TYPE.LONG;
 	}
 	
 	public boolean isBigDecimal()
 	{
-		return type_ == BIGDECIMAL;
+		return type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL;
 	}
 	
 	public String asH2()
 	{
 		StringBuilder sb = new StringBuilder();
-		if (type_ == STRING)
+		if (type_ == SUPPORTED_DATA_TYPE.STRING)
 		{
 			sb.append("VARCHAR ");
-			sb.append("(" + dataSize_ + ") ");
+			if (dataSize_ > 0)
+			{
+				sb.append("(" + dataSize_ + ") ");
+			}
 		}
-		else if (type_ == INTEGER)
+		else if (type_ == SUPPORTED_DATA_TYPE.INTEGER)
 		{
 			sb.append("INT ");
 		}
-		else if (type_ == LONG)
+		else if (type_ == SUPPORTED_DATA_TYPE.LONG)
 		{
 			sb.append("BIGINT ");
 		}
-		else if (type_ == BOOLEAN)
+		else if (type_ == SUPPORTED_DATA_TYPE.BOOLEAN)
 		{
 			sb.append("BOOLEAN ");
 		}
-		else if (type_ == BIGDECIMAL)
+		else if (type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL)
 		{
 			if (scale_ > 0)
 			{

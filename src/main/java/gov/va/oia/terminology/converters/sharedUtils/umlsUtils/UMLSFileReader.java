@@ -4,8 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import gov.va.oia.terminology.converters.sharedUtils.sql.TerminologyFileReader;
 
-public class UMLSFileReader
+public class UMLSFileReader implements TerminologyFileReader
 {
 	private BufferedReader reader_;
 	private List<String> nextLine_;
@@ -15,6 +16,10 @@ public class UMLSFileReader
 		reader_ = reader;
 	}
 
+	/**
+	 * @see gov.va.oia.terminology.converters.sharedUtils.sql.TerminologyFileReader#hasNextRow()
+	 */
+	@Override
 	public boolean hasNextRow() throws IOException
 	{
 		if (nextLine_ == null)
@@ -24,6 +29,10 @@ public class UMLSFileReader
 		return nextLine_ != null;
 	}
 
+	/**
+	 * @see gov.va.oia.terminology.converters.sharedUtils.sql.TerminologyFileReader#getNextRow()
+	 */
+	@Override
 	public List<String> getNextRow() throws IOException
 	{
 		if (nextLine_ == null)
@@ -35,6 +44,10 @@ public class UMLSFileReader
 		return temp;
 	}
 
+	/**
+	 * @see gov.va.oia.terminology.converters.sharedUtils.sql.TerminologyFileReader#close()
+	 */
+	@Override
 	public void close() throws IOException
 	{
 		reader_.close();

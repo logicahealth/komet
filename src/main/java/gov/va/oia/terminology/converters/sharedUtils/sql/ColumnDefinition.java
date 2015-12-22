@@ -1,4 +1,4 @@
-package gov.va.oia.terminology.converters.sharedUtils.umlsUtils.sql;
+package gov.va.oia.terminology.converters.sharedUtils.sql;
 
 public class ColumnDefinition
 {
