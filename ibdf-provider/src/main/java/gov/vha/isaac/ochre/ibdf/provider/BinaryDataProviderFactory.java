@@ -20,7 +20,7 @@ import gov.vha.isaac.ochre.api.externalizable.BinaryDataServiceFactory;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import org.glassfish.hk2.runlevel.RunLevel;
+import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 
 /**
@@ -28,7 +28,7 @@ import org.jvnet.hk2.annotations.Service;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@Singleton
 public class BinaryDataProviderFactory implements BinaryDataServiceFactory {
 
     @Override

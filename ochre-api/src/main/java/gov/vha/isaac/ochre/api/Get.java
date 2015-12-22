@@ -31,7 +31,12 @@ import gov.vha.isaac.ochre.api.logic.LogicService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
+import gov.vha.isaac.ochre.api.externalizable.BinaryDataServiceFactory;
+import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.util.WorkExecutors;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -299,6 +304,14 @@ public class Get implements OchreCache {
     public static ConceptSpecification conceptSpecification(int id) {
         id = identifierService().getConceptNid(id);
         return new ConceptProxy(conceptDescriptionText(id), identifierService().getUuidArrayForNid(id));
+    }
+    
+    public static BinaryDataReaderService binaryDataReader(Path dataPath) throws FileNotFoundException {
+        return getService(BinaryDataServiceFactory.class).getReader(dataPath);
+    }
+    
+    public static BinaryDataWriterService binaryDataWriter(Path dataPath) throws FileNotFoundException {
+        return getService(BinaryDataServiceFactory.class).getWriter(dataPath);
     }
 
     @Override
