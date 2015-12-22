@@ -6,7 +6,7 @@ import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.external.FeatureNodeWithUuids;
 

@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.snapshot.calculator;
 
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 

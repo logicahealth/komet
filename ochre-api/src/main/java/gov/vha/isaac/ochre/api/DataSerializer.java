@@ -11,6 +11,7 @@ import java.io.DataOutput;
 /**
  *
  * @author kec
+ * @param <T> The class of object to serialize. 
  */
 public interface DataSerializer<T> {
 

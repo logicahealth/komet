@@ -20,8 +20,8 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeServiceTyped;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
-import gov.vha.isaac.ochre.collections.NidSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
 import java.util.stream.Stream;
 
 /**

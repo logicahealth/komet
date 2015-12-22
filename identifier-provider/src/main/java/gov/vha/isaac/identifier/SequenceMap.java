@@ -5,7 +5,7 @@
  */
 package gov.vha.isaac.identifier;
 
-import gov.vha.isaac.ochre.collections.NativeIntIntHashMap;
+import gov.vha.isaac.ochre.api.collections.NativeIntIntHashMap;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;

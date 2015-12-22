@@ -9,7 +9,7 @@ import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
 import gov.vha.isaac.ochre.model.logic.node.AndNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;

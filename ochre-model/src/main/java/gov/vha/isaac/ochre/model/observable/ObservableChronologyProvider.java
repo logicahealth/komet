@@ -26,7 +26,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.observable.ObservableChronologyService;
 import gov.vha.isaac.ochre.api.observable.concept.ObservableConceptChronology;
 import gov.vha.isaac.ochre.api.observable.sememe.ObservableSememeChronology;
-import gov.vha.isaac.ochre.collections.jsr166y.ConcurrentReferenceHashMap;
+import gov.vha.isaac.ochre.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import java.io.IOException;
 import java.util.UUID;
 import javax.annotation.PostConstruct;

@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.model.logic;
 
 import gov.vha.isaac.ochre.api.logic.Node;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 
 /**
  *

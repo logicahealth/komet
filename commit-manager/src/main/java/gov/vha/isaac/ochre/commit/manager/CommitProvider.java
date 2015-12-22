@@ -26,12 +26,13 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.task.SequentialAggregateTask;
 import gov.vha.isaac.ochre.api.task.TimedTask;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
-import gov.vha.isaac.ochre.collections.UuidIntMapMap;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.UuidIntMapMap;
 import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
 import gov.vha.isaac.ochre.model.ObjectVersionImpl;
+import gov.vha.isaac.ochre.model.data.CommitRecordImpl;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -577,7 +578,7 @@ public class CommitProvider implements CommitService {
                 Get.sememeService().writeSememe(sememeChronology);
             }
 
-            commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
+            commitRecord = new CommitRecordImpl(Instant.ofEpochMilli(commitTime),
                     stampsInCommit,
                     stampAliases, conceptsInCommit, sememesInCommit,
                     commitComment);

@@ -26,9 +26,10 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.api.task.TimedTask;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.model.data.CommitRecordImpl;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -177,7 +178,7 @@ public class CommitTask extends TimedTask<Optional<CommitRecord>> {
                         -> commitProvider.addComment(stamp, commitComment));
             }
             if (!stampSequenceSet.isEmpty()) {
-                CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
+                CommitRecord commitRecord = new CommitRecordImpl(Instant.ofEpochMilli(commitTime),
                         stampSequenceSet,
                         new OpenIntIntHashMap(),
                         ConceptSequenceSet.of(conceptsToCheck).or(conceptsToCommit),

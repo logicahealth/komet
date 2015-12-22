@@ -19,7 +19,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.util.EnumSet;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;

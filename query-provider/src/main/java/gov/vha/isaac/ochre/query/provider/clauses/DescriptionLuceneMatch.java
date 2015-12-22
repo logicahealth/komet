@@ -23,7 +23,7 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.api.index.SearchResult;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;

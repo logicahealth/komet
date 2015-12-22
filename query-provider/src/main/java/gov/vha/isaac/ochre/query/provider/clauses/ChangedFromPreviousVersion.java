@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.query.provider.clauses;
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.util.EnumSet;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -6,7 +6,7 @@
 package gov.vha.isaac.ochre.model.waitfree;
 
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**

@@ -16,7 +16,7 @@
  */
 package gov.vha.isaac.ochre.query.provider;
 
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.util.Collections;
 import java.util.List;
 

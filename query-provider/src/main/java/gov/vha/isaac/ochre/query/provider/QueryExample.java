@@ -19,7 +19,7 @@ import gov.vha.isaac.ochre.api.ConceptProxy;
 import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
 import gov.vha.isaac.ochre.model.configuration.TaxonomyCoordinates;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.io.IOException;
 import java.util.UUID;
 

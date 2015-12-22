@@ -26,7 +26,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.ObservableChronology;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;

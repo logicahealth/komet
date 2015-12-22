@@ -25,7 +25,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
 import gov.vha.isaac.ochre.util.UuidT5Generator;
 import static gov.vha.isaac.ochre.util.UuidT5Generator.REL_ADAPTOR_NAMESPACE;
 import java.util.ArrayList;
@@ -185,6 +187,21 @@ public class RelationshipAdaptorChronologyImpl
             return "RelAdaptor{"  + Get.conceptDescriptionText(optionalSememe.get().getAssemblageSequence()) + ": " + sb.toString() + '}';
          }
         return "RelAdaptor{"  + referencedComponentNid + ": " + sb.toString() + '}';
+    }
+
+    @Override
+    public void putExternal(ByteArrayDataBuffer out) {
+        throw new UnsupportedOperationException("Not supported."); 
+    }
+
+    @Override
+    public byte getDataFormatVersion() {
+        throw new UnsupportedOperationException("Not supported."); 
+    }
+
+    @Override
+    public OchreExternalizableObjectType getOchreObjectType() {
+        throw new UnsupportedOperationException("Not supported."); 
     }
     
 }

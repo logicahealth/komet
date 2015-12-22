@@ -40,8 +40,8 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.logic.assertions.ConceptAssertion;
 import gov.vha.isaac.ochre.api.task.TimedTask;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
 
 import java.util.ArrayList;
 import java.util.HashSet;

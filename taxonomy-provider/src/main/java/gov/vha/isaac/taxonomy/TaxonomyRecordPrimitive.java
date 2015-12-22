@@ -8,7 +8,7 @@ package gov.vha.isaac.taxonomy;
 import gov.vha.isaac.ochre.model.WaitFreeComparable;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 import java.util.Optional;
 import java.util.stream.IntStream;

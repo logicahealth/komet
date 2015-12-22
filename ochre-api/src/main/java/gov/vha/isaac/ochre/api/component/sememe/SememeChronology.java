@@ -19,6 +19,7 @@ import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 
 /**
  *
@@ -26,7 +27,7 @@ import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
  * @param <V>
  */
 public interface SememeChronology<V extends SememeVersion> 
-    extends ObjectChronology<V>, SememeObject {
+    extends ObjectChronology<V>, SememeObject,  OchreExternalizable {
 
     /**
      * Create a mutable version with Long.MAX_VALUE as the time, indicating

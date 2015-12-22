@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model;
 
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

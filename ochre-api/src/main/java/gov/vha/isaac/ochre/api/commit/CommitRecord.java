@@ -5,9 +5,10 @@
  */
 package gov.vha.isaac.ochre.api.commit;
 
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import java.time.Instant;
 import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
@@ -16,7 +17,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
  *
  * @author kec
  */
-public class CommitRecord {
+public abstract class CommitRecord implements OchreExternalizable {
     protected Instant commitTime;
     protected StampSequenceSet stampsInCommit;
     protected AbstractIntIntMap stampAliases;

@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.query.provider;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
-import gov.vha.isaac.ochre.collections.IntSet;
+import gov.vha.isaac.ochre.api.collections.IntSet;
 import gov.vha.isaac.ochre.model.coordinate.LanguageCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.LogicCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.LogicCoordinateLazyBinding;

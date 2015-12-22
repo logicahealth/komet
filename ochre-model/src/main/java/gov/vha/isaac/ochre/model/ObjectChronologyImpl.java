@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model;
 
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
@@ -27,7 +28,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.dag.Graph;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 

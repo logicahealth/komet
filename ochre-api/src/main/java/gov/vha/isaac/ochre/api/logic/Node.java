@@ -1,7 +1,7 @@
 package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import java.util.Arrays;
 import java.util.stream.Stream;
 

@@ -21,7 +21,7 @@ package gov.vha.isaac.ochre.query.provider.clauses;
  */
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.util.EnumSet;
 import gov.vha.isaac.ochre.query.provider.ClauseComputeType;
 import gov.vha.isaac.ochre.query.provider.ClauseSemantic;
