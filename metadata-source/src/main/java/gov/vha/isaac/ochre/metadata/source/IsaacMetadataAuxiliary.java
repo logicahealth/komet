@@ -73,16 +73,16 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             popParent();
             createConcept("language");
             pushParent(current());  //TODO - Keith, should these use the UUIDs from Snomed (where possible)? -- A: SNOMED does not currently ahve language concepts, just dialect concepts
-                createConcept("English lanugage").setPrimordialUuid("06d905ea-c647-3af9-bfe5-2514e135b558");
-                createConcept("Spanish lanugage").setPrimordialUuid("0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e");
-                createConcept("French lanugage").setPrimordialUuid("8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e");
-                createConcept("Danish lanugage").setPrimordialUuid("7e462e33-6d94-38ae-a044-492a857a6853");
-                createConcept("Polish lanugage").setPrimordialUuid("c924b887-da88-3a72-b8ea-fa86990467c9");
-                createConcept("Dutch lanugage").setPrimordialUuid("674ad858-0224-3f90-bcf0-bc4cab753d2d");
-                createConcept("Lithuanian lanugage").setPrimordialUuid("e9645d95-8a1f-3825-8feb-0bc2ee825694");
-                createConcept("Chinese lanugage").setPrimordialUuid("ba2efe6b-fe56-3d91-ae0f-3b389628f74c");
-                createConcept("Japanese lanugage").setPrimordialUuid("b90a1097-29e3-42bc-8576-8e8eb6715c44");
-                createConcept("Swedish lanugage").setPrimordialUuid("9784a791-8fdb-32f7-88da-74ab135fe4e3");
+                createConcept("English language").setPrimordialUuid("06d905ea-c647-3af9-bfe5-2514e135b558");
+                createConcept("Spanish language").setPrimordialUuid("0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e");
+                createConcept("French language").setPrimordialUuid("8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e");
+                createConcept("Danish language").setPrimordialUuid("7e462e33-6d94-38ae-a044-492a857a6853");
+                createConcept("Polish language").setPrimordialUuid("c924b887-da88-3a72-b8ea-fa86990467c9");
+                createConcept("Dutch language").setPrimordialUuid("674ad858-0224-3f90-bcf0-bc4cab753d2d");
+                createConcept("Lithuanian language").setPrimordialUuid("e9645d95-8a1f-3825-8feb-0bc2ee825694");
+                createConcept("Chinese language").setPrimordialUuid("ba2efe6b-fe56-3d91-ae0f-3b389628f74c");
+                createConcept("Japanese language").setPrimordialUuid("b90a1097-29e3-42bc-8576-8e8eb6715c44");
+                createConcept("Swedish language").setPrimordialUuid("9784a791-8fdb-32f7-88da-74ab135fe4e3");
             popParent();
             createConcept("assemblage membership type");
             pushParent(current());

@@ -106,31 +106,31 @@ public class TermAux {
                     UUID.fromString("06d905ea-c647-3af9-bfe5-2514e135b558"));
 
     public static ConceptSpecification SPANISH_LANGUAGE
-            = new ConceptProxy("Spanish lanugage", "0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e");
+            = new ConceptProxy("Spanish language", "0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e");
 
     public static ConceptSpecification FRENCH_LANGUAGE
-            = new ConceptProxy("French lanugage", "8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e");
+            = new ConceptProxy("French language", "8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e");
 
     public static ConceptSpecification DANISH_LANGUAGE
-            = new ConceptProxy("Danish lanugage", "7e462e33-6d94-38ae-a044-492a857a6853");
+            = new ConceptProxy("Danish language", "7e462e33-6d94-38ae-a044-492a857a6853");
 
     public static ConceptSpecification POLISH_LANGUAGE
-            = new ConceptProxy("Polish lanugage", "c924b887-da88-3a72-b8ea-fa86990467c9");
+            = new ConceptProxy("Polish language", "c924b887-da88-3a72-b8ea-fa86990467c9");
 
     public static ConceptSpecification DUTCH_LANGUAGE
-            = new ConceptProxy("Dutch lanugage", "674ad858-0224-3f90-bcf0-bc4cab753d2d");
+            = new ConceptProxy("Dutch language", "674ad858-0224-3f90-bcf0-bc4cab753d2d");
 
     public static ConceptSpecification LITHUANIAN_LANGUAGE
-            = new ConceptProxy("Lithuanian lanugage", "e9645d95-8a1f-3825-8feb-0bc2ee825694");
+            = new ConceptProxy("Lithuanian language", "e9645d95-8a1f-3825-8feb-0bc2ee825694");
 
     public static ConceptSpecification CHINESE_LANGUAGE
-            = new ConceptProxy("Chinese lanugage", "ba2efe6b-fe56-3d91-ae0f-3b389628f74c");
+            = new ConceptProxy("Chinese language", "ba2efe6b-fe56-3d91-ae0f-3b389628f74c");
 
     public static ConceptSpecification JAPANESE_LANGUAGE
-            = new ConceptProxy("Japanese lanugage", "b90a1097-29e3-42bc-8576-8e8eb6715c44");
+            = new ConceptProxy("Japanese language", "b90a1097-29e3-42bc-8576-8e8eb6715c44");
 
     public static ConceptSpecification SWEDISH_LANGUAGE
-            = new ConceptProxy("Swedish lanugage", "9784a791-8fdb-32f7-88da-74ab135fe4e3");
+            = new ConceptProxy("Swedish language", "9784a791-8fdb-32f7-88da-74ab135fe4e3");
 
     public static ConceptSpecification ENGLISH_DESCRIPTION_ASSEMBLAGE
             = new ConceptProxy("English description assemblage", "45021920-9567-11e5-8994-feff819cdc9f");
