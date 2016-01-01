@@ -1,7 +1,7 @@
 package gov.vha.isaac.ochre.api.logic;
 
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 import java.util.UUID;
 
 /**

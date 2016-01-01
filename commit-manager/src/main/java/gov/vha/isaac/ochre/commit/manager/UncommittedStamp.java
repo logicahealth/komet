@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.commit.manager;
 
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.util.Hashcode;
+import gov.vha.isaac.ochre.api.util.Hashcode;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

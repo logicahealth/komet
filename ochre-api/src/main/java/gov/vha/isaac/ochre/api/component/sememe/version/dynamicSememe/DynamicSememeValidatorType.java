@@ -38,8 +38,8 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.util.Interval;
-import gov.vha.isaac.ochre.util.NumericUtils;
+import gov.vha.isaac.ochre.api.util.Interval;
+import gov.vha.isaac.ochre.api.util.NumericUtils;
 
 
 /**
