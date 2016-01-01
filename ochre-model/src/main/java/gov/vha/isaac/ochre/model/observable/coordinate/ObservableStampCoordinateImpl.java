@@ -20,7 +20,7 @@ import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampCoordinate;
 import gov.vha.isaac.ochre.api.observable.coordinate.ObservableStampPosition;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.observable.ObservableFields;
 import javafx.beans.property.ObjectProperty;

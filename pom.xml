@@ -617,10 +617,6 @@
     </reporting>
 
     <modules>
-        <module>tcc-api</module>
-        <module>tcc-dto-ddo</module>
-        <module>tcc-model-impl</module>
-        <module>tcc-serializer</module>
         <module>ochre-api</module>
         <module>ochre-model</module>
         <module>ochre-mojo</module>
@@ -635,6 +631,7 @@
         <module>observable-provider</module>
         <module>logic-provider</module>
         <module>query-provider</module>
+        <module>ibdf-provider</module>
     </modules>
     
     <profiles>

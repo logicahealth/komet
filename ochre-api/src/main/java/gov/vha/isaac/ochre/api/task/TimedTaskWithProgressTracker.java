@@ -34,23 +34,23 @@ import javafx.concurrent.Task;
 public abstract class TimedTaskWithProgressTracker<T> extends TimedTask<T> implements ProgressTracker {
     private final Ticker progressTicker = new Ticker();
     
-    static final MethodHandle MH_setTotalWork;
-    static final MethodHandle MH_setProgress;
-    static final MethodHandle MH_setWorkDone;
+    static final MethodHandle MH_SET_TOTAL_WORK;
+    static final MethodHandle MH_SET_PROGRESS;
+    static final MethodHandle MH_SET_WORK_DONE;
     
     static {
         try {
             Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
             setTotalWork.setAccessible(true);
-            MH_setTotalWork = publicLookup().unreflect(setTotalWork);
+            MH_SET_TOTAL_WORK = publicLookup().unreflect(setTotalWork);
 
             Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
             setProgress.setAccessible(true);
-            MH_setProgress = publicLookup().unreflect(setProgress);
+            MH_SET_PROGRESS = publicLookup().unreflect(setProgress);
             
             Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
             setWorkDone.setAccessible(true);
-            MH_setWorkDone = publicLookup().unreflect(setWorkDone);
+            MH_SET_WORK_DONE = publicLookup().unreflect(setWorkDone);
         } catch (IllegalAccessException | NoSuchMethodException | SecurityException ex) {
             throw new RuntimeException(ex);
         }
@@ -69,7 +69,11 @@ public abstract class TimedTaskWithProgressTracker<T> extends TimedTask<T> imple
     public void completedUnitOfWork() {
         completedUnitsOfWork.increment();
     }
-
+    
+    @Override
+    public void completedUnitsOfWork(long unitsCompleted) {
+        completedUnitsOfWork.add(unitsCompleted);
+    }
     /**
      * Will throw an  UnsupportedOperationException("call completedUnitOfWork and addToTotalWork instead. ");
      * Use {@code completedUnitOfWork()} and {@code addToTotalWork(long amountOfWork)} to update progress. 
@@ -100,13 +104,13 @@ public abstract class TimedTaskWithProgressTracker<T> extends TimedTask<T> imple
             try {
                 
                 if (currentTotalWork > 0) {
-                    MH_setWorkDone.invoke(this, completedUnitsOfWork.doubleValue());
-                    MH_setProgress.invoke(this, completedUnitsOfWork.doubleValue() / totalWork.doubleValue());
-                    MH_setTotalWork.invoke(this, totalWork.doubleValue());
+                    MH_SET_WORK_DONE.invoke(this, completedUnitsOfWork.doubleValue());
+                    MH_SET_PROGRESS.invoke(this, completedUnitsOfWork.doubleValue() / totalWork.doubleValue());
+                    MH_SET_TOTAL_WORK.invoke(this, totalWork.doubleValue());
                 } else {
-                    MH_setWorkDone.invoke(this, -1d);
-                    MH_setProgress.invoke(this, -1d);
-                    MH_setTotalWork.invoke(this, -1d);
+                    MH_SET_WORK_DONE.invoke(this, -1d);
+                    MH_SET_PROGRESS.invoke(this, -1d);
+                    MH_SET_TOTAL_WORK.invoke(this, -1d);
                 }
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);

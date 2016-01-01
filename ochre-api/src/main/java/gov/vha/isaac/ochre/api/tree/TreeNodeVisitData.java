@@ -5,8 +5,8 @@
  */
 package gov.vha.isaac.ochre.api.tree;
 
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.SequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SequenceSet;
 
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;

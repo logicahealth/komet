@@ -26,7 +26,7 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.logic.csiro.axioms.GraphToAxiomTranslator;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
 import java.time.Instant;

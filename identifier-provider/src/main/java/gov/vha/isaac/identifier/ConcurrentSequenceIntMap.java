@@ -1,7 +1,7 @@
 package gov.vha.isaac.identifier;
 
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

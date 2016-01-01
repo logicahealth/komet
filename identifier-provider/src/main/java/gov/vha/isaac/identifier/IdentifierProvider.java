@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.identifier;
 
-import gov.vha.isaac.ochre.collections.UuidIntMapMap;
+import gov.vha.isaac.ochre.api.collections.UuidIntMapMap;
 import gov.vha.isaac.ochre.api.ConfigurationService;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
@@ -30,10 +30,10 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
 import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.LruCache;
-import gov.vha.isaac.ochre.collections.NidSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.LruCache;
+import gov.vha.isaac.ochre.api.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

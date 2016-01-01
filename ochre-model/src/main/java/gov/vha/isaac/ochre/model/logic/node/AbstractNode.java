@@ -3,7 +3,7 @@ package gov.vha.isaac.ochre.model.logic.node;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 
 import java.io.ByteArrayOutputStream;

@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api.snapshot.calculator;
 
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
 import java.util.EnumSet;
 import java.util.function.ObjIntConsumer;
 

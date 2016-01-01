@@ -132,7 +132,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 		}
 		
 		ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
-		conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANUGAGE);
+		conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
 		conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
 		conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
@@ -147,13 +147,13 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 
 		DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(columnName, builder,
 						MetaData.SYNONYM,
-						MetaData.ENGLISH_LANUGAGE);
+						MetaData.ENGLISH_LANGUAGE);
 
 		definitionBuilder.setPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 		builder.addDescription(definitionBuilder);
 		
 		definitionBuilder = descriptionBuilderService.getDescriptionBuilder(columnDescription, builder, MetaData.DEFINITION_DESCRIPTION_TYPE,
-				MetaData.ENGLISH_LANUGAGE);
+				MetaData.ENGLISH_LANGUAGE);
 		definitionBuilder.setPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 		builder.addDescription(definitionBuilder);
 
@@ -189,7 +189,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 	{
 
 		ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
-		conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANUGAGE);
+		conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
 		conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
 		conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
@@ -208,7 +208,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 
 		DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(sememePreferredTerm, builder,
 						MetaData.SYNONYM,
-						MetaData.ENGLISH_LANUGAGE);
+						MetaData.ENGLISH_LANGUAGE);
 		definitionBuilder.setPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 		builder.addDescription(definitionBuilder);
 		
@@ -218,7 +218,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 		{
 			//Set up the dynamic sememe 'special' definition
 			definitionBuilder = descriptionBuilderService.getDescriptionBuilder(sememeDescription, builder, MetaData.DEFINITION_DESCRIPTION_TYPE,
-					MetaData.ENGLISH_LANUGAGE);
+					MetaData.ENGLISH_LANGUAGE);
 			definitionBuilder.setPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 			@SuppressWarnings("rawtypes")
 			SememeChronology definitonSememe = (SememeChronology) definitionBuilder.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);

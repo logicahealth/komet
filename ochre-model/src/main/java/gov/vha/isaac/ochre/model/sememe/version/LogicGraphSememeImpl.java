@@ -21,7 +21,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionByteArrayConverter;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableLogicGraphSememe;
-import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;

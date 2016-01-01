@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.api.component.concept;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;

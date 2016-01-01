@@ -18,8 +18,8 @@ package gov.vha.isaac.ochre.query.provider;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.NidSet;
 import java.io.IOException;
 import java.util.Optional;
 

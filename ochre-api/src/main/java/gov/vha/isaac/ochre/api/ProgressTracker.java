@@ -25,4 +25,8 @@ public interface ProgressTracker {
     
     void completedUnitOfWork();
     
+    void completedUnitsOfWork(long unitsCompleted);
+
+
+    
 }

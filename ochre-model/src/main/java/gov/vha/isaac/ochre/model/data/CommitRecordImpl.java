@@ -5,14 +5,15 @@
  */
 package gov.vha.isaac.ochre.model.data;
 
+import gov.vha.isaac.ochre.api.externalizable.StampUniversal;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.commit.CommitRecord;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.collections.SememeSequenceSet;
-import gov.vha.isaac.ochre.collections.StampSequenceSet;
-import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
-import gov.vha.isaac.ochre.model.OchreExternalizable;
-import gov.vha.isaac.ochre.model.OchreExternalizableObjectType;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.StampSequenceSet;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import java.time.Instant;
 import java.util.UUID;
 import org.apache.mahout.math.map.OpenIntIntHashMap;

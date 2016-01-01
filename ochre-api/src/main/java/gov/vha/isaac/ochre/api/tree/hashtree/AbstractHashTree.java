@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.api.tree.hashtree;
 import gov.vha.isaac.ochre.api.tree.NodeStatus;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.ObjIntConsumer;

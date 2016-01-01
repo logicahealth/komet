@@ -9,7 +9,7 @@ import gov.vha.isaac.ochre.api.memory.DiskSemaphore;
 import gov.vha.isaac.ochre.api.memory.HoldInMemoryCache;
 import gov.vha.isaac.ochre.api.memory.MemoryManagedReference;
 import gov.vha.isaac.ochre.api.memory.WriteToDiskCache;
-import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.WaitFreeComparable;
 
 import java.io.*;

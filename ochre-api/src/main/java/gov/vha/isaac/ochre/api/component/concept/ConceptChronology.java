@@ -16,6 +16,7 @@ import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ import java.util.Optional;
  * @param <V>
  */
 public interface ConceptChronology<V extends ConceptVersion<V>>
-    extends ObjectChronology<V>, ConceptSpecification {
+    extends ObjectChronology<V>, ConceptSpecification, OchreExternalizable {
     
     /**
      * Create a mutable version with Long.MAX_VALUE as the time, indicating

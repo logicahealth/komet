@@ -21,7 +21,7 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
-import gov.vha.isaac.ochre.collections.SequenceSet;
+import gov.vha.isaac.ochre.api.collections.SequenceSet;
 
 import java.util.*;
 import java.util.stream.IntStream;

@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.tree;
 
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.IntStream;
 

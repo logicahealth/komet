@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.model;
 
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedStampedVersion;

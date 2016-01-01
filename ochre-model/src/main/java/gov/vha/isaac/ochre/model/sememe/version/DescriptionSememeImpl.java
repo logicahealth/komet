@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.model.sememe.version;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDescriptionSememe;
-import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 
 /**

@@ -2,7 +2,7 @@ package gov.vha.isaac.ochre.api.coordinate;
 
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import java.util.List;
 import java.util.Set;
 

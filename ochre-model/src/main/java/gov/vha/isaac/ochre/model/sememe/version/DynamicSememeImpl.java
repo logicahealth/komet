@@ -26,7 +26,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescriptionBI;
-import gov.vha.isaac.ochre.model.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeData;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeTypeToClassUtility;

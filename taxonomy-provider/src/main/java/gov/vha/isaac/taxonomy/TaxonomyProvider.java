@@ -41,7 +41,7 @@ import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 import gov.vha.isaac.ochre.api.tree.hashtree.HashTreeBuilder;
-import gov.vha.isaac.ochre.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.IsomorphicResultsBottomUp;
 import gov.vha.isaac.ochre.model.logic.node.AndNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
