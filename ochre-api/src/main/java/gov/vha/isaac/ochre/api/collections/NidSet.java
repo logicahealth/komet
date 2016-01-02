@@ -26,7 +26,10 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @author kec
  */
 public class NidSet extends AbstractIntSet<NidSet> {
-    
+
+    public static NidSet ofAllComponentNids() {
+        return new NidSet(IntStream.rangeClosed(IdentifierService.FIRST_NID, Get.identifierService().getMaxNid()));
+    };
     public static NidSet of(int... members) {
         return new NidSet(members);
     }
@@ -36,9 +39,6 @@ public class NidSet extends AbstractIntSet<NidSet> {
     }
     public static NidSet of(IntStream memberStream) {
         return new NidSet(memberStream);
-    }
-    public static NidSet ofAllComponentNids() {
-        return new NidSet(Get.identifierService().getComponentNidStream());
     }
     
     public static NidSet of(Collection<Integer> members) {

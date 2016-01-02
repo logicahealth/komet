@@ -9,7 +9,7 @@
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>metadata</artifactId>
     <packaging>jar</packaging>
-   <name>OCHRE: Metadata</name>
+    <name>OCHRE: Metadata</name>
 
     <dependencies>
         <dependency>
@@ -36,9 +36,48 @@
                         <artifactId>identifier-provider</artifactId>
                         <version>${project.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>ochre-model</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>ibdf-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>concept-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>sememe-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>path-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>taxonomy-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>commit-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>coordinate-provider</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
                 <executions>
-                    
                     <execution>
                         <id>export-metadata</id>
                         <phase>initialize</phase>
@@ -80,9 +119,9 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <type>econ.zip</type>
+                                    <type>ibdf.zip</type>
                                     <classifier>all</classifier>
-                                    <file>${project.build.directory}/${project.build.finalName}-econ-all.zip</file>
+                                    <file>${project.build.directory}/${project.build.finalName}-ibdf.zip</file>
                                 </artifact>
                                 <artifact>
                                     <type>xml.zip</type>
@@ -111,7 +150,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptors>
-                        <descriptor>src/main/assembly/econ-all.xml</descriptor>
+                        <descriptor>src/main/assembly/ibdf.xml</descriptor>
                         <descriptor>src/main/assembly/xml-all.xml</descriptor>
                     </descriptors>
                     <!-- the default puts these in with the info in the classifier, but we want it as part of the type -->

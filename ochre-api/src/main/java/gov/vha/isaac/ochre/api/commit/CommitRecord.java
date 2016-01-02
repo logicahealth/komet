@@ -14,22 +14,24 @@ import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 /**
- *
+ * Used to notify listeners of a commit event. 
  * @author kec
  */
-public abstract class CommitRecord implements OchreExternalizable {
+public class CommitRecord  {
+
     protected Instant commitTime;
     protected StampSequenceSet stampsInCommit;
     protected AbstractIntIntMap stampAliases;
     protected String commitComment;
     protected ConceptSequenceSet conceptsInCommit;
     protected SememeSequenceSet sememesInCommit;
-    
-    public CommitRecord() {}
 
-    public CommitRecord(Instant commitTime, 
-            StampSequenceSet stampsInCommit, 
-            OpenIntIntHashMap stampAliases, 
+    public CommitRecord() {
+    }
+
+    public CommitRecord(Instant commitTime,
+            StampSequenceSet stampsInCommit,
+            OpenIntIntHashMap stampAliases,
             ConceptSequenceSet conceptsInCommit,
             SememeSequenceSet sememesInCommit,
             String commitComment) {
@@ -65,9 +67,9 @@ public abstract class CommitRecord implements OchreExternalizable {
         return sememesInCommit;
     }
 
-	@Override
-	public String toString() {
-		return "CommitRecord{" + "commitTime=" + commitTime + ", stampsInCommit=" + stampsInCommit + ", stampAliases=" + stampAliases + ", commitComment=" + commitComment + ", conceptsInCommit=" + conceptsInCommit + ", sememesInCommit=" + sememesInCommit + '}';
-	}
+    @Override
+    public String toString() {
+        return "CommitRecord{" + "commitTime=" + commitTime + ", stampsInCommit=" + stampsInCommit + ", stampAliases=" + stampAliases + ", commitComment=" + commitComment + ", conceptsInCommit=" + conceptsInCommit + ", sememesInCommit=" + sememesInCommit + '}';
+    }
 
 }

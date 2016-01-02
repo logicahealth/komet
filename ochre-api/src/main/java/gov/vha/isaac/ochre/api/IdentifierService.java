@@ -25,17 +25,16 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface IdentifierService {
-    
+
+    static final int FIRST_NID = Integer.MIN_VALUE + 1;
+
+    /**
+     *
+     * @return the maximum native identifier currently assigned.
+     */
+    int getMaxNid();
+
     ObjectChronologyType getChronologyTypeForNid(int nid);
-    
-    NidSet getComponentNidsForConceptNids(ConceptSequenceSet conceptSequenceSet);
-    
-    IntStream getComponentNidStream();
-    
-    int getConceptNidForDescriptionNid(int descriptionNid);
-    int getConceptSequenceForDescriptionNid(int descriptionNid);
-    void setConceptSequenceForComponentNid(int conceptSequence, int nid);
-    void resetConceptSequenceForComponentNid(int conceptSequence, int nid);
     
     /**
      * NOTE: this method will generate a new concept sequence if one does not already exist. 
@@ -70,8 +69,6 @@ public interface IdentifierService {
     ConceptSequenceSet getConceptSequencesForConceptNids(NidSet componentNidSet);
     ConceptSequenceSet getConceptSequencesForConceptNids(int[] conceptNidArray);
     SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray);
-    ConceptSequenceSet getConceptSequencesForReferencedComponents(SememeSequenceSet sememeSequences);
-    ConceptSequenceSet getConceptSequenceSetForComponentNidSet(NidSet nids);
     
     IntStream getConceptNidsForConceptSequences(IntStream conceptSequences);
     IntStream getSememeNidsForSememeSequences(IntStream sememSequences);
@@ -106,6 +103,4 @@ public interface IdentifierService {
 
     boolean hasUuid(Collection<UUID> uuids);
 
-    @Deprecated
-    int getConceptSequenceForComponentNid(int nid);
 }

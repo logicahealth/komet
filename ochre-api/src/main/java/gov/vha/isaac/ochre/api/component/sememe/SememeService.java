@@ -62,7 +62,7 @@ public interface SememeService {
     
     void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints);
     
-    Stream<SememeChronology<? extends SememeVersion<?>>> getSememeStream();
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream();
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
     

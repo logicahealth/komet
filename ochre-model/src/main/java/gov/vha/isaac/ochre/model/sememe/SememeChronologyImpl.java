@@ -73,7 +73,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     }
 
     @Override
-    protected void readAdditionalChronicleFields(ByteArrayDataBuffer in) {
+    protected void getAdditionalChronicleFields(ByteArrayDataBuffer in) {
         sememeTypeToken = in.getByte();
         assemblageSequence = in.getConceptSequence();
         referencedComponentNid = in.getNid();
@@ -226,9 +226,15 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("SememeChronology{")
-                .append(SememeType.getFromToken(sememeTypeToken))
-                .append("\n assemblage:")
+        builder.append("SememeChronology{");
+
+        if (sememeTypeToken == -1) {
+            builder.append("SememeType token not initialized");
+        } else {
+            builder.append(SememeType.getFromToken(sememeTypeToken));
+        }
+
+        builder.append("\n assemblage:")
                 .append(Get.conceptDescriptionText(assemblageSequence))
                 .append(" <")
                 .append(assemblageSequence)

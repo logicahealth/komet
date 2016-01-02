@@ -135,7 +135,6 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
                         Get.identifierService().getConceptNid(conceptSequence));
         SememeChronologyImpl<DescriptionSememeImpl> newDescription = (SememeChronologyImpl<DescriptionSememeImpl>)
                 descBuilder.build(stampSequence, builtObjects);
-        Get.identifierService().setConceptSequenceForComponentNid(conceptSequence, newDescription.getNid());
         builtObjects.add(newDescription);
         SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
         preferredInDialectAssemblages.forEach(( assemblageProxy) -> {

@@ -47,12 +47,12 @@ public class ConceptForComponent extends ParentClause {
     }
     @Override
     public NidSet computePossibleComponents(NidSet incomingPossibleConceptNids) {
-        NidSet incomingPossibleComponentNids = Get.identifierService().getComponentNidsForConceptNids(ConceptSequenceSet.of(incomingPossibleConceptNids));
+        NidSet incomingPossibleComponentNids = NidSet.of(incomingPossibleConceptNids.stream());
 
         NidSet outgoingPossibleConceptNids = new NidSet();
         for (Clause childClause : getChildren()) {
             NidSet childPossibleComponentNids = childClause.computePossibleComponents(incomingPossibleComponentNids);
-            ConceptSequenceSet conceptSet = Get.identifierService().getConceptSequenceSetForComponentNidSet(childPossibleComponentNids);
+            ConceptSequenceSet conceptSet = ConceptSequenceSet.of(childPossibleComponentNids);
             outgoingPossibleConceptNids.or(NidSet.of(conceptSet));
         }
         return outgoingPossibleConceptNids;
@@ -75,11 +75,11 @@ public class ConceptForComponent extends ParentClause {
 
     @Override
     public NidSet computeComponents(NidSet incomingComponents) {
-        NidSet incomingPossibleComponentNids = Get.identifierService().getComponentNidsForConceptNids(ConceptSequenceSet.of(incomingComponents));
+        NidSet incomingPossibleComponentNids = NidSet.of(incomingComponents.stream());
         NidSet outgoingPossibleConceptNids = new NidSet();
         for (Clause childClause : getChildren()) {
             NidSet childPossibleComponentNids = childClause.computeComponents(incomingPossibleComponentNids);
-            outgoingPossibleConceptNids.or(NidSet.of(Get.identifierService().getConceptSequenceSetForComponentNidSet(childPossibleComponentNids)));
+            outgoingPossibleConceptNids.or(childPossibleComponentNids);
         }
         return outgoingPossibleConceptNids;
     }

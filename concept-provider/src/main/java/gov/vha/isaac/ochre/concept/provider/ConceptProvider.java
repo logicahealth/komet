@@ -176,7 +176,6 @@ public class ConceptProvider implements ConceptService {
             concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));
         }
         conceptMap.put(conceptSequence, concept);
-        Get.identifierService().setConceptSequenceForComponentNid(conceptSequence, conceptNid);
         return conceptMap.getQuick(conceptSequence);
     }
 

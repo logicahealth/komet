@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.sememe.provider;
 
 
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.waitfree.WaitFreeMergeSerializer;
@@ -24,16 +25,17 @@ import gov.vha.isaac.ochre.model.waitfree.WaitFreeMergeSerializer;
  *
  * @author kec
  */
-public class SememeSerializer implements WaitFreeMergeSerializer<SememeChronologyImpl<?>>{
+public class SememeSerializer implements WaitFreeMergeSerializer<SememeChronologyImpl<? extends SememeVersion<?>>>{
 
     @Override
-    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl<?> a) {
+    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl<? extends SememeVersion<?>> a) {
         byte[] data = a.getDataToWrite();
         d.put(data, 0, data.length);
     }
 
     @Override
-    public SememeChronologyImpl<?> merge(SememeChronologyImpl<?> a, SememeChronologyImpl<?> b, int writeSequence) {
+    public SememeChronologyImpl<?> merge(SememeChronologyImpl<? extends SememeVersion<?>> a,
+                                         SememeChronologyImpl<? extends SememeVersion<?>> b, int writeSequence) {
         byte[] dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
         ByteArrayDataBuffer db = new ByteArrayDataBuffer(dataBytes);
         return SememeChronologyImpl.make(db);

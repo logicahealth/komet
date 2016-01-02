@@ -59,7 +59,7 @@ public class ConceptChronologyImpl
     private ConceptChronologyImpl() {}
 
     @Override
-    protected void readAdditionalChronicleFields(ByteArrayDataBuffer in) {
+    protected void getAdditionalChronicleFields(ByteArrayDataBuffer in) {
         // nothing to read for ConceptChronology...
     }
     

@@ -24,7 +24,6 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
@@ -37,6 +36,7 @@ import gov.vha.isaac.ochre.model.sememe.version.SememeVersionImpl;
 import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 
 /**
  *
@@ -83,7 +83,6 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
             referencedComponentNid, 
             Get.identifierService().getSememeSequenceForUuids(this.getUuids()));
         sememeChronicle.setAdditionalUuids(additionalUuids);
-        Get.identifierService().setConceptSequenceForComponentNid(assemblageConceptSequence, sememeChronicle.getNid());
         switch (sememeType) {
             case COMPONENT_NID:
                 ComponentNidSememeImpl cnsi = (ComponentNidSememeImpl) 
@@ -122,7 +121,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
                 DynamicSememeImpl dsi = (DynamicSememeImpl)sememeChronicle.createMutableVersion(DynamicSememeImpl.class, State.ACTIVE, editCoordinate);
                 if (parameters != null && parameters.length > 0) {
                     //See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
-                    dsi.setData(((AtomicReference<DynamicSememeDataBI[]>)parameters[0]).get());
+                    dsi.setData(((AtomicReference<DynamicSememeData[]>)parameters[0]).get());
                 }
                 //TODO DAN this needs to fire the validator!
                 break;
@@ -153,7 +152,6 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
             referencedComponentNid, 
             Get.identifierService().getSememeSequenceForUuids(this.getUuids()));
         sememeChronicle.setAdditionalUuids(additionalUuids);
-        Get.identifierService().setConceptSequenceForComponentNid(assemblageConceptSequence, sememeChronicle.getNid());
         switch (sememeType) {
             case COMPONENT_NID:
                 ComponentNidSememeImpl cnsi = (ComponentNidSememeImpl) 
@@ -192,7 +190,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
                 DynamicSememeImpl dsi = (DynamicSememeImpl)sememeChronicle.createMutableVersion(DynamicSememeImpl.class, stampSequence);
                 if (parameters != null && parameters.length > 0) {
                     //See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
-                    dsi.setData(((AtomicReference<DynamicSememeDataBI[]>)parameters[0]).get());
+                    dsi.setData(((AtomicReference<DynamicSememeData[]>)parameters[0]).get());
                 }
                 //TODO Dan this needs to fire the validator!
                 break;

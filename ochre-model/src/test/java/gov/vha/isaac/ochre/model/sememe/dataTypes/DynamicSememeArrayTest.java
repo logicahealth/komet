@@ -35,9 +35,9 @@ public class DynamicSememeArrayTest
 	public void testSerializationOne() throws PropertyVetoException, IOException
 	{
 
-		DynamicSememeInteger[] testDataOne = new DynamicSememeInteger[] {new DynamicSememeInteger(5), new DynamicSememeInteger(8), new DynamicSememeInteger(Integer.MAX_VALUE)};
+		DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] {new DynamicSememeIntegerImpl(5), new DynamicSememeIntegerImpl(8), new DynamicSememeIntegerImpl(Integer.MAX_VALUE)};
 		
-		DynamicSememeArray<DynamicSememeInteger> testOne = new DynamicSememeArray<DynamicSememeInteger>(testDataOne);
+		DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne = new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(testDataOne);
 		testOne.setNameIfAbsent("bar");
 		
 		assertEquals(3, testOne.getDataArray().length);
@@ -46,13 +46,13 @@ public class DynamicSememeArrayTest
 		assertEquals(8, testOne.getDataArray()[1].getDataInteger());
 		assertEquals(Integer.MAX_VALUE, testOne.getDataArray()[2].getDataInteger());
 
-		assertEquals(5, ((DynamicSememeInteger[])testOne.getDataObject())[0].getDataInteger());
-		assertEquals(8, ((DynamicSememeInteger[])testOne.getDataObject())[1].getDataInteger());
-		assertEquals(Integer.MAX_VALUE, ((DynamicSememeInteger[])testOne.getDataObject())[2].getDataInteger());
+		assertEquals(5, ((DynamicSememeIntegerImpl[])testOne.getDataObject())[0].getDataInteger());
+		assertEquals(8, ((DynamicSememeIntegerImpl[])testOne.getDataObject())[1].getDataInteger());
+		assertEquals(Integer.MAX_VALUE, ((DynamicSememeIntegerImpl[])testOne.getDataObject())[2].getDataInteger());
 
-		assertEquals(5, ((DynamicSememeInteger[])testOne.getDataObjectProperty().get())[0].getDataInteger());
-		assertEquals(8, ((DynamicSememeInteger[])testOne.getDataObjectProperty().get())[1].getDataInteger());
-		assertEquals(Integer.MAX_VALUE, ((DynamicSememeInteger[])testOne.getDataObjectProperty().get())[2].getDataInteger());
+		assertEquals(5, ((DynamicSememeIntegerImpl[])testOne.getDataObjectProperty().get())[0].getDataInteger());
+		assertEquals(8, ((DynamicSememeIntegerImpl[])testOne.getDataObjectProperty().get())[1].getDataInteger());
+		assertEquals(Integer.MAX_VALUE, ((DynamicSememeIntegerImpl[])testOne.getDataObjectProperty().get())[2].getDataInteger());
 		
 		assertEquals(testOne.getDynamicSememeDataType(), DynamicSememeDataType.ARRAY);
 		assertEquals(testOne.getDataArray()[0].getDynamicSememeDataType(), DynamicSememeDataType.INTEGER);
@@ -63,9 +63,9 @@ public class DynamicSememeArrayTest
 	public void testSerializationTwo() throws PropertyVetoException, IOException
 	{
 
-		DynamicSememeString[] testDataTwo = new DynamicSememeString[] {new DynamicSememeString("hi"), new DynamicSememeString("bye")};
+		DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] {new DynamicSememeStringImpl("hi"), new DynamicSememeStringImpl("bye")};
 		
-		DynamicSememeArray<DynamicSememeString> testTwo = new DynamicSememeArray<DynamicSememeString>(testDataTwo);
+		DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo = new DynamicSememeArrayImpl<DynamicSememeStringImpl>(testDataTwo);
 		testTwo.setNameIfAbsent("bar");
 		
 		assertEquals(2, testTwo.getDataArray().length);
@@ -73,11 +73,11 @@ public class DynamicSememeArrayTest
 		assertEquals("hi", testTwo.getDataArray()[0].getDataString());
 		assertEquals("bye", testTwo.getDataArray()[1].getDataString());
 
-		assertEquals("hi", ((DynamicSememeString[])testTwo.getDataObject())[0].getDataString());
-		assertEquals("bye", ((DynamicSememeString[])testTwo.getDataObject())[1].getDataString());
+		assertEquals("hi", ((DynamicSememeStringImpl[])testTwo.getDataObject())[0].getDataString());
+		assertEquals("bye", ((DynamicSememeStringImpl[])testTwo.getDataObject())[1].getDataString());
 
-		assertEquals("hi", ((DynamicSememeString[])testTwo.getDataObjectProperty().get())[0].getDataString());
-		assertEquals("bye", ((DynamicSememeString[])testTwo.getDataObjectProperty().get())[1].getDataString());
+		assertEquals("hi", ((DynamicSememeStringImpl[])testTwo.getDataObjectProperty().get())[0].getDataString());
+		assertEquals("bye", ((DynamicSememeStringImpl[])testTwo.getDataObjectProperty().get())[1].getDataString());
 		
 		assertEquals(testTwo.getDynamicSememeDataType(), DynamicSememeDataType.ARRAY);
 		assertEquals(testTwo.getDataArray()[0].getDynamicSememeDataType(), DynamicSememeDataType.STRING);

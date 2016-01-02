@@ -86,13 +86,14 @@
         <module>concept-provider</module>
         <module>path-provider</module>
         <module>sememe-provider</module>
-        <module>commit-manager</module>
         <module>metadata-source</module>
         <module>metadata</module>
         <module>observable-provider</module>
         <module>logic-provider</module>
         <module>query-provider</module>
         <module>ibdf-provider</module>
+        <module>commit-provider</module>
+        <module>coordinate-provider</module>
     </modules>
     <profiles>
         <profile>

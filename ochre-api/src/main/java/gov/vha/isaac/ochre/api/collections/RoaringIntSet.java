@@ -203,11 +203,11 @@ public class RoaringIntSet implements IntSet {
 		@Override
 		public int characteristics() {
 			return Spliterator.DISTINCT
-					  + Spliterator.IMMUTABLE
-					  + Spliterator.NONNULL
-					  + Spliterator.ORDERED
-					  + Spliterator.SIZED
-					  + Spliterator.SORTED;
+					  | Spliterator.IMMUTABLE
+					  | Spliterator.NONNULL
+					  | Spliterator.ORDERED
+					  | Spliterator.SIZED
+					  | Spliterator.SORTED;
 		}
 	}
 

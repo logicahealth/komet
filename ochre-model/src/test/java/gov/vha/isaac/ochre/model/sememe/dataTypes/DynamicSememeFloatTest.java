@@ -45,7 +45,7 @@ public class DynamicSememeFloatTest
 
 	private void test(float value) throws PropertyVetoException, IOException
 	{
-		DynamicSememeFloat l = new DynamicSememeFloat(value);
+		DynamicSememeFloatImpl l = new DynamicSememeFloatImpl(value);
 		l.setNameIfAbsent("foo");
 
 		assertEquals(value, l.getDataFloat(), 0);

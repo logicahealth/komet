@@ -45,7 +45,7 @@ public class DynamicSememeStringTest
 
 	private void test(String value) throws PropertyVetoException, IOException
 	{
-		DynamicSememeString i = new DynamicSememeString(value);
+		DynamicSememeStringImpl i = new DynamicSememeStringImpl(value);
 		i.setNameIfAbsent("foo");
 
 		assertEquals(value, i.getDataString());

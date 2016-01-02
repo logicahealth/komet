@@ -22,6 +22,8 @@ package gov.vha.isaac.ochre.query.provider.lucene.indexers;
 import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
+
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -48,21 +50,10 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBooleanBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArrayBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDoubleBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLongBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNidBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphicBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequenceBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import gov.vha.isaac.ochre.api.index.SearchResult;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeString;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 
 /**
  * {@link DynamicSememeIndexer} An indexer that can be used both to index the arbitrary attached column
@@ -122,7 +113,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 					int dataColCount = dsv.getData().length;
 					for (int col : columns)
 					{
-						DynamicSememeDataBI dataCol = col >= dataColCount ? null : dsv.getData(col);
+						DynamicSememeData dataCol = col >= dataColCount ? null : dsv.getData(col);
 
 						//Not the greatest design for diskspace / performance... but if we want to be able to support searching across 
 						//all fields / all sememes - and also support searching per-field within a single sememe, we need to double index 
@@ -147,75 +138,75 @@ public class DynamicSememeIndexer extends LuceneIndexer
 		}
 	}
 
-	private void handleType(Document doc, DynamicSememeDataBI dataCol, int colNumber, DynamicSememe<?> dsv)
+	private void handleType(Document doc, DynamicSememeData dataCol, int colNumber, DynamicSememe<?> dsv)
 	{
 		if (dataCol == null)
 		{
 			//noop
 		}
-		else if (dataCol instanceof DynamicSememeBooleanBI)
+		else if (dataCol instanceof DynamicSememeBoolean)
 		{
-			doc.add(new StringField(COLUMN_FIELD_DATA, ((DynamicSememeBooleanBI) dataCol).getDataBoolean() + "", Store.NO));
-			doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeBooleanBI) dataCol).getDataBoolean() + "", Store.NO));
+			doc.add(new StringField(COLUMN_FIELD_DATA, ((DynamicSememeBoolean) dataCol).getDataBoolean() + "", Store.NO));
+			doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeBoolean) dataCol).getDataBoolean() + "", Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeByteArrayBI)
+		else if (dataCol instanceof DynamicSememeByteArray)
 		{
 			log.warn("Dynamic Sememe Indexer configured to index a field that isn''t indexable (byte array) in {}", dsv.toUserString());
 		}
-		else if (dataCol instanceof DynamicSememeDoubleBI)
+		else if (dataCol instanceof DynamicSememeDouble)
 		{
-			doc.add(new DoubleField(COLUMN_FIELD_DATA, ((DynamicSememeDoubleBI) dataCol).getDataDouble(), Store.NO));
-			doc.add(new DoubleField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeDoubleBI) dataCol).getDataDouble(), Store.NO));
+			doc.add(new DoubleField(COLUMN_FIELD_DATA, ((DynamicSememeDouble) dataCol).getDataDouble(), Store.NO));
+			doc.add(new DoubleField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeDouble) dataCol).getDataDouble(), Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeFloatBI)
+		else if (dataCol instanceof DynamicSememeFloat)
 		{
-			doc.add(new FloatField(COLUMN_FIELD_DATA, ((DynamicSememeFloatBI) dataCol).getDataFloat(), Store.NO));
-			doc.add(new FloatField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeFloatBI) dataCol).getDataFloat(), Store.NO));
+			doc.add(new FloatField(COLUMN_FIELD_DATA, ((DynamicSememeFloat) dataCol).getDataFloat(), Store.NO));
+			doc.add(new FloatField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeFloat) dataCol).getDataFloat(), Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeIntegerBI)
+		else if (dataCol instanceof DynamicSememeInteger)
 		{
-			doc.add(new IntField(COLUMN_FIELD_DATA, ((DynamicSememeIntegerBI) dataCol).getDataInteger(), Store.NO));
-			doc.add(new IntField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeIntegerBI) dataCol).getDataInteger(), Store.NO));
+			doc.add(new IntField(COLUMN_FIELD_DATA, ((DynamicSememeInteger) dataCol).getDataInteger(), Store.NO));
+			doc.add(new IntField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeInteger) dataCol).getDataInteger(), Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeSequenceBI)
+		else if (dataCol instanceof DynamicSememeSequence)
 		{
-			doc.add(new IntField(COLUMN_FIELD_DATA, ((DynamicSememeSequenceBI) dataCol).getDataSequence(), Store.NO));
-			doc.add(new IntField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeSequenceBI) dataCol).getDataSequence(), Store.NO));
+			doc.add(new IntField(COLUMN_FIELD_DATA, ((DynamicSememeSequence) dataCol).getDataSequence(), Store.NO));
+			doc.add(new IntField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeSequence) dataCol).getDataSequence(), Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeLongBI)
+		else if (dataCol instanceof DynamicSememeLong)
 		{
-			doc.add(new LongField(COLUMN_FIELD_DATA, ((DynamicSememeLongBI) dataCol).getDataLong(), Store.NO));
-			doc.add(new LongField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeLongBI) dataCol).getDataLong(), Store.NO));
+			doc.add(new LongField(COLUMN_FIELD_DATA, ((DynamicSememeLong) dataCol).getDataLong(), Store.NO));
+			doc.add(new LongField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeLong) dataCol).getDataLong(), Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeNidBI)
+		else if (dataCol instanceof DynamicSememeNid)
 		{
 			//No need for ranges on a nid
-			doc.add(new StringField(COLUMN_FIELD_DATA, ((DynamicSememeNidBI) dataCol).getDataNid() + "", Store.NO));
-			doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeNidBI) dataCol).getDataNid() + "", Store.NO));
+			doc.add(new StringField(COLUMN_FIELD_DATA, ((DynamicSememeNid) dataCol).getDataNid() + "", Store.NO));
+			doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeNid) dataCol).getDataNid() + "", Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememePolymorphicBI)
+		else if (dataCol instanceof DynamicSememePolymorphic)
 		{
 			log.error("This should have been impossible (polymorphic?)");
 		}
-		else if (dataCol instanceof DynamicSememeStringBI)
+		else if (dataCol instanceof DynamicSememeString)
 		{
-			doc.add(new TextField(COLUMN_FIELD_DATA, ((DynamicSememeStringBI) dataCol).getDataString(), Store.NO));
-			doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeStringBI) dataCol).getDataString(), Store.NO));
+			doc.add(new TextField(COLUMN_FIELD_DATA, ((DynamicSememeString) dataCol).getDataString(), Store.NO));
+			doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber, ((DynamicSememeString) dataCol).getDataString(), Store.NO));
 			//yes, indexed 4 different times - twice with the standard analyzer, twice with the whitespace analyzer.
-			doc.add(new TextField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicSememeStringBI) dataCol).getDataString(), Store.NO));
-			doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicSememeStringBI) dataCol).getDataString(),
+			doc.add(new TextField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicSememeString) dataCol).getDataString(), Store.NO));
+			doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicSememeString) dataCol).getDataString(),
 					Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeUUIDBI)
+		else if (dataCol instanceof DynamicSememeUUID)
 		{
 			//Use the whitespace analyzer on UUIDs
-			doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicSememeUUIDBI) dataCol).getDataUUID().toString(), Store.NO));
+			doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, ((DynamicSememeUUID) dataCol).getDataUUID().toString(), Store.NO));
 			doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-					((DynamicSememeUUIDBI) dataCol).getDataUUID().toString(), Store.NO));
+					((DynamicSememeUUID) dataCol).getDataUUID().toString(), Store.NO));
 		}
-		else if (dataCol instanceof DynamicSememeArrayBI<?>)
+		else if (dataCol instanceof DynamicSememeArray<?>)
 		{
-			for (DynamicSememeDataBI nestedData : ((DynamicSememeArrayBI<?>) dataCol).getDataArray())
+			for (DynamicSememeData nestedData : ((DynamicSememeArray<?>) dataCol).getDataArray())
 			{
 				handleType(doc, nestedData, colNumber, dsv);
 			}
@@ -239,8 +230,8 @@ public class DynamicSememeIndexer extends LuceneIndexer
 	 * @throws java.io.IOException
 	 * @throws org.apache.lucene.queryparser.classic.ParseException
 	 */
-	public final List<SearchResult> queryNumericRange(final DynamicSememeDataBI queryDataLower, final boolean queryDataLowerInclusive,
-			final DynamicSememeDataBI queryDataUpper, final boolean queryDataUpperInclusive, Integer sememeConceptSequence, Integer[] searchColumns, int sizeLimit,
+	public final List<SearchResult> queryNumericRange(final DynamicSememeData queryDataLower, final boolean queryDataLowerInclusive,
+			final DynamicSememeData queryDataUpper, final boolean queryDataUpperInclusive, Integer sememeConceptSequence, Integer[] searchColumns, int sizeLimit,
 			Long targetGeneration) throws IOException, ParseException
 	{
 		BooleanQuery bq = new BooleanQuery();
@@ -283,7 +274,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 	public final List<SearchResult> query(String queryString, Integer sememeConceptSequence, boolean prefixSearch, int sizeLimit, Long targetGeneration)
 			throws IOException, ParseException
 	{
-		return query(new DynamicSememeString(queryString), sememeConceptSequence, prefixSearch, null, sizeLimit, targetGeneration);
+		return query(new DynamicSememeStringImpl(queryString), sememeConceptSequence, prefixSearch, null, sizeLimit, targetGeneration);
 	}
 
 	/**
@@ -298,7 +289,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 	 * @throws java.io.IOException
 	 * @throws org.apache.lucene.queryparser.classic.ParseException
 	 */
-	public final List<SearchResult> query(final DynamicSememeDataBI queryData, Integer sememeConceptSequence, final boolean prefixSearch, Integer[] searchColumns,
+	public final List<SearchResult> query(final DynamicSememeData queryData, Integer sememeConceptSequence, final boolean prefixSearch, Integer[] searchColumns,
 			int sizeLimit, Long targetGeneration) throws IOException, ParseException
 	{
 		BooleanQuery bq = new BooleanQuery();
@@ -307,7 +298,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 			bq.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeConceptSequence + "")), Occur.MUST);
 		}
 
-		if (queryData instanceof DynamicSememeStringBI)
+		if (queryData instanceof DynamicSememeString)
 		{
 			bq.add(new QueryWrapperForColumnHandling()
 			{
@@ -315,7 +306,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 				Query buildQuery(String columnName) throws ParseException, IOException
 				{
 					//This is the only query type that needs tokenizing, etc.
-					String queryString = ((DynamicSememeStringBI) queryData).getDataString();
+					String queryString = ((DynamicSememeString) queryData).getDataString();
 					//'-' signs are operators to lucene... but we want to allow nid lookups.  So escape any leading hyphens
 					//and any hyphens that are preceeded by spaces.  This way, we don't mess up UUID handling.
 					//(lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
@@ -332,7 +323,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 		}
 		else
 		{
-			if (queryData instanceof DynamicSememeBooleanBI || queryData instanceof DynamicSememeNidBI || queryData instanceof DynamicSememeUUIDBI)
+			if (queryData instanceof DynamicSememeBoolean || queryData instanceof DynamicSememeNid || queryData instanceof DynamicSememeUUID)
 			{
 				bq.add(new QueryWrapperForColumnHandling()
 				{
@@ -343,8 +334,8 @@ public class DynamicSememeIndexer extends LuceneIndexer
 					}
 				}.buildColumnHandlingQuery(searchColumns), Occur.MUST);
 			}
-			else if (queryData instanceof DynamicSememeDoubleBI || queryData instanceof DynamicSememeFloatBI || queryData instanceof DynamicSememeIntegerBI
-					|| queryData instanceof DynamicSememeLongBI)
+			else if (queryData instanceof DynamicSememeDouble || queryData instanceof DynamicSememeFloat || queryData instanceof DynamicSememeInteger
+					|| queryData instanceof DynamicSememeLong)
 			{
 				bq.add(new QueryWrapperForColumnHandling()
 				{
@@ -353,8 +344,8 @@ public class DynamicSememeIndexer extends LuceneIndexer
 					{
 						Query temp = buildNumericQuery(queryData, true, queryData, true, columnName);
 
-						if ((queryData instanceof DynamicSememeLongBI && ((DynamicSememeLongBI) queryData).getDataLong() < 0)
-								|| (queryData instanceof DynamicSememeIntegerBI && ((DynamicSememeIntegerBI) queryData).getDataInteger() < 0))
+						if ((queryData instanceof DynamicSememeLong && ((DynamicSememeLong) queryData).getDataLong() < 0)
+								|| (queryData instanceof DynamicSememeInteger && ((DynamicSememeInteger) queryData).getDataInteger() < 0))
 						{
 							//Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
 							BooleanQuery wrapper = new BooleanQuery();
@@ -366,12 +357,12 @@ public class DynamicSememeIndexer extends LuceneIndexer
 					}
 				}.buildColumnHandlingQuery(searchColumns), Occur.MUST);
 			}
-			else if (queryData instanceof DynamicSememeByteArrayBI)
+			else if (queryData instanceof DynamicSememeByteArray)
 
 			{
 				throw new ParseException("DynamicSememeByteArray isn't indexed");
 			}
-			else if (queryData instanceof DynamicSememePolymorphicBI)
+			else if (queryData instanceof DynamicSememePolymorphic)
 
 			{
 				throw new ParseException("This should have been impossible (polymorphic?)");
@@ -387,7 +378,7 @@ public class DynamicSememeIndexer extends LuceneIndexer
 		return search(bq, sizeLimit, targetGeneration);
 	}
 
-	private Query buildNumericQuery(DynamicSememeDataBI queryDataLower, boolean queryDataLowerInclusive, DynamicSememeDataBI queryDataUpper,
+	private Query buildNumericQuery(DynamicSememeData queryDataLower, boolean queryDataLowerInclusive, DynamicSememeData queryDataUpper,
 			boolean queryDataUpperInclusive, String columnName) throws ParseException
 	{
 		//Convert both to the same type (if they differ) - go largest data type to smallest, so we don't lose precision
@@ -398,13 +389,13 @@ public class DynamicSememeIndexer extends LuceneIndexer
 			BooleanQuery bq = new BooleanQuery();
 			boolean fitsInFloat = false;
 			boolean fitsInInt = false;
-			if (queryDataLower instanceof DynamicSememeDoubleBI || queryDataUpper instanceof DynamicSememeDoubleBI)
+			if (queryDataLower instanceof DynamicSememeDouble || queryDataUpper instanceof DynamicSememeDouble)
 			{
 				Double upperVal = (queryDataUpper == null ? null
-						: (queryDataUpper instanceof DynamicSememeDoubleBI ? ((DynamicSememeDoubleBI) queryDataUpper).getDataDouble()
+						: (queryDataUpper instanceof DynamicSememeDouble ? ((DynamicSememeDouble) queryDataUpper).getDataDouble()
 								: ((Number) queryDataUpper.getDataObject()).doubleValue()));
 				Double lowerVal = (queryDataLower == null ? null
-						: (queryDataLower instanceof DynamicSememeDoubleBI ? ((DynamicSememeDoubleBI) queryDataLower).getDataDouble()
+						: (queryDataLower instanceof DynamicSememeDouble ? ((DynamicSememeDouble) queryDataLower).getDataDouble()
 								: ((Number) queryDataLower.getDataObject()).doubleValue()));
 				bq.add(NumericRangeQuery.newDoubleRange(columnName, lowerVal, upperVal, queryDataLowerInclusive, queryDataUpperInclusive), Occur.SHOULD);
 
@@ -415,27 +406,27 @@ public class DynamicSememeIndexer extends LuceneIndexer
 				}
 			}
 
-			if (fitsInFloat || queryDataLower instanceof DynamicSememeFloatBI || queryDataUpper instanceof DynamicSememeFloatBI)
+			if (fitsInFloat || queryDataLower instanceof DynamicSememeFloat || queryDataUpper instanceof DynamicSememeFloat)
 			{
 				Float upperVal = (queryDataUpper == null ? null
 						: (queryDataUpper == null ? null
-								: (queryDataUpper instanceof DynamicSememeFloatBI ? ((DynamicSememeFloatBI) queryDataUpper).getDataFloat()
+								: (queryDataUpper instanceof DynamicSememeFloat ? ((DynamicSememeFloat) queryDataUpper).getDataFloat()
 										: (fitsInFloat && ((Number) queryDataUpper.getDataObject()).doubleValue() > Float.MAX_VALUE ? Float.MAX_VALUE
 												: ((Number) queryDataUpper.getDataObject()).floatValue()))));
 				Float lowerVal = (queryDataLower == null ? null
-						: (queryDataLower instanceof DynamicSememeFloatBI ? ((DynamicSememeFloatBI) queryDataLower).getDataFloat()
+						: (queryDataLower instanceof DynamicSememeFloat ? ((DynamicSememeFloat) queryDataLower).getDataFloat()
 								: (fitsInFloat && ((Number) queryDataLower.getDataObject()).doubleValue() < Float.MIN_VALUE ? Float.MIN_VALUE
 										: ((Number) queryDataLower.getDataObject()).floatValue())));
 				bq.add(NumericRangeQuery.newFloatRange(columnName, lowerVal, upperVal, queryDataLowerInclusive, queryDataUpperInclusive), Occur.SHOULD);
 			}
 
-			if (queryDataLower instanceof DynamicSememeLongBI || queryDataUpper instanceof DynamicSememeLongBI)
+			if (queryDataLower instanceof DynamicSememeLong || queryDataUpper instanceof DynamicSememeLong)
 			{
 				Long upperVal = (queryDataUpper == null ? null
-						: (queryDataUpper instanceof DynamicSememeLongBI ? ((DynamicSememeLongBI) queryDataUpper).getDataLong()
+						: (queryDataUpper instanceof DynamicSememeLong ? ((DynamicSememeLong) queryDataUpper).getDataLong()
 								: ((Number) queryDataUpper.getDataObject()).longValue()));
 				Long lowerVal = (queryDataLower == null ? null
-						: (queryDataLower instanceof DynamicSememeLongBI ? ((DynamicSememeLongBI) queryDataLower).getDataLong()
+						: (queryDataLower instanceof DynamicSememeLong ? ((DynamicSememeLong) queryDataLower).getDataLong()
 								: ((Number) queryDataLower.getDataObject()).longValue()));
 				bq.add(NumericRangeQuery.newLongRange(columnName, lowerVal, upperVal, queryDataLowerInclusive, queryDataUpperInclusive), Occur.SHOULD);
 				if ((upperVal != null && upperVal <= Integer.MAX_VALUE && upperVal >= Integer.MIN_VALUE)
@@ -445,14 +436,14 @@ public class DynamicSememeIndexer extends LuceneIndexer
 				}
 			}
 
-			if (fitsInInt || queryDataLower instanceof DynamicSememeIntegerBI || queryDataUpper instanceof DynamicSememeIntegerBI)
+			if (fitsInInt || queryDataLower instanceof DynamicSememeInteger || queryDataUpper instanceof DynamicSememeInteger)
 			{
 				Integer upperVal = (queryDataUpper == null ? null
-						: (queryDataUpper instanceof DynamicSememeIntegerBI ? ((DynamicSememeIntegerBI) queryDataUpper).getDataInteger()
+						: (queryDataUpper instanceof DynamicSememeInteger ? ((DynamicSememeInteger) queryDataUpper).getDataInteger()
 								: (fitsInInt && ((Number) queryDataUpper.getDataObject()).longValue() > Integer.MAX_VALUE ? Integer.MAX_VALUE
 										: ((Number) queryDataUpper.getDataObject()).intValue())));
 				Integer lowerVal = (queryDataLower == null ? null
-						: (queryDataLower instanceof DynamicSememeIntegerBI ? ((DynamicSememeIntegerBI) queryDataLower).getDataInteger()
+						: (queryDataLower instanceof DynamicSememeInteger ? ((DynamicSememeInteger) queryDataLower).getDataInteger()
 								: (fitsInInt && ((Number) queryDataLower.getDataObject()).longValue() < Integer.MIN_VALUE ? Integer.MIN_VALUE
 										: ((Number) queryDataLower.getDataObject()).intValue())));
 				bq.add(NumericRangeQuery.newIntRange(columnName, lowerVal, upperVal, queryDataLowerInclusive, queryDataUpperInclusive), Occur.SHOULD);

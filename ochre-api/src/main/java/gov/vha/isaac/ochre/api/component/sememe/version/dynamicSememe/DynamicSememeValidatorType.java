@@ -27,15 +27,8 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDoubleBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLongBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNidBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequenceBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.*;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
 import gov.vha.isaac.ochre.util.Interval;
@@ -51,30 +44,30 @@ import gov.vha.isaac.ochre.util.NumericUtils;
  * {@link DynamicSememeValidatorType#LESS_THAN_OR_EQUAL}
  * {@link DynamicSememeValidatorType#GREATER_THAN_OR_EQUAL}
  * 
- * are one of ( {@link DynamicSememeIntegerBI}, {@link DynamicSememeLongBI}, {@link DynamicSememeFloatBI}, {@link DynamicSememeDoubleBI})
+ * are one of ( {@link DynamicSememeInteger}, {@link DynamicSememeLong}, {@link DynamicSememeFloat}, {@link DynamicSememeDouble})
  * 
- * {@link DynamicSememeValidatorType#INTERVAL} - Should be a {@link DynamicSememeStringBI} with valid interval notation - such as "[4,6)"
+ * {@link DynamicSememeValidatorType#INTERVAL} - Should be a {@link DynamicSememeString} with valid interval notation - such as "[4,6)"
  * 
- * {@link DynamicSememeValidatorType#REGEXP} - Should be a {@link DynamicSememeStringBI} with valid regular expression, per 
+ * {@link DynamicSememeValidatorType#REGEXP} - Should be a {@link DynamicSememeString} with valid regular expression, per
  * http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
  * 
  * And for the following two:
  * {@link DynamicSememeValidatorType#IS_CHILD_OF}
  * {@link DynamicSememeValidatorType#IS_KIND_OF}
- * The validatorDefinitionData should be either an {@link DynamicSememeNidBI} or {@link DynamicSememeSequenceBI} or a {@link DynamicSememeUUIDBI}.
+ * The validatorDefinitionData should be either an {@link DynamicSememeNid} or {@link DynamicSememeSequence} or a {@link DynamicSememeUUID}.
  * 
- * For {@link DynamicSememeValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicSememeArrayBI<DynamicSememeStringBI>} 
+ * For {@link DynamicSememeValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicSememeArray <DynamicSememeString>}
  * where position 0 is a string constant parseable by {@link ObjectChronologyType#parse(String)}.  Postion 1 is optional, and is only applicable when 
  * position 0 is {@link ObjectChronologyType#SEMEME} - in which case - the value should be parsable by {@link SememeType#parse(String)}
  * 
- * For {@link DynamicSememeValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicSememeArrayBI<DynamicSememeStringBI>} 
- * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicSememeExternalValidatorBI} 
+ * For {@link DynamicSememeValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicSememeArray <DynamicSememeString>}
+ * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicSememeExternalValidator} 
  * the name that you provide should be the value of the '@Name' annotation within the class which implements the ExternalValidatorBI class.  
  * This code will request that implementation (by name) and pass the validation call to it.
  * 
- * Optionally, the validatorDefinitionData more that one {@link DynamicSememeStringBI} in the array - only the first position of the array 
+ * Optionally, the validatorDefinitionData more that one {@link DynamicSememeString} in the array - only the first position of the array
  * will be considered as the '@Name' to be used for the HK2 lookup.  All following data is ignored, and may be used by the external validator 
- * implementation to store other data.  For example, if the validatorDefinitionData {@link DynamicSememeArrayBI<DynamicSememeStringBI>}
+ * implementation to store other data.  For example, if the validatorDefinitionData {@link DynamicSememeArray <DynamicSememeString>}
  * contains an array of strings such as new String[]{"mySuperRefexValidator", "somespecialmappingdata", "some other mapping data"} 
  * then the following HK2 call will be made to locate the validator implementation (and validate):
  * <pre>
@@ -189,7 +182,7 @@ public enum DynamicSememeValidatorType
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean passesValidator(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate sc, TaxonomyCoordinate tc)
+	public boolean passesValidator(DynamicSememeData userData, DynamicSememeData validatorDefinitionData, StampCoordinate sc, TaxonomyCoordinate tc)
 	{
 		if (validatorDefinitionData == null)
 		{
@@ -197,20 +190,20 @@ public enum DynamicSememeValidatorType
 		}
 		if (this == DynamicSememeValidatorType.EXTERNAL)
 		{
-			DynamicSememeExternalValidatorBI validator = null;
-			DynamicSememeStringBI[] valNameInfo = null;
-			DynamicSememeArrayBI<DynamicSememeStringBI> stringValidatorDefData = null;
+			DynamicSememeExternalValidator validator = null;
+			DynamicSememeString[] valNameInfo = null;
+			DynamicSememeArray<DynamicSememeString> stringValidatorDefData = null;
 			String valName = null;
 			if (validatorDefinitionData != null)
 			{
-				stringValidatorDefData = (DynamicSememeArrayBI<DynamicSememeStringBI>)validatorDefinitionData;
+				stringValidatorDefData = (DynamicSememeArray<DynamicSememeString>)validatorDefinitionData;
 				valNameInfo = stringValidatorDefData.getDataArray();
 			}
 			if (valNameInfo != null && valNameInfo.length > 0)
 			{
 				valName = valNameInfo[0].getDataString();
 				logger.fine("Looking for an ExternalValidatorBI with the name of '" + valName + "'");
-				validator = LookupService.get().getService(DynamicSememeExternalValidatorBI.class, valName);
+				validator = LookupService.get().getService(DynamicSememeExternalValidator.class, valName);
 			}
 			else
 			{
@@ -230,7 +223,7 @@ public enum DynamicSememeValidatorType
 				{
 					return false;
 				}
-				return Pattern.matches(((DynamicSememeStringBI)validatorDefinitionData).getDataString(), userData.getDataObject().toString());
+				return Pattern.matches(((DynamicSememeString)validatorDefinitionData).getDataString(), userData.getDataObject().toString());
 			}
 			catch (Exception e)
 			{
@@ -244,34 +237,34 @@ public enum DynamicSememeValidatorType
 				int childNid;
 				int parentNid;
 
-				if (userData instanceof DynamicSememeUUIDBI)
+				if (userData instanceof DynamicSememeUUID)
 				{
-					childNid = Get.identifierService().getNidForUuids(((DynamicSememeUUIDBI) userData).getDataUUID());
+					childNid = Get.identifierService().getNidForUuids(((DynamicSememeUUID) userData).getDataUUID());
 				}
-				else if (userData instanceof DynamicSememeNidBI)
+				else if (userData instanceof DynamicSememeNid)
 				{
-					childNid = ((DynamicSememeNidBI) userData).getDataNid();
+					childNid = ((DynamicSememeNid) userData).getDataNid();
 				}
-				else if (userData instanceof DynamicSememeSequenceBI)
+				else if (userData instanceof DynamicSememeSequence)
 				{
-					childNid = ((DynamicSememeSequenceBI) userData).getDataSequence();
+					childNid = ((DynamicSememeSequence) userData).getDataSequence();
 				}
 				else
 				{
 					throw new RuntimeException("Userdata is invalid for a IS_CHILD_OF or IS_KIND_OF comparison");
 				}
 
-				if (validatorDefinitionData instanceof DynamicSememeUUIDBI)
+				if (validatorDefinitionData instanceof DynamicSememeUUID)
 				{
-					parentNid = Get.identifierService().getNidForUuids(((DynamicSememeUUIDBI) validatorDefinitionData).getDataUUID());
+					parentNid = Get.identifierService().getNidForUuids(((DynamicSememeUUID) validatorDefinitionData).getDataUUID());
 				}
-				else if (validatorDefinitionData instanceof DynamicSememeNidBI)
+				else if (validatorDefinitionData instanceof DynamicSememeNid)
 				{
-					parentNid = ((DynamicSememeNidBI) validatorDefinitionData).getDataNid();
+					parentNid = ((DynamicSememeNid) validatorDefinitionData).getDataNid();
 				}
-				else if (userData instanceof DynamicSememeSequenceBI)
+				else if (userData instanceof DynamicSememeSequence)
 				{
-					parentNid = ((DynamicSememeSequenceBI) validatorDefinitionData).getDataSequence();
+					parentNid = ((DynamicSememeSequence) validatorDefinitionData).getDataSequence();
 				}
 				else
 				{
@@ -293,9 +286,9 @@ public enum DynamicSememeValidatorType
 			try
 			{
 				int nid;
-				if (userData instanceof DynamicSememeUUIDBI)
+				if (userData instanceof DynamicSememeUUID)
 				{
-					DynamicSememeUUIDBI uuid = (DynamicSememeUUIDBI) userData;
+					DynamicSememeUUID uuid = (DynamicSememeUUID) userData;
 					if (!Get.identifierService().hasUuid(uuid.getDataUUID()))
 					{
 						throw new RuntimeException("The specified UUID can not be found in the database, so the validator cannot execute");
@@ -305,9 +298,9 @@ public enum DynamicSememeValidatorType
 						nid = Get.identifierService().getNidForUuids(uuid.getDataUUID());
 					}
 				}
-				else if (userData instanceof DynamicSememeNidBI)
+				else if (userData instanceof DynamicSememeNid)
 				{
-					nid = ((DynamicSememeNidBI) userData).getDataNid();
+					nid = ((DynamicSememeNid) userData).getDataNid();
 				}
 				else
 				{
@@ -315,7 +308,7 @@ public enum DynamicSememeValidatorType
 				}
 				
 				//Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) SememeType of the assemblage restriction
-				DynamicSememeStringBI[] valData = ((DynamicSememeArrayBI<DynamicSememeStringBI>)validatorDefinitionData).getDataArray();
+				DynamicSememeString[] valData = ((DynamicSememeArray<DynamicSememeString>)validatorDefinitionData).getDataArray();
 				
 				ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString());
 				ObjectChronologyType component = Get.identifierService().getChronologyTypeForNid(nid); 
@@ -415,7 +408,7 @@ public enum DynamicSememeValidatorType
 	 * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
 	 * @return - empty string if valid, an error message otherwise.
 	 */
-	public String passesValidatorStringReturn(DynamicSememeDataBI userData, DynamicSememeDataBI validatorDefinitionData, StampCoordinate sc, TaxonomyCoordinate tc)
+	public String passesValidatorStringReturn(DynamicSememeData userData, DynamicSememeData validatorDefinitionData, StampCoordinate sc, TaxonomyCoordinate tc)
 	{
 		try
 		{

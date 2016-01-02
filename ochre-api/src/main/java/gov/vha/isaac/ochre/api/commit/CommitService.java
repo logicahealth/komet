@@ -20,10 +20,13 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.externalizable.StampAlias;
+import gov.vha.isaac.ochre.api.externalizable.StampComment;
 
 import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -37,15 +40,25 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface CommitService {
 
+    /**
+     * STAMP sequences start at 1, in part to ensure that uninitialized values (a zero by default) are
+     * not treated as valid stamp sequences.
+     */
+    static final int FIRST_STAMP_SEQUENCE = 1;
+
 	// should the change set get generated here?
 
 	void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
 
 	int[] getAliases(int stampSequence);
+        
+                  Stream<StampAlias> getStampAliasStream();
 
 	void setComment(int stampSequence, String comment);
 
 	Optional<String> getComment(int stampSequence);
+        
+                  Stream<StampComment> getStampCommentStream();
 
 	Task<Void> addUncommitted(ConceptChronology<?> cc);
 

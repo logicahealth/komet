@@ -28,6 +28,5 @@ import org.jvnet.hk2.annotations.Contract;
 public interface IdentifiedObjectService {
     
     Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid);
-    
-    CharSequence informAboutObject(int nid);
+
 }

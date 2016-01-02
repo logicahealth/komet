@@ -19,9 +19,10 @@ import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
+import gov.vha.isaac.ochre.api.externalizable.StampAlias;
+import gov.vha.isaac.ochre.api.externalizable.StampComment;
 import gov.vha.isaac.ochre.api.task.TimedTaskWithProgressTracker;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
-import gov.vha.isaac.ochre.model.data.CommitRecordImpl;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -102,14 +103,17 @@ public class BinaryDataReaderProvider
                 buffer.setExternalData(true);
                 buffer.setObjectDataFormatVersion(dataFormatVersion);
                 switch (type) {
-                    case COMMIT_RECORD:
-                       action.accept(new CommitRecordImpl(dataFormatVersion, buffer));
-                       break;
                     case CONCEPT:
                         action.accept(ConceptChronologyImpl.make(buffer));
                        break;
                     case SEMEME:
                         action.accept(SememeChronologyImpl.make(buffer));
+                       break;
+                   case STAMP_ALIAS:
+                       action.accept(new StampAlias(buffer));
+                       break;
+                    case STAMP_COMMENT:
+                       action.accept(new StampComment(buffer));
                        break;
                     default:
                         throw new UnsupportedOperationException("Can't handle: " + type);
@@ -137,7 +141,7 @@ public class BinaryDataReaderProvider
 
     @Override
     public int characteristics() {
-        return IMMUTABLE + NONNULL;
+        return IMMUTABLE | NONNULL;
     }
 
 }
