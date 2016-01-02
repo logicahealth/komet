@@ -256,7 +256,7 @@ public class CommitProvider implements CommitService {
     }
 
     @Override
-    public String getTextSummary() {
+    public String getUncommittedComponentTextSummary() {
         StringBuilder builder = new StringBuilder("CommitProvider summary: ");
         builder.append("\nnextStamp: ").append(nextStampSequence);
         builder.append("\nuncommitted concepts with checks: ").append(uncommittedConceptsWithChecksSequenceSet);

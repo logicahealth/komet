@@ -225,13 +225,39 @@ public interface CommitService {
 	 */
 	int getActivatedStampSequence(int stampSequence);
 
+	/**
+	 * An idempotent operation to return a sequence that uniquely identified by this combination of
+	 * status, time, author, module, and path (STAMP). If an existing sequence has this combination,
+	 * that existing sequence will be returned. If no sequence has this combination, a new sequence
+	 * will be created and returned.
+	 * @param status
+	 * @param time
+	 * @param authorSequence
+	 * @param moduleSequence
+	 * @param pathSequence
+     * @return the stampSequence
+     */
 	int getStampSequence(State status, long time,
 			  int authorSequence, int moduleSequence, int pathSequence);
 
+	/**
+	 *
+	 * @param stampSequence
+	 * @return a textual representation of the stamp sequence.
+     */
 	String describeStampSequence(int stampSequence);
 
+	/**
+	 *
+	 * @return an IntStream of all stamp sequences known to the commit service.
+     */
 	IntStream getStampSequences();
 
+	/**
+	 *
+	 * @param stampSequence
+	 * @return the Instant represented by this stampSequence
+     */
 	default Instant getInstantForStamp(int stampSequence) {
 		return Instant.ofEpochMilli(getTimeForStamp(stampSequence));
 	}
@@ -252,5 +278,5 @@ public interface CommitService {
 	 * 
 	 * @return a summary of the uncommitted components being managed by the commit manager. 
 	 */
-	String getTextSummary();
+	String getUncommittedComponentTextSummary();
 }
