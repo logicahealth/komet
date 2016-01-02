@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.util;
+package gov.vha.isaac.ochre.api.util;
 
 import java.io.File;
 import java.io.InputStream;

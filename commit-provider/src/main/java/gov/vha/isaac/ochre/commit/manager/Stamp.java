@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import org.apache.mahout.math.set.AbstractIntSet;
-import gov.vha.isaac.ochre.util.Hashcode;
+import gov.vha.isaac.ochre.api.util.Hashcode;
 
 public class Stamp implements Comparable<Stamp>  {
    public int   hashCode = Integer.MAX_VALUE;

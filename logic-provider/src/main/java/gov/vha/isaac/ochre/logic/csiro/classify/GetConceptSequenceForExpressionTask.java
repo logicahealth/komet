@@ -33,7 +33,7 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.model.sememe.version.LogicGraphSememeImpl;
-import gov.vha.isaac.ochre.util.WorkExecutors;
+import gov.vha.isaac.ochre.api.util.WorkExecutors;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;

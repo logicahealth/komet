@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>gov.vha.isaac.ochre</groupId>
-        <artifactId>ochre-parent</artifactId>
-        <version>2.35-SNAPSHOT</version>
+        <artifactId>isaac-parent</artifactId>
+        <version>3.01-SNAPSHOT</version>
     </parent>
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>logic-provider</artifactId>
@@ -26,12 +26,10 @@
             <artifactId>snorocket-core</artifactId>
             <version>2.7.5</version>
         </dependency>
-
-        <dependency>
+        <dependency> <!-- Dan is working with the author of this, trying get it release to central.... -->
             <groupId>se.liu.imt.mi.snomedct</groupId>
             <artifactId>SnomedCTParser</artifactId>
             <version>0.0.3</version>
         </dependency>
-		
     </dependencies>
 </project>

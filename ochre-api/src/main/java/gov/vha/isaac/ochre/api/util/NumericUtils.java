@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.util;
+package gov.vha.isaac.ochre.api.util;
 
 import java.math.BigDecimal;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;

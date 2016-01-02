@@ -85,9 +85,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.api.index.IndexedGenerationCallable;
 import gov.vha.isaac.ochre.api.index.SearchResult;
-import gov.vha.isaac.ochre.util.NamedThreadFactory;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
-import gov.vha.isaac.ochre.util.WorkExecutors;
+import gov.vha.isaac.ochre.api.util.NamedThreadFactory;
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
+import gov.vha.isaac.ochre.api.util.WorkExecutors;
 
 // See example for help with the Controlled Real-time indexing...
 // http://stackoverflow.com/questions/17993960/lucene-4-4-0-new-controlledrealtimereopenthread-sample-usage?answertab=votes#tab-top

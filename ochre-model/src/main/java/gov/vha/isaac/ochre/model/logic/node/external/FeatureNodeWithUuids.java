@@ -17,7 +17,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.UUID;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 
 /**
  *

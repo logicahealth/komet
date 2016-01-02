@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.model.observable;
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import static gov.vha.isaac.ochre.api.component.concept.ConceptSpecification.FIELD_SEPARATOR;
-import gov.vha.isaac.ochre.util.UuidT5Generator;
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;

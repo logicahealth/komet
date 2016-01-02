@@ -30,7 +30,7 @@ import gov.vha.isaac.ochre.api.commit.Alert;
 import gov.vha.isaac.ochre.api.commit.ChangeChecker;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.util.NamedThreadFactory;
+import gov.vha.isaac.ochre.api.util.NamedThreadFactory;
 import javafx.concurrent.Task;
 
 /**

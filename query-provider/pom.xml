@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>gov.vha.isaac.ochre</groupId>
-        <artifactId>ochre-parent</artifactId>
-        <version>2.35-SNAPSHOT</version>
+        <artifactId>isaac-parent</artifactId>
+        <version>3.01-SNAPSHOT</version>
     </parent>
     <groupId>gov.vha.isaac.ochre.modules</groupId>
     <artifactId>query-provider</artifactId>
     <packaging>jar</packaging>
     <name>OCHRE: Query provider</name>
     <properties>
-       <org.apache.lucene.version>4.10.3</org.apache.lucene.version>        
+       <org.apache.lucene.version>4.10.3</org.apache.lucene.version>
     </properties>
     <dependencies>
         <dependency>

@@ -34,7 +34,7 @@ import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataServiceFactory;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
-import gov.vha.isaac.ochre.util.WorkExecutors;
+import gov.vha.isaac.ochre.api.util.WorkExecutors;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Arrays;

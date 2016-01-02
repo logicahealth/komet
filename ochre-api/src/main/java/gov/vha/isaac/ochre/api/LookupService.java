@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.api;
 
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
 import gov.vha.isaac.ochre.api.constants.Constants;
-import gov.vha.isaac.ochre.util.HeadlessToolkit;
+import gov.vha.isaac.ochre.api.util.HeadlessToolkit;
 import java.awt.GraphicsEnvironment;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;

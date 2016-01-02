@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package gov.vha.isaac.ochre.util;
+package gov.vha.isaac.ochre.api.util;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
