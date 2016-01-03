@@ -73,6 +73,6 @@ public class StampSequenceSet extends SequenceSet<StampSequenceSet> {
 
 	@Override
 	public String toString() {
-		return toString((stampSequence) -> Get.commitService().describeStampSequence(stampSequence));
+		return toString((stampSequence) -> Get.stampService().describeStampSequence(stampSequence));
 	}
 }

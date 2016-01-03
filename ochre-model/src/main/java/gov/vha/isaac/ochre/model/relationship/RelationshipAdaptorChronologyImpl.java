@@ -47,7 +47,7 @@ public class RelationshipAdaptorChronologyImpl
 
     private final long primordialUuidMsb;
     /**
-     * Primoridal uuid least significant bits for this component
+     * Primordial uuid least significant bits for this component
      */
     private final long primordialUuidLsb;
 

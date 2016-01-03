@@ -34,249 +34,158 @@ import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
- *
  * @author kec
  */
 @Contract
 public interface CommitService {
 
+    // should the change set get generated here?
+
+    void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
+
+    int[] getAliases(int stampSequence);
+
+    Stream<StampAlias> getStampAliasStream();
+
+    void setComment(int stampSequence, String comment);
+
+    Optional<String> getComment(int stampSequence);
+
+    Stream<StampComment> getStampCommentStream();
+
+    Task<Void> addUncommitted(ConceptChronology<?> cc);
+
+    Task<Void> addUncommittedNoChecks(ConceptChronology<?> cc);
+
+    Task<Void> addUncommitted(SememeChronology<?> sc);
+
+    Task<Void> addUncommittedNoChecks(SememeChronology<?> sc);
+
     /**
-     * STAMP sequences start at 1, in part to ensure that uninitialized values (a zero by default) are
-     * not treated as valid stamp sequences.
+     * Cancels all pending changes using the default EditCoordinate. The caller
+     * may chose to block on the returned task if synchronous operation is
+     * desired.
+     *
+     * @return task representing the cancel.
+     * @deprecated use corresponding method that specifies the edit coordinate.
      */
-    static final int FIRST_STAMP_SEQUENCE = 1;
+    @Deprecated
+    Task<Void> cancel();
 
-	// should the change set get generated here?
-
-	void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
-
-	int[] getAliases(int stampSequence);
-        
-                  Stream<StampAlias> getStampAliasStream();
-
-	void setComment(int stampSequence, String comment);
-
-	Optional<String> getComment(int stampSequence);
-        
-                  Stream<StampComment> getStampCommentStream();
-
-	Task<Void> addUncommitted(ConceptChronology<?> cc);
-
-	Task<Void> addUncommittedNoChecks(ConceptChronology<?> cc);
-
-	Task<Void> addUncommitted(SememeChronology<?> sc);
-
-	Task<Void> addUncommittedNoChecks(SememeChronology<?> sc);
-
-	/**
-	 * Cancels all pending changes using the default EditCoordinate. The caller
-	 * may chose to block on the returned task if synchronous operation is
-	 * desired.
-	 *
-	 * @return task representing the cancel.
-	 * @deprecated use corresponding method that specifies the edit coordinate.
-	 */
-	@Deprecated
-	Task<Void> cancel();
-
-	/**
-	 * Cancels all pending changes using the default EditCoordinate. The caller
-	 * may chose to block on the returned task if synchronous operation is
-	 * desired.
-	 *
-	 * @param chronicledConcept the concept to cancel changes upon.
-	 * @return task representing the cancel.
-	 * @deprecated use corresponding method that specifies the edit coordinate.
-	 */
-	@Deprecated
-	Task<Void> cancel(ConceptChronology<?> chronicledConcept);
-
-	/**
-	 *
-	 * Cancels all pending changes using the default EditCoordinate. The caller
-	 * may chose to block on the returned task if synchronous operation is
-	 * desired.
-	 *
-	 * @param sememeChronicle the sememe to cancel changes upon.
-	 * @return task representing the cancel.
-	 * @deprecated use corresponding method that specifies the edit coordinate.
-	 */
-	@Deprecated
-	Task<Void> cancel(SememeChronology<?> sememeChronicle);
-
-	/**
-	 * Cancels all pending changes using the provided EditCoordinate. The caller
-	 * may chose to block on the returned task if synchronous operation is
-	 * desired.
-	 *
-	 * @param editCoordinate the edit coordinate to determine which changes to
-	 * cancel.
-	 * @return task representing the cancel.
-	 */
-	Task<Void> cancel(EditCoordinate editCoordinate);
-
-	/**
-	 * Cancels all pending changes using the provided EditCoordinate. The caller
-	 * may chose to block on the returned task if synchronous operation is
-	 * desired.
-	 *
-	 * @param chronicle the chronicle to cancel changes upon.
-	 * @param editCoordinate the edit coordinate to determine which changes to
-	 * cancel.
-	 * @return task representing the cancel.
-	 */
-	Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate);
-
-	/**
-	 * Commit all pending changes for the provided EditCoordinate. The caller may
-	 * chose to block on the returned task if synchronous operation is desired.
-	 *
-	 * @param commitComment comment to associate with the commit.
-	 * @param editCoordinate the edit coordinate to determine which changes to
-	 * commit.
-	 * @return task representing the cancel.
-	 */
-	Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment);
-
-	/**
-	 * Commit all pending changes for the provided EditCoordinate. The caller may
-	 * chose to block on the returned task if synchronous operation is desired.
-	 *
-	 * @param chronicle
-	 * @param commitComment comment to associate with the commit.
-	 * @param editCoordinate the edit coordinate to determine which changes to
-	 * commit.
-	 * @return task representing the cancel.
-	 */
-	Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle, EditCoordinate editCoordinate, String commitComment);
-
-	/**
-	 *
-	 * @param commitComment
-	 * @return
-	 * @deprecated use corresponding method that specifies the edit coordinate.
-	 */
-	@Deprecated
-	Task<Optional<CommitRecord>> commit(String commitComment);
-
-	/**
-	 *
-	 * @param chronicledConcept
-	 * @param commitComment
-	 * @return
-	 * @deprecated use corresponding method that specifies the edit coordinate.
-	 */
-	@Deprecated
-	Task<Optional<CommitRecord>> commit(ConceptChronology<?> chronicledConcept, String commitComment);
-
-	/**
-	 *
-	 * @param sememeChronicle
-	 * @param commitComment
-	 * @return
-	 * @deprecated use corresponding method that specifies the edit coordinate.
-	 */
-	@Deprecated
-	Task<Optional<CommitRecord>> commit(SememeChronology<?> sememeChronicle, String commitComment);
-
-	ObservableList<Integer> getUncommittedConceptNids();
-
-	ObservableList<Alert> getAlertList();
-
-	void addChangeChecker(ChangeChecker checker);
-
-	void removeChangeChecker(ChangeChecker checker);
-
-	void addChangeListener(ChronologyChangeListener changeListener);
-
-	void removeChangeListener(ChronologyChangeListener changeListener);
-
-	long getCommitManagerSequence();
-
-	long incrementAndGetSequence();
-
-	int getAuthorSequenceForStamp(int stampSequence);
-
-	int getModuleSequenceForStamp(int stampSequence);
-
-	int getPathSequenceForStamp(int stampSequence);
-
-	State getStatusForStamp(int stampSequence);
-
-	long getTimeForStamp(int stampSequence);
-
-	boolean isNotCanceled(int stampSequence);
-
-	boolean isUncommitted(int stampSequence);
-
-	/**
-	 *
-	 * @param stampSequence a stamp sequence to create an analog of
-	 * @return a stampSequence with a State of {@link State#INACTIVE}, but the
-	 * same time, author, module, and path as the provided stamp sequence.
-	 */
-	int getRetiredStampSequence(int stampSequence);
-
-	/**
-	 *
-	 * @param stampSequence a stamp sequence to create an analog of
-	 * @return a stampSequence with a State of {@link State#ACTIVE}, but the same
-	 * time, author, module, and path as the provided stamp sequence.
-	 */
-	int getActivatedStampSequence(int stampSequence);
-
-	/**
-	 * An idempotent operation to return a sequence that uniquely identified by this combination of
-	 * status, time, author, module, and path (STAMP). If an existing sequence has this combination,
-	 * that existing sequence will be returned. If no sequence has this combination, a new sequence
-	 * will be created and returned.
-	 * @param status
-	 * @param time
-	 * @param authorSequence
-	 * @param moduleSequence
-	 * @param pathSequence
-     * @return the stampSequence
+    /**
+     * Cancels all pending changes using the default EditCoordinate. The caller
+     * may chose to block on the returned task if synchronous operation is
+     * desired.
+     *
+     * @param chronicledConcept the concept to cancel changes upon.
+     * @return task representing the cancel.
+     * @deprecated use corresponding method that specifies the edit coordinate.
      */
-	int getStampSequence(State status, long time,
-			  int authorSequence, int moduleSequence, int pathSequence);
+    @Deprecated
+    Task<Void> cancel(ConceptChronology<?> chronicledConcept);
 
-	/**
-	 *
-	 * @param stampSequence
-	 * @return a textual representation of the stamp sequence.
+    /**
+     * Cancels all pending changes using the default EditCoordinate. The caller
+     * may chose to block on the returned task if synchronous operation is
+     * desired.
+     *
+     * @param sememeChronicle the sememe to cancel changes upon.
+     * @return task representing the cancel.
+     * @deprecated use corresponding method that specifies the edit coordinate.
      */
-	String describeStampSequence(int stampSequence);
+    @Deprecated
+    Task<Void> cancel(SememeChronology<?> sememeChronicle);
 
-	/**
-	 *
-	 * @return an IntStream of all stamp sequences known to the commit service.
+    /**
+     * Cancels all pending changes using the provided EditCoordinate. The caller
+     * may chose to block on the returned task if synchronous operation is
+     * desired.
+     *
+     * @param editCoordinate the edit coordinate to determine which changes to
+     *                       cancel.
+     * @return task representing the cancel.
      */
-	IntStream getStampSequences();
+    Task<Void> cancel(EditCoordinate editCoordinate);
 
-	/**
-	 *
-	 * @param stampSequence
-	 * @return the Instant represented by this stampSequence
+    /**
+     * Cancels all pending changes using the provided EditCoordinate. The caller
+     * may chose to block on the returned task if synchronous operation is
+     * desired.
+     *
+     * @param chronicle      the chronicle to cancel changes upon.
+     * @param editCoordinate the edit coordinate to determine which changes to
+     *                       cancel.
+     * @return task representing the cancel.
      */
-	default Instant getInstantForStamp(int stampSequence) {
-		return Instant.ofEpochMilli(getTimeForStamp(stampSequence));
-	}
+    Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate);
 
-	/**
-	 * Use to compare if versions may be unnecessary duplicates. If their content
-	 * is equal, see if their stampSequences indicate a semantic difference
-	 * (change in status, module, or path).
-	 *
-	 * @param stampSequence1
-	 * @param stampSequence2
-	 * @return true if stampSequences are equal without considering the author
-	 * and time.
-	 */
-	boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2);
+    /**
+     * Commit all pending changes for the provided EditCoordinate. The caller may
+     * chose to block on the returned task if synchronous operation is desired.
+     *
+     * @param commitComment  comment to associate with the commit.
+     * @param editCoordinate the edit coordinate to determine which changes to
+     *                       commit.
+     * @return task representing the cancel.
+     */
+    Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment);
 
-	/**
-	 * 
-	 * @return a summary of the uncommitted components being managed by the commit manager. 
-	 */
-	String getUncommittedComponentTextSummary();
+    /**
+     * Commit all pending changes for the provided EditCoordinate. The caller may
+     * chose to block on the returned task if synchronous operation is desired.
+     *
+     * @param chronicle
+     * @param commitComment  comment to associate with the commit.
+     * @param editCoordinate the edit coordinate to determine which changes to
+     *                       commit.
+     * @return task representing the cancel.
+     */
+    Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle, EditCoordinate editCoordinate, String commitComment);
+
+    /**
+     * @param commitComment
+     * @return
+     * @deprecated use corresponding method that specifies the edit coordinate.
+     */
+    @Deprecated
+    Task<Optional<CommitRecord>> commit(String commitComment);
+
+    /**
+     * @param chronicledConcept
+     * @param commitComment
+     * @return
+     * @deprecated use corresponding method that specifies the edit coordinate.
+     */
+    @Deprecated
+    Task<Optional<CommitRecord>> commit(ConceptChronology<?> chronicledConcept, String commitComment);
+
+    /**
+     * @param sememeChronicle
+     * @param commitComment
+     * @return
+     * @deprecated use corresponding method that specifies the edit coordinate.
+     */
+    @Deprecated
+    Task<Optional<CommitRecord>> commit(SememeChronology<?> sememeChronicle, String commitComment);
+
+    ObservableList<Integer> getUncommittedConceptNids();
+
+    ObservableList<Alert> getAlertList();
+
+    void addChangeChecker(ChangeChecker checker);
+
+    void removeChangeChecker(ChangeChecker checker);
+
+    void addChangeListener(ChronologyChangeListener changeListener);
+
+    void removeChangeListener(ChronologyChangeListener changeListener);
+
+    long getCommitManagerSequence();
+
+    long incrementAndGetSequence();
+
+    /**
+     * @return a summary of the uncommitted components being managed by the commit manager.
+     */
+    String getUncommittedComponentTextSummary();
 }

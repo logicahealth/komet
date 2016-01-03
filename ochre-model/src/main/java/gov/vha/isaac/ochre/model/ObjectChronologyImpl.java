@@ -169,8 +169,8 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         this.primordialUuidMsb = data.getLong();
         this.primordialUuidLsb = data.getLong();
         getAdditionalUuids(data);
-        this.nid = data.getNid();
         if (data.isExternalData()) {
+            this.nid = Get.identifierService().getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
             if (this instanceof ConceptChronologyImpl) {
                 this.containerSequence = Get.identifierService().getConceptSequence(nid);
             } else if (this instanceof SememeChronologyImpl) {
@@ -181,6 +181,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             getAdditionalChronicleFields(data);
             readVersionList(data);
         } else {
+            this.nid = data.getNid();
             this.containerSequence = data.getInt();
             this.versionSequence = data.getShort();
             getAdditionalChronicleFields(data);
@@ -240,9 +241,9 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             LongStream.of(additionalUuidParts).forEach(
                     (uuidPart) -> data.putLong(uuidPart));
         }
-        data.putInt(nid);
 
         if (!data.isExternalData()) {
+            data.putInt(nid);
             data.putInt(containerSequence);
             data.putShort(versionSequence);
         }
@@ -350,7 +351,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     private void writeIfNotCanceled(ByteArrayDataBuffer db, V version, int stampSequenceForVersion) {
-        if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+        if (Get.stampService().isNotCanceled(stampSequenceForVersion)) {
             int startWritePosition = db.getPosition();
             db.putInt(0); // placeholder for length
             version.writeVersionData(db);
@@ -377,7 +378,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         if (unwrittenData != null) {
             unwrittenData.values().forEach((version) -> {
                 int stampSequenceForVersion = version.getStampSequence();
-                if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                if (Get.stampService().isNotCanceled(stampSequenceForVersion)) {
                     writtenStamps.add(stampSequenceForVersion);
                     int startWritePosition = db.getPosition();
                     db.putInt(0); // placeholder for length
@@ -418,7 +419,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             if (versionLength > 0) {
                 int stampSequenceForVersion = writtenBuffer.getInt();
                 if ((!writtenStamps.contains(stampSequenceForVersion))
-                        && Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                        && Get.stampService().isNotCanceled(stampSequenceForVersion)) {
                     writtenStamps.add(stampSequenceForVersion);
                     db.append(writtenBuffer, nextPosition, versionLength);
                 }
@@ -461,9 +462,9 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 int versionLength = bb.getInt();
                 if (versionLength > 0) {
                     nextPosition = nextPosition + versionLength;
-                    int stampSequence = bb.getInt();
+                    int stampSequence = bb.getStampSequence();
                     if (stampSequence >= 0) {
-                        unwrittenData.put(stampSequence, makeVersion(stampSequence, bb));
+                        addVersion(makeVersion(stampSequence, bb));
                     }
                 } else {
                     nextPosition = Integer.MAX_VALUE;
@@ -572,7 +573,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     @Override
     public CommitStates getCommitState() {
         if (getVersionStampSequences().anyMatch((stampSequence)
-                -> Get.commitService().isUncommitted(stampSequence))) {
+                -> Get.stampService().isUncommitted(stampSequence))) {
             return CommitStates.UNCOMMITTED;
         }
         return CommitStates.COMMITTED;
@@ -796,4 +797,24 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         return sortedLogicGraphs.stream().collect(Collectors.toList());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ObjectChronologyImpl<?> that = (ObjectChronologyImpl<?>) o;
+
+        if (nid != that.nid) return false;
+        List<? extends V> versionList = getVersionList();
+        if (versionList.size() != that.getVersionList().size()) {
+            return false;
+        }
+        return StampSequenceSet.of(getVersionStampSequences()).equals(
+                StampSequenceSet.of(that.getVersionStampSequences()));
+    }
+
+    @Override
+    public int hashCode() {
+        return nid;
+    }
 }

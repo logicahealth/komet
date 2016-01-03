@@ -9,19 +9,10 @@ package gov.vha.isaac.ochre.commit.manager;
 import gov.vha.isaac.ochre.api.ConfigurationService;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.SystemStatusService;
-import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.commit.*;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.commit.Alert;
-import gov.vha.isaac.ochre.api.commit.AlertType;
-import gov.vha.isaac.ochre.api.commit.ChangeChecker;
-import gov.vha.isaac.ochre.api.commit.CheckPhase;
-import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
-import gov.vha.isaac.ochre.api.commit.CommitRecord;
-import gov.vha.isaac.ochre.api.commit.CommitService;
-import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.task.SequentialAggregateTask;
@@ -51,23 +42,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -83,7 +69,7 @@ import org.jvnet.hk2.annotations.Service;
  *
  * @author kec
  */
-@Service(name = "Cradle Commit Provider")
+@Service(name = "Commit Provider")
 @RunLevel(value = 1)
 public class CommitProvider implements CommitService {
 
@@ -98,7 +84,6 @@ public class CommitProvider implements CommitService {
 
     private final Path dbFolderPath;
     private final Path commitManagerFolder;
-    private final ReentrantLock stampLock = new ReentrantLock();
     private final ReentrantLock uncommittedSequenceLock = new ReentrantLock();
 
     private final AtomicReference<Semaphore> writePermitReference
@@ -122,13 +107,7 @@ public class CommitProvider implements CommitService {
      */
     private final ConcurrentSkipListSet<Alert> alertCollection = new ConcurrentSkipListSet<>();
 
-    /**
-     * TODO: persist across restarts.
-     */
-    private static final Map<UncommittedStamp, Integer> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP
-            = new ConcurrentHashMap<>();
-
-    /**
+     /**
      * Persistent map of a stamp aliases to a sequence
      */
     private final StampAliasMap stampAliasMap = new StampAliasMap();
@@ -136,10 +115,7 @@ public class CommitProvider implements CommitService {
      * Persistent map of comments to a stamp.
      */
     private final StampCommentMap stampCommentMap = new StampCommentMap();
-    /**
-     * Persistent map of stamp sequences to a Stamp object.
-     */
-    private final ConcurrentObjectIntMap<Stamp> stampMap = new ConcurrentObjectIntMap<>();
+
     /**
      * Persistent sequence of database commit actions
      */
@@ -147,13 +123,6 @@ public class CommitProvider implements CommitService {
     /**
      * Persistent stamp sequence
      */
-    private final AtomicInteger nextStampSequence = new AtomicInteger(FIRST_STAMP_SEQUENCE);
-
-    /**
-     * Persistent as a result of reading and writing the stampMap.
-     */
-    private final ConcurrentSequenceSerializedObjectMap<Stamp> inverseStampMap;
-
     private final ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet = ConceptSequenceSet.concurrent();
     private final ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet = ConceptSequenceSet.concurrent();
     private final SememeSequenceSet uncommittedSememesWithChecksSequenceSet = SememeSequenceSet.concurrent();
@@ -164,8 +133,6 @@ public class CommitProvider implements CommitService {
             dbFolderPath = LookupService.getService(ConfigurationService.class).getChronicleFolderPath().resolve("commit-provider");
             loadRequired.set(Files.exists(dbFolderPath));
             Files.createDirectories(dbFolderPath);
-            inverseStampMap = new ConcurrentSequenceSerializedObjectMap<>(new StampSerializer(),
-                    dbFolderPath, null, null);
             commitManagerFolder = dbFolderPath.resolve(DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER);
             Files.createDirectories(commitManagerFolder);
         } catch (Exception e) {
@@ -177,32 +144,19 @@ public class CommitProvider implements CommitService {
     @PostConstruct
     private void startMe() throws IOException {
         try {
-            LOG.info("Starting CradleCommitManager post-construct");
+            LOG.info("Starting CommitProvider post-construct");
             writeConceptCompletionServicePool.submit(writeConceptCompletionService);
             writeSememeCompletionServicePool.submit(writeSememeCompletionService);
             if (loadRequired.get()) {
                 LOG.info("Reading existing commit manager data. ");
                 LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
                 try (DataInputStream in = new DataInputStream(new FileInputStream(new File(commitManagerFolder.toFile(), COMMIT_MANAGER_DATA_FILENAME)))) {
-                    nextStampSequence.set(in.readInt());
                     databaseSequence.set(in.readLong());
                     UuidIntMapMap.getNextNidProvider().set(in.readInt());
-                    int stampMapSize = in.readInt();
-                    for (int i = 0; i < stampMapSize; i++) {
-                        int stampSequence = in.readInt();
-                        Stamp stamp = new Stamp(in);
-                        stampMap.put(stamp, stampSequence);
-                        inverseStampMap.put(stampSequence, stamp);
-                    }
                     uncommittedConceptsWithChecksSequenceSet.read(in);
                     uncommittedConceptsNoChecksSequenceSet.read(in);
                     uncommittedSememesWithChecksSequenceSet.read(in);
                     uncommittedSememesNoChecksSequenceSet.read(in);
-
-                    int uncommittedSize = in.readInt();
-                    for (int i = 0; i < uncommittedSize; i++) {
-                        UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.put(new UncommittedStamp(in), in.readInt());
-                    }
                 }
 
                 LOG.info("Reading: " + STAMP_ALIAS_MAP_FILENAME);
@@ -219,38 +173,21 @@ public class CommitProvider implements CommitService {
 
     @PreDestroy
     private void stopMe() throws IOException {
-        LOG.info("Stopping CradleCommitManager pre-destroy. ");
+        LOG.info("Stopping CommitProvider pre-destroy. ");
         writeConceptCompletionService.cancel();
         writeSememeCompletionService.cancel();
         stampAliasMap.write(new File(commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
         stampCommentMap.write(new File(commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
 
         try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(commitManagerFolder.toFile(), COMMIT_MANAGER_DATA_FILENAME)))) {
-            out.writeInt(nextStampSequence.get());
             out.writeLong(databaseSequence.get());
             out.writeInt(UuidIntMapMap.getNextNidProvider().get());
-            out.writeInt(stampMap.size());
-            stampMap.forEachPair((Stamp stamp, int stampSequence) -> {
-                try {
-                    out.writeInt(stampSequence);
-                    stamp.write(out);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            });
 
             uncommittedConceptsWithChecksSequenceSet.write(out);
             uncommittedConceptsNoChecksSequenceSet.write(out);
             uncommittedSememesWithChecksSequenceSet.write(out);
             uncommittedSememesNoChecksSequenceSet.write(out);
 
-            int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.size();
-            out.writeInt(size);
-
-            for (Map.Entry<UncommittedStamp, Integer> entry : UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
-                entry.getKey().write(out);
-                out.writeInt(entry.getValue());
-            }
         }
 
     }
@@ -258,12 +195,10 @@ public class CommitProvider implements CommitService {
     @Override
     public String getUncommittedComponentTextSummary() {
         StringBuilder builder = new StringBuilder("CommitProvider summary: ");
-        builder.append("\nnextStamp: ").append(nextStampSequence);
         builder.append("\nuncommitted concepts with checks: ").append(uncommittedConceptsWithChecksSequenceSet);
         builder.append("\nuncommitted concepts no checks: ").append(uncommittedConceptsNoChecksSequenceSet);
         builder.append("\nuncommitted sememes with checks: ").append(uncommittedSememesWithChecksSequenceSet);
         builder.append("\nuncommitted sememes no checks: ").append(uncommittedSememesNoChecksSequenceSet);
-        builder.append("\nuncommitted stamps: ").append(UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP);
         return builder.toString();
     }
 
@@ -300,179 +235,6 @@ public class CommitProvider implements CommitService {
         return databaseSequence.incrementAndGet();
     }
 
-    @Override
-    public int getAuthorSequenceForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return TermAux.USER.getConceptSequence();
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return Get.identifierService().getConceptSequence(
-                    s.get().getAuthorSequence());
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    public int getAuthorNidForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return TermAux.USER.getNid();
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return s.get().getAuthorSequence();
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    @Override
-    public int getModuleSequenceForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return TermAux.UNSPECIFIED_MODULE.getConceptSequence();
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return Get.identifierService().getConceptSequence(
-                    s.get().getModuleSequence());
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    private int getModuleNidForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return TermAux.UNSPECIFIED_MODULE.getNid();
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return s.get().getModuleSequence();
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    ConcurrentHashMap<Integer, Integer> stampSequencePathSequenceMap = new ConcurrentHashMap();
-
-    @Override
-    public int getPathSequenceForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return TermAux.PATH.getConceptSequence();
-        }
-        if (stampSequencePathSequenceMap.containsKey(stampSequence)) {
-            return stampSequencePathSequenceMap.get(stampSequence);
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            stampSequencePathSequenceMap.put(stampSequence, Get.identifierService().getConceptSequence(
-                    s.get().getPathSequence()));
-            return stampSequencePathSequenceMap.get(stampSequence);
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    private int getPathNidForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return TermAux.PATH.getNid();
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return s.get().getPathSequence();
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    @Override
-    public State getStatusForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return State.CANCELED;
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return s.get().getStatus();
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence);
-    }
-
-    @Override
-    public long getTimeForStamp(int stampSequence) {
-        if (stampSequence < 0) {
-            return Long.MIN_VALUE;
-        }
-        Optional<Stamp> s = inverseStampMap.get(stampSequence);
-        if (s.isPresent()) {
-            return s.get().getTime();
-        }
-        throw new NoSuchElementException("No stampSequence found: " + stampSequence
-                + " map size: " + stampMap.size()
-                + " inverse map size: " + inverseStampMap.getSize());
-    }
-
-    @Override
-    public int getRetiredStampSequence(int stampSequence) {
-        return getStampSequence(State.INACTIVE,
-                getTimeForStamp(stampSequence),
-                getAuthorSequenceForStamp(stampSequence),
-                getModuleSequenceForStamp(stampSequence),
-                getPathSequenceForStamp(stampSequence));
-    }
-
-    @Override
-    public int getActivatedStampSequence(int stampSequence) {
-        return getStampSequence(State.ACTIVE,
-                getTimeForStamp(stampSequence),
-                getAuthorSequenceForStamp(stampSequence),
-                getModuleSequenceForStamp(stampSequence),
-                getPathSequenceForStamp(stampSequence));
-    }
-
-    @Override
-    public int getStampSequence(State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
-        Stamp stampKey = new Stamp(status, time,
-                authorSequence,
-                moduleSequence,
-                pathSequence);
-
-        if (time == Long.MAX_VALUE) {
-            UncommittedStamp usp = new UncommittedStamp(status, authorSequence,
-                    moduleSequence, pathSequence);
-            if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.containsKey(usp)) {
-                return UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get(usp);
-            } else {
-                stampLock.lock();
-
-                try {
-                    if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.containsKey(usp)) {
-                        return UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get(usp);
-                    }
-
-                    int stampSequence = nextStampSequence.getAndIncrement();
-                    UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.put(usp, stampSequence);
-                    inverseStampMap.put(stampSequence, stampKey);
-
-                    return stampSequence;
-                } finally {
-                    stampLock.unlock();
-                }
-            }
-        }
-
-        OptionalInt stampValue = stampMap.get(stampKey);
-        if (!stampValue.isPresent()) {
-            // maybe have a few available in an atomic queue, and put back
-            // if not used? Maybe in a thread-local?
-            // Have different sequences, and have the increments be equal to the
-            // number of sequences?
-            stampLock.lock();
-            try {
-                stampValue = stampMap.get(stampKey);
-                if (!stampValue.isPresent()) {
-                    stampValue = OptionalInt.of(nextStampSequence.getAndIncrement());
-                    inverseStampMap.put(stampValue.getAsInt(), stampKey);
-                    stampMap.put(stampKey, stampValue.getAsInt());
-                }
-            } finally {
-                stampLock.unlock();
-            }
-        }
-        return stampValue.getAsInt();
-    }
 
     @Override
     public Task<Void> cancel() {
@@ -639,37 +401,11 @@ public class CommitProvider implements CommitService {
 //		return task;
     }
 
-    @Override
-    public synchronized Task<Void> cancel(EditCoordinate editCoordinate) {
-        UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.forEach((uncommittedStamp, stampSequence) -> {
-            if (uncommittedStamp.authorSequence == editCoordinate.getAuthorSequence()) {
-                Stamp stamp = new Stamp(uncommittedStamp.status,
-                        Long.MIN_VALUE,
-                        uncommittedStamp.authorSequence,
-                        uncommittedStamp.moduleSequence,
-                        uncommittedStamp.pathSequence);
-                addStamp(stamp, stampSequence);
-                UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.remove(uncommittedStamp);
-            }
-        });
-        // TODO make asynchronous with a actual task. 
-        Task<Void> task = new TimedTask() {
-
-            @Override
-            protected Object call() throws Exception {
-                Get.activeTasks().remove(this);
-                return null;
-            }
-        };
-
-        Get.activeTasks().add(task);
-        Get.workExecutors().getExecutor().execute(task);
-        return task;
-    }
-
     /**
      * Perform a global commit. The caller may chose to block on the returned
      * task if synchronous operation is desired.
+     *
+     *
      *
      * @param commitComment
      * @return a task that is already submitted to an executor.
@@ -682,8 +418,8 @@ public class CommitProvider implements CommitService {
         alertCollection.clear();
         lastCommit = databaseSequence.incrementAndGet();
 
-        Map<UncommittedStamp, Integer> pendingStampsForCommit = new HashMap<>(UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP);
-        UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.clear();
+
+        Map<UncommittedStamp, Integer> pendingStampsForCommit = Get.stampService().getPendingStampsForCommit();
 
         CommitTask task = CommitTask.get(commitComment,
                 uncommittedConceptsWithChecksSequenceSet,
@@ -715,7 +451,7 @@ public class CommitProvider implements CommitService {
             SememeSequenceSet sememesToCheck,
             Map<UncommittedStamp, Integer> pendingStampsForCommit) {
 
-        UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.putAll(pendingStampsForCommit);
+        Get.stampService().setPendingStampsForCommit(pendingStampsForCommit);
         uncommittedSequenceLock.lock();
         try {
             uncommittedConceptsWithChecksSequenceSet.or(conceptsToCheck);
@@ -762,58 +498,7 @@ public class CommitProvider implements CommitService {
         checkers.remove(checker);
     }
 
-    @Override
-    public boolean isNotCanceled(int stamp) {
-        if (stamp < 0) {
-            return false;
-        }
-        return getTimeForStamp(stamp) != Long.MIN_VALUE;
-    }
 
-    @Override
-    public String describeStampSequence(int stampSequence) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("⦙");
-        sb.append(stampSequence);
-        sb.append("::");
-        State status = getStatusForStamp(stampSequence);
-        sb.append(status);
-        if (status == State.ACTIVE) {
-            sb.append("  ");
-        }
-        sb.append(" ");
-
-        long time = getTimeForStamp(stampSequence);
-        if (time == Long.MAX_VALUE) {
-            sb.append("UNCOMMITTED:");
-        } else if (time == Long.MIN_VALUE) {
-            sb.append("CANCELED:  ");
-        } else {
-            sb.append(Instant.ofEpochMilli(time));
-        }
-        sb.append(" a:");
-        sb.append(Get.conceptDescriptionText(getAuthorSequenceForStamp(stampSequence)));
-        sb.append(" <");
-        sb.append(getAuthorSequenceForStamp(stampSequence));
-        sb.append(">");
-        sb.append(" m:");
-        sb.append(Get.conceptDescriptionText(getModuleSequenceForStamp(stampSequence)));
-        sb.append(" <");
-        sb.append(getModuleSequenceForStamp(stampSequence));
-        sb.append(">");
-        sb.append(" p: ");
-        sb.append(Get.conceptDescriptionText(getPathSequenceForStamp(stampSequence)));
-        sb.append(" <");
-        sb.append(getPathSequenceForStamp(stampSequence));
-        sb.append(">⦙");
-        return sb.toString();
-    }
-
-    @Override
-    public IntStream getStampSequences() {
-        return IntStream.rangeClosed(1, nextStampSequence.get()).
-                filter((stampSequence) -> inverseStampMap.containsKey(stampSequence));
-    }
 
     @Override
     public Task<Void> addUncommitted(SememeChronology sc) {
@@ -879,19 +564,11 @@ public class CommitProvider implements CommitService {
         }
     }
 
-    @Override
-    public boolean isUncommitted(int stampSequence) {
-        return getTimeForStamp(stampSequence) == Long.MAX_VALUE;
-    }
 
     protected void addComment(int stamp, String commitComment) {
         stampCommentMap.addComment(stamp, commitComment);
     }
 
-    protected void addStamp(Stamp stamp, int stampSequence) {
-        stampMap.put(stamp, stampSequence);
-        inverseStampMap.put(stampSequence, stamp);
-    }
 
     @Override
     public void addChangeListener(ChronologyChangeListener changeListener) {
@@ -943,15 +620,8 @@ public class CommitProvider implements CommitService {
 
     }
 
-    @Override
-    public boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2) {
-        if (getModuleNidForStamp(stampSequence1) != getModuleNidForStamp(stampSequence2)) {
-            return false;
-        }
-        if (getPathNidForStamp(stampSequence1) != getPathNidForStamp(stampSequence2)) {
-            return false;
-        }
-        return getStatusForStamp(stampSequence1) == getStatusForStamp(stampSequence2);
+    public Task<Void> cancel(EditCoordinate editCoordinate) {
+        return Get.stampService().cancel(editCoordinate.getAuthorSequence());
     }
 
     @Override

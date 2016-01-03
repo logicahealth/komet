@@ -9,6 +9,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.StampService;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import java.util.UUID;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -47,13 +48,13 @@ public class StampUniversal {
     }
 
     public StampUniversal(int stamp) {
-        CommitService commitService = Get.commitService();
+        StampService stampService = Get.stampService();
         IdentifierService idService = Get.identifierService();
-        this.status = commitService.getStatusForStamp(stamp);
-        this.time = commitService.getTimeForStamp(stamp);
-        this.authorUuid = idService.getUuidPrimordialFromConceptSequence(commitService.getAuthorSequenceForStamp(stamp)).get();
-        this.moduleUuid = idService.getUuidPrimordialFromConceptSequence(commitService.getModuleSequenceForStamp(stamp)).get();
-        this.pathUuid = idService.getUuidPrimordialFromConceptSequence(commitService.getPathSequenceForStamp(stamp)).get();
+        this.status = stampService.getStatusForStamp(stamp);
+        this.time = stampService.getTimeForStamp(stamp);
+        this.authorUuid = idService.getUuidPrimordialFromConceptSequence(stampService.getAuthorSequenceForStamp(stamp)).get();
+        this.moduleUuid = idService.getUuidPrimordialFromConceptSequence(stampService.getModuleSequenceForStamp(stamp)).get();
+        this.pathUuid = idService.getUuidPrimordialFromConceptSequence(stampService.getPathSequenceForStamp(stamp)).get();
     }
 
     public void writeExternal(ByteArrayDataBuffer out) {
@@ -89,7 +90,7 @@ public class StampUniversal {
     
     public int getStampSequence() {
         IdentifierService idService = Get.identifierService();
-        return Get.commitService().getStampSequence(status, time, 
+        return Get.stampService().getStampSequence(status, time,
                 idService.getConceptSequenceForUuids(this.authorUuid), 
                 idService.getConceptSequenceForUuids(this.moduleUuid), 
                 idService.getConceptSequenceForUuids(this.pathUuid));

@@ -17,11 +17,7 @@ package gov.vha.isaac.ochre.commit.manager;
  */
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.commit.Alert;
-import gov.vha.isaac.ochre.api.commit.AlertType;
-import gov.vha.isaac.ochre.api.commit.ChangeChecker;
-import gov.vha.isaac.ochre.api.commit.CheckPhase;
-import gov.vha.isaac.ochre.api.commit.CommitRecord;
+import gov.vha.isaac.ochre.api.commit.*;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.progress.ActiveTasks;
@@ -92,6 +88,7 @@ public class CommitTask extends TimedTask<Optional<CommitRecord>> {
     private final ConcurrentSkipListSet<Alert> alertCollection;
     private final Map<UncommittedStamp, Integer> pendingStampsForCommit;
     private final CommitProvider commitProvider;
+    private final StampService stampProvider;
 
     private CommitTask(String commitComment,
             ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet,
@@ -120,6 +117,7 @@ public class CommitTask extends TimedTask<Optional<CommitRecord>> {
         this.alertCollection = alertCollection;
         this.pendingStampsForCommit = pendingStampsForCommit;
         this.commitProvider = commitProvider;
+        this.stampProvider = Get.stampService();
         updateTitle("Commit");
         updateMessage(commitComment);
 
@@ -170,7 +168,7 @@ public class CommitTask extends TimedTask<Optional<CommitRecord>> {
                         uncommittedStamp.authorSequence,
                         uncommittedStamp.moduleSequence,
                         uncommittedStamp.pathSequence);
-                commitProvider.addStamp(stamp, stampSequence);
+                stampProvider.addStamp(stamp, stampSequence);
             });
             if (commitComment != null) {
                 stampSequenceSet.stream().forEach((stamp)

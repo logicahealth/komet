@@ -238,12 +238,12 @@ public class RelativePositionCalculator implements OchreCache {
 	}
 
 	public RelativePosition fastRelativePosition(int stampSequence1, int stampSequence2, StampPrecedence precedencePolicy) {
-		long ss1Time = Get.commitService().getTimeForStamp(stampSequence1);
-		int ss1ModuleSequence = Get.commitService().getModuleSequenceForStamp(stampSequence1);
-		int ss1PathSequence = Get.commitService().getPathSequenceForStamp(stampSequence1);
-		long ss2Time = Get.commitService().getTimeForStamp(stampSequence2);
-		int ss2ModuleSequence = Get.commitService().getModuleSequenceForStamp(stampSequence2);
-		int ss2PathSequence = Get.commitService().getPathSequenceForStamp(stampSequence2);
+		long ss1Time = Get.stampService().getTimeForStamp(stampSequence1);
+		int ss1ModuleSequence = Get.stampService().getModuleSequenceForStamp(stampSequence1);
+		int ss1PathSequence = Get.stampService().getPathSequenceForStamp(stampSequence1);
+		long ss2Time = Get.stampService().getTimeForStamp(stampSequence2);
+		int ss2ModuleSequence = Get.stampService().getModuleSequenceForStamp(stampSequence2);
+		int ss2PathSequence = Get.stampService().getPathSequenceForStamp(stampSequence2);
 
 		if (ss1PathSequence == ss2PathSequence) {
 			Segment seg = (Segment) pathSequenceSegmentMap.get(ss1PathSequence);
@@ -304,12 +304,12 @@ public class RelativePositionCalculator implements OchreCache {
 	}
 
 	public boolean onRoute(int stampSequence) {
-		Segment seg = (Segment) pathSequenceSegmentMap.get(Get.commitService().getPathSequenceForStamp(stampSequence));
+		Segment seg = (Segment) pathSequenceSegmentMap.get(Get.stampService().getPathSequenceForStamp(stampSequence));
 		if (seg != null) {
 			return seg.containsPosition(
-					  Get.commitService().getPathSequenceForStamp(stampSequence),
-					  Get.commitService().getModuleSequenceForStamp(stampSequence),
-					  Get.commitService().getTimeForStamp(stampSequence));
+					  Get.stampService().getPathSequenceForStamp(stampSequence),
+					  Get.stampService().getModuleSequenceForStamp(stampSequence),
+					  Get.stampService().getTimeForStamp(stampSequence));
 		}
 		return false;
 	}
@@ -338,7 +338,7 @@ public class RelativePositionCalculator implements OchreCache {
 				  new LatestStampCombiner());
 
 		return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
-			return coordinate.getAllowedStates().contains(Get.commitService().getStatusForStamp(stampSequence));
+			return coordinate.getAllowedStates().contains(Get.stampService().getStatusForStamp(stampSequence));
 		}));
 	}
 
@@ -382,7 +382,7 @@ public class RelativePositionCalculator implements OchreCache {
 	 */
 	public boolean isLatestActive(IntStream stampSequences) {
 		return Arrays.stream(getLatestStampSequencesAsArray(stampSequences)).anyMatch((int stampSequence)
-				  -> Get.commitService().getStatusForStamp(stampSequence) == State.ACTIVE);
+				  -> Get.stampService().getStatusForStamp(stampSequence) == State.ACTIVE);
 	}
 
 	public <C extends ObservableChronology<V>, V extends ObservableVersion>

@@ -168,7 +168,7 @@ public class IsaacTaxonomy {
 
     public void exportIBDF(Path exportFilePath) throws FileNotFoundException {
         long exportTime = System.currentTimeMillis();
-        int stampSequence = Get.commitService().getStampSequence(State.ACTIVE, exportTime,
+        int stampSequence = Get.stampService().getStampSequence(State.ACTIVE, exportTime,
                 authorSpec.getConceptSequence(),
                 moduleSpec.getConceptSequence(),
                 pathSpec.getConceptSequence());
@@ -185,7 +185,7 @@ public class IsaacTaxonomy {
             buildAndWrite(builder, stampSequence, conceptService, sememeService);
         }
 
-        int stampAliasForPromotion = Get.commitService().getStampSequence(State.ACTIVE, exportTime + (1000 * 60),
+        int stampAliasForPromotion = Get.stampService().getStampSequence(State.ACTIVE, exportTime + (1000 * 60),
                 authorSpec.getConceptSequence(),
                 moduleSpec.getConceptSequence(),
                 pathSpec.getConceptSequence());

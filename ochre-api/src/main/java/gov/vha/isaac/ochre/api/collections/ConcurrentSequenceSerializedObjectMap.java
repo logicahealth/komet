@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.commit.manager;
+package gov.vha.isaac.ochre.api.collections;
 
 
 import gov.vha.isaac.ochre.api.DataSerializer;

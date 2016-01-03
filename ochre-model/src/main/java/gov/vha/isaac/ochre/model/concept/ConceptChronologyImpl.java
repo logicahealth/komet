@@ -52,8 +52,8 @@ public class ConceptChronologyImpl
         extends ObjectChronologyImpl<ConceptVersionImpl>
         implements ConceptChronology<ConceptVersionImpl>, OchreExternalizable {
 
-    public ConceptChronologyImpl(UUID primoridalUuid, int nid, int containerSequence) {
-        super(primoridalUuid, nid, containerSequence);
+    public ConceptChronologyImpl(UUID primordialUuid, int nid, int containerSequence) {
+        super(primordialUuid, nid, containerSequence);
     }
 
     private ConceptChronologyImpl() {}
@@ -96,7 +96,7 @@ public class ConceptChronologyImpl
 
     @Override
     public ConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
-        int stampSequence = Get.commitService().getStampSequence(state, Long.MAX_VALUE,
+        int stampSequence = Get.stampService().getStampSequence(state, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
         ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
         addVersion(newVersion);
@@ -124,7 +124,11 @@ public class ConceptChronologyImpl
     @Override
     public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList()
     {
-        return Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
+        if (Get.sememeServiceAvailable()) {
+            return Get.sememeService().getDescriptionsForComponent(getNid()).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
@@ -280,7 +284,7 @@ public class ConceptChronologyImpl
                 builder.append(" Version ")
                         .append(version++)
                         .append("\n")
-                        .append(Get.commitService().describeStampSequence(lgmv.getStampSequence()))
+                        .append(Get.stampService().describeStampSequence(lgmv.getStampSequence()))
                         .append("\n");
                 if (previousVersion == null) {
                     builder.append(lg);

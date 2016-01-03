@@ -17,6 +17,7 @@
             <groupId>gov.vha.isaac.ochre.modules</groupId>
             <artifactId>metadata</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.hk2</groupId>
@@ -27,6 +28,48 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>ibdf-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>commit-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>stamp-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>identifier-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>concept-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>sememe-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>progress-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
    <build>

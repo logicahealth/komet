@@ -17,7 +17,8 @@ package gov.vha.isaac.ochre.api.externalizable;
 
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.StampService;
+
 import java.io.UTFDataFormatException;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
@@ -40,7 +41,7 @@ public class ByteArrayDataBuffer  {
     protected byte objectDataFormatVersion = 0;
     protected boolean externalData = false;
     protected IdentifierService identifierService;
-    protected CommitService commitService;
+    protected StampService stampService;
     /**
      * The StampedLock is to ensure the backing array does not grow underneath a
      * concurrent operation. The locks do not prevent concurrent threads from
@@ -145,7 +146,7 @@ public class ByteArrayDataBuffer  {
     public void setExternalData(boolean externalData) {
         if (externalData) {
             identifierService = Get.identifierService();
-            commitService = Get.commitService();
+            stampService = Get.stampService();
         }
         this.externalData = externalData;
     }
@@ -462,7 +463,6 @@ public class ByteArrayDataBuffer  {
      *
      * @return a byte[] written to the ByteArrayDataBuffer. Does not return the entire
     data buffer as an array.
-     * @see getData()
      */
     public byte[] getByteArrayField() {
         int length = getInt();

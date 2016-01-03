@@ -86,27 +86,27 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
 
     @Override
     public State getState() {
-        return Get.commitService().getStatusForStamp(stampSequence);
+        return Get.stampService().getStatusForStamp(stampSequence);
     }
 
     @Override
     public long getTime() {
-        return Get.commitService().getTimeForStamp(stampSequence);
+        return Get.stampService().getTimeForStamp(stampSequence);
     }
 
     @Override
     public int getAuthorSequence() {
-        return Get.commitService().getAuthorSequenceForStamp(stampSequence);
+        return Get.stampService().getAuthorSequenceForStamp(stampSequence);
     }
 
     @Override
     public int getModuleSequence() {
-       return Get.commitService().getModuleSequenceForStamp(stampSequence);
+       return Get.stampService().getModuleSequenceForStamp(stampSequence);
     }
 
     @Override
     public int getPathSequence() {
-        return Get.commitService().getPathSequenceForStamp(stampSequence);
+        return Get.stampService().getPathSequenceForStamp(stampSequence);
     }
 
     @Override
@@ -184,6 +184,6 @@ public class RelationshipVersionAdaptorImpl implements RelationshipVersionAdapto
         return "{[" + Get.conceptDescriptionText(relationshipAdaptorChronicleKey.originSequence) + "]➞(" +
                 Get.conceptDescriptionText(relationshipAdaptorChronicleKey.typeSequence) + ")➞[" +
                 Get.conceptDescriptionText(relationshipAdaptorChronicleKey.destinationSequence) + "]"
-                + " " + Get.commitService().describeStampSequence(stampSequence) + "}";
+                + " " + Get.stampService().describeStampSequence(stampSequence) + "}";
     }
 }

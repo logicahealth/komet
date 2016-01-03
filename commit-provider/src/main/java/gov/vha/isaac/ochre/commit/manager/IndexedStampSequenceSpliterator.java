@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.commit.manager;
 
 import java.util.Spliterator;
 
-import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.StampService;
 import org.apache.mahout.math.list.IntArrayList;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.mahout.math.list.IntArrayList;
 public abstract class IndexedStampSequenceSpliterator<T> implements Spliterator<T> {
     
     private final IntArrayList keys;
-    private int index = CommitService.FIRST_STAMP_SEQUENCE;
+    private int index = StampService.FIRST_STAMP_SEQUENCE;
 
     public IndexedStampSequenceSpliterator(IntArrayList keys) {
         this.keys = keys;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.commit.manager;
+package gov.vha.isaac.ochre.api.commit;
 
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -167,11 +167,11 @@ public class Stamp implements Comparable<Stamp>  {
     }
     
     public static Stamp stampFromIntStamp(int stamp) {
-        State status = Get.commitService().getStatusForStamp(stamp);
-        long time = Get.commitService().getTimeForStamp(stamp);
-        int authorSequence = Get.commitService().getAuthorSequenceForStamp(stamp);
-        int moduleSequence = Get.commitService().getModuleSequenceForStamp(stamp);
-        int pathSequence = Get.commitService().getPathSequenceForStamp(stamp);
+        State status = Get.stampService().getStatusForStamp(stamp);
+        long time = Get.stampService().getTimeForStamp(stamp);
+        int authorSequence = Get.stampService().getAuthorSequenceForStamp(stamp);
+        int moduleSequence = Get.stampService().getModuleSequenceForStamp(stamp);
+        int pathSequence = Get.stampService().getPathSequenceForStamp(stamp);
         return new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
     }
     

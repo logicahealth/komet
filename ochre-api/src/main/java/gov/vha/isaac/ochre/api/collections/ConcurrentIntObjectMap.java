@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.commit.manager;
+package gov.vha.isaac.ochre.api.collections;
 
 import org.apache.mahout.math.function.IntObjectProcedure;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;

@@ -54,12 +54,12 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     int referencedComponentNid = Integer.MAX_VALUE;
 
     public SememeChronologyImpl(SememeType sememeType,
-            UUID primoridalUuid,
+            UUID primordialUuid,
             int nid,
             int assemblageSequence,
             int referencedComponentNid,
             int containerSequence) {
-        super(primoridalUuid, nid, containerSequence);
+        super(primordialUuid, nid, containerSequence);
         this.sememeTypeToken = sememeType.getSememeToken();
         this.assemblageSequence = assemblageSequence;
         this.referencedComponentNid = referencedComponentNid;
@@ -131,7 +131,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
 
     @Override
     public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-        int stampSequence = Get.commitService().getStampSequence(status, Long.MAX_VALUE,
+        int stampSequence = Get.stampService().getStampSequence(status, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
         M version = createMutableVersionInternal(type, stampSequence,
                 nextVersionSequence());

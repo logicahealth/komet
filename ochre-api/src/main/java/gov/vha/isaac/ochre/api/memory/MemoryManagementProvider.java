@@ -24,7 +24,7 @@ import org.jvnet.hk2.annotations.Service;
  * @author kec
  */
 @Service
-public class MemoryManagmentProvider implements MemoryManagementService {
+public class MemoryManagementProvider implements MemoryManagementService {
 
     @Override
     public void setMemoryConfiguration(MemoryConfigurations memoryConfiguration) {

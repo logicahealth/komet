@@ -305,8 +305,8 @@ public class SememeProvider implements SememeService {
         sequencesToTest.stream().forEach((sememeSequence) -> {
             SememeChronologyImpl<?> chronicle = (SememeChronologyImpl<?>) getSememe(sememeSequence);
             if (chronicle.getVersionStampSequences().anyMatch((stampSequence) -> {
-                return (Get.commitService().getTimeForStamp(stampSequence) > position.getTime()
-                        && (position.getStampPathSequence() == Get.commitService().getPathSequenceForStamp(stampSequence)));
+                return (Get.stampService().getTimeForStamp(stampSequence) > position.getTime()
+                        && (position.getStampPathSequence() == Get.stampService().getPathSequenceForStamp(stampSequence)));
             })) {
                 sequencesThatPassedTest.add(sememeSequence);
             }
