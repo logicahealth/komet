@@ -22,6 +22,7 @@ import gov.vha.isaac.ochre.api.commit.StampService;
 import java.io.UTFDataFormatException;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.locks.StampedLock;
 
@@ -32,6 +33,8 @@ import java.util.concurrent.locks.StampedLock;
 public class ByteArrayDataBuffer  {
 
     private static final int MAX_DATA_SIZE = Integer.MAX_VALUE - 16;
+
+    private static final int DEFAULT_SIZE = 1024;
 
     protected static final byte FALSE = 0;
     protected static final byte TRUE = 1;
@@ -59,6 +62,10 @@ public class ByteArrayDataBuffer  {
         this.used = data == null ? 0 : data.length;
     }
 
+    public ByteArrayDataBuffer() {
+        this(DEFAULT_SIZE);
+    }
+
     public ByteArrayDataBuffer(int size) {
         this.data = new byte[size];
     }
@@ -81,9 +88,14 @@ public class ByteArrayDataBuffer  {
 
     public void putNid(int nid) {
         if (externalData) {
-            UUID uuid = identifierService.getUuidPrimordialForNid(nid).get();
-            putLong(uuid.getMostSignificantBits());
-            putLong(uuid.getLeastSignificantBits());
+            Optional<UUID> optionalUuid = identifierService.getUuidPrimordialForNid(nid);
+            if (optionalUuid.isPresent()) {
+                UUID uuid = optionalUuid.get();
+                putLong(uuid.getMostSignificantBits());
+                putLong(uuid.getLeastSignificantBits());
+            } else {
+                System.out.println("Can't find uuid for nid: " + nid);
+            }
         } else {
             putInt(nid);
         }
