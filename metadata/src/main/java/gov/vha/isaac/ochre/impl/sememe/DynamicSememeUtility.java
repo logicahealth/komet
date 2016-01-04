@@ -236,45 +236,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 			
 			for (DynamicSememeColumnInfo ci : sortedColumns)
 			{
-				DynamicSememeDataBI[] data = new DynamicSememeDataBI[7];
-				
-				data[0] = new DynamicSememeInteger(ci.getColumnOrder());
-				data[1] = new DynamicSememeUUID(ci.getColumnDescriptionConcept());
-				if (DynamicSememeDataType.UNKNOWN == ci.getColumnDataType())
-				{
-					throw new RuntimeException("Error in column - if default value is provided, the type cannot be polymorphic");
-				}
-				data[2] = new DynamicSememeString(ci.getColumnDataType().name());
-				data[3] = convertPolymorphicDataColumn(ci.getDefaultColumnValue(), ci.getColumnDataType());
-				data[4] = new DynamicSememeBoolean(ci.isColumnRequired());
-				
-				if (ci.getValidator() != null)
-				{
-					DynamicSememeString[] validators = new DynamicSememeString[ci.getValidator().length];
-					for (int i = 0; i < validators.length; i++)
-					{
-						validators[i] = new DynamicSememeString(ci.getValidator()[i].name());
-					}
-					data[5] = new DynamicSememeArray<DynamicSememeStringBI>(validators);
-				}
-				else
-				{
-					data[5] = null;
-				}
-				
-				if (ci.getValidatorData() != null)
-				{
-					DynamicSememeDataBI[] validatorData = new DynamicSememeDataBI[ci.getValidatorData().length];
-					for (int i = 0; i < validatorData.length; i++)
-					{
-						validatorData[i] = convertPolymorphicDataColumn(ci.getValidatorData()[i], ci.getValidatorData()[i].getDynamicSememeDataType());
-					}
-					data[6] = new DynamicSememeArray<DynamicSememeDataBI>(validatorData);
-				}
-				else
-				{
-					data[6] = null;
-				}
+				DynamicSememeDataBI[] data = configureDynamicSememeDefinitionDataForColumn(ci);
 
 				SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDyanmicSememeBuilder(newCon.getNid(), 
 						IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getSequence(), data)
@@ -283,6 +245,23 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 			}
 		}
 		
+		DynamicSememeDataBI[] data = configureDynamicSememeRestrictionData(referencedComponentRestriction, referencedComponentSubRestriction);
+		
+		if (data != null)
+		{
+			SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDyanmicSememeBuilder(newCon.getNid(), 
+					IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getSequence(), data)
+				.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
+			Get.commitService().addUncommitted(sememe);
+		}
+
+		Get.commitService().commit("creating new dynamic sememe assemblage: " + sememeFSN);
+		return new DynamicSememeUsageDescription(newCon.getNid());
+	}
+	
+	public static DynamicSememeDataBI[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
+			SememeType referencedComponentSubRestriction)
+	{
 		if (referencedComponentRestriction != null && ObjectChronologyType.UNKNOWN_NID != referencedComponentRestriction)
 		{
 			int size = 1;
@@ -297,16 +276,55 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 			{
 				data[1] = new DynamicSememeString(referencedComponentSubRestriction.name());
 			}
-			SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDyanmicSememeBuilder(newCon.getNid(), 
-					IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getSequence(), data)
-				.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
-			Get.commitService().addUncommitted(sememe);
+			return data;
 		}
-
-		Get.commitService().commit("creating new dynamic sememe assemblage: " + sememeFSN);
-		return new DynamicSememeUsageDescription(newCon.getNid());
+		return null;
 	}
-	
+
+	public static DynamicSememeDataBI[] configureDynamicSememeDefinitionDataForColumn(DynamicSememeColumnInfo ci)
+	{
+		DynamicSememeDataBI[] data = new DynamicSememeDataBI[7];
+		
+		data[0] = new DynamicSememeInteger(ci.getColumnOrder());
+		data[1] = new DynamicSememeUUID(ci.getColumnDescriptionConcept());
+		if (DynamicSememeDataType.UNKNOWN == ci.getColumnDataType())
+		{
+			throw new RuntimeException("Error in column - if default value is provided, the type cannot be polymorphic");
+		}
+		data[2] = new DynamicSememeString(ci.getColumnDataType().name());
+		data[3] = convertPolymorphicDataColumn(ci.getDefaultColumnValue(), ci.getColumnDataType());
+		data[4] = new DynamicSememeBoolean(ci.isColumnRequired());
+		
+		if (ci.getValidator() != null)
+		{
+			DynamicSememeString[] validators = new DynamicSememeString[ci.getValidator().length];
+			for (int i = 0; i < validators.length; i++)
+			{
+				validators[i] = new DynamicSememeString(ci.getValidator()[i].name());
+			}
+			data[5] = new DynamicSememeArray<DynamicSememeStringBI>(validators);
+		}
+		else
+		{
+			data[5] = null;
+		}
+		
+		if (ci.getValidatorData() != null)
+		{
+			DynamicSememeDataBI[] validatorData = new DynamicSememeDataBI[ci.getValidatorData().length];
+			for (int i = 0; i < validatorData.length; i++)
+			{
+				validatorData[i] = convertPolymorphicDataColumn(ci.getValidatorData()[i], ci.getValidatorData()[i].getDynamicSememeDataType());
+			}
+			data[6] = new DynamicSememeArray<DynamicSememeDataBI>(validatorData);
+		}
+		else
+		{
+			data[6] = null;
+		}
+		return data;
+	}
+
 	private static DynamicSememeDataBI convertPolymorphicDataColumn(DynamicSememeDataBI defaultValue, DynamicSememeDataType columnType) 
 	{
 		DynamicSememeDataBI result;
