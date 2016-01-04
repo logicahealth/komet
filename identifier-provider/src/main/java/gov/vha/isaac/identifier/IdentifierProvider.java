@@ -281,7 +281,7 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
         LOG.warn("[1] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
 
         if (uuids.length > 0) {
-            Optional.of(uuids[0]);
+            return Optional.of(uuids[0]);
         }
         return Optional.empty();
     }
