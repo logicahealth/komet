@@ -212,7 +212,7 @@ public class ByteArrayDataBuffer  {
     }
 
     public void reset() {
-        this.used = Math.max(this.used, this.position);
+        this.used = 0;
         this.position = positionStart;
     }
 
