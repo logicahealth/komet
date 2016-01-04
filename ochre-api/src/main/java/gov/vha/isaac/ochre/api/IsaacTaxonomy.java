@@ -74,7 +74,10 @@ public class IsaacTaxonomy {
     protected final ConceptBuilder createConcept(ConceptSpecification specification) {
         ConceptBuilder builder = createConcept(specification.getConceptDescriptionText());
         builder.setPrimordialUuid(specification.getUuidList().get(0));
-        builder.addUuids(specification.getUuidList().toArray(new UUID[0]));
+        if (specification.getUuidList().size() > 1)
+        {
+            builder.addUuids(specification.getUuidList().subList(1, specification.getUuidList().size()).toArray(new UUID[0]));
+        }
         return builder;
     }
 
