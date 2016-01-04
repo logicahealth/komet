@@ -2,6 +2,9 @@ package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 
 public class PropertyAssociation extends Property
 {
@@ -27,19 +30,27 @@ public class PropertyAssociation extends Property
 	}
 
 	
-	protected String getAssociationInverseName()
+	public String getAssociationInverseName()
 	{
 		return associationInverseName_;
 	}
 
-	protected ObjectChronologyType getAssociationComponentTypeRestriction()
+	public ObjectChronologyType getAssociationComponentTypeRestriction()
 	{
 		return associationComponentTypeRestriction_;
 	}
 
-	protected SememeType getAssociationComponentTypeSubRestriction()
+	public SememeType getAssociationComponentTypeSubRestriction()
 	{
 		return associationComponentTypeSubRestriction_;
 	}
-	
+
+	@Override
+	public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex()
+	{
+		DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] {
+				new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(), 
+						DynamicSememeDataType.UUID, null, false)};
+		return columns;
+	}
 }

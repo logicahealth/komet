@@ -18,9 +18,10 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils;
 
-import gov.vha.isaac.ochre.util.UuidT5Generator;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 
 public class UuidFromName
 {

@@ -2,25 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>gov.vha.isaac</groupId>
-		<artifactId>va-isaac-parent</artifactId>
-		<version>1.11-SNAPSHOT</version>
+		<groupId>gov.vha.isaac.ochre</groupId>
+		<artifactId>isaac-parent</artifactId>
+		<version>3.01-SNAPSHOT</version>
 	</parent>
-	
-	<groupId>gov.vha.isaac.terminology.converters</groupId>
-	<artifactId>term-convert-common-base</artifactId>
-	<version>4.5-SNAPSHOT</version>
+
+	<groupId>gov.vha.isaac.ochre.modules</groupId>
+	<artifactId>import-utils</artifactId>
 	<packaging>jar</packaging>
-	
-	<name>Converters Common Code</name>
 
-	<properties>
-		<isaac-mojo.version>1.14-SNAPSHOT</isaac-mojo.version>
-	</properties>
-
-	<scm>
-		<url>https://github.com/VA-CTT/va-term-convert-common-base.git</url>
-	</scm>
+	<name>Import Utilities</name>
 
 	<dependencies>
 		<dependency>
@@ -47,9 +38,14 @@
 			<artifactId>maven-plugin-annotations</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>gov.vha.isaac</groupId>
-			<artifactId>isaac-mojo</artifactId>
-			<version>${isaac-mojo.version}</version>
+			<groupId>gov.vha.isaac.ochre.modules</groupId>
+			<artifactId>metadata</artifactId>
+			<version>${project.version}</version>
 		</dependency>
+		<!--dependency>
+			<groupId>gov.vha.isaac</groupId>
+			<artifactId>ochre-mojo</artifactId>
+			<version>${project.version}</version>
+		</dependency-->
 	</dependencies>
 </project>

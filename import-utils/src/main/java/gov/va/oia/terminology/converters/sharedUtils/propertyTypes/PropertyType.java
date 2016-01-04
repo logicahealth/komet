@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
 
 /**
  * Abstract base class to help in mapping code system property types into the workbench data model.
@@ -40,7 +39,7 @@ import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
  * @author Daniel Armbrust
  */
 
-public abstract class PropertyType implements ConceptCreationNotificationListener
+public abstract class PropertyType
 {
 	protected static int srcVersion_ = 1;
 	private UUID propertyTypeUUID = null;
@@ -153,7 +152,6 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 			}
 		}
 		property.setOwner(this);
-		property.registerConceptCreationListener(this);
 		properties_.put(property.getSourcePropertyNameFSN(), property);
 		if (altNamePropertyMap_ != null && StringUtils.isNotEmpty(property.getSourcePropertyAltName()))
 		{
@@ -268,12 +266,6 @@ public abstract class PropertyType implements ConceptCreationNotificationListene
 		{
 			altNamePropertyMap_ = new HashMap<>();
 		}
-	}
-
-	@Override
-	public void conceptCreated(Property property, TtkConceptChronicle concept)
-	{
-		//default, noop method.
 	}
 	
 	protected DynamicSememeDataType getDefaultColumnInfo()

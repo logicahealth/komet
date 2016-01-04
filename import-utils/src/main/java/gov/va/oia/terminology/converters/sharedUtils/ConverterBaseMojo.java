@@ -96,10 +96,10 @@ public abstract class ConverterBaseMojo extends AbstractMojo
 	protected List<String> idSkipList;
 	
 	/**
-	 * An optional list of member refset names which should be skipped during this transformation.
+	 * An optional list of refset names which should be skipped during this transformation.
 	 */
 	@Parameter (required = false)
-	protected List<String> memberRefsetSkipList;
+	protected List<String> refsetSkipList;
 	
 	/**
 	 * An optional list of relationship names which should be skipped during this transformation.
@@ -147,7 +147,7 @@ public abstract class ConverterBaseMojo extends AbstractMojo
 		{
 			supportsIdSkipList();
 		}
-		if (notEmpty(memberRefsetSkipList))
+		if (notEmpty(refsetSkipList))
 		{
 			supportsRefsetSkipList();
 		}

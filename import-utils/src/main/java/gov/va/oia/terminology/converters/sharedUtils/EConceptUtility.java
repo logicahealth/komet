@@ -18,52 +18,78 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils;
 
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_MemberRefsets;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Skip;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
-import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
-import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
-import gov.vha.isaac.metadata.source.IsaacMetadataAuxiliaryBinding;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SomeRole;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.api.metadata.binding.SnomedMetadataRf2;
-import org.ihtsdo.otf.tcc.api.metadata.binding.TermAux;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.dto.component.TtkComponentChronicle;
-import org.ihtsdo.otf.tcc.dto.component.TtkRevision;
-import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
-import org.ihtsdo.otf.tcc.dto.component.attribute.TtkConceptAttributesChronicle;
-import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifier;
-import org.ihtsdo.otf.tcc.dto.component.identifier.TtkIdentifierUuid;
-import org.ihtsdo.otf.tcc.dto.component.refex.TtkRefexAbstractMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_string.TtkRefexStringMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refex.type_uuid.TtkRefexUuidMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.TtkRefexDynamicMemberChronicle;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.TtkRefexDynamicData;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicString;
-import org.ihtsdo.otf.tcc.dto.component.refexDynamic.data.dataTypes.TtkRefexDynamicUUID;
-import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Refsets;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Skip;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyAssociation;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
+import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
+import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
+import gov.vha.isaac.MetaData;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.component.concept.ConceptBuilderService;
+import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
+import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
+import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilder;
+import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilderService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
+import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
+import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
+import gov.vha.isaac.ochre.impl.sememe.DynamicSememeUtility;
+import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
+import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
+import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
+import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArray;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeData;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeInteger;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeString;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUID;
 
 /**
  * 
@@ -78,26 +104,56 @@ import org.ihtsdo.otf.tcc.dto.component.relationship.TtkRelationshipChronicle;
  */
 public class EConceptUtility
 {
-	public static enum DescriptionType{FSN, SYNONYM, DEFINITION};
-	public final static UUID isARelUuid_ = IsaacMetadataAuxiliaryBinding.IS_A.getPrimodialUuid();
-	public final static UUID authorUuid_ = IsaacMetadataAuxiliaryBinding.USER.getPrimodialUuid();
-	public final static UUID synonymUuid_ = IsaacMetadataAuxiliaryBinding.SYNONYM.getPrimodialUuid();
-	public final static UUID definitionUuid_ = IsaacMetadataAuxiliaryBinding.DEFINITION_DESCRIPTION_TYPE.getPrimodialUuid();
-	public final static UUID fullySpecifiedNameUuid_ = IsaacMetadataAuxiliaryBinding.FULLY_SPECIFIED_NAME.getPrimodialUuid();
-	public final static UUID descriptionAcceptableUuid_ = IsaacMetadataAuxiliaryBinding.ACCEPTABLE.getPrimodialUuid();
-	public final static UUID descriptionPreferredUuid_ = IsaacMetadataAuxiliaryBinding.PREFERRED.getPrimodialUuid();
-	public final static UUID usEnRefsetUuid_ = IsaacMetadataAuxiliaryBinding.US_ENGLISH_DIALECT.getPrimodialUuid();
-	public final static UUID definingCharacteristicUuid_ = IsaacMetadataAuxiliaryBinding.STATED.getPrimodialUuid();
-	public final static UUID notRefinableUuid = SnomedMetadataRf2.NOT_REFINABLE_RF2.getPrimodialUuid();  //TODO missing from ochre metadata
-	public final static UUID terminologyPathUUID_ = IsaacMetadataAuxiliaryBinding.DEVELOPMENT.getPrimodialUuid();
-	public final static UUID refsetMemberTypeNormalMemberUuid_ = IsaacMetadataAuxiliaryBinding.NORMAL_MEMBER.getPrimodialUuid();
-	public final static String PROJECT_REFSETS_NAME = "SOLOR Refsets";
-	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7a9b495e-69c1-53e5-a2d5-41be2429c146");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "SOLOR Refsets")
+	public static enum DescriptionType 
+	{
+		FSN, SYNONYM, DEFINITION;
+		
+		public ConceptSpecification getConceptSpec()
+		{
+			if (DescriptionType.FSN == this)
+			{
+				return MetaData.FULLY_SPECIFIED_NAME;
+			}
+			else if (DescriptionType.SYNONYM == this)
+			{
+				return MetaData.SYNONYM;
+			}
+			else if (DescriptionType.DEFINITION == this)
+			{
+				return MetaData.DEFINITION_DESCRIPTION_TYPE;
+			}
+			else
+			{
+				throw new RuntimeException("Unsupported descriptiontype '" + this + "'");
+			}
+		}
+	};
+	public final static UUID isARelUuid_ = MetaData.IS_A.getPrimordialUuid();
+	private final static int authorSeq_ = MetaData.USER.getConceptSequence();
+//	public final static UUID synonymUuid_ = MetaData.SYNONYM.getPrimordialUuid();
+//	public final static UUID definitionUuid_ = MetaData.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid();
+//	public final static UUID fullySpecifiedNameUuid_ = MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid();
+//	public final static UUID descriptionAcceptableUuid_ = MetaData.ACCEPTABLE.getPrimordialUuid();
+//	public final static UUID descriptionPreferredUuid_ = MetaData.PREFERRED.getPrimordialUuid();
+//	public final static UUID refsetMemberTypeNormalMemberUuid_ = MetaData.NORMAL_MEMBER.getPrimordialUuid();
+	private final static int terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();
+	
+//If I still need this, the place to add it is ISaacMetaDataAuxiliary under 'assemblage'
+//	public final static String PROJECT_REFSETS_NAME = "SOLOR Refsets";
+//	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7a9b495e-69c1-53e5-a2d5-41be2429c146");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "SOLOR Refsets")
 	
 	public final long defaultTime_;
-	private final String lang_ = "en";
-	public UUID moduleUuid_ = null;
-	private HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();;
+	private final ConceptSpecification lang_ = MetaData.ENGLISH_LANGUAGE;
+	private int moduleSeq_ = 0;
+	private HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();
+	
+	private ConceptBuilderService conceptBuilderService_;
+	private DescriptionBuilderService descriptionBuilderService_;
+	private LogicalExpressionBuilderService expressionBuilderService_;
+	private SememeBuilderService<?> sememeBuilderService_;
+	private StampCoordinate readBackStamp_;
+	
+	private BinaryDataWriterService writer_;
 
 	private LoadStats ls_ = new LoadStats();
 
@@ -109,27 +165,56 @@ public class EConceptUtility
 	 * @param dos - location to write the output
 	 * @throws Exception
 	 */
-	public EConceptUtility(UUID module, DataOutputStream dos, long defaultTime) throws Exception
+	public EConceptUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, Path outputFile, long defaultTime) throws Exception
 	{
 		ConverterUUID.addMapping("isA", isARelUuid_);
-		ConverterUUID.addMapping("Synonym", synonymUuid_);
-		ConverterUUID.addMapping("Fully Specified Name", fullySpecifiedNameUuid_);
-		ConverterUUID.addMapping("US English Refset", usEnRefsetUuid_);
+		ConverterUUID.addMapping("Synonym", MetaData.SYNONYM.getPrimordialUuid());
+		ConverterUUID.addMapping("Fully Specified Name", MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid());
+		
+		
+		conceptBuilderService_ = Get.conceptBuilderService();
+		conceptBuilderService_.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
+		conceptBuilderService_.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
+		conceptBuilderService_.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
+
+		descriptionBuilderService_ = LookupService.getService(DescriptionBuilderService.class);
+		expressionBuilderService_ = Get.logicalExpressionBuilderService();
+		
+		sememeBuilderService_ = Get.sememeBuilderService();
 		
 		defaultTime_ = defaultTime;
 		
-		//Just use the module as the namespace
-		ConverterUUID.configureNamespace(module);
 		
-		moduleUuid_ = module;
-		ConsoleUtil.println("Loading with module '" + moduleUuid_+ " on DEVELOPMENT path");
+		UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, moduleToCreate.get()) : 
+			preExistingModule.get().getPrimordialUuid();
+		
+		//Just use the module as the namespace
+		ConverterUUID.configureNamespace(moduleUUID);
+		
+		writer_ = Get.binaryDataWriter(outputFile);
+		
+		if (moduleToCreate.isPresent())
+		{
+			ConceptChronology<? extends ConceptVersion<?>> module =  createConcept(moduleUUID, moduleToCreate.get(), MetaData.MODULE.getPrimordialUuid());
+			moduleSeq_ = module.getConceptSequence();
+		}
+		else
+		{
+			moduleSeq_ = preExistingModule.get().getConceptSequence();
+		}
+		
+		StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, MetaData.DEVELOPMENT_PATH.getConceptSequence());
+		readBackStamp_ = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, ConceptSequenceSet.of(moduleSeq_), State.ANY_STATE_SET);
+		
+		ConsoleUtil.println("Loading with module '" + moduleSeq_+ " on DEVELOPMENT path");
+		
 	}
 
 	/**
 	 * Create a concept, automatically setting as many fields as possible (adds a description, calculates
 	 * the UUID, status current, etc)
 	 */
-	public TtkConceptChronicle createConcept(String preferredDescription)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(String preferredDescription)
 	{
 		return createConcept(ConverterUUID.createNamespaceUUIDFromString(preferredDescription), preferredDescription);
 	}
@@ -137,9 +222,9 @@ public class EConceptUtility
 	/**
 	 * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
 	 */
-	public TtkConceptChronicle createConcept(String name, UUID parentConceptPrimordial)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(String name, UUID parentConceptPrimordial)
 	{
-		TtkConceptChronicle concept = createConcept(name);
+		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(name);
 		addRelationship(concept, parentConceptPrimordial);
 		return concept;
 	}
@@ -147,25 +232,25 @@ public class EConceptUtility
 	/**
 	 * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
 	 */
-	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String name, UUID relParentPrimordial)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String name, UUID relParentPrimordial)
 	{
-		TtkConceptChronicle concept = createConcept(conceptPrimordialUuid, name);
+		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(conceptPrimordialUuid, name);
 		addRelationship(concept, relParentPrimordial);
 		return concept;
 	}
 	
-	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid)
 	{
-		return createConcept(conceptPrimordialUuid, (Long)null, Status.ACTIVE);
+		return createConcept(conceptPrimordialUuid, (Long)null, State.ACTIVE);
 	}
 
 	/**
 	 * Create a concept, automatically setting as many fields as possible (adds a description (en US)
 	 * status current, etc
 	 */
-	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String preferredDescription)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String preferredDescription)
 	{
-		return createConcept(conceptPrimordialUuid, preferredDescription, null, Status.ACTIVE);
+		return createConcept(conceptPrimordialUuid, preferredDescription, null, State.ACTIVE);
 	}
 
 	/**
@@ -173,63 +258,36 @@ public class EConceptUtility
 	 * 
 	 * @param time - set to now if null
 	 */
-	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, String preferredDescription, Long time, Status status)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String preferredDescription, Long time, State status)
 	{
-		TtkConceptChronicle ttkConceptChronicle = createConcept(conceptPrimordialUuid, time, status);
-		addFullySpecifiedName(ttkConceptChronicle, preferredDescription);
-		return ttkConceptChronicle;
+		ConceptChronology<? extends ConceptVersion<?>> conceptChronology = createConcept(conceptPrimordialUuid, time, status);
+		addFullySpecifiedName(conceptChronology, preferredDescription);
+		return conceptChronology;
 	}
 
 	/**
-	 * Just create a concept and the nested conceptAttributes.
+	 * Just create a concept.
 	 * 
 	 * @param conceptPrimordialUuid
 	 * @param time - if null, set to default
 	 * @param status - if null, set to current
 	 * @return
 	 */
-	public TtkConceptChronicle createConcept(UUID conceptPrimordialUuid, Long time, Status status)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, Long time, State status) 
 	{
-		TtkConceptChronicle ttkConceptChronicle = new TtkConceptChronicleWrapper(this);
-		ttkConceptChronicle.setPrimordialUuid(conceptPrimordialUuid);
-		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
-		conceptAttributes.setDefined(false);
-		conceptAttributes.setPrimordialComponentUuid(conceptPrimordialUuid);
-		setRevisionAttributes(conceptAttributes, status, time);
-		ttkConceptChronicle.setConceptAttributes(conceptAttributes);
+		ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService().getConcept(conceptPrimordialUuid);
+		conceptChronology.createMutableVersion(createStamp(status, time));
+		writer_.put(conceptChronology);
 		ls_.addConcept();
-		return ttkConceptChronicle;
-	}
-	
-	/**
-	 * Clones the minimum required items for creating and merging a concept - except the path - path is set per normal 
-	 */
-	public TtkConceptChronicle createSkeletonClone(UUID primordial)
-	{
-		TtkConceptChronicle ttkConceptChronicle = new TtkConceptChronicle();
-		ttkConceptChronicle.setPrimordialUuid(primordial);
-		TtkConceptAttributesChronicle conceptAttributes = new TtkConceptAttributesChronicle();
-		conceptAttributes.setPathUuid(terminologyPathUUID_);
-		ttkConceptChronicle.setConceptAttributes(conceptAttributes);
-		ls_.addConceptClone();
-		return ttkConceptChronicle;
-	}
-
-	/**
-	 * Create a concept with a UUID set from "Project Refsets" (PROJECT_REFSETS_UUID) and a name of "Project Refsets" (PROJECT_REFSETS_NAME)
-	 * nested under ConceptConstants.REFSET
-	 */
-	private TtkConceptChronicle createVARefsetRootConcept()
-	{
-		return createConcept(PROJECT_REFSETS_UUID, PROJECT_REFSETS_NAME, TermAux.REFSET_IDENTITY.getUuids()[0]);
+		return conceptChronology;
 	}
 
 	/**
 	 * Add a workbench official "Fully Specified Name".  Convenience method for adding a description of type FSN
 	 */
-	public TtkDescriptionChronicle addFullySpecifiedName(TtkConceptChronicle ttkConceptChronicle, String fullySpecifiedName)
+	public SememeChronology<DescriptionSememe<?>> addFullySpecifiedName(ConceptChronology<? extends ConceptVersion<?>> concept, String fullySpecifiedName)
 	{
-		return addDescription(ttkConceptChronicle, fullySpecifiedName, DescriptionType.FSN, true, null, null, Status.ACTIVE);
+		return addDescription(concept, fullySpecifiedName, DescriptionType.FSN, true, null, null, State.ACTIVE);
 	}
 	
 	
@@ -237,9 +295,9 @@ public class EConceptUtility
 	 * Add a batch of WB descriptions, following WB rules in always generating a FSN (picking the value based on the propertySubType order). 
 	 * And then adding other types as specified by the propertySubType value, setting preferred / acceptable according to their ranking. 
 	 */
-	public List<TtkDescriptionChronicle> addDescriptions(TtkConceptChronicle ttkConceptChronicle, List<? extends ValuePropertyPair> descriptions)
+	public List<SememeChronology<DescriptionSememe<?>>> addDescriptions(ConceptChronology<? extends ConceptVersion<?>> concept, List<? extends ValuePropertyPair> descriptions)
 	{
-		ArrayList<TtkDescriptionChronicle> result = new ArrayList<>(descriptions.size());
+		ArrayList<SememeChronology<DescriptionSememe<?>>> result = new ArrayList<>(descriptions.size());
 		Collections.sort(descriptions);
 		
 		boolean haveFSN = false;
@@ -302,8 +360,8 @@ public class EConceptUtility
 			}
 			BPT_Descriptions descPropertyType = (BPT_Descriptions) vpp.getProperty().getPropertyType();
 			
-			result.add(addDescription(ttkConceptChronicle, vpp.getUUID(), vpp.getValue(), descriptionType, preferred, vpp.getProperty().getUUID(), 
-					descPropertyType.getPropertyTypeReferenceSetUUID(), (vpp.isDisabled() ? Status.INACTIVE : Status.ACTIVE)));
+			result.add(addDescription(concept, vpp.getUUID(), vpp.getValue(), descriptionType, preferred, vpp.getProperty().getUUID(), 
+					descPropertyType.getPropertyTypeReferenceSetUUID(), (vpp.isDisabled() ? State.INACTIVE : State.ACTIVE)));
 		}
 		
 		return result;
@@ -312,10 +370,10 @@ public class EConceptUtility
 	/**
 	 * Add a description to the concept.  UUID for the description is calculated from the target concept, description value, type, and preferred flag.
 	 */
-	public TtkDescriptionChronicle addDescription(TtkConceptChronicle ttkConceptChronicle, String descriptionValue, DescriptionType wbDescriptionType, 
-			boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, Status status)
+	public SememeChronology<DescriptionSememe<?>> addDescription(ConceptChronology<? extends ConceptVersion<?>> concept, String descriptionValue, DescriptionType wbDescriptionType, 
+			boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, State status)
 	{
-		return addDescription(ttkConceptChronicle, null, descriptionValue, wbDescriptionType, preferred, sourceDescriptionTypeUUID, sourceDescriptionRefsetUUID, status);
+		return addDescription(concept, null, descriptionValue, wbDescriptionType, preferred, sourceDescriptionTypeUUID, sourceDescriptionRefsetUUID, status);
 	}
 	
 
@@ -327,200 +385,161 @@ public class EConceptUtility
 	 * @param sourceDescriptionTypeUUID - if null, set to "member"
 	 * @param sourceDescriptionRefsetUUID - if null, this and sourceDescriptionTypeUUID are ignored.
 	 */
-	public TtkDescriptionChronicle addDescription(TtkConceptChronicle ttkConceptChronicle, UUID descriptionPrimordialUUID, String descriptionValue, 
-			DescriptionType wbDescriptionType, boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, Status status)
+	public SememeChronology<DescriptionSememe<?>> addDescription(ConceptChronology<? extends ConceptVersion<?>> concept, UUID descriptionPrimordialUUID, String descriptionValue, 
+			DescriptionType wbDescriptionType, boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, State state)
 	{
-		List<TtkDescriptionChronicle> descriptions = ttkConceptChronicle.getDescriptions();
-		if (descriptions == null)
-		{
-			descriptions = new ArrayList<TtkDescriptionChronicle>();
-			ttkConceptChronicle.setDescriptions(descriptions);
-		}
-		TtkDescriptionChronicle description = new TtkDescriptionChronicle();
-		description.setConceptUuid(ttkConceptChronicle.getPrimordialUuid());
-		description.setLang(lang_);
+		
+		@SuppressWarnings("rawtypes")
+		DescriptionBuilder db = descriptionBuilderService_.getDescriptionBuilder(
+				descriptionValue, 
+				concept.getConceptSequence(),
+				wbDescriptionType.getConceptSpec(), lang_);
+		
+		
 		if (descriptionPrimordialUUID == null)
 		{
-			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(ttkConceptChronicle.getPrimordialUuid().toString(), descriptionValue, 
+			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.toString(), descriptionValue, 
 					wbDescriptionType.name(), preferred + "", (sourceDescriptionTypeUUID == null ? null : sourceDescriptionTypeUUID.toString()));
 		}
-		description.setPrimordialComponentUuid(descriptionPrimordialUUID);
-		UUID descriptionTypeUuid = null;
-		if (DescriptionType.FSN == wbDescriptionType)
+		
+		db.setPrimordialUuid(descriptionPrimordialUUID);
+		
+		if (preferred)
 		{
-			descriptionTypeUuid = fullySpecifiedNameUuid_;
-		}
-		else if (DescriptionType.SYNONYM == wbDescriptionType)
-		{
-			descriptionTypeUuid = synonymUuid_;
-		}
-		else if (DescriptionType.DEFINITION == wbDescriptionType)
-		{
-			descriptionTypeUuid = definitionUuid_;
+			db.setPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 		}
 		else
 		{
-			throw new RuntimeException("Unsupported descriptiontype '" + wbDescriptionType + "'");
+			db.setAcceptableInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 		}
-		description.setTypeUuid(descriptionTypeUuid);
-		description.setText(descriptionValue);
-		setRevisionAttributes(description, status, ttkConceptChronicle.getConceptAttributes().getTime());
-
-		descriptions.add(description);
-		//Add the en-us info
-		addLegacyUuidAnnotation(description, null, (preferred ? descriptionPreferredUuid_ : descriptionAcceptableUuid_), usEnRefsetUuid_, Status.ACTIVE, null);
 		
-		if (sourceDescriptionRefsetUUID != null)
+		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+		
+		@SuppressWarnings("unchecked")
+		SememeChronology<DescriptionSememe<?>> desc = (SememeChronology<DescriptionSememe<?>>)db.build(createStamp(state, concept), builtObjects);
+		
+		for (OchreExternalizable ochreObject : builtObjects)
 		{
-			try
-			{
-				addAnnotation(description, null, (sourceDescriptionTypeUUID == null ? null : new TtkRefexDynamicUUID(sourceDescriptionTypeUUID)),
-						sourceDescriptionRefsetUUID, null, null);
-			}
-			catch (PropertyVetoException e)
-			{
-				throw new RuntimeException("Unexpected");
-			}
+			writer_.put(ochreObject);
 		}
 		
 		ls_.addDescription(wbDescriptionType.name() + (sourceDescriptionTypeUUID == null ? (sourceDescriptionRefsetUUID == null ? "" : ":-member-:") :
 				":" + getOriginStringForUuid(sourceDescriptionTypeUUID) + ":")
 					+ (sourceDescriptionRefsetUUID == null ? "" : getOriginStringForUuid(sourceDescriptionRefsetUUID)));
-		return description;
+		
+		if (sourceDescriptionRefsetUUID != null)
+		{
+			addAnnotation(desc, null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUID(sourceDescriptionTypeUUID)),
+				sourceDescriptionRefsetUUID, null, null);
+		}
+		
+		return desc;
 	}
 	
 	/**
 	 * Add an alternate ID to the concept.
 	 */
-	public TtkIdentifierUuid addUUID(TtkConceptChronicle ttkConceptChronicle, UUID uuid, UUID authorityUUID)
+	public void addUUID(UUID existingUUID, UUID newUUID)
 	{
-		TtkConceptAttributesChronicle attributes = ttkConceptChronicle.getConceptAttributes();
-		if (attributes == null)
-		{
-			attributes = new TtkConceptAttributesChronicle();
-			ttkConceptChronicle.setConceptAttributes(attributes);
-		}
-		
-		List<TtkIdentifier> ids = attributes.getAdditionalIdComponents();
-		if (ids == null)
-		{
-			ids = new ArrayList<>();
-			attributes.setAdditionalIdComponents(ids);
-		}
-		
-		TtkIdentifierUuid id = new TtkIdentifierUuid(uuid);
-		id.setAuthorityUuid(authorityUUID);
-		setRevisionAttributes(id, null, ttkConceptChronicle.getConceptAttributes().getTime());
-		
-		ids.add(id);
-		
-		return id;
+		ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService().getConcept(existingUUID);
+		conceptChronology.addAdditionalUuids(newUUID);
+		writer_.put(conceptChronology);
 	}
 	
-	/**
-	 * Generated the UUID, uses the concept time
-	 */
-	public TtkRefexDynamicMemberChronicle addStringAnnotation(TtkConceptChronicle concept, String annotationValue, UUID refsetUuid, Status status)
-	{
-		if (annotationValue == null)
-		{
-			throw new RuntimeException("value is now required.");
-		}
-		try
-		{
-			return addAnnotation(concept.getConceptAttributes(), null, new TtkRefexDynamicData[] {new TtkRefexDynamicString(annotationValue)}, refsetUuid, status, null);
-		}
-		catch (PropertyVetoException e)
-		{
-			throw new RuntimeException("Unexpected");
-		}
-	}
-
 	/**
 	 * uses the concept time, UUID is created from the component UUID, the annotation value and type.
 	 */
-	public TtkRefexDynamicMemberChronicle addStringAnnotation(TtkComponentChronicle<?, ?> component, String annotationValue, UUID refsetUuid, Status status)
+	public SememeChronology<DynamicSememe<?>> addStringAnnotation(ObjectChronology<?> referencedComponent, String annotationValue, UUID refsetUuid, State status)
 	{
-		if (annotationValue == null)
-		{
-			throw new RuntimeException("value is now required.");
-		}
-		try
-		{
-			return addAnnotation(component, null, new TtkRefexDynamicData[] {new TtkRefexDynamicString(annotationValue)}, refsetUuid, status, null);
-		}
-		catch (PropertyVetoException e)
-		{
-			throw new RuntimeException("Unexpected");
-		}
+		return addAnnotation(referencedComponent, null, new DynamicSememeDataBI[] {new DynamicSememeString(annotationValue)}, refsetUuid, status, null);
 	}
 	
-	public TtkRefexDynamicMemberChronicle addAnnotationStyleRefsetMembership(TtkComponentChronicle<?, ?> component, UUID refexDynamicTypeUuid, Status status, Long time)
+	public SememeChronology<DynamicSememe<?>> addAnnotationStyleRefsetMembership(ObjectChronology<?> referencedComponent, UUID refexDynamicTypeUuid, State status, Long time)
 	{
-		return addAnnotation(component, null, (TtkRefexDynamicData[])null, refexDynamicTypeUuid, status, time);
+		return addAnnotation(referencedComponent, null, (DynamicSememeDataBI[])null, refexDynamicTypeUuid, status, time);
 	}
 	
-	public TtkRefexDynamicMemberChronicle addAnnotation(TtkComponentChronicle<?, ?> component, UUID uuidForCreatedAnnotation, TtkRefexDynamicData value, 
-			UUID refexDynamicTypeUuid, Status status, Long time)
+	public SememeChronology<DynamicSememe<?>> addAnnotation(ObjectChronology<?> referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeDataBI value, 
+			UUID refexDynamicTypeUuid, State status, Long time)
 	{
-		return addAnnotation(component, uuidForCreatedAnnotation, new TtkRefexDynamicData[] {value}, refexDynamicTypeUuid, status, time);
+		return addAnnotation(referencedComponent, uuidForCreatedAnnotation, new DynamicSememeDataBI[] {value}, refexDynamicTypeUuid, status, time);
 	}
 	
 	/**
-	 * @param component The component to attach this annotation to
-	 * @param UuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
+	 * @param referencedComponent The component to attach this annotation to
+	 * @param uuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
 	 * @param values - the values to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
 	 * of the sememe represented by refexDynamicTypeUuid
 	 * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type - 
-	 * @param status
+	 * @param state
 	 * @param time - if null, uses the component time
 	 * @return
 	 */
-	public TtkRefexDynamicMemberChronicle addAnnotation(TtkComponentChronicle<?, ?> component, UUID uuidForCreatedAnnotation, TtkRefexDynamicData[] values, 
-			UUID refexDynamicTypeUuid, Status status, Long time)
+	@SuppressWarnings("unchecked")
+	public SememeChronology<DynamicSememe<?>> addAnnotation(ObjectChronology<?> referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeDataBI[] values, 
+			UUID refexDynamicTypeUuid, State state, Long time)
 	{
-		List<TtkRefexDynamicMemberChronicle> annotations = component.getAnnotationsDynamic();
-		if (annotations == null)
-		{
-			annotations = new ArrayList<TtkRefexDynamicMemberChronicle>();
-			component.setAnnotationsDynamic(annotations);
-		}
-		
-		TtkRefexDynamicMemberChronicle annotation = new TtkRefexDynamicMemberChronicle();
-		
-		annotation.setComponentUuid(component.getPrimordialComponentUuid());
-		annotation.setRefexAssemblageUuid(refexDynamicTypeUuid);
 		validateDataTypes(refexDynamicTypeUuid, values);
-		annotation.setData(values);
+		@SuppressWarnings("rawtypes")
+		SememeBuilder sb = sememeBuilderService_.getDyanmicSememeBuilder(referencedComponent.getNid(), 
+				Get.identifierService().getConceptSequenceForUuids(refexDynamicTypeUuid), values);
+		
 		if (uuidForCreatedAnnotation == null)
 		{
-			try
+			StringBuilder temp = new StringBuilder();
+			temp.append(refexDynamicTypeUuid.toString()); 
+			temp.append(referencedComponent.getPrimordialUuid().toString());
+			if (values != null)
 			{
-				String hashValue = TtkUtils.setUUIDForRefex(annotation, values, ConverterUUID.getNamespace());
-			
-			ConverterUUID.addMapping(hashValue, annotation.getPrimordialComponentUuid());
+				for (DynamicSememeDataBI d : values)
+				{
+					if (d == null)
+					{
+						temp.append("null");
+					}
+					else
+					{
+						temp.append(d.getDynamicSememeDataType().getDisplayName());
+						temp.append(new String(d.getData()));
+					}
+				}
 			}
-			catch (NoSuchAlgorithmException | UnsupportedEncodingException e)
-			{
-				throw new RuntimeException("Unexpected", e);
-			}
+			uuidForCreatedAnnotation = ConverterUUID.createNamespaceUUIDFromString(sb.toString());
+		}
+		
+		sb.setPrimordialUuid(uuidForCreatedAnnotation);
+		
+		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+		SememeChronology<DynamicSememe<?>> sc;
+		if (time == null)
+		{
+			sc = (SememeChronology<DynamicSememe<?>>)sb.build(createStamp(state, referencedComponent), builtObjects);
 		}
 		else
 		{
-			annotation.setPrimordialComponentUuid(uuidForCreatedAnnotation);
+			sc = (SememeChronology<DynamicSememe<?>>)sb.build(createStamp(state, time), builtObjects);
 		}
 		
-		setRevisionAttributes(annotation, status, (time == null ? component.getTime() : time));
-		annotations.add(annotation);
-		annotationLoadStats(component, refexDynamicTypeUuid);
-		return annotation;
+		for (OchreExternalizable ochreObject : builtObjects)
+		{
+			writer_.put(ochreObject);
+		}
+		if (values == null || values.length == 0)
+		{
+			ls_.addRefsetMember(getOriginStringForUuid(refexDynamicTypeUuid));
+		}
+		else
+		{
+			annotationLoadStats(referencedComponent, refexDynamicTypeUuid);
+		}
+		return sc;
 	}
 
 	/**
 	 * @param refexDynamicTypeUuid
 	 * @param values
 	 */
-	private void validateDataTypes(UUID refexDynamicTypeUuid, TtkRefexDynamicData[] values)
+	private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicSememeDataBI[] values)
 	{
 		//TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
 		//generateMetadataEConcepts
@@ -548,9 +567,9 @@ public class EConceptUtility
 				}
 				else
 				{
-					if (column.getColumnDataType() != values[i].getRefexDataType())
+					if (column.getColumnDataType() != values[i].getDynamicSememeDataType())
 					{
-						throw new RuntimeException("Datatype mismatch - " + column.getColumnDataType() + " - " + values[i].getRefexDataType());
+						throw new RuntimeException("Datatype mismatch - " + column.getColumnDataType() + " - " + values[i].getDynamicSememeDataType());
 					}
 				}
 			}
@@ -558,149 +577,96 @@ public class EConceptUtility
 	}
 
 	/**
-	 * uses the component time, creates the UUID from the component UUID, the value UUID, and the type UUID.
-	 */
-	public TtkRefexDynamicMemberChronicle addUuidAnnotation(TtkComponentChronicle<?, ?> component, UUID value, UUID refsetUuid)
-	{
-		if (value == null)
-		{
-			throw new RuntimeException("value is now required.");
-		}
-		try
-		{
-			return addAnnotation(component, null, new TtkRefexDynamicData[] {new TtkRefexDynamicUUID(value)}, refsetUuid, null, null);
-		}
-		catch (PropertyVetoException e)
-		{
-			throw new RuntimeException("Unexpected");
-		}
-	}
-	
-	/**
 	 * Generates the UUID, uses the component time
 	 */
-	public TtkRefexDynamicMemberChronicle addUuidAnnotation(TtkConceptChronicle concept, UUID value, UUID refsetUuid)
+	public SememeChronology<DynamicSememe<?>> addUuidAnnotation(ObjectChronology<?> object, UUID value, UUID refsetUuid)
 	{
-		if (value == null)
-		{
-			throw new RuntimeException("value is now required.");
-		}
-		try
-		{
-			return addAnnotation(concept.getConceptAttributes(), null, new TtkRefexDynamicData[] {new TtkRefexDynamicUUID(value)}, refsetUuid, null, null);
-		}
-		catch (PropertyVetoException e)
-		{
-			throw new RuntimeException("Unexpected");
-		}
+		return addAnnotation(object, null, new DynamicSememeDataBI[] {new DynamicSememeUUID(value)}, refsetUuid, null, null);
 	}
 
-	/**
-	 * annotationPrimordialUuid - if null, generated from component UUID, value, type
-	 * @param time - If time is null, uses the component time.
-	 * @param valueConcept - if value is null, it uses RefsetAuxiliary.Concept.NORMAL_MEMBER.getPrimoridalUid()
-	 */
-	private TtkRefexUuidMemberChronicle addLegacyUuidAnnotation(TtkComponentChronicle<?, ?> component, UUID annotationPrimordialUuid, UUID valueConcept, UUID refsetUuid, 
-			Status status, Long time)
+	//I don't think we need this any longer
+//	/**
+//	 * annotationPrimordialUuid - if null, generated from component UUID, value, type
+//	 * @param time - If time is null, uses the component time.
+//	 */
+//	@SuppressWarnings("unchecked")
+//	public SememeChronology<SememeVersion<?>> addLegacyUuidAnnotation(ObjectChronology<?> referencedComponent, UUID annotationPrimordialUuid, UUID refsetUuid, 
+//			State state, Long time)
+//	{
+//		@SuppressWarnings("rawtypes")
+//		SememeBuilder sb = sememeBuilderService_.getMembershipSememeBuilder(referencedComponent.getNid(), 
+//				Get.identifierService().getConceptSequenceForUuids(refsetUuid));
+//		
+//		if (annotationPrimordialUuid == null)
+//		{
+//			StringBuilder temp = new StringBuilder();
+//			temp.append(refsetUuid.toString()); 
+//			temp.append(referencedComponent.getPrimordialUuid().toString());
+//			
+//			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromString(sb.toString());
+//		}
+//		
+//		sb.setPrimordialUuid(annotationPrimordialUuid);
+//		
+//		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+//		SememeChronology<SememeVersion<?>> sc;
+//		if (time == null)
+//		{
+//			sc = (SememeChronology<SememeVersion<?>>)sb.build(createStamp(state, referencedComponent), builtObjects);
+//		}
+//		else
+//		{
+//			sc = (SememeChronology<SememeVersion<?>>)sb.build(createStamp(state, time), builtObjects);
+//		}
+//		
+//		for (OchreExternalizable ochreObject : builtObjects)
+//		{
+//			writer_.put(ochreObject);
+//		}
+//		ls_.addRefsetMember(getOriginStringForUuid(refsetUuid));
+//
+//		return sc;
+//	}
+
+	private void annotationLoadStats(ObjectChronology<?> component, UUID refsetUuid)
 	{
-		List<TtkRefexAbstractMemberChronicle<?>> annotations = component.getAnnotations();
-
-		if (annotations == null)
-		{
-			annotations = new ArrayList<TtkRefexAbstractMemberChronicle<?>>();
-			component.setAnnotations(annotations);
-		}
-
-		TtkRefexUuidMemberChronicle conceptRefexMember = new TtkRefexUuidMemberChronicle();
-
-		conceptRefexMember.setReferencedComponentUuid(component.getPrimordialComponentUuid());
-		if (annotationPrimordialUuid == null)
-		{
-			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromStrings(component.getPrimordialComponentUuid().toString(), 
-					(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept).toString(), refsetUuid.toString());
-		}
-		conceptRefexMember.setPrimordialComponentUuid(annotationPrimordialUuid);
-		conceptRefexMember.setUuid1(valueConcept == null ? refsetMemberTypeNormalMemberUuid_ : valueConcept);
-		conceptRefexMember.setAssemblageUuid(refsetUuid);
-		setRevisionAttributes(conceptRefexMember, status, (time == null ? component.getTime() : time));
-
-		annotations.add(conceptRefexMember);
-
-		annotationLoadStats(component, refsetUuid);
-		return conceptRefexMember;
-	}
-
-	private void annotationLoadStats(TtkComponentChronicle<?, ?> component, UUID refsetUuid)
-	{
-		if (component instanceof TtkConceptAttributesChronicle)
-		{
-			ls_.addAnnotation("Concept", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
-		}
-		else if (component instanceof TtkDescriptionChronicle)
-		{
-			ls_.addAnnotation("Description", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
-		}
-		else if (component instanceof TtkRelationshipChronicle)
-		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRelationshipChronicle) component).getTypeUuid()), getOriginStringForUuid(refsetUuid));
-		}
-		else if (component instanceof TtkRefexStringMemberChronicle)
-		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), 
-					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
-		}
-		else if (component instanceof TtkRefexUuidMemberChronicle)
-		{
-			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexUuidMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
-		}
-		else if (component instanceof TtkRefexDynamicMemberChronicle)
-		{
-			ls_.addAnnotation((BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "") 
-				+ getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
-		}
-		else
-		{
-			ls_.addAnnotation(getOriginStringForUuid(component.getPrimordialComponentUuid()), 
-					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
-		}
+//TODO fix up later
+//		if (component instanceof TtkConceptAttributesChronicle)
+//		{
+//			ls_.addAnnotation("Concept", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
+//		}
+//		else if (component instanceof TtkDescriptionChronicle)
+//		{
+//			ls_.addAnnotation("Description", (BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
+//		}
+//		else if (component instanceof TtkRelationshipChronicle)
+//		{
+//			ls_.addAnnotation(getOriginStringForUuid(((TtkRelationshipChronicle) component).getTypeUuid()), getOriginStringForUuid(refsetUuid));
+//		}
+//		else if (component instanceof TtkRefexStringMemberChronicle)
+//		{
+//			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), 
+//					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
+//		}
+//		else if (component instanceof TtkRefexUuidMemberChronicle)
+//		{
+//			ls_.addAnnotation(getOriginStringForUuid(((TtkRefexUuidMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
+//		}
+//		else if (component instanceof TtkRefexDynamicMemberChronicle)
+//		{
+//			ls_.addAnnotation((BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "") 
+//				+ getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
+//		}
+//		else
+//		{
+//			ls_.addAnnotation(getOriginStringForUuid(component.getPrimordialComponentUuid()), 
+//					(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
+//		}
 	}
 	
-	public TtkRefexDynamicMemberChronicle addDynamicRefsetMember(TtkConceptChronicle refsetConcept, UUID targetUuid, UUID uuidForCreatedAnnotation, Status status, Long time)
+	public SememeChronology<DynamicSememe<?>> addDynamicRefsetMember(UUID refsetConcept, ConceptChronology<? extends ConceptVersion<?>> targetUuid, UUID uuidForCreatedAnnotation, State status, Long time)
 	{
-		List<TtkRefexDynamicMemberChronicle> members = refsetConcept.getRefsetMembersDynamic();
-		if (members == null)
-		{
-			members = new ArrayList<TtkRefexDynamicMemberChronicle>();
-			refsetConcept.setRefsetDynamicMembers(members);
-		}
-		
-		TtkRefexDynamicMemberChronicle member = new TtkRefexDynamicMemberChronicle();
-		
-		member.setComponentUuid(targetUuid);
-		member.setRefexAssemblageUuid(refsetConcept.getPrimordialUuid());
-		//validateDataTypes(refexDynamicTypeUuid, values);
-		member.setData(null);
-		if (uuidForCreatedAnnotation == null)
-		{
-			try
-			{
-				String hashValue = TtkUtils.setUUIDForRefex(member, null, ConverterUUID.getNamespace());
-				ConverterUUID.addMapping(hashValue, member.getPrimordialComponentUuid());
-			}
-			catch (NoSuchAlgorithmException | UnsupportedEncodingException e)
-			{
-				throw new RuntimeException("Unexpected", e);
-			}
-		}
-		else
-		{
-			member.setPrimordialComponentUuid(uuidForCreatedAnnotation);
-		}
-		
-		setRevisionAttributes(member, status, (time == null ? refsetConcept.getConceptAttributes().getTime() : time));
-		members.add(member);
-		ls_.addRefsetMember(getOriginStringForUuid(refsetConcept.getPrimordialUuid()));
-		return member;
+		return addAnnotation(targetUuid, uuidForCreatedAnnotation, (DynamicSememeDataBI)null, refsetConcept, status, time);
 	}
 	
 	/**
@@ -710,25 +676,18 @@ public class EConceptUtility
 	 * @param associationTypeUuid required
 	 * @param time - if null, default is used
 	 */
-	public TtkRefexDynamicMemberChronicle addAssociation(TtkComponentChronicle<?, ?> ttkConceptChronicle, UUID associationPrimordialUuid, UUID targetUuid, 
-			UUID associationTypeUuid, Status status, Long time)
+	public SememeChronology<DynamicSememe<?>> addAssociation(ConceptChronology<? extends ConceptVersion<?>> concept, UUID associationPrimordialUuid, UUID targetUuid, 
+			UUID associationTypeUuid, State state, Long time)
 	{
-		try
-		{
-			return addAnnotation(ttkConceptChronicle, associationPrimordialUuid, 
-					new TtkRefexDynamicData[]{new TtkRefexDynamicUUID(targetUuid)}, 
-					associationTypeUuid, status, time);
-		}
-		catch (PropertyVetoException e)
-		{
-			throw new RuntimeException(e);
-		}
+		return addAnnotation(concept, associationPrimordialUuid, 
+				new DynamicSememeDataBI[]{new DynamicSememeUUID(targetUuid)}, 
+				associationTypeUuid, state, time);
 	}
 
 	/**
 	 * Add an IS_A_REL relationship, with the time set to now.
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID targetUuid)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ConceptChronology<? extends ConceptVersion<?>> ttkConceptChronicle, UUID targetUuid)
 	{
 		return addRelationship(ttkConceptChronicle, null, targetUuid, null, null, null, null);
 	}
@@ -740,7 +699,7 @@ public class EConceptUtility
 	 * @param relTypeUuid - is optional - if not provided, the default value of IS_A_REL is used.
 	 * @param time - if null, default is used
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID targetUuid, UUID relTypeUuid, Long time)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ConceptChronology<? extends ConceptVersion<?>> ttkConceptChronicle, UUID targetUuid, UUID relTypeUuid, Long time)
 	{
 		return addRelationship(ttkConceptChronicle, null, targetUuid, relTypeUuid, null, null, time);
 	}
@@ -749,7 +708,7 @@ public class EConceptUtility
 	 * This rel add method handles the advanced cases where a rel type 'foo' is actually being loaded as "is_a" (or some other arbitrary type)
 	 * it makes the swap, and adds the second value as a UUID annotation on the created relationship. 
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID targetUuid, Property p, Long time)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ConceptChronology<? extends ConceptVersion<?>> ttkConceptChronicle, UUID targetUuid, Property p, Long time)
 	{
 		if (p.getWBTypeUUID() == null)
 		{
@@ -768,56 +727,79 @@ public class EConceptUtility
 	 * @param relTypeUuid - is optional - if not provided, the default value of IS_A_REL is used.
 	 * @param time - if null, default is used
 	 */
-	public TtkRelationshipChronicle addRelationship(TtkConceptChronicle ttkConceptChronicle, UUID relPrimordialUuid, UUID targetUuid, UUID relTypeUuid, 
-			UUID sourceRelTypeUUID, UUID sourceRelRefsetUUID, Long time)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ConceptChronology<? extends ConceptVersion<?>> concept, UUID relPrimordialUuid, UUID targetUuid, UUID relTypeUuid, UUID sourceRelTypeUUID,
+			UUID sourceRelRefsetUUID, Long time)
 	{
-		List<TtkRelationshipChronicle> relationships = ttkConceptChronicle.getRelationships();
-		if (relationships == null)
+		//TODO this is going to end up creating one logic graph per rel, which, I suspect, isn't correct.
+		//Need to talk to Keith about this, figure out if I can do this one by one, or if I have to build the entire logic graph at once.
+		//If at once, then, what do I do with the individual relType annotations?
+		LogicalExpressionBuilder leb = expressionBuilderService_.getLogicalExpressionBuilder();
+
+		if (relTypeUuid == null || relTypeUuid.equals(isARelUuid_))
 		{
-			relationships = new ArrayList<TtkRelationshipChronicle>();
-			ttkConceptChronicle.setRelationships(relationships);
+			NecessarySet(And(ConceptAssertion(Get.conceptService().getConcept(targetUuid), leb)));
+		}
+		else
+		{
+			SomeRole(Get.conceptService().getConcept(relTypeUuid),
+					ConceptAssertion(Get.conceptService().getConcept(targetUuid), leb));
 		}
 
-		TtkRelationshipChronicle rel = new TtkRelationshipChronicle();
-		rel.setPrimordialComponentUuid(relPrimordialUuid != null ? relPrimordialUuid : 
-			ConverterUUID.createNamespaceUUIDFromStrings(ttkConceptChronicle.getPrimordialUuid().toString(), targetUuid.toString(), 
-					(relTypeUuid == null ? isARelUuid_.toString() : relTypeUuid.toString())));
-		rel.setC1Uuid(ttkConceptChronicle.getPrimordialUuid());
-		rel.setTypeUuid(relTypeUuid == null ? isARelUuid_ : relTypeUuid);
-		rel.setC2Uuid(targetUuid);
-		rel.setCharacteristicUuid(definingCharacteristicUuid_);
-		rel.setRefinabilityUuid(notRefinableUuid);
-		rel.setRelGroup(0);
-		setRevisionAttributes(rel, null, time);
+		LogicalExpression logicalExpression = leb.build();
 
-		relationships.add(rel);
-		
+		@SuppressWarnings("rawtypes")
+		SememeBuilder sb = sememeBuilderService_.getLogicalExpressionSememeBuilder(logicalExpression, concept.getNid(),
+				conceptBuilderService_.getDefaultLogicCoordinate().getStatedAssemblageSequence());
+
+		sb.setPrimordialUuid(relPrimordialUuid != null ? relPrimordialUuid
+				: ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), targetUuid.toString(),
+						(relTypeUuid == null ? isARelUuid_.toString() : relTypeUuid.toString())));
+
+		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+
+		@SuppressWarnings("unchecked")
+		SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(createStamp(State.ACTIVE, concept), builtObjects);
+
+		for (OchreExternalizable ochreObject : builtObjects)
+		{
+			writer_.put(ochreObject);
+		}
+
 		if (sourceRelTypeUUID != null && sourceRelRefsetUUID != null)
 		{
-			addUuidAnnotation(rel, sourceRelTypeUUID, sourceRelRefsetUUID);
+			addUuidAnnotation(sci, sourceRelTypeUUID, sourceRelRefsetUUID);
 			ls_.addRelationship(getOriginStringForUuid(relTypeUuid) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
 		}
 		else
 		{
 			ls_.addRelationship(getOriginStringForUuid(relTypeUuid == null ? isARelUuid_ : relTypeUuid));
 		}
-		return rel;
+		return sci;
 	}
 
 	/**
 	 * Set up all the boilerplate stuff.
 	 * 
-	 * @param object - The object to do the setting to
-	 * @param statusUuid - Uuid or null (for current)
+	 * @param state - state or null (for current)
+	 * @param readTimeFrom - object to read the time from (conceptVersion, descriptionVersion, etc) - null for default
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public int createStamp(State state, ObjectChronology<?> readTimeFrom) {
+		Optional<LatestVersion<StampedVersion>> latest = ((ObjectChronology)readTimeFrom).getLatestVersion(StampedVersion.class, readBackStamp_);
+		return createStamp(state, readTimeFrom == null ? null : latest.get().value().getTime());
+	}
+	
+	/**
+	 * Set up all the boilerplate stuff.
+	 * 
+	 * @param state - state or null (for current)
 	 * @param time - time or null (for default)
 	 */
-	public void setRevisionAttributes(TtkRevision object, Status status, Long time)
-	{
-		object.setAuthorUuid(authorUuid_);
-		object.setModuleUuid(moduleUuid_);
-		object.setPathUuid(terminologyPathUUID_);
-		object.setStatus(status == null ? Status.ACTIVE : status);
-		object.setTime(time == null ? defaultTime_ : time.longValue());
+	public int createStamp(State state, Long time) {
+		return Get.commitService().getStampSequence(
+				state == null ? State.ACTIVE : state,
+				time == null ? defaultTime_ : time.longValue(), 
+				authorSeq_, moduleSeq_, terminologyPathSeq_);
 	}
 
 	private String getOriginStringForUuid(UUID uuid)
@@ -846,34 +828,15 @@ public class EConceptUtility
 	}
 
 	/**
-	 * Utility method to build and store a metadata concept.
-	 */
-	public TtkConceptChronicle createAndStoreMetaDataConcept(String name, UUID relParentPrimordial, DataOutputStream dos) throws Exception
-	{
-		return createMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(name), name, null, null, null, relParentPrimordial, null, null, dos);
-	}
-
-	/**
-	 * Utility method to build and store a metadata concept.
-	 */
-	public TtkConceptChronicle createAndStoreMetaDataConcept(UUID primordial, String name, UUID relParentPrimordial, 
-			BiConsumer<TtkConceptChronicle, EConceptUtility> callback,
-			DataOutputStream dos) throws Exception
-	{
-		return createMetaDataConcept(primordial, name, null, null, null, relParentPrimordial, null, callback, dos);
-	}
-
-	/**
-	 * Utility method to build and store a metadata concept.
+	 * Utility method to build and store a concept.
 	 * @param callback - optional - used to fire a callback if present.  No impact on created concept.  
 	 * @param dos - optional - does not store when not provided
 	 * @param secondParent - optional
 	 */
-	public TtkConceptChronicle createMetaDataConcept(UUID primordial, String fsnName, String preferredName, String altName, String definition, 
-			UUID relParentPrimordial, UUID secondParent, BiConsumer<TtkConceptChronicle, EConceptUtility> callback, DataOutputStream dos)
-			throws Exception
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial, String fsnName, String preferredName, String altName, String definition, UUID relParentPrimordial, 
+			UUID secondParent)
 	{
-		TtkConceptChronicle concept = createConcept(primordial, fsnName);
+		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(primordial, fsnName);
 		addRelationship(concept, relParentPrimordial);
 		if (secondParent != null)
 		{
@@ -881,27 +844,17 @@ public class EConceptUtility
 		}
 		if (StringUtils.isNotEmpty(preferredName))
 		{
-			addDescription(concept, preferredName, DescriptionType.SYNONYM, true, null, null, Status.ACTIVE);
+			addDescription(concept, preferredName, DescriptionType.SYNONYM, true, null, null, State.ACTIVE);
 		}
 		if (StringUtils.isNotEmpty(altName))
 		{
-			addDescription(concept, altName, DescriptionType.SYNONYM, false, null, null, Status.ACTIVE);
+			addDescription(concept, altName, DescriptionType.SYNONYM, false, null, null, State.ACTIVE);
 		}
 		if (StringUtils.isNotEmpty(definition))
 		{
-			addDescription(concept, definition, DescriptionType.DEFINITION, true, null, null, Status.ACTIVE);
-		}
-
-		//Fire the callback
-		if (callback != null)
-		{
-			callback.accept(concept, this);
+			addDescription(concept, definition, DescriptionType.DEFINITION, true, null, null, State.ACTIVE);
 		}
 		
-		if (dos != null)
-		{
-			concept.writeExternal(dos);
-		}
 		return concept;
 	}
 
@@ -929,49 +882,62 @@ public class EConceptUtility
 			{
 				continue;
 			}
-			createAndStoreMetaDataConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription(), parentPrimordial, null, dos);
+			
+			createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription(), parentPrimordial);
+			
 			UUID secondParent = null;
-			if (pt instanceof BPT_MemberRefsets)
+			if (pt instanceof BPT_Refsets)
 			{
-				//Need to create the VA_Refsets concept, and create a terminology refset grouper, then use that as a second parent
-				TtkConceptChronicle refsetRoot = createVARefsetRootConcept();
-				refsetRoot.writeExternal(dos);
-				
-				TtkConceptChronicle refsetTermGroup = createConcept(pt.getPropertyTypeReferenceSetName(), refsetRoot.getPrimordialUuid());
-				((BPT_MemberRefsets) pt).setRefsetIdentityParent(refsetTermGroup);
+				ConceptChronology<? extends ConceptVersion<?>> refsetTermGroup = createConcept(pt.getPropertyTypeReferenceSetName(), 
+						MetaData.SOLOR_REFSETS.getPrimordialUuid());
+				((BPT_Refsets) pt).setRefsetIdentityParent(refsetTermGroup.getPrimordialUuid());
 				secondParent = refsetTermGroup.getPrimordialUuid(); 
 			}
 			else if (pt instanceof BPT_Descriptions)
 			{
 				//only do this once, in case we see a BPT_Descriptions more than once
-				secondParent = setupWbPropertyMetadata(IsaacMetadataAuxiliaryBinding.DESCRIPTION_SOURCE_TYPE_REFERENCE_SETS.getPrimodialUuid(),
-						IsaacMetadataAuxiliaryBinding.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimodialUuid(), pt, dos);
+				secondParent = setupWbPropertyMetadata(MetaData.DESCRIPTION_SOURCE_TYPE_REFERENCE_SETS.getPrimordialUuid(),
+						MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(), pt, dos);
 			}
 			
 			else if (pt instanceof BPT_Relations)
 			{
-				secondParent = setupWbPropertyMetadata(IsaacMetadataAuxiliaryBinding.RELATIONSHIP_SOURCE_TYPE_REFERENCE_SETS.getPrimodialUuid(),
-						IsaacMetadataAuxiliaryBinding.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimodialUuid(), pt, dos);
+				secondParent = setupWbPropertyMetadata(MetaData.RELATIONSHIP_SOURCE_TYPE_REFERENCE_SETS.getPrimordialUuid(),
+						MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(), pt, dos);
 			}
 			
 			for (Property p : pt.getProperties())
 			{
-				//In the case of refsets, don't store these  yet.  User must manually store refsets after they have been populated.
-				createMetaDataConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), p.getSourcePropertyAltName(), 
-						p.getSourcePropertyDefinition(), pt.getPropertyTypeUUID(), secondParent, p.getCallback(), 
-						(pt instanceof BPT_MemberRefsets ? null : dos));
+				ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), 
+						p.getSourcePropertyAltName(), p.getSourcePropertyDefinition(), pt.getPropertyTypeUUID(), secondParent);
+				if (pt.createAsDynamicRefex())
+				{
+					configureConceptAsDynamicRefex(concept, 
+							(StringUtils.isNotEmpty(p.getSourcePropertyDefinition()) ? p.getSourcePropertyDefinition() : "Dynamic Sememe"),
+							p.getDataColumnsForDynamicRefex(), null, null);
+				}
+				
+				else if (p instanceof PropertyAssociation)
+				{
+					//TODO need to migrate code from otf-util (AssociationType, etc) down into the ISAAC packages... integrate here, at least at doc level
+					//associations return false for "createAsDynamicRefex"
+					PropertyAssociation item = (PropertyAssociation)p;
+					
+					//Make this a dynamic refex - with the association column info
+					configureConceptAsDynamicRefex(concept, item.getSourcePropertyDefinition(),
+							item.getDataColumnsForDynamicRefex(), item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction());
+					
+					//add the inverse name, if it has one
+					if (!StringUtils.isBlank(item.getAssociationInverseName()))
+					{
+						addDescription(concept, item.getAssociationInverseName(), DescriptionType.SYNONYM, false, null, null, State.ACTIVE);
+					}
+					
+					//Add this concept to the association sememe
+					addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), concept, null, State.ACTIVE, null);
+				}
 			}
 		}
-	}
-	
-	public void storeRefsetConcepts(BPT_MemberRefsets refsets, DataOutputStream dos) throws IOException
-	{
-		refsets.getRefsetIdentityParent().writeExternal(dos);
-		for (Property p : refsets.getProperties())
-		{
-			refsets.getConcept(p).writeExternal(dos);
-		}
-		refsets.clearConcepts();
 	}
 	
 	private UUID setupWbPropertyMetadata(UUID refsetSynonymParent, UUID refsetValueParent, PropertyType pt, DataOutputStream dos) throws Exception
@@ -982,48 +948,62 @@ public class EConceptUtility
 		}
 		
 		//Create the terminology specific refset type
-		BiConsumer<TtkConceptChronicle, EConceptUtility> callback = new BiConsumer<TtkConceptChronicle, EConceptUtility>()
-		{
-			@Override
-			public void accept(TtkConceptChronicle concept, EConceptUtility util)
-			{
-				try
-				{
-					DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] {
-							new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true)};
-					TtkUtils.configureConceptAsDynamicRefex(concept, "Carries the source description type information",
-							colInfo,
-							null, 
-							null,
-							(rev -> setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
-					refexAllowedColumnTypes_.put(concept.getPrimordialUuid(), colInfo);
-					List<TtkRefexDynamicMemberChronicle> attrs = concept.getConceptAttributes().getAnnotationsDynamic();
-					if (attrs == null)
-					{
-						attrs = new ArrayList<>();
-					}
-					attrs.add(TtkUtils.configureDynamicRefexIndexes(concept.getPrimordialUuid(), new Integer[] {0}, 
-							(rev -> setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime()))));
-				}
-				catch (NoSuchAlgorithmException | PropertyVetoException | IOException e)
-				{
-					throw new RuntimeException("Unexpected", e);
-				}
-			}
-		};
-		
-		createAndStoreMetaDataConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), refsetSynonymParent, callback, dos);
+		ConceptChronology<? extends ConceptVersion<?>> cc = createConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), refsetSynonymParent);
 		ConverterUUID.addMapping(pt.getPropertyTypeReferenceSetName(), pt.getPropertyTypeReferenceSetUUID());
-		
+		configureConceptAsDynamicRefex(cc, "Carries the source description type information", 
+				new DynamicSememeColumnInfo[] {
+						new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true)
+						}, 
+				null, null);
+
 		//Now create the terminology specific refset type as a child - very similar to above, but since this isn't the refset concept, just an organization
 		//concept, I add an 's' to make it plural, and use a different UUID (calculated from the new plural)
-		//I have a case in UMLS and RxNorm loaders where this makes a duplicate, but its ok, it should merge.
-		return createAndStoreMetaDataConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
-				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParent, null, dos).getPrimordialUuid();
+		return createConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
+				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParent).getPrimordialUuid();
 	}
 	
 	public void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo)
 	{
 		refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
+	}
+	
+	public void configureConceptAsDynamicRefex(ConceptChronology<? extends ConceptVersion<?>> concept, String refexDescription,
+			DynamicSememeColumnInfo[] columns, ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction)
+					throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
+	{
+		// See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
+		//Add the special synonym to establish this as an assemblage concept
+		SememeChronology<DescriptionSememe<?>> desc = addDescription(concept, refexDescription, DescriptionType.DEFINITION, true, null, null, State.ACTIVE);
+		
+		//Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
+		addAnnotation(desc, null, (DynamicSememeDataBI)null, IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), State.ACTIVE, null);
+		
+		//define the data columns (if any)
+		if (columns != null && columns.length > 0)
+		{
+			for (DynamicSememeColumnInfo col : columns)
+			{
+				DynamicSememeDataBI[] data = DynamicSememeUtility.configureDynamicSememeDefinitionDataForColumn(col);
+				addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), State.ACTIVE, null);
+			}
+			registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
+			
+			//TODO should really not mark unindexable column types
+			DynamicSememeInteger[] indexInfo = new DynamicSememeInteger[columns.length];
+			for (int i = 0; i < indexInfo.length; i++)
+			{
+				indexInfo[i] = new DynamicSememeInteger(i);
+			}
+			
+			addAnnotation(concept, null, new DynamicSememeData[] {new DynamicSememeArray<DynamicSememeInteger>(indexInfo)},
+					IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getPrimordialUuid(), State.ACTIVE, null);
+		}
+		
+		//Add the restriction information (if any)
+		DynamicSememeDataBI[] data = DynamicSememeUtility.configureDynamicSememeRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
+		if (data != null)
+		{
+			addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null);
+		}
 	}
 }

@@ -1,22 +1,17 @@
 package gov.va.oia.terminology.converters.sharedUtils.umlsUtils;
 
-import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
-import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.dto.component.description.TtkDescriptionChronicle;
+
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.Property;
+import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 
 public class ValuePropertyPairWithAttributes extends ValuePropertyPair
 {
 	protected HashMap<UUID, ArrayList<String>> stringAttributes = new HashMap<>();
 	protected HashMap<UUID, ArrayList<UUID>> uuidAttributes = new HashMap<>();
-	protected ArrayList<TtkConceptChronicle> refsetMembership = new ArrayList<>();
+	protected ArrayList<UUID> refsetMembership = new ArrayList<>();
 	
 	public ValuePropertyPairWithAttributes(String value, Property property)
 	{
@@ -50,35 +45,35 @@ public class ValuePropertyPairWithAttributes extends ValuePropertyPair
 		values.add(value);
 	}
 	
-	public void addRefsetMembership(TtkConceptChronicle refsetConcept)
+	public void addRefsetMembership(UUID refsetConcept)
 	{
 		refsetMembership.add(refsetConcept);
 	}
 	
-	public static void processAttributes(EConceptUtility eConceptUtility, List<? extends ValuePropertyPairWithAttributes> descriptionSource, List<TtkDescriptionChronicle> descriptions)
-	{
-		for (int i = 0; i < descriptionSource.size(); i++)
-		{
-			for (Entry<UUID, ArrayList<String>> attributes : descriptionSource.get(i).stringAttributes.entrySet())
-			{
-				for (String value : attributes.getValue())
-				{
-					eConceptUtility.addStringAnnotation(descriptions.get(i), value, attributes.getKey(), Status.ACTIVE);
-				}
-			}
-			
-			for (Entry<UUID, ArrayList<UUID>> attributes : descriptionSource.get(i).uuidAttributes.entrySet())
-			{
-				for (UUID value : attributes.getValue())
-				{
-					eConceptUtility.addUuidAnnotation(descriptions.get(i), value, attributes.getKey());
-				}
-			}
-			
-			for (TtkConceptChronicle refsetConcept : descriptionSource.get(i).refsetMembership)
-			{
-				eConceptUtility.addDynamicRefsetMember(refsetConcept, descriptions.get(i).getPrimordialComponentUuid(), null, Status.ACTIVE, null);
-			}
-		}
-	}
+//	public static void processAttributes(EConceptUtility eConceptUtility, List<? extends ValuePropertyPairWithAttributes> descriptionSource, List<TtkDescriptionChronicle> descriptions)
+//	{
+//		for (int i = 0; i < descriptionSource.size(); i++)
+//		{
+//			for (Entry<UUID, ArrayList<String>> attributes : descriptionSource.get(i).stringAttributes.entrySet())
+//			{
+//				for (String value : attributes.getValue())
+//				{
+//					eConceptUtility.addStringAnnotation(descriptions.get(i), value, attributes.getKey(), Status.ACTIVE);
+//				}
+//			}
+//			
+//			for (Entry<UUID, ArrayList<UUID>> attributes : descriptionSource.get(i).uuidAttributes.entrySet())
+//			{
+//				for (UUID value : attributes.getValue())
+//				{
+//					eConceptUtility.addUuidAnnotation(descriptions.get(i), value, attributes.getKey());
+//				}
+//			}
+//			
+//			for (TtkConceptChronicle refsetConcept : descriptionSource.get(i).refsetMembership)
+//			{
+//				eConceptUtility.addDynamicRefsetMember(refsetConcept, descriptions.get(i).getPrimordialComponentUuid(), null, Status.ACTIVE, null);
+//			}
+//		}
+//	}
 }

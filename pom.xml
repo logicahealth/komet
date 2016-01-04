@@ -632,6 +632,7 @@
         <module>logic-provider</module>
         <module>query-provider</module>
         <module>ibdf-provider</module>
+        <module>import-utils</module>
     </modules>
     
     <profiles>

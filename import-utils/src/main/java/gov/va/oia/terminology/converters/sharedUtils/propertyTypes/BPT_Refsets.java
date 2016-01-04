@@ -18,18 +18,30 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
+import java.util.UUID;
 
 /**
+ * Fields to treat as refsets
  * 
- * {@link ConceptCreationNotificationListener}
- *
- * A callback interface for loaders to use when then need to add things to a concept that 
- * won't be created until later in the conversion process 
+ * @author Daniel Armbrust
  * 
- * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public interface ConceptCreationNotificationListener
+public class BPT_Refsets extends PropertyType
 {
-	public void conceptCreated(Property property, TtkConceptChronicle concept);
+	private UUID refsetIdentityParent_;  //Typically "Term-name Refsets" under "Project Refsets"
+
+	public BPT_Refsets(String terminologyName)
+	{
+		super("Refsets", terminologyName + " Refsets", true, null);
+	}
+	
+	public void setRefsetIdentityParent(UUID refsetIdentityParent)
+	{
+		refsetIdentityParent_ = refsetIdentityParent; 
+	}
+	
+	public UUID getRefsetIdentityParent()
+	{
+		return refsetIdentityParent_;
+	}
 }

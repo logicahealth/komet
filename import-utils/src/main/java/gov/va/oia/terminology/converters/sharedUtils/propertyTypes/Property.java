@@ -18,19 +18,10 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
-import gov.va.oia.terminology.converters.sharedUtils.EConceptUtility;
+import java.util.UUID;
+
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
-import java.beans.PropertyVetoException;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import org.apache.commons.lang3.StringUtils;
-import org.ihtsdo.otf.tcc.api.coordinate.Status;
-import org.ihtsdo.otf.tcc.dto.TtkConceptChronicle;
-import org.ihtsdo.otf.tcc.dto.component.TtkUtils;
 
 /**
  * 
@@ -56,8 +47,6 @@ public class Property
 	private UUID useWBPropertyTypeInstead = null;  //see comments in setter
 	private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex_ = null;
 	
-	private ArrayList<ConceptCreationNotificationListener> listeners_ = new ArrayList<>(1);
-
 	/**
 	 * @param dataTypesForDynamicRefex - if null - will use the default information for the parent {@link PropertyType} - otherwise, 
 	 * uses as provided here (even if empty)
@@ -228,79 +217,5 @@ public class Property
 			dataColumnsForDynamicRefex_[0].setAssemblageConcept(getUUID());
 		}
 		return dataColumnsForDynamicRefex_;
-	}
-	
-	/**
-	 * Mechanism to allow registration for notification when the corresponding eConcept has been created for this property.
-	 * Callback occurs before the eConcept is written.  Useful for adding additional attributes to the eConcept.
-	 * @param listener
-	 */
-	public void registerConceptCreationListener(ConceptCreationNotificationListener listener)
-	{
-		listeners_.add(listener);
-	}
-	
-	/**
-	 * This is called just before a metadata concept is written when the typical loadMetaDataItems(...) sequence is used in the eConceptUtility.  
-	 * 
-	 * Any the created concept will be passed to any registered listeners before the concept is written.
-	 * @param concept
-	 */
-	public BiConsumer<TtkConceptChronicle, EConceptUtility> getCallback()
-	{
-		return new BiConsumer<TtkConceptChronicle, EConceptUtility>()
-		{
-			@Override
-			public void accept(TtkConceptChronicle concept, EConceptUtility utility)
-			{
-				try
-				{
-					if (Property.this.getPropertyType().createAsDynamicRefex())
-					{
-						TtkUtils.configureConceptAsDynamicRefex(concept, 
-								(StringUtils.isNotEmpty(Property.this.getSourcePropertyDefinition()) ? Property.this.getSourcePropertyDefinition() : "Dynamic Sememe"),
-								Property.this.getDataColumnsForDynamicRefex(), null, null, 
-								((rev) -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
-						
-						utility.registerDynamicSememeColumnInfo(Property.this.getUUID(), Property.this.getDataColumnsForDynamicRefex());
-						
-						if (Property.this.getDataColumnsForDynamicRefex() != null && Property.this.getDataColumnsForDynamicRefex().length > 0)
-						{
-							if (Property.this.getDataColumnsForDynamicRefex() != null)
-							{
-								Integer[] temp = new Integer[Property.this.getDataColumnsForDynamicRefex().length];
-								for (int i = 0; i < temp.length; i++)
-								{
-									temp[i] = i;
-								}
-								
-								//Not really the right place to put this sememe... but it will get moved appropriate when loaded in ochre.
-								concept.getConceptAttributes().getAnnotationsDynamic().add(
-										TtkUtils.configureDynamicRefexIndexes(Property.this.getUUID(), temp, (rev -> utility.setRevisionAttributes(rev, Status.ACTIVE, 
-												concept.getConceptAttributes().getTime()))));
-							}
-						}
-					}
-					
-					if (Property.this instanceof PropertyAssociation)
-					{
-						PropertyAssociation item = (PropertyAssociation)Property.this;
-						DynamicSememeColumnInfo[] columns = TtkUtils.configureConceptAsAssociation(concept, item.getSourcePropertyDefinition(), item.getAssociationInverseName(), 
-								item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction(),
-								(rev -> utility.setRevisionAttributes(rev, Status.ACTIVE, concept.getConceptAttributes().getTime())));
-						utility.registerDynamicSememeColumnInfo(Property.this.getUUID(), columns);
-					}
-				}
-				catch (NoSuchAlgorithmException | UnsupportedEncodingException | PropertyVetoException e)
-				{
-					throw new RuntimeException("Unexpected");
-				}
-				
-				for (ConceptCreationNotificationListener ccn : listeners_)
-				{
-					ccn.conceptCreated(Property.this, concept);
-				}
-			}
-		};
 	}
 }
