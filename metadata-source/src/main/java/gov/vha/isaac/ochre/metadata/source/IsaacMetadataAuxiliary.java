@@ -139,6 +139,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                         createConcept("String").setPrimordialUuid("a46aaf11-b37a-32d6-abdc-707f084ec8f5");
                     popParent();
                 popParent();
+                createConcept("SOLOR Refsets").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
           popParent();
           //
             createConcept("axiom origin");
