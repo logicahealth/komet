@@ -17,7 +17,6 @@ package gov.vha.isaac.ochre.api.collections;
 
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
@@ -37,341 +36,343 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
 
-	protected enum Concurrency {
-		THREAD_SAFE
-	};
+    protected enum Concurrency {
+        THREAD_SAFE
+    };
 
-	IntSet intSet;
-	boolean readOnly = false;
+    IntSet intSet;
+    boolean readOnly = false;
 
-	/**
-	 *
-	 * @param readOnly true if the set is read only.
-	 */
-	protected AbstractIntSet(boolean readOnly) {
-		intSet = new RoaringIntSet();
-		this.readOnly = readOnly;
-	}
+    /**
+     *
+     * @param readOnly true if the set is read only.
+     */
+    protected AbstractIntSet(boolean readOnly) {
+        intSet = new RoaringIntSet();
+        this.readOnly = readOnly;
+    }
 
-	protected AbstractIntSet() {
-		intSet = new RoaringIntSet();
-	}
+    protected AbstractIntSet() {
+        intSet = new RoaringIntSet();
+    }
 
-	protected AbstractIntSet(Concurrency concurrency) {
-		if (concurrency == Concurrency.THREAD_SAFE) {
-			intSet = new ConcurrentSkipListIntegerSet();
-		} else {
-			intSet = new RoaringIntSet();
-		}
-	}
+    protected AbstractIntSet(Concurrency concurrency) {
+        if (concurrency == Concurrency.THREAD_SAFE) {
+            intSet = new ConcurrentSkipListIntegerSet();
+        } else {
+            intSet = new RoaringIntSet();
+        }
+    }
 
-	protected AbstractIntSet(int... members) {
-		intSet = new RoaringIntSet(members);
-	}
+    protected AbstractIntSet(int... members) {
+        intSet = new RoaringIntSet(members);
+    }
 
-	protected AbstractIntSet(OpenIntHashSet members) {
-		intSet = new RoaringIntSet();
-		members.forEachKey((int element) -> {
-			intSet.add(element);
-			return true;
-		});
+    protected AbstractIntSet(OpenIntHashSet members) {
+        intSet = new RoaringIntSet();
+        members.forEachKey((int element) -> {
+            intSet.add(element);
+            return true;
+        });
 
-	}
+    }
 
-	protected AbstractIntSet(IntStream memberStream) {
-		intSet = new RoaringIntSet(memberStream);
-	}
+    protected AbstractIntSet(IntStream memberStream) {
+        intSet = new RoaringIntSet(memberStream);
+    }
 
-	public int compareTo(T o) {
-		int comparison = Integer.compare(intSet.size(), o.intSet.size());
-		if (comparison != 0) {
-			return comparison;
-		}
-		PrimitiveIterator.OfInt thisIterator = intSet.getIntIterator();
-		PrimitiveIterator.OfInt otherIterator = o.intSet.getIntIterator();
-		while (thisIterator.hasNext()) {
-			comparison = Integer.compare(thisIterator.next(), otherIterator.next());
-			if (comparison != 0) {
-				return comparison;
-			}
-		}
-		return 0;
-	}
+    public int compareTo(T o) {
+        int comparison = Integer.compare(intSet.size(), o.intSet.size());
+        if (comparison != 0) {
+            return comparison;
+        }
+        PrimitiveIterator.OfInt thisIterator = intSet.getIntIterator();
+        PrimitiveIterator.OfInt otherIterator = o.intSet.getIntIterator();
+        while (thisIterator.hasNext()) {
+            comparison = Integer.compare(thisIterator.next(), otherIterator.next());
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        return 0;
+    }
 
-	/**
-	 * Writes a size then each of the members to the DataOutput. 
-	 * @param output
-	 * @throws IOException 
-	 */
-	public void write(DataOutput output) throws IOException {
-		output.writeInt(size());
-		stream().forEach((member) -> {
-			try {
-				output.writeInt(member);
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		});
-	}
+    /**
+     * Writes a size then each of the members to the DataOutput.
+     *
+     * @param output
+     * @throws IOException
+     */
+    public void write(DataOutput output) throws IOException {
+        output.writeInt(size());
+        stream().forEach((member) -> {
+            try {
+                output.writeInt(member);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+    }
 
-	/**
-	 * Reads a size, then each of the members from DataInput.
-	 * @param input
-	 * @throws IOException 
-	 */
-	public void read(DataInput input) throws IOException {
-		int size = input.readInt();
-		for (int i = 0; i < size; i++) {
-			add(input.readInt());
-		}
-		
-	}
+    /**
+     * Reads a size, then each of the members from DataInput.
+     *
+     * @param input
+     * @throws IOException
+     */
+    public void read(DataInput input) throws IOException {
+        int size = input.readInt();
+        for (int i = 0; i < size; i++) {
+            add(input.readInt());
+        }
 
-	public void setReadOnly() {
-		this.readOnly = true;
-	}
+    }
 
-	public void clear() {
-		intSet.clear();
-	}
+    public void setReadOnly() {
+        this.readOnly = true;
+    }
 
-	public T or(T otherSet) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intSet.or(otherSet.intSet);
-		return (T) this;
-	}
+    public void clear() {
+        intSet.clear();
+    }
 
-	public T and(T otherSet) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intSet.and(otherSet.intSet);
-		return (T) this;
-	}
+    public T or(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intSet.or(otherSet.intSet);
+        return (T) this;
+    }
 
-	public T andNot(T otherSet) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intSet.andNot(otherSet.intSet);
-		return (T) this;
-	}
+    public T and(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intSet.and(otherSet.intSet);
+        return (T) this;
+    }
 
-	public T xor(T otherSet) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intSet.xor(otherSet.intSet);
-		return (T) this;
-	}
+    public T andNot(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intSet.andNot(otherSet.intSet);
+        return (T) this;
+    }
 
-	/**
-	 *
-	 * @return the number of elements in this set.
-	 */
-	public int size() {
-		return intSet.size();
-	}
+    public T xor(T otherSet) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intSet.xor(otherSet.intSet);
+        return (T) this;
+    }
 
-	/**
-	 *
-	 * @return true if the set is empty.
-	 */
-	public boolean isEmpty() {
-		return intSet.isEmpty();
-	}
+    /**
+     *
+     * @return the number of elements in this set.
+     */
+    public int size() {
+        return intSet.size();
+    }
 
-	/**
-	 *
-	 * @param item to add to set.
-	 */
-	public void add(int item) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intSet.add(item);
-	}
+    /**
+     *
+     * @return true if the set is empty.
+     */
+    public boolean isEmpty() {
+        return intSet.isEmpty();
+    }
 
-	public void addAll(IntStream intStream) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intStream.forEach((anInt) -> intSet.add(anInt));
-	}
+    /**
+     *
+     * @param item to add to set.
+     */
+    public void add(int item) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intSet.add(item);
+    }
 
-	/**
-	 *
-	 * @param item to remove from set.
-	 */
-	public void remove(int item) {
-		if (readOnly) {
-			throw new UnsupportedOperationException("Read only set");
-		}
-		intSet.remove(item);
-	}
+    public void addAll(IntStream intStream) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intStream.forEach((anInt) -> intSet.add(anInt));
+    }
 
-	/**
-	 *
-	 * @param item to test for containment in set.
-	 * @return true if item is contained in set.
-	 */
-	public boolean contains(int item) {
-		return intSet.contains(item);
-	}
+    /**
+     *
+     * @param item to remove from set.
+     */
+    public void remove(int item) {
+        if (readOnly) {
+            throw new UnsupportedOperationException("Read only set");
+        }
+        intSet.remove(item);
+    }
 
-	/**
-	 *
-	 * @return the set members as an {@code IntStream}
-	 */
-	public IntStream stream() {
-		if (intSet.isEmpty()) {
-			return IntStream.empty();
-		}
-		Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-		return StreamSupport.intStream(streamSupplier,
-				  streamSupplier.get().characteristics(),
-				  false);
-	}
+    /**
+     *
+     * @param item to test for containment in set.
+     * @return true if item is contained in set.
+     */
+    public boolean contains(int item) {
+        return intSet.contains(item);
+    }
 
-	public OptionalInt findFirst() {
-		return stream().findFirst();
-	}
+    /**
+     *
+     * @return the set members as an {@code IntStream}
+     */
+    public IntStream stream() {
+        if (intSet.isEmpty()) {
+            return IntStream.empty();
+        }
+        Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
+        return StreamSupport.intStream(streamSupplier,
+                streamSupplier.get().characteristics(),
+                false);
+    }
 
-	@Override
-	public int hashCode() {
-		int result = 1;
-		PrimitiveIterator.OfInt itr = intSet.getIntIterator();
-		while (itr.hasNext()) {
-			result = 31 * result + itr.next();
-		}
-		return result;
-	}
+    public OptionalInt findFirst() {
+        return stream().findFirst();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final AbstractIntSet<?> other = (AbstractIntSet<?>) obj;
-		if (this.size() != other.size()) {
-			return false;
-		}
-		PrimitiveIterator.OfInt itr1 = this.intSet.getIntIterator();
-		PrimitiveIterator.OfInt itr2 = other.intSet.getIntIterator();
-		while (itr1.hasNext() == itr2.hasNext() && itr1.hasNext() == true) {
-			if (itr1.nextInt() != itr2.nextInt()) {
-				return false;
-			}
-		}
-		return !(itr1.hasNext() || itr2.hasNext());
-	}
+    @Override
+    public int hashCode() {
+        int result = 1;
+        PrimitiveIterator.OfInt itr = intSet.getIntIterator();
+        while (itr.hasNext()) {
+            result = 31 * result + itr.next();
+        }
+        return result;
+    }
 
-	/**
-	 *
-	 * @return the set members as an {@code IntStream}
-	 */
-	public IntStream parallelStream() {
-		if (intSet.isEmpty()) {
-			return IntStream.empty();
-		}
-		Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
-		return StreamSupport.intStream(streamSupplier,
-				  streamSupplier.get().characteristics(),
-				  true);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AbstractIntSet<?> other = (AbstractIntSet<?>) obj;
+        if (this.size() != other.size()) {
+            return false;
+        }
+        PrimitiveIterator.OfInt itr1 = this.intSet.getIntIterator();
+        PrimitiveIterator.OfInt itr2 = other.intSet.getIntIterator();
+        while (itr1.hasNext() == itr2.hasNext() && itr1.hasNext() == true) {
+            if (itr1.nextInt() != itr2.nextInt()) {
+                return false;
+            }
+        }
+        return !(itr1.hasNext() || itr2.hasNext());
+    }
 
-	public int[] asArray() {
-		return stream().toArray();
-	}
+    /**
+     *
+     * @return the set members as an {@code IntStream}
+     */
+    public IntStream parallelStream() {
+        if (intSet.isEmpty()) {
+            return IntStream.empty();
+        }
+        Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
+        return StreamSupport.intStream(streamSupplier,
+                streamSupplier.get().characteristics(),
+                true);
+    }
 
-	public OpenIntHashSet asOpenIntHashSet() {
-		OpenIntHashSet set = new OpenIntHashSet();
-		stream().forEach((sequence) -> set.add(sequence));
-		return set;
-	}
+    public int[] asArray() {
+        return stream().toArray();
+    }
 
-	protected Supplier<? extends Spliterator.OfInt> get() {
-		return new SpliteratorSupplier();
+    public OpenIntHashSet asOpenIntHashSet() {
+        OpenIntHashSet set = new OpenIntHashSet();
+        stream().forEach((sequence) -> set.add(sequence));
+        return set;
+    }
 
-	}
+    protected Supplier<? extends Spliterator.OfInt> get() {
+        return new SpliteratorSupplier();
 
-	private class SpliteratorSupplier implements Supplier<Spliterator.OfInt> {
+    }
 
-		@Override
-		public Spliterator.OfInt get() {
-			return new BitSetSpliterator();
-		}
+    private class SpliteratorSupplier implements Supplier<Spliterator.OfInt> {
 
-	}
+        @Override
+        public Spliterator.OfInt get() {
+            return new BitSetSpliterator();
+        }
 
-	private class BitSetSpliterator implements Spliterator.OfInt {
+    }
 
-		PrimitiveIterator.OfInt intIterator = intSet.getIntIterator();
+    private class BitSetSpliterator implements Spliterator.OfInt {
 
-		@Override
-		public Spliterator.OfInt trySplit() {
-			return null;
-		}
+        PrimitiveIterator.OfInt intIterator = intSet.getIntIterator();
 
-		@Override
-		public boolean tryAdvance(IntConsumer action) {
-			action.accept(intIterator.next());
-			return intIterator.hasNext();
-		}
+        @Override
+        public Spliterator.OfInt trySplit() {
+            return null;
+        }
 
-		@Override
-		public long estimateSize() {
-			return AbstractIntSet.this.size();
-		}
+        @Override
+        public boolean tryAdvance(IntConsumer action) {
+            action.accept(intIterator.next());
+            return intIterator.hasNext();
+        }
 
-		@Override
-		public int characteristics() {
-			return Spliterator.DISTINCT
-					  + Spliterator.IMMUTABLE
-					  + Spliterator.NONNULL
-					  + Spliterator.ORDERED
-					  + Spliterator.SIZED
-					  + Spliterator.SORTED;
-		}
-	}
+        @Override
+        public long estimateSize() {
+            return AbstractIntSet.this.size();
+        }
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName()
-				  + " size: " + size() + " elements: " + intSet;
-	}
+        @Override
+        public int characteristics() {
+            return Spliterator.DISTINCT
+                    | Spliterator.IMMUTABLE
+                    | Spliterator.NONNULL
+                    | Spliterator.ORDERED
+                    | Spliterator.SIZED
+                    | Spliterator.SORTED;
+        }
+    }
 
-	public PrimitiveIterator.OfInt getIntIterator() {
-		return intSet.getIntIterator();
-	}
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+                + " size: " + size() + " elements: " + intSet;
+    }
 
-	public PrimitiveIterator.OfInt getReverseIntIterator() {
-		return intSet.getReverseIntIterator();
-	}
+    public PrimitiveIterator.OfInt getIntIterator() {
+        return intSet.getIntIterator();
+    }
 
-	public String toString(IntFunction<String> function) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[");
-		int limit = 20;
-		stream().limit(limit).forEach((element) -> {
-			sb.append(function.apply(element));
-			sb.append("<");
-			sb.append(element);
-			sb.append(">");
-			sb.append(", ");
-		});
-		if (size() > limit) {
-			sb.append("...");
-		} else if (size() > 0) {
-			sb.delete(sb.length() - 2, sb.length());
-		}
-		sb.append("]");
-		return this.getClass().getSimpleName()
-				  + " size: " + size() + " elements: " + sb.toString();
-	}
+    public PrimitiveIterator.OfInt getReverseIntIterator() {
+        return intSet.getReverseIntIterator();
+    }
+
+    public String toString(IntFunction<String> function) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        int limit = 20;
+        stream().limit(limit).forEach((element) -> {
+            sb.append(function.apply(element));
+            sb.append("<");
+            sb.append(element);
+            sb.append(">");
+            sb.append(", ");
+        });
+        if (size() > limit) {
+            sb.append("...");
+        } else if (size() > 0) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        sb.append("]");
+        return this.getClass().getSimpleName()
+                + " size: " + size() + " elements: " + sb.toString();
+    }
 }

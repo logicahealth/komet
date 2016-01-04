@@ -15,12 +15,8 @@
  */
 package gov.vha.isaac.identifier;
 
+import gov.vha.isaac.ochre.api.*;
 import gov.vha.isaac.ochre.api.collections.UuidIntMapMap;
-import gov.vha.isaac.ochre.api.ConfigurationService;
-import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.IdentifierService;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SystemStatusService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
@@ -61,7 +57,7 @@ import org.jvnet.hk2.annotations.Service;
  */
 @Service
 @RunLevel(value = 0)
-public class IdentifierProvider implements IdentifierService {
+public class IdentifierProvider implements IdentifierService, IdentifiedObjectService {
 
     private static final Logger LOG = LogManager.getLogger();
     /**
@@ -85,8 +81,7 @@ public class IdentifierProvider implements IdentifierService {
     private final UuidIntMapMap uuidIntMapMap;
     private final SequenceMap conceptSequenceMap;
     private final SequenceMap sememeSequenceMap;
-    private final ConcurrentSequenceIntMap nidCnidMap;
-    private final AtomicBoolean loadRequired = new AtomicBoolean();
+     private final AtomicBoolean loadRequired = new AtomicBoolean();
 
     private IdentifierProvider() throws IOException {
         //for HK2
@@ -97,7 +92,6 @@ public class IdentifierProvider implements IdentifierService {
         uuidIntMapMap = UuidIntMapMap.create(new File(folderPath.toAbsolutePath().toFile(), "uuid-nid-map"));
         conceptSequenceMap = new SequenceMap(450000);
         sememeSequenceMap = new SequenceMap(3000000);
-        nidCnidMap = new ConcurrentSequenceIntMap();
     }
 
     @PostConstruct
@@ -116,9 +110,6 @@ public class IdentifierProvider implements IdentifierService {
                 // uuid-nid-map can do dynamic load, no need to read all at the beginning.
                 // LOG.info("Loading uuid-nid-map.");
                 // uuidIntMapMap.read();
-                final String sequenceCNidMapBaseName = "sequence-cnid-map";
-                LOG.info("Loading {} from dir {}.", sequenceCNidMapBaseName, folderPath.toAbsolutePath().normalize().toString());
-                nidCnidMap.read(new File(folderPath.toFile(), sequenceCNidMapBaseName));
             }
         } catch (Exception e) {
             LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Identifier Provider", e);
@@ -136,8 +127,11 @@ public class IdentifierProvider implements IdentifierService {
         sememeSequenceMap.write(new File(folderPath.toFile(), "sememe-sequence.map"));
         LOG.info("writing uuid-nid-map.");
         uuidIntMapMap.write();
-        LOG.info("writing sequence-cnid-map.");
-        nidCnidMap.write(new File(folderPath.toFile(), "sequence-cnid-map"));
+    }
+
+    @Override
+    public int getMaxNid() {
+        return uuidIntMapMap.getNextNidProvider().get();
     }
 
     @Override
@@ -343,81 +337,7 @@ public class IdentifierProvider implements IdentifierService {
         uuidIntMapMap.put(uuid, nid);
     }
 
-    @Override
-    public ConceptSequenceSet getConceptSequencesForReferencedComponents(SememeSequenceSet sememeSequences) {
-        ConceptSequenceSet sequences = new ConceptSequenceSet();
-        sememeSequences.stream().forEach((sememeSequence) -> {
-            SememeChronology<?> chronicle = Get.sememeService().getSememe(sememeSequence);
-            sequences.add(getConceptSequenceForComponentNid(chronicle.getReferencedComponentNid()));
-        });
-        return sequences;
-    }
 
-    @Override
-    public int getConceptSequenceForComponentNid(int nid) {
-        if (nid < 0) {
-            nid = nid - Integer.MIN_VALUE;
-        }
-        OptionalInt returnValue = nidCnidMap.get(nid);
-        if (!returnValue.isPresent()) {
-            return Integer.MAX_VALUE;
-        }
-        return returnValue.getAsInt();
-    }
-
-    @Override
-    public ConceptSequenceSet getConceptSequenceSetForComponentNidSet(NidSet nids) {
-        ConceptSequenceSet result = new ConceptSequenceSet();
-        nids.stream().forEach((nid) -> {
-            if (nid < 0) {
-                nid = nid - Integer.MIN_VALUE;
-            }
-            OptionalInt returnValue = nidCnidMap.get(nid);
-            if (returnValue.isPresent()) {
-                result.add(returnValue.getAsInt());
-            }
-
-        });
-        return result;
-    }
-
-    @Override
-    public void setConceptSequenceForComponentNid(int conceptSequenceOrNid, int nid) {
-        if (nid < 0) {
-            nid = nid - Integer.MIN_VALUE;
-        }
-        int conceptSequence = conceptSequenceOrNid;
-        if (conceptSequence < 0) {
-            conceptSequence = conceptSequenceMap.getSequenceFast(conceptSequenceOrNid);
-            if (conceptSequence == 0) { //We don't  yet have one
-                conceptSequence = conceptSequenceMap.addNidIfMissing(conceptSequenceOrNid);
-            }
-        }
-        int conceptSequenceForNid = getConceptSequenceForComponentNid(nid);
-        if (conceptSequenceForNid == Integer.MAX_VALUE) {
-            nidCnidMap.put(nid, conceptSequence);
-        } else if (conceptSequenceForNid != conceptSequence) {
-            throw new IllegalStateException("Cannot change concept sequence for nid: " + nid
-                    + " from: " + conceptSequence + " to: " + conceptSequenceForNid);
-        }
-
-    }
-
-    @Override
-    public void resetConceptSequenceForComponentNid(int conceptSequence, int nid) {
-        if (nid < 0) {
-            nid = nid - Integer.MIN_VALUE;
-        }
-        if (conceptSequence < 0) {
-            conceptSequence = conceptSequenceMap.getSequenceFast(conceptSequence);
-        }
-        nidCnidMap.put(nid, conceptSequence);
-
-    }
-
-    public ConcurrentSequenceIntMap getNidCnidMap() {
-        return nidCnidMap;
-    }
 
     @Override
     public int getConceptSequenceForUuids(Collection<UUID> uuids) {
@@ -429,15 +349,6 @@ public class IdentifierProvider implements IdentifierService {
         return getConceptSequence(getNidForUuids(uuids));
     }
 
-    @Override
-    public IntStream getComponentNidStream() {
-        return nidCnidMap.getComponentNidStream();
-    }
-
-    @Override
-    public NidSet getComponentNidsForConceptNids(ConceptSequenceSet conceptSequenceSet) {
-        return nidCnidMap.getComponentNidsForConceptNids(conceptSequenceSet);
-    }
 
     @Override
     public int getNidForProxy(ConceptSpecification conceptProxy) {
@@ -457,16 +368,6 @@ public class IdentifierProvider implements IdentifierService {
     @Override
     public int getSememeSequenceForUuids(UUID... uuids) {
         return getSememeSequence(getNidForUuids(uuids));
-    }
-
-    @Override
-    public int getConceptNidForDescriptionNid(int nid) {
-        return getConceptNid(getConceptSequenceForComponentNid(nid));
-    }
-
-    @Override
-    public int getConceptSequenceForDescriptionNid(int nid) {
-        return getConceptSequenceForComponentNid(nid);
     }
 
     @Override
@@ -506,4 +407,18 @@ public class IdentifierProvider implements IdentifierService {
         };
     }
 
+    @Override
+    public Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid) {
+
+        switch (getChronologyTypeForNid(nid)) {
+            case CONCEPT:
+                return Get.conceptService().getOptionalConcept(nid);
+            case SEMEME:
+                return Get.sememeService().getOptionalSememe(nid);
+            case UNKNOWN_NID:
+                return Optional.empty();
+        }
+        throw new UnsupportedOperationException("Unknown chronology type: " + getChronologyTypeForNid(nid));
+
+    }
 }

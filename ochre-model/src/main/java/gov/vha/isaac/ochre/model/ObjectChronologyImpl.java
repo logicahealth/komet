@@ -17,7 +17,6 @@ package gov.vha.isaac.ochre.model;
 
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -95,8 +94,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      */
     private int nid;
     /**
-     * Concept sequence if a concept or description, Sememe sequence if a
-     * sememe.
+     * Concept sequence if a concept. Sememe sequence otherwise.
      */
     private int containerSequence;
 
@@ -130,17 +128,17 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     /**
      * For constructing an object for the first time.
      *
-     * @param primoridalUuid A unique external identifier for this chronicle
+     * @param primordialUuid A unique external identifier for this chronicle
      * @param nid A unique internal identifier, that is only valid within this
      * database
      * @param containerSequence Either a concept sequence or a sememe sequence
      * depending on the ofType of the underlying object.
      */
-    protected ObjectChronologyImpl(UUID primoridalUuid, int nid,
+    protected ObjectChronologyImpl(UUID primordialUuid, int nid,
             int containerSequence) {
         this.writeSequence = Integer.MIN_VALUE;
-        this.primordialUuidMsb = primoridalUuid.getMostSignificantBits();
-        this.primordialUuidLsb = primoridalUuid.getLeastSignificantBits();
+        this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
+        this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
         this.nid = nid;
         this.containerSequence = containerSequence;
     }
@@ -149,9 +147,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      * No argument constructor for reconstituting an object previously serialized together with the 
      * readData(ByteArrayDataBuffer data) method.
      *
-      */
+     */
     protected ObjectChronologyImpl() {}
 
+    /**
+     * Reads data from the ByteArrayDataBuffer. If the data is external, it reads all versions from the ByteArrayDataBuffer.
+     * If the data is internal, versions are lazily read.
+     * @param data
+     */
     protected void readData(ByteArrayDataBuffer data) {
         if (data.getObjectDataFormatVersion() != 0) {
             throw new UnsupportedOperationException("Can't handle data format version: " + data.getObjectDataFormatVersion());
@@ -166,8 +169,8 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         this.primordialUuidMsb = data.getLong();
         this.primordialUuidLsb = data.getLong();
         getAdditionalUuids(data);
-        this.nid = data.getNid();
         if (data.isExternalData()) {
+            this.nid = Get.identifierService().getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
             if (this instanceof ConceptChronologyImpl) {
                 this.containerSequence = Get.identifierService().getConceptSequence(nid);
             } else if (this instanceof SememeChronologyImpl) {
@@ -175,18 +178,20 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             } else {
                 throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
             }
-            readAdditionalChronicleFields(data);
+            getAdditionalChronicleFields(data);
             readVersionList(data);
         } else {
+            this.nid = data.getNid();
             this.containerSequence = data.getInt();
             this.versionSequence = data.getShort();
+            getAdditionalChronicleFields(data);
             constructorEnd(data);
         }
     }
-    
-    
+
+
     protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
-    protected abstract void readAdditionalChronicleFields(ByteArrayDataBuffer in);
+    protected abstract void getAdditionalChronicleFields(ByteArrayDataBuffer in);
 
     private void getAdditionalUuids(ByteArrayDataBuffer data) {
         int additionalUuidPartsSize = data.getInt();
@@ -197,42 +202,36 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             }
         }
     }
-    
-    
+
+
+    /**
+     * Write a complete binary representation of this chronicle, including all versions, to the
+     * ByteArrayDataBuffer using externally valid identifiers (all nids, sequences, replaced with UUIDs).
+     * @param out the buffer to write to.
+     */
     public final void putExternal(ByteArrayDataBuffer out) {
         assert out.isExternalData() == true;
-        out.putLong(primordialUuidMsb);
-        out.putLong(primordialUuidLsb);
-        if (additionalUuidParts == null) {
-            out.putInt(0);
-        } else {
-            out.putInt(additionalUuidParts.length/2);
-            for (long part: additionalUuidParts) {
-                out.putLong(part);
-            }
-        }
-        out.putNid(nid);
-        
-        putAdditionalChronicleFields(out);
-        
+        writeChronicleData(out);
+
         // add versions...
-         for (V version: getVersionList()) {
+        for (V version: getVersionList()) {
             int stampSequenceForVersion = version.getStampSequence();
-            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
-                int startWritePosition = out.getPosition();
-                out.putInt(0); // placeholder for length
-                version.writeVersionData(out);
-                int versionLength = out.getPosition() - startWritePosition;
-                out.setPosition(startWritePosition);
-                out.putInt(versionLength);
-                out.setPosition(out.getLimit());
-            }
-         }
+            writeIfNotCanceled(out, version, stampSequenceForVersion);
+        }
         out.putInt(0); // last data is a zero length version record
     }
 
+    /**
+     * Write only the chronicle data (not the versions) to the ByteArrayDataBuffer
+     * using identifiers determined by the ByteArrayDataBuffer.isExternalData() to
+     * determine if the identifiers should be nids and sequences, or fi they should
+     * be UUIDs.
+     * @param data the buffer to write to.
+     */
     protected void writeChronicleData(ByteArrayDataBuffer data) {
-        data.putInt(writeSequence);
+        if (!data.isExternalData()) {
+            data.putInt(writeSequence);
+        }
         data.putLong(primordialUuidMsb);
         data.putLong(primordialUuidLsb);
         if (additionalUuidParts == null) {
@@ -242,9 +241,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             LongStream.of(additionalUuidParts).forEach(
                     (uuidPart) -> data.putLong(uuidPart));
         }
-        data.putInt(nid);
-        data.putInt(containerSequence);
-        data.putShort(versionSequence);
+
+        if (!data.isExternalData()) {
+            data.putInt(nid);
+            data.putInt(containerSequence);
+            data.putShort(versionSequence);
+        }
+        putAdditionalChronicleFields(data);
+
     }
 
     protected short nextVersionSequence() {
@@ -338,20 +342,24 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         // add versions..
         unwrittenData.values().forEach((version) -> {
             int stampSequenceForVersion = version.getStampSequence();
-            if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
-                int startWritePosition = db.getPosition();
-                db.putInt(0); // placeholder for length
-                version.writeVersionData(db);
-                int versionLength = db.getPosition() - startWritePosition;
-                db.setPosition(startWritePosition);
-                db.putInt(versionLength);
-                db.setPosition(db.getLimit());
-            }
+            writeIfNotCanceled(db, version, stampSequenceForVersion);
         });
 
         db.putInt(0); // last data is a zero length version record
         db.trimToSize();
         return db.getData();
+    }
+
+    private void writeIfNotCanceled(ByteArrayDataBuffer db, V version, int stampSequenceForVersion) {
+        if (Get.stampService().isNotCanceled(stampSequenceForVersion)) {
+            int startWritePosition = db.getPosition();
+            db.putInt(0); // placeholder for length
+            version.writeVersionData(db);
+            int versionLength = db.getPosition() - startWritePosition;
+            db.setPosition(startWritePosition);
+            db.putInt(versionLength);
+            db.setPosition(db.getLimit());
+        }
     }
 
     /**
@@ -370,7 +378,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         if (unwrittenData != null) {
             unwrittenData.values().forEach((version) -> {
                 int stampSequenceForVersion = version.getStampSequence();
-                if (Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                if (Get.stampService().isNotCanceled(stampSequenceForVersion)) {
                     writtenStamps.add(stampSequenceForVersion);
                     int startWritePosition = db.getPosition();
                     db.putInt(0); // placeholder for length
@@ -411,7 +419,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             if (versionLength > 0) {
                 int stampSequenceForVersion = writtenBuffer.getInt();
                 if ((!writtenStamps.contains(stampSequenceForVersion))
-                        && Get.commitService().isNotCanceled(stampSequenceForVersion)) {
+                        && Get.stampService().isNotCanceled(stampSequenceForVersion)) {
                     writtenStamps.add(stampSequenceForVersion);
                     db.append(writtenBuffer, nextPosition, versionLength);
                 }
@@ -454,9 +462,9 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                 int versionLength = bb.getInt();
                 if (versionLength > 0) {
                     nextPosition = nextPosition + versionLength;
-                    int stampSequence = bb.getInt();
+                    int stampSequence = bb.getStampSequence();
                     if (stampSequence >= 0) {
-                        unwrittenData.put(stampSequence, makeVersion(stampSequence, bb));
+                        addVersion(makeVersion(stampSequence, bb));
                     }
                 } else {
                     nextPosition = Integer.MAX_VALUE;
@@ -565,7 +573,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     @Override
     public CommitStates getCommitState() {
         if (getVersionStampSequences().anyMatch((stampSequence)
-                -> Get.commitService().isUncommitted(stampSequence))) {
+                -> Get.stampService().isUncommitted(stampSequence))) {
             return CommitStates.UNCOMMITTED;
         }
         return CommitStates.COMMITTED;
@@ -789,4 +797,24 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         return sortedLogicGraphs.stream().collect(Collectors.toList());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ObjectChronologyImpl<?> that = (ObjectChronologyImpl<?>) o;
+
+        if (nid != that.nid) return false;
+        List<? extends V> versionList = getVersionList();
+        if (versionList.size() != that.getVersionList().size()) {
+            return false;
+        }
+        return StampSequenceSet.of(getVersionStampSequences()).equals(
+                StampSequenceSet.of(that.getVersionStampSequences()));
+    }
+
+    @Override
+    public int hashCode() {
+        return nid;
+    }
 }

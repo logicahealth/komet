@@ -19,19 +19,10 @@
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import gov.vha.isaac.ochre.api.Get;
+
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeType;
-import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
-import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 
 
 /**
@@ -51,10 +42,10 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	private int columnOrder_;
 	private UUID assemblageConcept_;
 	private DynamicSememeDataType columnDataType_;
-	private DynamicSememeDataBI defaultData_;
+	private DynamicSememeData defaultData_;
 	private boolean columnRequired_;
 	private DynamicSememeValidatorType[] validatorType_;
-	private DynamicSememeDataBI[] validatorData_;
+	private DynamicSememeData[] validatorData_;
 
 	/**
 	 * Useful for building up a new one step by step
@@ -67,7 +58,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
 	 * with a null assemblage concept, null validator info
 	 */
-	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeDataBI defaultData, Boolean columnRequired)
+	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, Boolean columnRequired)
 	{
 		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, null, null); 
 	}
@@ -76,20 +67,20 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
 	 * with a null assemblage concept, and a single array item for the validator info
 	 */
-	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeDataBI defaultData, Boolean columnRequired,
-			DynamicSememeValidatorType validatorType, DynamicSememeDataBI validatorData)
+	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, Boolean columnRequired,
+			DynamicSememeValidatorType validatorType, DynamicSememeData validatorData)
 	{
 		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, 
 				validatorType == null ? null : new DynamicSememeValidatorType[] {validatorType}, 
-				validatorData == null ? null : new DynamicSememeDataBI[] {validatorData});
+				validatorData == null ? null : new DynamicSememeData[] {validatorData});
 	}
 	
 	/**
 	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType, DynamicSememeDataBI)
 	 * with a null assemblage concept
 	 */
-	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeDataBI defaultData, Boolean columnRequired,
-			DynamicSememeValidatorType[] validatorType, DynamicSememeDataBI[] validatorData)
+	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, Boolean columnRequired,
+			DynamicSememeValidatorType[] validatorType, DynamicSememeData[] validatorData)
 	{
 		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, validatorType, validatorData);
 	}
@@ -107,14 +98,14 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * @param columnDescriptionConcept - The concept where columnName and columnDescription should be read from
 	 * @param columnDataType - the data type as defined in the assemblage concept
 	 * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example, 
-	 * if columnDataType is set to {@link DynamicSememeDataType#FLOAT} then this field must be a {@link DynamicSememeFloatBI}.
+	 * if columnDataType is set to {@link DynamicSememeDataType#FLOAT} then this field must be a {@link DynamicSememeFloat}.
 	 * @param columnRequired - Is this column required when creating an instance of the refex?  True for yes, false or null for no.
 	 * @param validatorType - The Validator to use when creating an instance of this Refex.  Null for no validator
 	 * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the 
 	 * validatorType field.  See {@link DynamicSememeValidatorType} for details on the valid data for this field.  Should be null when validatorType is null. 
 	 */
-	public DynamicSememeColumnInfo(UUID assemblageConcept, int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeDataBI defaultData,
-			Boolean columnRequired, DynamicSememeValidatorType[] validatorType, DynamicSememeDataBI[] validatorData)
+	public DynamicSememeColumnInfo(UUID assemblageConcept, int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData,
+			Boolean columnRequired, DynamicSememeValidatorType[] validatorType, DynamicSememeData[] validatorData)
 	{
 		assemblageConcept_ = assemblageConcept;
 		columnOrder_ = columnOrder;
@@ -163,9 +154,9 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	
 	/**
 	 * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example, 
-	 * if columnDataType is set to {@link DynamicSememeDataType#FLOAT} then this field must be a {@link DynamicSememeFloatBI}.
+	 * if columnDataType is set to {@link DynamicSememeDataType#FLOAT} then this field must be a {@link DynamicSememeFloat}.
 	 */
-	public void setColumnDefaultData(DynamicSememeDataBI defaultData)
+	public void setColumnDefaultData(DynamicSememeData defaultData)
 	{
 		defaultData_ = defaultData;
 	}
@@ -189,7 +180,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	/**
 	 * @param validatorType - The Validator(s) to use when creating an instance of this Refex.  Null for no validator
 	 */
-	public void setValidatorData(DynamicSememeDataBI[] validatorData)
+	public void setValidatorData(DynamicSememeData[] validatorData)
 	{
 		validatorData_ = validatorData;
 	}
@@ -221,7 +212,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	
 	private void read()
 	{
-		DynamicSememeUtilityBI util = LookupService.get().getService(DynamicSememeUtilityBI.class);
+		DynamicSememeUtility util = LookupService.get().getService(DynamicSememeUtility.class);
 		if (util == null)
 		{
 			columnName_ = "Unable to locate reader!";
@@ -246,7 +237,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 
 	/**
 	 * @return Defined the order in which the data columns will be stored, so that the column name / description can be aligned 
-	 * with the {@link DynamicSememeDataBI} columns in the {@link DynamicSememeVersionBI#getData(int)}.
+	 * with the {@link DynamicSememeData} columns in the {@link DynamicSememeVersionBI#getData(int)}.
 	 * 
 	 * Note, this value is 0 indexed (It doesn't start at 1)
 	 */
@@ -257,8 +248,8 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 
 	/**
 	 * @return The defined data type for this column of the sememe.  Note that this value will be identical to the {@link DynamicSememeDataType} 
-	 * returned by {@link DynamicSememeDataBI} EXCEPT for cases where this returns {@link DynamicSememeDataType#POLYMORPHIC}.  In those cases, the 
-	 * data type can only be determined by examining the actual member data in {@link DynamicSememeDataBI}
+	 * returned by {@link DynamicSememeData} EXCEPT for cases where this returns {@link DynamicSememeDataType#POLYMORPHIC}.  In those cases, the 
+	 * data type can only be determined by examining the actual member data in {@link DynamicSememeData}
 	 */
 	public DynamicSememeDataType getColumnDataType()
 	{
@@ -268,10 +259,10 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	/**
 	 * @return the default value to use for this column, if no value is specified in a refex that is created using this column info
 	 */
-	public DynamicSememeDataBI getDefaultColumnValue()
+	public DynamicSememeData getDefaultColumnValue()
 	{
 		//Handle folks sending empty strings gracefully
-		if (defaultData_ != null && defaultData_ instanceof DynamicSememeStringBI && ((DynamicSememeStringBI)defaultData_).getDataString().length() == 0)
+		if (defaultData_ != null && defaultData_ instanceof DynamicSememeString && ((DynamicSememeString)defaultData_).getDataString().length() == 0)
 		{
 			return null;
 		}
@@ -298,7 +289,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the 
 	 * validatorType field.  See {@link DynamicSememeValidatorType} for details on the valid data for this field.  Should be null when validatorType is null. 
 	 */
-	public DynamicSememeDataBI[] getValidatorData()
+	public DynamicSememeData[] getValidatorData()
 	{
 		return validatorData_;
 	}

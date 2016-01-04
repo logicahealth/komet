@@ -17,6 +17,7 @@ package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.commit.StampService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilderService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSnapshotService;
@@ -79,6 +80,7 @@ public class Get implements OchreCache {
     private static TaxonomyService taxonomyService;
     private static WorkExecutors workExecutors;
     private static ConceptBuilderService conceptBuilderService;
+    private static StampService stampService;
 
     public Get() {
     }
@@ -198,7 +200,7 @@ public class Get implements OchreCache {
 
     public static IdentifierService identifierService() {
         if (identifierService == null) {
-            identifierService = LookupService.getService(IdentifierService.class);
+            identifierService = getService(IdentifierService.class);
         }
         return identifierService;
     }
@@ -259,12 +261,26 @@ public class Get implements OchreCache {
         }
         return taxonomyService;
     }
+    public static StampService stampService() {
+        if (stampService == null) {
+            stampService = getService(StampService.class);
+        }
+        return stampService;
+    }
+
 
     public static CommitService commitService() {
         if (commitService == null) {
             commitService = getService(CommitService.class);
         }
         return commitService;
+    }
+
+    public static boolean sememeServiceAvailable() {
+        if (sememeService == null) {
+            sememeService = LookupService.getService(SememeService.class);
+        }
+        return sememeService != null;
     }
 
     public static SememeService sememeService() {
@@ -335,6 +351,7 @@ public class Get implements OchreCache {
         sememeService = null;
         taxonomyService = null;
         workExecutors = null;
+        stampService = null;
     }
 
 }

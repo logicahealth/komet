@@ -755,7 +755,7 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
             });
             isomorphicResults.getDeletedRelationshipRoots().forEach((logicalNode) -> {
                 int activeStampSequence = node.getData().getStampSequence();
-                int stampSequence = Get.commitService().getRetiredStampSequence(activeStampSequence);
+                int stampSequence = Get.stampService().getRetiredStampSequence(activeStampSequence);
                 processRelationshipRoot(logicalNode, parentTaxonomyRecord, taxonomyFlags, stampSequence, comparisonExpression);
             });
         }

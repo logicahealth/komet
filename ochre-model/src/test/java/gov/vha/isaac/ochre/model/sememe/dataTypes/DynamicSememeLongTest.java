@@ -44,7 +44,7 @@ public class DynamicSememeLongTest
 
 	private void test(long value) throws PropertyVetoException, IOException
 	{
-		DynamicSememeLong l = new DynamicSememeLong(value);
+		DynamicSememeLongImpl l = new DynamicSememeLongImpl(value);
 		l.setNameIfAbsent("foo");
 		
 		assertEquals(value, l.getDataLong());

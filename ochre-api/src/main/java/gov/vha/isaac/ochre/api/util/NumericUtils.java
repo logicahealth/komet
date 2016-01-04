@@ -1,11 +1,11 @@
 package gov.vha.isaac.ochre.api.util;
 
 import java.math.BigDecimal;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDoubleBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLongBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 
 public class NumericUtils 
 {
@@ -38,23 +38,23 @@ public class NumericUtils
 		return Double.parseDouble(value);
 	}
 
-	public static Number readNumber(DynamicSememeDataBI value) throws NumberFormatException
+	public static Number readNumber(DynamicSememeData value) throws NumberFormatException
 	{
-		if (value instanceof DynamicSememeDoubleBI)
+		if (value instanceof DynamicSememeDouble)
 		{
-			return Double.valueOf(((DynamicSememeDoubleBI) value).getDataDouble());
+			return Double.valueOf(((DynamicSememeDouble) value).getDataDouble());
 		}
-		else if (value instanceof DynamicSememeFloatBI)
+		else if (value instanceof DynamicSememeFloat)
 		{
-			return Float.valueOf(((DynamicSememeFloatBI) value).getDataFloat());
+			return Float.valueOf(((DynamicSememeFloat) value).getDataFloat());
 		}
-		else if (value instanceof DynamicSememeIntegerBI)
+		else if (value instanceof DynamicSememeInteger)
 		{
-			return Integer.valueOf(((DynamicSememeIntegerBI) value).getDataInteger());
+			return Integer.valueOf(((DynamicSememeInteger) value).getDataInteger());
 		}
-		else if (value instanceof DynamicSememeLongBI)
+		else if (value instanceof DynamicSememeLong)
 		{
-			return Long.valueOf(((DynamicSememeLongBI) value).getDataLong());
+			return Long.valueOf(((DynamicSememeLong) value).getDataLong());
 		}
 		else
 		{

@@ -247,7 +247,7 @@ public class LogicProvider implements LogicService {
         
         LogicalExpression newExpression = node.getData().getLogicalExpression();
         int stampSequence = node.getData().getStampSequence();
-        int inactiveStampSequence = Get.commitService().getRetiredStampSequence(stampSequence);
+        int inactiveStampSequence = Get.stampService().getRetiredStampSequence(stampSequence);
         if (previousExpression == null) {
             processRootExpression(newExpression, streamBuilder, stampSequence, premiseType);
         } else {

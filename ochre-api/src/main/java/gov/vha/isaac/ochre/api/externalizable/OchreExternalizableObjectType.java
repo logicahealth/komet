@@ -15,9 +15,24 @@ import java.io.IOException;
  */
 public enum OchreExternalizableObjectType {
 
+    /**
+     * An external representation of a concept. An identifier with status. Descriptions and definitions of concepts
+     * are provided as SEMEMEs. 
+     */
     CONCEPT((byte) 1), 
+    /**
+     * An external representation of a semantic unit of meaning, associated with a concept or another SEMEME. 
+     */
     SEMEME((byte) 2),
-    COMMIT_RECORD((byte) 3);
+
+    /**
+     * An external representation of a stamp comment. 
+     */
+    STAMP_COMMENT((byte) 4),
+    /**
+     * An external representation of a stamp alias. 
+     */
+    STAMP_ALIAS((byte) 5);
 
     private final byte token;
 
@@ -37,7 +52,11 @@ public enum OchreExternalizableObjectType {
             case 2:
                 return SEMEME;
             case 3:
-                return COMMIT_RECORD;
+                throw new UnsupportedOperationException("Commit record deprecated: " + token);
+            case 4:
+                return STAMP_COMMENT;
+            case 5:
+                return STAMP_ALIAS;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + token);
         }

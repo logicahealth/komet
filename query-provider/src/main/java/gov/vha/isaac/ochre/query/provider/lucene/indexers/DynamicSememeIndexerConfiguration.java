@@ -35,27 +35,26 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import gov.vha.isaac.ochre.api.index.IndexStatusListenerBI;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArray;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeData;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeInteger;
-import java.io.IOException;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDataImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 
 /**
  * {@link DynamicSememeIndexerConfiguration} Holds a cache of the configuration for the dynamic sememe indexer (which is read from the DB, and may
@@ -114,11 +113,11 @@ public class DynamicSememeIndexerConfiguration
 								{
 									int assemblageToIndex = Get.identifierService().getConceptSequence(dsv.get().value().getReferencedComponentNid());
 									Integer[] finalCols = new Integer[] {};
-									DynamicSememeDataBI[] data = dsv.get().value().getData();
+									DynamicSememeData[] data = dsv.get().value().getData();
 									if (data != null && data.length > 0)
 									{
 										@SuppressWarnings("unchecked")
-										DynamicSememeIntegerBI[] colsToIndex = ((DynamicSememeArrayBI<DynamicSememeIntegerBI>) data[0]).getDataArray();
+										DynamicSememeInteger[] colsToIndex = ((DynamicSememeArray<DynamicSememeInteger>) data[0]).getDataArray();
 										
 										finalCols = new Integer[colsToIndex.length];
 										for (int i = 0; i < colsToIndex.length; i++)
@@ -174,15 +173,15 @@ public class DynamicSememeIndexerConfiguration
 		DynamicSememeData[] data = null;
 		if (columnsToIndex != null)
 		{
-			DynamicSememeInteger[] cols = new DynamicSememeInteger[columnsToIndex.length];
+			DynamicSememeIntegerImpl[] cols = new DynamicSememeIntegerImpl[columnsToIndex.length];
 			for (int i = 0; i < columnsToIndex.length; i++)
 			{
-				cols[i] = new DynamicSememeInteger(columnsToIndex[i]);
+				cols[i] = new DynamicSememeIntegerImpl(columnsToIndex[i]);
 			}
 
 			if (cols.length > 0)
 			{
-				data = new DynamicSememeData[] {new DynamicSememeArray<DynamicSememeInteger>(cols)};
+				data = new DynamicSememeData[] {new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(cols)};
 			}
 		}
 		else if ((columnsToIndex == null || columnsToIndex.length == 0))

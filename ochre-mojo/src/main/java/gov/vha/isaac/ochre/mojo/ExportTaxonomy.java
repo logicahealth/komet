@@ -14,6 +14,9 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,22 +50,21 @@ public class ExportTaxonomy extends AbstractMojo {
             javaDir.mkdirs();
             File metadataDirectory = new File(buildDirectory, "generated-resources");
             metadataDirectory.mkdirs();
-            File metadataBinaryDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".econ");
             File metadataXmlDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
             String bindingFileDirectory = bindingPackage.concat(".").concat(bindingClass).replace('.', '/');
             File bindingFile = new File(javaDir, bindingFileDirectory + ".java");
             bindingFile.getParentFile().mkdirs();
             try (Writer writer = new BufferedWriter(new FileWriter(bindingFile));
-                 DataOutputStream binaryData = new DataOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(metadataBinaryDataFile)));
+
                  DataOutputStream xmlData = new DataOutputStream(
                          new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)))) {
                 
                 taxonomy.exportJavaBinding(writer, bindingPackage,  bindingClass);
-                
-                 //taxonomy.exportEConcept(binaryData);
+
                 //taxonomy.exportJaxb(xmlData);
             }
+            Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass().getSimpleName() + ".ibdf");
+            taxonomy.exportIBDF(ibdfPath);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IOException ex) {
             throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
         }

@@ -68,8 +68,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
@@ -79,17 +80,16 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
-import gov.vha.isaac.ochre.impl.sememe.DynamicSememeUtility;
+import gov.vha.isaac.ochre.impl.sememe.DynamicSememeUtilityImpl;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArray;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeData;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeInteger;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeString;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUID;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 
 /**
  * 
@@ -429,7 +429,7 @@ public class EConceptUtility
 		
 		if (sourceDescriptionRefsetUUID != null)
 		{
-			addAnnotation(desc, null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUID(sourceDescriptionTypeUUID)),
+			addAnnotation(desc, null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUIDImpl(sourceDescriptionTypeUUID)),
 				sourceDescriptionRefsetUUID, null, null);
 		}
 		
@@ -451,18 +451,18 @@ public class EConceptUtility
 	 */
 	public SememeChronology<DynamicSememe<?>> addStringAnnotation(ObjectChronology<?> referencedComponent, String annotationValue, UUID refsetUuid, State status)
 	{
-		return addAnnotation(referencedComponent, null, new DynamicSememeDataBI[] {new DynamicSememeString(annotationValue)}, refsetUuid, status, null);
+		return addAnnotation(referencedComponent, null, new DynamicSememeData[] {new DynamicSememeStringImpl(annotationValue)}, refsetUuid, status, null);
 	}
 	
 	public SememeChronology<DynamicSememe<?>> addAnnotationStyleRefsetMembership(ObjectChronology<?> referencedComponent, UUID refexDynamicTypeUuid, State status, Long time)
 	{
-		return addAnnotation(referencedComponent, null, (DynamicSememeDataBI[])null, refexDynamicTypeUuid, status, time);
+		return addAnnotation(referencedComponent, null, (DynamicSememeData[])null, refexDynamicTypeUuid, status, time);
 	}
 	
-	public SememeChronology<DynamicSememe<?>> addAnnotation(ObjectChronology<?> referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeDataBI value, 
+	public SememeChronology<DynamicSememe<?>> addAnnotation(ObjectChronology<?> referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeData value, 
 			UUID refexDynamicTypeUuid, State status, Long time)
 	{
-		return addAnnotation(referencedComponent, uuidForCreatedAnnotation, new DynamicSememeDataBI[] {value}, refexDynamicTypeUuid, status, time);
+		return addAnnotation(referencedComponent, uuidForCreatedAnnotation, new DynamicSememeData[] {value}, refexDynamicTypeUuid, status, time);
 	}
 	
 	/**
@@ -476,7 +476,7 @@ public class EConceptUtility
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public SememeChronology<DynamicSememe<?>> addAnnotation(ObjectChronology<?> referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeDataBI[] values, 
+	public SememeChronology<DynamicSememe<?>> addAnnotation(ObjectChronology<?> referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeData[] values, 
 			UUID refexDynamicTypeUuid, State state, Long time)
 	{
 		validateDataTypes(refexDynamicTypeUuid, values);
@@ -491,7 +491,7 @@ public class EConceptUtility
 			temp.append(referencedComponent.getPrimordialUuid().toString());
 			if (values != null)
 			{
-				for (DynamicSememeDataBI d : values)
+				for (DynamicSememeData d : values)
 				{
 					if (d == null)
 					{
@@ -539,7 +539,7 @@ public class EConceptUtility
 	 * @param refexDynamicTypeUuid
 	 * @param values
 	 */
-	private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicSememeDataBI[] values)
+	private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicSememeData[] values)
 	{
 		//TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
 		//generateMetadataEConcepts
@@ -581,7 +581,7 @@ public class EConceptUtility
 	 */
 	public SememeChronology<DynamicSememe<?>> addUuidAnnotation(ObjectChronology<?> object, UUID value, UUID refsetUuid)
 	{
-		return addAnnotation(object, null, new DynamicSememeDataBI[] {new DynamicSememeUUID(value)}, refsetUuid, null, null);
+		return addAnnotation(object, null, new DynamicSememeData[] {new DynamicSememeUUIDImpl(value)}, refsetUuid, null, null);
 	}
 
 	//I don't think we need this any longer
@@ -666,7 +666,7 @@ public class EConceptUtility
 	
 	public SememeChronology<DynamicSememe<?>> addDynamicRefsetMember(UUID refsetConcept, ConceptChronology<? extends ConceptVersion<?>> targetUuid, UUID uuidForCreatedAnnotation, State status, Long time)
 	{
-		return addAnnotation(targetUuid, uuidForCreatedAnnotation, (DynamicSememeDataBI)null, refsetConcept, status, time);
+		return addAnnotation(targetUuid, uuidForCreatedAnnotation, (DynamicSememeData)null, refsetConcept, status, time);
 	}
 	
 	/**
@@ -680,7 +680,7 @@ public class EConceptUtility
 			UUID associationTypeUuid, State state, Long time)
 	{
 		return addAnnotation(concept, associationPrimordialUuid, 
-				new DynamicSememeDataBI[]{new DynamicSememeUUID(targetUuid)}, 
+				new DynamicSememeData[]{new DynamicSememeUUIDImpl(targetUuid)}, 
 				associationTypeUuid, state, time);
 	}
 
@@ -796,7 +796,7 @@ public class EConceptUtility
 	 * @param time - time or null (for default)
 	 */
 	public int createStamp(State state, Long time) {
-		return Get.commitService().getStampSequence(
+		return Get.stampService().getStampSequence(
 				state == null ? State.ACTIVE : state,
 				time == null ? defaultTime_ : time.longValue(), 
 				authorSeq_, moduleSeq_, terminologyPathSeq_);
@@ -976,14 +976,14 @@ public class EConceptUtility
 		SememeChronology<DescriptionSememe<?>> desc = addDescription(concept, refexDescription, DescriptionType.DEFINITION, true, null, null, State.ACTIVE);
 		
 		//Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-		addAnnotation(desc, null, (DynamicSememeDataBI)null, IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), State.ACTIVE, null);
+		addAnnotation(desc, null, (DynamicSememeData)null, IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), State.ACTIVE, null);
 		
 		//define the data columns (if any)
 		if (columns != null && columns.length > 0)
 		{
 			for (DynamicSememeColumnInfo col : columns)
 			{
-				DynamicSememeDataBI[] data = DynamicSememeUtility.configureDynamicSememeDefinitionDataForColumn(col);
+				DynamicSememeData[] data = DynamicSememeUtilityImpl.configureDynamicSememeDefinitionDataForColumn(col);
 				addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), State.ACTIVE, null);
 			}
 			registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
@@ -992,15 +992,15 @@ public class EConceptUtility
 			DynamicSememeInteger[] indexInfo = new DynamicSememeInteger[columns.length];
 			for (int i = 0; i < indexInfo.length; i++)
 			{
-				indexInfo[i] = new DynamicSememeInteger(i);
+				indexInfo[i] = new DynamicSememeIntegerImpl(i);
 			}
 			
-			addAnnotation(concept, null, new DynamicSememeData[] {new DynamicSememeArray<DynamicSememeInteger>(indexInfo)},
+			addAnnotation(concept, null, new DynamicSememeData[] {new DynamicSememeArrayImpl<DynamicSememeInteger>(indexInfo)},
 					IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getPrimordialUuid(), State.ACTIVE, null);
 		}
 		
 		//Add the restriction information (if any)
-		DynamicSememeDataBI[] data = DynamicSememeUtility.configureDynamicSememeRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
+		DynamicSememeData[] data = DynamicSememeUtilityImpl.configureDynamicSememeRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
 		if (data != null)
 		{
 			addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null);

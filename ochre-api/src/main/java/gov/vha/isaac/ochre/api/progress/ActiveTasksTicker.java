@@ -1,5 +1,6 @@
 package gov.vha.isaac.ochre.api.progress;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.ticker.Ticker;
 import javafx.concurrent.Task;
@@ -22,7 +23,7 @@ public class ActiveTasksTicker {
 
     public static void start(int intervalInSeconds) {
         ticker.start(intervalInSeconds, (tick) -> {
-            Set<Task<?>> taskSet = LookupService.get().getService(ActiveTasks.class).get();
+            Set<Task<?>> taskSet = Get.activeTasks().get();
             taskSet.stream().forEach((task) -> {
                 double percentProgress = task.getProgress() * 100;
                 if (percentProgress < 0) {

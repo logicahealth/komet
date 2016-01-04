@@ -21,8 +21,8 @@ package gov.vha.isaac.ochre.api.component.sememe.version;
 
 import javax.naming.InvalidNameException;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescriptionBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
 
 /**
  * @author kec
@@ -33,7 +33,7 @@ public interface DynamicSememe<T extends DynamicSememe<T>> extends SememeVersion
      * @return All of the data columns that are part of this DynamicSememe. See
      *         {@link #getData(int)}. May be empty, will not be null.
      */
-    DynamicSememeDataBI[] getData();
+    DynamicSememeData[] getData();
     
     /**
      * The type and data (if any) in the specified column of the DynamicSememe.
@@ -43,21 +43,21 @@ public interface DynamicSememe<T extends DynamicSememe<T>> extends SememeVersion
      *         the specified column
      * @throws IndexOutOfBoundsException
      */
-    DynamicSememeDataBI getData(int columnNumber) throws IndexOutOfBoundsException;
+    DynamicSememeData getData(int columnNumber) throws IndexOutOfBoundsException;
     
     /**
      * The type and data (if any) in the specified column of the DynamicSememe.
      * 
      * @param columnName
-     * @return The DynamicSememeDataBI which contains the type and data (if any) for the specified column
+     * @return The DynamicSememeData which contains the type and data (if any) for the specified column
      * @throws InvalidNameException
      */
-    DynamicSememeDataBI getData(String columnName) throws InvalidNameException;
+    DynamicSememeData getData(String columnName) throws InvalidNameException;
 
 	
 	/**
      * A convenience method that reads the concept referenced in {@link #getAssemblageNid()} and returns the actual column
      * information that is contained within that concept.
      */
-    public DynamicSememeUsageDescriptionBI getDynamicSememeUsageDescription();
+    public DynamicSememeUsageDescription getDynamicSememeUsageDescription();
 }

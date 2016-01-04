@@ -28,7 +28,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeValidatorType;
 import gov.vha.isaac.ochre.api.constants.IsaacMetadataConstantsBase;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeString;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
 
 /**
  * A big mess of constants that need to be built into the Taxonomy during DB
@@ -181,10 +181,10 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase {
             new DynamicSememeColumnInfo[]{
                 new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE.getUUID(), DynamicSememeDataType.STRING, null, true,
                         new DynamicSememeValidatorType[]{DynamicSememeValidatorType.REGEXP},
-                        new DynamicSememeString[]{new DynamicSememeString(ObjectChronologyType.CONCEPT.name() + "|" + ObjectChronologyType.SEMEME)}),
+                        new DynamicSememeStringImpl[]{new DynamicSememeStringImpl(ObjectChronologyType.CONCEPT.name() + "|" + ObjectChronologyType.SEMEME)}),
                 new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getUUID(), DynamicSememeDataType.STRING, null, false,
                         new DynamicSememeValidatorType[]{DynamicSememeValidatorType.REGEXP},
-                        new DynamicSememeString[]{new DynamicSememeString(
+                        new DynamicSememeStringImpl[]{new DynamicSememeStringImpl(
                                     SememeType.COMPONENT_NID.name() + "|"
                                     + SememeType.DESCRIPTION.name() + "|"
                                     + SememeType.DYNAMIC.name() + "|"
@@ -223,7 +223,7 @@ public class IsaacMetadataConstants extends IsaacMetadataConstantsBase {
                 new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(), DynamicSememeDataType.BOOLEAN, null, false),
                 new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(), DynamicSememeDataType.ARRAY, null, false,
                         DynamicSememeValidatorType.REGEXP,
-                        new DynamicSememeString(
+                        new DynamicSememeStringImpl(
                                 DynamicSememeValidatorType.COMPONENT_TYPE.name() + "|"
                                 + DynamicSememeValidatorType.EXTERNAL.name() + "|"
                                 + DynamicSememeValidatorType.GREATER_THAN.name() + "|"

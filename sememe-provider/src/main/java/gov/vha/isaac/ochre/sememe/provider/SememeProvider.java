@@ -69,7 +69,7 @@ public class SememeProvider implements SememeService {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    final CasSequenceObjectMap<SememeChronologyImpl<?>> sememeMap;
+    final CasSequenceObjectMap<SememeChronologyImpl<? extends SememeVersion<?>>> sememeMap;
     final ConcurrentSkipListSet<AssemblageSememeKey> assemblageSequenceSememeSequenceMap = new ConcurrentSkipListSet<>();
     final ConcurrentSkipListSet<ReferencedNidAssemblageSequenceSememeSequenceKey> referencedNidAssemblageSequenceSememeSequenceMap = new ConcurrentSkipListSet<>();
     final Path sememePath;
@@ -305,8 +305,8 @@ public class SememeProvider implements SememeService {
         sequencesToTest.stream().forEach((sememeSequence) -> {
             SememeChronologyImpl<?> chronicle = (SememeChronologyImpl<?>) getSememe(sememeSequence);
             if (chronicle.getVersionStampSequences().anyMatch((stampSequence) -> {
-                return (Get.commitService().getTimeForStamp(stampSequence) > position.getTime()
-                        && (position.getStampPathSequence() == Get.commitService().getPathSequenceForStamp(stampSequence)));
+                return (Get.stampService().getTimeForStamp(stampSequence) > position.getTime()
+                        && (position.getStampPathSequence() == Get.stampService().getPathSequenceForStamp(stampSequence)));
             })) {
                 sequencesThatPassedTest.add(sememeSequence);
             }
@@ -315,7 +315,7 @@ public class SememeProvider implements SememeService {
     }
 
     @Override
-    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeStream() {
+    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream() {
         return Get.identifierService().getSememeSequenceStream().mapToObj((int sememeSequence) -> getSememe(sememeSequence));
     }
 

@@ -54,12 +54,12 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     int referencedComponentNid = Integer.MAX_VALUE;
 
     public SememeChronologyImpl(SememeType sememeType,
-            UUID primoridalUuid,
+            UUID primordialUuid,
             int nid,
             int assemblageSequence,
             int referencedComponentNid,
             int containerSequence) {
-        super(primoridalUuid, nid, containerSequence);
+        super(primordialUuid, nid, containerSequence);
         this.sememeTypeToken = sememeType.getSememeToken();
         this.assemblageSequence = assemblageSequence;
         this.referencedComponentNid = referencedComponentNid;
@@ -73,7 +73,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     }
 
     @Override
-    protected void readAdditionalChronicleFields(ByteArrayDataBuffer in) {
+    protected void getAdditionalChronicleFields(ByteArrayDataBuffer in) {
         sememeTypeToken = in.getByte();
         assemblageSequence = in.getConceptSequence();
         referencedComponentNid = in.getNid();
@@ -131,7 +131,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
 
     @Override
     public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-        int stampSequence = Get.commitService().getStampSequence(status, Long.MAX_VALUE,
+        int stampSequence = Get.stampService().getStampSequence(status, Long.MAX_VALUE,
                 ec.getAuthorSequence(), ec.getModuleSequence(), ec.getPathSequence());
         M version = createMutableVersionInternal(type, stampSequence,
                 nextVersionSequence());
@@ -226,9 +226,15 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("SememeChronology{")
-                .append(SememeType.getFromToken(sememeTypeToken))
-                .append("\n assemblage:")
+        builder.append("SememeChronology{");
+
+        if (sememeTypeToken == -1) {
+            builder.append("SememeType token not initialized");
+        } else {
+            builder.append(SememeType.getFromToken(sememeTypeToken));
+        }
+
+        builder.append("\n assemblage:")
                 .append(Get.conceptDescriptionText(assemblageSequence))
                 .append(" <")
                 .append(assemblageSequence)

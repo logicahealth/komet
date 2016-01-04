@@ -23,11 +23,11 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeValidatorType;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDouble;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeFloat;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeInteger;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeLong;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeString;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDoubleImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeFloatImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeLongImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
 
 /**
  * {@link DynamicSememeValidatorTypeImplTest}
@@ -39,104 +39,104 @@ public class DynamicSememeValidatorTypeImplTest
 	@Test
 	public void testOne() throws PropertyVetoException, IOException
 	{
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeDouble(5.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeInteger(5), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeInteger(1), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeFloat(5.0f), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLong(Long.MAX_VALUE), new DynamicSememeLong(30), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(3), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(1), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLong(1), new DynamicSememeDouble(1), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeDoubleImpl(5.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeIntegerImpl(5), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeIntegerImpl(1), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeFloatImpl(5.0f), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLongImpl(Long.MAX_VALUE), new DynamicSememeLongImpl(30), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(3), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(1), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeDoubleImpl(1), null, null));
 	}
 	
 	@Test
 	public void testTwo() throws PropertyVetoException, IOException
 	{
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeDouble(5.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeInteger(5), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeInteger(1), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeFloat(5.0f), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLong(Long.MAX_VALUE), new DynamicSememeLong(30), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(3), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(1), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLong(1), new DynamicSememeDouble(1), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeDoubleImpl(5.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeIntegerImpl(5), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeIntegerImpl(1), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeFloatImpl(5.0f), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLongImpl(Long.MAX_VALUE), new DynamicSememeLongImpl(30), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(3), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(1), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeDoubleImpl(1), null, null));
 	}
 	
 	@Test
 	public void testThree() throws PropertyVetoException, IOException
 	{
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeDouble(5.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeInteger(5), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeInteger(1), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeFloat(5.0f), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(Long.MAX_VALUE), new DynamicSememeLong(30), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(3), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(1), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(1), new DynamicSememeDouble(1), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeDoubleImpl(5.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeIntegerImpl(5), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeIntegerImpl(1), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeFloatImpl(5.0f), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(Long.MAX_VALUE), new DynamicSememeLongImpl(30), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(3), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(1), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.GREATER_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeDoubleImpl(1), null, null));
 		
 	}
 	
 	@Test
 	public void testFour() throws PropertyVetoException, IOException
 	{
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeDouble(5.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeInteger(5), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeInteger(1), new DynamicSememeDouble(3.0), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeFloat(5.0f), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeDouble(1.0), new DynamicSememeFloat(3.0f), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(Long.MAX_VALUE), new DynamicSememeLong(30), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(3), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(1), new DynamicSememeLong(1), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLong(1), new DynamicSememeDouble(1), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeDoubleImpl(5.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeIntegerImpl(5), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeIntegerImpl(1), new DynamicSememeDoubleImpl(3.0), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeFloatImpl(5.0f), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeDoubleImpl(1.0), new DynamicSememeFloatImpl(3.0f), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(Long.MAX_VALUE), new DynamicSememeLongImpl(30), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(3), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeLongImpl(1), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.passesValidator(new DynamicSememeLongImpl(1), new DynamicSememeDoubleImpl(1), null, null));
 	}
 	
 	@Test
 	public void testInterval() throws PropertyVetoException, IOException
 	{
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeDouble(5.0), new DynamicSememeString("[4, 7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeDouble(5.0), new DynamicSememeString("[4.0, 7.7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeFloat(5.0f), new DynamicSememeString("[4, 7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeFloat(5.0f), new DynamicSememeString("[4.0, 7.7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeLong(5l), new DynamicSememeString("[4, 7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeLong(5l), new DynamicSememeString("[4.0, 7.7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(5), new DynamicSememeString("[4, 7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(5), new DynamicSememeString("[4.0, 7.7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeDoubleImpl(5.0), new DynamicSememeStringImpl("[4, 7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeDoubleImpl(5.0), new DynamicSememeStringImpl("[4.0, 7.7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeFloatImpl(5.0f), new DynamicSememeStringImpl("[4, 7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeFloatImpl(5.0f), new DynamicSememeStringImpl("[4.0, 7.7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeLongImpl(5l), new DynamicSememeStringImpl("[4, 7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeLongImpl(5l), new DynamicSememeStringImpl("[4.0, 7.7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(5), new DynamicSememeStringImpl("[4, 7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(5), new DynamicSememeStringImpl("[4.0, 7.7]"), null, null));
 		
-		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(Integer.MAX_VALUE), 
-				new DynamicSememeString("[4.0, 7.7]"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(Integer.MAX_VALUE), 
-				new DynamicSememeString("[4.0,2147483647]"), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(Integer.MAX_VALUE), 
-				new DynamicSememeString(" [4.0 , 2147483647) "), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(Integer.MAX_VALUE), 
+				new DynamicSememeStringImpl("[4.0, 7.7]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(Integer.MAX_VALUE), 
+				new DynamicSememeStringImpl("[4.0,2147483647]"), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(Integer.MAX_VALUE), 
+				new DynamicSememeStringImpl(" [4.0 , 2147483647) "), null, null));
 		
-		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeDouble(Double.MIN_VALUE), 
-				new DynamicSememeString(" [4.0 , 2147483647) "), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(Integer.MIN_VALUE), 
-				new DynamicSememeString(" [-2147483648 , 2147483647) "), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(Integer.MIN_VALUE), 
-				new DynamicSememeString(" (-2147483648 , 2147483647) "), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeDoubleImpl(Double.MIN_VALUE), 
+				new DynamicSememeStringImpl(" [4.0 , 2147483647) "), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(Integer.MIN_VALUE), 
+				new DynamicSememeStringImpl(" [-2147483648 , 2147483647) "), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(Integer.MIN_VALUE), 
+				new DynamicSememeStringImpl(" (-2147483648 , 2147483647) "), null, null));
 		
 		
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(5), 
-				new DynamicSememeString(" (4 ,  ) "), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(5), 
+				new DynamicSememeStringImpl(" (4 ,  ) "), null, null));
 		
-		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(5), 
-				new DynamicSememeString(" (4 ,]"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(5), 
+				new DynamicSememeStringImpl(" (4 ,]"), null, null));
 		
-		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(3), 
-				new DynamicSememeString(" (4 ,  ) "), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(3), 
+				new DynamicSememeStringImpl(" (4 ,  ) "), null, null));
 		
 		try
 		{
-			Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeInteger(3), 
-					new DynamicSememeString(" (6 ,4) "), null, null));
+			Assert.assertFalse(DynamicSememeValidatorType.INTERVAL.passesValidator(new DynamicSememeIntegerImpl(3), 
+					new DynamicSememeStringImpl(" (6 ,4) "), null, null));
 			Assert.fail("Should have been an exception");
 		}
 		catch (Exception e)
@@ -149,11 +149,11 @@ public class DynamicSememeValidatorTypeImplTest
 	@Test
 	public void testRegexp() throws PropertyVetoException, IOException
 	{
-		Assert.assertTrue(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeString("testWord"), new DynamicSememeString(".*"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeString("testWord"), new DynamicSememeString("[a-zA-Z]*"), null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeString("testWord"), new DynamicSememeString("[a-z]*"), null, null));
-		Assert.assertTrue(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeString("426"), new DynamicSememeString("\\d{3}?") , null, null));
-		Assert.assertFalse(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeString("4264"), new DynamicSememeString("\\d{3}?") , null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeStringImpl("testWord"), new DynamicSememeStringImpl(".*"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeStringImpl("testWord"), new DynamicSememeStringImpl("[a-zA-Z]*"), null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeStringImpl("testWord"), new DynamicSememeStringImpl("[a-z]*"), null, null));
+		Assert.assertTrue(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeStringImpl("426"), new DynamicSememeStringImpl("\\d{3}?") , null, null));
+		Assert.assertFalse(DynamicSememeValidatorType.REGEXP.passesValidator(new DynamicSememeStringImpl("4264"), new DynamicSememeStringImpl("\\d{3}?") , null, null));
 
 	}
 }

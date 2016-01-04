@@ -7,7 +7,7 @@ import gov.vha.isaac.ochre.api.MetadataDynamicSememeConstant;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeValidatorType;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUID;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 
 public class IsaacMappingConstants
 {
@@ -73,7 +73,7 @@ public class IsaacMappingConstants
 			new DynamicSememeColumnInfo[] {
 				new DynamicSememeColumnInfo(0, MAPPING_STATUS.getUUID(), DynamicSememeDataType.UUID, null, false, 
 					new DynamicSememeValidatorType[] {DynamicSememeValidatorType.IS_KIND_OF},
-					new DynamicSememeUUID[] {new DynamicSememeUUID(MAPPING_STATUS.getUUID())}),
+					new DynamicSememeUUIDImpl[] {new DynamicSememeUUIDImpl(MAPPING_STATUS.getUUID())}),
 				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_MAPPING_PURPOSE.getUUID(), DynamicSememeDataType.STRING, 
 						null, false)},
 			null) {}; 

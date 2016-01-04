@@ -1,17 +1,7 @@
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArrayBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBooleanBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArrayBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDoubleBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloatBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeIntegerBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLongBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNidBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphicBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequenceBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeStringBI;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUIDBI;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.*;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import gov.vha.isaac.ochre.api.constants.IsaacMetadataConstantsBase;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
@@ -23,34 +13,34 @@ import org.apache.logging.log4j.LogManager;
  * 
  * Most types are fairly straight forward.  NIDs, SEQUQENCES and INTEGERS are identical internally.
  * Polymorphic is used when the data type for a dynamic sememe isn't known at dynamic sememe creation time.  In this case, a user of the API
- * will have to examine type types of the actual {@link DynamicSememeDataBI} objects returned, to look at the type.
+ * will have to examine type types of the actual {@link DynamicSememeData} objects returned, to look at the type.
  * 
  * For all other types, the data type reported within the Refex Definition should exactly match the data type returned with 
- * a {@link DynamicSememeDataBI}.
+ * a {@link DynamicSememeData}.
  * 
- * {@link DynamicSememeDataBI} will never return a {@link POLYMORPHIC} type.
+ * {@link DynamicSememeData} will never return a {@link POLYMORPHIC} type.
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeDataType {
 	
-	NID(101, DynamicSememeNidBI.class, "Component Nid"),
-	STRING(102, DynamicSememeStringBI.class, "String"),
-	INTEGER(103, DynamicSememeIntegerBI.class, "Integer"),
-	BOOLEAN(104, DynamicSememeBooleanBI.class, "Boolean"),
-	LONG(105, DynamicSememeLongBI.class, "Long"),
-	BYTEARRAY(106, DynamicSememeByteArrayBI.class, "Arbitrary Data"),
-	FLOAT(107, DynamicSememeFloatBI.class, "Float"),
-	DOUBLE(108, DynamicSememeDoubleBI.class, "Double"),
-	UUID(109, DynamicSememeUUIDBI.class, "UUID"),
-	POLYMORPHIC(110, DynamicSememePolymorphicBI.class, "Unspecified"),
-	ARRAY(111, DynamicSememeArrayBI.class, "Array"),
-	SEQUENCE(112, DynamicSememeSequenceBI.class, "Component Sequence"),
+	NID(101, DynamicSememeNid.class, "Component Nid"),
+	STRING(102, DynamicSememeString.class, "String"),
+	INTEGER(103, DynamicSememeInteger.class, "Integer"),
+	BOOLEAN(104, DynamicSememeBoolean.class, "Boolean"),
+	LONG(105, DynamicSememeLong.class, "Long"),
+	BYTEARRAY(106, DynamicSememeByteArray.class, "Arbitrary Data"),
+	FLOAT(107, DynamicSememeFloat.class, "Float"),
+	DOUBLE(108, DynamicSememeDouble.class, "Double"),
+	UUID(109, DynamicSememeUUID.class, "UUID"),
+	POLYMORPHIC(110, DynamicSememePolymorphic.class, "Unspecified"),
+	ARRAY(111, DynamicSememeArray.class, "Array"),
+	SEQUENCE(112, DynamicSememeSequence.class, "Component Sequence"),
 	UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
 
 	private int externalizedToken_;
-	private Class<? extends DynamicSememeDataBI> dataClass_;
+	private Class<? extends DynamicSememeData> dataClass_;
 	private String displayName_;
 
 	public static DynamicSememeDataType getFromToken(int type) throws UnsupportedOperationException {
@@ -84,7 +74,7 @@ public enum DynamicSememeDataType {
 		}
 	}
 	
-	private DynamicSememeDataType(int externalizedToken, Class<? extends DynamicSememeDataBI> dataClass, String displayName)
+	private DynamicSememeDataType(int externalizedToken, Class<? extends DynamicSememeData> dataClass, String displayName)
 	{
 		externalizedToken_ = externalizedToken;
 		dataClass_ = dataClass;
@@ -96,7 +86,7 @@ public enum DynamicSememeDataType {
 		return this.externalizedToken_;
 	}
 
-	public Class<? extends DynamicSememeDataBI> getDynamicSememeMemberClass()
+	public Class<? extends DynamicSememeData> getDynamicSememeMemberClass()
 	{
 		return dataClass_;
 	}
@@ -136,40 +126,40 @@ public enum DynamicSememeDataType {
 
 	public static DynamicSememeDataType classToType(Class<?> c) 
 	{
-		if (DynamicSememeNidBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeNid.class.isAssignableFrom(c)) {
 			return NID;
 		}
-		if (DynamicSememeStringBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeString.class.isAssignableFrom(c)) {
 			return STRING;
 		}
-		if (DynamicSememeIntegerBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeInteger.class.isAssignableFrom(c)) {
 			return INTEGER;
 		}
-		if (DynamicSememeBooleanBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeBoolean.class.isAssignableFrom(c)) {
 			return BOOLEAN;
 		}
-		if (DynamicSememeLongBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeLong.class.isAssignableFrom(c)) {
 			return LONG;
 		}
-		if (DynamicSememeByteArrayBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeByteArray.class.isAssignableFrom(c)) {
 			return BYTEARRAY;
 		}
-		if (DynamicSememeFloatBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeFloat.class.isAssignableFrom(c)) {
 			return FLOAT;
 		}
-		if (DynamicSememeDoubleBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeDouble.class.isAssignableFrom(c)) {
 			return DOUBLE;
 		}
-		if (DynamicSememeUUIDBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeUUID.class.isAssignableFrom(c)) {
 			return UUID;
 		}
-		if (DynamicSememePolymorphicBI.class.isAssignableFrom(c)) {
+		if (DynamicSememePolymorphic.class.isAssignableFrom(c)) {
 			return POLYMORPHIC;
 		}
-		if (DynamicSememeArrayBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeArray.class.isAssignableFrom(c)) {
 			return ARRAY;
 		}
-		if (DynamicSememeSequenceBI.class.isAssignableFrom(c)) {
+		if (DynamicSememeSequence.class.isAssignableFrom(c)) {
 			return SEQUENCE;
 		}
 		LogManager.getLogger().warn("Couldn't map class {} to type!", c);

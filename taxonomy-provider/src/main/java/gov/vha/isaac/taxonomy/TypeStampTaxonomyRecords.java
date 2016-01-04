@@ -327,7 +327,7 @@ public class TypeStampTaxonomyRecords {
             sb.append(" ss:");
             sb.append(stampSequence);
             sb.append(" ");
-            sb.append(Get.commitService().describeStampSequence(stampSequence));
+            sb.append(Get.stampService().describeStampSequence(stampSequence));
             sb.append(" ");
             sb.append(getTaxonomyFlagsAsEnum());
             sb.append("»");

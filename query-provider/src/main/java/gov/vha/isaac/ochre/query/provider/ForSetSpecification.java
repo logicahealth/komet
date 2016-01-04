@@ -51,7 +51,7 @@ public class ForSetSpecification {
         for (ComponentCollectionTypes collection : forCollectionTypes) {
             switch (collection) {
                 case ALL_COMPONENTS:
-                    forSet.or(NidSet.of(Get.identifierService().getComponentNidStream()));
+                    forSet.or(NidSet.ofAllComponentNids());
                     break;
                 case ALL_CONCEPTS:
                     forSet.or(NidSet.of(ConceptSequenceSet.of(Get.identifierService().getConceptSequenceStream())));

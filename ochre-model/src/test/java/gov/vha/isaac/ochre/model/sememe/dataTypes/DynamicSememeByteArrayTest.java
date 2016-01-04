@@ -45,7 +45,7 @@ public class DynamicSememeByteArrayTest
 
 	private void test(byte[] value) throws PropertyVetoException, IOException
 	{
-		DynamicSememeByteArray i = new DynamicSememeByteArray(value);
+		DynamicSememeByteArrayImpl i = new DynamicSememeByteArrayImpl(value);
 		i.setNameIfAbsent("foo");
 
 		assertEquals(value, i.getDataByteArray());

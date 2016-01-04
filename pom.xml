@@ -91,6 +91,12 @@
                 <version>${hk2.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-testng</artifactId>
+                <version>${hk2.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
@@ -625,13 +631,17 @@
         <module>concept-provider</module>
         <module>path-provider</module>
         <module>sememe-provider</module>
-        <module>commit-manager</module>
         <module>metadata-source</module>
         <module>metadata</module>
         <module>observable-provider</module>
         <module>logic-provider</module>
         <module>query-provider</module>
         <module>ibdf-provider</module>
+        <module>commit-provider</module>
+        <module>coordinate-provider</module>
+        <module>integration-tests</module>
+        <module>progress-provider</module>
+        <module>stamp-provider</module>
         <module>import-utils</module>
     </modules>
     

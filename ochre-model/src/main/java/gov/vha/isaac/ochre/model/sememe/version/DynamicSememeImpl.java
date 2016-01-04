@@ -23,13 +23,13 @@ import javax.naming.InvalidNameException;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataBI;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescriptionBI;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeData;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDataImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeTypeToClassUtility;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
 
 /**
  *
@@ -39,14 +39,14 @@ import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeTypeToClassUtilit
  */
 public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> implements MutableDynamicSememe<DynamicSememeImpl> {
 
-    private DynamicSememeDataBI[] data_ = null;
+    private DynamicSememeData[] data_ = null;
 
     public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container, int stampSequence, short versionSequence, ByteArrayDataBuffer data) {
         super(container, stampSequence, versionSequence);
 
         // read the following format - dataFieldCount [dataFieldType dataFieldBytes] [dataFieldType dataFieldBytes] ...
         int colCount = data.getInt();
-        data_ = new DynamicSememeDataBI[colCount];
+        data_ = new DynamicSememeData[colCount];
         for (int i = 0; i < colCount; i++) {
             DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(data.getInt());
             if (dt == DynamicSememeDataType.UNKNOWN) {
@@ -69,7 +69,7 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
         //dataFieldCount [dataFieldType dataFieldBytes] [dataFieldType dataFieldBytes] ...
         if (getData() != null) {
             data.putInt(getData().length);
-            for (DynamicSememeDataBI column : getData()) {
+            for (DynamicSememeData column : getData()) {
                 if (column == null) {
                     data.putInt(DynamicSememeDataType.UNKNOWN.getTypeToken());
                 } else {
@@ -93,19 +93,19 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
 	 * @see gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe#getData()
 	 */
 	@Override
-    public DynamicSememeDataBI[] getData() {
+    public DynamicSememeData[] getData() {
         return data_ == null ? new DynamicSememeData[]{} : data_;
     }
 
     @Override
-    public DynamicSememeDataBI getData(int columnNumber) throws IndexOutOfBoundsException {
+    public DynamicSememeData getData(int columnNumber) throws IndexOutOfBoundsException {
         return getData()[columnNumber];
     }
 
     //TODO - Dan not sure if there is still the notion of an index of components that references nids... would need to port some code that reads 
     //the extra columns of the dynamic sememe, if so
     @Override
-    public DynamicSememeDataBI getData(String columnName) throws InvalidNameException {
+    public DynamicSememeData getData(String columnName) throws InvalidNameException {
         for (DynamicSememeColumnInfo ci : getDynamicSememeUsageDescription().getColumnInfo()) {
             if (ci.getColumnName().equals(columnName)) {
                 return getData(ci.getColumnOrder());
@@ -115,13 +115,13 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
     }
 
     @Override
-    public DynamicSememeUsageDescriptionBI getDynamicSememeUsageDescription() {
+    public DynamicSememeUsageDescription getDynamicSememeUsageDescription() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void setData(DynamicSememeDataBI[] data) {
+    public void setData(DynamicSememeData[] data) {
         if (data_ != null) {
             checkUncommitted();
         }

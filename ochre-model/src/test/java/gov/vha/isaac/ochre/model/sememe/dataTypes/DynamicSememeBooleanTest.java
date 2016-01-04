@@ -45,7 +45,7 @@ public class DynamicSememeBooleanTest
 
 	private void test(boolean value) throws PropertyVetoException, IOException
 	{
-		DynamicSememeBoolean i = new DynamicSememeBoolean(value);
+		DynamicSememeBooleanImpl i = new DynamicSememeBooleanImpl(value);
 		i.setNameIfAbsent("foo");
 
 		assertEquals(value, i.getDataBoolean());
