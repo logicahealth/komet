@@ -224,7 +224,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 			SememeChronology definitonSememe = (SememeChronology) definitionBuilder.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
 			Get.commitService().addUncommitted(definitonSememe);
 			
-			SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDyanmicSememeBuilder(definitonSememe.getNid(), 
+			SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDynamicSememeBuilder(definitonSememe.getNid(), 
 					IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getSequence(), null).build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
 			Get.commitService().addUncommitted(sememe);
 		}
@@ -238,7 +238,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 			{
 				DynamicSememeDataBI[] data = configureDynamicSememeDefinitionDataForColumn(ci);
 
-				SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDyanmicSememeBuilder(newCon.getNid(), 
+				SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDynamicSememeBuilder(newCon.getNid(), 
 						IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getSequence(), data)
 					.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
 				Get.commitService().addUncommitted(sememe);
@@ -249,7 +249,7 @@ public class DynamicSememeUtility implements DynamicSememeUtilityBI
 		
 		if (data != null)
 		{
-			SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDyanmicSememeBuilder(newCon.getNid(), 
+			SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeBuilderService().getDynamicSememeBuilder(newCon.getNid(), 
 					IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getSequence(), data)
 				.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
 			Get.commitService().addUncommitted(sememe);

@@ -481,7 +481,7 @@ public class EConceptUtility
 	{
 		validateDataTypes(refexDynamicTypeUuid, values);
 		@SuppressWarnings("rawtypes")
-		SememeBuilder sb = sememeBuilderService_.getDyanmicSememeBuilder(referencedComponent.getNid(), 
+		SememeBuilder sb = sememeBuilderService_.getDynamicSememeBuilder(referencedComponent.getNid(), 
 				Get.identifierService().getConceptSequenceForUuids(refexDynamicTypeUuid), values);
 		
 		if (uuidForCreatedAnnotation == null)

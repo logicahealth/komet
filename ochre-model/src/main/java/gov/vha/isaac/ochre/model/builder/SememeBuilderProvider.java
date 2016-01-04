@@ -117,12 +117,12 @@ public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVe
     }
 
     @Override
-    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
+    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
         return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.DYNAMIC);
     }
 
     @Override
-    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, DynamicSememeDataBI[] data) {
+    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, DynamicSememeDataBI[] data) {
         //Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the 
         //parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to 
         //the array type we want... so just wrap it in something to stop java from being stupid. 

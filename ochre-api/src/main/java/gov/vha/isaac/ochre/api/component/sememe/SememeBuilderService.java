@@ -88,9 +88,8 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
             String text,
             int referencedComponentNid);
     
-    //TODO fix dan's bad spelling...
-    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence);
+    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence);
     
-    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDyanmicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, 
-    		DynamicSememeDataBI[] data);
+    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, 
+            DynamicSememeDataBI[] data);
 }

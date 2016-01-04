@@ -191,7 +191,7 @@ public class DynamicSememeIndexerConfiguration
 		}
 		
 		SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = 
-				Get.sememeBuilderService().getDyanmicSememeBuilder(assemblageNidOrSequence,
+				Get.sememeBuilderService().getDynamicSememeBuilder(assemblageNidOrSequence,
 						IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence(), data);
 		
 		sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
