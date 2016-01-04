@@ -128,7 +128,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
         
         SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder
                 = sememeBuilder.getDescriptionSememeBuilder(
-                        Get.languageCoordinateService().caseSignificanceToConceptSequence(false),
+                        TermAux.caseSignificanceToConceptSequence(false),
                         languageForDescription.getConceptSequence(),
                         descriptionType.getConceptSequence(),
                         descriptionText,

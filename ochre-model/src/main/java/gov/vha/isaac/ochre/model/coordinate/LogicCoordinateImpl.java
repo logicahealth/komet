@@ -42,9 +42,9 @@ public class LogicCoordinateImpl implements LogicCoordinate {
         //for jaxb and subclass
     }
 
-    public LogicCoordinateImpl(int statedAssemblageSequence, int inferredAssemblageSequnce, int descriptionLogicProfileSequence, int classifierSequence) {
+    public LogicCoordinateImpl(int statedAssemblageSequence, int inferredAssemblageSequence, int descriptionLogicProfileSequence, int classifierSequence) {
         this.statedAssemblageSequence = statedAssemblageSequence;
-        this.inferredAssemblageSequence = inferredAssemblageSequnce;
+        this.inferredAssemblageSequence = inferredAssemblageSequence;
         this.descriptionLogicProfileSequence = descriptionLogicProfileSequence;
         this.classifierSequence = classifierSequence;
     }

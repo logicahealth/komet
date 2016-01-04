@@ -175,14 +175,10 @@ public class LanguageCoordinates {
     }
     
     public static int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
-        if (initialCaseSignificant) {
-            return Get.identifierService().getConceptSequenceForUuids(TermAux.DESCRIPTION_CASE_SENSITIVE.getUuids());
-        }
-        return Get.identifierService().getConceptSequenceForUuids(TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getUuids());
+        return TermAux.caseSignificanceToConceptSequence(initialCaseSignificant);
     }
 
     public static boolean conceptIdToCaseSignificance(int id) {
-        int nid = Get.identifierService().getConceptNid(id);
-        return TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid() == nid;
+        return TermAux.conceptIdToCaseSignificance(id);
     }
 }

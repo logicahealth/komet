@@ -19,17 +19,18 @@ import java.util.concurrent.locks.StampedLock;
 import java.util.stream.IntStream;
 
 /**
- *
+ * Sequences start at 1.
  * @author kec
  */
 public class SequenceMap {
 
+    public static final int FIRST_SEQUENCE = 1;
     private static final double MINIMUM_LOAD_FACTOR = 0.75;
     private static final double MAXIMUM_LOAD_FACTOR = 0.9;
 
     StampedLock sl = new StampedLock();
 
-    int nextSequence = 0;
+    int nextSequence = FIRST_SEQUENCE;
 
     final NativeIntIntHashMap nidSequenceMap;
     final NativeIntIntHashMap sequenceNidMap;

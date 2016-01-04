@@ -71,6 +71,18 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>coordinate-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>path-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
    <build>
         <plugins>

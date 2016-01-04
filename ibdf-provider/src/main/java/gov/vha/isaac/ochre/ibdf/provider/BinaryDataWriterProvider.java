@@ -18,6 +18,9 @@ package gov.vha.isaac.ochre.ibdf.provider;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
+
+import javax.xml.bind.DatatypeConverter;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,42 +28,61 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- *
  * @author kec
  */
 public class BinaryDataWriterProvider implements BinaryDataWriterService {
+
+    private static final int DEBUG_COUNT = 1000;
+    private static final boolean DEBUG = true;
+
 
     private static final int BUFFER_SIZE = 1024;
     Path dataPath;
     ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(BUFFER_SIZE);
     DataOutputStream output;
+    int writtenObjects = 0;
+    int debugCount = 0;
+    OchreExternalizableObjectType lastObjectType;
 
     public BinaryDataWriterProvider(Path dataPath) throws FileNotFoundException {
         this.dataPath = dataPath;
         this.output = new DataOutputStream(new FileOutputStream(dataPath.toFile()));
+        this.buffer.setExternalData(true);
     }
 
     @Override
     public void put(OchreExternalizable ochreObject) {
-            try {
-                buffer.reset();
-                ochreObject.putExternal(buffer);
-                output.writeByte(ochreObject.getOchreObjectType().getToken());
-                output.writeByte(ochreObject.getDataFormatVersion());
-                output.writeInt(buffer.getLimit());
-                output.write(buffer.getData(), 0, buffer.getLimit());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+        if (ochreObject.getOchreObjectType() != lastObjectType) {
+            debugCount = 0;
+            lastObjectType = ochreObject.getOchreObjectType();
+        }
+        try {
+            buffer.reset();
+            ochreObject.putExternal(buffer);
+            output.writeByte(ochreObject.getOchreObjectType().getToken());
+            output.writeByte(ochreObject.getDataFormatVersion());
+            output.writeInt(buffer.getLimit());
+            output.write(buffer.getData(), 0, buffer.getLimit());
+            if (DEBUG && debugCount < DEBUG_COUNT) {
+                System.out.println("Writing: " + ochreObject);
+                byte[] data = new byte[buffer.getLimit()];
+                System.arraycopy(buffer.getData(), 0, data, 0, buffer.getLimit());
+                System.out.println("Data: " + DatatypeConverter.printHexBinary(data));
             }
+            writtenObjects++;
+            debugCount++;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
-    public void close()  {
+    public void close() {
         try {
             this.output.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
-    
+
 }

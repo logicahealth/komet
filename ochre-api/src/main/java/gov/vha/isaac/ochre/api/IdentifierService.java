@@ -55,11 +55,11 @@ public interface IdentifierService {
      * When retrieving sememes using the sequence, use the {@code SememeService.getOptionalSememe(int sememeSequence)} to safely 
      * retrieve sememes without the risk of null pointer exceptions if the sememe is not yet written to the store 
      * (as would be the case frequently when importing change sets, or loading a database). 
-     * @param sememeNid
-     * @return a concept sequence for the provided sememeNid.  
+     * @param sememeId
+     * @return a concept sequence for the provided sememeId.
      */
-    int getSememeSequence(int sememeNid);
-    int getSememeNid(int sememeSequence);
+    int getSememeSequence(int sememeId);
+    int getSememeNid(int sememeId);
     int getSememeSequenceForUuids(Collection<UUID> uuids);
     int getSememeSequenceForUuids(UUID... uuids);
     

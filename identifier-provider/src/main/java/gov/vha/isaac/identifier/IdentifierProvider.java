@@ -166,19 +166,19 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
     }
 
     @Override
-    public int getSememeSequence(int nid) {
-        if (nid >= 0) {
-            return nid;
+    public int getSememeSequence(int sememeId) {
+        if (sememeId >= 0) {
+            return sememeId;
         }
-        return sememeSequenceMap.addNidIfMissing(nid);
+        return sememeSequenceMap.addNidIfMissing(sememeId);
     }
 
     @Override
-    public int getSememeNid(int sememeSequence) {
-        if (sememeSequence < 0) {
-            return sememeSequence;
+    public int getSememeNid(int sememeId) {
+        if (sememeId < 0) {
+            return sememeId;
         }
-        return sememeSequenceMap.getNidFast(sememeSequence);
+        return sememeSequenceMap.getNidFast(sememeId);
     }
 
     @Override
