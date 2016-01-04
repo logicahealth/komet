@@ -92,7 +92,7 @@ public class ByteArrayDataBuffer  {
                 putLong(uuid.getMostSignificantBits());
                 putLong(uuid.getLeastSignificantBits());
             } else {
-                System.out.println("Can't find uuid for nid: " + nid);
+                throw new RuntimeException("Can't find uuid for nid: " + nid);
             }
         } else {
             putInt(nid);
