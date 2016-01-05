@@ -278,7 +278,8 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
             return Optional.of(optionalObj.get().getPrimordialUuid());
         }
         UUID[] uuids = uuidIntMapMap.getKeysForValue(nid);
-        LOG.warn("[1] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
+        //In the use case of directly writing files (converting terminology) this is a normal occurrence
+        LOG.debug("[1] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
 
         if (uuids.length > 0) {
             return Optional.of(uuids[0]);
