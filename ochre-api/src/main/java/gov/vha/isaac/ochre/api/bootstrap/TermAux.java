@@ -43,9 +43,6 @@ public class TermAux {
     public static ConceptSpecification REL_OPTIONALLY_REFINABLE
             = new ConceptProxy("optional (refinability type)",
                     UUID.fromString("c3d997d3-b0a4-31f8-846f-03fa874f5479"));
-    public static ConceptSpecification WB_AUX_PATH
-            = new ConceptProxy("master", //new name from isaacmetadata
-                    UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));
     public static ConceptSpecification IHTSDO_CLASSIFIER
             = new ConceptProxy("IHTSDO Classifier",
                     UUID.fromString("7e87cc5b-e85f-3860-99eb-7a44f2b9e6f9"));

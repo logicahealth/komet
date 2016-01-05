@@ -57,7 +57,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 developmentPath.setPrimordialUuid("1f200ca6-960e-11e5-8994-feff819cdc9f");
                 ConceptBuilder masterPath = createConcept("master path");
                 masterPath.setPrimordialUuid("1f20134a-960e-11e5-8994-feff819cdc9f");
-                masterPath.setPrimordialUuid(TermAux.WB_AUX_PATH.getPrimordialUuid());
+                masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66")); // UUID from WB_AUX_PATH
             popParent();
             createConcept("set operator");
             pushParent(current());
