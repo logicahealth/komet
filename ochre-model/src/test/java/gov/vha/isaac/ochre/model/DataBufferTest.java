@@ -90,11 +90,11 @@ public class DataBufferTest {
      */
     @Test
     public void testReset() {
-        System.out.println("reset");
+        System.out.println("clear");
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         int expResult = 5;
         instance.setPosition(expResult);
-        instance.reset();
+        instance.clear();
         int result = instance.getPosition();
         assertEquals(0, result);
     }
@@ -108,7 +108,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         byte expResult = 5;
         instance.putByte(expResult);
-        instance.reset();
+        instance.rewind();
         byte result = instance.getByte();
         assertEquals(expResult, result);
     }
@@ -122,7 +122,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         byte expResult = 23;
         instance.putByte(expResult);
-        instance.reset();
+        instance.rewind();
         byte result = instance.getByte();
         assertEquals(expResult, result);
     }
@@ -136,7 +136,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         short expResult = 19;
         instance.putShort(expResult);
-        instance.reset();
+        instance.rewind();
         short result = instance.getShort();
         assertEquals(expResult, result);
     }
@@ -150,7 +150,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         short expResult = 37;
         instance.putShort(expResult);
-        instance.reset();
+        instance.rewind();
         short result = instance.getShort();
         assertEquals(expResult, result);
     }
@@ -164,7 +164,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         char expResult = ' ';
         instance.putChar(expResult);
-        instance.reset();
+        instance.rewind();
         char result = instance.getChar();
         assertEquals(expResult, result);
     }
@@ -178,7 +178,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         char expResult = '&';
         instance.putChar(expResult);
-        instance.reset();
+        instance.rewind();
         char result = instance.getChar();
         assertEquals(expResult, result);
     }
@@ -192,7 +192,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         int expResult = 9;
         instance.putInt(expResult);
-        instance.reset();
+        instance.rewind();
         int result = instance.getInt();
         assertEquals(expResult, result);
     }
@@ -206,7 +206,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         int expResult = 19;
         instance.putInt(expResult);
-        instance.reset();
+        instance.rewind();
         int result = instance.getInt();
         assertEquals(expResult, result);
     }
@@ -220,7 +220,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         float expResult = 7.3F;
         instance.putFloat(expResult);
-        instance.reset();
+        instance.rewind();
         float result = instance.getFloat();
         assertEquals(expResult, result, 0.0);
     }
@@ -234,7 +234,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         float expResult = 9.14F;
         instance.putFloat(expResult);
-        instance.reset();
+        instance.rewind();
         float result = instance.getFloat();
         assertEquals(expResult, result, 0.0);
     }
@@ -248,7 +248,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         long expResult = Long.MAX_VALUE - 5;
         instance.putLong(expResult);
-        instance.reset();
+        instance.rewind();
         long result = instance.getLong();
         assertEquals(expResult, result);
     }
@@ -262,7 +262,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         long expResult = Long.MIN_VALUE + 7;
         instance.putLong(expResult);
-        instance.reset();
+        instance.rewind();
         long result = instance.getLong();
         assertEquals(expResult, result);
     }
@@ -276,7 +276,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         double expResult = Double.MAX_VALUE;
         instance.putDouble(expResult);
-        instance.reset();
+        instance.rewind();
         double result = instance.getDouble();
         assertEquals(expResult, result, 0.0);
     }
@@ -290,7 +290,7 @@ public class DataBufferTest {
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         double expResult = Double.MIN_VALUE;
         instance.putDouble(expResult);
-        instance.reset();
+        instance.rewind();
         double result = instance.getDouble();
         assertEquals(expResult, result, 0.0);
    }
@@ -318,7 +318,7 @@ public class DataBufferTest {
         int length = 3;
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         instance.put(src);
-        instance.reset();
+        instance.rewind();
         byte[] result = new byte[3];
         instance.get(result, offset, length);
         assertArrayEquals(src, result);
@@ -336,7 +336,7 @@ public class DataBufferTest {
         int length = 3;
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         instance.put(src);
-        instance.reset();
+        instance.rewind();
         byte[] result = new byte[3];
         instance.get(result, offset, length);
         assertArrayEquals(src, result);
@@ -351,7 +351,7 @@ public class DataBufferTest {
         String str = "Now is the time for all † ‡ °";
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         instance.putUTF(str);
-        instance.reset();
+        instance.rewind();
         String result = instance.readUTF();
         assertEquals(str, result);
     }
@@ -365,7 +365,7 @@ public class DataBufferTest {
         String str = "Fine for all ˜ Â the time for all † ‡ °";
         ByteArrayDataBuffer instance = new ByteArrayDataBuffer(10);
         instance.putUTF(str);
-        instance.reset();
+        instance.rewind();
         String result = instance.readUTF();
         assertEquals(str, result);
     }
@@ -379,7 +379,7 @@ public class DataBufferTest {
         instance.putInt(16);
         instance.putUTF(str);
         instance.putInt(11);
-        instance.reset();
+        instance.rewind();
         assertEquals(4, instance.getShort());
         assertEquals(13, instance.getInt());
         assertEquals(16, instance.getInt());

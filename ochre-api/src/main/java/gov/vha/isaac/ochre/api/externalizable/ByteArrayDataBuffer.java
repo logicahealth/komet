@@ -39,7 +39,7 @@ public class ByteArrayDataBuffer  {
     protected static final byte FALSE = 0;
     protected static final byte TRUE = 1;
     protected int position = 0;
-    protected int positionStart = 0;
+    protected final int positionStart;
     protected boolean readOnly = false;
     protected byte objectDataFormatVersion = 0;
     protected boolean externalData = false;
@@ -55,9 +55,14 @@ public class ByteArrayDataBuffer  {
     
     private byte[] data;
 
-    public ByteArrayDataBuffer(byte[] data) {
+    public ByteArrayDataBuffer(byte[] data, int positionStart) {
         this.data = data;
         this.used = data.length;
+        this.positionStart = positionStart;
+    }
+
+    public ByteArrayDataBuffer(byte[] data) {
+        this(data, 0);
     }
 
     public ByteArrayDataBuffer() {
@@ -66,6 +71,7 @@ public class ByteArrayDataBuffer  {
 
     public ByteArrayDataBuffer(int size) {
         this.data = new byte[size];
+        this.positionStart = 0;
     }
     
     public UUID getUuid() {
@@ -84,6 +90,14 @@ public class ByteArrayDataBuffer  {
         return getInt();
     }
 
+    /**
+     * The current capacity of the buffer. The buffer will grow if necessary, so the current capacity may not
+     * reflect the maximum size that the buffer may obtain.
+     * @return The currently allocated size of the buffer.
+     */
+    public int getCapacity() {
+        return data.length;
+    }
     public void putNid(int nid) {
         if (externalData) {
             Optional<UUID> optionalUuid = identifierService.getUuidPrimordialForNid(nid);
@@ -125,7 +139,7 @@ public class ByteArrayDataBuffer  {
 
     public void putSememeSequence(int sememeSequence) {
         if (externalData) {
-            UUID uuid = identifierService.getUuidPrimordialForNid(identifierService.getConceptNid(sememeSequence)).get();
+            UUID uuid = identifierService.getUuidPrimordialForNid(identifierService.getSememeNid(sememeSequence)).get();
             putLong(uuid.getMostSignificantBits());
             putLong(uuid.getLeastSignificantBits());
         } else {
@@ -170,22 +184,38 @@ public class ByteArrayDataBuffer  {
     }
 
     /**
-     *
-     * @return the position after the end of written data in the buffer.
+     * The limit is the index of the first element that should not be read or written, relative to the position start.
+     * It represents the end of valid data, and is never negative and is never greater than its capacity.
+     * @return the position after the end of written data in the buffer, relative to the position start.
      */
     public int getLimit() {
         this.used = Math.max(this.used, this.position);
         return this.used - positionStart;
     }
 
+    /**
+     * The position start for this ByteArrayDataBuffer. Since many ByteArrayDataBuffers may
+     * use the same underlying data, the position start must be honored as the origin
+     * of data for this buffer, and a rewind or clear operation should only go back to position start.
+     * @return the position start for this ByteArrayDataBuffer.
+     */
     public int getPositionStart() {
         return positionStart;
     }
 
+    /**
+     * The index of the next element to be read or written, relative to the position start.
+     * The position is never negative and is never greater than its limit.
+     * @return the index of the next element to be read or written.
+     */
     public int getPosition() {
         return position - positionStart;
     }
 
+    /**
+     * Set the index of the next element to be read or written, relative to the position start.
+     * @param position the index of the next element to be read or written, relative to the position start.
+     */
     public void setPosition(int position) {
         this.used = Math.max(this.used, this.position);
         this.position = position + this.positionStart;
@@ -211,9 +241,34 @@ public class ByteArrayDataBuffer  {
         return Float.intBitsToFloat(getInt());
     }
 
-    public void reset() {
+    /**
+     *  Makes this buffer ready for a new sequence of put operations:
+     *  It sets the limit to the capacity and the position to zero.
+     */
+    public ByteArrayDataBuffer clear() {
         this.used = 0;
+        this.position = this.positionStart;
+        return this;
+    }
+
+    /**
+     * Makes this buffer ready for re-reading the data that it already contains:
+     * It leaves the limit unchanged and sets the position to the positionStart.
+     *
+     */
+    public ByteArrayDataBuffer rewind() {
         this.position = positionStart;
+        return this;
+    }
+
+    /**
+     * Makes this buffer ready for a new sequence of get operations:
+     * It sets the limit to the current position and then sets the position to zero.
+     */
+    public ByteArrayDataBuffer flip() {
+        getLimit();
+        this.position = positionStart;
+        return this;
     }
 
     public void get(byte[] src, int offset, int length) {
@@ -242,7 +297,6 @@ public class ByteArrayDataBuffer  {
     public ByteArrayDataBuffer newWrapper() {
         ByteArrayDataBuffer newWrapper = new ByteArrayDataBuffer(data);
         newWrapper.readOnly = true;
-        newWrapper.positionStart = 0;
         newWrapper.position = 0;
         newWrapper.used = this.used;
         return newWrapper;
@@ -280,23 +334,6 @@ public class ByteArrayDataBuffer  {
         put(array, 0, array.length);
     }
 
-    public void putChar(char x) {
-        ensureSpace(position + 2);
-        long lockStamp = sl.tryOptimisticRead();
-        data[position] = (byte) (x >> 8);
-        data[position + 1] = (byte) (x);
-        if (!sl.validate(lockStamp)) {
-            lockStamp = sl.readLock();
-            try {
-                data[position] = (byte) (x >> 8);
-                data[position + 1] = (byte) (x);
-            } finally {
-                sl.unlockRead(lockStamp);
-            }
-        }
-        position += 2;
-    }
-
     public void putDouble(double d) {
         putLong(Double.doubleToLongBits(d));
     }
@@ -331,27 +368,25 @@ public class ByteArrayDataBuffer  {
         ensureSpace(position + (src.length * 4));
         long lockStamp = sl.tryOptimisticRead();
         int startingPosition = position;
+        putIntArrayIntoData(src);
+        if (!sl.validate(lockStamp)) {
+            lockStamp = sl.readLock();
+            position = startingPosition;
+            try {
+                putIntArrayIntoData(src);
+            } finally {
+                sl.unlockRead(lockStamp);
+            }
+        }
+    }
+
+    private void putIntArrayIntoData(int[] src) {
         for (int anInt : src) {
             data[position] = (byte) (anInt >> 24);
             data[position + 1] = (byte) (anInt >> 16);
             data[position + 2] = (byte) (anInt >> 8);
             data[position + 3] = (byte) (anInt);
             position += 4;
-        }
-        if (!sl.validate(lockStamp)) {
-            lockStamp = sl.readLock();
-            position = startingPosition;
-            try {
-                for (int anInt : src) {
-                    data[position] = (byte) (anInt >> 24);
-                    data[position + 1] = (byte) (anInt >> 16);
-                    data[position + 2] = (byte) (anInt >> 8);
-                    data[position + 3] = (byte) (anInt);
-                    position += 4;
-                }
-            } finally {
-                sl.unlockRead(lockStamp);
-            }
         }
     }
 
@@ -399,6 +434,10 @@ public class ByteArrayDataBuffer  {
             }
         }
         position += 2;
+    }
+
+    public void putChar(char x) {
+        putShort((short) x);
     }
 
     public void putUTF(String str) {
@@ -450,17 +489,13 @@ public class ByteArrayDataBuffer  {
     }
 
     public ByteArrayDataBuffer slice() {
-        ByteArrayDataBuffer slice = new ByteArrayDataBuffer(data);
+        ByteArrayDataBuffer slice = new ByteArrayDataBuffer(data, this.position);
         slice.readOnly = true;
-        slice.positionStart = this.position;
         slice.position = this.position;
         slice.used = this.used;
         return slice;
     }
     
-
- 
-
     /**
      *
      * @return the byte[] that backs this buffer.
@@ -594,25 +629,11 @@ public class ByteArrayDataBuffer  {
 
     public long getLong(int position) {
         long lockStamp = sl.tryOptimisticRead();
-        long result = ((((long) data[position]) << 56)
-                | (((long) data[position + 1] & 0xff) << 48)
-                | (((long) data[position + 2] & 0xff) << 40)
-                | (((long) data[position + 3] & 0xff) << 32)
-                | (((long) data[position + 4] & 0xff) << 24)
-                | (((long) data[position + 5] & 0xff) << 16)
-                | (((long) data[position + 6] & 0xff) << 8)
-                | (((long) data[position + 7] & 0xff)));
+        long result = getLongResult(position);
         if (!sl.validate(lockStamp)) {
             lockStamp = sl.readLock();
             try {
-                result = ((((long) data[position]) << 56)
-                        | (((long) data[position + 1] & 0xff) << 48)
-                        | (((long) data[position + 2] & 0xff) << 40)
-                        | (((long) data[position + 3] & 0xff) << 32)
-                        | (((long) data[position + 4] & 0xff) << 24)
-                        | (((long) data[position + 5] & 0xff) << 16)
-                        | (((long) data[position + 6] & 0xff) << 8)
-                        | (((long) data[position + 7] & 0xff)));
+                result = getLongResult(position);
             } finally {
                 sl.unlockRead(lockStamp);
             }
@@ -620,6 +641,18 @@ public class ByteArrayDataBuffer  {
         return result;
     }
 
+    private long getLongResult(int position) {
+        long result;
+        result = ((((long) data[position]) << 56)
+                | (((long) data[position + 1] & 0xff) << 48)
+                | (((long) data[position + 2] & 0xff) << 40)
+                | (((long) data[position + 3] & 0xff) << 32)
+                | (((long) data[position + 4] & 0xff) << 24)
+                | (((long) data[position + 5] & 0xff) << 16)
+                | (((long) data[position + 6] & 0xff) << 8)
+                | (((long) data[position + 7] & 0xff)));
+        return result;
+    }
 
 
     public double getDouble(int position) {

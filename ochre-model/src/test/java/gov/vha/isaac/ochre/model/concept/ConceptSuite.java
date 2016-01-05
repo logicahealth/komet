@@ -151,7 +151,7 @@ public class ConceptSuite {
         externalBuffer.setExternalData(true);
         conceptChronology2.putExternal(externalBuffer);
 
-        externalBuffer.reset();
+        externalBuffer.clear();
         ConceptChronologyImpl conceptChronology3 =  ConceptChronologyImpl.make(externalBuffer);
         Assert.assertEquals(conceptChronology, conceptChronology3);
 
@@ -178,7 +178,7 @@ public class ConceptSuite {
         externalBuffer.setExternalData(true);
         testConcept2.putExternal(externalBuffer);
 
-        externalBuffer.reset();
+        externalBuffer.clear();
         ConceptChronologyImpl testConcept3 =  ConceptChronologyImpl.make(externalBuffer);
         Assert.assertEquals(testConcept, testConcept3);
         testConcept3.toString();

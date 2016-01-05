@@ -57,7 +57,7 @@ public class BinaryDataWriterProvider implements BinaryDataWriterService {
             lastObjectType = ochreObject.getOchreObjectType();
         }
         try {
-            buffer.reset();
+            buffer.clear();
             ochreObject.putExternal(buffer);
             output.writeByte(ochreObject.getOchreObjectType().getToken());
             output.writeByte(ochreObject.getDataFormatVersion());
