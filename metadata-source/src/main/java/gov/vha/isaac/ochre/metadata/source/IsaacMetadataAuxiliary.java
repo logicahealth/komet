@@ -32,7 +32,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
      
  
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException {
-      super(TermAux.WB_AUX_PATH, TermAux.USER, TermAux.ISAAC_MODULE, TermAux.IS_A, "(ISAAC)", LanguageCode.EN);
+      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.ISAAC_MODULE, TermAux.IS_A, "ISAAC", LanguageCode.EN);
 
       try {
          createConcept("ISAAC root");

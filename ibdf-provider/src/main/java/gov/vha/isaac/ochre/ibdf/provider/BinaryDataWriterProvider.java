@@ -32,7 +32,7 @@ import java.nio.file.Path;
  */
 public class BinaryDataWriterProvider implements BinaryDataWriterService {
 
-    private static final int DEBUG_COUNT = 1000;
+    private static final int MAX_DEBUG_COUNT = 10;
     private static final boolean DEBUG = true;
 
 
@@ -63,11 +63,11 @@ public class BinaryDataWriterProvider implements BinaryDataWriterService {
             output.writeByte(ochreObject.getDataFormatVersion());
             output.writeInt(buffer.getLimit());
             output.write(buffer.getData(), 0, buffer.getLimit());
-            if (DEBUG && debugCount < DEBUG_COUNT) {
-                System.out.println("Writing: " + ochreObject);
-                byte[] data = new byte[buffer.getLimit()];
-                System.arraycopy(buffer.getData(), 0, data, 0, buffer.getLimit());
-                System.out.println("Data: " + DatatypeConverter.printHexBinary(data));
+            if (DEBUG && debugCount < MAX_DEBUG_COUNT) {
+                System.out.println("Writing "+ debugCount +" : " + ochreObject);
+                //byte[] data = new byte[buffer.getLimit()];
+                //System.arraycopy(buffer.getData(), 0, data, 0, buffer.getLimit());
+                //System.out.println("Data: " + DatatypeConverter.printHexBinary(data));
             }
             writtenObjects++;
             debugCount++;

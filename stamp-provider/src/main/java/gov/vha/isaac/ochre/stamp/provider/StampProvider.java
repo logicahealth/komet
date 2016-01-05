@@ -181,7 +181,7 @@ public class StampProvider implements StampService {
     @Override
     public int getPathSequenceForStamp(int stampSequence) {
         if (stampSequence < 0) {
-            return TermAux.PATH.getConceptSequence();
+            return TermAux.DEVELOPMENT_PATH.getConceptSequence();
         }
         if (stampSequencePathSequenceMap.containsKey(stampSequence)) {
             return stampSequencePathSequenceMap.get(stampSequence);
