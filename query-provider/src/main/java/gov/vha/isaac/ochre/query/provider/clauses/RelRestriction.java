@@ -80,7 +80,7 @@ public class RelRestriction extends LeafClause {
         whereClause.getLetKeys().add(viewCoordinateKey);
         whereClause.getLetKeys().add(destinationSubsumptionKey);
         whereClause.getLetKeys().add(relTypeSubsumptionKey);
-        System.out.println("Where clause size: " + whereClause.getLetKeys().size());
+//        System.out.println("Where clause size: " + whereClause.getLetKeys().size());
         return whereClause;
 
     }
@@ -92,7 +92,7 @@ public class RelRestriction extends LeafClause {
 
     @Override
     public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-        System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
+//        System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
         TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
         ConceptSpecification destinationSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations().get(destinationSpecKey);
         ConceptSpecification relType = (ConceptSpecification) enclosingQuery.getLetDeclarations().get(relTypeKey);

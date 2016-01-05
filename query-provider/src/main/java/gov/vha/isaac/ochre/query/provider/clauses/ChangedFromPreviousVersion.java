@@ -76,7 +76,7 @@ public class ChangedFromPreviousVersion extends LeafClause {
 
     @Override
     public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-        System.out.println(incomingPossibleComponents.size());
+//        System.out.println(incomingPossibleComponents.size());
         this.cache = incomingPossibleComponents;
         return incomingPossibleComponents;
     }

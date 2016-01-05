@@ -390,6 +390,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
             TreeNodeVisitData graphVisitData, int depth) {
 
         if (depth > 100) {
+            //TODO seems this should be fatal?
             System.out.println("Depth limit exceeded for node: " + node);
             return;
         }

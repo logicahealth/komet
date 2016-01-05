@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.IntStream;
+import org.apache.logging.log4j.LogManager;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 /**
@@ -53,7 +54,7 @@ public class TaxonomyWalkCollector implements
                 ConceptChronology<?> c = Get.conceptService().getConcept(conceptSequence);               
                 if (printCount < MAX_PRINT_COUNT) {
                     printCount++;
-                    System.out.println("No parents for: " + c.toUserString());
+                    LogManager.getLogger().warn("No parents for: " + c.toUserString());
                 }
             }
             accumulator.parentConnections += parentCount;

@@ -56,7 +56,7 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
             try {
                 this.graphData[i] = data.getByteArrayField();
             } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println(e);
+                throw new RuntimeException(e);
             }
         }
     }

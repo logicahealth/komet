@@ -70,7 +70,7 @@ public class RelationshipIsCircular extends LeafClause {
         whereClause.getLetKeys().add(relTypeKey);
         whereClause.getLetKeys().add(viewCoordinateKey);
         whereClause.getLetKeys().add(relTypeSubsumptionKey);
-        System.out.println("Where clause size: " + whereClause.getLetKeys().size());
+//        System.out.println("Where clause size: " + whereClause.getLetKeys().size());
         return whereClause;
 
     }
@@ -82,7 +82,7 @@ public class RelationshipIsCircular extends LeafClause {
 
     @Override
     public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-        System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
+//        System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
         TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
         ConceptSpecification relType = (ConceptSpecification) enclosingQuery.getLetDeclarations().get(relTypeKey);
         Boolean relTypeSubsumption = (Boolean) enclosingQuery.getLetDeclarations().get(relTypeSubsumptionKey);
