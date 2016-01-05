@@ -18,13 +18,12 @@
  */
 package gov.va.oia.terminology.converters.sharedUtils;
 
-import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
+import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 
 /**
  * 
@@ -107,7 +106,6 @@ public abstract class ConverterBaseMojo extends AbstractMojo
 	@Parameter (required = false)
 	protected List<String> relationshipSkipList;
 	
-	protected DataOutputStream dos_;
 	protected EConceptUtility conceptUtility_;
 	
 	@Override

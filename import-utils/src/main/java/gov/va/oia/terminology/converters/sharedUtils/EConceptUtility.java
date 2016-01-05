@@ -24,8 +24,9 @@ import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySe
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SomeRole;
 import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.plexus.util.FileUtils;
+import gov.va.oia.terminology.converters.sharedUtils.gson.MultipleDataWriterService;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Refsets;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Relations;
@@ -71,6 +74,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
+import gov.vha.isaac.ochre.api.constants.Constants;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
@@ -128,21 +132,13 @@ public class EConceptUtility
 			}
 		}
 	};
-	public final static UUID isARelUuid_ = MetaData.IS_A.getPrimordialUuid();
-	private final static int authorSeq_ = MetaData.USER.getConceptSequence();
-//	public final static UUID synonymUuid_ = MetaData.SYNONYM.getPrimordialUuid();
-//	public final static UUID definitionUuid_ = MetaData.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid();
-//	public final static UUID fullySpecifiedNameUuid_ = MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid();
-//	public final static UUID descriptionAcceptableUuid_ = MetaData.ACCEPTABLE.getPrimordialUuid();
-//	public final static UUID descriptionPreferredUuid_ = MetaData.PREFERRED.getPrimordialUuid();
-//	public final static UUID refsetMemberTypeNormalMemberUuid_ = MetaData.NORMAL_MEMBER.getPrimordialUuid();
-	private final static int terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();
+
+	private final int authorSeq_;
+	private final int terminologyPathSeq_;
+	private final long defaultTime_;
 	
-//If I still need this, the place to add it is ISaacMetaDataAuxiliary under 'assemblage'
-//	public final static String PROJECT_REFSETS_NAME = "SOLOR Refsets";
-//	public final static UUID PROJECT_REFSETS_UUID = UUID.fromString("7a9b495e-69c1-53e5-a2d5-41be2429c146");  //This is UuidT5Generator.PATH_ID_FROM_FS_DESC, "SOLOR Refsets")
+	private final static UUID isARelUuid_ = MetaData.IS_A.getPrimordialUuid();
 	
-	public final long defaultTime_;
 	private final ConceptSpecification lang_ = MetaData.ENGLISH_LANGUAGE;
 	private int moduleSeq_ = 0;
 	private HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();
@@ -159,18 +155,29 @@ public class EConceptUtility
 
 	/**
 	 * Creates and stores the path concept - sets up the various namespace details.
-	 * @param namespaceSeed The string to use for seeding the UUID generator for this namespace
-	 * @param moduleName The name to use for the concept that will be created as the 'module' concept
+	 * @param moduleToCreate - if present, a new concept will be created, using this value as the FSN / preferred term for use as the module
+	 * @param preExistingModule - if moduleToCreate is not present, lookup the concept with this UUID to use as the module.
+	 * @param outputFile - The path to write the output file to
 	 * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
-	 * @param dos - location to write the output
 	 * @throws Exception
 	 */
-	public EConceptUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, Path outputFile, long defaultTime) throws Exception
+	public EConceptUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, File outputDirectory, 
+			String outputFileNameWithoutExtension, boolean outputGson, long defaultTime) throws Exception
 	{
+		File file = new File(outputDirectory, "isaac-db");
+		//make sure this is empty
+		FileUtils.deleteDirectory(file);
+		
+		System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, file.getCanonicalPath());
+
+		LookupService.startupIsaac();
+		
+		authorSeq_ = MetaData.USER.getConceptSequence();
+		terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();
+		
 		ConverterUUID.addMapping("isA", isARelUuid_);
 		ConverterUUID.addMapping("Synonym", MetaData.SYNONYM.getPrimordialUuid());
 		ConverterUUID.addMapping("Fully Specified Name", MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid());
-		
 		
 		conceptBuilderService_ = Get.conceptBuilderService();
 		conceptBuilderService_.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
@@ -184,14 +191,15 @@ public class EConceptUtility
 		
 		defaultTime_ = defaultTime;
 		
-		
 		UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, moduleToCreate.get()) : 
 			preExistingModule.get().getPrimordialUuid();
 		
 		//Just use the module as the namespace
 		ConverterUUID.configureNamespace(moduleUUID);
 		
-		writer_ = Get.binaryDataWriter(outputFile);
+		writer_ = new MultipleDataWriterService(
+				outputGson ? Optional.of(new File(outputDirectory, outputFileNameWithoutExtension + ".gson")) : Optional.empty(),
+						Optional.of(new File(outputDirectory, outputFileNameWithoutExtension + ".ibdf").toPath()));
 		
 		if (moduleToCreate.isPresent())
 		{
@@ -262,6 +270,7 @@ public class EConceptUtility
 	{
 		ConceptChronology<? extends ConceptVersion<?>> conceptChronology = createConcept(conceptPrimordialUuid, time, status);
 		addFullySpecifiedName(conceptChronology, preferredDescription);
+		addDescription(conceptChronology, preferredDescription, DescriptionType.SYNONYM, true, null, null, State.ACTIVE);
 		return conceptChronology;
 	}
 
@@ -1005,5 +1014,11 @@ public class EConceptUtility
 		{
 			addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null);
 		}
+	}
+	
+	public void shutdown()
+	{
+		writer_.close();
+		LookupService.shutdownIsaac();
 	}
 }
