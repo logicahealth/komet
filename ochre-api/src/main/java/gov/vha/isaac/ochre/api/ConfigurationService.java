@@ -285,5 +285,21 @@ public interface ConfigurationService {
      * configuration defaults.
      */
     ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate();
-
+    
+    /**
+     * @return true if verbose debug has been enabled.  This default implementation allows the 
+     * feature to be enabled by setting the system property {@link Constants#ISAAC_DEBUG} to 'true'
+     **/
+    public default boolean enableVerboseDebug() 
+    {
+        String value = System.getProperty(Constants.ISAAC_DEBUG);
+        if (StringUtils.isNotBlank(value)) 
+        {
+            return value.trim().equalsIgnoreCase("true");
+        } 
+        else 
+        {
+            return false;
+        }
+    }
 }

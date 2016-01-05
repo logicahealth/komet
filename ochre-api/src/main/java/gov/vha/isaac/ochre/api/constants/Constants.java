@@ -1,7 +1,5 @@
 package gov.vha.isaac.ochre.api.constants;
 
-import gov.vha.isaac.ochre.api.ConfigurationService;
-
 /**
  * Created by kec on 9/11/14.
  * 
@@ -61,5 +59,11 @@ public class Constants
 	 * {@link #DATA_STORE_ROOT_LOCATION_PROPERTY} {@link #DEFAULT_SEARCH_FOLDER} values are ignored.
 	 */
 	public static final String SEARCH_ROOT_LOCATION_PROPERTY = "gov.vha.isaac.ochre.api.constants.search-root-location";
+	
+	/**
+	 * May be optionally used to enable console-level, extremely verbose debug output.  
+	 * This typically turns on and off things that were hacked in with System.Out calls for tracing ugly problems....
+	 */
+	public static final String ISAAC_DEBUG = "gov.vha.isaac.ochre.api.constants.isaac-debug";
 	
 }

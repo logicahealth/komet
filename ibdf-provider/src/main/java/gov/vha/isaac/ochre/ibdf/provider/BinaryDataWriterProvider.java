@@ -15,6 +15,8 @@
  */
 package gov.vha.isaac.ochre.ibdf.provider;
 
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
@@ -33,7 +35,7 @@ import java.nio.file.Path;
 public class BinaryDataWriterProvider implements BinaryDataWriterService {
 
     private static final int DEBUG_COUNT = 1000;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = Get.configurationService().enableVerboseDebug();
 
 
     private static final int BUFFER_SIZE = 1024;
