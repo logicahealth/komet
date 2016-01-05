@@ -243,7 +243,7 @@ public class ByteArrayDataBuffer  {
 
     /**
      *  Makes this buffer ready for a new sequence of put operations:
-     *  It sets the limit to the capacity and the position to zero.
+     *  It sets the limit to positionStart, and the position to positionStart.
      */
     public ByteArrayDataBuffer clear() {
         this.used = 0;
