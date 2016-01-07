@@ -26,7 +26,6 @@ import java.beans.PropertyVetoException;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,6 +69,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -212,7 +212,7 @@ public class EConceptUtility
 		}
 		
 		StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, MetaData.DEVELOPMENT_PATH.getConceptSequence());
-		readBackStamp_ = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, ConceptSequenceSet.of(moduleSeq_), State.ANY_STATE_SET);
+		readBackStamp_ = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, ConceptSequenceSet.EMPTY, State.ANY_STATE_SET);
 		
 		ConsoleUtil.println("Loading with module '" + moduleSeq_+ " on DEVELOPMENT path");
 		
@@ -249,7 +249,7 @@ public class EConceptUtility
 	
 	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid)
 	{
-		return createConcept(conceptPrimordialUuid, (Long)null, State.ACTIVE);
+		return createConcept(conceptPrimordialUuid, (Long)null, State.ACTIVE, null);
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class EConceptUtility
 	 */
 	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String preferredDescription, Long time, State status)
 	{
-		ConceptChronology<? extends ConceptVersion<?>> conceptChronology = createConcept(conceptPrimordialUuid, time, status);
+		ConceptChronology<? extends ConceptVersion<?>> conceptChronology = createConcept(conceptPrimordialUuid, time, status, null);
 		addFullySpecifiedName(conceptChronology, preferredDescription);
 		addDescription(conceptChronology, preferredDescription, DescriptionType.SYNONYM, true, null, null, State.ACTIVE);
 		return conceptChronology;
@@ -280,12 +280,13 @@ public class EConceptUtility
 	 * @param conceptPrimordialUuid
 	 * @param time - if null, set to default
 	 * @param status - if null, set to current
+	 * @param module - if null, uses the default
 	 * @return
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, Long time, State status) 
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, Long time, State status, UUID module) 
 	{
 		ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService().getConcept(conceptPrimordialUuid);
-		conceptChronology.createMutableVersion(createStamp(status, time));
+		conceptChronology.createMutableVersion(createStamp(status, time, module == null ? null : Get.identifierService().getConceptSequenceForUuids(module)));
 		writer_.put(conceptChronology);
 		ls_.addConcept();
 		return conceptChronology;
@@ -513,7 +514,7 @@ public class EConceptUtility
 					}
 				}
 			}
-			uuidForCreatedAnnotation = ConverterUUID.createNamespaceUUIDFromString(sb.toString());
+			uuidForCreatedAnnotation = ConverterUUID.createNamespaceUUIDFromString(temp.toString());
 		}
 		
 		sb.setPrimordialUuid(uuidForCreatedAnnotation);
@@ -584,6 +585,34 @@ public class EConceptUtility
 			}
 		}
 	}
+	/**
+	 * uses the concept time, UUID is created from the component UUID, the annotation value and type.
+	 */
+	public SememeChronology<StringSememe<?>> addStaticStringAnnotation(ObjectChronology<?> referencedComponent, String annotationValue, UUID refsetUuid, 
+			State state)
+	{
+		@SuppressWarnings("rawtypes")
+		SememeBuilder sb = sememeBuilderService_.getStringSememeBuilder(annotationValue, referencedComponent.getNid(), 
+				Get.identifierService().getConceptSequenceForUuids(refsetUuid));
+		
+		StringBuilder temp = new StringBuilder();
+		temp.append(annotationValue);
+		temp.append(refsetUuid.toString()); 
+		temp.append(referencedComponent.getPrimordialUuid().toString());
+		sb.setPrimordialUuid(ConverterUUID.createNamespaceUUIDFromString(temp.toString()));
+
+		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		SememeChronology<StringSememe<?>> sc = (SememeChronology<StringSememe<?>>)sb.build(createStamp(state, referencedComponent), builtObjects);
+		
+		for (OchreExternalizable ochreObject : builtObjects)
+		{
+			writer_.put(ochreObject);
+		}
+		annotationLoadStats(referencedComponent, refsetUuid);
+
+		return sc;
+	}
 
 	/**
 	 * Generates the UUID, uses the component time
@@ -612,7 +641,7 @@ public class EConceptUtility
 //			temp.append(refsetUuid.toString()); 
 //			temp.append(referencedComponent.getPrimordialUuid().toString());
 //			
-//			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromString(sb.toString());
+//			annotationPrimordialUuid = ConverterUUID.createNamespaceUUIDFromString(temp.toString());
 //		}
 //		
 //		sb.setPrimordialUuid(annotationPrimordialUuid);
@@ -804,11 +833,23 @@ public class EConceptUtility
 	 * @param state - state or null (for current)
 	 * @param time - time or null (for default)
 	 */
-	public int createStamp(State state, Long time) {
+	public int createStamp(State state, Long time) 
+	{
+		return createStamp(state, time, null);
+	}
+	
+	/**
+	 * Set up all the boilerplate stuff.
+	 * 
+	 * @param state - state or null (for current)
+	 * @param time - time or null (for default)
+	 */
+	public int createStamp(State state, Long time, Integer moduleSeq) 
+	{
 		return Get.stampService().getStampSequence(
 				state == null ? State.ACTIVE : state,
 				time == null ? defaultTime_ : time.longValue(), 
-				authorSeq_, moduleSeq_, terminologyPathSeq_);
+				authorSeq_, (moduleSeq == null ? moduleSeq_ : moduleSeq), terminologyPathSeq_);
 	}
 
 	private String getOriginStringForUuid(UUID uuid)
