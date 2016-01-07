@@ -76,6 +76,8 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
             return new LruCache<>(50);
         }
     };
+    
+    private LruCache<Integer, UUID> nidToPrimoridialCache = new LruCache<>(500);
 
     private final Path folderPath;
     private final UuidIntMapMap uuidIntMapMap;
@@ -272,9 +274,16 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
         if (nid > 0) {
             nid = getConceptNid(nid);
         }
+        
+        UUID cacheHit = nidToPrimoridialCache.get(nid);
+        if (cacheHit != null) {
+            return Optional.of(cacheHit);
+        }
+        
         Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj
                 = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
         if (optionalObj.isPresent()) {
+            nidToPrimoridialCache.put(nid, optionalObj.get().getPrimordialUuid());
             return Optional.of(optionalObj.get().getPrimordialUuid());
         }
         UUID[] uuids = uuidIntMapMap.getKeysForValue(nid);
@@ -282,6 +291,7 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
         LOG.debug("[1] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
 
         if (uuids.length > 0) {
+            nidToPrimoridialCache.put(nid, uuids[0]);
             return Optional.of(uuids[0]);
         }
         return Optional.empty();
