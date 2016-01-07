@@ -28,6 +28,7 @@ public class TableDefinition
 	
 	public DataType getColDataType(String columnName)
 	{
-		return columns_.get(columnName.toLowerCase()).getDataType();
+		ColumnDefinition x = columns_.get(columnName.toLowerCase());
+		return x == null ? null : x.getDataType();
 	}
 }
