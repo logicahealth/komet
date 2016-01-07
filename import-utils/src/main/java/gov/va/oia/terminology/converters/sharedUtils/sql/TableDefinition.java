@@ -1,12 +1,11 @@
 package gov.va.oia.terminology.converters.sharedUtils.sql;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 public class TableDefinition
 {
 	private String tableName_;
-	private ArrayList<ColumnDefinition> columns_ = new ArrayList<>();
+	private LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
 	
 	public TableDefinition(String tableName)
 	{
@@ -15,15 +14,20 @@ public class TableDefinition
 	
 	public void addColumn(ColumnDefinition cd)
 	{
-		columns_.add(cd);
+		columns_.put(cd.getColumnName().toLowerCase(), cd);
 	}
 	
 	public String getTableName()
 	{
 		return tableName_;
 	}
-	public List<ColumnDefinition> getColumns()
+	public ColumnDefinition[] getColumns()
 	{
-		return columns_;
+		return columns_.values().toArray(new ColumnDefinition[columns_.size()]);
+	}
+	
+	public DataType getColDataType(String columnName)
+	{
+		return columns_.get(columnName.toLowerCase()).getDataType();
 	}
 }

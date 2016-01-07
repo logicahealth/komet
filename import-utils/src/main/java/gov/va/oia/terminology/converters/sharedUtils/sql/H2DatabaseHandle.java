@@ -122,7 +122,7 @@ public class H2DatabaseHandle
 		}
 		insert.setLength(insert.length() - 1);
 		insert.append(") VALUES (");
-		for (int i = 0; i < td.getColumns().size(); i++)
+		for (int i = 0; i < td.getColumns().length; i++)
 		{
 			insert.append("?,");
 		}
@@ -156,7 +156,7 @@ public class H2DatabaseHandle
 		while (data.hasNextRow())
 		{
 			List<String> cols = data.getNextRow();
-			if (cols.size() != td.getColumns().size())
+			if (cols.size() != td.getColumns().length)
 			{
 				throw new RuntimeException("Data length mismatch!");
 			}
@@ -176,7 +176,7 @@ public class H2DatabaseHandle
 			
 			for (String s : cols)
 			{
-				DataType colType = td.getColumns().get(psIndex - 1).getDataType();
+				DataType colType = td.getColumns()[psIndex - 1].getDataType();
 				if (colType.isBoolean())
 				{
 					if (s == null || s.length() == 0)
