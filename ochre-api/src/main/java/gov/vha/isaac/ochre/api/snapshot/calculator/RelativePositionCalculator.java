@@ -59,21 +59,21 @@ public class RelativePositionCalculator implements OchreCache {
 			  = new ConcurrentHashMap<>();
 
 	public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
-		RelativePositionCalculator pm = CALCULATOR_CACHE.get(coordinate);
+		RelativePositionCalculator calculator = CALCULATOR_CACHE.get(coordinate);
 
-		if (pm != null) {
-			return pm;
+		if (calculator != null) {
+			return calculator;
 		}
 
-		pm = new RelativePositionCalculator(coordinate);
+		calculator = new RelativePositionCalculator(coordinate);
 
-		RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, pm);
+		RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, calculator);
 
 		if (existing != null) {
-			pm = existing;
+			calculator = existing;
 		}
 
-		return pm;
+		return calculator;
 	}
 	StampCoordinate coordinate;
 	/**
