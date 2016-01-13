@@ -176,14 +176,16 @@ public class TermAux {
             = new ConceptProxy("stated elationship",
                     UUID.fromString("3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));
     
+    // SCT ID:  900000000000017005
     public static ConceptSpecification DESCRIPTION_CASE_SENSITIVE
             = new ConceptProxy("description case sensitive",
                     UUID.fromString("0def37bc-7e1b-384b-a6a3-3e3ceee9c52e"));
     
+   // SCT ID:  900000000000448009
    public static ConceptSpecification DESCRIPTION_NOT_CASE_SENSITIVE
             = new ConceptProxy("description not case sensitive",
                     UUID.fromString("ecea41a2-f596-3d98-99d1-771b667e55b8"));
-    
+   // SCT ID:  900000000000020002
    public static ConceptSpecification DESCRIPTION_INITIAL_CHARACTER_SENSITIVE
             = new ConceptProxy("description initial character sensitive",
                     UUID.fromString("17915e0d-ed38-3488-a35c-cda966db306a"));
