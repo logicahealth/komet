@@ -77,8 +77,6 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
         }
     };
     
-    private LruCache<Integer, UUID> nidToPrimoridialCache = new LruCache<>(500);
-
     private final Path folderPath;
     private final UuidIntMapMap uuidIntMapMap;
     private final SequenceMap conceptSequenceMap;
@@ -271,27 +269,20 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
 
     @Override
     public Optional<UUID> getUuidPrimordialForNid(int nid) {
-        if (nid > 0) {
-            nid = getConceptNid(nid);
-        }
-        
-        UUID cacheHit = nidToPrimoridialCache.get(nid);
-        if (cacheHit != null) {
-            return Optional.of(cacheHit);
-        }
-        
-        Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj
-                = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
-        if (optionalObj.isPresent()) {
-            nidToPrimoridialCache.put(nid, optionalObj.get().getPrimordialUuid());
-            return Optional.of(optionalObj.get().getPrimordialUuid());
+        //If we have a cache in uuidIntMapMap, read from there, it is faster.
+        //If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
+        if (!uuidIntMapMap.cacheContainsNid(nid)) {
+            Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj
+                    = Get.identifiedObjectService().getIdentifiedObjectChronology(nid);
+            if (optionalObj.isPresent()) {
+                return Optional.of(optionalObj.get().getPrimordialUuid());
+            }
         }
         UUID[] uuids = uuidIntMapMap.getKeysForValue(nid);
         //In the use case of directly writing files (converting terminology) this is a normal occurrence
         LOG.debug("[1] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
 
         if (uuids.length > 0) {
-            nidToPrimoridialCache.put(nid, uuids[0]);
             return Optional.of(uuids[0]);
         }
         return Optional.empty();

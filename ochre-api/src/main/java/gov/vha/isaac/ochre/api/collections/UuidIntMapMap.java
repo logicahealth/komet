@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,6 +26,10 @@ public class UuidIntMapMap implements UuidToIntMap {
     private static final Logger LOG = LogManager.getLogger();
     private static final int DEFAULT_TOTAL_MAP_SIZE = 15000000;
     public static final int NUMBER_OF_MAPS = 256;
+    
+    public static int NID_TO_UUID_CACHE_SIZE = 0;  //defaults to disabled / not normally used.
+    //Loader utility code sets this to a much larger value, as there is no alternate cache to get from nid back to UUID
+    //when the data isn't being written to the DB.
     
     private static final int DEFAULT_MAP_SIZE = DEFAULT_TOTAL_MAP_SIZE / NUMBER_OF_MAPS;
     private static final double MIN_LOAD_FACTOR = 0.75;
@@ -42,7 +47,9 @@ public class UuidIntMapMap implements UuidToIntMap {
 
     private final MemoryManagedReference<ConcurrentUuidToIntHashMap>[] maps = new MemoryManagedReference[NUMBER_OF_MAPS];
     private final File folder;
-
+    
+    private LruCache<Integer, UUID[]> nidToPrimoridialCache = null;
+    
     private UuidIntMapMap(File folder) {
         folder.mkdirs();
         this.folder = folder;
@@ -51,6 +58,9 @@ public class UuidIntMapMap implements UuidToIntMap {
                     null,
                     new File(folder, i + "-uuid-nid.map"), SERIALIZER);
             WriteToDiskCache.addToCache(maps[i]);
+        }
+        if (NID_TO_UUID_CACHE_SIZE > 0) {
+            nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
         }
         LOG.debug("Created UuidIntMapMap: " + this);
     }
@@ -160,14 +170,31 @@ public class UuidIntMapMap implements UuidToIntMap {
 //            }
             maps[mapIndex].elementUpdated();
             map.put(keyAsArray, nid, stamp);
+            updateCache(nid, uuidKey);
             return nid;
         } finally {
             map.getStampedLock().unlockWrite(stamp);
         }
     }
 
+    private void updateCache(int nid, UUID uuidKey) {
+        if (nidToPrimoridialCache != null) {
+            UUID[] temp = nidToPrimoridialCache.get(nid);
+            UUID[] temp1;
+            if (temp == null) {
+                temp1 = new UUID[] {uuidKey};
+            }
+            else {
+                temp1 = Arrays.copyOf(temp, temp.length + 1);
+                temp1[temp.length] = uuidKey;
+            }
+            nidToPrimoridialCache.put(nid, temp1);
+        }
+    }
+
     @Override
     public boolean put(UUID uuidKey, int value) {
+        updateCache(value, uuidKey);
         int mapIndex = getMapIndex(uuidKey);
         long[] keyAsArray = UuidUtil.convert(uuidKey);
         ConcurrentUuidToIntHashMap map = getMap(mapIndex);
@@ -195,19 +222,42 @@ public class UuidIntMapMap implements UuidToIntMap {
 
 
     public UUID[] getKeysForValue(int value) {
+        if (nidToPrimoridialCache != null) {
+            UUID[] cacheHit = nidToPrimoridialCache.get(value);
+            if (cacheHit != null) {
+                return cacheHit;
+            }
+        }
         ArrayList<UUID> uuids = new ArrayList<>();
         for (int index = 0; index < maps.length; index++) {
             getMap(index).keysOf(value).stream().forEach(uuid -> {
                 uuids.add(uuid);
             });
         }
-        return uuids.toArray(new UUID[uuids.size()]);
+        UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
+        if (nidToPrimoridialCache != null) {
+            nidToPrimoridialCache.put(value, temp);
+        }
+        return temp;
     }
     
     public void reportStats(Logger log) {
         for (int i = 0; i < NUMBER_OF_MAPS; i++) {
             log.info("UUID map: " + i + " " + getMap(i).getStats());
         }
+    }
+    
+    /**
+     * This method is an optimization for loader patterns, where it can be faster to read the nid to UUID from this cache, 
+     * but only if the cache actually as the value.
+     * @param nid
+     * @return
+     */
+    public boolean cacheContainsNid(int nid) {
+        if (nidToPrimoridialCache != null) {
+            return nidToPrimoridialCache.containsKey(nid);
+        }
+        return false;
     }
 
 
