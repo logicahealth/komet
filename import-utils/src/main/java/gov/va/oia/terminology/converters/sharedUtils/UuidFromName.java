@@ -20,7 +20,7 @@ package gov.va.oia.terminology.converters.sharedUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-
+import gov.vha.isaac.ochre.api.util.UuidT3Generator;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 
 public class UuidFromName
@@ -38,7 +38,10 @@ public class UuidFromName
 		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench development origin"));
 		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "VA JIF Terminology Workbench release candidate path"));
 		System.out.println(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, "Project Refsets"));
-
+		
+		System.out.println(UuidT3Generator.fromSNOMED(900000000000003001l));
+		System.out.println(UuidT3Generator.fromSNOMED(900000000000013009l));
+		System.out.println(UuidT3Generator.fromSNOMED(900000000000550004l));
 	}
 
 }
