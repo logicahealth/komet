@@ -98,7 +98,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
                         descriptionText,
                         Get.identifierService().getConceptNid(conceptSequence));
         
-        descBuilder.setPrimordialUuid(this.primordialUuid);
+        descBuilder.setPrimordialUuid(this.getPrimordialUuid());
         SememeChronologyImpl<DescriptionSememeImpl> newDescription = (SememeChronologyImpl<DescriptionSememeImpl>)
                 descBuilder.build(editCoordinate, changeCheckerMode, builtObjects);
         builtObjects.add(newDescription);

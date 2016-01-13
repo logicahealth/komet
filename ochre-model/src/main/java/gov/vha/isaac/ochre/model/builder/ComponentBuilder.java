@@ -38,7 +38,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    
 
     protected final List<UUID> additionalUuids = new ArrayList<>();
-    protected UUID primordialUuid = UUID.randomUUID();
+    private UUID primordialUuid = null;
     
     @Override
     public int getNid() {
@@ -48,7 +48,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     @Override
     public List<UUID> getUuidList() {
         Stream.Builder<UUID> builder = Stream.builder();
-        builder.accept(primordialUuid);
+        builder.accept(getPrimordialUuid());
         additionalUuids.forEach((uuid) -> builder.accept(uuid));
         return builder.build().collect(Collectors.toList());
     }
@@ -62,7 +62,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     @Override
     public UUID[] getUuids() {
         Stream.Builder<UUID> builder = Stream.builder();
-        builder.accept(primordialUuid);
+        builder.accept(getPrimordialUuid());
         additionalUuids.forEach((uuid) -> builder.accept(uuid));
         return builder.build().toArray((int length) -> new UUID[length]);
     }
@@ -89,4 +89,11 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
         return build(editCoordinate, changeCheckerMode, new ArrayList());
     }
     
+    @Override
+    public UUID getPrimordialUuid() {
+        if (this.primordialUuid == null) {
+            this.primordialUuid = UUID.randomUUID();  //This is a slow operation - lazy load.
+        }
+        return this.primordialUuid;
+    }
 }

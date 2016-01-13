@@ -77,7 +77,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
             referencedComponentNid = Get.identifierService().getNidForUuids(referencedComponentBuilder.getUuids());
         }
         SememeChronologyImpl sememeChronicle = new SememeChronologyImpl(sememeType, 
-                primordialUuid, 
+                getPrimordialUuid(), 
                 Get.identifierService().getNidForUuids(this.getUuids()), 
             assemblageConceptSequence, 
             referencedComponentNid, 
@@ -146,7 +146,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
             referencedComponentNid = Get.identifierService().getNidForUuids(referencedComponentBuilder.getUuids());
         }
         SememeChronologyImpl sememeChronicle = new SememeChronologyImpl(sememeType, 
-                primordialUuid, 
+                getPrimordialUuid(), 
                 Get.identifierService().getNidForUuids(this.getUuids()), 
             assemblageConceptSequence, 
             referencedComponentNid, 
