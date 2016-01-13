@@ -120,7 +120,7 @@ public enum LanguageCode {
     /**
      * Spanish (Mexico).
      */
-    EX_MX,
+    ES_MX,
     /**
      * Spanish (Nicaragua).
      */
