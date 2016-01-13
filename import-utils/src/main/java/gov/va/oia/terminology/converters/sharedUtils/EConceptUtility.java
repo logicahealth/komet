@@ -50,11 +50,13 @@ import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
 import gov.vha.isaac.MetaData;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.LanguageCode;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.UuidIntMapMap;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilderService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
@@ -90,10 +92,12 @@ import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
+import gov.vha.isaac.ochre.model.sememe.version.DescriptionSememeImpl;
 
 /**
  * 
@@ -134,8 +138,19 @@ public class EConceptUtility
 
 		public static DescriptionType parse(UUID typeId)
 		{
-			// TODO Auto-generated method stub
-			throw new RuntimeException("oops");
+			if (MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid().equals(typeId))
+			{
+				return FSN;
+			}
+			else if (MetaData.SYNONYM.getPrimordialUuid().equals(typeId))
+			{
+				return SYNONYM;
+			}
+			if (MetaData.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid().equals(typeId))
+			{
+				return DEFINITION;
+			}
+			throw new RuntimeException("Unknown description type UUID " + typeId);
 		}
 	};
 
@@ -145,12 +160,10 @@ public class EConceptUtility
 	
 	private final static UUID isARelUuid_ = MetaData.IS_A.getPrimordialUuid();
 	
-	private final ConceptSpecification lang_ = MetaData.ENGLISH_LANGUAGE;
 	private int moduleSeq_ = 0;
 	private HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();
 	
 	private ConceptBuilderService conceptBuilderService_;
-	private DescriptionBuilderService descriptionBuilderService_;
 	private LogicalExpressionBuilderService expressionBuilderService_;
 	private SememeBuilderService<?> sememeBuilderService_;
 	protected static StampCoordinate readBackStamp_;
@@ -170,6 +183,7 @@ public class EConceptUtility
 	public EConceptUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, File outputDirectory, 
 			String outputFileNameWithoutExtension, boolean outputGson, long defaultTime) throws Exception
 	{
+		UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 2500000;
 		File file = new File(outputDirectory, "isaac-db");
 		//make sure this is empty
 		FileUtils.deleteDirectory(file);
@@ -190,7 +204,6 @@ public class EConceptUtility
 		conceptBuilderService_.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
 		conceptBuilderService_.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
-		descriptionBuilderService_ = LookupService.getService(DescriptionBuilderService.class);
 		expressionBuilderService_ = Get.logicalExpressionBuilderService();
 		
 		sememeBuilderService_ = Get.sememeBuilderService();
@@ -376,7 +389,7 @@ public class EConceptUtility
 			}
 			BPT_Descriptions descPropertyType = (BPT_Descriptions) vpp.getProperty().getPropertyType();
 			
-			result.add(addDescription(concept, vpp.getUUID(), vpp.getValue(), descriptionType, preferred, vpp.getProperty().getUUID(), 
+			result.add(addDescription(concept, vpp.getUUID(), vpp.getValue(), descriptionType, preferred, null, null, null, null, vpp.getProperty().getUUID(), 
 					descPropertyType.getPropertyTypeReferenceSetUUID(), (vpp.isDisabled() ? State.INACTIVE : State.ACTIVE), null));
 		}
 		
@@ -389,60 +402,69 @@ public class EConceptUtility
 	public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept, String descriptionValue, DescriptionType wbDescriptionType, 
 			boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, State status)
 	{
-		return addDescription(concept, null, descriptionValue, wbDescriptionType, preferred, sourceDescriptionTypeUUID, sourceDescriptionRefsetUUID, status, null);
+		return addDescription(concept, null, descriptionValue, wbDescriptionType, preferred, null, null, null, null, sourceDescriptionTypeUUID, 
+				sourceDescriptionRefsetUUID, status, null);
 	}
 	
 
 	/**
 	 * Add a description to the concept.
 	 * 
+	 * @param concept - the concept to add this description to
 	 * @param descriptionPrimordialUUID - if not supplied, created from the concept UUID and the description value and description type
 	 * @param descriptionValue - the text value
 	 * @param wbDescriptionType - the type of the description
-	 * @param preferred - true, false, or null to not create any acceptability entry see (@link #addDescriptionAcceptibility())
+	 * @param preferred - true, false, or null to not create any acceptability entry see {@link #addDescriptionAcceptibility()}
+	 * @param dialect - ignored if @param preferred is set to null.  if null, defaults to {@link MetaData#US_ENGLISH_DIALECT}
+	 * @param caseSignificant - if null, defaults to {@link MetaData#DESCRIPTION_NOT_CASE_SENSITIVE}
+	 * @param languageCode - if null, uses {@link MetaData#ENGLISH_LANGUAGE}
+	 * @param module - if null, uses the default from the EConceptUtility instance
 	 * @param sourceDescriptionTypeUUID - this optional value is attached as the 'data' of the source annotation.
 	 * @param sourceDescriptionRefsetUUID - if null, this and sourceDescriptionTypeUUID are ignored.  This is the ID of the terminology 
 	 * specific refset.
+	 * @param state active / inactive
+	 * @param time - defaults to concept time
 	 */
+	@SuppressWarnings("unchecked")
 	public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept, UUID descriptionPrimordialUUID, String descriptionValue, 
-			DescriptionType wbDescriptionType, Boolean preferred, UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, State state, Long time)
+			DescriptionType wbDescriptionType, Boolean preferred, UUID dialect, UUID caseSignificant, UUID languageCode, UUID module, 
+			UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, State state, Long time)
 	{
-		
-		//TODO need to replace this with db contents to I can set case sig.
-		//TODO take in module and lang code
-		@SuppressWarnings("rawtypes")
-		DescriptionBuilder db = descriptionBuilderService_.getDescriptionBuilder(
-				descriptionValue, 
-				concept.getSequence(),
-				wbDescriptionType.getConceptSpec(), lang_);
-		
-		
 		if (descriptionPrimordialUUID == null)
 		{
 			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), descriptionValue, 
 					wbDescriptionType.name());
 		}
 		
-		db.setPrimordialUuid(descriptionPrimordialUUID);
+		@SuppressWarnings({ "rawtypes" }) 
+		SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder = sememeBuilderService_.getDescriptionSememeBuilder(
+						Get.identifierService().getConceptSequenceForUuids(caseSignificant == null ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE.getPrimordialUuid() : caseSignificant),
+						languageCode == null ? MetaData.ENGLISH_LANGUAGE.getConceptSequence() : Get.identifierService().getConceptSequenceForUuids(languageCode),
+						wbDescriptionType.getConceptSpec().getConceptSequence(), 
+						descriptionValue, 
+						concept.getNid());
+		descBuilder.setPrimordialUuid(descriptionPrimordialUUID);
+
+		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
 		
+		SememeChronology<DescriptionSememe<?>> newDescription = (SememeChronology<DescriptionSememe<?>>)
+				descBuilder.build(
+						createStamp(state, time == null ? concept.getTime() : time, 
+								module == null ? null : Get.identifierService().getConceptSequenceForUuids(module)), 
+						builtObjects);
+
 		if (preferred == null)
 		{
 			//noop
 		}
-		else if (preferred.booleanValue())
-		{
-			db.setPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
-		}
 		else
 		{
-			db.setAcceptableInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
+			sememeBuilderService_.getComponentSememeBuilder(preferred ? TermAux.PREFERRED.getNid() : TermAux.ACCEPTABLE.getNid(), newDescription.getNid(), 
+						Get.identifierService().getConceptSequenceForUuids(dialect == null ? MetaData.US_ENGLISH_DIALECT.getPrimordialUuid() : dialect))
+					.build(createStamp(state, time == null ? concept.getTime() : time,
+						module == null ? null : Get.identifierService().getConceptSequenceForUuids(module)), builtObjects);
 		}
-		
-		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
-		
-		@SuppressWarnings("unchecked")
-		SememeChronology<DescriptionSememe<?>> desc = (SememeChronology<DescriptionSememe<?>>)db.build(
-				createStamp(state, time == null ? concept.getTime() : time), builtObjects);
+
 		
 		for (OchreExternalizable ochreObject : builtObjects)
 		{
@@ -455,11 +477,11 @@ public class EConceptUtility
 		
 		if (sourceDescriptionRefsetUUID != null)
 		{
-			addAnnotation(ComponentReference.fromChronology(desc), null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUIDImpl(sourceDescriptionTypeUUID)),
+			addAnnotation(ComponentReference.fromChronology(newDescription), null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUIDImpl(sourceDescriptionTypeUUID)),
 				sourceDescriptionRefsetUUID, null, null);
 		}
 		
-		return desc;
+		return newDescription;
 	}
 	
 	/**
