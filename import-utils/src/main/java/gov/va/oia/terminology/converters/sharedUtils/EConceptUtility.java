@@ -199,6 +199,23 @@ public class EConceptUtility
 		ConverterUUID.addMapping("Synonym", MetaData.SYNONYM.getPrimordialUuid());
 		ConverterUUID.addMapping("Fully Specified Name", MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid());
 		
+		//TODO automate this somehow....
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getUUID(), 
+				IsaacMetadataConstants.DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getDynamicSememeColumns());
+		
+		
 		conceptBuilderService_ = Get.conceptBuilderService();
 		conceptBuilderService_.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
 		conceptBuilderService_.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
@@ -305,7 +322,7 @@ public class EConceptUtility
 	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, Long time, State status, UUID module) 
 	{
 		ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService().getConcept(conceptPrimordialUuid);
-		conceptChronology.createMutableVersion(createStamp(status, time, module == null ? null : Get.identifierService().getConceptSequenceForUuids(module)));
+		conceptChronology.createMutableVersion(createStamp(status, time, module));
 		writer_.put(conceptChronology);
 		ls_.addConcept();
 		return conceptChronology;
@@ -449,8 +466,7 @@ public class EConceptUtility
 		
 		SememeChronology<DescriptionSememe<?>> newDescription = (SememeChronology<DescriptionSememe<?>>)
 				descBuilder.build(
-						createStamp(state, time == null ? concept.getTime() : time, 
-								module == null ? null : Get.identifierService().getConceptSequenceForUuids(module)), 
+						createStamp(state, selectTime(time, concept), module), 
 						builtObjects);
 
 		if (preferred == null)
@@ -461,8 +477,7 @@ public class EConceptUtility
 		{
 			sememeBuilderService_.getComponentSememeBuilder(preferred ? TermAux.PREFERRED.getNid() : TermAux.ACCEPTABLE.getNid(), newDescription.getNid(), 
 						Get.identifierService().getConceptSequenceForUuids(dialect == null ? MetaData.US_ENGLISH_DIALECT.getPrimordialUuid() : dialect))
-					.build(createStamp(state, time == null ? concept.getTime() : time,
-						module == null ? null : Get.identifierService().getConceptSequenceForUuids(module)), builtObjects);
+					.build(createStamp(state, selectTime(time, concept), module), builtObjects);
 		}
 
 		
@@ -515,9 +530,7 @@ public class EConceptUtility
 		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
 		@SuppressWarnings("unchecked")
 		SememeChronology<ComponentNidSememe<?>> sc = (SememeChronology<ComponentNidSememe<?>>)sb.build(
-				createStamp(state, (time == null ? description.getTime() : time), 
-						(module == null ? moduleSeq_ : Get.identifierService().getConceptSequenceForUuids(module)))
-				, builtObjects);
+				createStamp(state, selectTime(time, description), module), builtObjects);
 		
 		ls_.addAnnotation("Description", getOriginStringForUuid(dialectRefset));
 		return sc;
@@ -538,18 +551,19 @@ public class EConceptUtility
 	 */
 	public SememeChronology<DynamicSememe<?>> addStringAnnotation(ComponentReference referencedComponent, String annotationValue, UUID refsetUuid, State status)
 	{
-		return addAnnotation(referencedComponent, null, new DynamicSememeData[] {new DynamicSememeStringImpl(annotationValue)}, refsetUuid, status, null);
+		return addAnnotation(referencedComponent, null, new DynamicSememeData[] {new DynamicSememeStringImpl(annotationValue)}, refsetUuid, status, null, null);
 	}
 	
 	public SememeChronology<DynamicSememe<?>> addAnnotationStyleRefsetMembership(ComponentReference referencedComponent, UUID refexDynamicTypeUuid, State status, Long time)
 	{
-		return addAnnotation(referencedComponent, null, (DynamicSememeData[])null, refexDynamicTypeUuid, status, time);
+		return addAnnotation(referencedComponent, null, (DynamicSememeData[])null, refexDynamicTypeUuid, status, time, null);
 	}
 	
 	public SememeChronology<DynamicSememe<?>> addAnnotation(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeData value, 
 			UUID refexDynamicTypeUuid, State status, Long time)
 	{
-		return addAnnotation(referencedComponent, uuidForCreatedAnnotation, (value == null ? new DynamicSememeData[] {} : new DynamicSememeData[] {value}), refexDynamicTypeUuid, status, time);
+		return addAnnotation(referencedComponent, uuidForCreatedAnnotation, 
+				(value == null ? new DynamicSememeData[] {} : new DynamicSememeData[] {value}), refexDynamicTypeUuid, status, time, null);
 	}
 	
 	/**
@@ -564,7 +578,7 @@ public class EConceptUtility
 	 */
 	@SuppressWarnings("unchecked")
 	public SememeChronology<DynamicSememe<?>> addAnnotation(ComponentReference referencedComponent, UUID uuidForCreatedAnnotation, DynamicSememeData[] values, 
-			UUID refexDynamicTypeUuid, State state, Long time)
+			UUID refexDynamicTypeUuid, State state, Long time, UUID module)
 	{
 		validateDataTypes(refexDynamicTypeUuid, values);
 		@SuppressWarnings("rawtypes")
@@ -597,15 +611,7 @@ public class EConceptUtility
 		sb.setPrimordialUuid(uuidForCreatedAnnotation);
 		
 		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
-		SememeChronology<DynamicSememe<?>> sc;
-		if (time == null)
-		{
-			sc = (SememeChronology<DynamicSememe<?>>)sb.build(createStamp(state, referencedComponent), builtObjects);
-		}
-		else
-		{
-			sc = (SememeChronology<DynamicSememe<?>>)sb.build(createStamp(state, time), builtObjects);
-		}
+		SememeChronology<DynamicSememe<?>> sc = (SememeChronology<DynamicSememe<?>>)sb.build(createStamp(state, selectTime(time, referencedComponent), module), builtObjects);
 		
 		for (OchreExternalizable ochreObject : builtObjects)
 		{
@@ -617,16 +623,18 @@ public class EConceptUtility
 		}
 		else
 		{
-			if (referencedComponent.getTypeString().length() == 0)
+			if (BPT_Associations.isAssociation(refexDynamicTypeUuid))
 			{
-				ls_.addAnnotation(getOriginStringForUuid(referencedComponent.getPrimordialUuid()), 
-						(BPT_Associations.isAssociation(refexDynamicTypeUuid) ? "Association:" : "")  + getOriginStringForUuid(refexDynamicTypeUuid));
+				ls_.addAssociation(getOriginStringForUuid(refexDynamicTypeUuid));
 			}
 			else
 			{
-				ls_.addAnnotation(referencedComponent.getTypeString(), (BPT_Associations.isAssociation(refexDynamicTypeUuid) ? "Association:" : "")  
-						+ getOriginStringForUuid(refexDynamicTypeUuid));
+				ls_.addAnnotation((referencedComponent.getTypeString().length() == 0 ? 
+						getOriginStringForUuid(referencedComponent.getPrimordialUuid())
+								: referencedComponent.getTypeString()), getOriginStringForUuid(refexDynamicTypeUuid));
+
 			}
+			
 			
 			//TODO not sure if we need any special handling for these cases any longer.  Might need better handling for rel... but not sure 
 			//how to do it at the moment...
@@ -652,6 +660,11 @@ public class EConceptUtility
 		}
 		return sc;
 	}
+	
+	private boolean isConfiguredAsDynamicSememe(UUID refexDynamicTypeUuid)
+	{
+		return refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid);
+	}
 
 	/**
 	 * @param refexDynamicTypeUuid
@@ -661,34 +674,58 @@ public class EConceptUtility
 	{
 		//TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in 
 		//generateMetadataEConcepts
+		
+		if (!refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid))
+		{
+			throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
+		}
+		
+		DynamicSememeColumnInfo[] colInfo = refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
+		
 		if (values != null && values.length > 0)
 		{
-			DynamicSememeColumnInfo[] colInfo = refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
-			if (colInfo == null || colInfo.length == 0)
+			if (colInfo != null)
 			{
-				throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
+				for (int i = 0; i < values.length; i++)
+				{
+					DynamicSememeColumnInfo column = null;
+					for (DynamicSememeColumnInfo x : colInfo)
+					{
+						if(x.getColumnOrder() == i)
+						{
+							column = x;
+							break;
+						}
+					}
+					if (column == null)
+					{
+						throw new RuntimeException("Column count mismatch");
+					}
+					else
+					{
+						if (values[i] == null && column.isColumnRequired())
+						{
+							throw new RuntimeException("Missing column data for column " + column.getColumnName());
+						}
+						else if (values[i] != null && column.getColumnDataType() != values[i].getDynamicSememeDataType())
+						{
+							throw new RuntimeException("Datatype mismatch - " + column.getColumnDataType() + " - " + values[i].getDynamicSememeDataType());
+						}
+					}
+				}
 			}
-			for (int i = 0; i < values.length; i++)
+			else if (values.length > 0)
 			{
-				DynamicSememeColumnInfo column = null;
-				for (DynamicSememeColumnInfo x : colInfo)
+				throw new RuntimeException("Column count mismatch - this dynamic sememe doesn't allow columns!");
+			}
+		}
+		else if (colInfo != null)
+		{
+			for (DynamicSememeColumnInfo ci : colInfo)
+			{
+				if (ci.isColumnRequired())
 				{
-					if(x.getColumnOrder() == i)
-					{
-						column = x;
-						break;
-					}
-				}
-				if (column == null)
-				{
-					throw new RuntimeException("Column count mismatch");
-				}
-				else
-				{
-					if (column.getColumnDataType() != values[i].getDynamicSememeDataType())
-					{
-						throw new RuntimeException("Datatype mismatch - " + column.getColumnDataType() + " - " + values[i].getDynamicSememeDataType());
-					}
+					throw new RuntimeException("Missing column data for column " + ci.getColumnName());
 				}
 			}
 		}
@@ -711,7 +748,7 @@ public class EConceptUtility
 
 		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
 		@SuppressWarnings("unchecked")
-		SememeChronology<StringSememe<?>> sc = (SememeChronology<StringSememe<?>>)sb.build(createStamp(state, referencedComponent), builtObjects);
+		SememeChronology<StringSememe<?>> sc = (SememeChronology<StringSememe<?>>)sb.build(createStamp(state, selectTime(null, referencedComponent)), builtObjects);
 		
 		for (OchreExternalizable ochreObject : builtObjects)
 		{
@@ -727,7 +764,7 @@ public class EConceptUtility
 	 */
 	public SememeChronology<DynamicSememe<?>> addUuidAnnotation(ComponentReference object, UUID value, UUID refsetUuid)
 	{
-		return addAnnotation(object, null, new DynamicSememeData[] {new DynamicSememeUUIDImpl(value)}, refsetUuid, null, null);
+		return addAnnotation(object, null, new DynamicSememeData[] {new DynamicSememeUUIDImpl(value)}, refsetUuid, null, null, null);
 	}
 
 	//I don't think we need this any longer
@@ -787,11 +824,15 @@ public class EConceptUtility
 	 * @param time - if null, default is used
 	 */
 	public SememeChronology<DynamicSememe<?>> addAssociation(ComponentReference concept, UUID associationPrimordialUuid, UUID targetUuid, 
-			UUID associationTypeUuid, State state, Long time)
+			UUID associationTypeUuid, State state, Long time, UUID module)
 	{
+		if (!isConfiguredAsDynamicSememe(associationTypeUuid))
+		{
+			configureConceptAsAssociation(associationTypeUuid, null);
+		}
 		return addAnnotation(concept, associationPrimordialUuid, 
 				new DynamicSememeData[]{new DynamicSememeUUIDImpl(targetUuid)}, 
-				associationTypeUuid, state, time);
+				associationTypeUuid, state, time, module);
 	}
 
 	/**
@@ -868,7 +909,7 @@ public class EConceptUtility
 		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
 
 		@SuppressWarnings("unchecked")
-		SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(createStamp(State.ACTIVE, concept), builtObjects);
+		SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(createStamp(State.ACTIVE, selectTime(time, concept)), builtObjects);
 
 		for (OchreExternalizable ochreObject : builtObjects)
 		{
@@ -886,24 +927,51 @@ public class EConceptUtility
 		}
 		return sci;
 	}
+	
+	public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept, UUID graphPrimordialUuid, 
+			LogicalExpression logicalExpression, boolean stated, Long time, UUID module)
+	{
+		@SuppressWarnings("rawtypes")
+		SememeBuilder sb = sememeBuilderService_.getLogicalExpressionSememeBuilder(logicalExpression, concept.getNid(),
+				stated ? conceptBuilderService_.getDefaultLogicCoordinate().getStatedAssemblageSequence() : 
+					conceptBuilderService_.getDefaultLogicCoordinate().getInferredAssemblageSequence());
 
-	/**
-	 * Set up all the boilerplate stuff.
-	 * 
-	 * @param state - state or null (for current)
-	 * @param readTimeFrom - object to read the time from (conceptVersion, descriptionVersion, etc) - null for default
-	 */
-	public int createStamp(State state, ComponentReference readTimeFrom) {
-		if (readTimeFrom == null || readTimeFrom.getTime() == null)
+		//TODO come up with a way to correctly generate a UUID from a logicalExpression
+		sb.setPrimordialUuid(graphPrimordialUuid != null ? graphPrimordialUuid
+				: null);
+
+		ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+
+		@SuppressWarnings("unchecked")
+		SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(
+				createStamp(State.ACTIVE, selectTime(time, concept), module), builtObjects);
+
+		for (OchreExternalizable ochreObject : builtObjects)
 		{
-			return createStamp(state, (Long)null);
+			writer_.put(ochreObject);
+		}
+
+		ls_.addGraph();
+		return sci;
+	}
+	
+	/**
+	 * uses providedTime first, if present, followed by readTimeFrom.
+	 * 
+	 * Note, this still may return null.
+	 */
+	public Long selectTime(Long providedTime, ComponentReference readTimeFrom)
+	{
+		if (providedTime != null)
+		{
+			return providedTime;
 		}
 		else
 		{
-			return createStamp(state, readTimeFrom.getTime());
+			return readTimeFrom.getTime();
 		}
 	}
-	
+
 	/**
 	 * Set up all the boilerplate stuff.
 	 * 
@@ -921,12 +989,12 @@ public class EConceptUtility
 	 * @param state - state or null (for current)
 	 * @param time - time or null (for default)
 	 */
-	public int createStamp(State state, Long time, Integer moduleSeq) 
+	public int createStamp(State state, Long time, UUID module) 
 	{
 		return Get.stampService().getStampSequence(
 				state == null ? State.ACTIVE : state,
 				time == null ? defaultTime_ : time.longValue(), 
-				authorSeq_, (moduleSeq == null ? moduleSeq_ : moduleSeq), terminologyPathSeq_);
+				authorSeq_, (module == null ? moduleSeq_ : Get.identifierService().getConceptSequenceForUuids(module)), terminologyPathSeq_);
 	}
 
 	private String getOriginStringForUuid(UUID uuid)
@@ -941,7 +1009,7 @@ public class EConceptUtility
 			}
 			return temp;
 		}
-		return "Unknown";
+		return "Unknown:" + uuid.toString();
 	}
 
 	public LoadStats getLoadStats()
@@ -1096,9 +1164,29 @@ public class EConceptUtility
 		refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
 	}
 	
+	public void configureConceptAsAssociation(UUID associationTypeConcept, String inverseName)
+	{
+		DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] {new DynamicSememeColumnInfo(
+				0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicSememeDataType.UUID, null, true)};
+		configureConceptAsDynamicRefex(ComponentReference.fromConcept(associationTypeConcept), 
+				"Defines an Association Type", colInfo, null, null);
+		
+		addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(associationTypeConcept), null, 
+				State.ACTIVE, null);
+		
+		if (!StringUtils.isBlank(inverseName))
+		{
+			SememeChronology<DescriptionSememe<?>> inverseDesc = addDescription(ComponentReference.fromConcept(associationTypeConcept), inverseName, 
+					DescriptionType.SYNONYM, false, null, null, State.ACTIVE);
+			
+			addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getUUID(), ComponentReference.fromChronology(inverseDesc), null, 
+					State.ACTIVE, selectTime(null, ComponentReference.fromChronology(inverseDesc)));
+		}
+		BPT_Associations.registerAsAssociation(associationTypeConcept);
+	}
+	
 	public void configureConceptAsDynamicRefex(ComponentReference concept, String refexDescription,
 			DynamicSememeColumnInfo[] columns, ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction)
-					throws NoSuchAlgorithmException, UnsupportedEncodingException, PropertyVetoException
 	{
 		// See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
 		//Add the special synonym to establish this as an assemblage concept
@@ -1114,9 +1202,8 @@ public class EConceptUtility
 			for (DynamicSememeColumnInfo col : columns)
 			{
 				DynamicSememeData[] data = DynamicSememeUtilityImpl.configureDynamicSememeDefinitionDataForColumn(col);
-				addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), State.ACTIVE, null);
+				addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), State.ACTIVE, null, null);
 			}
-			registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
 			
 			//TODO should really not mark unindexable column types
 			DynamicSememeInteger[] indexInfo = new DynamicSememeInteger[columns.length];
@@ -1126,14 +1213,15 @@ public class EConceptUtility
 			}
 			
 			addAnnotation(concept, null, new DynamicSememeData[] {new DynamicSememeArrayImpl<DynamicSememeInteger>(indexInfo)},
-					IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getPrimordialUuid(), State.ACTIVE, null);
+					IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getPrimordialUuid(), State.ACTIVE, null, null);
 		}
+		registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
 		
 		//Add the restriction information (if any)
 		DynamicSememeData[] data = DynamicSememeUtilityImpl.configureDynamicSememeRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
 		if (data != null)
 		{
-			addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null);
+			addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null, null);
 		}
 	}
 	
