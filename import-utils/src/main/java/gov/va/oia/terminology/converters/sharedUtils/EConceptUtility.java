@@ -632,7 +632,6 @@ public class EConceptUtility
 				ls_.addAnnotation((referencedComponent.getTypeString().length() == 0 ? 
 						getOriginStringForUuid(referencedComponent.getPrimordialUuid())
 								: referencedComponent.getTypeString()), getOriginStringForUuid(refexDynamicTypeUuid));
-
 			}
 			
 			
@@ -1009,7 +1008,7 @@ public class EConceptUtility
 			}
 			return temp;
 		}
-		return "Unknown:" + uuid.toString();
+		return "Unknown";
 	}
 
 	public LoadStats getLoadStats()
