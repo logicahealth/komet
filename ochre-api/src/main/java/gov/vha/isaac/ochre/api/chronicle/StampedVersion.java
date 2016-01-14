@@ -59,14 +59,15 @@ public interface StampedVersion {
 	int getAuthorSequence();
 
 	/**
-	 *
+	 * Modules are analogous to OSGI modules, where they represent a collection of components
+	 * sufficient to accomplish a task, when taken together with the transitive module dependencies.
 	 * @return the sequence of the concept that represents the module this version is part of.
      */
 	int getModuleSequence();
 
 	/**
 	 *
-	 * @return the sequence of the path on which this version is committed.
+	 * @return the sequence of the concept that represents the path on which this version is committed.
      */
 
 	int getPathSequence();
