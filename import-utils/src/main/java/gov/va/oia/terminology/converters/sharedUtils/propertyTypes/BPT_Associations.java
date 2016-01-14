@@ -57,6 +57,11 @@ public class BPT_Associations extends PropertyType
 		return p;
 	}
 	
+	public static void registerAsAssociation(UUID uuid)
+	{
+		allAssociations_.add(uuid);
+	}
+	
 	public static boolean isAssociation(UUID uuid)
 	{
 		return allAssociations_.contains(uuid);
