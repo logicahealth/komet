@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoadStats
 {
 	private AtomicInteger concepts_ = new AtomicInteger();
+	private AtomicInteger graphs_ = new AtomicInteger();
 	private AtomicInteger clonedConcepts_ = new AtomicInteger();
 	private AtomicInteger skippedPropertiesCounter_ = new AtomicInteger();
 	private AtomicInteger generatedPreferredTermCount_ = new AtomicInteger();
@@ -46,6 +47,11 @@ public class LoadStats
 	public void addConcept()
 	{
 		concepts_.incrementAndGet();
+	}
+	
+	public void addGraph()
+	{
+		graphs_.incrementAndGet();
 	}
 
 	public int getConceptCount()
@@ -108,6 +114,7 @@ public class LoadStats
 		ArrayList<String> result = new ArrayList<String>();
 
 		result.add("Concepts: " + concepts_.get());
+		result.add("Graphs: " + graphs_.get());
 		
 		if (clonedConcepts_.get() > 0)
 		{
