@@ -602,11 +602,12 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         return axiom;
     }
 
-    private SomeRole someRole(Integer conceptNid, Assertion roleRestriction) {
+    @Override
+    public SomeRole someRole(Integer roleTypeConceptNid, Assertion roleRestriction) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
         addToDefinitionTree(axiom, roleRestriction);
-        axiomParameters.put(axiom.getIndex(), conceptNid);
+        axiomParameters.put(axiom.getIndex(), roleTypeConceptNid);
         return axiom;
     }
 

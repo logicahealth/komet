@@ -111,6 +111,10 @@ public interface LogicalExpressionBuilder {
     static ConceptAssertion ConceptAssertion(ConceptSpecification conceptSpecification, LogicalExpressionBuilder builder) {
         return builder.conceptAssertion(conceptSpecification);
     }
+    
+    static ConceptAssertion ConceptAssertion(Integer conceptId, LogicalExpressionBuilder builder) {
+        return builder.conceptAssertion(conceptId);
+    }
 
     AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction);
     
@@ -146,6 +150,12 @@ public interface LogicalExpressionBuilder {
     
     static SomeRole SomeRole(ConceptSpecification roleTypeSpecification, Assertion roleRestriction) {
         return roleRestriction.getBuilder().someRole(roleTypeSpecification, roleRestriction);
+    }
+    
+    SomeRole someRole(Integer roleTypeConceptNid, Assertion roleRestriction);
+    
+    static SomeRole SomeRole(Integer roleTypeConceptNid, Assertion roleRestriction) {
+        return roleRestriction.getBuilder().someRole(roleTypeConceptNid, roleRestriction);
     }
 
     Template template(ConceptChronology<?> templateChronology, ConceptChronology<?> assemblageToPopulateTemplateConcept);
