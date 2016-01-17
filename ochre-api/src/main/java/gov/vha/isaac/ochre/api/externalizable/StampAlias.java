@@ -60,5 +60,11 @@ public class StampAlias implements OchreExternalizable {
         return OchreExternalizableObjectType.STAMP_ALIAS;
     }
     
-    
+    public int getStampSequence() {
+        return stampSequence;
+    }
+
+    public int getStampAlias() {
+        return stampAlias;
+    }
 }

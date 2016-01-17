@@ -60,4 +60,11 @@ public class StampComment implements OchreExternalizable {
         return OchreExternalizableObjectType.STAMP_COMMENT;
     }
     
+    public String getComment() {
+        return comment;
+    }
+
+    public int getStampSequence() {
+        return stampSequence;
+    }
 }
