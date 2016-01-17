@@ -25,7 +25,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>ochre-api</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.cedarsoftware</groupId>
+            <artifactId>json-io</artifactId>
         </dependency>
     </dependencies>
 
