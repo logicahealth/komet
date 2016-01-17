@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
  * combination with other things in this mojo package, due to limitations of
  * maven.
  */
-@Mojo(defaultPhase = LifecyclePhase.PROCESS_SOURCES, name = "shutdown-isaac")
+@Mojo(defaultPhase = LifecyclePhase.PROCESS_RESOURCES, name = "shutdown-isaac")
 public class Shutdown extends AbstractMojo {
 
     /*

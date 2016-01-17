@@ -37,7 +37,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * that in combination with other things in the package, due to limitations of
  * maven when it comes to interweaving operations from multiple mojo plugins.
  */
-@Mojo(defaultPhase = LifecyclePhase.PROCESS_SOURCES, name = "setup-isaac")
+@Mojo(defaultPhase = LifecyclePhase.PROCESS_RESOURCES, name = "setup-isaac")
 public class Setup extends AbstractMojo {
 
     /**
