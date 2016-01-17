@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="gov.va.oia.HK2Utilities" level="info" />
+		<Logger name="gov.vha.isaac.ochre.api.LookupService" level="info" />
+		<Logger name="gov.vha.isaac.ochre.api.collections.UuidIntMapMap" level="info" />
+		<Logger name="gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap" level="error" />
+		<Logger name="gov.vha.isaac.identifier.IdentifierProvider" level="info" />
+		<Root level="debug">
+			<AppenderRef ref="STDOUT" />
+		</Root>
+	</Loggers>
+</Configuration>
