@@ -15,7 +15,17 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.commit.StampService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilderService;
@@ -28,23 +38,16 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.CoordinateFactory;
-import gov.vha.isaac.ochre.api.logic.LogicService;
-import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
-import gov.vha.isaac.ochre.api.progress.ActiveTasks;
-import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataServiceFactory;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
+import gov.vha.isaac.ochre.api.index.GenerateIndexes;
+import gov.vha.isaac.ochre.api.index.IndexServiceBI;
+import gov.vha.isaac.ochre.api.logic.LogicService;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
+import gov.vha.isaac.ochre.api.progress.ActiveTasks;
 import gov.vha.isaac.ochre.api.util.WorkExecutors;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import javax.inject.Singleton;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jvnet.hk2.annotations.Service;
+import javafx.concurrent.Task;
 
 /**
  * Provides simple static access to common services, in a lookup service aware
@@ -328,6 +331,26 @@ public class Get implements OchreCache {
     
     public static BinaryDataWriterService binaryDataWriter(Path dataPath) throws FileNotFoundException {
         return getService(BinaryDataServiceFactory.class).getWriter(dataPath);
+    }
+    
+    /**
+     * Perform indexing according to all installed indexers.
+     * 
+     * Cause all index generators implementing the {@link IndexServiceBI} to first
+     * <code>clearIndex()</code> then iterate over all sememes in the database
+     * and pass those chronicles to {@link IndexServiceBI#index(gov.vha.isaac.ochre.api.chronicle.ObjectChronology)}
+     * and when complete, to call <code>commitWriter()</code>. 
+     * {@link IndexServiceBI} services will be discovered using the HK2 dependency injection framework.
+     * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and
+     * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexServiceBI} which match the specified
+     * class list.  Classes passed in should be an extension of {@link IndexServiceBI} 
+     * 
+     * @return Task that indicates progress.
+     */
+    public static Task<Void> startIndexTask(@SuppressWarnings("unchecked") Class<? extends IndexServiceBI> ... indexersToReindex) {
+        GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
+        LookupService.getService(WorkExecutors.class).getForkJoinPoolExecutor().execute(indexingTask);
+        return indexingTask;
     }
 
     @Override
