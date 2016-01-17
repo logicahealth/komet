@@ -18,11 +18,20 @@
  */
 package gov.vha.isaac.ochre.query.provider.lucene.indexers;
 
-import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
-import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.ObjectChronicleTaskService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
@@ -35,26 +44,16 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import gov.vha.isaac.ochre.api.index.IndexStatusListenerBI;
+import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
+import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDataImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-import javax.inject.Singleton;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jvnet.hk2.annotations.Service;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 
 /**
  * {@link DynamicSememeIndexerConfiguration} Holds a cache of the configuration for the dynamic sememe indexer (which is read from the DB, and may
@@ -198,7 +197,7 @@ public class DynamicSememeIndexerConfiguration
 		
 		if (!skipReindex)
 		{
-			LookupService.get().getService(ObjectChronicleTaskService.class).startIndexTask(new Class[] {DynamicSememeIndexer.class});
+			Get.startIndexTask(new Class[] {DynamicSememeIndexer.class});
 		}
 	}
 	
@@ -263,7 +262,7 @@ public class DynamicSememeIndexerConfiguration
 			Get.commitService().commit("Index Config Change");
 			log.info("Index disabled for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
 
-			LookupService.get().getService(ObjectChronicleTaskService.class).startIndexTask(new Class[] {DynamicSememeIndexer.class});
+			Get.startIndexTask(new Class[] {DynamicSememeIndexer.class});
 			return;
 		}
 		else
