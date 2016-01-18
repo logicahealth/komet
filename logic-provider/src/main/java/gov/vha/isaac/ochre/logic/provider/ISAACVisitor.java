@@ -23,6 +23,9 @@ import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAsse
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SomeRole;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SufficientSet;
+import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
@@ -30,8 +33,6 @@ import gov.vha.isaac.ochre.api.logic.assertions.Assertion;
 import gov.vha.isaac.ochre.api.logic.assertions.SomeRole;
 import gov.vha.isaac.ochre.api.logic.assertions.connectors.And;
 import gov.vha.isaac.ochre.impl.utility.Frills;
-import java.util.Optional;
-import org.apache.log4j.Logger;
 import se.liu.imt.mi.snomedct.expression.SNOMEDCTExpressionBaseVisitor;
 import se.liu.imt.mi.snomedct.expression.SNOMEDCTExpressionLexer;
 import se.liu.imt.mi.snomedct.expression.SNOMEDCTExpressionParser;
@@ -57,7 +58,7 @@ public class ISAACVisitor extends SNOMEDCTExpressionBaseVisitor<Object> {
     private static final String SCTID_IRI = "http://snomed.info/id/";
     private static final String ROLEGROUP_IRI = "http://snomed.info/id/609096000";
 
-    static Logger logger = Logger.getLogger(ISAACVisitor.class);
+    static Logger logger = LogManager.getLogger(ISAACVisitor.class);
 
     private ConceptChronology<?> definiendum_;
     private boolean defaultToPrimitive_;
