@@ -41,7 +41,7 @@ public class DBLocator
 	 * 1) If the passed in folder ends with '.data' and it exists, it is used directly.
 	 * 2) Otherwise, we scan the children of the passed in folder, looking for a folder that ends with .data
 	 * 3) If still not found - it will scan the sibling folders of the passed in folder, looking for a folder that ends with .data
- 	 * 4) Finally, if nothing matches, it just returns the input folder. 
+ 	 * 4) Finally, if nothing matches, it just returns the input folder - however, if the folder doesn't exist, it will create it.
 	 * @param inputFolder
 	 * @return
 	 */
@@ -83,6 +83,10 @@ public class DBLocator
 		}
 
 		//can't match an expected pattern... just return the input.
+		if (!inputFolder.exists())
+		{
+			inputFolder.mkdirs();
+		}
 		LOG.info("Data Store Location set to " + inputFolder.getAbsolutePath());
 		return inputFolder;
 	}
