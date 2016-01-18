@@ -16,24 +16,6 @@
 package gov.vha.isaac.ochre.sememe.provider;
 
 
-import gov.vha.isaac.ochre.api.ConfigurationService;
-import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.SystemStatusService;
-import gov.vha.isaac.ochre.api.bootstrap.TermAux;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.StampPosition;
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeConstraints;
-import gov.vha.isaac.ochre.api.component.sememe.SememeService;
-import gov.vha.isaac.ochre.api.component.sememe.SememeServiceTyped;
-import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
-import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
-import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.api.collections.NidSet;
-import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
-import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -56,8 +38,27 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import gov.vha.isaac.ochre.api.ConfigurationService;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SystemStatusService;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
+import gov.vha.isaac.ochre.api.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeConstraints;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeServiceTyped;
+import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
+import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
+import gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap;
 
 /**
  *
@@ -65,6 +66,7 @@ import org.jvnet.hk2.annotations.Service;
  */
 @Service
 @RunLevel(value = 0)
+@Rank(value=10)
 public class SememeProvider implements SememeService {
 
     private static final Logger LOG = LogManager.getLogger();

@@ -1,24 +1,29 @@
 package gov.vha.isaac.ochre.model.concept;
 
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+import org.glassfish.hk2.api.Rank;
+import org.jvnet.hk2.annotations.Service;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.collections.NidSet;
 import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
-import gov.vha.isaac.ochre.api.component.sememe.*;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeConstraints;
+import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeServiceTyped;
+import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
-import org.jvnet.hk2.annotations.Service;
-
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Created by kec on 1/3/16.
  */
 @Service
+@Rank(value=-50)
 public class MockSememeService implements SememeService {
 
     ConcurrentHashMap<Integer, SememeSequenceSet> componentSememeMap = new ConcurrentHashMap<>();
