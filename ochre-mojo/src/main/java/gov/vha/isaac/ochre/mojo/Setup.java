@@ -19,8 +19,6 @@
 package gov.vha.isaac.ochre.mojo;
 
 
-import gov.vha.isaac.ochre.api.ConfigurationService;
-import gov.vha.isaac.ochre.api.LookupService;
 import java.io.File;
 import java.io.IOException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -28,14 +26,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import gov.vha.isaac.ochre.api.ConfigurationService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.util.DBLocator;
 
 /**
  * Goal which opens (and creates if necessary) a Data Store.
  *
- * Note that this duplicates functionality found in
- * {@link SetTermstoreProperties} and {@link StartupIsaac}, but we can't use
- * that in combination with other things in the package, due to limitations of
- * maven when it comes to interweaving operations from multiple mojo plugins.
  */
 @Mojo(defaultPhase = LifecyclePhase.PROCESS_RESOURCES, name = "setup-isaac")
 public class Setup extends AbstractMojo {
@@ -43,6 +40,8 @@ public class Setup extends AbstractMojo {
     /**
      * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
      * be in the passed in folder location.
+     * 
+     * Note that the value passed in here is also passed through {@link DBLocator#findDBFolder(File)}
      *
      * @parameter
      * @required
@@ -64,6 +63,20 @@ public class Setup extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         getLog().info("Setup terminology store");
         try {
+            
+            //Make sure the service Locator comes up ok
+            LookupService.get();
+            
+            dataStoreLocation = DBLocator.findDBFolder(dataStoreLocation);
+
+            if (!dataStoreLocation.exists())
+            {
+                throw new MojoExecutionException("Couldn't find a data store from the input of '" + dataStoreLocation.getAbsoluteFile().getAbsolutePath() + "'");
+            }
+            if (!dataStoreLocation.isDirectory())
+            {
+                throw new IOException("The specified data store: '" + dataStoreLocation.getAbsolutePath() + "' is not a folder");
+            }
 
             LookupService.getService(ConfigurationService.class).setDataStoreFolderPath(dataStoreLocation.toPath());
             getLog().info("  Setup AppContext, data store location = " + dataStoreLocation.getCanonicalPath());
