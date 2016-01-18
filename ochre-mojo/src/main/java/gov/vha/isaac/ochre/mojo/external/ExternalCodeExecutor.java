@@ -47,11 +47,14 @@ public class ExternalCodeExecutor extends AbstractMojo
 	@Parameter(required = true, defaultValue = "${project.build.directory}") 
 	protected File outputDirectory;
 
-	@Parameter(required = true) protected 
-	String quasiMojoName;
+	@Parameter(required = true) 
+	protected String quasiMojoName;
+	
+	@Parameter(required = false, defaultValue = "false") 
+	protected boolean skipExecution = false;;
 
-	@Parameter(required = false) protected 
-	Map<String, String> parameters;
+	@Parameter(required = false) 
+	protected Map<String, String> parameters;
 
 	/**
 	 * @see org.apache.maven.plugin.Mojo#execute()
@@ -61,7 +64,15 @@ public class ExternalCodeExecutor extends AbstractMojo
 	{
 		try
 		{
-			getLog().info("Executing " + quasiMojoName);
+			if (skipExecution)
+			{
+				getLog().info("Skipping execution of " + quasiMojoName);
+				return;
+			}
+			else
+			{
+				getLog().info("Executing " + quasiMojoName);
+			}
 			long start = System.currentTimeMillis();
 			QuasiMojo quasiMojo = LookupService.getService(QuasiMojo.class, quasiMojoName);
 			
