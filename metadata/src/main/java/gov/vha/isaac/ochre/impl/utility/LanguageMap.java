@@ -1,5 +1,7 @@
 package gov.vha.isaac.ochre.impl.utility;
 
+import java.util.Optional;
+import java.util.UUID;
 import gov.vha.isaac.MetaData;
 import gov.vha.isaac.ochre.api.LanguageCode;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
@@ -82,5 +84,20 @@ public class LanguageMap
 			default :
 				throw new RuntimeException("Unmapped Language Code " + lc);
 		}
+	}
+	
+	public static Optional<LanguageCode> getLanguageCodeForUUID(UUID uuid)
+	{
+		for (LanguageCode lc : LanguageCode.values())
+		{
+			for (UUID itemUuid : getConceptForLanguageCode(lc).getUuids())
+			{
+				if (itemUuid.equals(uuid))
+				{
+					return Optional.of(lc);
+				}
+			}
+		}
+		return Optional.empty();
 	}
 }
