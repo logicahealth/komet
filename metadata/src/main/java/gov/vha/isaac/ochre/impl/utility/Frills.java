@@ -1,25 +1,5 @@
 package gov.vha.isaac.ochre.impl.utility;
 
-import gov.vha.isaac.ochre.model.configuration.LanguageCoordinates;
-import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
-import gov.vha.isaac.MetaData;
-import gov.vha.isaac.ochre.api.ConceptProxy;
-import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
-import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
-import gov.vha.isaac.ochre.api.component.sememe.SememeType;
-import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
-import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.index.IndexServiceBI;
-import gov.vha.isaac.ochre.api.index.SearchResult;
-import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
-import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,6 +13,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import gov.vha.isaac.MetaData;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.State;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
+import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.index.IndexServiceBI;
+import gov.vha.isaac.ochre.api.index.SearchResult;
+import gov.vha.isaac.ochre.model.configuration.LanguageCoordinates;
+import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
+import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
+import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 
 public class Frills {
 
@@ -187,7 +187,7 @@ public class Frills {
      * config service
      * @return the descriptions - may be empty, will not be null
      */
-    public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid, ConceptProxy descriptionType,
+    public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid, ConceptSpecification descriptionType,
             StampCoordinate stamp) {
         ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
         Get.sememeService().getSememesForComponentFromAssemblage(conceptNid, MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence())
