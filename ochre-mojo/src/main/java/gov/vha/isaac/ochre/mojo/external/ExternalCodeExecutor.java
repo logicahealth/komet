@@ -84,41 +84,59 @@ public class ExternalCodeExecutor extends AbstractMojo
 					String value = parameters.get(name);
 					params.remove();
 
+					Field myField = null;
 					try
 					{
-						Field myField = myClass.getDeclaredField(name);
-						myField.setAccessible(true);
-
-						if (myField.getType().equals(String.class))
-						{
-							myField.set(quasiMojo, value);
-						}
-						else if (myField.getType().equals(File.class))
-						{
-							myField.set(quasiMojo, new File(value));
-						}
-						else if (myField.getType().equals(Integer.class))
-						{
-							myField.set(quasiMojo, Integer.parseInt(value));
-						}
-						else if (myField.getType().equals(Long.class))
-						{
-							myField.set(quasiMojo, Long.parseLong(value));
-						}
-						else if (myField.getType().equals(Boolean.class))
-						{
-							myField.set(quasiMojo, Boolean.parseBoolean(value));
-						}
-						else
-						{
-							throw new MojoExecutionException("Can't handle field datatype " + myField.getType());
-						}
-						
+						myField = myClass.getDeclaredField(name);
 					}
 					catch (NoSuchFieldException e)
 					{
+						//recurse up the parent classes, looking for the field
+						Class<?> parent = myClass;
+						while (myField == null && parent.getSuperclass() != null)
+						{
+							parent = parent.getSuperclass();
+							try
+							{
+								myField = parent.getDeclaredField(name);
+							}
+							catch (NoSuchFieldException e1)
+							{
+								// ignore
+							}
+						}
+					}
+					if (myField == null)
+					{
 						throw new MojoExecutionException("No field in " + quasiMojo + " to place the parameter " + name + " : " + value);
 					}
+					myField.setAccessible(true);
+
+					if (myField.getType().equals(String.class))
+					{
+						myField.set(quasiMojo, value);
+					}
+					else if (myField.getType().equals(File.class))
+					{
+						myField.set(quasiMojo, new File(value));
+					}
+					else if (myField.getType().equals(Integer.class))
+					{
+						myField.set(quasiMojo, Integer.parseInt(value));
+					}
+					else if (myField.getType().equals(Long.class))
+					{
+						myField.set(quasiMojo, Long.parseLong(value));
+					}
+					else if (myField.getType().equals(Boolean.class))
+					{
+						myField.set(quasiMojo, Boolean.parseBoolean(value));
+					}
+					else
+					{
+						throw new MojoExecutionException("Can't handle field datatype " + myField.getType());
+					}
+						
 				}
 				
 				if (parameters.size() > 0)
