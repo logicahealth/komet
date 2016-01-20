@@ -27,7 +27,7 @@ import gov.vha.isaac.ochre.api.State;
  * Taken together, these fields can be referred to as a versions STAMP
  * (state, time, author, module, and path).
  * The version STAMP provides a foundation for version control and
- * configuration management of all the components of the information architecture.
+ * configuration management of all the components of the informatics architecture.
  * @author kec
  */
 public interface StampedVersion {
@@ -36,7 +36,7 @@ public interface StampedVersion {
 	 * A sequence starting at one that uniquely identifies a particular combination of
 	 * state, time, author, module, and path. Stamp sequences are idempotent, and there will be
 	 * only one stamp sequence for any unique combination of values.
-	 * @return
+	 * @return the stamp sequence of this version.
      */
 	int getStampSequence();
 
@@ -47,8 +47,10 @@ public interface StampedVersion {
 	State getState();
 
 	/**
-	 *
-	 * @return the transaction time of commit ov this version.
+	 * Long.MIN_VALUE indicates a canceled transaction. Long.MAX_VALUE indicates an
+	 * uncommitted transaction.
+	 * @return the commit time of this version measured in milliseconds,
+	 * between the current time and midnight, January 1, 1970 UTC.
      */
 	long getTime();
 
