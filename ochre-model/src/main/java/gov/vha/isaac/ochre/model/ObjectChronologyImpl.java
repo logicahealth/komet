@@ -189,9 +189,31 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         }
     }
 
+    private void gotToVersionStart(ByteArrayDataBuffer data) {
+        if (data.isExternalData()) {
+            throw new UnsupportedOperationException("Can't handle external data for this method.");
+        }
+        data.getInt(); // this.writeSequence =
+        data.getData(); // this.writtenData =
 
+        data.getLong(); // this.primordialUuidMsb =
+        data.getLong(); // this.primordialUuidLsb =
+        skipAdditionalUuids(data);
+        skipAdditionalChronicleFields(data);
+
+    }
     protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
     protected abstract void getAdditionalChronicleFields(ByteArrayDataBuffer in);
+    protected abstract void skipAdditionalChronicleFields(ByteArrayDataBuffer in);
+
+    private void skipAdditionalUuids(ByteArrayDataBuffer data) {
+        int additionalUuidPartsSize = data.getInt();
+        if (additionalUuidPartsSize > 0) {
+            for (int i = 0; i < additionalUuidPartsSize; i++) {
+                data.getLong();
+            }
+        }
+    }
 
     private void getAdditionalUuids(ByteArrayDataBuffer data) {
         int additionalUuidPartsSize = data.getInt();
@@ -405,14 +427,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     protected void mergeData(byte[] dataToMerge,
             OpenIntHashSet writtenStamps, ByteArrayDataBuffer db) {
         ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
-        if (versionStartPosition == -1) {
-            // object not constructed via serialization. Must compute version start postion. 
-            ByteArrayDataBuffer tempDb = new ByteArrayDataBuffer(512);
-            writeChronicleData(tempDb);
-            versionStartPosition = tempDb.getPosition();
 
-        }
-        int nextPosition = versionStartPosition;
+        gotToVersionStart(writtenBuffer);
+
+        int nextPosition = writtenBuffer.getPosition();
         while (nextPosition < writtenBuffer.getLimit()) {
             writtenBuffer.setPosition(nextPosition);
             int versionLength = writtenBuffer.getInt();

@@ -78,7 +78,14 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>> extends Object
         assemblageSequence = in.getConceptSequence();
         referencedComponentNid = in.getNid();
     }
-    
+
+    @Override
+    protected void skipAdditionalChronicleFields(ByteArrayDataBuffer in) {
+        in.getByte(); // sememeTypeToken =
+        in.getConceptSequence(); // assemblageSequence =
+        in.getNid(); // referencedComponentNid =
+    }
+
     @Override
     protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
         out.putByte(sememeTypeToken);
