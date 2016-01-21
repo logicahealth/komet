@@ -31,10 +31,10 @@
             <artifactId>snorocket-core</artifactId>
             <version>2.7.5</version>
         </dependency>
-        <dependency> <!-- Dan is working with the author of this, trying get it released to central.... -->
+        <dependency>
             <groupId>se.liu.imt.mi.snomedct</groupId>
             <artifactId>SnomedCTParser</artifactId>
-            <version>0.0.3</version>
+            <version>0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
