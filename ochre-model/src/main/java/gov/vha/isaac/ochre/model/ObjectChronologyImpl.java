@@ -189,16 +189,20 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         }
     }
 
-    private void gotToVersionStart(ByteArrayDataBuffer data) {
+    private void goToVersionStart(ByteArrayDataBuffer data) {
         if (data.isExternalData()) {
             throw new UnsupportedOperationException("Can't handle external data for this method.");
         }
         data.getInt(); // this.writeSequence =
-        data.getData(); // this.writtenData =
 
         data.getLong(); // this.primordialUuidMsb =
         data.getLong(); // this.primordialUuidLsb =
         skipAdditionalUuids(data);
+        data.getNid(); // this.nid =
+
+        data.getInt(); // this.containerSequence =
+        data.getShort(); // this.versionSequence =
+
         skipAdditionalChronicleFields(data);
 
     }
@@ -428,7 +432,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
             OpenIntHashSet writtenStamps, ByteArrayDataBuffer db) {
         ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
 
-        gotToVersionStart(writtenBuffer);
+        goToVersionStart(writtenBuffer);
 
         int nextPosition = writtenBuffer.getPosition();
         while (nextPosition < writtenBuffer.getLimit()) {
