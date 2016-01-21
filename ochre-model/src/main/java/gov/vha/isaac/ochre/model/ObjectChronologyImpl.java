@@ -431,6 +431,18 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     }
 
     /**
+     * Called after merge and write operations to set the objects data to be the data
+     * actually written so that the object in memory has the same value as the object
+     * just written to the database.
+     * @param writtenData
+     */
+    public void setWrittenData(byte[] writtenData) {
+        this.writtenData = writtenData;
+        this.unwrittenData = null;
+        this.versionListReference = null;
+    }
+
+    /**
      *
      * @return a list of all versions contained in this chronicle.
      */

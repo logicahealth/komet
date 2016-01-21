@@ -10,6 +10,7 @@ import gov.vha.isaac.ochre.api.memory.HoldInMemoryCache;
 import gov.vha.isaac.ochre.api.memory.MemoryManagedReference;
 import gov.vha.isaac.ochre.api.memory.WriteToDiskCache;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
+import gov.vha.isaac.ochre.model.ObjectChronologyImpl;
 import gov.vha.isaac.ochre.model.WaitFreeComparable;
 
 import java.io.*;
@@ -23,6 +24,8 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import gov.vha.isaac.ochre.api.DataSerializer;
+
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -240,7 +243,8 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
         return Optional.empty();
     }
 
-    public boolean put(int sequence, T value) {
+    public boolean put(int sequence, @NotNull T value) {
+        T originalValue = value;
 
         int segmentIndex = sequence / SEGMENT_SIZE;
 
@@ -287,6 +291,11 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
             newDataBuffer.trimToSize();
             if (segment.compareAndSet(indexInSegment, oldData, newDataBuffer.getData())) {
                 objectByteList.get(segmentIndex).elementUpdated();
+                if (originalValue != value && value instanceof ObjectChronologyImpl) {
+                    ObjectChronologyImpl objc = (ObjectChronologyImpl) originalValue;
+                    objc.setWrittenData(newDataBuffer.getData());
+                    objc.setWriteSequence(value.getWriteSequence());
+                }
                 return true;
             }
 

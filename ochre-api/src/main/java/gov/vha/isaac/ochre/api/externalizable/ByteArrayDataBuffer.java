@@ -820,6 +820,8 @@ public class ByteArrayDataBuffer  {
     }
 
     public void append(ByteArrayDataBuffer db, int position, int length) {
+        ensureSpace(this.position + length);
         System.arraycopy(db.data, position, data, this.position, length);
+        this.position += length;
     }
 }
