@@ -18,6 +18,10 @@ public class PropertyAssociation extends Property
 	{
 		super(owner, sourcePropertyNameFSN, sourcePropertyPreferredName, sourcePropertyAltName, associationDescription, disabled, Integer.MAX_VALUE, 
 				null);
+		if (associationDescription == null)
+		{
+			throw new RuntimeException("association description is required");
+		}
 		associationInverseName_ = associationInverseName;
 		associationComponentTypeRestriction_ = associationComponentTypeRestriction;
 		associationComponentTypeSubRestriction_ = associationComponentTypeSubRestriction;

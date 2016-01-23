@@ -43,7 +43,7 @@ public class Property
 	private boolean isDisabled_ = false;
 	private int propertySubType_ = Integer.MAX_VALUE;  //Used for subtypes of descriptions, at the moment - FSN, synonym, etc.
 	private PropertyType owner_;
-	private UUID propertyUUID = null;;
+	private UUID propertyUUID = null;
 	private UUID useWBPropertyTypeInstead = null;  //see comments in setter
 	private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex_ = null;
 	

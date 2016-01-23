@@ -11,6 +11,7 @@ import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 
 public class ComponentReference
 {
@@ -32,10 +33,11 @@ public class ComponentReference
 		typeLabelSupplier_ = typeLabelSupplier;
 	}
 	
-	public int getSequence()
-	{
-		return sequenceProvider_.getAsInt();
-	}
+//TODO do I need this?  It is unsafe, without knowing the type.
+//	public int getSequence()
+//	{
+//		return sequenceProvider_.getAsInt();
+//	}
 	
 	public UUID getPrimordialUuid()
 	{
@@ -61,6 +63,11 @@ public class ComponentReference
 		return new ComponentReference(() -> uuid, () -> Get.identifierService().getConceptSequenceForUuids(uuid), () -> "Concept");
 	}
 	
+	public static ComponentReference fromSememe(UUID uuid)
+	{
+		return new ComponentReference(() -> uuid, () -> Get.identifierService().getSememeSequenceForUuids(uuid), () -> "Sememe");
+	}
+	
 	public static ComponentReference fromConcept(UUID uuid, int seq)
 	{
 		return new ComponentReference(() -> uuid, () -> seq, () -> "Concept");
@@ -79,13 +86,31 @@ public class ComponentReference
 		return cr;
 	}
 	
-	@SuppressWarnings("rawtypes")
 	public static ComponentReference fromChronology(ObjectChronology<?> object)
+	{
+		return fromChronology(object, null);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static ComponentReference fromChronology(ObjectChronology<?> object, Supplier<String> typeLabelSupplier)
 	{
 		ComponentReference cr;
 		if (object instanceof SememeChronology)
 		{
 			cr = new ComponentReference(() -> object.getPrimordialUuid(), () -> Get.identifierService().getSememeSequence(object.getNid()));
+			cr.typeLabelSupplier_ = () ->
+			{
+				if (((SememeChronology)object).getSememeType() == SememeType.DESCRIPTION)
+				{
+					return "Description";
+				}
+				else if (((SememeChronology)object).getSememeType() == SememeType.LOGIC_GRAPH)
+				{
+					return "Graph";
+				}
+				
+				return "";
+			};
 		}
 		else if (object instanceof ConceptChronology)
 		{
@@ -95,6 +120,11 @@ public class ComponentReference
 		{
 			cr = new ComponentReference(() -> object.getPrimordialUuid(), () -> {throw new RuntimeException("unsupported");});
 		}
+		if (typeLabelSupplier != null)
+		{
+			cr.typeLabelSupplier_ = typeLabelSupplier;
+		}
+		
 		cr.nidProvider_ = () -> object.getNid();
 		cr.timeProvider_ = () -> 
 		{

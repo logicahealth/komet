@@ -22,11 +22,8 @@ import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SomeRole;
-import java.beans.PropertyVetoException;
-import java.io.DataOutputStream;
+
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,8 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
+
 import gov.va.oia.terminology.converters.sharedUtils.gson.MultipleDataWriterService;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
@@ -50,7 +49,6 @@ import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 import gov.va.oia.terminology.converters.sharedUtils.stats.LoadStats;
 import gov.vha.isaac.MetaData;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.LanguageCode;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.State;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
@@ -61,8 +59,6 @@ import gov.vha.isaac.ochre.api.component.concept.ConceptBuilderService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
-import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilder;
-import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -92,12 +88,11 @@ import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
-import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
-import gov.vha.isaac.ochre.model.sememe.version.DescriptionSememeImpl;
+import javafx.application.Platform;
 
 /**
  * 
@@ -250,7 +245,7 @@ public class EConceptUtility
 		StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, MetaData.DEVELOPMENT_PATH.getConceptSequence());
 		readBackStamp_ = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, ConceptSequenceSet.EMPTY, State.ANY_STATE_SET);
 		
-		ConsoleUtil.println("Loading with module '" + moduleSeq_+ " on DEVELOPMENT path");
+		ConsoleUtil.println("Loading with module '" + moduleSeq_+ "' on DEVELOPMENT path");
 		
 	}
 
@@ -447,16 +442,29 @@ public class EConceptUtility
 			DescriptionType wbDescriptionType, Boolean preferred, UUID dialect, UUID caseSignificant, UUID languageCode, UUID module, 
 			UUID sourceDescriptionTypeUUID, UUID sourceDescriptionRefsetUUID, State state, Long time)
 	{
+		if (descriptionValue == null)
+		{
+			throw new RuntimeException("Description value is required");
+		}
+		if (dialect == null)
+		{
+			dialect =  MetaData.US_ENGLISH_DIALECT.getPrimordialUuid();
+		}
+		if (languageCode == null)
+		{
+			languageCode =MetaData.ENGLISH_LANGUAGE.getPrimordialUuid();
+		}
 		if (descriptionPrimordialUUID == null)
 		{
 			descriptionPrimordialUUID = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid().toString(), descriptionValue, 
-					wbDescriptionType.name());
+					wbDescriptionType.name(), dialect.toString(), languageCode.toString(), preferred == null ? "null" : preferred.toString());
 		}
+		
 		
 		@SuppressWarnings({ "rawtypes" }) 
 		SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder = sememeBuilderService_.getDescriptionSememeBuilder(
 						Get.identifierService().getConceptSequenceForUuids(caseSignificant == null ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE.getPrimordialUuid() : caseSignificant),
-						languageCode == null ? MetaData.ENGLISH_LANGUAGE.getConceptSequence() : Get.identifierService().getConceptSequenceForUuids(languageCode),
+						Get.identifierService().getConceptSequenceForUuids(languageCode),
 						wbDescriptionType.getConceptSpec().getConceptSequence(), 
 						descriptionValue, 
 						concept.getNid());
@@ -476,7 +484,7 @@ public class EConceptUtility
 		else
 		{
 			sememeBuilderService_.getComponentSememeBuilder(preferred ? TermAux.PREFERRED.getNid() : TermAux.ACCEPTABLE.getNid(), newDescription.getNid(), 
-						Get.identifierService().getConceptSequenceForUuids(dialect == null ? MetaData.US_ENGLISH_DIALECT.getPrimordialUuid() : dialect))
+						Get.identifierService().getConceptSequenceForUuids(dialect))
 					.build(createStamp(state, selectTime(time, concept), module), builtObjects);
 		}
 
@@ -492,7 +500,7 @@ public class EConceptUtility
 		
 		if (sourceDescriptionRefsetUUID != null)
 		{
-			addAnnotation(ComponentReference.fromChronology(newDescription), null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUIDImpl(sourceDescriptionTypeUUID)),
+			addAnnotation(ComponentReference.fromChronology(newDescription, () -> "Description"), null, (sourceDescriptionTypeUUID == null ? null : new DynamicSememeUUIDImpl(sourceDescriptionTypeUUID)),
 				sourceDescriptionRefsetUUID, null, null);
 		}
 		
@@ -837,9 +845,9 @@ public class EConceptUtility
 	/**
 	 * Add an IS_A_REL relationship, with the time set to now.
 	 */
-	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference ttkConceptChronicle, UUID targetUuid)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference concept, UUID targetUuid)
 	{
-		return addRelationship(ttkConceptChronicle, null, targetUuid, null, null, null, null);
+		return addRelationship(concept, null, targetUuid, null, null, null, null);
 	}
 
 	/**
@@ -849,24 +857,24 @@ public class EConceptUtility
 	 * @param relTypeUuid - is optional - if not provided, the default value of IS_A_REL is used.
 	 * @param time - if null, default is used
 	 */
-	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference ttkConceptChronicle, UUID targetUuid, UUID relTypeUuid, Long time)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference concept, UUID targetUuid, UUID relTypeUuid, Long time)
 	{
-		return addRelationship(ttkConceptChronicle, null, targetUuid, relTypeUuid, null, null, time);
+		return addRelationship(concept, null, targetUuid, relTypeUuid, null, null, time);
 	}
 	
 	/**
 	 * This rel add method handles the advanced cases where a rel type 'foo' is actually being loaded as "is_a" (or some other arbitrary type)
 	 * it makes the swap, and adds the second value as a UUID annotation on the created relationship. 
 	 */
-	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference ttkConceptChronicle, UUID targetUuid, Property p, Long time)
+	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference concept, UUID targetUuid, Property p, Long time)
 	{
 		if (p.getWBTypeUUID() == null)
 		{
-			return addRelationship(ttkConceptChronicle, null, targetUuid, p.getUUID(), null, null, time);
+			return addRelationship(concept, null, targetUuid, p.getUUID(), null, null, time);
 		}
 		else
 		{
-			return addRelationship(ttkConceptChronicle, null, targetUuid, p.getWBTypeUUID(), p.getUUID(), p.getPropertyType().getPropertyTypeReferenceSetUUID(), time);
+			return addRelationship(concept, null, targetUuid, p.getWBTypeUUID(), p.getUUID(), p.getPropertyType().getPropertyTypeReferenceSetUUID(), time);
 		}
 	}
 	
@@ -917,7 +925,7 @@ public class EConceptUtility
 
 		if (sourceRelTypeUUID != null && sourceRelRefsetUUID != null)
 		{
-			addUuidAnnotation(ComponentReference.fromChronology(sci), sourceRelTypeUUID, sourceRelRefsetUUID);
+			addUuidAnnotation(ComponentReference.fromChronology(sci, () -> "Graph"), sourceRelTypeUUID, sourceRelRefsetUUID);
 			ls_.addRelationship(getOriginStringForUuid(relTypeUuid) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
 		}
 		else
@@ -1057,17 +1065,17 @@ public class EConceptUtility
 	 * Create metadata TtkConceptChronicles from the PropertyType structure
 	 * NOTE - Refset types are not stored!
 	 */
-	public void loadMetaDataItems(PropertyType propertyType, UUID parentPrimordial, DataOutputStream dos) throws Exception
+	public void loadMetaDataItems(PropertyType propertyType, UUID parentPrimordial) throws Exception
 	{
 		ArrayList<PropertyType> propertyTypes = new ArrayList<PropertyType>();
 		propertyTypes.add(propertyType);
-		loadMetaDataItems(propertyTypes, parentPrimordial, dos);
+		loadMetaDataItems(propertyTypes, parentPrimordial);
 	}
 
 	/**
 	 * Create metadata concepts from the PropertyType structure
 	 */
-	public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial, DataOutputStream dos) throws Exception
+	public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial) throws Exception
 	{
 		for (PropertyType pt : propertyTypes)
 		{
@@ -1101,8 +1109,11 @@ public class EConceptUtility
 			
 			for (Property p : pt.getProperties())
 			{
+				//don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
 				ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), 
-						p.getSourcePropertyAltName(), p.getSourcePropertyDefinition(), pt.getPropertyTypeUUID(), secondParent);
+						p.getSourcePropertyAltName(), (p instanceof PropertyAssociation ? null : p.getSourcePropertyDefinition()), 
+						pt.getPropertyTypeUUID(), secondParent);
+				
 				if (pt.createAsDynamicRefex())
 				{
 					configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), 
@@ -1186,6 +1197,10 @@ public class EConceptUtility
 	public void configureConceptAsDynamicRefex(ComponentReference concept, String refexDescription,
 			DynamicSememeColumnInfo[] columns, ObjectChronologyType referencedComponentTypeRestriction, SememeType referencedComponentTypeSubRestriction)
 	{
+		if (refexDescription == null)
+		{
+			throw new RuntimeException("Refex description is required");
+		}
 		// See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
 		//Add the special synonym to establish this as an assemblage concept
 		SememeChronology<DescriptionSememe<?>> desc = addDescription(concept, refexDescription, DescriptionType.DEFINITION, true, null, null, State.ACTIVE);
@@ -1227,5 +1242,7 @@ public class EConceptUtility
 	{
 		writer_.close();
 		LookupService.shutdownIsaac();
+		//TODO figure out why the VHAT mojo requires this call
+		Platform.exit();
 	}
 }
