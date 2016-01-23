@@ -1065,8 +1065,7 @@ public class EConceptUtility
 	}
 
 	/**
-	 * Create metadata TtkConceptChronicles from the PropertyType structure
-	 * NOTE - Refset types are not stored!
+	 * Create metadata concepts from the PropertyType structure
 	 */
 	public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial, DataOutputStream dos) throws Exception
 	{
@@ -1091,13 +1090,13 @@ public class EConceptUtility
 			{
 				//only do this once, in case we see a BPT_Descriptions more than once
 				secondParent = setupWbPropertyMetadata(MetaData.DESCRIPTION_SOURCE_TYPE_REFERENCE_SETS.getPrimordialUuid(),
-						MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(), pt, dos);
+						MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(), pt);
 			}
 			
 			else if (pt instanceof BPT_Relations)
 			{
 				secondParent = setupWbPropertyMetadata(MetaData.RELATIONSHIP_SOURCE_TYPE_REFERENCE_SETS.getPrimordialUuid(),
-						MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(), pt, dos);
+						MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(), pt);
 			}
 			
 			for (Property p : pt.getProperties())
@@ -1136,7 +1135,7 @@ public class EConceptUtility
 		}
 	}
 	
-	private UUID setupWbPropertyMetadata(UUID refsetSynonymParent, UUID refsetValueParent, PropertyType pt, DataOutputStream dos) throws Exception
+	private UUID setupWbPropertyMetadata(UUID refsetSynonymParent, UUID refsetValueParent, PropertyType pt) throws Exception
 	{
 		if (pt.getPropertyTypeReferenceSetName() == null || pt.getPropertyTypeReferenceSetUUID() == null)
 		{
