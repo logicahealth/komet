@@ -254,6 +254,10 @@ public class TermAux {
     public static ConceptSpecification NECESSARY_BUT_NOT_SUFFICIENT = 
             new ConceptProxy("Necessary but not sufficient concept definition status (core metadata concept)", 
                 UUID.fromString("e1a12059-3b01-3296-9532-d10e49d0afc3"));
+    //116680003
+    public static ConceptSpecification IS_A_ATTRIBUTE =
+            new ConceptProxy("Is a (attribute)",
+                UUID.fromString("c93a30b9-ba77-3adb-a9b8-4589c9f8fb25"));
     
     public static int getDescriptionAssemblageConceptSequence(int languageConceptSequence) {
         if (languageConceptSequence == ENGLISH_LANGUAGE.getConceptSequence()) {
