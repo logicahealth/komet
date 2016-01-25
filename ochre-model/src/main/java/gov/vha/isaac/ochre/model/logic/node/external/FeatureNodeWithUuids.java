@@ -6,7 +6,6 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
