@@ -70,7 +70,7 @@ public class DynamicSememeIntegerImpl extends DynamicSememeDataImpl implements D
 	 */
 	@Override
 	public ReadOnlyObjectProperty<?> getDataObjectProperty() {
-            return getDataIntegerProperty();
+		return getDataIntegerProperty();
 	}
 
 	/**
@@ -78,10 +78,10 @@ public class DynamicSememeIntegerImpl extends DynamicSememeDataImpl implements D
 	 */
 	@Override
 	public ReadOnlyObjectProperty<Integer> getDataIntegerProperty()  {
-            if (property_ == null) {
-                property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
-            }
-            return property_;
+		if (property_ == null) {
+			property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
+		}
+		return property_;
 	}
 
 	/**
