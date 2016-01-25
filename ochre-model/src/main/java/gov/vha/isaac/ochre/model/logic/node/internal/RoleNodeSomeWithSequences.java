@@ -26,6 +26,10 @@ public final class RoleNodeSomeWithSequences extends TypedNodeWithSequences {
     public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
         super(logicGraphVersion, typeConceptId, child);
     }
+    
+    public RoleNodeSomeWithSequences(RoleNodeSomeWithUuids externalForm) {
+        super(externalForm);
+    }
 
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {

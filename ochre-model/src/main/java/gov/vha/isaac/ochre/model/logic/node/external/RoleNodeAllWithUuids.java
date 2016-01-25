@@ -38,7 +38,7 @@ public class RoleNodeAllWithUuids extends TypedNodeWithUuids {
 
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
-        super.writeData(dataOutput, dataTarget);
+        super.writeNodeData(dataOutput, dataTarget);
     }
 
 

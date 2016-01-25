@@ -6,16 +6,21 @@
 package gov.vha.isaac.ochre.model.logic.node.external;
 
 
-import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
-import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithSequences;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
+import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
+import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
+import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
+import gov.vha.isaac.ochre.model.logic.node.internal.TypedNodeWithSequences;
 
 /**
  *
@@ -37,7 +42,35 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     public TypedNodeWithUuids(TypedNodeWithSequences internalForm) {
         super(internalForm);
-        this.typeConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTypeConceptSequence()).get();
+        this.typeConceptUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(internalForm.getTypeConceptSequence()).get();
+    }
+    
+    @Override
+    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
+        super.writeData(dataOutput, dataTarget);
+        switch (dataTarget) {
+            case EXTERNAL:
+                dataOutput.writeLong(typeConceptUuid.getMostSignificantBits());
+                dataOutput.writeLong(typeConceptUuid.getLeastSignificantBits());
+                break;
+            case INTERNAL:
+                TypedNodeWithSequences internalForm = null;
+                if (this instanceof FeatureNodeWithUuids) {
+                    internalForm = new FeatureNodeWithSequences((FeatureNodeWithUuids)this);
+                }
+                else if (this instanceof RoleNodeAllWithUuids) {
+                    internalForm = new RoleNodeAllWithSequences((RoleNodeAllWithUuids)this);
+                }
+                else if (this instanceof RoleNodeSomeWithUuids) {
+                    internalForm = new RoleNodeSomeWithSequences((RoleNodeSomeWithUuids)this);
+                }
+                else {
+                    throw new RuntimeException("Can't write internal form!");
+                }
+                internalForm.writeNodeData(dataOutput, dataTarget);
+                break;
+            default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
+        }
     }
 
     public UUID getTypeConceptUuid() {

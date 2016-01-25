@@ -40,6 +40,11 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
     public int getTypeConceptSequence() {
         return typeConceptSequence;
     }
+    
+    @Override
+    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
+        super.writeData(dataOutput, dataTarget);
+    }
 
     @Override
     public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
@@ -60,7 +65,7 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
         
     }
 
-        @Override
+    @Override
     protected void writeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
         super.writeData(dataOutput, dataTarget);
         dataOutput.writeInt(typeConceptSequence);
