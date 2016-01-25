@@ -66,10 +66,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             popParent();
             createConcept("identifier source");
             pushParent(current());
-                createConcept("SNOMED integer id").setPrimordialUuid("0418a591-f75b-39ad-be2c-3ab849326da9");     
-                createConcept("generated UUID").setPrimordialUuid("2faa9262-8fb2-11db-b606-0800200c9a66");     
+                createConcept("SNOMED integer id").setPrimordialUuid("0418a591-f75b-39ad-be2c-3ab849326da9");
+                createConcept("generated UUID").setPrimordialUuid(TermAux.GENERATED_UUID.getPrimordialUuid());
                 createConcept("LOINC Num");
                 createConcept("RXCUI").setPrimordialUuid("617761d2-80ef-5585-83a0-60851dd44158");  //comes from the algorithm in the rxnorm econ loader
+                createConcept("VUID");
             popParent();
             createConcept("language");
             pushParent(current());  //TODO - Keith, should these use the UUIDs from Snomed (where possible)? -- A: SNOMED does not currently ahve language concepts, just dialect concepts
@@ -146,22 +147,22 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 pushParent(current());
                 ConceptBuilder stated = createConcept("stated");
                 stated.setPrimordialUuid(TermAux.STATED_RELATIONSHIP.getPrimordialUuid());
-                stated.addUuids(TermAux.REL_STATED_CHAR.getPrimordialUuid(), TermAux.GENERATED_UUID.getPrimordialUuid());
+                stated.addUuids(TermAux.REL_STATED_CHAR.getPrimordialUuid());
                 ConceptBuilder inferred = createConcept("inferred");
                 inferred.setPrimordialUuid(TermAux.INFERRED_RELATIONSHIP.getPrimordialUuid());
-                inferred.addUuids(TermAux.REL_INFERED_CHAR.getPrimordialUuid(), TermAux.GENERATED_UUID.getPrimordialUuid());
+                inferred.addUuids(TermAux.REL_INFERED_CHAR.getPrimordialUuid());
             popParent();
           //
             createConcept("description type");
             pushParent(current());
                 ConceptBuilder fsn = createConcept("fully specified name");
                 fsn.setPrimordialUuid(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid());
-                fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66"), // RF1 FSN
-                    TermAux.GENERATED_UUID.getPrimordialUuid());
+                fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66") // RF1 FSN
+                    );
                 ConceptBuilder syn = createConcept("synonym");
                 syn.setPrimordialUuid(TermAux.SYNONYM_DESCRIPTION_TYPE.getPrimordialUuid());
-                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"), 
-                    TermAux.GENERATED_UUID.getPrimordialUuid());
+                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79") 
+                    );
                 createConcept("definition description type").setPrimordialUuid(TermAux.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid());
             popParent();
             createConcept("description type in source terminology");  //LOINC and RxNorm description types are created under this node
@@ -189,7 +190,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                 ConceptBuilder isa = createConcept("is-a");
                 isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());
-                isa.addUuids(TermAux.IS_A.getPrimordialUuid(), TermAux.GENERATED_UUID.getPrimordialUuid());
+                isa.addUuids(TermAux.IS_A.getPrimordialUuid());
                 createConcept(InformationModelsConstants.HAS_TERMINOLOGY_CONCEPT);  //TODO this should probably be redone as an association 
                 //using the association sememe / framework
             popParent();
@@ -336,10 +337,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(InformationModelsConstants.INFORMATION_MODELS);
             createConcept("solor metadata");
             pushParent(current());
-                createConcept("Content Release Date");
-                createConcept("Content Source Version");
-                createConcept("Loader Version");
-                createConcept("Artifact Version");
+                createConcept("Content Source Artifact Version");
+                createConcept("Content Converter Version");
+                createConcept("Content Converted IBDF Artifact Version");
             popParent();
                 
       } catch (Exception ex) {
