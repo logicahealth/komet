@@ -250,7 +250,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     /**
      * Write only the chronicle data (not the versions) to the ByteArrayDataBuffer
      * using identifiers determined by the ByteArrayDataBuffer.isExternalData() to
-     * determine if the identifiers should be nids and sequences, or fi they should
+     * determine if the identifiers should be nids and sequences, or if they should
      * be UUIDs.
      * @param data the buffer to write to.
      */
