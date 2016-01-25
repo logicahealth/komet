@@ -52,13 +52,19 @@ public abstract class ConverterBaseMojo extends AbstractMojo
 	 * Loader version number
 	 */
 	@Parameter (required = true, defaultValue = "${loader.version}")
-	protected String loaderVersion;
+	protected String converterVersion;
 
 	/**
 	 * Converter result version number
 	 */
 	@Parameter (required = true, defaultValue = "${project.version}")
-	protected String converterResultVersion;
+	protected String converterOutputArtifactVersion;
+	
+	/**
+	 * Converter input version number
+	 */
+	@Parameter (required = true, defaultValue = "${sourceData.version}")
+	protected String converterSourceArtifactVersion;
 	
 	/**
 	 * Set '-Dsdp' (skipUUIDDebugPublish) on the command line, to prevent the publishing of the 

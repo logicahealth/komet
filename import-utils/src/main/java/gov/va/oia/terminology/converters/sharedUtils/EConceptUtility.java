@@ -761,7 +761,9 @@ public class EConceptUtility
 		{
 			writer_.put(ochreObject);
 		}
-		ls_.addAnnotation(getOriginStringForUuid(referencedComponent.getPrimordialUuid()), getOriginStringForUuid(refsetUuid));
+		ls_.addAnnotation(
+				referencedComponent.getTypeString().length() > 0 ? referencedComponent.getTypeString() : getOriginStringForUuid(referencedComponent.getPrimordialUuid()),
+				getOriginStringForUuid(refsetUuid));
 
 		return sc;
 	}
@@ -857,10 +859,10 @@ public class EConceptUtility
 	 * @param relTypeUuid - is optional - if not provided, the default value of IS_A_REL is used.
 	 * @param time - if null, default is used
 	 */
-	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference concept, UUID targetUuid, UUID relTypeUuid, Long time)
-	{
-		return addRelationship(concept, null, targetUuid, relTypeUuid, null, null, time);
-	}
+//	public SememeChronology<LogicGraphSememe<?>> addRelationship(ComponentReference concept, UUID targetUuid, UUID relTypeUuid, Long time)
+//	{
+//		return addRelationship(concept, null, targetUuid, relTypeUuid, null, null, time);
+//	}
 	
 	/**
 	 * This rel add method handles the advanced cases where a rel type 'foo' is actually being loaded as "is_a" (or some other arbitrary type)
@@ -895,12 +897,12 @@ public class EConceptUtility
 
 		if (relTypeUuid == null || relTypeUuid.equals(isARelUuid_))
 		{
-			NecessarySet(And(ConceptAssertion(Get.conceptService().getConcept(targetUuid), leb)));
+			NecessarySet(And(ConceptAssertion(Get.identifierService().getConceptSequenceForUuids(targetUuid), leb)));
 		}
 		else
 		{
 			SomeRole(Get.conceptService().getConcept(relTypeUuid),
-					ConceptAssertion(Get.conceptService().getConcept(targetUuid), leb));
+					ConceptAssertion(Get.identifierService().getConceptSequenceForUuids(targetUuid), leb));
 		}
 
 		LogicalExpression logicalExpression = leb.build();
@@ -1031,19 +1033,26 @@ public class EConceptUtility
 
 	/**
 	 * Utility method to build and store a concept.
-	 * @param callback - optional - used to fire a callback if present.  No impact on created concept.  
-	 * @param dos - optional - does not store when not provided
 	 * @param secondParent - optional
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial, String fsnName, String preferredName, String altName, String definition, UUID relParentPrimordial, 
-			UUID secondParent)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
+			String definition, UUID relParentPrimordial, UUID secondParent)
 	{
 		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(primordial, fsnName);
-		addRelationship(ComponentReference.fromConcept(concept), relParentPrimordial);
+		
+		LogicalExpressionBuilder leb = expressionBuilderService_.getLogicalExpressionBuilder();
+
+		NecessarySet(And(ConceptAssertion(Get.identifierService().getConceptSequenceForUuids(relParentPrimordial), leb)));
+
 		if (secondParent != null)
 		{
-			addRelationship(ComponentReference.fromConcept(concept), secondParent);
+			NecessarySet(And(ConceptAssertion(Get.identifierService().getConceptSequenceForUuids(secondParent), leb)));
 		}
+		
+		LogicalExpression logicalExpression = leb.build();
+		
+		addRelationshipGraph(ComponentReference.fromConcept(concept), null, logicalExpression, true, null, null);
+		
 		if (StringUtils.isNotEmpty(preferredName))
 		{
 			addDescription(ComponentReference.fromConcept(concept), preferredName, DescriptionType.SYNONYM, true, null, null, State.ACTIVE);
@@ -1109,38 +1118,48 @@ public class EConceptUtility
 			
 			for (Property p : pt.getProperties())
 			{
-				//don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
-				ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), 
-						p.getSourcePropertyAltName(), (p instanceof PropertyAssociation ? null : p.getSourcePropertyDefinition()), 
-						pt.getPropertyTypeUUID(), secondParent);
-				
-				if (pt.createAsDynamicRefex())
+				if (p.isFromConceptSpec())
 				{
-					configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), 
-							(StringUtils.isNotEmpty(p.getSourcePropertyDefinition()) ? p.getSourcePropertyDefinition() : "Dynamic Sememe"),
-							p.getDataColumnsForDynamicRefex(), null, null);
+					//This came from a conceptSpecification (metadata in ISAAC), and we don't need to create it.
+					//Just need to add one relationship to the existing concept.
+					addRelationship(ComponentReference.fromConcept(p.getUUID()), pt.getPropertyTypeUUID());
+					ConverterUUID.addMapping(p.getSourcePropertyNameFSN(), p.getUUID());
 				}
-				
-				else if (p instanceof PropertyAssociation)
+				else
 				{
-					//TODO need to migrate code from api-util (AssociationType, etc) down into the ISAAC packages... integrate here, at least at doc level
-					//associations return false for "createAsDynamicRefex"
-					PropertyAssociation item = (PropertyAssociation)p;
+					//don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
+					ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(p.getUUID(), p.getSourcePropertyNameFSN(), p.getSourcePropertyPreferredName(), 
+							p.getSourcePropertyAltName(), (p instanceof PropertyAssociation ? null : p.getSourcePropertyDefinition()), 
+							pt.getPropertyTypeUUID(), secondParent);
 					
-					//Make this a dynamic refex - with the association column info
-					configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), item.getSourcePropertyDefinition(),
-							item.getDataColumnsForDynamicRefex(), item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction());
-					
-					//add the inverse name, if it has one
-					if (!StringUtils.isBlank(item.getAssociationInverseName()))
+					if (pt.createAsDynamicRefex())
 					{
-						addDescription(ComponentReference.fromConcept(concept), item.getAssociationInverseName(), DescriptionType.SYNONYM, false, null, null, 
-								State.ACTIVE);
+						configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), 
+								(StringUtils.isNotEmpty(p.getSourcePropertyDefinition()) ? p.getSourcePropertyDefinition() : "Dynamic Sememe"),
+								p.getDataColumnsForDynamicRefex(), null, null);
 					}
 					
-					//Add this concept to the association sememe
-					addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(concept), null, 
-							State.ACTIVE, null);
+					else if (p instanceof PropertyAssociation)
+					{
+						//TODO need to migrate code from api-util (AssociationType, etc) down into the ISAAC packages... integrate here, at least at doc level
+						//associations return false for "createAsDynamicRefex"
+						PropertyAssociation item = (PropertyAssociation)p;
+						
+						//Make this a dynamic refex - with the association column info
+						configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), item.getSourcePropertyDefinition(),
+								item.getDataColumnsForDynamicRefex(), item.getAssociationComponentTypeRestriction(), item.getAssociationComponentTypeSubRestriction());
+						
+						//add the inverse name, if it has one
+						if (!StringUtils.isBlank(item.getAssociationInverseName()))
+						{
+							addDescription(ComponentReference.fromConcept(concept), item.getAssociationInverseName(), DescriptionType.SYNONYM, false, null, null, 
+									State.ACTIVE);
+						}
+						
+						//Add this concept to the association sememe
+						addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(concept), null, 
+								State.ACTIVE, null);
+					}
 				}
 			}
 		}

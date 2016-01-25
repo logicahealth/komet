@@ -19,7 +19,7 @@
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import java.util.UUID;
-
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 
@@ -41,6 +41,7 @@ public class Property
 	private String sourcePropertyAltName_;
 	private String sourcePropertyDefinition_;
 	private boolean isDisabled_ = false;
+	private boolean isFromConceptSpec_ = false;
 	private int propertySubType_ = Integer.MAX_VALUE;  //Used for subtypes of descriptions, at the moment - FSN, synonym, etc.
 	private PropertyType owner_;
 	private UUID propertyUUID = null;
@@ -107,6 +108,13 @@ public class Property
 	public Property(PropertyType owner, String sourcePropertyNameFSN)
 	{
 		this(owner, sourcePropertyNameFSN, sourcePropertyNameFSN, null, null, false, Integer.MAX_VALUE, null);
+	}
+	
+	public Property(PropertyType owner, ConceptSpecification cs)
+	{
+		this(owner, cs.getConceptDescriptionText(), null, null, null, false, Integer.MAX_VALUE, null);
+		propertyUUID = cs.getPrimordialUuid();
+		isFromConceptSpec_ = true;
 	}
 	
 	/**
@@ -193,6 +201,11 @@ public class Property
 	public boolean isDisabled()
 	{
 		return isDisabled_;
+	}
+	
+	public boolean isFromConceptSpec()
+	{
+		return isFromConceptSpec_;
 	}
 	
 	public void setPropertySubType(int value)
