@@ -61,6 +61,12 @@ public abstract class ConverterBaseMojo extends AbstractMojo
 	protected String converterOutputArtifactVersion;
 	
 	/**
+	 * Converter result version number
+	 */
+	@Parameter (required = false, defaultValue = "${resultArtifactClassifier}")
+	protected String converterOutputArtifactClassifier;
+	
+	/**
 	 * Converter input version number
 	 */
 	@Parameter (required = true, defaultValue = "${sourceData.version}")
