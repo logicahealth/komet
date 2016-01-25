@@ -190,7 +190,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                 ConceptBuilder isa = createConcept("is-a");
                 isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());
-                isa.addUuids(TermAux.IS_A.getPrimordialUuid());
                 createConcept(InformationModelsConstants.HAS_TERMINOLOGY_CONCEPT);  //TODO this should probably be redone as an association 
                 //using the association sememe / framework
             popParent();
@@ -340,6 +339,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept("Content Source Artifact Version");
                 createConcept("Content Converter Version");
                 createConcept("Content Converted IBDF Artifact Version");
+                createConcept("Content Converted IBDF Artifact Classifier");
             popParent();
                 
       } catch (Exception ex) {
