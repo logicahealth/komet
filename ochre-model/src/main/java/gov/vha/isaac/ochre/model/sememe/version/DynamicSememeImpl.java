@@ -19,17 +19,20 @@
 package gov.vha.isaac.ochre.model.sememe.version;
 
 import java.util.Arrays;
+import java.util.UUID;
 import javax.naming.InvalidNameException;
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.MutableDynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.model.sememe.SememeChronologyImpl;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeDataImpl;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeNidImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeTypeToClassUtility;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
+import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 
 /**
  *
@@ -52,7 +55,14 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
             if (dt == DynamicSememeDataType.UNKNOWN) {
                 data_[i] = null;
             } else {
-                data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt, data.getByteArrayField(), getAssemblageSequence(), i);
+                if (data.isExternalData() && dt == DynamicSememeDataType.NID) {
+                    UUID temp = ((DynamicSememeUUIDImpl)DynamicSememeTypeToClassUtility.typeToClass(DynamicSememeDataType.UUID, data.getByteArrayField(), 0, 0)).getDataUUID();
+                    data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt, 
+                            new DynamicSememeNidImpl(Get.identifierService().getNidForUuids(temp)).getData(), getAssemblageSequence(), i);
+                }
+                else {
+                    data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt, data.getByteArrayField(), getAssemblageSequence(), i);
+                }
             }
         }
     }
@@ -74,7 +84,13 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
                     data.putInt(DynamicSememeDataType.UNKNOWN.getTypeToken());
                 } else {
                     data.putInt(column.getDynamicSememeDataType().getTypeToken());
-                    data.putByteArrayField(column.getData());
+                    if (data.isExternalData() && column.getDynamicSememeDataType() == DynamicSememeDataType.NID) {
+                        DynamicSememeUUIDImpl temp = new DynamicSememeUUIDImpl(Get.identifierService().getUuidPrimordialForNid(((DynamicSememeNidImpl)column).getDataNid()).get());
+                        data.putByteArrayField(temp.getData());
+                    }
+                    else {
+                        data.putByteArrayField(column.getData());
+                    }
                 }
             }
         } else {
@@ -102,8 +118,6 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
         return getData()[columnNumber];
     }
 
-    //TODO - Dan not sure if there is still the notion of an index of components that references nids... would need to port some code that reads 
-    //the extra columns of the dynamic sememe, if so
     @Override
     public DynamicSememeData getData(String columnName) throws InvalidNameException {
         for (DynamicSememeColumnInfo ci : getDynamicSememeUsageDescription().getColumnInfo()) {
