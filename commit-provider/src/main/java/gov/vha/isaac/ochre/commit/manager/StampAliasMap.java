@@ -129,10 +129,10 @@ public class StampAliasMap {
 
         @Override
         public boolean tryAdvance(Consumer<? super StampAlias> action) {
-            if (getIndex() < getKeys().size()) {
-                StampAlias stampAlias = new StampAlias(stampAliasMap.get(getIndex()), getIndex());
+            if (getIterator().hasNext()) {
+                int mapIndex = getIterator().nextInt();
+                StampAlias stampAlias = new StampAlias(stampAliasMap.get(mapIndex), mapIndex);
                 action.accept(stampAlias);
-                setIndex(getIndex() + 1);
                 return true;
             }
             return false;

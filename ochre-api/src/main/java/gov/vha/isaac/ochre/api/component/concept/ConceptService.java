@@ -59,7 +59,16 @@ public interface ConceptService {
      * @return an Optional ConceptChronology.
      */
     Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids);
-    
+
+    /**
+     * Write a concept to the concept service. Will not overwrite a concept if one already exists, rather it will
+     * merge the written concept with the provided concept.
+     *
+     *
+     * The persistence of the concept is dependent on the persistence
+     * of the underlying service.
+     * @param concept to be written.
+     */
     void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept);
 
     boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);

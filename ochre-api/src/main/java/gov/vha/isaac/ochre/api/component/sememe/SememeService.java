@@ -59,7 +59,16 @@ public interface SememeService {
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet, int assemblageConceptSequence);
-    
+
+    /**
+     * Write a sememe to the sememe service. Will not overwrite a sememe if one already exists, rather it will
+     * merge the written sememe with the provided sememe.
+     *
+     *
+     * The persistence of the concept is dependent on the persistence
+     * of the underlying service.
+     * @param sememe to be written.
+     */
     void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints);
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream();

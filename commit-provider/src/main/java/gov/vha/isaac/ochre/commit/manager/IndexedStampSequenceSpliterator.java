@@ -15,7 +15,9 @@
  */
 package gov.vha.isaac.ochre.commit.manager;
 
+import java.util.PrimitiveIterator;
 import java.util.Spliterator;
+import java.util.stream.IntStream;
 
 import gov.vha.isaac.ochre.api.commit.StampService;
 import org.apache.mahout.math.list.IntArrayList;
@@ -25,12 +27,13 @@ import org.apache.mahout.math.list.IntArrayList;
  * @author kec
  */
 public abstract class IndexedStampSequenceSpliterator<T> implements Spliterator<T> {
-    
-    private final IntArrayList keys;
-    private int index = StampService.FIRST_STAMP_SEQUENCE;
+
+    final PrimitiveIterator.OfInt iterator;
+    final int size;
 
     public IndexedStampSequenceSpliterator(IntArrayList keys) {
-        this.keys = keys;
+        size = keys.size();
+        iterator = IntStream.of(keys.elements()).iterator();
     }
 
     @Override
@@ -40,7 +43,7 @@ public abstract class IndexedStampSequenceSpliterator<T> implements Spliterator<
 
     @Override
     public final long estimateSize() {
-        return getKeys().size();
+        return size;
     }
 
     @Override
@@ -48,25 +51,9 @@ public abstract class IndexedStampSequenceSpliterator<T> implements Spliterator<
         return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED;
     }
 
-    /**
-     * @return the index
-     */
-    public final int getIndex() {
-        return index;
+    public PrimitiveIterator.OfInt getIterator() {
+        return iterator;
     }
 
-    /**
-     * @param index the index to set
-     */
-    public final void setIndex(int index) {
-        this.index = index;
-    }
 
-    /**
-     * @return the keys
-     */
-    public final IntArrayList getKeys() {
-        return keys;
-    }
-    
 }

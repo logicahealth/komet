@@ -20,6 +20,7 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.externalizable.StampAlias;
 import gov.vha.isaac.ochre.api.externalizable.StampComment;
 
@@ -38,6 +39,14 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface CommitService {
+
+
+    /**
+     * Import a object and immediately write to the proper service with no checks of any type performed.
+     * Sememes and concepts will have their versions  merged with existing versions if they exist.
+     * @param ochreExternalizable the object to be imported.
+     */
+    void importNoChecks(OchreExternalizable ochreExternalizable);
 
     // should the change set get generated here?
 

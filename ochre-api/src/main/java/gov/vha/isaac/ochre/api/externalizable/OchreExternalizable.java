@@ -18,9 +18,7 @@ package gov.vha.isaac.ochre.api.externalizable;
 /**
  * A interface that can write OCHRE objects in a UUID-based format for universal exchange without 
  * depending on centrally allocated identifiers. References to other objects are only allowed via UUID, and
- so each object is atomic, and no read-resolve or other methods for resolving object identity is required. 
- When an OchreExternalizable object is reconstructed, an instance is created using the public no-arg constructor, 
- then the getInternal method called.
+ so each object is atomic, and no read-resolve or other methods for resolving object identity is required.
  * @author kec
  */
 public interface OchreExternalizable {
