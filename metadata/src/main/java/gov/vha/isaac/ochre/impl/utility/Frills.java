@@ -10,7 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import gov.vha.isaac.MetaData;
@@ -190,7 +192,7 @@ public class Frills {
     public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid, ConceptSpecification descriptionType,
             StampCoordinate stamp) {
         ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
-        Get.sememeService().getSememesForComponentFromAssemblage(conceptNid, MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence())
+        Get.sememeService().getSememesForComponent(conceptNid)
                 .forEach(descriptionC
                         -> {
                     if (descriptionC.getSememeType() == SememeType.DESCRIPTION) {
@@ -215,7 +217,7 @@ public class Frills {
         if (si != null) {
             //force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
             List<SearchResult> result = si.query(sctID + " ", true,
-                    MetaData.SNOMED_INTEGER_ID.getConceptSequence(), 5, Long.MIN_VALUE);
+                    new Integer[] {MetaData.SNOMED_INTEGER_ID.getConceptSequence()}, 5, Long.MIN_VALUE);
             if (result.size() > 0) {
                 return Optional.of(Get.sememeService().getSememe(result.get(0).getNid()).getReferencedComponentNid());
             }
@@ -267,5 +269,60 @@ public class Frills {
             //Making a query, with long.maxValue, causes the index to refresh itself, and look at the latest updates, if there have been updates.
             index.getService().query("hi", null, 1, Long.MAX_VALUE);
         });
+    }
+    
+    /**
+     * Get isA children of a concept.  Does not return the requested concept in any circumstance.
+     * @param conceptSequence The concept to look at
+     * @param recursive recurse down from the concept
+     * @param leafOnly only return leaf nodes
+     * @return the set of concept sequence ids that represent the children
+     */
+    public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly)
+    {
+        Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptSequence, recursive, leafOnly);
+        if (leafOnly && temp.size() == 1)
+        {
+            temp.remove(conceptSequence);
+        }
+        return temp;
+    }
+    
+    /**
+     * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and 
+     * there are no children.
+     */
+    private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds, int conceptSequence, boolean recursive, boolean leafOnly)
+    {
+        Set<Integer> results = new HashSet<>();
+        
+        // This both prevents infinite recursion and avoids processing or returning of duplicates
+        if (handledConceptSequenceIds.contains(conceptSequence)) {
+            return results;
+        }
+
+        AtomicInteger count = new AtomicInteger();
+        IntStream children = Get.taxonomyService().getTaxonomyChildSequences(conceptSequence);
+
+        children.forEach((conSequence) ->
+        {
+            count.getAndIncrement();
+            if (!leafOnly)
+            {
+                results.add(conSequence);
+            }
+            if (recursive)
+            {
+                results.addAll(getAllChildrenOfConcept(handledConceptSequenceIds, conSequence, recursive, leafOnly));
+            }
+        });
+        
+        
+        if (leafOnly && count.get() == 0)
+        {
+            results.add(conceptSequence);
+        }
+        handledConceptSequenceIds.add(conceptSequence);
+        return results;
     }
 }

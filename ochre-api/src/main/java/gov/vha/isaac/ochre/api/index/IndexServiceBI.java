@@ -133,8 +133,8 @@ public interface IndexServiceBI {
      * 
      * @param query The query to apply
      * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null, 
-     * searches all indexed content.  This would be set to the concept sequence of {@link IsaacMetadataAuxiliaryBinding#DESCRIPTION_ASSEMBLAGE}
-     * or the concept sequence {@link IsaacMetadataAuxiliaryBinding#SNOMED_INTEGER_ID} for example.
+     * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
+     * or the concept sequence {@link MetaData#SNOMED_INTEGER_ID} for example.
      * @param sizeLimit The maximum size of the result list.  Pass Integer.MAX_VALUE for unlimited results.
      * @param targetGeneration target generation that must be included in the search
      * or Long.MIN_VALUE if there is no need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until 
@@ -143,7 +143,7 @@ public interface IndexServiceBI {
      * @return a List of {@code SearchResult</codes> that contains the nid of the
      * component that matched, and the score of that match relative to other matches.
      */
-    List<SearchResult> query(String query, Integer sememeConceptSequence, int sizeLimit, long targetGeneration);
+    List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, long targetGeneration);
     
     /**
      * @param query The query to apply.
@@ -159,9 +159,9 @@ public interface IndexServiceBI {
      * The query "family test" will return results that contain 'Family Testudinidae'
      * The query "family test " will not match on  'Testudinidae', so that will be excluded.
      * 
-     * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null, 
-     * searches all indexed content.  This would be set to the concept sequence of {@link IsaacMetadataAuxiliaryBinding#DESCRIPTION_ASSEMBLAGE}
-     * or the concept sequence {@link IsaacMetadataAuxiliaryBinding#SNOMED_INTEGER_ID} for example.
+     * @param semeneConceptSequence optional - The concept seqeuence of the sememes that you wish to search within.  If null, 
+     * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
+     * or the concept sequence {@link MetaData#SNOMED_INTEGER_ID} for example.
      * @param sizeLimit The maximum size of the result list.  Pass Integer.MAX_VALUE for unlimited results.
      * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need 
      * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress 
@@ -170,5 +170,5 @@ public interface IndexServiceBI {
      * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative 
      * to other matches.
      */
-    List<SearchResult> query(String query, boolean prefixSearch, Integer sememeConceptSequence, int sizeLimit, Long targetGeneration);
+    List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration);
 }

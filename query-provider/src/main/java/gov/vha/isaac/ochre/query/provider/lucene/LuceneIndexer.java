@@ -60,7 +60,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ControlledRealTimeReopenThread;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ReferenceManager;
@@ -71,6 +70,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
+import gov.vha.isaac.MetaData;
 import gov.vha.isaac.ochre.api.ConfigurationService;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
@@ -88,6 +88,8 @@ import gov.vha.isaac.ochre.api.index.SearchResult;
 import gov.vha.isaac.ochre.api.util.NamedThreadFactory;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 import gov.vha.isaac.ochre.api.util.WorkExecutors;
+import gov.vha.isaac.ochre.query.provider.lucene.indexers.DescriptionIndexer;
+import gov.vha.isaac.ochre.query.provider.lucene.indexers.DynamicSememeIndexer;
 
 // See example for help with the Controlled Real-time indexing...
 // http://stackoverflow.com/questions/17993960/lucene-4-4-0-new-controlledrealtimereopenthread-sample-usage?answertab=votes#tab-top
@@ -262,8 +264,8 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     *
     * @param query The query to apply.
     * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null, 
-    * searches all indexed content.  This would be set to the concept sequence of {@link IsaacMetadataAuxiliaryBinding#DESCRIPTION_ASSEMBLAGE}
-    * or the concept sequence {@link IsaacMetadataAuxiliaryBinding#SNOMED_INTEGER_ID} for example.
+    * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
+    * or the concept sequence {@link MetaData#SNOMED_INTEGER_ID} for example.
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no 
     * need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any 
@@ -273,7 +275,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     * @throws IOException
     */
    @Override
-    public final List<SearchResult> query(String query, Integer semeneConceptSequence, int sizeLimit, long targetGeneration) {
+    public final List<SearchResult> query(String query, Integer[] semeneConceptSequence, int sizeLimit, long targetGeneration) {
        return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration);
    }
 
@@ -298,9 +300,9 @@ public abstract class LuceneIndexer implements IndexServiceBI {
      * The query "family test" will return results that contain 'Family Testudinidae'
      * The query "family test " will not match on  'Testudinidae', so that will be excluded.
      * 
-     * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within.  If null, 
-     * searches all indexed content.  This would be set to the concept sequence of {@link IsaacMetadataAuxiliaryBinding#DESCRIPTION_ASSEMBLAGE}
-     * or the concept sequence {@link IsaacMetadataAuxiliaryBinding#SNOMED_INTEGER_ID} for example.
+     * @param semeneConceptSequence optional - The concept seqeuence of the sememes that you wish to search within.  If null or empty
+     * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
+     * or the concept sequence {@link MetaData#SNOMED_INTEGER_ID} for example.
      * @param sizeLimit The maximum size of the result list.
      * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need 
      * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress 
@@ -310,7 +312,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
      * to other matches.
      */
     @Override
-    public final List<SearchResult> query(String query, boolean prefixSearch, Integer sememeConceptSequence, int sizeLimit, Long targetGeneration) {
+    public final List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration) {
         try {
             return search(
                     restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch), sememeConceptSequence),
@@ -478,14 +480,20 @@ public abstract class LuceneIndexer implements IndexServiceBI {
         }
     }
     
-    protected Query restrictToSememe(Query query, Integer sememeConceptSequence)
+    protected Query restrictToSememe(Query query, Integer[] sememeConceptSequence)
     {
-        if (sememeConceptSequence != null)
-        {
+        if (sememeConceptSequence != null && sememeConceptSequence.length > 0) {
+            BooleanQuery outerWrap = new BooleanQuery();
+            outerWrap.add(query, Occur.MUST);
             BooleanQuery wrap = new BooleanQuery();
-            wrap.add(query, Occur.MUST);
-            wrap.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeConceptSequence + "")), Occur.MUST);
-            return wrap;
+
+            //or together the sememeConceptSequences, but require at least one of them to match.
+            for (int i : sememeConceptSequence) {
+                wrap.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
+            }
+            outerWrap.add(wrap, Occur.MUST);
+            
+            return outerWrap;
         }
         else
         {

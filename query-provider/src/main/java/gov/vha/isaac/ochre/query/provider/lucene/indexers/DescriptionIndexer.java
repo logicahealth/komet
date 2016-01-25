@@ -117,7 +117,7 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
     public final List<SearchResult> query(String query, UUID extendedDescriptionType, int sizeLimit, Long targetGeneration) {
 
         if (extendedDescriptionType == null) {
-            return super.query(query, (Integer)null, sizeLimit, targetGeneration);
+            return super.query(query, (Integer[])null, sizeLimit, targetGeneration);
         } else {
             try {
                 return search(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(), false),
@@ -148,7 +148,7 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
      */
     public final List<SearchResult> query(String query, LuceneDescriptionType descriptionType, int sizeLimit, Long targetGeneration) {
         if (descriptionType == null) {
-            return super.query(query, (Integer)null, sizeLimit, targetGeneration);
+            return super.query(query, (Integer[])null, sizeLimit, targetGeneration);
         } else {
             try {
                 return search(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(), false),
