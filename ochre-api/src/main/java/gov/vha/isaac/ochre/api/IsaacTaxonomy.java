@@ -161,9 +161,11 @@ public class IsaacTaxonomy {
                     + "</a>}.*/");
 
             out.append("\n   public static ConceptSpecification " + constantName + " =");
-            out.append("\n             new ConceptProxy(\"" + preferredName
-                    + "\",\""
-                    + concept.getPrimordialUuid().toString() + "\");");
+            out.append("\n             new ConceptProxy(\"" + preferredName + "\"");
+            for (UUID uuid : concept.getUuidList()) {
+                out.append(",\"" + uuid.toString() + "\"");
+            }
+            out.append(");");
         }
 
         out.append("\n}\n");
