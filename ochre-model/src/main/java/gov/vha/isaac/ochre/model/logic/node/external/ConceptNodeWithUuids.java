@@ -48,7 +48,7 @@ public class ConceptNodeWithUuids extends AbstractNode {
 
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
-        super.writeData(dataOutput, dataTarget);
+        super.writeData(dataOutput, dataTarget);  //TODO Keith should this be writeNodeDAta, or writeData??? Confusing pattern
         switch (dataTarget) {
             case EXTERNAL:
                 dataOutput.writeLong(conceptUuid.getMostSignificantBits());
