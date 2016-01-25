@@ -80,7 +80,12 @@ public class GenerateIndexes extends TimedTask<Void> {
              
             Get.sememeService().getParallelSememeStream().forEach((SememeChronology<?> sememe) -> {
                 indexers.stream().forEach((i) -> {
-                        i.index(sememe);
+                        try {
+                            i.index(sememe).get();
+                        }
+                        catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                 });
                 updateProcessedCount();
             });
