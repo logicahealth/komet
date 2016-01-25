@@ -59,6 +59,9 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
                 throw new RuntimeException(e);
             }
         }
+        if (data.isExternalData()) {
+            graphData = getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.INTERNAL);
+        }
     }
 
     public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container, 
@@ -69,8 +72,14 @@ public class LogicGraphSememeImpl extends SememeVersionImpl<LogicGraphSememeImpl
     @Override
     protected void writeVersionData(ByteArrayDataBuffer data) {
         super.writeVersionData(data);
-        data.putInt(graphData.length);
-        for (byte[] graphDataElement : graphData) {
+        
+        byte[][] temp = graphData;
+        if (data.isExternalData()) {
+            temp = getExternalGraphData();
+        }
+        
+        data.putInt(temp.length);
+        for (byte[] graphDataElement : temp) {
             data.putByteArrayField(graphDataElement);
         }
     }

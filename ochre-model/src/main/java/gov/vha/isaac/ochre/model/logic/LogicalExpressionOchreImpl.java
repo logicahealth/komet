@@ -212,6 +212,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                         switch (dataSource) {
                             case EXTERNAL:
                                 AllRoleWithUuids(dataInputStream);
+                                break;
                             case INTERNAL:
                                 AllRole(dataInputStream);
                                 break;
@@ -224,6 +225,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                         switch (dataSource) {
                             case EXTERNAL:
                                 SomeRoleWithUuids(dataInputStream);
+                                break;
                             case INTERNAL:
                                 SomeRole(dataInputStream);
                                 break;
@@ -236,6 +238,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                         switch (dataSource) {
                             case EXTERNAL:
                                 FeatureWithUuids(dataInputStream);
+                                break;
                             case INTERNAL:
                                 Feature(dataInputStream);
                                 break;
@@ -263,6 +266,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                         switch (dataSource) {
                             case EXTERNAL:
                                 ConceptWithUuids(dataInputStream);
+                                break;
                             case INTERNAL:
                                 Concept(dataInputStream);
                                 break;
@@ -275,6 +279,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                         switch (dataSource) {
                             case EXTERNAL:
                                 TemplateWithUuids(dataInputStream);
+                                break;
                             case INTERNAL:
                                 Template(dataInputStream);
                                 break;
