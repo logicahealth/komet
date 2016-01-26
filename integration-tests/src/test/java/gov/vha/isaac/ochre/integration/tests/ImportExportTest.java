@@ -1,10 +1,16 @@
 package gov.vha.isaac.ochre.integration.tests;
 
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
+import gov.vha.isaac.ochre.api.classifier.ClassifierService;
 import gov.vha.isaac.ochre.api.commit.CommitService;
+import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
+import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.testing.hk2testng.HK2;
@@ -13,6 +19,7 @@ import org.testng.annotations.Test;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -73,13 +80,32 @@ public class ImportExportTest {
                 importCount.incrementAndGet();
                 commitService.importNoChecks(object);
             });
+            LOG.info("imported components: " + importStats);
 
             Assert.assertEquals(exportCount.get(), importCount.get());
-            LOG.info("export/import count: " + exportCount.get());
+            Assert.assertEquals(exportStats, importStats);
 
         } catch (FileNotFoundException e) {
             Assert.fail("File not found", e);
         }
+    }
+
+    @Test (groups = {"load"}, dependsOnMethods = {"testExportImport"})
+    public void testClassify() {
+        LOG.info("Classifying");
+        StampCoordinate stampCoordinate = Get.coordinateFactory().createDevelopmentLatestStampCoordinate();
+        LogicCoordinate logicCoordinate = Get.coordinateFactory().createStandardElProfileLogicCoordinate();
+        EditCoordinate editCoordinate = Get.coordinateFactory().createClassifierSolorOverlayEditCoordinate();
+        ClassifierService logicService = Get.logicService().getClassifierService(stampCoordinate,
+                logicCoordinate, editCoordinate);
+        Task<ClassifierResults> classifyTask = logicService.classify();
+        try {
+            ClassifierResults classifierResults = classifyTask.get();
+            LOG.info("Classify results: " + classifierResults);
+        } catch (InterruptedException | ExecutionException e) {
+            Assert.fail("Classify failed.", e);
+        }
+
     }
 
 

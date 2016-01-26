@@ -146,10 +146,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 pushParent(current());
                 ConceptBuilder stated = createConcept("stated");
                 stated.setPrimordialUuid(TermAux.STATED_RELATIONSHIP.getPrimordialUuid());
-                stated.addUuids(TermAux.REL_STATED_CHAR.getPrimordialUuid(), TermAux.GENERATED_UUID.getPrimordialUuid());
+                stated.addUuids(TermAux.REL_STATED_CHAR.getPrimordialUuid());
                 ConceptBuilder inferred = createConcept("inferred");
                 inferred.setPrimordialUuid(TermAux.INFERRED_RELATIONSHIP.getPrimordialUuid());
-                inferred.addUuids(TermAux.REL_INFERED_CHAR.getPrimordialUuid(), TermAux.GENERATED_UUID.getPrimordialUuid());
+                inferred.addUuids(TermAux.REL_INFERED_CHAR.getPrimordialUuid());
             popParent();
           //
             createConcept("description type");

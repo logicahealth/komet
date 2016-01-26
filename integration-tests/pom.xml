@@ -72,6 +72,12 @@
         </dependency>
         <dependency>
             <groupId>gov.vha.isaac.ochre.modules</groupId>
+            <artifactId>logic-provider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>gov.vha.isaac.ochre.modules</groupId>
             <artifactId>progress-provider</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
