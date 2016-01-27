@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 public class ImportExportTest {
     private static final Logger LOG = LogManager.getLogger();
     private static final int MAX_VERBOSE_COUNT = 10;
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
     private int verboseCount = -1;
     private OchreExternalizableObjectType lastType = null;
     private int testLoadCount = 0;
@@ -60,22 +60,22 @@ public class ImportExportTest {
             Assert.fail("File not found", e);
         }
     }
-
-    @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
-    public void testStatedTaxonomy(){
-        LOG.info("Testing stated taxonomy");
-        TaxonomyCoordinate taxonomyCoordinate = Get.configurationService().getDefaultTaxonomyCoordinate().makeAnalog(PremiseType.STATED);
-        int[] roots = Get.taxonomyService().getRoots(taxonomyCoordinate).toArray();
-        Assert.assertEquals(roots.length, 1);
-
-        Tree taxonomyTree = Get.taxonomyService().getTaxonomyTree(taxonomyCoordinate);
-        AtomicInteger taxonomyCount = new AtomicInteger(1);
-        taxonomyTree.depthFirstProcess(roots[0], (TreeNodeVisitData t, int conceptSequence) -> {
-            taxonomyCount.incrementAndGet();
-        });
-        Assert.assertEquals(taxonomyCount.get(), importStats.concepts.get());
-
-    }
+//
+//    @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
+//    public void testStatedTaxonomy(){
+//        LOG.info("Testing stated taxonomy");
+//        TaxonomyCoordinate taxonomyCoordinate = Get.configurationService().getDefaultTaxonomyCoordinate().makeAnalog(PremiseType.STATED);
+//        int[] roots = Get.taxonomyService().getRoots(taxonomyCoordinate).toArray();
+//        Assert.assertEquals(roots.length, 1);
+//
+//        Tree taxonomyTree = Get.taxonomyService().getTaxonomyTree(taxonomyCoordinate);
+//        AtomicInteger taxonomyCount = new AtomicInteger(1);
+//        taxonomyTree.depthFirstProcess(roots[0], (TreeNodeVisitData t, int conceptSequence) -> {
+//            taxonomyCount.incrementAndGet();
+//        });
+//        Assert.assertEquals(taxonomyCount.get(), importStats.concepts.get());
+//
+//    }
 
     @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
     public void testExportImport() {
