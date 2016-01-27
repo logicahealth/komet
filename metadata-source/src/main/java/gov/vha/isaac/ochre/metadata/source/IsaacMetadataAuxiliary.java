@@ -157,12 +157,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                 ConceptBuilder fsn = createConcept("fully specified name");
                 fsn.setPrimordialUuid(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid());
-                fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66") // RF1 FSN
-                    );
+                fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66")); // RF1 FSN
                 ConceptBuilder syn = createConcept("synonym");
                 syn.setPrimordialUuid(TermAux.SYNONYM_DESCRIPTION_TYPE.getPrimordialUuid());
-                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79") 
-                    );
+                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
                 createConcept("definition description type").setPrimordialUuid(TermAux.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid());
             popParent();
             createConcept("description type in source terminology");  //LOINC and RxNorm description types are created under this node

@@ -97,5 +97,11 @@ public class ObservableStampPositionImpl extends ObservableCoordinateImpl implem
     public StampPath getStampPath() {
         return stampPosition.getStampPath();
     }
-    
+
+    @Override
+    public String toString() {
+        return "ObservableStampPositionImpl{" +
+                    stampPosition +
+                '}';
+    }
 }

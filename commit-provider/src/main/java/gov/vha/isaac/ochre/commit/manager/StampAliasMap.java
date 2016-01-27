@@ -54,7 +54,8 @@ public class StampAliasMap {
             } else if (stampAliasMap.get(stamp) == alias) {
                 // already added...
             } else {
-                addAlias(stampAliasMap.get(stamp), alias);
+                // add an additional alias
+                aliasStampMap.put(alias, stamp);
             }
         } finally {
             rwl.writeLock().unlock();
@@ -96,10 +97,20 @@ public class StampAliasMap {
     public void write(File mapFile) throws IOException {
         try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
             output.writeInt(stampAliasMap.size());
-            stampAliasMap.forEachPair((int nid, int sequence) -> {
+            stampAliasMap.forEachPair((int stampSequence, int aliasSequence) -> {
                 try {
-                    output.writeInt(nid);
-                    output.writeInt(sequence);
+                    output.writeInt(stampSequence);
+                    output.writeInt(aliasSequence);
+                    return true;
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            output.writeInt(aliasStampMap.size());
+            aliasStampMap.forEachPair((int aliasSequence, int stampSequence) -> {
+                try {
+                    output.writeInt(aliasSequence);
+                    output.writeInt(stampSequence);
                     return true;
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
@@ -112,27 +123,29 @@ public class StampAliasMap {
         try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
             int size = input.readInt();
             stampAliasMap.ensureCapacity(size);
+            for (int i = 0; i < size; i++) {
+                stampAliasMap.put(input.readInt(), input.readInt());
+            }
+            size = input.readInt();
             aliasStampMap.ensureCapacity(size);
             for (int i = 0; i < size; i++) {
-                int nid = input.readInt();
-                int sequence = input.readInt();
-                stampAliasMap.put(nid, sequence);
-                aliasStampMap.put(sequence, nid);
+                aliasStampMap.put(input.readInt(), input.readInt());
             }
+
         }
     }
     private class StampAliasSpliterator extends IndexedStampSequenceSpliterator<StampAlias> {
 
         public StampAliasSpliterator() {
-            super(stampAliasMap.keys());
+            super(aliasStampMap.keys());
         }
 
         @Override
         public boolean tryAdvance(Consumer<? super StampAlias> action) {
-            if (getIndex() < getKeys().size()) {
-                StampAlias stampAlias = new StampAlias(stampAliasMap.get(getIndex()), getIndex());
+            if (getIterator().hasNext()) {
+                int alias = getIterator().nextInt();
+                StampAlias stampAlias = new StampAlias(aliasStampMap.get(alias), alias);
                 action.accept(stampAlias);
-                setIndex(getIndex() + 1);
                 return true;
             }
             return false;

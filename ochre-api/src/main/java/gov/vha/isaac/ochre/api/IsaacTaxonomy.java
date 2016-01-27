@@ -197,10 +197,7 @@ public class IsaacTaxonomy {
         
         commitService.addAlias(stampSequence, stampAliasForPromotion, "promoted by maven");
         try (BinaryDataWriterService writer = Get.binaryDataWriter(exportFilePath)) {
-            conceptService.getConceptChronologyStream().forEach((conceptChronology) -> writer.put(conceptChronology));
-            sememeService.getSememeChronologyStream().forEach((sememeChronology) -> writer.put(sememeChronology));
-            commitService.getStampAliasStream().forEach((stampAlias) -> writer.put(stampAlias));
-            commitService.getStampCommentStream().forEach((stampComment) -> writer.put(stampComment));
+            Get.ochreExternalizableStream().forEach((ochreExternalizable) -> writer.put(ochreExternalizable));
         }
     }
 

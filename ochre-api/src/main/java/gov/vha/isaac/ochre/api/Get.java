@@ -20,7 +20,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.inject.Singleton;
+
+import gov.vha.isaac.ochre.api.externalizable.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -38,9 +42,6 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeService;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.CoordinateFactory;
-import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
-import gov.vha.isaac.ochre.api.externalizable.BinaryDataServiceFactory;
-import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.index.GenerateIndexes;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.api.logic.LogicService;
@@ -175,7 +176,7 @@ public class Get implements OchreCache {
                 builder.append(conceptDescriptionText(conceptId));
                 builder.append(", ");
             });
-            builder.delete(builder.length() - 2, builder.length() - 1);
+            builder.delete(builder.length() - 2, builder.length());
             builder.append("]");
             return builder.toString();
         }
@@ -351,6 +352,10 @@ public class Get implements OchreCache {
         GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
         LookupService.getService(WorkExecutors.class).getForkJoinPoolExecutor().execute(indexingTask);
         return indexingTask;
+    }
+
+    public static Stream<OchreExternalizable> ochreExternalizableStream() {
+        return StreamSupport.stream(new OchreExternalizableSpliterator(), false);
     }
 
     @Override

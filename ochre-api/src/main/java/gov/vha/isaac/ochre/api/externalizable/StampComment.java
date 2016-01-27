@@ -67,4 +67,12 @@ public class StampComment implements OchreExternalizable {
     public int getStampSequence() {
         return stampSequence;
     }
+
+    @Override
+    public String toString() {
+        return "StampComment{" +
+                "comment='" + comment + '\'' +
+                ", stampSequence=" + stampSequence +
+                '}';
+    }
 }

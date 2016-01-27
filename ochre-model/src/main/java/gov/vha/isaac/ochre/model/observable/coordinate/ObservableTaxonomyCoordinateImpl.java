@@ -140,5 +140,11 @@ public class ObservableTaxonomyCoordinateImpl extends ObservableCoordinateImpl i
     public int getIsaConceptSequence() {
         return taxonomyCoordinate.getIsaConceptSequence();
     }
-    
+
+    @Override
+    public String toString() {
+        return "ObservableTaxonomyCoordinateImpl{" +
+                    taxonomyCoordinate +
+                '}';
+    }
 }

@@ -14,7 +14,9 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.*;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.task.SequentialAggregateTask;
 import gov.vha.isaac.ochre.api.task.TimedTask;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
@@ -632,6 +634,31 @@ public class CommitProvider implements CommitService {
     @Override
     public Stream<StampComment> getStampCommentStream() {
         return stampCommentMap.getStampCommentStream();
+    }
+
+    public void importNoChecks(OchreExternalizable ochreExternalizable) {
+        switch (ochreExternalizable.getOchreObjectType()) {
+            case CONCEPT:
+                ConceptChronology conceptChronology = (ConceptChronology) ochreExternalizable;
+                Get.conceptService().writeConcept(conceptChronology);
+                break;
+            case SEMEME:
+                SememeChronology sememeChronology = (SememeChronology) ochreExternalizable;
+                Get.sememeService().writeSememe(sememeChronology);
+                if (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH) {
+                    Get.taxonomyService().updateTaxonomy(sememeChronology);
+                }
+                break;
+            case STAMP_ALIAS:
+                StampAlias stampAlias = (StampAlias) ochreExternalizable;
+                stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
+                break;
+            case STAMP_COMMENT:
+                StampComment stampComment = (StampComment) ochreExternalizable;
+                stampCommentMap.addComment(stampComment.getStampSequence(), stampComment.getComment());
+                break;
+            default: throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable);
+        }
     }
 
 }

@@ -74,16 +74,16 @@ public class StampCommentMap {
 
         @Override
         public boolean tryAdvance(Consumer<? super StampComment> action) {
-            if (getIndex() < getKeys().size()) {
-                StampComment stampComment = new StampComment(stampCommentMap.get(getIndex() ), getIndex());
+            if (getIterator().hasNext()) {
+                int mapIndex = getIterator().nextInt();
+                StampComment stampComment = new StampComment(stampCommentMap.get(mapIndex), mapIndex);
                 action.accept(stampComment);
-                 setIndex(getIndex() + 1);
                 return true;
             }
             return false;
         }
-
     }
+
     public Stream<StampComment> getStampCommentStream() {
         return StreamSupport.stream(new StampCommentSpliterator(), false);
     }

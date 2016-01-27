@@ -85,6 +85,11 @@ public class ObservableStampPathImpl extends ObservableCoordinateImpl implements
     public int compareTo(StampPath o) {
         return stampPath.compareTo(o);
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "ObservableStampPathImpl{" +
+                    stampPath +
+                '}';
+    }
 }

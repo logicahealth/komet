@@ -95,4 +95,11 @@ public class ObservableEditCoordinateImpl extends ObservableCoordinateImpl imple
         }
         return editCoordinate.getPathSequence();
     }
+
+    @Override
+    public String toString() {
+        return "ObservableEditCoordinateImpl{" +
+                    editCoordinate +
+                '}';
+    }
 }

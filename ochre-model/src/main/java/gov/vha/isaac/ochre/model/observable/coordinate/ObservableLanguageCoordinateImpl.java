@@ -138,4 +138,11 @@ public final class ObservableLanguageCoordinateImpl extends ObservableCoordinate
     {
         return languageCoordinate.getDescription(descriptionList, stampCoordinate);
     }
+
+    @Override
+    public String toString() {
+        return "ObservableLanguageCoordinateImpl{" +
+                    languageCoordinate +
+                '}';
+    }
 }

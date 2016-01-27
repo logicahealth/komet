@@ -697,7 +697,7 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
 
     @Override
     public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
-        // not interested on conpcept changes
+        // not interested on concept changes
     }
 
     @Override
@@ -778,7 +778,7 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
                         comparisonExpression.getConceptSequence());
                 break;
             case FEATURE:
-                //TODO - Keith, Dan thinks this is a noop, not sure if correct...
+                //Features do not have taxonomy implications...
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle: " + logicalNode.getNodeSemantic());
