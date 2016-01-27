@@ -4,12 +4,12 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
 import gov.vha.isaac.ochre.api.classifier.ClassifierService;
 import gov.vha.isaac.ochre.api.commit.CommitService;
-import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.*;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
+import gov.vha.isaac.ochre.api.tree.Tree;
+import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 /**
  * Created by kec on 1/2/16.
@@ -33,6 +34,7 @@ public class ImportExportTest {
     private int verboseCount = -1;
     private OchreExternalizableObjectType lastType = null;
     private int testLoadCount = 0;
+    OchreExternalizableStatsTestFilter importStats;
 
     @Test (groups = {"load"})
     public void testLoad() {
@@ -40,7 +42,7 @@ public class ImportExportTest {
         try {
             BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target", "data", "IsaacMetadataAuxiliary.ibdf"));
             CommitService commitService = Get.commitService();
-            OchreExternalizableStatsTestFilter importStats = new OchreExternalizableStatsTestFilter();
+            importStats = new OchreExternalizableStatsTestFilter();
             reader.getStream().filter(importStats).forEach((object) -> {
                 testLoadCount++;
                 if (object.getOchreObjectType() != lastType) {
@@ -57,6 +59,22 @@ public class ImportExportTest {
         } catch (FileNotFoundException e) {
             Assert.fail("File not found", e);
         }
+    }
+
+    @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
+    public void testStatedTaxonomy(){
+        LOG.info("Testing stated taxonomy");
+        TaxonomyCoordinate taxonomyCoordinate = Get.configurationService().getDefaultTaxonomyCoordinate().makeAnalog(PremiseType.STATED);
+        int[] roots = Get.taxonomyService().getRoots(taxonomyCoordinate).toArray();
+        Assert.assertEquals(roots.length, 1);
+
+        Tree taxonomyTree = Get.taxonomyService().getTaxonomyTree(taxonomyCoordinate);
+        AtomicInteger taxonomyCount = new AtomicInteger(1);
+        taxonomyTree.depthFirstProcess(roots[0], (TreeNodeVisitData t, int conceptSequence) -> {
+            taxonomyCount.incrementAndGet();
+        });
+        Assert.assertEquals(taxonomyCount.get(), importStats.concepts.get());
+
     }
 
     @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})

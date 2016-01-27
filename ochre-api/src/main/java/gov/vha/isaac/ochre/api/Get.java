@@ -176,7 +176,7 @@ public class Get implements OchreCache {
                 builder.append(conceptDescriptionText(conceptId));
                 builder.append(", ");
             });
-            builder.delete(builder.length() - 2, builder.length() - 1);
+            builder.delete(builder.length() - 2, builder.length());
             builder.append("]");
             return builder.toString();
         }

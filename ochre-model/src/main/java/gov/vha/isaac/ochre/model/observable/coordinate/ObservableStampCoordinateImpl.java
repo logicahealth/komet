@@ -135,5 +135,11 @@ public class ObservableStampCoordinateImpl extends ObservableCoordinateImpl impl
         }
         return stampCoordinate.getModuleSequences();
     }
-    
+
+    @Override
+    public String toString() {
+        return "ObservableStampCoordinateImpl{" +
+                    stampCoordinate +
+                '}';
+    }
 }
