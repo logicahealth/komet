@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -29,11 +30,6 @@ import java.util.stream.IntStream;
 @HK2("integration")
 public class ImportExportTest {
     private static final Logger LOG = LogManager.getLogger();
-    private static final int MAX_VERBOSE_COUNT = 10;
-    private static final boolean VERBOSE = true;
-    private int verboseCount = -1;
-    private OchreExternalizableObjectType lastType = null;
-    private int testLoadCount = 0;
     OchreExternalizableStatsTestFilter importStats;
 
     @Test (groups = {"load"})
@@ -44,38 +40,29 @@ public class ImportExportTest {
             CommitService commitService = Get.commitService();
             importStats = new OchreExternalizableStatsTestFilter();
             reader.getStream().filter(importStats).forEach((object) -> {
-                testLoadCount++;
-                if (object.getOchreObjectType() != lastType) {
-                    verboseCount = -1;
-                    lastType = object.getOchreObjectType();
-                }
-                verboseCount++;
-                if (VERBOSE && verboseCount < MAX_VERBOSE_COUNT) {
-                    LOG.info("Read " + verboseCount + ": \n" + object);
-                }
                 commitService.importNoChecks(object);
             });
-            LOG.info("Loaded components: " + testLoadCount + " " + importStats);
+            LOG.info("Loaded components: " + importStats);
         } catch (FileNotFoundException e) {
             Assert.fail("File not found", e);
         }
     }
-//
-//    @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
-//    public void testStatedTaxonomy(){
-//        LOG.info("Testing stated taxonomy");
-//        TaxonomyCoordinate taxonomyCoordinate = Get.configurationService().getDefaultTaxonomyCoordinate().makeAnalog(PremiseType.STATED);
-//        int[] roots = Get.taxonomyService().getRoots(taxonomyCoordinate).toArray();
-//        Assert.assertEquals(roots.length, 1);
-//
-//        Tree taxonomyTree = Get.taxonomyService().getTaxonomyTree(taxonomyCoordinate);
-//        AtomicInteger taxonomyCount = new AtomicInteger(1);
-//        taxonomyTree.depthFirstProcess(roots[0], (TreeNodeVisitData t, int conceptSequence) -> {
-//            taxonomyCount.incrementAndGet();
-//        });
-//        Assert.assertEquals(taxonomyCount.get(), importStats.concepts.get());
-//
-//    }
+
+    @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
+    public void testStatedTaxonomy(){
+        LOG.info("Testing stated taxonomy");
+        TaxonomyCoordinate taxonomyCoordinate = Get.configurationService().getDefaultTaxonomyCoordinate().makeAnalog(PremiseType.STATED);
+        int[] roots = Get.taxonomyService().getRoots(taxonomyCoordinate).toArray();
+        Assert.assertEquals(roots.length, 1);
+
+        Tree taxonomyTree = Get.taxonomyService().getTaxonomyTree(taxonomyCoordinate);
+        AtomicInteger taxonomyCount = new AtomicInteger(0);
+        taxonomyTree.depthFirstProcess(roots[0], (TreeNodeVisitData t, int conceptSequence) -> {
+            taxonomyCount.incrementAndGet();
+        });
+        logTree(roots[0], taxonomyTree);
+        Assert.assertEquals(taxonomyCount.get(), importStats.concepts.get());
+    }
 
     @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
     public void testExportImport() {
@@ -90,7 +77,7 @@ public class ImportExportTest {
                 exportCount.incrementAndGet();
             });
             LOG.info("exported components: " + exportStats);
-            Assert.assertEquals(exportCount.get(), testLoadCount);
+            Assert.assertEquals(exportStats, importStats);
             BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target", "data", "IsaacMetadataAuxiliary.export.ibdf"));
             OchreExternalizableStatsTestFilter importStats = new OchreExternalizableStatsTestFilter();
             CommitService commitService = Get.commitService();
@@ -124,6 +111,61 @@ public class ImportExportTest {
             Assert.fail("Classify failed.", e);
         }
 
+    }
+
+
+    @Test (groups = {"load"}, dependsOnMethods = {"testClassify"})
+    public void testInferredTaxonomy(){
+        LOG.info("Testing inferred taxonomy");
+        TaxonomyCoordinate taxonomyCoordinate = Get.configurationService().getDefaultTaxonomyCoordinate().makeAnalog(PremiseType.INFERRED);
+        int[] roots = Get.taxonomyService().getRoots(taxonomyCoordinate).toArray();
+        Assert.assertEquals(roots.length, 1);
+
+        Tree taxonomyTree = Get.taxonomyService().getTaxonomyTree(taxonomyCoordinate);
+        AtomicInteger taxonomyCount = new AtomicInteger(0);
+        taxonomyTree.depthFirstProcess(roots[0], (TreeNodeVisitData t, int conceptSequence) -> {
+            taxonomyCount.incrementAndGet();
+        });
+        Assert.assertEquals(taxonomyCount.get(), importStats.concepts.get());
+        logTree(roots[0], taxonomyTree);
+    }
+
+    private void logTree(int root, Tree taxonomyTree) {
+        taxonomyTree.depthFirstProcess(root, (TreeNodeVisitData t, int conceptSequence) -> {
+            int paddingSize = t.getDistance(conceptSequence) * 2;
+            char[] padding = new char[paddingSize];
+            Arrays.fill(padding, ' ');
+            LOG.info(new String(padding) + Get.conceptDescriptionText(conceptSequence));
+        });
+    }
+
+    @Test (groups = {"load"}, dependsOnMethods = {"testClassify"})
+    public void testExportAfterClassify() {
+        LOG.info("Testing export after classify");
+        try {
+            OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
+            BinaryDataWriterService writer = Get.binaryDataWriter(Paths.get("target", "data", "IsaacMetadataAuxiliary.export.ibdf"));
+            Get.ochreExternalizableStream().filter(exportStats).forEach((ochreExternalizable) -> {
+                writer.put(ochreExternalizable);
+                if (ochreExternalizable.getOchreObjectType() == OchreExternalizableObjectType.STAMP_ALIAS) {
+                    LOG.info(ochreExternalizable);
+                }
+            });
+            LOG.info("exported components: " + exportStats);
+            if (exportStats.concepts.get() != importStats.concepts.get()) {
+                Get.conceptService().getConceptChronologyStream().forEach((conceptChronology) -> LOG.info(conceptChronology));
+            }
+            Assert.assertEquals(exportStats.concepts.get(), importStats.concepts.get());
+            // One new sememe for every concept except the root concept from classification...
+            Assert.assertEquals(exportStats.sememes.get(), importStats.sememes.get() + exportStats.concepts.get() - 1);
+            // One new stamp comment for the classify writeback
+            Assert.assertEquals(exportStats.stampComments.get(), importStats.stampComments.get() + 1);
+            Assert.assertEquals(exportStats.stampAliases.get(), importStats.stampAliases.get());
+
+
+        } catch (FileNotFoundException e) {
+            Assert.fail("File not found", e);
+        }
     }
 
 

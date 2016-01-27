@@ -476,9 +476,15 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         }
         while (results == null) {
             results = new ArrayList<>();
-            if (writtenData != null) {
+            if (writtenData != null && (writtenData.length >= 4)) {
                 ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
-                bb.setPosition(versionStartPosition);
+                if (versionStartPosition < 0) {
+                    goToVersionStart(bb);
+                    versionStartPosition = bb.getPosition();
+                } else {
+                    bb.setPosition(versionStartPosition);
+                }
+
                 makeVersions(bb, results);
             }
             if (unwrittenData != null) {
@@ -554,8 +560,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
      */
     protected void makeVersions(ByteArrayDataBuffer bb, ArrayList<V> results) {
         int nextPosition = bb.getPosition();
+        assert nextPosition >= 0: bb;
         while (nextPosition < bb.getLimit()) {
             int versionLength = bb.getInt();
+            assert versionLength >= 0: bb;
             if (versionLength > 0) {
                 nextPosition = nextPosition + versionLength;
                 int stampSequence = bb.getStampSequence();

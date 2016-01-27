@@ -14,6 +14,7 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.commit.*;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.task.SequentialAggregateTask;
@@ -644,6 +645,9 @@ public class CommitProvider implements CommitService {
             case SEMEME:
                 SememeChronology sememeChronology = (SememeChronology) ochreExternalizable;
                 Get.sememeService().writeSememe(sememeChronology);
+                if (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH) {
+                    Get.taxonomyService().updateTaxonomy(sememeChronology);
+                }
                 break;
             case STAMP_ALIAS:
                 StampAlias stampAlias = (StampAlias) ochreExternalizable;

@@ -19,6 +19,7 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.commit.StampService;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.UTFDataFormatException;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
@@ -823,5 +824,18 @@ public class ByteArrayDataBuffer  {
         ensureSpace(this.position + length);
         System.arraycopy(db.data, position, data, this.position, length);
         this.position += length;
+    }
+
+    @Override
+    public String toString() {
+        return "ByteArrayDataBuffer{" +
+                "position=" + position +
+                ", positionStart=" + positionStart +
+                ", readOnly=" + readOnly +
+                ", objectDataFormatVersion=" + objectDataFormatVersion +
+                ", externalData=" + externalData +
+                ", used=" + used +
+                ", data=" + DatatypeConverter.printHexBinary(data) +
+                '}';
     }
 }

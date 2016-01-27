@@ -67,4 +67,31 @@ public class StampAlias implements OchreExternalizable {
     public int getStampAlias() {
         return stampAlias;
     }
+
+    @Override
+    public String toString() {
+        return "StampAlias{" +
+                "stampSequence=" + stampSequence +
+                ", stampAlias=" + stampAlias +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StampAlias that = (StampAlias) o;
+
+        if (stampSequence != that.stampSequence) return false;
+        return stampAlias == that.stampAlias;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = stampSequence;
+        result = 31 * result + stampAlias;
+        return result;
+    }
 }

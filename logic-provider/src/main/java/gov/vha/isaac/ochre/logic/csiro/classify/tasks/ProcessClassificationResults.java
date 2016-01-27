@@ -203,18 +203,6 @@ import java.util.UUID;
         log.info("Processed " + sufficientSets + " sufficient sets.");
         log.info("stampCoordinate: " + stampCoordinate);
         log.info("logicCoordinate: " + logicCoordinate);
-		  ConceptChronology<? extends ConceptVersion<?>> loincMetadataConcept = Get.conceptService().getConcept(UUID.fromString("567f42f8-621e-11e5-9d70-feff819cdc9f"));
-		  log.info("loincMetadataConcept: " + loincMetadataConcept);
-		  log.info("Stated: " + loincMetadataConcept.getLogicalDefinition(stampCoordinate, PremiseType.STATED, logicCoordinate));
-		  log.info("Inferred: " + loincMetadataConcept.getLogicalDefinition(stampCoordinate, PremiseType.INFERRED, logicCoordinate));
-
-		  Get.sememeService()
-						.getSememesForComponent(loincMetadataConcept.getNid())
-						.forEach((sememe) -> {
-							log.info("Sememe: " + sememe);
-						
-						});
-	 
 	 }
 
     private void testForProperSetSize(SememeSequenceSet inferredSememeSequences, int conceptSequence, SememeSequenceSet statedSememeSequences, SememeService sememeService) throws IllegalStateException {
