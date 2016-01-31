@@ -122,10 +122,25 @@ public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVe
     }
 
     @Override
+    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
+            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptSequence) {
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.DYNAMIC);
+    }
+
+    @Override
     public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, DynamicSememeData[] data) {
         //Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the 
         //parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to 
         //the array type we want... so just wrap it in something to stop java from being stupid. 
         return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, SememeType.DYNAMIC, new AtomicReference<DynamicSememeData[]>(data));
+    }
+    
+    @Override
+    public SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
+            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptSequence, DynamicSememeData[] data) {
+        //Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the 
+        //parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to 
+        //the array type we want... so just wrap it in something to stop java from being stupid. 
+        return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, SememeType.DYNAMIC, new AtomicReference<DynamicSememeData[]>(data));
     }
 }

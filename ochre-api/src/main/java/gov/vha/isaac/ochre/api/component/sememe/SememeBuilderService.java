@@ -90,6 +90,12 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     
     SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence);
     
+    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, 
+            int assemblageConceptSequence);
+    
     SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(int referencedComponentNid, int assemblageConceptSequence, 
             DynamicSememeData[] data);
+    
+    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, 
+            int assemblageConceptSequence, DynamicSememeData[] data);
 }
