@@ -23,6 +23,11 @@ import java.util.UUID;
 
 import org.jvnet.hk2.annotations.Contract;
 
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.component.sememe.SememeType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
+
 /**
  * {@link DynamicSememeUtility}
  * 
@@ -42,10 +47,17 @@ public interface DynamicSememeUtility {
 	 */
 	public DynamicSememeUsageDescription readDynamicSememeUsageDescription(int assemblageNidOrSequence);
 	
+	public DynamicSememeData[] configureDynamicSememeDefinitionDataForColumn(DynamicSememeColumnInfo ci);
+	
+	public DynamicSememeData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction, 
+			SememeType referencedComponentSubRestriction);
+	
 	/**
-	 * A convenience method to read the values that should be used as the name and description for a data 
-	 * column in a dynamic sememe from an existing concept
-	 * @return an array of two strings, first entry name, seconde entry description
+	 * This will return the column index configuration that will mark each supplied column that is indexable, for indexing.
+	 * Returns null, if no columns need indexing.
 	 */
-	public String[] readDynamicSememeColumnNameDescription(UUID columnDescriptionConcept);
+	public DynamicSememeArray<DynamicSememeData> configureColumnIndexInfo(DynamicSememeColumnInfo[] columns);
+	
+	public DynamicSememeString createDynamicStringData(String value);
+
 }

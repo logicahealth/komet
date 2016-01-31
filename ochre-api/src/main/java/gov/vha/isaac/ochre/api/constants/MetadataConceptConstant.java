@@ -1,5 +1,6 @@
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.constants;
 
+import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ public abstract class MetadataConceptConstant implements ConceptSpecification {
     private final List<String> synonyms_ = new ArrayList<>();
     private final List<String> definitions_ = new ArrayList<>();
     private final UUID uuid_;
+    private ConceptSpecification parent_ = null;  //Optional use - most constants have their parent set by the IsaacMetadataAuxiliary parent/child mechanism
 
     protected MetadataConceptConstant(String fsn, String preferredSynonym, UUID uuid) {
         fsn_ = fsn;
@@ -31,6 +33,14 @@ public abstract class MetadataConceptConstant implements ConceptSpecification {
         preferredSynonym_ = fsn_;
         uuid_ = uuid;
         addDefinition(definition);
+    }
+    
+    protected MetadataConceptConstant(String fsn, UUID uuid, String definition, ConceptSpecification parent) {
+        fsn_ = fsn;
+        preferredSynonym_ = fsn_;
+        uuid_ = uuid;
+        addDefinition(definition);
+        setParent(parent);
     }
 
     protected void addSynonym(String synonym) {
@@ -76,7 +86,16 @@ public abstract class MetadataConceptConstant implements ConceptSpecification {
     public UUID getUUID() {
         return uuid_;
     }
-
+    
+    public ConceptSpecification getParent() {
+        return parent_;
+    }
+    
+    protected void setParent(ConceptSpecification parent)
+    {
+        parent_ = parent;
+    }
+    
     @Override
     public UUID getPrimordialUuid() {
         return getUUID();

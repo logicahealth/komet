@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.constants;
 
 import java.util.ArrayList;
 import java.util.List;

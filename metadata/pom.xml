@@ -83,6 +83,16 @@
                         <artifactId>coordinate-provider</artifactId>
                         <version>${project.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>ochre-mapping</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>gov.vha.isaac.ochre.modules</groupId>
+                        <artifactId>ochre-mojo-log-config</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
                 <executions>
                     <execution>

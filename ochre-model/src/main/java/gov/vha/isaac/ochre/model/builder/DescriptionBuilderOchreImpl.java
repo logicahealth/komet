@@ -101,7 +101,6 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
         descBuilder.setPrimordialUuid(this.getPrimordialUuid());
         SememeChronologyImpl<DescriptionSememeImpl> newDescription = (SememeChronologyImpl<DescriptionSememeImpl>)
                 descBuilder.build(editCoordinate, changeCheckerMode, builtObjects);
-        builtObjects.add(newDescription);
         SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
         preferredInDialectAssemblages.forEach(( assemblageProxy) -> {
             sememeBuilderService.getComponentSememeBuilder(
@@ -116,6 +115,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
                     Get.identifierService().getConceptSequenceForProxy(assemblageProxy)).
                     build(editCoordinate, changeCheckerMode, builtObjects);
         });
+        sememeBuilders.forEach((builder) -> builder.build(editCoordinate, changeCheckerMode, builtObjects));
         return (T) newDescription;
     }
 
@@ -133,6 +133,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
                         descriptionType.getConceptSequence(),
                         descriptionText,
                         Get.identifierService().getConceptNid(conceptSequence));
+        descBuilder.setPrimordialUuid(this.getPrimordialUuid());
         SememeChronologyImpl<DescriptionSememeImpl> newDescription = (SememeChronologyImpl<DescriptionSememeImpl>)
                 descBuilder.build(stampSequence, builtObjects);
         SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
@@ -148,6 +149,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
                     Get.identifierService().getConceptSequenceForProxy(assemblageProxy)).
                     build(stampSequence, builtObjects);
         });
+        sememeBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
         return (T) newDescription;
     }
     

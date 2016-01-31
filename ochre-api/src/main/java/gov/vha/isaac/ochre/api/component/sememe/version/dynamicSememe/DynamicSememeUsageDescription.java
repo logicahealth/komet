@@ -35,7 +35,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * <br>
  * The assemblage concept must define the combination of data columns being used within this Sememe. 
  * To do this, the assemblage concept must itself contain 0 or more {@link DynamicSememeVersion} annotation(s) with
- * an assemblage concept that is {@link IsaacMetadataConstants#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
+ * an assemblage concept that is {@link DynamicSememeConstants#DYNAMIC_SEMEME_EXTENSION_DEFINITION} and the attached data is<br>
  * [{@link DynamicSememeInteger}, {@link DynamicSememeUUID}, {@link DynamicSememeString}, {@link DynamicSememePolymorphic},
  * {@link DynamicSememBoolean}, {@link DynamicSememeArray< DynamicSememeString >}, {@link DynamicSememeData< DynamicSememePolymorphic >}]
  * 
@@ -63,12 +63,12 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.
  * Note that while 0 rows of attached data is allowed, this would not allow the attachment of any data on the sememe.
  * <br>
  * The assemblage concept must also contain a description of type {@link IsaacMetadataAuxiliaryBinding#DEFINITION_DESCRIPTION_TYPE} which 
- * itself has a sememe extension of type {@link IsaacMetadataConstants#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
+ * itself has a sememe extension of type {@link DynamicSememeConstants#DYNAMIC_SEMEME_DEFINITION_DESCRIPTION} - the value of 
  * this description should explain the the overall purpose of this Sememe.
  * <br>
  * <br>
  * The assemblage concept may also contain a single {@link DynamicSememeVersion} annotation of type
- * {@link IsaacMetadataConstants#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as 
+ * {@link DynamicSememeConstants#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as 
  * a {@link ObjectChronologyType} and a {@link SememeType}- which will restrict the type of nid that can be placed 
  * into the referenced component field when creating an instance of the assemblage.
  * <br>

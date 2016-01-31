@@ -71,8 +71,12 @@ import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import gov.vha.isaac.ochre.api.constants.Constants;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 import gov.vha.isaac.ochre.api.coordinate.StampPrecedence;
@@ -82,12 +86,11 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
-import gov.vha.isaac.ochre.impl.sememe.DynamicSememeUtilityImpl;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
+import gov.vha.isaac.ochre.model.sememe.DynamicSememeUtilityImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
@@ -195,20 +198,20 @@ public class EConceptUtility
 		ConverterUUID.addMapping("Fully Specified Name", MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid());
 		
 		//TODO automate this somehow....
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getDynamicSememeColumns());
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getDynamicSememeColumns());
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getDynamicSememeColumns());
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getDynamicSememeColumns());
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getDynamicSememeColumns());
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getDynamicSememeColumns());
-		registerDynamicSememeColumnInfo(IsaacMetadataConstants.DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getUUID(), 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getDynamicSememeColumns());
+		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getUUID(), 
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getDynamicSememeColumns());
 		
 		
 		conceptBuilderService_ = Get.conceptBuilderService();
@@ -1157,7 +1160,7 @@ public class EConceptUtility
 						}
 						
 						//Add this concept to the association sememe
-						addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(concept), null, 
+						addDynamicRefsetMember(DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(concept), null, 
 								State.ACTIVE, null);
 					}
 				}
@@ -1177,7 +1180,7 @@ public class EConceptUtility
 		ConverterUUID.addMapping(pt.getPropertyTypeReferenceSetName(), pt.getPropertyTypeReferenceSetUUID());
 		configureConceptAsDynamicRefex(ComponentReference.fromConcept(cc), "Carries the source description type information", 
 				new DynamicSememeColumnInfo[] {
-						new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true)
+						new DynamicSememeColumnInfo(0, DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(), DynamicSememeDataType.UUID, null, true, false)
 						}, 
 				null, null);
 
@@ -1195,11 +1198,11 @@ public class EConceptUtility
 	public void configureConceptAsAssociation(UUID associationTypeConcept, String inverseName)
 	{
 		DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] {new DynamicSememeColumnInfo(
-				0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicSememeDataType.UUID, null, true)};
+				0, DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicSememeDataType.UUID, null, true, true)};
 		configureConceptAsDynamicRefex(ComponentReference.fromConcept(associationTypeConcept), 
 				"Defines an Association Type", colInfo, null, null);
 		
-		addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(associationTypeConcept), null, 
+		addDynamicRefsetMember(DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME.getUUID(), ComponentReference.fromConcept(associationTypeConcept), null, 
 				State.ACTIVE, null);
 		
 		if (!StringUtils.isBlank(inverseName))
@@ -1207,7 +1210,7 @@ public class EConceptUtility
 			SememeChronology<DescriptionSememe<?>> inverseDesc = addDescription(ComponentReference.fromConcept(associationTypeConcept), inverseName, 
 					DescriptionType.SYNONYM, false, null, null, State.ACTIVE);
 			
-			addDynamicRefsetMember(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getUUID(), ComponentReference.fromChronology(inverseDesc), null, 
+			addDynamicRefsetMember(DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME.getUUID(), ComponentReference.fromChronology(inverseDesc), null, 
 					State.ACTIVE, selectTime(null, ComponentReference.fromChronology(inverseDesc)));
 		}
 		BPT_Associations.registerAsAssociation(associationTypeConcept);
@@ -1226,34 +1229,33 @@ public class EConceptUtility
 		
 		//Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
 		addAnnotation(ComponentReference.fromChronology(desc), null, (DynamicSememeData)null, 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), State.ACTIVE, null);
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getUUID(), State.ACTIVE, null);
 		
 		//define the data columns (if any)
 		if (columns != null && columns.length > 0)
 		{
 			for (DynamicSememeColumnInfo col : columns)
 			{
-				DynamicSememeData[] data = DynamicSememeUtilityImpl.configureDynamicSememeDefinitionDataForColumn(col);
-				addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), State.ACTIVE, null, null);
+				DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class).configureDynamicSememeDefinitionDataForColumn(col);
+				addAnnotation(concept, null, data, DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), State.ACTIVE, null, null);
 			}
+
+			DynamicSememeArray<DynamicSememeData> indexInfo = LookupService.getService(DynamicSememeUtility.class).configureColumnIndexInfo(columns);
 			
-			//TODO should really not mark unindexable column types
-			DynamicSememeInteger[] indexInfo = new DynamicSememeInteger[columns.length];
-			for (int i = 0; i < indexInfo.length; i++)
+			if (indexInfo != null)
 			{
-				indexInfo[i] = new DynamicSememeIntegerImpl(i);
+				addAnnotation(concept, null, new DynamicSememeData[] {indexInfo},
+					DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getPrimordialUuid(), State.ACTIVE, null, null);
 			}
-			
-			addAnnotation(concept, null, new DynamicSememeData[] {new DynamicSememeArrayImpl<DynamicSememeInteger>(indexInfo)},
-					IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getPrimordialUuid(), State.ACTIVE, null, null);
 		}
 		registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
 		
 		//Add the restriction information (if any)
-		DynamicSememeData[] data = DynamicSememeUtilityImpl.configureDynamicSememeRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
+		DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class).
+				configureDynamicSememeRestrictionData(referencedComponentTypeRestriction, referencedComponentTypeSubRestriction);
 		if (data != null)
 		{
-			addAnnotation(concept, null, data, IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null, null);
+			addAnnotation(concept, null, data, DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getUUID(), State.ACTIVE, null, null);
 		}
 	}
 	

@@ -90,6 +90,10 @@ public class LanguageMap
 	{
 		for (LanguageCode lc : LanguageCode.values())
 		{
+			if (lc == LanguageCode.ZZ)
+			{
+				continue;
+			}
 			for (UUID itemUuid : getConceptForLanguageCode(lc).getUuids())
 			{
 				if (itemUuid.equals(uuid))

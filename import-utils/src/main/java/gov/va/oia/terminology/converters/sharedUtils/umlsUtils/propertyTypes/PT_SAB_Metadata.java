@@ -3,7 +3,7 @@ package gov.va.oia.terminology.converters.sharedUtils.umlsUtils.propertyTypes;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.PropertyType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 
 /**
  * @author Daniel Armbrust
@@ -29,13 +29,13 @@ public class PT_SAB_Metadata extends PropertyType
 		addProperty("Source License Contact", null, "SLC","The source license contact information. A semi-colon separated list containing the following fields: Name; Title; Organization; Address 1; Address 2; City; State or Province; Country; Zip or Postal Code; Telephone; Contact Fax; Email; URL");
 		addProperty("Source Content Contact", null, "SCC","The source content contact information. A semi-colon separated list containing the following fields: Name; Title; Organization; Address 1; Address 2; City; State or Province; Country; Zip or Postal Code; Telephone; Contact Fax; Email; URL");
 		addProperty("Source Restriction Level", null, "SRL","0,1,2,3,4 - explained in the License Agreement.", false, -1, 
-				new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-				DynamicSememeDataType.UUID, null, true, null, null)});
+				new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+				DynamicSememeDataType.UUID, null, true, null, null, true)});
 		addProperty("Term Frequency", null, "TFR","The number of terms for this source in RXNCONSO.RRF, e.g., 12343 (not implemented yet)");
 		addProperty("CUI Frequency", null, "CFR","The number of CUIs associated with this source, e.g., 10234 (not implemented yet)");
 		addProperty("Context Type", null, "CXTY","The type of relationship label (Section 2.4.2 of UMLS Reference Manual)", false, -1, 
-				new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-				DynamicSememeDataType.UUID, null, true, null, null)});
+				new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+				DynamicSememeDataType.UUID, null, true, null, null, true)});
 		addProperty("Term Type List", null, "TTYL","Term type list from source, e.g., MH,EN,PM,TQ");
 		addProperty("Attribute Name List", null, "ATNL","The attribute name list, e.g., MUI,RN,TH,...");
 		addProperty("Language", null, "LAT","The language of the terms in the source");

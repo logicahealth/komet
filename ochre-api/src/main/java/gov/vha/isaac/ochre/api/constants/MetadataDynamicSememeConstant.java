@@ -1,4 +1,4 @@
-package gov.vha.isaac.ochre.api;
+package gov.vha.isaac.ochre.api.constants;
 
 import java.util.UUID;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
@@ -11,7 +11,6 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	private DynamicSememeColumnInfo[] dynamicSememeColumns_;
 	private ObjectChronologyType referencedComponentRestriction_;
 	private SememeType referencedComponentSubRestriction_;
-	private Integer[] requiresIndex_;
 
 	/**
 	 * @param fsn
@@ -22,7 +21,7 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 */
 	protected MetadataDynamicSememeConstant(String fsn, String preferredSynonym, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns)
 	{
-		this(fsn, preferredSynonym, uuid, sememeDescription, columns, null, null, null, null, null);
+		this(fsn, preferredSynonym, uuid, sememeDescription, columns, null, null, null, null);
 	}
 	
 	/**
@@ -30,13 +29,10 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * @param uuid - optional - the UUID to assign to this sememe
 	 * @param sememeDescription - describe the purpose of the use of this dynamic sememe
 	 * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
-	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
-	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
-	 * should also be indexed.
 	 */
-	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns, Integer[] requiresIndex)
+	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns)
 	{
-		this(fsn, null, uuid, sememeDescription, columns, null, null, null, null, requiresIndex);
+		this(fsn, null, uuid, sememeDescription, columns, null, null, null, null);
 	}
 	
 	/**
@@ -45,14 +41,11 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * @param sememeDescription - describe the purpose of the use of this dynamic sememe
 	 * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
 	 * @param synonyms - optional - extra synonyms
-	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
-	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
-	 * should also be indexed.
 	 */
 	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns,
-			String[] synonyms, Integer[] requiresIndex)
+			String[] synonyms)
 	{
-		this(fsn, null, uuid, sememeDescription, columns, synonyms, null, null, null, requiresIndex);
+		this(fsn, null, uuid, sememeDescription, columns, synonyms, null, null, null);
 	}
 	
 	/**
@@ -69,7 +62,7 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	public MetadataDynamicSememeConstant(String fsn, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns,
 			String[] synonyms, String[] definitions, Integer[] requiresIndex)
 	{
-		this(fsn, null, uuid, sememeDescription, columns, synonyms, definitions, null, null, requiresIndex);
+		this(fsn, null, uuid, sememeDescription, columns, synonyms, definitions, null, null);
 	}
 	
 	/**
@@ -84,13 +77,9 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	 * of this sememe.
 	 * @param referencedComponentSubRestriction - optional - used to limit the type of sememe that can be used as the referenced component in an instance
 	 * of this sememe.
-	 * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will 
-	 * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that 
-	 * should also be indexed.
 	 */
 	public MetadataDynamicSememeConstant(String fsn, String preferredSynonym, UUID uuid, String sememeDescription, DynamicSememeColumnInfo[] columns,
-			String[] synonyms, String[] definitions, ObjectChronologyType referencedComponentRestriction, SememeType refererenceComponentSubRestriction,
-			Integer[] requiresIndex)
+			String[] synonyms, String[] definitions, ObjectChronologyType referencedComponentRestriction, SememeType refererenceComponentSubRestriction)
 	{
 		super(fsn, preferredSynonym, uuid);
 		if (definitions != null)
@@ -111,7 +100,6 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 		dynamicSememeColumns_ = columns;
 		referencedComponentRestriction_ = referencedComponentRestriction;
 		referencedComponentSubRestriction_ = refererenceComponentSubRestriction;
-		requiresIndex_ = requiresIndex;
 	}
 	
 	/**
@@ -144,13 +132,5 @@ public class MetadataDynamicSememeConstant extends MetadataConceptConstant
 	public SememeType getReferencedComponentSubTypeRestriction()
 	{
 		return referencedComponentSubRestriction_;
-	}
-	
-	/**
-	 * @return null if no index is required otherwise an array that describes which columns should be indexed
-	 */
-	public Integer[] getRequiredIndexes()
-	{
-		return requiresIndex_;
 	}
 }

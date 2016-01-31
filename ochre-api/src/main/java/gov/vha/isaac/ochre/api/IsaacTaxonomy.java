@@ -15,32 +15,47 @@
  */
 package gov.vha.isaac.ochre.api;
 
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
+
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
+import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilder;
+import gov.vha.isaac.ochre.api.component.concept.description.DescriptionBuilderService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeService;
+import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.MutableDescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
+import gov.vha.isaac.ochre.api.constants.MetadataConceptConstant;
+import gov.vha.isaac.ochre.api.constants.MetadataConceptConstantGroup;
+import gov.vha.isaac.ochre.api.constants.MetadataDynamicSememeConstant;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
-import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
-import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-import java.util.TreeMap;
-import java.util.UUID;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Path;
-import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 
 /**
  * Class for programatically creating and exporting a taxonomy.
@@ -59,16 +74,14 @@ public class IsaacTaxonomy {
     private final ConceptSpecification pathSpec;
     private final ConceptSpecification authorSpec;
     private final String semanticTag;
-    private final LanguageCode lang;
 
     public IsaacTaxonomy(ConceptSpecification path, ConceptSpecification author, ConceptSpecification module,
-            ConceptSpecification isaType, String semanticTag, LanguageCode lang) {
+            ConceptSpecification isaType, String semanticTag) {
         this.pathSpec = path;
         this.authorSpec = author;
         this.moduleSpec = module;
         this.isaTypeSpec = isaType;
         this.semanticTag = semanticTag;
-        this.lang = lang;
     }
 
     protected final ConceptBuilder createConcept(ConceptSpecification specification) {
@@ -82,16 +95,25 @@ public class IsaacTaxonomy {
     }
 
     protected final ConceptBuilder createConcept(String name) {
+        return createConcept(name, null);
+    }
+    
+    /**
+     * If parent is provided, it ignores the parent stack, and uses the provided parent instead.
+     * If parent is not provided, it uses the parentStack (if populated), otherwise, it creates
+     * the concept without setting a parent.
+     */
+    protected final ConceptBuilder createConcept(String name, Integer parentId) {
         checkConceptDescriptionText(name);
 
-        if (parentStack.isEmpty()) {
+        if (parentStack.isEmpty() && parentId == null) {
             current = Get.conceptBuilderService().getDefaultConceptBuilder(name, semanticTag, null);
         } else {
             LogicalExpressionBuilderService expressionBuilderService
                     = LookupService.getService(LogicalExpressionBuilderService.class);
             LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
 
-            NecessarySet(And(ConceptAssertion(parentStack.lastElement(), defBuilder)));
+            NecessarySet(And(ConceptAssertion(parentId == null ? parentStack.lastElement().getNid() : parentId, defBuilder)));
 
             LogicalExpression logicalExpression = defBuilder.build();
 
@@ -102,6 +124,95 @@ public class IsaacTaxonomy {
         conceptBuildersInInsertionOrder.add(current);
 
         return current;
+    }
+    
+    public ConceptBuilder createConcept(MetadataConceptConstant cc) throws Exception {
+        try {
+            ConceptBuilder cb = createConcept(cc.getFSN(), cc.getParent() != null ? cc.getParent().getConceptSequence() : null);
+            cb.setPrimordialUuid(cc.getUUID());
+            
+            addDescription(cc.getPreferredSynonym(), cb, TermAux.SYNONYM_DESCRIPTION_TYPE, true);
+            
+            for (String definition : cc.getDefinitions()) {
+                addDescription(definition, cb, TermAux.DEFINITION_DESCRIPTION_TYPE, false);
+            }
+            
+            for (String definition : cc.getSynonyms()) {
+                addDescription(definition, cb, TermAux.SYNONYM_DESCRIPTION_TYPE, false);
+            }
+            
+            if (cc instanceof MetadataConceptConstantGroup) {
+                pushParent(current());
+                for (MetadataConceptConstant nested : ((MetadataConceptConstantGroup)cc).getChildren()) {
+                    createConcept(nested);
+                }
+                popParent();
+            }
+            
+            if (cc instanceof MetadataDynamicSememeConstant) {
+                // See {@link DynamicSememeUsageDescription} class for more details on this format.
+                MetadataDynamicSememeConstant dsc = (MetadataDynamicSememeConstant)cc;
+                
+                DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db = addDescription(
+                        dsc.getSememeAssemblageDescription(), cb, TermAux.DEFINITION_DESCRIPTION_TYPE, false);
+                //Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
+                SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
+                            .getDynamicSememeBuilder(db, DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getNid());
+                db.addSememe(sb);
+                
+                 if (dsc.getDynamicSememeColumns() != null) {
+                     for (DynamicSememeColumnInfo col : dsc.getDynamicSememeColumns()) {
+                        DynamicSememeData[] colData = LookupService.getService(DynamicSememeUtility.class).configureDynamicSememeDefinitionDataForColumn(col);
+                        
+                        sb = Get.sememeBuilderService()
+                                .getDynamicSememeBuilder(cb.getNid(), DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getNid(), colData);
+                        cb.addSememe(sb);
+                     }
+                 }
+                 
+                 DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class).configureDynamicSememeRestrictionData(
+                         dsc.getReferencedComponentTypeRestriction(), dsc.getReferencedComponentSubTypeRestriction());
+                
+                 if (data != null) {
+                     sb = Get.sememeBuilderService()
+                             .getDynamicSememeBuilder(cb.getNid(), DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getNid(), data);
+                     cb.addSememe(sb);
+                 }
+                 
+                 DynamicSememeArray<DynamicSememeData> indexConfig = LookupService.getService(DynamicSememeUtility.class)
+                         .configureColumnIndexInfo(dsc.getDynamicSememeColumns());
+                 if (indexConfig != null) {
+                    sb = Get.sememeBuilderService()
+                             .getDynamicSememeBuilder(cb.getNid(), DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getNid(), 
+                                     new DynamicSememeData[] {indexConfig});
+                     cb.addSememe(sb);
+                 }
+            }
+            
+            return cb;
+        } catch (Exception e) {
+            throw new Exception("Problem with '" + cc.getFSN() + "'", e);
+        }
+    }
+
+    /**
+     * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#DEFINITION_DESCRIPTION_TYPE}
+     * This currently only creates english language descriptions
+     */
+    private DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> addDescription(String description, 
+            ConceptBuilder cb, ConceptSpecification descriptionType, boolean preferred) {
+        DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db = 
+            LookupService.getService(DescriptionBuilderService.class)
+                .getDescriptionBuilder(description, cb, descriptionType, TermAux.ENGLISH_LANGUAGE);
+
+        if (preferred) {
+            db.setPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
+        } else {
+            db.setAcceptableInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
+        }
+
+        cb.addDescription(db);
+        return db;
     }
 
     private void checkConceptDescriptionText(String name) {

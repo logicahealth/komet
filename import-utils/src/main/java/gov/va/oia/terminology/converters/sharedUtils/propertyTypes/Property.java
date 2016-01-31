@@ -21,7 +21,7 @@ package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 import java.util.UUID;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 
 /**
  * 
@@ -76,8 +76,9 @@ public class Property
 		if (columnInforForDynamicRefex == null && owner != null && owner_.getDefaultColumnInfo() != null)
 		{
 			//Create a single required column, with the column name just set to 'value'
-			dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-					owner_.getDefaultColumnInfo(), null, true, null, null)};
+			dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, 
+					DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+					owner_.getDefaultColumnInfo(), null, true, null, null, true)};
 		}
 		else
 		{
@@ -180,7 +181,7 @@ public class Property
 			//leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
 			//at the time this code runs.  We make sure it is set down below, in the getter.
 			dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null, 0, getUUID(),
-					owner_.getDefaultColumnInfo(), null, true, null, null)};
+					owner_.getDefaultColumnInfo(), null, true, null, null, true)};
 		}
 		if (dataColumnsForDynamicRefex_ != null && !owner_.createAsDynamicRefex()) 
 		{

@@ -328,6 +328,7 @@
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
                         <failOnError>false</failOnError>
+                        <additionalparam>-Xdoclint:none</additionalparam>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -666,6 +667,7 @@
         <module>import-utils</module>
         <module>db-builder</module>
         <module>ochre-mojo-log-config</module>
+        <module>ochre-mapping</module>
     </modules>
     
     <profiles>

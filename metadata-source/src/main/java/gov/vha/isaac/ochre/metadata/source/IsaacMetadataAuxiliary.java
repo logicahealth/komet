@@ -1,18 +1,28 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright Notice
+ *
+ * This is a work of the U.S. Government and is not subject to copyright 
+ * protection in the United States. Foreign copyrights may apply.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package gov.vha.isaac.ochre.metadata.source;
 
-
-import gov.vha.isaac.ochre.api.LanguageCode;
 import gov.vha.isaac.ochre.api.IsaacTaxonomy;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-import gov.vha.isaac.ochre.model.constants.InformationModelsConstants;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+
 import static gov.vha.isaac.ochre.model.observable.ObservableFields.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -23,7 +33,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  *
  * @author kec
@@ -32,7 +41,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
      
  
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.ISAAC_MODULE, TermAux.IS_A, "ISAAC", LanguageCode.EN);
+      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.ISAAC_MODULE, TermAux.IS_A, "ISAAC");
 
       try {
          createConcept("ISAAC root");
@@ -73,7 +82,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept("VUID");
             popParent();
             createConcept("language");
-            pushParent(current());  //TODO - Keith, should these use the UUIDs from Snomed (where possible)? -- A: SNOMED does not currently ahve language concepts, just dialect concepts
+            pushParent(current());
                 createConcept("English language").setPrimordialUuid("06d905ea-c647-3af9-bfe5-2514e135b558");
                 createConcept("Spanish language").setPrimordialUuid("0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e");
                 createConcept("French language").setPrimordialUuid("8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e");
@@ -90,7 +99,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept("normal member").setPrimordialUuid("cc624429-b17d-4ac5-a69e-0b32448aaf3c");
                 createConcept("marked parent").setPrimordialUuid("125f3d04-de17-490e-afec-1431c2a39e29");
             popParent();
-            createConcept("assemblage").setPrimordialUuid("3e0cd740-2cc6-3d68-ace7-bad2eb2621da");
+            createConcept("assemblage").setPrimordialUuid(TermAux.ASSEMBLAGE.getPrimordialUuid());
             pushParent(current());
                 createConcept("description assemblage");
                 pushParent(current());
@@ -126,20 +135,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     pathOrigins.setPrimordialUuid(TermAux.PATH_ORIGIN_ASSEMBLAGE.getPrimordialUuid());
                     //addPathOrigin(pathOrigins, developmentPath, masterPath);
                 popParent();
-                createConcept(IsaacMetadataConstants.DYNAMIC_SEMEME_ASSEMBLAGES);
-                pushParent(current());
-                    createConcept("description source type reference sets");  //Dynamic Sememes are created under this node for LOINC and RxNorm description types
-                    createConcept("relationship source type reference sets"); //Dynamic Sememes are created under this node for LOINC and RxNorm relationship types
-                popParent();
-                createConcept(IsaacMetadataConstants.DYNAMIC_SEMEME_METADATA);
-                pushParent(current());
-                    createConcept(IsaacMetadataConstants.COLUMN_DATA_TYPES);
-                    pushParent(current());
-                        createConcept("nid").setPrimordialUuid("d1a17272-9785-51aa-8bde-cc556ab32ebb");
-                        createConcept("long").setPrimordialUuid("dea8cdf1-de75-5991-9791-79714e4a964d");
-                        createConcept("String").setPrimordialUuid("a46aaf11-b37a-32d6-abdc-707f084ec8f5");
-                    popParent();
-                popParent();
                 createConcept("SOLOR Refsets").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
           popParent();
           //
@@ -162,14 +157,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 syn.setPrimordialUuid(TermAux.SYNONYM_DESCRIPTION_TYPE.getPrimordialUuid());
                 syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
                 createConcept("definition description type").setPrimordialUuid(TermAux.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid());
-            popParent();
-            createConcept("description type in source terminology");  //LOINC and RxNorm description types are created under this node
+                createConcept("description type in source terminology");  //LOINC and RxNorm description types are created under this node
                 pushParent(current());
-                    createConcept("loinc consumer name");
-                    createConcept("loinc short name");
-                    createConcept("loinc long common name");
-                    createConcept("loinc definition description");
+                    createConcept("description source type reference sets");  //Dynamic Sememes are created under this node for LOINC and RxNorm description types
                 popParent();
+            popParent();
             createConcept("description case significance");  
             pushParent(current());
                 createConcept("description case sensitive").setPrimordialUuid("0def37bc-7e1b-384b-a6a3-3e3ceee9c52e");
@@ -182,15 +174,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept("preferred").setPrimordialUuid(TermAux.PREFERRED.getPrimordialUuid());
             popParent();
             
-            createConcept("relationship type in source terminology");  //RxNorm relationship types are created under this node
-         
             createConcept("taxonomy operator");
             pushParent(current());
                 ConceptBuilder isa = createConcept("is-a");
                 isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());
                 isa.addUuids(TermAux.IS_A_ATTRIBUTE.getUuids());
-                createConcept(InformationModelsConstants.HAS_TERMINOLOGY_CONCEPT);  //TODO this should probably be redone as an association 
-                //using the association sememe / framework
+                createConcept("relationship type in source terminology");  //RxNorm relationship types are created under this node
+                pushParent(current());
+                    createConcept("relationship source type reference sets"); //Dynamic Sememes are created under this node for LOINC and RxNorm relationship types
+                popParent();
             popParent();
             createConcept("connective operator");
             pushParent(current());
@@ -332,7 +324,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(DESCRIPTION_LIST_FOR_CONCEPT);
                 popParent();
             popParent();
-            createConcept(InformationModelsConstants.INFORMATION_MODELS);
             createConcept("solor metadata");
             pushParent(current());
                 createConcept("Content Source Artifact Version");
