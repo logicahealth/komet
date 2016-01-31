@@ -68,8 +68,8 @@ public class TermAux {
             = new ConceptProxy("SNOMED CT core module",
                     UUID.fromString("1b4f1ba5-b725-390f-8c3b-33ec7096bdca"));
 
-    public static ConceptSpecification REFSET_IDENTITY
-            = new ConceptProxy("refset identity",
+    public static ConceptSpecification ASSEMBLAGE  //formerly known as REFSET_IDENTITY
+            = new ConceptProxy("assemblage",
                     UUID.fromString("3e0cd740-2cc6-3d68-ace7-bad2eb2621da"));
     public static ConceptSpecification UNSPECIFIED_MODULE
             = new ConceptProxy("Module (core metadata concept)",
