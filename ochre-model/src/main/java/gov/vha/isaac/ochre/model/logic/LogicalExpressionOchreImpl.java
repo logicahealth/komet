@@ -379,7 +379,7 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
     }
 
     /**
-     * Process the fragment starting at rood in a depth first manner.
+     * Process the fragment starting at root in a depth first manner.
      *
      * @param fragmentRoot
      * @param consumer
@@ -395,9 +395,8 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
             TreeNodeVisitData graphVisitData, int depth) {
 
         if (depth > 100) {
-            //TODO seems this should be fatal?
-            System.out.println("Depth limit exceeded for node: " + node);
-            return;
+            // toString depends on this method, so we can't include this.toString() in the exception...
+            throw new RuntimeException("Depth limit exceeded for node: " + node); // + " in graph: " + this);
         }
 
         graphVisitData.startNodeVisit(node.getNodeIndex(), depth);
