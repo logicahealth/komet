@@ -30,6 +30,17 @@
             <groupId>au.csiro</groupId>
             <artifactId>snorocket-core</artifactId>
             <version>2.7.5</version>
+            <exclusions>
+                <exclusion>  <!-- need to remove an old incompatible version of moxy from the dependency tree -->
+                    <groupId>org.glassfish.jersey.media</groupId>
+                    <artifactId>jersey-media-moxy</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency> <!-- Substitute this, instead of the banned version above which is incompatible with jersey -->
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-moxy</artifactId>
+            <version>2.22.1</version>
         </dependency>
         <dependency>
             <groupId>se.liu.imt.mi.snomedct</groupId>
