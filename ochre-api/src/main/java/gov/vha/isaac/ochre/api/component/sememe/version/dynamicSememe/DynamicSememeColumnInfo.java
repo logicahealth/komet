@@ -39,6 +39,8 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	private UUID columnDescriptionConceptUUID_;
 	private transient String columnName_;
 	private transient String columnDescription_;
+	private transient Boolean indexColumn_;  //This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather 
+	//than run-time lookup of the index configuration.
 	private int columnOrder_;
 	private UUID assemblageConcept_;
 	private DynamicSememeDataType columnDataType_;
@@ -58,9 +60,10 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
 	 * with a null assemblage concept, null validator info
 	 */
-	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, Boolean columnRequired)
+	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, 
+			Boolean columnRequired, Boolean index)
 	{
-		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, null, null); 
+		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, null, null, index); 
 	}
 	
 	/**
@@ -68,11 +71,11 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * with a null assemblage concept, and a single array item for the validator info
 	 */
 	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, Boolean columnRequired,
-			DynamicSememeValidatorType validatorType, DynamicSememeData validatorData)
+			DynamicSememeValidatorType validatorType, DynamicSememeData validatorData, Boolean index)
 	{
 		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, 
 				validatorType == null ? null : new DynamicSememeValidatorType[] {validatorType}, 
-				validatorData == null ? null : new DynamicSememeData[] {validatorData});
+				validatorData == null ? null : new DynamicSememeData[] {validatorData}, index);
 	}
 	
 	/**
@@ -80,9 +83,9 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * with a null assemblage concept
 	 */
 	public DynamicSememeColumnInfo(int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData, Boolean columnRequired,
-			DynamicSememeValidatorType[] validatorType, DynamicSememeData[] validatorData)
+			DynamicSememeValidatorType[] validatorType, DynamicSememeData[] validatorData, Boolean index)
 	{
-		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, validatorType, validatorData);
+		this(null, columnOrder, columnDescriptionConcept, columnDataType, defaultData, columnRequired, validatorType, validatorData, index);
 	}
 	
 	/**
@@ -102,10 +105,11 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	 * @param columnRequired - Is this column required when creating an instance of the refex?  True for yes, false or null for no.
 	 * @param validatorType - The Validator to use when creating an instance of this Refex.  Null for no validator
 	 * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the 
-	 * validatorType field.  See {@link DynamicSememeValidatorType} for details on the valid data for this field.  Should be null when validatorType is null. 
+	 * validatorType field.  See {@link DynamicSememeValidatorType} for details on the valid data for this field.  Should be null when validatorType is null.
+	 * @param index - set to true, if this column should be indexed. 
 	 */
 	public DynamicSememeColumnInfo(UUID assemblageConcept, int columnOrder, UUID columnDescriptionConcept, DynamicSememeDataType columnDataType, DynamicSememeData defaultData,
-			Boolean columnRequired, DynamicSememeValidatorType[] validatorType, DynamicSememeData[] validatorData)
+			Boolean columnRequired, DynamicSememeValidatorType[] validatorType, DynamicSememeData[] validatorData, Boolean index)
 	{
 		assemblageConcept_ = assemblageConcept;
 		columnOrder_ = columnOrder;
@@ -115,6 +119,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 		columnRequired_ = (columnRequired == null ? false : columnRequired);
 		validatorType_ = validatorType;
 		validatorData_ = validatorData;
+		indexColumn_ = index;
 	}
 	
 	/**
@@ -186,6 +191,31 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	}
 	
 	/**
+	 * This is typically used in the metadata code to pass in the initial index configuration for a column.  It has no impact on 
+	 * the actual config at runtime, in a running system.
+	 */
+	public void setDefaultIndexConfig(boolean indexColumn)
+	{
+		indexColumn_ = indexColumn;
+	}
+
+	/**
+	 * Return true, if this column is currently configured for indexing, otherwise false.  Note, this is not currently implemented runtime usage
+	 * and will instead throw an UnsupportedOperationException.  This is only used in the construction of metadata concepts.
+	 */
+	public boolean getIndexConfig()
+	{
+		if (indexColumn_ == null)
+		{
+			throw new UnsupportedOperationException("Convenience method to read current index config from lucene indexer not yet implemented");
+		}
+		else
+		{
+			return indexColumn_;
+		}
+	}
+	
+	/**
 	 * @return The user-friendly name of this column of data.  To be used by GUIs to label the data in this column.
 	 */
 	public String getColumnName()
@@ -212,7 +242,7 @@ public class DynamicSememeColumnInfo implements Comparable<DynamicSememeColumnIn
 	
 	private void read()
 	{
-		DynamicSememeUtility util = LookupService.get().getService(DynamicSememeUtility.class);
+		DynamicSememeColumnUtility util = LookupService.get().getService(DynamicSememeColumnUtility.class);
 		if (util == null)
 		{
 			columnName_ = "Unable to locate reader!";

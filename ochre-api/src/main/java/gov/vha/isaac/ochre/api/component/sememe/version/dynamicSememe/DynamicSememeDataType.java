@@ -2,7 +2,7 @@ package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe;
 
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.*;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
-import gov.vha.isaac.ochre.api.constants.IsaacMetadataConstantsBase;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 
@@ -101,19 +101,19 @@ public enum DynamicSememeDataType {
 		 */
 		switch (this)
 		{
-			case BOOLEAN: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_BOOLEAN.getUUID();
-			case BYTEARRAY: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_BYTE_ARRAY.getUUID();
-			case DOUBLE: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_DOUBLE.getUUID();
-			case FLOAT: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_FLOAT.getUUID();
-			case INTEGER: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_INTEGER.getUUID();
-			case LONG: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_LONG.getUUID();
-			case NID: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_NID.getUUID();
-			case POLYMORPHIC: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_POLYMORPHIC.getUUID();
-			case STRING: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_STRING.getUUID();
-			case UNKNOWN: return IsaacMetadataConstantsBase.UNKNOWN_CONCEPT;
-			case UUID: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_UUID.getUUID();
-			case ARRAY: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_ARRAY.getUUID();
-			case SEQUENCE: return IsaacMetadataConstantsBase.DYNAMIC_SEMEME_DT_SEQUENCE.getUUID();
+			case BOOLEAN: return DynamicSememeConstants.get().get().DYNAMIC_SEMEME_DT_BOOLEAN.getUUID();
+			case BYTEARRAY: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_BYTE_ARRAY.getUUID();
+			case DOUBLE: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_DOUBLE.getUUID();
+			case FLOAT: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_FLOAT.getUUID();
+			case INTEGER: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_INTEGER.getUUID();
+			case LONG: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_LONG.getUUID();
+			case NID: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_NID.getUUID();
+			case POLYMORPHIC: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_POLYMORPHIC.getUUID();
+			case STRING: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_STRING.getUUID();
+			case UNKNOWN: return DynamicSememeConstants.get().UNKNOWN_CONCEPT;
+			case UUID: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_UUID.getUUID();
+			case ARRAY: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_ARRAY.getUUID();
+			case SEQUENCE: return DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_SEQUENCE.getUUID();
 
 			default: throw new RuntimeException("Implementation error");
 		}

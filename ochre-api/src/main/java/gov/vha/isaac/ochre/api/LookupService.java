@@ -75,7 +75,15 @@ public class LookupService {
                         String[] packages = packagesToSearch.toArray(new String[]{});
                         LOG.info("Looking for HK2 annotations " + (readInhabitantFiles ? "from inhabitant files" : "skipping inhabitant files") 
                                 + "; and scanning in the packages: " + Arrays.toString(packages));
-                        looker = HK2RuntimeInitializer.init("ISAAC", readInhabitantFiles, packages);
+
+                        ServiceLocator temp = HK2RuntimeInitializer.init("ISAAC", readInhabitantFiles, packages);
+                        if (looker != null)
+                        {
+                            throw new RuntimeException("RECURSIVE Lookup Service Reference!  Ensure that there are no static variables "
+                                    + "objects utilizing the LookupService during their init!");
+                        }
+                        looker = temp;
+                        
                         LOG.info("HK2 initialized.  Identifed " + looker.getAllServiceHandles((criteria) -> {return true;}).size() + " services");
                     }
                     catch (IOException | ClassNotFoundException | MultiException e) {

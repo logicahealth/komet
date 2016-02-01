@@ -135,6 +135,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
         } else {
             Get.commitService().addUncommittedNoChecks(sememeChronicle);
         }
+        sememeBuilders.forEach((builder) -> builder.build(editCoordinate, changeCheckerMode, builtObjects));
         builtObjects.add(sememeChronicle);
         return (C) sememeChronicle;
     }
@@ -198,6 +199,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
             default:
                 throw new UnsupportedOperationException("Can't handle: " + sememeType);
         }
+        sememeBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
         builtObjects.add(sememeChronicle);
         return (C) sememeChronicle;    
     }

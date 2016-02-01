@@ -154,16 +154,15 @@ public class ConceptBuilderOchreImpl extends ComponentBuilder<ConceptChronology<
             builder.build(editCoordinate, changeCheckerMode, builtObjects);
         });
         SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
-        List<SememeBuilder<?>> builderList = new ArrayList<>();
         for (LogicalExpression logicalExpression : logicalExpressions) {
-            builderList.add(builderService.
+            sememeBuilders.add(builderService.
                     getLogicalExpressionSememeBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageSequence()));
         }
         for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
-            builderList.add(builderService.
+            sememeBuilders.add(builderService.
                     getLogicalExpressionSememeBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageSequence()));
         }
-        builderList.forEach((builder) -> builder.build(editCoordinate, changeCheckerMode, builtObjects));
+        sememeBuilders.forEach((builder) -> builder.build(editCoordinate, changeCheckerMode, builtObjects));
         if (changeCheckerMode == ChangeCheckerMode.ACTIVE) {
             Get.commitService().addUncommitted(conceptChronology);
         } else {
@@ -186,16 +185,15 @@ public class ConceptBuilderOchreImpl extends ComponentBuilder<ConceptChronology<
             builder.build(stampCoordinate, builtObjects);
         });
         SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
-        List<SememeBuilder<?>> builderList = new ArrayList<>();
         for (LogicalExpression logicalExpression : logicalExpressions) {
-            builderList.add(builderService.
+            sememeBuilders.add(builderService.
                     getLogicalExpressionSememeBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageSequence()));
         }
         for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
-            builderList.add(builderService.
+            sememeBuilders.add(builderService.
                     getLogicalExpressionSememeBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageSequence()));
         }
-        builderList.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
+        sememeBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
         return conceptChronology;
     }
 
@@ -203,7 +201,4 @@ public class ConceptBuilderOchreImpl extends ComponentBuilder<ConceptChronology<
     public String getConceptDescriptionText() {
         return conceptName;
     }
-
-    
-
 }

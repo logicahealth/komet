@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gov.vha.isaac.ochre.impl.sememe;
+package gov.vha.isaac.ochre.model.sememe;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -25,12 +25,10 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.*;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import org.apache.commons.lang3.StringUtils;
-import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
-import gov.vha.isaac.MetaData;
+
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
@@ -39,8 +37,15 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeValidatorType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
+import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
 
 /**
  *
@@ -117,19 +122,19 @@ public class DynamicSememeUsageDescriptionImpl implements DynamicSememeUsageDesc
             case COMPONENT_NID:
                 dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[]{new DynamicSememeColumnInfo(
                     Get.identifierService().getUuidPrimordialFromConceptSequence(sememe.getAssemblageSequence()).get(),
-                    0, MetaData.NID.getPrimordialUuid(), DynamicSememeDataType.NID, null, true, null, null)};
+                    0, DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_NID.getPrimordialUuid(), DynamicSememeDataType.NID, null, true, null, null, false)};
                 break;
             case LONG:
                 dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[]{new DynamicSememeColumnInfo(
                     Get.identifierService().getUuidPrimordialFromConceptSequence(sememe.getAssemblageSequence()).get(),
-                    0, MetaData.LONG.getPrimordialUuid(), DynamicSememeDataType.LONG, null, true, null, null)};
+                    0, DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_LONG.getPrimordialUuid(), DynamicSememeDataType.LONG, null, true, null, null, false)};
                 break;
             case DESCRIPTION:
             case STRING:
             case LOGIC_GRAPH:
                 dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[]{new DynamicSememeColumnInfo(
                     Get.identifierService().getUuidPrimordialFromConceptSequence(sememe.getAssemblageSequence()).get(),
-                    0, MetaData.STRING.getPrimordialUuid(), DynamicSememeDataType.STRING, null, true, null, null)};
+                    0, DynamicSememeConstants.get().DYNAMIC_SEMEME_DT_STRING.getPrimordialUuid(), DynamicSememeDataType.STRING, null, true, null, null, false)};
                 break;
             case MEMBER:
                 dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[]{};
@@ -170,14 +175,14 @@ public class DynamicSememeUsageDescriptionImpl implements DynamicSememeUsageDesc
                 @SuppressWarnings("rawtypes")
                 DescriptionSememe ds = descriptionVersion.get().value();
 
-                if (ds.getDescriptionTypeConceptSequence() == MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+                if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
                     Optional<SememeChronology<? extends SememeVersion<?>>> nestesdSememe = Get.sememeService().getSememesForComponentFromAssemblage(ds.getNid(),
-                            IsaacMetadataConstants.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getSequence()).findAny();
+                            DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getSequence()).findAny();
                     if (nestesdSememe.isPresent()) {
                         sememeUsageDescription_ = ds.getText();
                     };
                 }
-                if (ds.getDescriptionTypeConceptSequence() == MetaData.FULLY_SPECIFIED_NAME.getConceptSequence()) {
+                if (ds.getDescriptionTypeConceptSequence() == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
                     name_ = ds.getText();
                 }
                 if (sememeUsageDescription_ != null && name_ != null) {
@@ -205,7 +210,7 @@ public class DynamicSememeUsageDescriptionImpl implements DynamicSememeUsageDesc
                     DynamicSememe ds = sememeVersion.get().value();
                     DynamicSememeData[] refexDefinitionData = ds.getData();
 
-                    if (sememe.getAssemblageSequence() == IsaacMetadataConstants.DYNAMIC_SEMEME_EXTENSION_DEFINITION.getSequence()) {
+                    if (sememe.getAssemblageSequence() == DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getSequence()) {
                         if (refexDefinitionData == null || refexDefinitionData.length < 3 || refexDefinitionData.length > 7) {
                             throw new RuntimeException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
                                     + "a DynamicSememeData Refex Type.  It must contain at least 3 columns in the DynamicSememeDataBI attachment, and no more than 7.");
@@ -266,16 +271,16 @@ public class DynamicSememeUsageDescriptionImpl implements DynamicSememeUsageDesc
                             }
 
                             allowedColumnInfo.put(column, new DynamicSememeColumnInfo(assemblageConcept.getPrimordialUuid(), column, descriptionUUID, type,
-                                    defaultData, columnRequired, validators, validatorsData));
+                                    defaultData, columnRequired, validators, validatorsData, null));
                         } catch (Exception e) {
                             throw new RuntimeException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
                                     + "a DynamicSememeData Refex Type.  The first column must have a data type of integer, and the third column must be a string "
                                     + "that is parseable as a DynamicSememeDataType");
                         }
-                    } else if (sememe.getAssemblageSequence() == IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getSequence()) {
+                    } else if (sememe.getAssemblageSequence() == DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getSequence()) {
                         if (refexDefinitionData == null || refexDefinitionData.length < 1) {
                             throw new RuntimeException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
-                                    + "a DynamicSememeData Refex Type.  If it contains a " + IsaacMetadataConstants.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getFSN()
+                                    + "a DynamicSememeData Refex Type.  If it contains a " + DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION.getFSN()
                                     + " then it must contain a single column of data, of type string, parseable as a " + ObjectChronologyType.class.getName());
                         }
 

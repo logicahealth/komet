@@ -20,6 +20,8 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
 import gov.vha.isaac.ochre.api.commit.CommittableComponent;
+import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
+import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +41,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
     protected final List<UUID> additionalUuids = new ArrayList<>();
     private UUID primordialUuid = null;
+    protected final List<SememeBuilder<?>> sememeBuilders = new ArrayList<>();
     
     @Override
     public int getNid() {
@@ -95,5 +98,11 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
             this.primordialUuid = UUID.randomUUID();  //This is a slow operation - lazy load.
         }
         return this.primordialUuid;
+    }
+    
+    @Override
+    public ComponentBuilder<T> addSememe(SememeBuilder<?> sememeBuilder) {
+        sememeBuilders.add(sememeBuilder);
+        return this;
     }
 }

@@ -4,7 +4,7 @@ import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 
 public class PropertyAssociation extends Property
 {
@@ -53,8 +53,8 @@ public class PropertyAssociation extends Property
 	public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex()
 	{
 		DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] {
-				new DynamicSememeColumnInfo(0, IsaacMetadataConstants.DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(), 
-						DynamicSememeDataType.UUID, null, false)};
+				new DynamicSememeColumnInfo(0, DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(), 
+						DynamicSememeDataType.UUID, null, false, true)};
 		return columns;
 	}
 }

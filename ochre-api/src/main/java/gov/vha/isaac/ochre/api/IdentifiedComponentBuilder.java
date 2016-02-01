@@ -18,7 +18,9 @@ package gov.vha.isaac.ochre.api;
 import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
 import gov.vha.isaac.ochre.api.commit.CommittableComponent;
+import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -94,5 +96,11 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent> exte
      * @throws IllegalStateException 
      */
     T build(int stampSequence, List<?> builtObjects) throws IllegalStateException;
-    
+ 
+    /**
+     * Add a nested Sememe that should be chained / built when build is called on this component
+     * @param sememeBuilder
+     * @return this object
+     */
+    public IdentifiedComponentBuilder<T> addSememe(SememeBuilder<?> sememeBuilder);
 }

@@ -6,13 +6,16 @@
 package gov.vha.isaac.ochre.mojo;
 
 import gov.vha.isaac.ochre.api.IsaacTaxonomy;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.constants.MetadataConceptConstant;
+import gov.vha.isaac.ochre.api.constants.ModuleProvidedConstants;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,6 +55,8 @@ public class ExportTaxonomy extends AbstractMojo {
             metadataDirectory.mkdirs();
             File metadataXmlDataFile = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
             String bindingFileDirectory = bindingPackage.concat(".").concat(bindingClass).replace('.', '/');
+            //Write out the java binding file before we read in the MetadataConceptConstant objects, as these already come from classes
+            //and I don't want to have duplicate constants in the system
             File bindingFile = new File(javaDir, bindingFileDirectory + ".java");
             bindingFile.getParentFile().mkdirs();
             try (Writer writer = new BufferedWriter(new FileWriter(bindingFile));
@@ -63,9 +68,23 @@ public class ExportTaxonomy extends AbstractMojo {
 
                 //taxonomy.exportJaxb(xmlData);
             }
+            
+            //Read in the MetadataConceptConstant constant objects
+            for (ModuleProvidedConstants mpc : LookupService.get().getAllServices(ModuleProvidedConstants.class))
+            {
+                getLog().info("Adding metadata constants from " + mpc.getClass().getName());
+                int count = 0;
+                for (MetadataConceptConstant mc : mpc.getConstantsToCreate())
+                {
+                    taxonomy.createConcept(mc);
+                    count++;
+                }
+                getLog().info("Created " + count + " concepts (+ their children)");
+            }
+            
             Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass().getSimpleName() + ".ibdf");
             taxonomy.exportIBDF(ibdfPath);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IOException ex) {
+        } catch (Exception ex) {
             throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
         }
     }

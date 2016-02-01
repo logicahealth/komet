@@ -48,10 +48,10 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import gov.vha.isaac.ochre.api.index.IndexStatusListenerBI;
 import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
 import gov.vha.isaac.ochre.model.configuration.StampCoordinates;
-import gov.vha.isaac.ochre.model.constants.IsaacMetadataConstants;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 
@@ -99,7 +99,7 @@ public class DynamicSememeIndexerConfiguration
 					{
 						HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
 						Stream<SememeChronology<? extends SememeVersion<?>>> sememeCs = 
-								Get.sememeService().getSememesFromAssemblage(IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence());
+								Get.sememeService().getSememesFromAssemblage(DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence());
 						
 						sememeCs.forEach(sememeC ->
 						{
@@ -190,7 +190,7 @@ public class DynamicSememeIndexerConfiguration
 		
 		SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = 
 				Get.sememeBuilderService().getDynamicSememeBuilder(assemblageNidOrSequence,
-						IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence(), data);
+						DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence(), data);
 		
 		sb.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE);
 		Get.commitService().commit("Index Config Change");
@@ -219,7 +219,7 @@ public class DynamicSememeIndexerConfiguration
 		SememeSnapshotService<DynamicSememe> sss = Get.sememeService().getSnapshot(DynamicSememe.class, StampCoordinates.getDevelopmentLatest());
 		@SuppressWarnings("rawtypes")
 		Stream<LatestVersion<DynamicSememe>> sememes = sss.getLatestSememeVersionsForComponentFromAssemblage(assemblageNidOrSequence, 
-				IsaacMetadataConstants.DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence());
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getSequence());
 
 		@SuppressWarnings("rawtypes")
 		Optional<LatestVersion<DynamicSememe>> ds = sememes.findAny();
