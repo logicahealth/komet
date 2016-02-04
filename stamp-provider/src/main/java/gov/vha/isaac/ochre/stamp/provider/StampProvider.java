@@ -73,7 +73,7 @@ public class StampProvider implements StampService {
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         try {
             LOG.info("Starting StampProvider post-construct");
             if (loadRequired.get()) {
@@ -97,12 +97,12 @@ public class StampProvider implements StampService {
             }
         } catch (Exception e) {
             LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Stamp Provider", e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         LOG.info("Stopping StampProvider pre-destroy. ");
 
         try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(stampManagerFolder.toFile(), STAMP_MANAGER_DATA_FILENAME)))) {
@@ -123,7 +123,9 @@ public class StampProvider implements StampService {
                 entry.getKey().write(out);
                 out.writeInt(entry.getValue());
             }
-
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

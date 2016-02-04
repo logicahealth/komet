@@ -116,7 +116,7 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         try {
             LOG.info("Starting TaxonomyService post-construct");
             if (!loadRequired.get()) {
@@ -136,12 +136,12 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
 
         } catch (Exception e) {
             LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Cradle Taxonomy Provider", e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         LOG.info("Writing taxonomy.");
         originDestinationTaxonomyRecordMap.write();
         File outputFile = new File(taxonomyProviderFolder.toFile(), ORIGIN_DESTINATION_MAP);
@@ -158,6 +158,9 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
                 }
 
             });
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     private static final String ORIGIN_DESTINATION_MAP = "origin-destination.map";
