@@ -1,22 +1,25 @@
 package gov.vha.isaac.ochre.api.collections;
 
 
-import gov.vha.isaac.ochre.api.memory.DiskSemaphore;
-import gov.vha.isaac.ochre.api.memory.HoldInMemoryCache;
-import gov.vha.isaac.ochre.api.memory.MemoryManagedReference;
-import gov.vha.isaac.ochre.api.memory.WriteToDiskCache;
-import gov.vha.isaac.ochre.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
-import gov.vha.isaac.ochre.api.collections.uuidnidmap.UuidToIntMap;
-import gov.vha.isaac.ochre.api.collections.uuidnidmap.UuidUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import gov.vha.isaac.ochre.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
+import gov.vha.isaac.ochre.api.collections.uuidnidmap.UuidToIntMap;
+import gov.vha.isaac.ochre.api.memory.DiskSemaphore;
+import gov.vha.isaac.ochre.api.memory.HoldInMemoryCache;
+import gov.vha.isaac.ochre.api.memory.MemoryManagedReference;
+import gov.vha.isaac.ochre.api.memory.WriteToDiskCache;
+import gov.vha.isaac.ochre.api.util.UUIDUtil;
 
 /**
  * Created by kec on 7/27/14.
@@ -150,7 +153,7 @@ public class UuidIntMapMap implements UuidToIntMap {
 
     public int getWithGeneration(UUID uuidKey) {
          
-        long[] keyAsArray = UuidUtil.convert(uuidKey);
+        long[] keyAsArray = UUIDUtil.convert(uuidKey);
     
         int mapIndex = getMapIndex(uuidKey);
         int nid = getMap(mapIndex).get(keyAsArray);
@@ -196,7 +199,7 @@ public class UuidIntMapMap implements UuidToIntMap {
     public boolean put(UUID uuidKey, int value) {
         updateCache(value, uuidKey);
         int mapIndex = getMapIndex(uuidKey);
-        long[] keyAsArray = UuidUtil.convert(uuidKey);
+        long[] keyAsArray = UUIDUtil.convert(uuidKey);
         ConcurrentUuidToIntHashMap map = getMap(mapIndex);
         long stamp = map.getStampedLock().writeLock();
         try {

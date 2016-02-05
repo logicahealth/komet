@@ -18,6 +18,7 @@ package gov.vha.isaac.ochre.api.collections.uuidnidmap;
 import java.util.UUID;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.AbstractSet;
+import gov.vha.isaac.ochre.api.util.UUIDUtil;
 
 /**
  *
@@ -313,6 +314,6 @@ public abstract class AbstractUuidToIntHashMap extends AbstractSet {
     }
 
     public boolean put(UUID key, int value) {
-        return put(UuidUtil.convert(key), value);
+        return put(UUIDUtil.convert(key), value);
     }
 }
