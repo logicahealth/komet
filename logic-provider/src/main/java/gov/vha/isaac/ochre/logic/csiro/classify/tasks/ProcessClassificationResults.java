@@ -78,14 +78,13 @@ import javafx.concurrent.Task;
         Ontology inferredAxioms = cd.getClassifiedOntology();
 		  
         ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
-        writeBackInferred(classifierResults, inferredAxioms);
         return classifierResults;
     }
 
-    private ClassifierResults collectResults(Ontology res, ConceptSequenceSet affectedConcepts) {
+    private ClassifierResults collectResults(Ontology classifiedResult, ConceptSequenceSet affectedConcepts) {
         HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
         affectedConcepts.parallelStream().forEach((conceptSequence) -> {
-            Node node = res.getNode(Integer.toString(conceptSequence));
+            Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
             if (node == null) {
                 throw new RuntimeException("Null node for: " + conceptSequence);
             }
@@ -113,10 +112,11 @@ import javafx.concurrent.Task;
                 });
             }
         });
-        return new ClassifierResults(affectedConcepts, equivalentSets);
+
+        return new ClassifierResults(affectedConcepts, equivalentSets, writeBackInferred(classifiedResult, affectedConcepts));
     }
 
-    private void writeBackInferred(ClassifierResults classifierResults, Ontology inferredAxioms) {
+    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
         SememeService sememeService = Get.sememeService();
         IdentifierService idService = Get.identifierService();
         AtomicInteger sufficientSets = new AtomicInteger();
@@ -124,7 +124,7 @@ import javafx.concurrent.Task;
         SememeBuilderService sememeBuilderService = Get.sememeBuilderService();
         CommitService commitService = Get.commitService();
 
-        classifierResults.getAffectedConcepts().parallelStream().forEach((conceptSequence) -> {
+        affectedConcepts.parallelStream().forEach((conceptSequence) -> {
             SememeSequenceSet inferredSememeSequences
                     = sememeService.getSememeSequencesForComponentFromAssemblage(idService.getConceptNid(conceptSequence), logicCoordinate.getInferredAssemblageSequence());
             SememeSequenceSet statedSememeSequences
@@ -211,6 +211,7 @@ import javafx.concurrent.Task;
             log.info("Processed " + sufficientSets + " sufficient sets.");
             log.info("stampCoordinate: " + stampCoordinate);
             log.info("logicCoordinate: " + logicCoordinate);
+            return commitRecord;
         } catch (InterruptedException|ExecutionException e) {
             throw new RuntimeException(e);
         }
