@@ -5,9 +5,8 @@ import au.csiro.ontology.model.Axiom;
 import au.csiro.ontology.model.Concept;
 import au.csiro.ontology.model.ConceptInclusion;
 import au.csiro.ontology.model.Role;
-import gov.vha.isaac.ochre.api.logic.LogicalExpression;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.model.logic.node.AndNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
@@ -50,10 +49,10 @@ public class AxiomAccumulator implements BiConsumer<Set<Axiom>, LogicalExpressio
     public Set<Axiom> generateAxioms(LogicalExpressionOchreImpl logicGraphVersion) {
         Concept thisConcept = concepts[logicGraphVersion.getConceptSequence()];
         Set<Axiom> axioms = new HashSet<>();
-        for (Node setNode : logicGraphVersion.getRoot().getChildren()) {
-            AndNode andNode = (AndNode) setNode.getChildren()[0];
+        for (LogicNode setLogicNode : logicGraphVersion.getRoot().getChildren()) {
+            AndNode andNode = (AndNode) setLogicNode.getChildren()[0];
             ArrayList<Concept> definition = new ArrayList<>();
-            for (Node child : andNode.getChildren()) {
+            for (LogicNode child : andNode.getChildren()) {
                 switch (child.getNodeSemantic()) {
                     case CONCEPT:
                         ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) child;
@@ -69,7 +68,7 @@ public class AxiomAccumulator implements BiConsumer<Set<Axiom>, LogicalExpressio
                 }
             }
 
-            switch (setNode.getNodeSemantic()) {
+            switch (setLogicNode.getNodeSemantic()) {
                 case SUFFICIENT_SET:
                     // if sufficient set, create a concept inclusion from the axioms to the concept
                     axioms.add(new ConceptInclusion(
@@ -85,38 +84,38 @@ public class AxiomAccumulator implements BiConsumer<Set<Axiom>, LogicalExpressio
                     ));
                     break;
                 default:
-                    throw new UnsupportedOperationException("Can't handle " + setNode + " as child of root");
+                    throw new UnsupportedOperationException("Can't handle " + setLogicNode + " as child of root");
             }
         }
         return axioms;
     }
 
 
-    private Concept[] getConcepts(Node[] nodes, Concept[] concepts, OpenIntObjectHashMap<Role> roles,
+    private Concept[] getConcepts(LogicNode[] logicNodes, Concept[] concepts, OpenIntObjectHashMap<Role> roles,
                                   OpenIntHashSet neverGroupRoleSequences, int roleGroupConceptSequence) {
         Concept[] returnValues = new Concept[concepts.length];
         for (int i = 0; i < concepts.length; i++) {
-            returnValues[i] = getConcept(nodes[i],
+            returnValues[i] = getConcept(logicNodes[i],
                     concepts, roles, neverGroupRoleSequences, roleGroupConceptSequence);
         }
         return returnValues;
     }
 
-    private Concept getConcept(Node node, Concept[] concepts, OpenIntObjectHashMap<Role> roles,
+    private Concept getConcept(LogicNode logicNode, Concept[] concepts, OpenIntObjectHashMap<Role> roles,
                                OpenIntHashSet neverGroupRoleSequences, int roleGroupConceptSequence) {
-        switch (node.getNodeSemantic()) {
+        switch (logicNode.getNodeSemantic()) {
             case ROLE_SOME:
-                RoleNodeSomeWithSequences roleNodeSome = (RoleNodeSomeWithSequences) node;
+                RoleNodeSomeWithSequences roleNodeSome = (RoleNodeSomeWithSequences) logicNode;
                 return Factory.createExistential(roles.get(roleNodeSome.getTypeConceptSequence()),
                         getConcept(roleNodeSome.getOnlyChild(), concepts, roles, neverGroupRoleSequences, roleGroupConceptSequence));
             case CONCEPT:
-                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) node;
+                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
                 return concepts[conceptNode.getConceptSequence()];
             case AND:
-                return Factory.createConjunction(getConcepts(node.getChildren(),
+                return Factory.createConjunction(getConcepts(logicNode.getChildren(),
                         concepts, roles, neverGroupRoleSequences, roleGroupConceptSequence));
         }
-        throw new UnsupportedOperationException("Can't handle " + node + " as child of ROLE_SOME.");
+        throw new UnsupportedOperationException("Can't handle " + logicNode + " as child of ROLE_SOME.");
     }
 
     private Concept processRole(RoleNodeSomeWithSequences roleNodeSome, Concept[] concepts, OpenIntObjectHashMap<Role> roles,

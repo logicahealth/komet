@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.model;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.State;
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedStampedVersion;
+import gov.vha.isaac.ochre.api.commit.IdentifiedStampedVersion;
 import gov.vha.isaac.ochre.api.chronicle.MutableStampedVersion;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.UUID;
  * @param <C>
  * @param <V>
  */
-public class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends ObjectVersionImpl>
+public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends ObjectVersionImpl>
         implements MutableStampedVersion, IdentifiedStampedVersion {
 
     protected final C chronicle;

@@ -2,12 +2,12 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.ConcreteDomainOperators;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.external.FeatureNodeWithUuids;
 
 import java.io.DataInputStream;
@@ -33,7 +33,7 @@ public final class FeatureNodeWithSequences extends TypedNodeWithSequences {
 //        unitsConceptSequence = dataInputStream.readInt();
     }
 
-    public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
+    public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractLogicNode child) {
         super(logicGraphVersion, typeConceptId, child);
         operator = ConcreteDomainOperators.EQUALS;  //TODO - Keith, Dan hardcoded it, it broke when not set.
     }
@@ -126,7 +126,7 @@ public final class FeatureNodeWithSequences extends TypedNodeWithSequences {
 //    }
     @Override
 
-    protected int compareTypedNodeFields(Node o) {
+    protected int compareTypedNodeFields(LogicNode o) {
         // node semantic already determined equals. 
         FeatureNodeWithSequences other = (FeatureNodeWithSequences) o;
 //        if (unitsConceptSequence != other.unitsConceptSequence) {

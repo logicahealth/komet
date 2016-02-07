@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.api.snapshot;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.TaxonomySnapshotService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;

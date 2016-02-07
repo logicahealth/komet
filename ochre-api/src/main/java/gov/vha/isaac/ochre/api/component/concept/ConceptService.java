@@ -74,12 +74,7 @@ public interface ConceptService {
     boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
     
     ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
-    
-    @Deprecated
-    default ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate) {
-        return getSnapshot(stampCoordinate, Get.configurationService().getDefaultLanguageCoordinate());
-    }
-    
+
     int getConceptCount();
     
     Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream();

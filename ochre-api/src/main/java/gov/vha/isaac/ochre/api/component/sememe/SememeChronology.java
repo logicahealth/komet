@@ -27,7 +27,7 @@ import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
  * @param <V>
  */
 public interface SememeChronology<V extends SememeVersion> 
-    extends ObjectChronology<V>, SememeObject,  OchreExternalizable {
+    extends ObjectChronology<V>, SememeObject {
 
     /**
      * Create a mutable version with Long.MAX_VALUE as the time, indicating

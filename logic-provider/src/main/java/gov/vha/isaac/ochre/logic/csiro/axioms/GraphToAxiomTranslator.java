@@ -17,7 +17,7 @@ import au.csiro.ontology.model.Feature;
 import au.csiro.ontology.model.Literal;
 import au.csiro.ontology.model.Operator;
 import au.csiro.ontology.model.Role;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.node.AndNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
@@ -113,54 +113,54 @@ public class GraphToAxiomTranslator {
         generateAxioms(logicGraph.getRoot(), logicGraphSememe.getReferencedComponentNid(), logicGraph);
     }
 
-    private Optional<Literal> generateLiterals(Node node, Concept c, LogicalExpressionOchreImpl logicGraph) {
-        switch (node.getNodeSemantic()) {
+    private Optional<Literal> generateLiterals(LogicNode logicNode, Concept c, LogicalExpressionOchreImpl logicGraph) {
+        switch (logicNode.getNodeSemantic()) {
             case LITERAL_BOOLEAN:
-                LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) node;
+                LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) logicNode;
                 return Optional.of(Factory.createBooleanLiteral(literalNodeBoolean.getLiteralValue()));
             case LITERAL_FLOAT:
-                LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) node;
+                LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
                 return Optional.of(Factory.createFloatLiteral(literalNodeFloat.getLiteralValue()));
             case LITERAL_INSTANT:
-                LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) node;
+                LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) logicNode;
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(literalNodeInstant.getLiteralValue().toEpochMilli());
                 return Optional.of(Factory.createDateLiteral(calendar));
             case LITERAL_INTEGER:
-                LiteralNodeInteger literalNodeInteger = (LiteralNodeInteger) node;
+                LiteralNodeInteger literalNodeInteger = (LiteralNodeInteger) logicNode;
                 return Optional.of(Factory.createIntegerLiteral(literalNodeInteger.getLiteralValue()));
             case LITERAL_STRING:
-                LiteralNodeString literalNodeString = (LiteralNodeString) node;
+                LiteralNodeString literalNodeString = (LiteralNodeString) logicNode;
                 return Optional.of(Factory.createStringLiteral(literalNodeString.getLiteralValue()));
             default:
-                throw new UnsupportedOperationException("Expected literal node, found: " + node
+                throw new UnsupportedOperationException("Expected literal logicNode, found: " + logicNode
                         + " Concept: " + c + " graph: " + logicGraph);
         }
     }
 
-    private Optional<Concept> generateAxioms(Node node, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
-        switch (node.getNodeSemantic()) {
+    private Optional<Concept> generateAxioms(LogicNode logicNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
+        switch (logicNode.getNodeSemantic()) {
             case AND:
-                return processAnd((AndNode) node, conceptNid, logicGraph);
+                return processAnd((AndNode) logicNode, conceptNid, logicGraph);
             case CONCEPT:
-                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) node;
+                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
                 return Optional.of(getConcept(conceptNode.getConceptSequence()));
             case DEFINITION_ROOT:
-                processRoot(node, conceptNid, logicGraph);
+                processRoot(logicNode, conceptNid, logicGraph);
                 break;
             case DISJOINT_WITH:
                 throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
             case FEATURE:
-                return processFeatureNode((FeatureNodeWithSequences) node, conceptNid, logicGraph);
+                return processFeatureNode((FeatureNodeWithSequences) logicNode, conceptNid, logicGraph);
             case NECESSARY_SET:
-                processNecessarySet((NecessarySetNode) node, conceptNid, logicGraph);
+                processNecessarySet((NecessarySetNode) logicNode, conceptNid, logicGraph);
                 break;
             case OR:
                 throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
             case ROLE_ALL:
                 throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
             case ROLE_SOME:
-                return processRoleNodeSome((RoleNodeSomeWithSequences) node, conceptNid, logicGraph);
+                return processRoleNodeSome((RoleNodeSomeWithSequences) logicNode, conceptNid, logicGraph);
             case SUBSTITUTION_BOOLEAN:
                 throw new UnsupportedOperationException("Supported, but not yet implemented.");
             case SUBSTITUTION_CONCEPT:
@@ -174,7 +174,7 @@ public class GraphToAxiomTranslator {
             case SUBSTITUTION_STRING:
                 throw new UnsupportedOperationException("Supported, but not yet implemented.");
             case SUFFICIENT_SET:
-                processSufficientSet((SufficientSetNode) node, conceptNid, logicGraph);
+                processSufficientSet((SufficientSetNode) logicNode, conceptNid, logicGraph);
                 break;
             case TEMPLATE:
                 throw new UnsupportedOperationException("Supported, but not yet implemented.");
@@ -183,25 +183,25 @@ public class GraphToAxiomTranslator {
             case LITERAL_INSTANT:
             case LITERAL_INTEGER:
             case LITERAL_STRING:
-                throw new UnsupportedOperationException("Expected concept node, found literal node: " + node
+                throw new UnsupportedOperationException("Expected concept logicNode, found literal logicNode: " + logicNode
                         + " Concept: " + conceptNid + " graph: " + logicGraph);
             default:
-                throw new UnsupportedOperationException("Can't handle: " + node.getNodeSemantic());
+                throw new UnsupportedOperationException("Can't handle: " + logicNode.getNodeSemantic());
         }
         return Optional.empty();
     }
 
     private Optional<Concept> processAnd(AndNode andNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
-        Node[] childrenNodes = andNode.getChildren();
-        Concept[] conjunctionConcepts = new Concept[childrenNodes.length];
-        for (int i = 0; i < childrenNodes.length; i++) {
-            conjunctionConcepts[i] = generateAxioms(childrenNodes[i], conceptNid, logicGraph).get();
+        LogicNode[] childrenLogicNodes = andNode.getChildren();
+        Concept[] conjunctionConcepts = new Concept[childrenLogicNodes.length];
+        for (int i = 0; i < childrenLogicNodes.length; i++) {
+            conjunctionConcepts[i] = generateAxioms(childrenLogicNodes[i], conceptNid, logicGraph).get();
         }
         return Optional.of(Factory.createConjunction(conjunctionConcepts));
     }
 
     private void processSufficientSet(SufficientSetNode sufficientSetNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
-        Node[] children = sufficientSetNode.getChildren();
+        LogicNode[] children = sufficientSetNode.getChildren();
         if (children.length != 1) {
             throw new IllegalStateException("SufficientSetNode can only have one child. Concept: " + conceptNid + " graph: " + logicGraph);
         }
@@ -218,7 +218,7 @@ public class GraphToAxiomTranslator {
     }
 
     private void processNecessarySet(NecessarySetNode necessarySetNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
-        Node[] children = necessarySetNode.getChildren();
+        LogicNode[] children = necessarySetNode.getChildren();
         if (children.length != 1) {
             throw new IllegalStateException("necessarySetNode can only have one child. Concept: " + conceptNid + " graph: " + logicGraph);
         }
@@ -233,19 +233,19 @@ public class GraphToAxiomTranslator {
         }
     }
 
-    private void processRoot(Node node, int conceptNid, LogicalExpressionOchreImpl logicGraph) throws IllegalStateException {
-        RootNode rootNode = (RootNode) node;
-        for (Node child : rootNode.getChildren()) {
+    private void processRoot(LogicNode logicNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) throws IllegalStateException {
+        RootNode rootNode = (RootNode) logicNode;
+        for (LogicNode child : rootNode.getChildren()) {
             Optional<Concept> axiom = generateAxioms(child, conceptNid, logicGraph);
             if (axiom.isPresent()) {
-                throw new IllegalStateException("Children of root node should not return axioms. Concept: " + conceptNid + " graph: " + logicGraph);
+                throw new IllegalStateException("Children of root logicNode should not return axioms. Concept: " + conceptNid + " graph: " + logicGraph);
             }
         }
     }
 
     private Optional<Concept> processRoleNodeSome(RoleNodeSomeWithSequences roleNodeSome, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
         Role theRole = getRole(roleNodeSome.getTypeConceptSequence());
-        Node[] children = roleNodeSome.getChildren();
+        LogicNode[] children = roleNodeSome.getChildren();
         if (children.length != 1) {
             throw new IllegalStateException("RoleNodeSome can only have one child. Concept: " + conceptNid + " graph: " + logicGraph);
         }
@@ -266,7 +266,7 @@ public class GraphToAxiomTranslator {
 
     private Optional<Concept> processFeatureNode(FeatureNodeWithSequences featureNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
         Feature theFeature = getFeature(featureNode.getTypeConceptSequence());
-        Node[] children = featureNode.getChildren();
+        LogicNode[] children = featureNode.getChildren();
         if (children.length != 1) {
             throw new IllegalStateException("FeatureNode can only have one child. Concept: " + conceptNid + " graph: " + logicGraph);
         }

@@ -8,10 +8,10 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.TemplateNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -23,7 +23,7 @@ import gov.vha.isaac.ochre.api.util.UuidT5Generator;
  *
  * @author kec
  */
-public class TemplateNodeWithUuids extends AbstractNode {
+public class TemplateNodeWithUuids extends AbstractLogicNode {
 
     /**
      * Sequence of the concept that defines the template
@@ -80,12 +80,12 @@ public class TemplateNodeWithUuids extends AbstractNode {
     }
 
     @Override
-    public final AbstractNode[] getChildren() {
-        return new AbstractNode[0];
+    public final AbstractLogicNode[] getChildren() {
+        return new AbstractLogicNode[0];
     }
 
     @Override
-    public final void addChildren(Node... children) {
+    public final void addChildren(LogicNode... children) {
         throw new UnsupportedOperationException();
     }
 
@@ -123,7 +123,7 @@ public class TemplateNodeWithUuids extends AbstractNode {
     }
 
     @Override
-    protected int compareFields(Node o) {
+    protected int compareFields(LogicNode o) {
         TemplateNodeWithUuids that = (TemplateNodeWithUuids) o;
         if (!assemblageConceptUuid.equals(that.assemblageConceptUuid)) {
             return assemblageConceptUuid.compareTo(that.assemblageConceptUuid);

@@ -8,9 +8,9 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -22,7 +22,7 @@ import gov.vha.isaac.ochre.api.util.UuidT5Generator;
  *
  * @author kec
  */
-public class ConceptNodeWithUuids extends AbstractNode {
+public class ConceptNodeWithUuids extends AbstractLogicNode {
 
     UUID conceptUuid;
 
@@ -75,12 +75,12 @@ public class ConceptNodeWithUuids extends AbstractNode {
     
 
     @Override
-    public AbstractNode[] getChildren() {
-        return new AbstractNode[0];
+    public AbstractLogicNode[] getChildren() {
+        return new AbstractLogicNode[0];
     }
 
     @Override
-    public final void addChildren(Node... children) {
+    public final void addChildren(LogicNode... children) {
         throw new UnsupportedOperationException();
     }
 
@@ -114,7 +114,7 @@ public class ConceptNodeWithUuids extends AbstractNode {
     
 
     @Override
-    protected int compareFields(Node o) {
+    protected int compareFields(LogicNode o) {
         return conceptUuid.compareTo(((ConceptNodeWithUuids) o).conceptUuid);
     }
     

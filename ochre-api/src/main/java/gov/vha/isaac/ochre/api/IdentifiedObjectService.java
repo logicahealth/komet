@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api;
 
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import java.util.Optional;
 import org.jvnet.hk2.annotations.Contract;
 

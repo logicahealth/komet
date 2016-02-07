@@ -15,6 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.externalizable;
 
+import gov.vha.isaac.ochre.api.commit.CommitStates;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
@@ -94,4 +95,5 @@ public class StampAlias implements OchreExternalizable {
         result = 31 * result + stampAlias;
         return result;
     }
+
 }

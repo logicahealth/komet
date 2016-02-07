@@ -1,7 +1,7 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class NecessarySetNode extends ConnectorNode {
 
-    public NecessarySetNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
+    public NecessarySetNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
         super(logicGraphVersion, children);
     }
 
@@ -49,7 +49,7 @@ public class NecessarySetNode extends ConnectorNode {
     }
     
     @Override
-    protected int compareNodeFields(Node o) {
+    protected int compareNodeFields(LogicNode o) {
         // no fields to compare, node semantic already determined equals. 
         return 0;
     }

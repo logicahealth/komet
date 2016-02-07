@@ -50,35 +50,35 @@ public interface IsomorphicResults {
      * @return roots for connected nodes that are in the reference expression, but not in the 
      * common expression. 
      */
-    Stream<Node> getAdditionalNodeRoots();
+    Stream<LogicNode> getAdditionalNodeRoots();
 
      /**
      * 
      * @return roots for connected nodes that are in the comparison expression, but are not in 
      * the common expression. 
      */
-    Stream<Node> getDeletedNodeRoots();
+    Stream<LogicNode> getDeletedNodeRoots();
     
     /**
      * 
      * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
      * in the comparisonExpression, but not in the referenceExpression. 
      */
-    Stream<Node> getDeletedRelationshipRoots();
+    Stream<LogicNode> getDeletedRelationshipRoots();
     
    /**
      * 
      * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
      * in the referenceExpression, but not in the comparisonExpression. 
      */
-    Stream<Node> getAddedRelationshipRoots();
+    Stream<LogicNode> getAddedRelationshipRoots();
     
    /**
      * 
      * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
      * in both the referenceExpression and in the comparisonExpression. 
      */
-     Stream<Node> getSharedRelationshipRoots();
+     Stream<LogicNode> getSharedRelationshipRoots();
     
    
     

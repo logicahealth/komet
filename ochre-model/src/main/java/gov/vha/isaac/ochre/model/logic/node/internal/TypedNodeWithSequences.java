@@ -3,10 +3,10 @@ package gov.vha.isaac.ochre.model.logic.node.internal;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
 import gov.vha.isaac.ochre.model.logic.node.external.TypedNodeWithUuids;
 
@@ -27,7 +27,7 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
         this.typeConceptSequence = dataInputStream.readInt();
     }
 
-    public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractNode child) {
+    public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int typeConceptId, AbstractLogicNode child) {
         super(logicGraphVersion, child);
         this.typeConceptSequence = Get.identifierService().getConceptSequence(typeConceptId);
     }
@@ -71,8 +71,8 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
         dataOutput.writeInt(typeConceptSequence);
     }
         
-    public Node getOnlyChild() {
-        Node[] children = getChildren();
+    public LogicNode getOnlyChild() {
+        LogicNode[] children = getChildren();
         if (children.length == 1) {
             return children[0];
         }
@@ -80,7 +80,7 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
     }
     
     @Override
-    protected final int compareNodeFields(Node o) {
+    protected final int compareNodeFields(LogicNode o) {
         // node semantic already determined equals. 
         TypedNodeWithSequences other = (TypedNodeWithSequences) o;
         if (typeConceptSequence != other.typeConceptSequence) {
@@ -88,7 +88,7 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
         }
         return compareTypedNodeFields(o);
     }
-    protected abstract int compareTypedNodeFields(Node o);
+    protected abstract int compareTypedNodeFields(LogicNode o);
 
     @Override
     public int hashCode() {

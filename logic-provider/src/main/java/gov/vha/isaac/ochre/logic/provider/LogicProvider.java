@@ -16,7 +16,8 @@
 package gov.vha.isaac.ochre.logic.provider;
 
 import gov.vha.isaac.MetaData;
-import gov.vha.isaac.ochre.api.logic.LogicService;
+import gov.vha.isaac.ochre.api.dag.Node;
+import gov.vha.isaac.ochre.api.logic.*;
 import gov.vha.isaac.ochre.logic.csiro.classify.ClassifierProvider;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
 import gov.vha.isaac.ochre.api.DataSource;
@@ -32,12 +33,7 @@ import gov.vha.isaac.ochre.api.coordinate.EditCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.dag.DagNode;
 import gov.vha.isaac.ochre.api.dag.Graph;
-import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
-import gov.vha.isaac.ochre.api.logic.LogicalExpression;
-import gov.vha.isaac.ochre.api.logic.Node;
-import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.relationship.RelationshipAdaptorChronicleKey;
 import gov.vha.isaac.ochre.api.relationship.RelationshipVersionAdaptor;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
@@ -241,7 +237,7 @@ public class LogicProvider implements LogicService {
                 });
     }
     
-    private void processNode(DagNode<? extends LogicGraphSememe<?>> node, 
+    private void processNode(Node<? extends LogicGraphSememe<?>> node,
            LogicalExpression previousExpression,
             Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder, PremiseType premiseType) {
         
@@ -257,7 +253,7 @@ public class LogicProvider implements LogicService {
             comparison.getDeletedRelationshipRoots().forEach((addedRelRoot) -> 
                     processRelNode(addedRelRoot, streamBuilder, newExpression, inactiveStampSequence, premiseType));
         }
-        for (DagNode<? extends LogicGraphSememe<?>> child: node.getChildren()) {
+        for (Node<? extends LogicGraphSememe<?>> child: node.getChildren()) {
             processNode(child, newExpression, streamBuilder, premiseType);
         }
     }
@@ -272,7 +268,7 @@ public class LogicProvider implements LogicService {
         // one graph for each origin... Usually only one. 
          
         for (Graph<? extends LogicGraphSememe<?>> versionGraph: logicGraphChronology.getVersionGraphList()) {
-            DagNode<? extends LogicGraphSememe<?>> node = versionGraph.getRoot();
+            Node<? extends LogicGraphSememe<?>> node = versionGraph.getRoot();
             processNode(node, null, streamBuilder, premiseType);
         }
         
@@ -293,26 +289,26 @@ public class LogicProvider implements LogicService {
             PremiseType premiseType) {
         expression.getRoot()
                 .getChildStream().forEach((necessaryOrSufficientSet) -> {
-                    necessaryOrSufficientSet.getChildStream().forEach((Node andOrOrNode)
-                            -> andOrOrNode.getChildStream().forEach((Node aNode) -> {
-                processRelNode(aNode, streamBuilder, expression, stampSequence, premiseType);
+                    necessaryOrSufficientSet.getChildStream().forEach((LogicNode andOrOrLogicNode)
+                            -> andOrOrLogicNode.getChildStream().forEach((LogicNode aLogicNode) -> {
+                processRelNode(aLogicNode, streamBuilder, expression, stampSequence, premiseType);
                             }));
                 });
     }
 
-    private void processRelNode(Node aNode, Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder, 
-            LogicalExpression expression, int stampSequence, PremiseType premiseType) throws UnsupportedOperationException {
-        switch (aNode.getNodeSemantic()) {
+    private void processRelNode(LogicNode aLogicNode, Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
+                                LogicalExpression expression, int stampSequence, PremiseType premiseType) throws UnsupportedOperationException {
+        switch (aLogicNode.getNodeSemantic()) {
             case CONCEPT:
                 streamBuilder.accept(createIsaRel(expression.getConceptSequence(),
-                        (ConceptNodeWithSequences) aNode,
+                        (ConceptNodeWithSequences) aLogicNode,
                         stampSequence,
                         premiseType));
                 break;
             case ROLE_SOME:
                 
                 createSomeRole(expression.getConceptSequence(),
-                        (RoleNodeSomeWithSequences) aNode,
+                        (RoleNodeSomeWithSequences) aLogicNode,
                         stampSequence,
                         premiseType, 0).forEach((someRelAdaptor) -> {
                             streamBuilder.accept(someRelAdaptor);
@@ -321,7 +317,7 @@ public class LogicProvider implements LogicService {
             case FEATURE:
                 break;  //TODO Keith, not sure how this should be handled
             default:
-                throw new UnsupportedOperationException("Can't handle: " + aNode.getNodeSemantic());
+                throw new UnsupportedOperationException("Can't handle: " + aLogicNode.getNodeSemantic());
         }
     }
 
@@ -363,7 +359,7 @@ public class LogicProvider implements LogicService {
             });
 
         } else {
-            Node restriction = someNode.getOnlyChild();
+            LogicNode restriction = someNode.getOnlyChild();
             int destinationSequence;
             if (restriction.getNodeSemantic() == NodeSemantic.CONCEPT) {
                 ConceptNodeWithSequences restrictionNode = (ConceptNodeWithSequences) someNode.getOnlyChild();

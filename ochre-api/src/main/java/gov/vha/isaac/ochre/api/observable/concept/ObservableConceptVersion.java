@@ -1,6 +1,6 @@
 package gov.vha.isaac.ochre.api.observable.concept;
 
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.observable.ObservableVersion;
 
 /**

@@ -23,7 +23,7 @@ import java.util.List;
  * @author kec
  * @param <T>
  */
-public class DagNode<T> {
+public class Node<T> {
     private final T data;
 
     public T getData() {
@@ -33,34 +33,34 @@ public class DagNode<T> {
     public Graph<T> getGraph() {
         return graph;
     }
-    private final DagNode<T> parent;
+    private final Node<T> parent;
     private final Graph<T> graph;
-    private final List<DagNode<T>> children = new ArrayList<>();
+    private final List<Node<T>> children = new ArrayList<>();
 
-    public DagNode(T data, Graph<T> graph) {
+    public Node(T data, Graph<T> graph) {
         this.data = data;
         this.parent = null;
         this.graph = graph;
     }
 
-    public DagNode(T data, DagNode<T> parent) {
+    public Node(T data, Node<T> parent) {
         this.data = data;
         this.parent = parent;
         this.graph = parent.graph;
     }
 
-    public final DagNode<T> addChild(T t) {
-        DagNode<T> child = new DagNode<>(t, this);
+    public final Node<T> addChild(T t) {
+        Node<T> child = new Node<>(t, this);
         children.add(child);
         this.graph.setLastAddedNode(child);
         return child;
     }
     
-    public List<DagNode<T>> getChildren() {
+    public List<Node<T>> getChildren() {
         return children;
     }
 
-    public DagNode<T> getParent() {
+    public Node<T> getParent() {
         return parent;
     }
     

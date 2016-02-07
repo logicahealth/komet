@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.api.commit;
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
+import gov.vha.isaac.ochre.api.identity.IdentifiedObject;
 
 /**
  *

@@ -54,7 +54,7 @@ public interface LogicalExpression {
      * @param nodeIndex
      * @return the node corresponding to the node index 
      */
-    Node getNode(int nodeIndex);
+    LogicNode getNode(int nodeIndex);
 
     /**
      * 
@@ -66,21 +66,21 @@ public interface LogicalExpression {
      * 
      * @return the root node if this expression 
      */
-    Node getRoot();
+    LogicNode getRoot();
 
     /**
      * Present the consumer the nodes of this expression in a depth-first manner, 
      * starting with the root node. 
      * @param consumer the consumer of the nodes. 
      */
-    void processDepthFirst(BiConsumer<Node, TreeNodeVisitData> consumer);
+    void processDepthFirst(BiConsumer<LogicNode, TreeNodeVisitData> consumer);
     
     /**
      * Process the fragment starting at fragmentRoot in a depth first manner. 
      * @param fragmentRoot
      * @param consumer 
      */
-    void processDepthFirst(Node fragmentRoot, BiConsumer<Node, TreeNodeVisitData> consumer);
+    void processDepthFirst(LogicNode fragmentRoot, BiConsumer<LogicNode, TreeNodeVisitData> consumer);
 
     /**
      * @param semantic the type of nodes to match
@@ -94,7 +94,7 @@ public interface LogicalExpression {
      * @param semantic the type of nodes to match
      * @return the nodes in the expression that match the NodeSemantic
      */
-    Stream<Node> getNodesOfType(NodeSemantic semantic);
+    Stream<LogicNode> getNodesOfType(NodeSemantic semantic);
     
     /**
      * Find isomorphic aspects of this {@code LogicalExpression} (the reference expression) with respect

@@ -10,6 +10,8 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.dag.Graph;
+import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePosition;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import java.util.List;
@@ -24,8 +26,8 @@ import java.util.stream.IntStream;
  * @author kec
 * @param <V> the Version type this chronicled object contains. 
  */
-public interface ObjectChronology<V extends StampedVersion> 
-    extends CommittableComponent {
+public interface ObjectChronology<V extends StampedVersion>
+    extends OchreExternalizable, CommittableComponent {
     
     Optional<LatestVersion<V>> 
         getLatestVersion(Class<V> type, StampCoordinate coordinate);    

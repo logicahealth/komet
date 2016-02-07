@@ -1,7 +1,7 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Created by kec on 12/10/14.
  */
-public abstract class AbstractNode implements Node {
+public abstract class AbstractLogicNode implements LogicNode {
 
     protected static final UUID namespaceUuid = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
@@ -27,18 +27,18 @@ public abstract class AbstractNode implements Node {
     protected UUID nodeUuid = null;
     
 
-    public AbstractNode(LogicalExpressionOchreImpl logicGraphVersion) {
+    public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion) {
         this.logicGraphVersion = logicGraphVersion;
         logicGraphVersion.addNode(this);
     }
 
-    public AbstractNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
+    public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         nodeIndex = dataInputStream.readShort();
         this.logicGraphVersion = logicGraphVersion;
         logicGraphVersion.addNode(this);
     }
     
-    protected AbstractNode(AbstractNode anotherNode) {
+    protected AbstractLogicNode(AbstractLogicNode anotherNode) {
         this.nodeIndex = anotherNode.nodeIndex;
         this.nodeUuid = anotherNode.nodeUuid;
     }
@@ -99,7 +99,7 @@ public abstract class AbstractNode implements Node {
         } else if (this.nodeIndex == nodeIndex) {
             // nothing to do...
         } else {
-            throw new IllegalStateException("Node index cannot be changed once set. NodeId: "
+            throw new IllegalStateException("LogicNode index cannot be changed once set. NodeId: "
                     + this.nodeIndex + " attempted: " + nodeIndex);
         }
     }
@@ -110,17 +110,17 @@ public abstract class AbstractNode implements Node {
     protected abstract void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException;
 
     @Override
-    public int compareTo(Node o) {
+    public int compareTo(LogicNode o) {
         if (this.getNodeSemantic() != o.getNodeSemantic()) {
             return this.getNodeSemantic().compareTo(o.getNodeSemantic());
         }
         return compareFields(o);
      }
 
-    protected abstract int compareFields(Node o);
+    protected abstract int compareFields(LogicNode o);
 
     @Override
-    public abstract AbstractNode[] getChildren();
+    public abstract AbstractLogicNode[] getChildren();
     
     protected UUID getNodeUuid() {
         if (nodeUuid == null) {
@@ -133,7 +133,7 @@ public abstract class AbstractNode implements Node {
         SortedSet<UUID> uuidSet = new TreeSet<>();
         uuidSet.add(getNodeUuid());
         if (depth > 1) {
-            for (AbstractNode child: getChildren()) {
+            for (AbstractLogicNode child: getChildren()) {
                 uuidSet.addAll(child.getNodeUuidSetForDepth(depth - 1));
             }
         }
@@ -155,11 +155,11 @@ public abstract class AbstractNode implements Node {
    @Override
     public String fragmentToString(String nodeIdSuffix) {
         StringBuilder builder = new StringBuilder();
-        logicGraphVersion.processDepthFirst(this, (Node node, TreeNodeVisitData graphVisitData) -> {
-            for (int i = 0; i < graphVisitData.getDistance(node.getNodeIndex()); i++) {
+        logicGraphVersion.processDepthFirst(this, (LogicNode logicNode, TreeNodeVisitData graphVisitData) -> {
+            for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
                 builder.append("    ");
             }
-            builder.append(node.toString(nodeIdSuffix));
+            builder.append(logicNode.toString(nodeIdSuffix));
             builder.append("\n");
         });
         return builder.toString();

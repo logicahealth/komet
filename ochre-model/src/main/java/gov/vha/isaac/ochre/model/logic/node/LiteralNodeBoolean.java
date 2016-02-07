@@ -2,7 +2,7 @@ package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 import java.io.DataInputStream;
@@ -63,7 +63,7 @@ public class LiteralNodeBoolean extends LiteralNode {
 
     
     @Override
-    protected int compareFields(Node o) {
+    protected int compareFields(LogicNode o) {
         LiteralNodeBoolean that = (LiteralNodeBoolean) o;
         return Boolean.compare(this.literalValue, that.literalValue);
     }
