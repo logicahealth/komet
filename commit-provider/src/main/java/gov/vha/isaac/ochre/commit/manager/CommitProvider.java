@@ -144,7 +144,7 @@ public class CommitProvider implements CommitService {
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         try {
             LOG.info("Starting CommitProvider post-construct");
             writeConceptCompletionServicePool.submit(writeConceptCompletionService);
@@ -169,29 +169,32 @@ public class CommitProvider implements CommitService {
 
         } catch (Exception e) {
             LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Cradle Commit Provider", e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         LOG.info("Stopping CommitProvider pre-destroy. ");
-        writeConceptCompletionService.cancel();
-        writeSememeCompletionService.cancel();
-        stampAliasMap.write(new File(commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
-        stampCommentMap.write(new File(commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
-
-        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(commitManagerFolder.toFile(), COMMIT_MANAGER_DATA_FILENAME)))) {
-            out.writeLong(databaseSequence.get());
-            out.writeInt(UuidIntMapMap.getNextNidProvider().get());
-
-            uncommittedConceptsWithChecksSequenceSet.write(out);
-            uncommittedConceptsNoChecksSequenceSet.write(out);
-            uncommittedSememesWithChecksSequenceSet.write(out);
-            uncommittedSememesNoChecksSequenceSet.write(out);
-
+        try {
+            writeConceptCompletionService.cancel();
+            writeSememeCompletionService.cancel();
+            stampAliasMap.write(new File(commitManagerFolder.toFile(), STAMP_ALIAS_MAP_FILENAME));
+            stampCommentMap.write(new File(commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
+    
+            try (DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(commitManagerFolder.toFile(), COMMIT_MANAGER_DATA_FILENAME)))) {
+                out.writeLong(databaseSequence.get());
+                out.writeInt(UuidIntMapMap.getNextNidProvider().get());
+    
+                uncommittedConceptsWithChecksSequenceSet.write(out);
+                uncommittedConceptsNoChecksSequenceSet.write(out);
+                uncommittedSememesWithChecksSequenceSet.write(out);
+                uncommittedSememesNoChecksSequenceSet.write(out);
+            }
         }
-
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -371,36 +374,36 @@ public class CommitProvider implements CommitService {
         // TODO, make this only commit those components with changes from the provided edit coordinate. 
         throw new UnsupportedOperationException("This implementation is broken");
         //TODO this needs repair... pendingStampsForCommit, for example, is never populated.  
-//		Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
-//		pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
-//		alertCollection.clear();
-//		lastCommit = databaseSequence.incrementAndGet();
+//        Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
+//        pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
+//        alertCollection.clear();
+//        lastCommit = databaseSequence.incrementAndGet();
 //
-//		Map<UncommittedStamp, Integer> pendingStampsForCommit = new HashMap<>();
-//		UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.forEach((uncommittedStamp, stampSequence) -> {
-//			if (uncommittedStamp.authorSequence == editCoordinate.getAuthorSequence()) {
-//				Stamp stamp = new Stamp(Status.getStatusFromState(uncommittedStamp.status),
-//						  Long.MIN_VALUE,
-//						  Get.identifierService().getConceptNid(uncommittedStamp.authorSequence),
-//						  Get.identifierService().getConceptNid(uncommittedStamp.moduleSequence),
-//						  Get.identifierService().getConceptNid(uncommittedStamp.pathSequence));
-//				addStamp(stamp, stampSequence);
-//				UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.remove(uncommittedStamp);
-//			}
-//		});
-//		UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.clear();
+//        Map<UncommittedStamp, Integer> pendingStampsForCommit = new HashMap<>();
+//        UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.forEach((uncommittedStamp, stampSequence) -> {
+//            if (uncommittedStamp.authorSequence == editCoordinate.getAuthorSequence()) {
+//                Stamp stamp = new Stamp(Status.getStatusFromState(uncommittedStamp.status),
+//                          Long.MIN_VALUE,
+//                          Get.identifierService().getConceptNid(uncommittedStamp.authorSequence),
+//                          Get.identifierService().getConceptNid(uncommittedStamp.moduleSequence),
+//                          Get.identifierService().getConceptNid(uncommittedStamp.pathSequence));
+//                addStamp(stamp, stampSequence);
+//                UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.remove(uncommittedStamp);
+//            }
+//        });
+//        UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.clear();
 //
-//		CommitTask task = CommitTask.get(commitComment,
-//				  uncommittedConceptsWithChecksSequenceSet,
-//				  uncommittedConceptsNoChecksSequenceSet,
-//				  uncommittedSememesWithChecksSequenceSet,
-//				  uncommittedSememesNoChecksSequenceSet,
-//				  lastCommit,
-//				  checkers,
-//				  alertCollection,
-//				  pendingStampsForCommit,
-//				  this);
-//		return task;
+//        CommitTask task = CommitTask.get(commitComment,
+//                  uncommittedConceptsWithChecksSequenceSet,
+//                  uncommittedConceptsNoChecksSequenceSet,
+//                  uncommittedSememesWithChecksSequenceSet,
+//                  uncommittedSememesNoChecksSequenceSet,
+//                  lastCommit,
+//                  checkers,
+//                  alertCollection,
+//                  pendingStampsForCommit,
+//                  this);
+//        return task;
     }
 
     /**
@@ -414,7 +417,7 @@ public class CommitProvider implements CommitService {
      */
     @Override
     public synchronized Task<Optional<CommitRecord>> commit(String commitComment) {
-//		return commit(Get.configurationService().getDefaultEditCoordinate(), commitComment);
+//        return commit(Get.configurationService().getDefaultEditCoordinate(), commitComment);
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
         alertCollection.clear();

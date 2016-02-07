@@ -670,7 +670,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     }
     
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         log.info("Stopping " + getIndexerName() + " pre-destroy. ");
         commitWriter();
         closeWriter();
@@ -678,7 +678,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         log.info("Starting " + getIndexerName() + " post-construct");
     }
 

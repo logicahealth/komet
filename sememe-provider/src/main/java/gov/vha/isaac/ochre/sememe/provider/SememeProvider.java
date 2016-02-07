@@ -95,7 +95,7 @@ public class SememeProvider implements SememeService {
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         try {
             LOG.info("Loading sememeMap.");
             if (!loadRequired.get()) {
@@ -133,34 +133,39 @@ public class SememeProvider implements SememeService {
             LOG.info("Finished SememeProvider load.");
         } catch (Exception e) {
             LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Cradle Commit Manager", e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe(){
         LOG.info("Stopping SememeProvider pre-destroy. ");
 
-        //Dan commented out this LOG statement because it is really slow...
-        //log.info("sememeMap size: {}", sememeMap.getSize());
-        LOG.info("writing sememe-map.");
-        sememeMap.write();
-
-        LOG.info("writing SememeKeys.");
-        try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(sememePath.toFile(), "assemblage-sememe.keys"))))) {
-            out.writeInt(assemblageSequenceSememeSequenceMap.size());
-            for (AssemblageSememeKey key : assemblageSequenceSememeSequenceMap) {
-                out.writeInt(key.assemblageSequence);
-                out.writeInt(key.sememeSequence);
+        try {
+            //Dan commented out this LOG statement because it is really slow...
+            //log.info("sememeMap size: {}", sememeMap.getSize());
+            LOG.info("writing sememe-map.");
+            sememeMap.write();
+    
+            LOG.info("writing SememeKeys.");
+            try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(sememePath.toFile(), "assemblage-sememe.keys"))))) {
+                out.writeInt(assemblageSequenceSememeSequenceMap.size());
+                for (AssemblageSememeKey key : assemblageSequenceSememeSequenceMap) {
+                    out.writeInt(key.assemblageSequence);
+                    out.writeInt(key.sememeSequence);
+                }
+            }
+            try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(sememePath.toFile(), "component-sememe.keys"))))) {
+                out.writeInt(referencedNidAssemblageSequenceSememeSequenceMap.size());
+                for (ReferencedNidAssemblageSequenceSememeSequenceKey key : referencedNidAssemblageSequenceSememeSequenceMap) {
+                    out.writeInt(key.referencedNid);
+                    out.writeInt(key.assemblageSequence);
+                    out.writeInt(key.sememeSequence);
+                }
             }
         }
-        try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(sememePath.toFile(), "component-sememe.keys"))))) {
-            out.writeInt(referencedNidAssemblageSequenceSememeSequenceMap.size());
-            for (ReferencedNidAssemblageSequenceSememeSequenceKey key : referencedNidAssemblageSequenceSememeSequenceMap) {
-                out.writeInt(key.referencedNid);
-                out.writeInt(key.assemblageSequence);
-                out.writeInt(key.sememeSequence);
-            }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
         LOG.info("Finished SememeProvider stop.");
     }
@@ -359,9 +364,9 @@ public class SememeProvider implements SememeService {
         return sememeMap.getOptional(sememeSequence);
     }
 
-	@Override
-	public Stream<Integer> getAssemblageTypes()
-	{
-		return inUseAssemblages.stream();
-	}
+    @Override
+    public Stream<Integer> getAssemblageTypes()
+    {
+        return inUseAssemblages.stream();
+    }
 }

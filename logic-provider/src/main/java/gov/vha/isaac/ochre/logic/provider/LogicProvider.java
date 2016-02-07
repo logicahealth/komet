@@ -79,12 +79,12 @@ public class LogicProvider implements LogicService {
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         log.info("Starting LogicProvider.");
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         log.info("Stopping LogicProvider.");
     }
 

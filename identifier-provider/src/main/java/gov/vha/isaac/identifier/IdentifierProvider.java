@@ -93,7 +93,7 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         try {
             LOG.info("Starting IdentifierProvider post-construct - reading from " + folderPath);
             if (!loadRequired.get()) {
@@ -111,20 +111,25 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
             }
         } catch (Exception e) {
             LookupService.getService(SystemStatusService.class).notifyServiceConfigurationFailure("Identifier Provider", e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
-        uuidIntMapMap.setShutdown(true);
-        LOG.info("conceptSequence: {}", conceptSequenceMap.getNextSequence());
-        LOG.info("writing concept-sequence.map.");
-        conceptSequenceMap.write(new File(folderPath.toFile(), "concept-sequence.map"));
-        LOG.info("writing sememe-sequence.map.");
-        sememeSequenceMap.write(new File(folderPath.toFile(), "sememe-sequence.map"));
-        LOG.info("writing uuid-nid-map.");
-        uuidIntMapMap.write();
+    private void stopMe() {
+        try {
+            uuidIntMapMap.setShutdown(true);
+            LOG.info("conceptSequence: {}", conceptSequenceMap.getNextSequence());
+            LOG.info("writing concept-sequence.map.");
+            conceptSequenceMap.write(new File(folderPath.toFile(), "concept-sequence.map"));
+            LOG.info("writing sememe-sequence.map.");
+            sememeSequenceMap.write(new File(folderPath.toFile(), "sememe-sequence.map"));
+            LOG.info("writing uuid-nid-map.");
+            uuidIntMapMap.write();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

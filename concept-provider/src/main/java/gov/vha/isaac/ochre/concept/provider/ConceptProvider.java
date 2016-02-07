@@ -108,7 +108,7 @@ public class ConceptProvider implements ConceptService {
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         LOG.info("Starting OCHRE ConceptProvider post-construct");
         conceptActiveService = LookupService.getService(ConceptActiveService.class);
         if (!loadRequired.compareAndSet(true, false)) {
@@ -120,7 +120,7 @@ public class ConceptProvider implements ConceptService {
         }
     }
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         LOG.info("Stopping OCHRE ConceptProvider.");
 
         LOG.info("Writing OCHRE concept-map.");

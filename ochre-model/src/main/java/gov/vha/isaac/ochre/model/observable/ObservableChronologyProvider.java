@@ -65,12 +65,12 @@ public class ObservableChronologyProvider
     }
 
     @PostConstruct
-    private void startMe() throws IOException {
+    private void startMe() {
         log.info("Starting ObservableChronologyProvider post-construct");
     }
 
     @PreDestroy
-    private void stopMe() throws IOException {
+    private void stopMe() {
         log.info("Stopping ObservableChronologyProvider");
     }
 
