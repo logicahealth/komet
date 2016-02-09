@@ -1,8 +1,8 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
 import org.apache.mahout.math.list.ShortArrayList;
 
 import java.io.DataInputStream;
@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * Created by kec on 12/6/14.
  */
-public abstract class ConnectorNode extends AbstractNode {
+public abstract class ConnectorNode extends AbstractLogicNode {
 
     private final ShortArrayList childIndices;
 
@@ -25,18 +25,18 @@ public abstract class ConnectorNode extends AbstractNode {
         }
     }
 
-    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractNode... children) {
+    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
         super(logicGraphVersion);
         childIndices = new ShortArrayList(children.length);
-        for (AbstractNode child : children) {
+        for (AbstractLogicNode child : children) {
             childIndices.add(child.getNodeIndex());
         }
     }
 
-    public ConnectorNode(AbstractNode another) {
+    public ConnectorNode(AbstractLogicNode another) {
         super(another);
         childIndices = new ShortArrayList(another.getChildren().length);
-        for (AbstractNode child : another.getChildren()) {
+        for (AbstractLogicNode child : another.getChildren()) {
             childIndices.add(child.getNodeIndex());
         }
     }
@@ -60,20 +60,20 @@ public abstract class ConnectorNode extends AbstractNode {
 
     /**
      * 
-     * @return a sorted array of child <code>Node</code>s.
+     * @return a sorted array of child <code>LogicNode</code>s.
      */
     @Override
-    public AbstractNode[] getChildren() {
-        AbstractNode[] childNodes = new AbstractNode[childIndices.size()];
+    public AbstractLogicNode[] getChildren() {
+        AbstractLogicNode[] childNodes = new AbstractLogicNode[childIndices.size()];
         for (int i = 0; i < childNodes.length; i++) {
-            childNodes[i] = (AbstractNode) logicGraphVersion.getNode(childIndices.get(i));
+            childNodes[i] = (AbstractLogicNode) logicGraphVersion.getNode(childIndices.get(i));
         }
         return childNodes;
     }
 
     @Override
-    public void addChildren(Node... children) {
-        for (Node child : children) {
+    public void addChildren(LogicNode... children) {
+        for (LogicNode child : children) {
             childIndices.add(child.getNodeIndex());
         }
         sort();
@@ -123,11 +123,11 @@ public abstract class ConnectorNode extends AbstractNode {
     }
     
     @Override
-    protected int compareFields(Node o) {
+    protected int compareFields(LogicNode o) {
         // node semantic is already determined to be the same...
         return compareNodeFields(o);
     }
     
-    protected abstract int compareNodeFields(Node o);
+    protected abstract int compareNodeFields(LogicNode o);
 
 }

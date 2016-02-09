@@ -17,6 +17,8 @@ package gov.vha.isaac.ochre.logic.csiro.classify.tasks;
 
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
+
+import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.logic.csiro.classify.ClassifierData;
 import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
 import gov.vha.isaac.ochre.api.DataTarget;
@@ -48,14 +50,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
-import gov.vha.isaac.ochre.api.component.concept.ConceptVersion;
-import gov.vha.isaac.ochre.api.coordinate.PremiseType;
-import java.util.UUID;
+import javafx.concurrent.Task;
 
 /**
  *
@@ -78,14 +78,13 @@ import java.util.UUID;
         Ontology inferredAxioms = cd.getClassifiedOntology();
 		  
         ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
-        writebackInferred(classifierResults, inferredAxioms);
         return classifierResults;
     }
 
-    private ClassifierResults collectResults(Ontology res, ConceptSequenceSet affectedConcepts) {
+    private ClassifierResults collectResults(Ontology classifiedResult, ConceptSequenceSet affectedConcepts) {
         HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
         affectedConcepts.parallelStream().forEach((conceptSequence) -> {
-            Node node = res.getNode(Integer.toString(conceptSequence));
+            Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
             if (node == null) {
                 throw new RuntimeException("Null node for: " + conceptSequence);
             }
@@ -113,10 +112,11 @@ import java.util.UUID;
                 });
             }
         });
-        return new ClassifierResults(affectedConcepts, equivalentSets);
+
+        return new ClassifierResults(affectedConcepts, equivalentSets, writeBackInferred(classifiedResult, affectedConcepts));
     }
 
-    private void writebackInferred(ClassifierResults classifierResults, Ontology inferredAxioms) {
+    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
         SememeService sememeService = Get.sememeService();
         IdentifierService idService = Get.identifierService();
         AtomicInteger sufficientSets = new AtomicInteger();
@@ -124,7 +124,7 @@ import java.util.UUID;
         SememeBuilderService sememeBuilderService = Get.sememeBuilderService();
         CommitService commitService = Get.commitService();
 
-        classifierResults.getAffectedConcepts().parallelStream().forEach((conceptSequence) -> {
+        affectedConcepts.parallelStream().forEach((conceptSequence) -> {
             SememeSequenceSet inferredSememeSequences
                     = sememeService.getSememeSequencesForComponentFromAssemblage(idService.getConceptNid(conceptSequence), logicCoordinate.getInferredAssemblageSequence());
             SememeSequenceSet statedSememeSequences
@@ -199,10 +199,22 @@ import java.util.UUID;
 
         });
 
-        commitService.commit("classifier run");
-        log.info("Processed " + sufficientSets + " sufficient sets.");
-        log.info("stampCoordinate: " + stampCoordinate);
-        log.info("logicCoordinate: " + logicCoordinate);
+        Task<Optional<CommitRecord>> commitTask = commitService.commit("classifier run");
+        try {
+            Optional<CommitRecord> commitRecord = commitTask.get();
+            if (commitRecord.isPresent()) {
+                log.info("Commit record: " + commitRecord.get());
+            } else {
+                log.info("No commit record.");
+            }
+
+            log.info("Processed " + sufficientSets + " sufficient sets.");
+            log.info("stampCoordinate: " + stampCoordinate);
+            log.info("logicCoordinate: " + logicCoordinate);
+            return commitRecord;
+        } catch (InterruptedException|ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 	 }
 
     private void testForProperSetSize(SememeSequenceSet inferredSememeSequences, int conceptSequence, SememeSequenceSet statedSememeSequences, SememeService sememeService) throws IllegalStateException {

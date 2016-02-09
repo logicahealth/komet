@@ -8,13 +8,13 @@ import java.util.stream.Stream;
 /**
  * Created by kec on 12/9/14.
  */
-public interface Node extends Comparable<Node> {
+public interface LogicNode extends Comparable<LogicNode> {
 
     NodeSemantic getNodeSemantic();
 
-    Node[] getChildren();
+    LogicNode[] getChildren();
     
-    default Stream<Node> getChildStream() {
+    default Stream<LogicNode> getChildStream() {
         return Arrays.stream(getChildren());
     };
 
@@ -24,7 +24,7 @@ public interface Node extends Comparable<Node> {
 
     void setNodeIndex(short nodeIndex);
 
-    void addChildren(Node... children);
+    void addChildren(LogicNode... children);
     
     /**
      * Sort the children of this node

@@ -16,7 +16,7 @@
 package gov.vha.isaac.ochre.api.component.concept;
 
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
+import gov.vha.isaac.ochre.api.identity.IdentifiedObject;
 
 /**
  *

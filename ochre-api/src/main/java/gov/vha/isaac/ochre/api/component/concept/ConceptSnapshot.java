@@ -15,8 +15,8 @@
  */
 package gov.vha.isaac.ochre.api.component.concept;
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedStampedVersion;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.commit.IdentifiedStampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import java.util.Optional;

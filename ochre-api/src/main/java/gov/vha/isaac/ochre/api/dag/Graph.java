@@ -24,9 +24,9 @@ import java.util.List;
  * @param <T> The type of object enclosed by nodes in this graph. 
  */
 public class Graph<T> {
-    private final List<DagNode<T>> nodes = new ArrayList<>();
-    private DagNode<T> root;
-    private DagNode<T> lastAddedNode;
+    private final List<Node<T>> nodes = new ArrayList<>();
+    private Node<T> root;
+    private Node<T> lastAddedNode;
 
     public Graph() {    }
     
@@ -35,21 +35,21 @@ public class Graph<T> {
     }
     
    public final void createRoot(T rootData) {
-        root = new DagNode<>(rootData, this);
+        root = new Node<>(rootData, this);
         this.lastAddedNode = root;
         this.nodes.add(lastAddedNode);
    }
     
-    public DagNode<T> getRoot() {
+    public Node<T> getRoot() {
         return root;
     }
  
     
-    public DagNode<T> getLastAddedNode() {
+    public Node<T> getLastAddedNode() {
         return lastAddedNode;
     }
 
-    public void setLastAddedNode(DagNode<T> lastAddedNode) {
+    public void setLastAddedNode(Node<T> lastAddedNode) {
         this.lastAddedNode = lastAddedNode;
         this.nodes.add(lastAddedNode);
     }

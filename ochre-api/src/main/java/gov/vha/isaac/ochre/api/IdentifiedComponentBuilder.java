@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.api;
 
-import gov.vha.isaac.ochre.api.chronicle.IdentifiedObject;
+import gov.vha.isaac.ochre.api.identity.IdentifiedObject;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
 import gov.vha.isaac.ochre.api.commit.CommittableComponent;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;

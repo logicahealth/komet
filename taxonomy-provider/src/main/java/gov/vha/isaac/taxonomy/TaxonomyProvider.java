@@ -16,10 +16,11 @@
 package gov.vha.isaac.taxonomy;
 
 import gov.vha.isaac.ochre.api.ConceptActiveService;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
 import gov.vha.isaac.ochre.api.*;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
 import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.api.commit.CommitStates;
@@ -33,10 +34,9 @@ import gov.vha.isaac.ochre.api.coordinate.LogicCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.PremiseType;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.TaxonomyCoordinate;
-import gov.vha.isaac.ochre.api.dag.DagNode;
+import gov.vha.isaac.ochre.api.dag.Node;
 import gov.vha.isaac.ochre.api.dag.Graph;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
-import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.snapshot.calculator.RelativePositionCalculator;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
@@ -743,7 +743,7 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
         originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
     }
 
-    private void processVersionNode(DagNode<? extends LogicGraphSememe> node,
+    private void processVersionNode(Node<? extends LogicGraphSememe> node,
             TaxonomyRecordPrimitive parentTaxonomyRecord,
             TaxonomyFlags taxonomyFlags) {
         if (node.getParent() == null) {
@@ -767,16 +767,16 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
         });
     }
 
-    private void processRelationshipRoot(Node logicalNode, TaxonomyRecordPrimitive parentTaxonomyRecord,
-            TaxonomyFlags taxonomyFlags, int stampSequence, LogicalExpression comparisonExpression) {
-        switch (logicalNode.getNodeSemantic()) {
+    private void processRelationshipRoot(LogicNode logicalLogicNode, TaxonomyRecordPrimitive parentTaxonomyRecord,
+                                         TaxonomyFlags taxonomyFlags, int stampSequence, LogicalExpression comparisonExpression) {
+        switch (logicalLogicNode.getNodeSemantic()) {
             case CONCEPT:
-                updateIsaRel((ConceptNodeWithSequences) logicalNode, parentTaxonomyRecord,
+                updateIsaRel((ConceptNodeWithSequences) logicalLogicNode, parentTaxonomyRecord,
                         taxonomyFlags, stampSequence,
                         comparisonExpression.getConceptSequence());
                 break;
             case ROLE_SOME:
-                updateSomeRole((RoleNodeSomeWithSequences) logicalNode, parentTaxonomyRecord,
+                updateSomeRole((RoleNodeSomeWithSequences) logicalLogicNode, parentTaxonomyRecord,
                         taxonomyFlags, stampSequence,
                         comparisonExpression.getConceptSequence());
                 break;
@@ -784,7 +784,7 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
                 //Features do not have taxonomy implications...
                 break;
             default:
-                throw new UnsupportedOperationException("Can't handle: " + logicalNode.getNodeSemantic());
+                throw new UnsupportedOperationException("Can't handle: " + logicalLogicNode.getNodeSemantic());
         }
     }
 
@@ -795,9 +795,9 @@ public class TaxonomyProvider implements TaxonomyService, ConceptActiveService, 
 
             expression.getRoot()
                     .getChildStream().forEach((necessaryOrSufficientSet) -> {
-                        necessaryOrSufficientSet.getChildStream().forEach((Node andOrOrNode)
-                                -> andOrOrNode.getChildStream().forEach((Node aNode) -> {
-                            processRelationshipRoot(aNode, parentTaxonomyRecord, taxonomyFlags, firstVersion.getStampSequence(), expression);
+                        necessaryOrSufficientSet.getChildStream().forEach((LogicNode andOrOrLogicNode)
+                                -> andOrOrLogicNode.getChildStream().forEach((LogicNode aLogicNode) -> {
+                            processRelationshipRoot(aLogicNode, parentTaxonomyRecord, taxonomyFlags, firstVersion.getStampSequence(), expression);
                         }));
                     });
         }

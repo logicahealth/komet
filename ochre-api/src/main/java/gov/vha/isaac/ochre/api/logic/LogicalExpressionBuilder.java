@@ -68,7 +68,7 @@ public interface LogicalExpressionBuilder {
      * @return an Assertion corresponding to the node equivalent to the 
      * {@code subTreeRoot} in the new expression. 
      */
-    Assertion cloneSubTree(Node subTreeRoot);
+    Assertion cloneSubTree(LogicNode subTreeRoot);
 
     NecessarySet necessarySet(Connector... connector);
 

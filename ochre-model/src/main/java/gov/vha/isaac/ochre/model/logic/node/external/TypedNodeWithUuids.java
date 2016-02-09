@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.UUID;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.ConnectorNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
@@ -35,7 +35,7 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         this.typeConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
     }
 
-    public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
+    public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractLogicNode child) {
         super(logicGraphVersion, child);
         this.typeConceptUuid = typeConceptUuid;
     }
@@ -82,8 +82,8 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString() +" "+ super.toString();
     }
 
-    public Node getOnlyChild() {
-        Node[] children = getChildren();
+    public LogicNode getOnlyChild() {
+        LogicNode[] children = getChildren();
         if (children.length == 1) {
             return children[0];
         }
@@ -91,7 +91,7 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
     }
     
     @Override
-    protected final int compareNodeFields(Node o) {
+    protected final int compareNodeFields(LogicNode o) {
         // node semantic already determined equals. 
         TypedNodeWithUuids other = (TypedNodeWithUuids) o;
         if (!typeConceptUuid.equals(other.typeConceptUuid)) {
@@ -99,6 +99,6 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         }
         return compareTypedNodeFields(o);
     }
-    protected abstract int compareTypedNodeFields(Node o);
+    protected abstract int compareTypedNodeFields(LogicNode o);
 }
 

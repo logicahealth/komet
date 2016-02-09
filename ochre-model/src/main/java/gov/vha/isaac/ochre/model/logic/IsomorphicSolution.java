@@ -108,7 +108,7 @@ public class IsomorphicSolution implements Comparable<IsomorphicSolution> {
                 }
             }
         }
-        // For all nodes corresponding to a sibling group in the reference expression, the nodes in the
+        // For all logicNodes corresponding to a sibling group in the reference expression, the logicNodes in the
         // comparison expression must all be in the same sibling group in the comparison expression
         for (int siblingGroup: siblingGroupToNodeSequenceMap.keys().elements()) {
             OpenIntHashSet groupMembers = siblingGroupToNodeSequenceMap.get(siblingGroup);

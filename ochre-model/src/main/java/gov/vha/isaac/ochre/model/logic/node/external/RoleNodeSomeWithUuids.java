@@ -7,10 +7,10 @@ package gov.vha.isaac.ochre.model.logic.node.external;
 
 
 import gov.vha.isaac.ochre.api.DataTarget;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeSomeWithSequences;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -28,7 +28,7 @@ public class RoleNodeSomeWithUuids extends TypedNodeWithUuids {
         super(logicGraphVersion, dataInputStream);
     }
 
-    public RoleNodeSomeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractNode child) {
+    public RoleNodeSomeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID typeConceptUuid, AbstractLogicNode child) {
         super(logicGraphVersion, typeConceptUuid, child);
     }
 
@@ -65,7 +65,7 @@ public class RoleNodeSomeWithUuids extends TypedNodeWithUuids {
     }
     
     @Override
-    protected int compareTypedNodeFields(Node o) {
+    protected int compareTypedNodeFields(LogicNode o) {
         // node semantic already determined equals. 
         return 0;
     }

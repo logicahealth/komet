@@ -27,7 +27,7 @@ import java.util.Optional;
  * @param <V>
  */
 public interface ConceptChronology<V extends ConceptVersion<V>>
-    extends ObjectChronology<V>, ConceptSpecification, OchreExternalizable {
+    extends ObjectChronology<V>, ConceptSpecification {
     
     /**
      * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -105,14 +105,5 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
      */
     String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, 
             PremiseType premiseType, LogicCoordinate logicCoordinate);
-    /**
-     * 
-     * @return
-     * @deprecated use getNid() instead.
-     */
-    @Deprecated
-    default int getConceptNid() {
-        return getNid();
-    }
 
 }

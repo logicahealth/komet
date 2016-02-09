@@ -16,6 +16,9 @@
 package gov.vha.isaac.ochre.api.classifier;
 
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.commit.CommitRecord;
+
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,12 +26,16 @@ import java.util.Set;
  * @author kec
  */
 public class ClassifierResults {
-    ConceptSequenceSet affectedConcepts;
-    Set<ConceptSequenceSet> equivalentSets;
+    final ConceptSequenceSet affectedConcepts;
+    final Set<ConceptSequenceSet> equivalentSets;
 
-    public ClassifierResults(ConceptSequenceSet affectedConcepts, Set<ConceptSequenceSet> equivalentSets) {
+    final Optional<CommitRecord> commitRecord;
+
+    public ClassifierResults(ConceptSequenceSet affectedConcepts, Set<ConceptSequenceSet> equivalentSets,
+                             Optional<CommitRecord> commitRecord) {
         this.affectedConcepts = affectedConcepts;
         this.equivalentSets = equivalentSets;
+        this.commitRecord = commitRecord;
     }
 
     public ConceptSequenceSet getAffectedConcepts() {
@@ -37,6 +44,10 @@ public class ClassifierResults {
 
     public Set<ConceptSequenceSet> getEquivalentSets() {
         return equivalentSets;
+    }
+
+    public Optional<CommitRecord> getCommitRecord() {
+        return commitRecord;
     }
 
     @Override

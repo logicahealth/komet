@@ -17,9 +17,9 @@ package gov.vha.isaac.ochre.model.logic.definition;
 
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
-import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.logic.assertions.AllRole;
 import gov.vha.isaac.ochre.api.logic.assertions.Assertion;
@@ -48,18 +48,8 @@ import gov.vha.isaac.ochre.api.logic.assertions.substitution.IntegerSubstitution
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.StringSubstitution;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.model.logic.node.AbstractNode;
-import gov.vha.isaac.ochre.model.logic.node.LiteralNodeBoolean;
-import gov.vha.isaac.ochre.model.logic.node.LiteralNodeFloat;
-import gov.vha.isaac.ochre.model.logic.node.LiteralNodeInstant;
-import gov.vha.isaac.ochre.model.logic.node.LiteralNodeInteger;
-import gov.vha.isaac.ochre.model.logic.node.LiteralNodeString;
-import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeBoolean;
-import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeConcept;
-import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeFloat;
-import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeInstant;
-import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeInteger;
-import gov.vha.isaac.ochre.model.logic.node.SubstitutionNodeString;
+import gov.vha.isaac.ochre.model.logic.node.*;
+import gov.vha.isaac.ochre.model.logic.node.AbstractLogicNode;
 import gov.vha.isaac.ochre.model.logic.node.internal.ConceptNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.FeatureNodeWithSequences;
 import gov.vha.isaac.ochre.model.logic.node.internal.RoleNodeAllWithSequences;
@@ -101,78 +91,78 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         Arrays.stream(assertions).forEach((assertion) -> list.add((GenericAxiom) assertion));
         return list;
     }
-    private List<? extends Assertion> makeAssertionsFromNodeDescendants(Node node) {
-        return node.getChildStream().map((childNode) -> 
+    private List<? extends Assertion> makeAssertionsFromNodeDescendants(LogicNode logicNode) {
+        return logicNode.getChildStream().map((childNode) ->
                 makeAssertionFromNode(childNode)).collect(Collectors.toList());
     }
 
-    private Assertion makeAssertionFromNode(Node node) {
-        switch (node.getNodeSemantic()) {
+    private Assertion makeAssertionFromNode(LogicNode logicNode) {
+        switch (logicNode.getNodeSemantic()) {
             case DEFINITION_ROOT:
                 break;
             case NECESSARY_SET:
-                return necessarySet(makeAssertionsFromNodeDescendants(node).toArray(new Connector[0]));
+                return necessarySet(makeAssertionsFromNodeDescendants(logicNode).toArray(new Connector[0]));
             case SUFFICIENT_SET:
-                return sufficientSet(makeAssertionsFromNodeDescendants(node).toArray(new Connector[0]));
+                return sufficientSet(makeAssertionsFromNodeDescendants(logicNode).toArray(new Connector[0]));
             case AND:
-                return and(makeAssertionsFromNodeDescendants(node).toArray(new Assertion[0]));
+                return and(makeAssertionsFromNodeDescendants(logicNode).toArray(new Assertion[0]));
             case OR:
-                return or(makeAssertionsFromNodeDescendants(node).toArray(new Assertion[0]));
+                return or(makeAssertionsFromNodeDescendants(logicNode).toArray(new Assertion[0]));
             case DISJOINT_WITH:
                 break;
             case ROLE_ALL:
-                RoleNodeAllWithSequences allRoleNode = (RoleNodeAllWithSequences) node;
+                RoleNodeAllWithSequences allRoleNode = (RoleNodeAllWithSequences) logicNode;
                 return allRole(allRoleNode.getTypeConceptSequence(), makeAssertionFromNode(allRoleNode.getOnlyChild()));
             case ROLE_SOME:
-                RoleNodeSomeWithSequences someRoleNode = (RoleNodeSomeWithSequences) node;
+                RoleNodeSomeWithSequences someRoleNode = (RoleNodeSomeWithSequences) logicNode;
                 return someRole(someRoleNode.getTypeConceptSequence(), makeAssertionFromNode(someRoleNode.getOnlyChild()));
             case CONCEPT:
-                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) node;
+                ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
                 return conceptAssertion(conceptNode.getConceptSequence());
             case FEATURE:
-                FeatureNodeWithSequences featureNode = (FeatureNodeWithSequences) node;
+                FeatureNodeWithSequences featureNode = (FeatureNodeWithSequences) logicNode;
                 return feature(featureNode.getTypeConceptSequence(), 
                         (LiteralAssertion) makeAssertionFromNode(featureNode.getOnlyChild()));
             case LITERAL_BOOLEAN:
-                LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) node;
+                LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) logicNode;
                 return booleanLiteral(literalNodeBoolean.getLiteralValue());
             case LITERAL_FLOAT:
-                LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) node;
+                LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
                 return floatLiteral(literalNodeFloat.getLiteralValue());
             case LITERAL_INSTANT:
-                LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) node;
+                LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) logicNode;
                 return instantLiteral(literalNodeInstant.getLiteralValue());
             case LITERAL_INTEGER:
-                LiteralNodeInteger literalNodeInteger = (LiteralNodeInteger) node;
+                LiteralNodeInteger literalNodeInteger = (LiteralNodeInteger) logicNode;
                 return integerLiteral(literalNodeInteger.getLiteralValue());
             case LITERAL_STRING:
-                LiteralNodeString literalNodeString = (LiteralNodeString) node;
+                LiteralNodeString literalNodeString = (LiteralNodeString) logicNode;
                 return stringLiteral(literalNodeString.getLiteralValue());
 
             case TEMPLATE:
-                TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) node;
+                TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) logicNode;
                 return template(templateNode.getTemplateConceptNid(), 
                         templateNode.getAssemblageConceptNid());
             case SUBSTITUTION_CONCEPT:
-                SubstitutionNodeConcept substitutionNodeConcept = (SubstitutionNodeConcept) node;
+                SubstitutionNodeConcept substitutionNodeConcept = (SubstitutionNodeConcept) logicNode;
                 return conceptSubstitution(substitutionNodeConcept.getSubstitutionFieldSpecification());
             case SUBSTITUTION_BOOLEAN:
-                SubstitutionNodeBoolean substitutionNodeBoolean = (SubstitutionNodeBoolean) node;
+                SubstitutionNodeBoolean substitutionNodeBoolean = (SubstitutionNodeBoolean) logicNode;
                 return booleanSubstitution(substitutionNodeBoolean.getSubstitutionFieldSpecification());
             case SUBSTITUTION_FLOAT:
-                SubstitutionNodeFloat substitutionNodeFloat = (SubstitutionNodeFloat) node;
+                SubstitutionNodeFloat substitutionNodeFloat = (SubstitutionNodeFloat) logicNode;
                 return floatSubstitution(substitutionNodeFloat.getSubstitutionFieldSpecification());
             case SUBSTITUTION_INSTANT:
-                SubstitutionNodeInstant substitutionNodeInstant = (SubstitutionNodeInstant) node;
+                SubstitutionNodeInstant substitutionNodeInstant = (SubstitutionNodeInstant) logicNode;
                 return instantSubstitution(substitutionNodeInstant.getSubstitutionFieldSpecification());
             case SUBSTITUTION_INTEGER:
-                SubstitutionNodeInteger substitutionNodeInteger = (SubstitutionNodeInteger) node;
+                SubstitutionNodeInteger substitutionNodeInteger = (SubstitutionNodeInteger) logicNode;
                 return integerSubstitution(substitutionNodeInteger.getSubstitutionFieldSpecification());
             case SUBSTITUTION_STRING:
-                SubstitutionNodeString substitutionNodeString = (SubstitutionNodeString) node;
+                SubstitutionNodeString substitutionNodeString = (SubstitutionNodeString) logicNode;
                 return stringSubstitution(substitutionNodeString.getSubstitutionFieldSpecification());
         }
-        throw new UnsupportedOperationException("Can't handle: " + node.getNodeSemantic());
+        throw new UnsupportedOperationException("Can't handle: " + logicNode.getNodeSemantic());
     }
 
     @Override
@@ -190,7 +180,7 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
     }
 
     @Override
-    public Assertion cloneSubTree(Node subTreeRoot) {
+    public Assertion cloneSubTree(LogicNode subTreeRoot) {
         return makeAssertionFromNode(subTreeRoot);
     }
 
@@ -397,10 +387,10 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         }
     }
 
-    private AbstractNode addToDefinition(GenericAxiom axiom, LogicalExpressionOchreImpl definition)
+    private AbstractLogicNode addToDefinition(GenericAxiom axiom, LogicalExpressionOchreImpl definition)
             throws IllegalStateException {
 
-        AbstractNode newNode;
+        AbstractLogicNode newNode;
         switch (axiom.getSemantic()) {
             case NECESSARY_SET:
                 newNode = definition.NecessarySet(getChildren(axiom, definition));
@@ -529,11 +519,11 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         }
     }
 
-    protected AbstractNode[] getChildren(GenericAxiom axiom, LogicalExpressionOchreImpl definition) {
+    protected AbstractLogicNode[] getChildren(GenericAxiom axiom, LogicalExpressionOchreImpl definition) {
         List<GenericAxiom> childrenAxioms = definitionTree.get(axiom);
-        List<AbstractNode> children = new ArrayList<>(childrenAxioms.size());
+        List<AbstractLogicNode> children = new ArrayList<>(childrenAxioms.size());
         childrenAxioms.forEach((childAxiom) -> children.add(addToDefinition(childAxiom, definition)));
-        return children.toArray(new AbstractNode[children.size()]);
+        return children.toArray(new AbstractLogicNode[children.size()]);
     }
 
     @Override

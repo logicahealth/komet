@@ -15,7 +15,7 @@
  */
 package gov.vha.isaac.ochre.model.logic;
 
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 
 /**
@@ -31,9 +31,9 @@ public class RelationshipKey implements Comparable<RelationshipKey> {
     }
     
     private void addNodes(int nodeId, LogicalExpressionOchreImpl expression) {
-        Node node = expression.getNode(nodeId);
+        LogicNode logicNode = expression.getNode(nodeId);
         expression.getNode(nodeId).addConceptsReferencedByNode(conceptsReferencedAtNodeOrBelow);
-        node.getChildStream().forEach((childNode) -> addNodes(childNode.getNodeIndex(), expression));
+        logicNode.getChildStream().forEach((childNode) -> addNodes(childNode.getNodeIndex(), expression));
     }
  
     @Override

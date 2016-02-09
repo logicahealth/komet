@@ -18,7 +18,7 @@ package gov.vha.isaac.ochre.path.provider;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.PathService;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.component.sememe.version.LongSememe;
 import gov.vha.isaac.ochre.api.coordinate.StampPath;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;

@@ -1,9 +1,9 @@
 package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * Created by kec on 12/10/14.
  */
-public abstract class SubstitutionNode extends AbstractNode {
+public abstract class SubstitutionNode extends AbstractLogicNode {
 
     SubstitutionFieldSpecification substitutionFieldSpecification;
 
@@ -44,12 +44,12 @@ public abstract class SubstitutionNode extends AbstractNode {
     }
 
     @Override
-    public final AbstractNode[] getChildren() {
-        return new AbstractNode[0];
+    public final AbstractLogicNode[] getChildren() {
+        return new AbstractLogicNode[0];
     }
 
     @Override
-    public final void addChildren(Node... children) {
+    public final void addChildren(LogicNode... children) {
         throw new UnsupportedOperationException();
     }
 
@@ -71,7 +71,7 @@ public abstract class SubstitutionNode extends AbstractNode {
         return result;
     }
     @Override
-    protected int compareFields(Node o) {
+    protected int compareFields(LogicNode o) {
         SubstitutionNode that = (SubstitutionNode) o;
         return this.substitutionFieldSpecification.compareTo(that.substitutionFieldSpecification);
     }

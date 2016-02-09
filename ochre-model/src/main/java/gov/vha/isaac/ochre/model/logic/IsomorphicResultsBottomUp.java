@@ -17,8 +17,8 @@ package gov.vha.isaac.ochre.model.logic;
 
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.logic.IsomorphicResults;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
-import gov.vha.isaac.ochre.api.logic.Node;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
 import gov.vha.isaac.ochre.api.collections.SequenceSet;
@@ -48,7 +48,7 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
     private final Map<RelationshipKey, Integer> comparisonRelationshipNodesMap = new TreeMap<>();
 
     /*
-     isomorphicSolution is a mapping from nodes in the referenceExpression to nodes
+     isomorphicSolution is a mapping from logicNodes in the referenceExpression to logicNodes
      in the comparisonExpression. The index of the isomorphicSolution is the nodeId
      in the referenceExpression, the value of the array at that index is the 
      nodeId in the comparisonExpression: isomorphicSolution[nodeIdInReference] == nodeIdInComparison
@@ -87,21 +87,21 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
     }
 
     @Override
-    public Stream<Node> getDeletedRelationshipRoots() {
+    public Stream<LogicNode> getDeletedRelationshipRoots() {
         TreeSet<RelationshipKey> deletedRelationshipRoots = new TreeSet<>(comparisonRelationshipNodesMap.keySet());
         deletedRelationshipRoots.removeAll(referenceRelationshipNodesMap.keySet());
         return deletedRelationshipRoots.stream().map((RelationshipKey key) -> comparisonExpression.getNode(comparisonRelationshipNodesMap.get(key)));
     }
 
     @Override
-    public Stream<Node> getAddedRelationshipRoots() {
+    public Stream<LogicNode> getAddedRelationshipRoots() {
         TreeSet<RelationshipKey> addedRelationshipRoots = new TreeSet<>(referenceRelationshipNodesMap.keySet());
         addedRelationshipRoots.removeAll(comparisonRelationshipNodesMap.keySet());
         return addedRelationshipRoots.stream().map((RelationshipKey key) -> referenceExpression.getNode(referenceRelationshipNodesMap.get(key)));
     }
 
     @Override
-    public Stream<Node> getSharedRelationshipRoots() {
+    public Stream<LogicNode> getSharedRelationshipRoots() {
         TreeSet<RelationshipKey> sharedRelationshipRoots = new TreeSet<>(referenceRelationshipNodesMap.keySet());
         sharedRelationshipRoots.retainAll(comparisonRelationshipNodesMap.keySet());
         return sharedRelationshipRoots.stream().map((RelationshipKey key) -> referenceExpression.getNode(referenceRelationshipNodesMap.get(key)));
@@ -160,12 +160,12 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
     }
 
     @Override
-    public Stream<Node> getAdditionalNodeRoots() {
+    public Stream<LogicNode> getAdditionalNodeRoots() {
         return referenceAdditionRoots.stream().mapToObj((nodeId) -> referenceExpression.getNode(nodeId));
     }
 
     @Override
-    public Stream<Node> getDeletedNodeRoots() {
+    public Stream<LogicNode> getDeletedNodeRoots() {
         return comparisonDeletionRoots.stream().mapToObj((nodeId) -> comparisonExpression.getNode(nodeId));
     }
 
@@ -174,24 +174,24 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
         return isomorphicExpression;
     }
 
-    // ? score based on number or leafs included, with higher score for smaller number of intermediate nodes. 
+    // ? score based on number or leafs included, with higher score for smaller number of intermediate logicNodes.
     private IsomorphicSolution isomorphicAnalysis() {
 
         TreeSet<IsomorphicSearchBottomUpNode> comparisonSearchNodeSet = new TreeSet<>();
 
         for (int i = 0; i < comparisonVisitData.getNodesVisited(); i++) {
-            Node node = comparisonExpression.getNode(i);
-            Node[] children = node.getChildren();
+            LogicNode logicNode = comparisonExpression.getNode(i);
+            LogicNode[] children = logicNode.getChildren();
             if (children.length == 0) {
                 comparisonSearchNodeSet.add(new IsomorphicSearchBottomUpNode(
-                        node.getNodeSemantic(),
+                        logicNode.getNodeSemantic(),
                         comparisonVisitData.getConceptsReferencedAtNodeOrAbove(i),
                         -1,
                         i));
             } else {
-                for (Node child : children) {
+                for (LogicNode child : children) {
                     comparisonSearchNodeSet.add(new IsomorphicSearchBottomUpNode(
-                            node.getNodeSemantic(),
+                            logicNode.getNodeSemantic(),
                             comparisonVisitData.getConceptsReferencedAtNodeOrAbove(i),
                             child.getNodeIndex(),
                             i));
@@ -207,16 +207,16 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
         seedSolution[referenceExpression.getRoot().getNodeIndex()]
                 = comparisonExpression.getRoot().getNodeIndex();
         nodesProcessed.add(referenceExpression.getRoot().getNodeIndex());
-        // Test for second level matches... Need to do so to make intermediate nodes (necessary set/sufficient set)
-        // are included in the solution, even if there are no matching leaf nodes. 
+        // Test for second level matches... Need to do so to make intermediate logicNodes (necessary set/sufficient set)
+        // are included in the solution, even if there are no matching leaf logicNodes.
 
         referenceExpression.getRoot().getChildStream().forEach((referenceRootChild) -> {
             comparisonExpression.getRoot().getChildStream().forEach((comparisonRootChild) -> {
-                // Necessary/sufficient set nodes. 
+                // Necessary/sufficient set logicNodes.
                 if (referenceRootChild.equals(comparisonRootChild)) {
                     seedSolution[referenceRootChild.getNodeIndex()] = comparisonRootChild.getNodeIndex();
                     nodesProcessed.add(referenceRootChild.getNodeIndex());
-                    // And node below Necessary/sufficient set nodes
+                    // And node below Necessary/sufficient set logicNodes
                     referenceRootChild.getChildStream().forEach((referenceAndNode) -> {
                         assert referenceAndNode.getNodeSemantic() == NodeSemantic.AND : "Expecting reference AND, Found node semantic instead: " + referenceAndNode.getNodeSemantic();
                         comparisonRootChild.getChildStream().forEach((comparisonAndNode) -> {
@@ -248,16 +248,16 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
                         nodesProcessed.add(predecessorSequence);
                     }
                 }
-                Node referenceNode = referenceExpression.getNode(referenceNodeId);
-                if (referenceNode.getChildren().length == 0) {
+                LogicNode referenceLogicNode = referenceExpression.getNode(referenceNodeId);
+                if (referenceLogicNode.getChildren().length == 0) {
                     IsomorphicSearchBottomUpNode from = new IsomorphicSearchBottomUpNode(
-                            referenceNode.getNodeSemantic(),
+                            referenceLogicNode.getNodeSemantic(),
                             referenceVisitData.getConceptsReferencedAtNodeOrAbove(referenceNodeId),
                             -1,
                             Integer.MIN_VALUE);
 
                     IsomorphicSearchBottomUpNode to = new IsomorphicSearchBottomUpNode(
-                            referenceNode.getNodeSemantic(),
+                            referenceLogicNode.getNodeSemantic(),
                             referenceVisitData.getConceptsReferencedAtNodeOrAbove(referenceNodeId),
                             -1,
                             Integer.MAX_VALUE);
@@ -272,15 +272,15 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
                         possibleMatches.get(referenceNodeId).addAll(searchNodesForReferenceNode);
                     }
                 } else {
-                    for (Node child : referenceNode.getChildren()) {
+                    for (LogicNode child : referenceLogicNode.getChildren()) {
                         possibleSolutions.stream().map((possibleSolution) -> {
                             IsomorphicSearchBottomUpNode from = new IsomorphicSearchBottomUpNode(
-                                    referenceNode.getNodeSemantic(),
+                                    referenceLogicNode.getNodeSemantic(),
                                     referenceVisitData.getConceptsReferencedAtNodeOrAbove(referenceNodeId),
                                     possibleSolution.getSolution()[child.getNodeIndex()],
                                     Integer.MIN_VALUE);
                             IsomorphicSearchBottomUpNode to = new IsomorphicSearchBottomUpNode(
-                                    referenceNode.getNodeSemantic(),
+                                    referenceLogicNode.getNodeSemantic(),
                                     referenceVisitData.getConceptsReferencedAtNodeOrAbove(referenceNodeId),
                                     possibleSolution.getSolution()[child.getNodeIndex()],
                                     Integer.MAX_VALUE);
@@ -317,7 +317,7 @@ public class IsomorphicResultsBottomUp implements IsomorphicResults {
      *
      * @param incomingPossibleSolutions the incoming set of solutions, to seed
      * the generation for this depth
-     * @param possibleSolutionMap The set of possible nodes to consider for the
+     * @param possibleSolutionMap The set of possible logicNodes to consider for the
      * next depth of the tree.
      * @return A set of possible solutions
      *

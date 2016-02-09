@@ -15,6 +15,8 @@
  */
 package gov.vha.isaac.ochre.api.chronicle;
 
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
+
 /**
  *
  * @author kec

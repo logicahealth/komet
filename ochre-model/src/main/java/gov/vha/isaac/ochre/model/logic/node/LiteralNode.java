@@ -2,7 +2,7 @@ package gov.vha.isaac.ochre.model.logic.node;
 
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.model.logic.LogicalExpressionOchreImpl;
-import gov.vha.isaac.ochre.api.logic.Node;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by kec on 12/12/14.
  */
-public abstract class LiteralNode extends AbstractNode {
+public abstract class LiteralNode extends AbstractLogicNode {
 
     public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream) throws IOException {
         super(logicGraphVersion, dataInputStream);
@@ -27,12 +27,12 @@ public abstract class LiteralNode extends AbstractNode {
     }
 
     @Override
-    public final AbstractNode[] getChildren() {
-        return new AbstractNode[0];
+    public final AbstractLogicNode[] getChildren() {
+        return new AbstractLogicNode[0];
     }
 
     @Override
-    public final void addChildren(Node... children) {
+    public final void addChildren(LogicNode... children) {
         throw new UnsupportedOperationException();
     }
 

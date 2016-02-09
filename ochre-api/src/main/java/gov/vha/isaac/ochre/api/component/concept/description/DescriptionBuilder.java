@@ -17,7 +17,7 @@ package gov.vha.isaac.ochre.api.component.concept.description;
 
 import gov.vha.isaac.ochre.api.IdentifiedComponentBuilder;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.chronicle.StampedVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 
 /**
