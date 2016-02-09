@@ -148,6 +148,11 @@ public class NumericUtils
 		Optional<Integer> possibleInt = getInt(string);
 		return possibleInt.isPresent()&& possibleInt.get().intValue() < 0 ? possibleInt : Optional.empty();
 	}
+	
+	public static boolean isNID(String string)
+	{
+		return (getNID(string).isPresent());
+	}
 
 	public static boolean isInt(String string)
 	{
