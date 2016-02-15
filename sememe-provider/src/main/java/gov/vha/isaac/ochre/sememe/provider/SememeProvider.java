@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
@@ -198,15 +199,25 @@ public class SememeProvider implements SememeService {
                 );
         return SememeSequenceSet.of(assemblageSememeKeys.stream().mapToInt((AssemblageSememeKey key) -> key.sememeSequence));
     }
-
+    
     @Override
     public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid) {
-        SememeSequenceSet sememeSequences = getSememeSequencesForComponent(componentNid);
-        return sememeSequences.stream().mapToObj((int sememeSequence) -> getSememe(sememeSequence));
+        return getSememesForComponentFromAssemblages(componentNid, null);
     }
 
     @Override
+    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblages(int componentNid, Set<Integer> allowedAssemblageSequences) {
+        SememeSequenceSet sememeSequences = getSememeSequencesForComponentFromAssemblages(componentNid, allowedAssemblageSequences);
+        return sememeSequences.stream().mapToObj((int sememeSequence) -> getSememe(sememeSequence));
+    }
+    
+    @Override
     public SememeSequenceSet getSememeSequencesForComponent(int componentNid) {
+        return getSememeSequencesForComponentFromAssemblages(componentNid, null);
+    }
+
+    @Override
+    public SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid, Set<Integer> allowedAssemblageSequences) {
         if (componentNid >= 0) {
             throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
         }
@@ -215,18 +226,23 @@ public class SememeProvider implements SememeService {
                         new ReferencedNidAssemblageSequenceSememeSequenceKey(componentNid, Integer.MIN_VALUE, Integer.MIN_VALUE), true,
                         new ReferencedNidAssemblageSequenceSememeSequenceKey(componentNid, Integer.MAX_VALUE, Integer.MAX_VALUE), true
                 );
-        return SememeSequenceSet.of(assemblageSememeKeys.stream().mapToInt((ReferencedNidAssemblageSequenceSememeSequenceKey key) -> key.sememeSequence));
+        return SememeSequenceSet.of(assemblageSememeKeys.stream().filter((ReferencedNidAssemblageSequenceSememeSequenceKey key) -> {
+                if (allowedAssemblageSequences == null || allowedAssemblageSequences.size() == 0 || allowedAssemblageSequences.contains(key.assemblageSequence)) {
+                    return true;
+                }
+                return false;
+            }).mapToInt((ReferencedNidAssemblageSequenceSememeSequenceKey key) -> key.sememeSequence));
     }
 
     @Override
-    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int mblageConceptSequence) {
+    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence) {
         if (componentNid >= 0) {
             componentNid = Get.identifierService().getConceptNid(componentNid);
         }
-        if (mblageConceptSequence < 0) {
-            mblageConceptSequence = Get.identifierService().getConceptSequence(mblageConceptSequence);
+        if (assemblageConceptSequence < 0) {
+            assemblageConceptSequence = Get.identifierService().getConceptSequence(assemblageConceptSequence);
         }
-        SememeSequenceSet sememeSequences = getSememeSequencesForComponentFromAssemblage(componentNid, mblageConceptSequence);
+        SememeSequenceSet sememeSequences = getSememeSequencesForComponentFromAssemblage(componentNid, assemblageConceptSequence);
         return sememeSequences.stream().mapToObj((int sememeSequence) -> getSememe(sememeSequence));
     }
 

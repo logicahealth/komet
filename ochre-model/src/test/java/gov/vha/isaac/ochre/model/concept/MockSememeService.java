@@ -1,6 +1,7 @@
 package gov.vha.isaac.ochre.model.concept;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.glassfish.hk2.api.Rank;
@@ -48,8 +49,14 @@ public class MockSememeService implements SememeService {
     public Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeId) {
         return Optional.ofNullable(getSememe(sememeId));
     }
+    
+    
 
-    @Override
+    
+
+
+
+	@Override
     public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence) {
         throw new UnsupportedOperationException();
     }
@@ -73,6 +80,11 @@ public class MockSememeService implements SememeService {
     public SememeSequenceSet getSememeSequencesForComponent(int componentNid) {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblages(int componentNid, Set<Integer> allowedAssemblageSequences) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence) {
@@ -81,6 +93,11 @@ public class MockSememeService implements SememeService {
 
     @Override
     public SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid, Set<Integer> allowedAssemblageSequences) {
         throw new UnsupportedOperationException();
     }
 

@@ -15,15 +15,16 @@
  */
 package gov.vha.isaac.ochre.api.component.sememe;
 
-import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.coordinate.StampPosition;
-import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
-import gov.vha.isaac.ochre.api.collections.NidSet;
-import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
+import gov.vha.isaac.ochre.api.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.coordinate.StampPosition;
 
 /**
  *
@@ -55,6 +56,17 @@ public interface SememeService {
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid);
     SememeSequenceSet getSememeSequencesForComponent(int componentNid);
+    
+    /**
+     * @param componentNid The component nid that the sememes must reference
+     * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+     */
+    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblages(int componentNid, Set<Integer> allowedAssemblageSequences);
+    /**
+     * @param componentNid The component nid that the sememes must reference
+     * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+     */
+    SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid, Set<Integer> allowedAssemblageSequences);
     
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
