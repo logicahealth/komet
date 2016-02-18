@@ -171,6 +171,9 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
         getAdditionalUuids(data);
         if (data.isExternalData()) {
             this.nid = Get.identifierService().getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
+            for (UUID uuid : getUuidList()) {
+                Get.identifierService().addUuidForNid(uuid, this.nid);
+            }
             if (this instanceof ConceptChronologyImpl) {
                 this.containerSequence = Get.identifierService().getConceptSequence(nid);
             } else if (this instanceof SememeChronologyImpl) {
