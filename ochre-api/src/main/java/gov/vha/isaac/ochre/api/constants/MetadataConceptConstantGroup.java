@@ -22,6 +22,7 @@ public abstract class MetadataConceptConstantGroup extends MetadataConceptConsta
 
     protected void addChild(MetadataConceptConstant child) {
         children_.add(child);
+        child.setParent(this);
     }
 
     /**
