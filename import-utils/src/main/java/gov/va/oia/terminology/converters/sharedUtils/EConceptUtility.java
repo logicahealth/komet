@@ -489,8 +489,8 @@ public class EConceptUtility
 			sememeBuilderService_.getComponentSememeBuilder(preferred ? TermAux.PREFERRED.getNid() : TermAux.ACCEPTABLE.getNid(), newDescription.getNid(), 
 						Get.identifierService().getConceptSequenceForUuids(dialect))
 					.build(createStamp(state, selectTime(time, concept), module), builtObjects);
+			ls_.addAnnotation("Description", getOriginStringForUuid(dialect));
 		}
-
 		
 		for (OchreExternalizable ochreObject : builtObjects)
 		{
