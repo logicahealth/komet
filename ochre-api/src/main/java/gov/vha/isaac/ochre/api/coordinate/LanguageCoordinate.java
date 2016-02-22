@@ -1,6 +1,7 @@
 package gov.vha.isaac.ochre.api.coordinate;
 
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
@@ -27,7 +28,7 @@ public interface LanguageCoordinate {
      */
     public default boolean isFSNPreferred() {
         for (int descType : getDescriptionTypePreferenceList()) {
-            if (descType == Get.identifierService().getConceptSequenceForUuids(UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"))) {
+            if (descType == Get.identifierService().getConceptSequenceForUuids(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid())) {
                 return true;
             }
             break;
