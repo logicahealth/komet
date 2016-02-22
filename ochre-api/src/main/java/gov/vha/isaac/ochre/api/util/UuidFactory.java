@@ -16,6 +16,7 @@
 package gov.vha.isaac.ochre.api.util;
 
 import gov.vha.isaac.ochre.api.ConceptProxy;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import java.util.UUID;
 
 /**
@@ -25,8 +26,7 @@ import java.util.UUID;
 public class UuidFactory {
 
         public static ConceptProxy SNOMED_IDENTIFIER  =
-            new ConceptProxy("SNOMED integer id",
-            UUID.fromString("0418a591-f75b-39ad-be2c-3ab849326da9"));
+            new ConceptProxy("SNOMED integer id", TermAux.SNOMED_IDENTIFIER.getPrimordialUuid());
 
     /**
      * Gets the uuid of a component from the specified alternate identifier of the same component.
