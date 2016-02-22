@@ -105,7 +105,6 @@
                         </goals>
                         <configuration>
                             <dataStoreLocation>${project.build.directory}/datastore</dataStoreLocation>
-                            <taxonomyClass>gov.vha.isaac.ochre.metadata.source.IsaacMetadataAuxiliary</taxonomyClass>
                             <bindingPackage>gov.vha.isaac</bindingPackage>
                             <bindingClass>MetaData</bindingClass>
                         </configuration>

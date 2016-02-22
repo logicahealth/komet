@@ -32,10 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 @Mojo( name = "export-taxonomy")
 public class ExportTaxonomy extends AbstractMojo {
-    
-    @Parameter(required = true)
-    private String taxonomyClass;
-    
+
     @Parameter(required = true)
     private String bindingPackage;
     
@@ -48,7 +45,7 @@ public class ExportTaxonomy extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            IsaacTaxonomy taxonomy = (IsaacTaxonomy) Class.forName(taxonomyClass).newInstance();
+            IsaacTaxonomy taxonomy = LookupService.get().getService(IsaacTaxonomy.class); 
             File javaDir = new File(buildDirectory, "src/generated");
             javaDir.mkdirs();
             File metadataDirectory = new File(buildDirectory, "generated-resources");

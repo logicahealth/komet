@@ -18,7 +18,6 @@ package gov.vha.isaac.ochre.api;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
-
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,10 +25,11 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
-
+import org.jvnet.hk2.annotations.Contract;
 import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
@@ -56,12 +56,14 @@ import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
+import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 
 /**
  * Class for programatically creating and exporting a taxonomy.
  *
  * @author kec
  */
+@Contract
 public class IsaacTaxonomy {
 
     private final TreeMap<String, ConceptBuilder> conceptBuilders = new TreeMap<>();
@@ -230,6 +232,7 @@ public class IsaacTaxonomy {
     }
 
     protected final void pushParent(ConceptBuilder parent) {
+        ensureStableUUID(parent);  //no generated UUIDs from this point on....
         parentStack.push(parent);
     }
 
@@ -357,5 +360,21 @@ public class IsaacTaxonomy {
         }
 
     }
-
+    /**
+     * Iterator over all of the concept builders, and 'fix' any that were entered without having their 
+     * primordial UUID set to a consistent value.  The builder assigned a Type4 (random) UUID the first time that 
+     * getPrimordialUuid() is called - must override that UUID with one that we can consistently create upon each 
+     * execution that builds the MetaData constants. 
+     */
+    protected void generateStableUUIDs() {
+        for (ConceptBuilder cb : conceptBuilders.values()) {
+            ensureStableUUID(cb);
+        }
+    }
+    
+    private void ensureStableUUID(ConceptBuilder builder) {
+        if (builder.getPrimordialUuid().version() == 4) {
+            builder.setPrimordialUuid(UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC, builder.getConceptDescriptionText()));
+        }
+    }
 }
