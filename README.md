@@ -3,7 +3,6 @@ ISAAC
 
 ISAAC Object Chronicle Project
 
-
 mvn clean deploy -DaltDeploymentRepository=vadev::default::http://vadev.mantech.com:8081/nexus/content/repositories/snapshots
 
 Release Notes
