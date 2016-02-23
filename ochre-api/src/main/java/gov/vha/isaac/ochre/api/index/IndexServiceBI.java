@@ -136,14 +136,14 @@ public interface IndexServiceBI {
      * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
      * or the concept sequence {@link MetaData#SNOMED_INTEGER_ID} for example.
      * @param sizeLimit The maximum size of the result list.  Pass Integer.MAX_VALUE for unlimited results.
-     * @param targetGeneration target generation that must be included in the search
+     * @param targetGeneration (optional) target generation that must be included in the search
      * or Long.MIN_VALUE if there is no need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until 
-     * any in progress indexing operations are completed - and then use the latest index.
+     * any in progress indexing operations are completed - and then use the latest index.  Null behaves the same as Long.MIN_VALUE
      * 
      * @return a List of {@code SearchResult</codes> that contains the nid of the
      * component that matched, and the score of that match relative to other matches.
      */
-    List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, long targetGeneration);
+    List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration);
     
     /**
      * @param query The query to apply.

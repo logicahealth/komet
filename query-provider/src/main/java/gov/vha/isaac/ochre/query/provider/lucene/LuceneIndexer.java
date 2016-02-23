@@ -275,7 +275,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     * @throws IOException
     */
    @Override
-    public final List<SearchResult> query(String query, Integer[] semeneConceptSequence, int sizeLimit, long targetGeneration) {
+    public final List<SearchResult> query(String query, Integer[] semeneConceptSequence, int sizeLimit, Long targetGeneration) {
        return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration);
    }
 
