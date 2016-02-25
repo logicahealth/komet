@@ -106,6 +106,8 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     
     protected static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
     protected static final String FIELD_INDEXED_LONG_VALUE = "_long_content_";
+    //Cheaper to index nids and sequences as strings with an analyzer that won't do anything
+    protected static final String FIELD_INDEXED_ID_VALUE = "_id_content_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
     
     //don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
     //exact matches.
