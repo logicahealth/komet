@@ -56,4 +56,10 @@ public interface DynamicSememeData {
      * @return The type information of the data
      */
     public DynamicSememeDataType getDynamicSememeDataType();
+    
+    /**
+     * Return a string representation of the data fields
+     * @return
+     */
+    public String dataToString();
 }

@@ -105,10 +105,10 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
 
     ;
 
-	/**
-	 * @see gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe#getData()
-	 */
-	@Override
+    /**
+     * @see gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe#getData()
+     */
+    @Override
     public DynamicSememeData[] getData() {
         return data_ == null ? new DynamicSememeData[]{} : data_;
     }
@@ -152,6 +152,29 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
         return sb.toString();
     }
 
+    @Override
+    public String dataToString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        if (data_ != null)
+        {
+            for (DynamicSememeData dsd : data_)
+            {
+                if (dsd != null)
+                {
+                    sb.append(dsd.dataToString());
+                }
+                sb.append(", ");
+            }
+            if (sb.length() > 1)
+            {
+                sb.setLength(sb.length() - 2);
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
     //TODO dan remove if we don't actually need equals
     //    @Override
     //    public boolean equals(Object obj) {
@@ -186,57 +209,16 @@ public class DynamicSememeImpl extends SememeVersionImpl<DynamicSememeImpl> impl
     //
     //        return false;
     //    }
-//	 protected boolean refexFieldsEqual(ConceptComponent<RefexDynamicRevision, RefexDynamicMember> obj) {
-//	       if (RefexDynamicMember.class.isAssignableFrom(obj.getClass())) {
-//	          RefexDynamicMember another = (RefexDynamicMember) obj;
-//	          return refexDataFieldsEqual(another.getData());
-//	       }
-//	       return false;
-//	    }
-//	    
-//	    @Override
-//	    public boolean refexDataFieldsEqual(RefexDynamicDataBI[] another) {
-//	        return Arrays.deepEquals(getData(), another);
-//	    }
-    //
-    //    @Override
-    //    public int hashCode() {
-    //        return Hashcode.compute(new int[]{referencedComponentNid, assemblageNid, Arrays.deepHashCode(getData())});
-    //    }
-//TODO see if we have a need to construct from TTK?
-    //    public RefexDynamicMember(TtkRefexDynamicMemberChronicle refsetMember, int enclosingConceptNid) throws IOException {
-//        super(refsetMember, enclosingConceptNid);
-//        assemblageNid = PersistentStore.get().getNidForUuids(refsetMember.refexAssemblageUuid);
-//        referencedComponentNid = PersistentStore.get().getNidForUuids(refsetMember.getComponentUuid());
-//        primordialStamp = PersistentStore.get().getStamp(refsetMember);
-//        assert primordialStamp != Integer.MAX_VALUE;
-//        assert referencedComponentNid != Integer.MAX_VALUE;
-//        assert assemblageNid != Integer.MAX_VALUE;
-//        
-//        if (refsetMember.getData() != null)
-//        {
-//            data_= new RefexDynamicDataBI[refsetMember.getData().length];
-//            for (int i = 0; i < data_.length; i++)
-//            {
-//                if (refsetMember.getData()[i] == null)
-//                {
-//                    data_[i] = null;
-//                }
-//                else
-//                {
-//                    data_[i] = DynamicSememeTypeToClassUtility.typeToClass(refsetMember.getData()[i].getRefexDataType(), refsetMember.getData()[i].getData(), 
-//                        assemblageNid, i);
-//                }
-//            }
-//        }
-//
-//        if (refsetMember.getRevisionList() != null) {
-//            revisions = new RevisionSet(primordialStamp);
-//
-//            for (TtkRefexDynamicRevision eVersion : refsetMember.getRevisionList()) {
-//                revisions.add(new RefexDynamicRevision(eVersion, this));
-//            }
+//     protected boolean refexFieldsEqual(ConceptComponent<RefexDynamicRevision, RefexDynamicMember> obj) {
+//           if (RefexDynamicMember.class.isAssignableFrom(obj.getClass())) {
+//              RefexDynamicMember another = (RefexDynamicMember) obj;
+//              return refexDataFieldsEqual(another.getData());
+//           }
+//           return false;
 //        }
 //        
-//    }
+//        @Override
+//        public boolean refexDataFieldsEqual(RefexDynamicDataBI[] another) {
+//            return Arrays.deepEquals(getData(), another);
+//        }
 }
