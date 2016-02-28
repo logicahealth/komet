@@ -20,6 +20,7 @@
 package gov.vha.isaac.ochre.api.index;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.jvnet.hk2.annotations.Contract;
@@ -110,6 +111,17 @@ public interface IndexServiceBI {
      * @return true if this indexer is enabled.
      */
     boolean isEnabled();
+    
+    /**
+     * @return name / value pairs that give statistics on the number of things indexed since the last time 
+     * #clearIndexedStatistics was called.
+     */
+    HashMap<String, Integer> reportIndexedItems();
+    
+    /**
+     * Zero out the statistics that would be reported by {@link #reportIndexedItems()}
+     */
+    void clearIndexedStatistics();
 
     /**
      * Enables or disables an indexer. A disabled indexer will take

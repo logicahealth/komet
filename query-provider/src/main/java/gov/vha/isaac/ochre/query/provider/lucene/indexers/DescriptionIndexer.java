@@ -58,6 +58,8 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
 
     private final HashMap<Integer, String> sequenceTypeMap = new HashMap<>();
     private int descSourceTypeSequence;
+    
+    private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
 
     // for HK2 only
     private DescriptionIndexer() throws IOException {
@@ -84,6 +86,7 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
             SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
             if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
                 indexDescription(doc, (SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>>) sememeChronology);
+                incrementIndexedItemCount("Description");
             }
         }
     }
@@ -92,6 +95,50 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
         //index twice per field - once with the standard analyzer, once with the whitespace analyzer.
         doc.add(new TextField(fieldName, value, Field.Store.NO));
         doc.add(new TextField(fieldName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, value, Field.Store.NO));
+    }
+    
+    /**
+     * A generic query API that handles most common cases.  The cases handled for various component property types
+     * are detailed below.
+     * 
+     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
+     * queries.  Specifically both {@link DynamicSememeIndexer} and {@link DescriptionIndexer} have their own 
+     * query(...) methods which allow for more advanced queries.
+     *
+     * @param query The query to apply.
+     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching 
+     * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token) 
+     * that is part of the query string will be required to be found in the result.
+     * 
+     * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a 
+     * space character following it, that word will be required as a complete term.  If the last word of the query does not 
+     * have a space character following it, that word will be required as a prefix match only.
+     * 
+     * For example:
+     * The query "family test" will return results that contain 'Family Testudinidae'
+     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
+     * 
+     * @param semeneConceptSequence optional - The concept seqeuence of the sememes that you wish to search within.  If null or empty
+     * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
+     * or the concept sequence {@link MetaData#SNOMED_INTEGER_ID} for example.
+     * @param sizeLimit The maximum size of the result list.
+     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need 
+     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress 
+     * indexing operations are completed - and then use the latest index.
+     *
+     * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative 
+     * to other matches.
+     */
+    @Override
+    public List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration) {
+        try {
+            return search(
+                    restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch), sememeConceptSequence),
+                    sizeLimit, targetGeneration);
+        }
+        catch (IOException | ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
