@@ -133,7 +133,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("logic assemblage");
                         pushParent(current());
                         createConcept("EL++ stated form assemblage").setPrimordialUuid("1f201994-960e-11e5-8994-feff819cdc9f");
-                        createConcept("EL++ inferred form").setPrimordialUuid("1f20182c-960e-11e5-8994-feff819cdc9f");
+                        createConcept("EL++ inferred form assemblage").setPrimordialUuid("1f20182c-960e-11e5-8994-feff819cdc9f");
                     popParent();
                     createConcept("assemblage related to path management");
                     pushParent(current());
