@@ -36,7 +36,6 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -345,17 +344,15 @@ public class SememeIndexer extends LuceneIndexer
 	 * @param sizeLimit
 	 * @param targetGeneration (optional) wait for an index to build, or null to not wait
 	 * @return
-	 * @throws java.io.IOException
-	 * @throws org.apache.lucene.queryparser.classic.ParseException
 	 */
 	public final List<SearchResult> queryNumericRange(final DynamicSememeData queryDataLower, final boolean queryDataLowerInclusive,
 			final DynamicSememeData queryDataUpper, final boolean queryDataUpperInclusive, Integer[] sememeConceptSequence, Integer[] searchColumns, int sizeLimit,
-			Long targetGeneration) throws IOException, ParseException
+			Long targetGeneration)
 	{
 		Query q = new QueryWrapperForColumnHandling()
 		{
 			@Override
-			Query buildQuery(String columnName) throws ParseException
+			Query buildQuery(String columnName)
 			{
 				return buildNumericQuery(queryDataLower, queryDataLowerInclusive, queryDataUpper, queryDataUpperInclusive, columnName);
 			}
@@ -380,8 +377,6 @@ public class SememeIndexer extends LuceneIndexer
 	 * @param sizeLimit
 	 * @param targetGeneration
 	 * @return
-	 * @throws java.io.IOException
-	 * @throws org.apache.lucene.queryparser.classic.ParseException
 	 */
 	@Override
 	public final List<SearchResult> query(String queryString, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration)
@@ -400,99 +395,90 @@ public class SememeIndexer extends LuceneIndexer
 	 * @param sizeLimit
 	 * @param targetGeneration (optional) wait for an index to build, or null to not wait
 	 * @return
-	 * @throws java.io.IOException
-	 * @throws org.apache.lucene.queryparser.classic.ParseException
 	 */
-	public final List<SearchResult> query(final DynamicSememeData queryData, final boolean prefixSearch, Integer[] sememeConceptSequence, Integer[] searchColumns, 
-			int sizeLimit, Long targetGeneration)
+	public final List<SearchResult> query(final DynamicSememeData queryData, final boolean prefixSearch, Integer[] sememeConceptSequence, 
+			Integer[] searchColumns, int sizeLimit, Long targetGeneration)
 	{
-		try
+		Query q = null;
+
+		if (queryData instanceof DynamicSememeString)
 		{
-			Query q = null;
-	
-			if (queryData instanceof DynamicSememeString)
+			q = new QueryWrapperForColumnHandling()
+			{
+				@Override
+				Query buildQuery(String columnName)
+				{
+					//This is the only query type that needs tokenizing, etc.
+					String queryString = ((DynamicSememeString) queryData).getDataString();
+					//'-' signs are operators to lucene... but we want to allow nid lookups.  So escape any leading hyphens
+					//and any hyphens that are preceeded by spaces.  This way, we don't mess up UUID handling.
+					//(lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
+
+					if (queryString.startsWith("-"))
+					{
+						queryString = "\\" + queryString;
+					}
+					queryString = queryString.replaceAll("\\s-", " \\\\-");
+					log.debug("Modified search string is: ''{}''", queryString);
+					return buildTokenizedStringQuery(queryString, columnName, prefixSearch);
+				}
+			}.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+		}
+		else
+		{
+			if (queryData instanceof DynamicSememeBoolean || queryData instanceof DynamicSememeNid || queryData instanceof DynamicSememeUUID)
 			{
 				q = new QueryWrapperForColumnHandling()
 				{
 					@Override
-					Query buildQuery(String columnName) throws ParseException, IOException
+					Query buildQuery(String columnName)
 					{
-						//This is the only query type that needs tokenizing, etc.
-						String queryString = ((DynamicSememeString) queryData).getDataString();
-						//'-' signs are operators to lucene... but we want to allow nid lookups.  So escape any leading hyphens
-						//and any hyphens that are preceeded by spaces.  This way, we don't mess up UUID handling.
-						//(lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
-	
-						if (queryString.startsWith("-"))
-						{
-							queryString = "\\" + queryString;
-						}
-						queryString = queryString.replaceAll("\\s-", " \\\\-");
-						log.debug("Modified search string is: ''{}''", queryString);
-						return buildTokenizedStringQuery(queryString, columnName, prefixSearch);
+						return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER , queryData.getDataObject().toString()));
 					}
 				}.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
 			}
+			else if (queryData instanceof DynamicSememeDouble || queryData instanceof DynamicSememeFloat || queryData instanceof DynamicSememeInteger
+					|| queryData instanceof DynamicSememeLong || queryData instanceof DynamicSememeSequence)
+			{
+				q = new QueryWrapperForColumnHandling()
+				{
+					@Override
+					Query buildQuery(String columnName)
+					{
+						Query temp = buildNumericQuery(queryData, true, queryData, true, columnName);
+
+						if ((queryData instanceof DynamicSememeLong && ((DynamicSememeLong) queryData).getDataLong() < 0)
+								|| (queryData instanceof DynamicSememeInteger && ((DynamicSememeInteger) queryData).getDataInteger() < 0))
+						{
+							//Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
+							BooleanQuery wrapper = new BooleanQuery();
+							wrapper.add(new TermQuery(new Term(columnName, queryData.getDataObject().toString())), Occur.SHOULD);
+							wrapper.add(temp, Occur.SHOULD);
+							temp = wrapper;
+						}
+						return temp;
+					}
+				}.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+			}
+			else if (queryData instanceof DynamicSememeByteArray)
+			{
+				throw new RuntimeException("DynamicSememeByteArray isn't indexed");
+			}
+			else if (queryData instanceof DynamicSememePolymorphic)
+			{
+				throw new RuntimeException("This should have been impossible (polymorphic?)");
+			}
+			else if (queryData instanceof DynamicSememeArray)
+			{
+				throw new RuntimeException("DynamicSememeArray isn't a searchable type");
+			}
 			else
 			{
-				if (queryData instanceof DynamicSememeBoolean || queryData instanceof DynamicSememeNid || queryData instanceof DynamicSememeUUID)
-				{
-					q = new QueryWrapperForColumnHandling()
-					{
-						@Override
-						Query buildQuery(String columnName) throws ParseException
-						{
-							return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER , queryData.getDataObject().toString()));
-						}
-					}.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
-				}
-				else if (queryData instanceof DynamicSememeDouble || queryData instanceof DynamicSememeFloat || queryData instanceof DynamicSememeInteger
-						|| queryData instanceof DynamicSememeLong || queryData instanceof DynamicSememeSequence)
-				{
-					q = new QueryWrapperForColumnHandling()
-					{
-						@Override
-						Query buildQuery(String columnName) throws ParseException
-						{
-							Query temp = buildNumericQuery(queryData, true, queryData, true, columnName);
-	
-							if ((queryData instanceof DynamicSememeLong && ((DynamicSememeLong) queryData).getDataLong() < 0)
-									|| (queryData instanceof DynamicSememeInteger && ((DynamicSememeInteger) queryData).getDataInteger() < 0))
-							{
-								//Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
-								BooleanQuery wrapper = new BooleanQuery();
-								wrapper.add(new TermQuery(new Term(columnName, queryData.getDataObject().toString())), Occur.SHOULD);
-								wrapper.add(temp, Occur.SHOULD);
-								temp = wrapper;
-							}
-							return temp;
-						}
-					}.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
-				}
-				else if (queryData instanceof DynamicSememeByteArray)
-				{
-					throw new ParseException("DynamicSememeByteArray isn't indexed");
-				}
-				else if (queryData instanceof DynamicSememePolymorphic)
-				{
-					throw new ParseException("This should have been impossible (polymorphic?)");
-				}
-				else if (queryData instanceof DynamicSememeArray)
-				{
-					throw new ParseException("DynamicSememeArray isn't a searchable type");
-				}
-				else
-				{
-					log.error("This should have been impossible (no match on col type)");
-					throw new ParseException("unexpected error, see logs");
-				}
+				log.error("This should have been impossible (no match on col type)");
+				throw new RuntimeException("unexpected error, see logs");
 			}
-			return search(restrictToSememe(q, sememeConceptSequence), sizeLimit, targetGeneration);
 		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		return search(restrictToSememe(q, sememeConceptSequence), sizeLimit, targetGeneration);
 	}
 	
 	/**
@@ -509,6 +495,8 @@ public class SememeIndexer extends LuceneIndexer
 	 * @param nid the id reference to search for
 	 * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within. If null,
 	 * searches all indexed content. This would be set to the concept sequence like {@link MetaData#EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE}
+	 * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if 
+	 * ONE and only one sememeConceptSequence is provided.  May not be provided if 0 or more than 1 sememeConceptSequence values are provided.
 	 * @param sizeLimit The maximum size of the result list.
 	 * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
 	 * to wait for a target generation. Long.MAX_VALUE can be passed in to force this query to wait until any in-progress
@@ -516,14 +504,22 @@ public class SememeIndexer extends LuceneIndexer
 	 * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of that
 	 * match relative to other matches. Note that scores are pointless for exact id matches - they will all be the same.
 	 */
-	public List<SearchResult> query(int nid, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration)
+	public List<SearchResult> query(int nid, Integer[] sememeConceptSequence, Integer[] searchColumns, int sizeLimit, Long targetGeneration)
 	{
-		return search(restrictToSememe(new TermQuery(new Term(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + "")), 
-				sememeConceptSequence), sizeLimit, targetGeneration);
+		Query q = new QueryWrapperForColumnHandling()
+		{
+			@Override
+			Query buildQuery(String columnName)
+			{
+				return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
+			}
+		}.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
+		
+		return search(restrictToSememe(q, sememeConceptSequence), sizeLimit, targetGeneration);
 	}
 
 	private Query buildNumericQuery(DynamicSememeData queryDataLower, boolean queryDataLowerInclusive, DynamicSememeData queryDataUpper,
-			boolean queryDataUpperInclusive, String columnName) throws ParseException
+			boolean queryDataUpperInclusive, String columnName)
 	{
 		//Convert both to the same type (if they differ) - go largest data type to smallest, so we don't lose precision
 		//Also - if they pass in longs that would fit in an int, also generate an int query.
@@ -597,7 +593,7 @@ public class SememeIndexer extends LuceneIndexer
 			}
 			if (bq.getClauses().length == 0)
 			{
-				throw new ParseException("Not a numeric data type - can't perform a range query");
+				throw new RuntimeException("Not a numeric data type - can't perform a range query");
 			}
 			else
 			{
@@ -608,15 +604,15 @@ public class SememeIndexer extends LuceneIndexer
 		}
 		catch (ClassCastException e)
 		{
-			throw new ParseException("One of the values is not a numeric data type - can't perform a range query");
+			throw new RuntimeException("One of the values is not a numeric data type - can't perform a range query");
 		}
 	}
 
 	private abstract class QueryWrapperForColumnHandling
 	{
-		abstract Query buildQuery(String columnName) throws ParseException, IOException;
+		abstract Query buildQuery(String columnName);
 
-		protected Query buildColumnHandlingQuery(Integer[] sememeConceptSequence, Integer[] searchColumns) throws ParseException, IOException
+		protected Query buildColumnHandlingQuery(Integer[] sememeConceptSequence, Integer[] searchColumns)
 		{
 			Integer[] sememeIndexedColumns = null;
 			
@@ -625,7 +621,7 @@ public class SememeIndexer extends LuceneIndexer
 				//If they provide a search column - then they MUST provide one and only one sememeConceptSequence
 				if (sememeConceptSequence == null || sememeConceptSequence.length != 1)
 				{
-					throw new ParseException("If a list of search columns is provided, then the sememeConceptSequence variable must contain 1 (and only 1) sememe");
+					throw new RuntimeException("If a list of search columns is provided, then the sememeConceptSequence variable must contain 1 (and only 1) sememe");
 				}
 				else
 				{

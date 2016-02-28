@@ -1,6 +1,5 @@
 package gov.vha.isaac.ochre.query.provider.lucene.indexers;
 
-import gov.vha.isaac.MetaData;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +11,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.glassfish.hk2.runlevel.RunLevel;
-import gov.vha.isaac.ochre.query.provider.lucene.LuceneDescriptionType;
-import gov.vha.isaac.ochre.query.provider.lucene.LuceneIndexer;
-import gov.vha.isaac.ochre.query.provider.lucene.PerFieldAnalyzer;
 import org.jvnet.hk2.annotations.Service;
+import gov.vha.isaac.MetaData;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
@@ -27,6 +23,9 @@ import gov.vha.isaac.ochre.api.component.sememe.version.DynamicSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.api.index.SearchResult;
+import gov.vha.isaac.ochre.query.provider.lucene.LuceneDescriptionType;
+import gov.vha.isaac.ochre.query.provider.lucene.LuceneIndexer;
+import gov.vha.isaac.ochre.query.provider.lucene.PerFieldAnalyzer;
 
 /**
  * Lucene Manager for a Description index. Provides the description indexing
@@ -131,14 +130,9 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
      */
     @Override
     public List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration) {
-        try {
-            return search(
-                    restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch), sememeConceptSequence),
-                    sizeLimit, targetGeneration);
-        }
-        catch (IOException | ParseException e) {
-            throw new RuntimeException(e);
-        }
+        return search(
+                restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch), sememeConceptSequence),
+                sizeLimit, targetGeneration);
     }
 
     /**
@@ -159,19 +153,14 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
      * @return a List of <code>SearchResult</codes> that contains the nid of the
      * component that matched, and the score of that match relative to other
      * matches.
-     * @throws NumberFormatException
     */
     public final List<SearchResult> query(String query, UUID extendedDescriptionType, int sizeLimit, Long targetGeneration) {
 
         if (extendedDescriptionType == null) {
             return super.query(query, (Integer[])null, sizeLimit, targetGeneration);
         } else {
-            try {
-                return search(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(), false),
-                        sizeLimit, targetGeneration);
-            } catch (IOException | ParseException ex) {
-                throw new RuntimeException(ex);
-            }
+            return search(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE + "_" + extendedDescriptionType.toString(), false),
+                    sizeLimit, targetGeneration);
         }
     }
 
@@ -191,18 +180,13 @@ public class DescriptionIndexer extends LuceneIndexer implements IndexServiceBI 
      * @return a List of <code>SearchResult</codes> that contains the nid of the
      * component that matched, and the score of that match relative to other
      * matches.
-     * @throws NumberFormatException
      */
     public final List<SearchResult> query(String query, LuceneDescriptionType descriptionType, int sizeLimit, Long targetGeneration) {
         if (descriptionType == null) {
             return super.query(query, (Integer[])null, sizeLimit, targetGeneration);
         } else {
-            try {
-                return search(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(), false),
-                        sizeLimit, targetGeneration);
-            } catch (IOException | ParseException ex) {
-                throw new RuntimeException(ex);
-            }
+            return search(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE + "_" + descriptionType.name(), false),
+                    sizeLimit, targetGeneration);
         }
     }
 

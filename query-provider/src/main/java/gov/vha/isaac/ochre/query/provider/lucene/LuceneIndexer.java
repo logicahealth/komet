@@ -266,7 +266,6 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     * in-progress indexing operations are completed - and then use the latest index.
     * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of 
     * that match relative to other matches.
-    * @throws IOException
     */
    @Override
     public final List<SearchResult> query(String query, Integer[] semeneConceptSequence, int sizeLimit, Long targetGeneration) {
@@ -498,26 +497,33 @@ public abstract class LuceneIndexer implements IndexServiceBI {
      * Uses the Lucene Query Parser if prefixSearch is false, otherwise, uses a custom prefix algorithm.  
      * See {@link LuceneIndexer#query(String, boolean, Integer, int, Long)} for details on the prefix search algorithm. 
      */
-    protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch) throws IOException, ParseException
+    protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch)
     {
-        BooleanQuery bq = new BooleanQuery();
-        
-        if (prefixSearch) 
+        try
         {
-            bq.add(buildPrefixQuery(query,field, new PerFieldAnalyzer()), Occur.SHOULD);
-            bq.add(buildPrefixQuery(query,field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()), Occur.SHOULD);
+            BooleanQuery bq = new BooleanQuery();
+            
+            if (prefixSearch) 
+            {
+                bq.add(buildPrefixQuery(query,field, new PerFieldAnalyzer()), Occur.SHOULD);
+                bq.add(buildPrefixQuery(query,field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()), Occur.SHOULD);
+            }
+            else {
+                QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
+                qp1.setAllowLeadingWildcard(true);
+                bq.add(qp1.parse(query), Occur.SHOULD);
+                QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
+                qp2.setAllowLeadingWildcard(true);
+                bq.add(qp2.parse(query), Occur.SHOULD);
+            }
+            BooleanQuery wrap = new BooleanQuery();
+            wrap.add(bq, Occur.MUST);
+            return wrap;
         }
-        else {
-            QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
-            qp1.setAllowLeadingWildcard(true);
-            bq.add(qp1.parse(query), Occur.SHOULD);
-            QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
-            qp2.setAllowLeadingWildcard(true);
-            bq.add(qp2.parse(query), Occur.SHOULD);
+        catch (IOException|ParseException e)
+        {
+            throw new RuntimeException(e);
         }
-        BooleanQuery wrap = new BooleanQuery();
-        wrap.add(bq, Occur.MUST);
-        return wrap;
     }
     
     protected Query buildPrefixQuery(String searchString, String field, Analyzer analyzer) throws IOException
