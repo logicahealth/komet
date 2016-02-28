@@ -19,9 +19,8 @@
 
 package gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes;
 
-import java.io.IOException;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+import javafx.beans.property.ReadOnlyObjectProperty;
 
 /**
  * 
