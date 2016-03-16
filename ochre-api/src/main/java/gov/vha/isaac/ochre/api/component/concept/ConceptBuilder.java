@@ -28,7 +28,7 @@ public interface ConceptBuilder extends IdentifiedComponentBuilder<ConceptChrono
     
     DescriptionBuilder<?,?> getFullySpecifiedDescriptionBuilder();
     
-    DescriptionBuilder<?,?> getPreferredDescriptionBuilder();
+    DescriptionBuilder<?,?> getSynonymPreferredDescriptionBuilder();
     
     ConceptBuilder addDescription(DescriptionBuilder<?,?> descriptionBuilder);
     
