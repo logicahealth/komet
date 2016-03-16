@@ -73,9 +73,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import gov.vha.isaac.ochre.api.constants.Constants;
-import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampPosition;
@@ -90,9 +88,6 @@ import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
 import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
-import gov.vha.isaac.ochre.model.sememe.DynamicSememeUtilityImpl;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
-import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 import javafx.application.Platform;
@@ -1138,7 +1133,8 @@ public class EConceptUtility
 					if (pt.createAsDynamicRefex())
 					{
 						configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept), 
-								(StringUtils.isNotEmpty(p.getSourcePropertyDefinition()) ? p.getSourcePropertyDefinition() : "Dynamic Sememe"),
+								findFirstNotEmptyString(p.getSourcePropertyDefinition(), p.getSourcePropertyAltName(), p.getSourcePropertyPreferredName(),
+										p.getSourcePropertyNameFSN()),
 								p.getDataColumnsForDynamicRefex(), null, null);
 					}
 					
@@ -1166,6 +1162,18 @@ public class EConceptUtility
 				}
 			}
 		}
+	}
+	
+	private String findFirstNotEmptyString(String ... strings)
+	{
+		for (String s : strings)
+		{
+			if (StringUtils.isNotEmpty(s))
+			{
+				return s;
+			}
+		}
+		return "";
 	}
 	
 	private UUID setupWbPropertyMetadata(UUID refsetSynonymParent, UUID refsetValueParent, PropertyType pt) throws Exception
@@ -1223,7 +1231,7 @@ public class EConceptUtility
 		{
 			throw new RuntimeException("Refex description is required");
 		}
-		// See {@link DynamicSememeUsageDescriptionBI} class for more details on this format.
+		// See {@link DynamicSememeUsageDescription} class for more details on this format.
 		//Add the special synonym to establish this as an assemblage concept
 		SememeChronology<DescriptionSememe<?>> desc = addDescription(concept, refexDescription, DescriptionType.DEFINITION, true, null, null, State.ACTIVE);
 		
