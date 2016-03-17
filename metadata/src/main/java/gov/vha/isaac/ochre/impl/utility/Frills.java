@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,6 @@ import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
-import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
 import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
@@ -48,6 +48,7 @@ import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeType;
 import gov.vha.isaac.ochre.api.component.sememe.version.ComponentNidSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.DescriptionSememe;
+import gov.vha.isaac.ochre.api.component.sememe.version.LogicGraphSememe;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnUtility;
@@ -56,11 +57,16 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
 import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.api.index.SearchResult;
+import gov.vha.isaac.ochre.api.logic.LogicNode;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
+import gov.vha.isaac.ochre.api.util.NumericUtils;
+import gov.vha.isaac.ochre.api.util.UUIDUtil;
 import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
 import gov.vha.isaac.ochre.model.configuration.LanguageCoordinates;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
@@ -73,294 +79,416 @@ import gov.vha.isaac.ochre.model.sememe.version.StringSememeImpl;
 @Singleton
 public class Frills implements DynamicSememeColumnUtility {
 
-    private static Logger log = LogManager.getLogger();
+	private static Logger log = LogManager.getLogger();
 
-    /**
-     *
-     * Determine if Chronology has nested sememes
-     *
-     * @param chronology
-     * @return true if there is a nested sememe, false otherwise
-     */
-    public static boolean hasNestedSememe(ObjectChronology<?> chronology) {
-        return !chronology.getSememeList().isEmpty();
-    }
+	public static Map<String, Object> getIdInfo(UUID id) {
+		return getIdInfo(id.toString());
+	}
+	public static Map<String, Object> getIdInfo(int id) {
+		return getIdInfo(Integer.toString(id));
+	}
+	public static Map<String, Object> getIdInfo(String id) {
+		Map<String, Object> idInfo = new HashMap<>();
 
-    /**
-     * Find the SCTID for a component (if it has one)
-     *
-     * @param componentNid
-     * @param stamp - optional - if not provided uses default from config
-     * service
-     * @return the id, if found, or empty (will not return null)
-     */
-    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
-        try {
-            Optional<LatestVersion<StringSememeImpl>> sememe = Get.sememeService().getSnapshot(StringSememeImpl.class,
-                    stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp)
-                    .getLatestSememeVersionsForComponentFromAssemblage(componentNid,
-                            MetaData.SNOMED_INTEGER_ID.getConceptSequence()).findFirst();
-            if (sememe.isPresent()) {
-                return Optional.of(Long.parseLong(sememe.get().value().getString()));
-            }
-        } catch (Exception e) {
-            log.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
-        }
-        return Optional.empty();
-    }
+		Integer seq = null;
+		Integer nid = null;
+		UUID[] uuids = null;
+		ObjectChronologyType typeOfPassedId = null;
 
-    /**
-     * Determine if a particular description sememe is flagged as preferred IN
-     * ANY LANGUAGE. Returns false if there is no acceptability sememe.
-     *
-     * @param descriptionSememeNid
-     * @param stamp - optional - if not provided, uses default from config
-     * service
-     * @throws RuntimeException If there is unexpected data (incorrectly)
-     * attached to the sememe
-     */
-    public static boolean isDescriptionPreferred(int descriptionSememeNid, StampCoordinate stamp) throws RuntimeException {
-        AtomicReference<Boolean> answer = new AtomicReference<>();
+		try {
+			Optional<Integer> intId = NumericUtils.getInt(id);
+			if (intId.isPresent())
+			{
+				// id interpreted as the id of the referenced component
+				seq = Get.identifierService().getConceptSequence(intId.get());
+				if (seq == intId.get()) {
+					nid = Get.identifierService().getConceptNid(seq);
+				} else {
+					nid = intId.get();
+				}
 
-        //Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
-        Get.sememeService().getSememesForComponent(descriptionSememeNid).forEach(nestedSememe
-                -> {
-            if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
-                @SuppressWarnings({"rawtypes", "unchecked"})
-                Optional<LatestVersion<ComponentNidSememe>> latest = ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
-                        stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
+				typeOfPassedId = Get.identifierService().getChronologyTypeForNid(nid);
 
-                if (latest.isPresent()) {
-                    if (latest.get().value().getComponentNid() == MetaData.PREFERRED.getNid()) {
-                        if (answer.get() != null && answer.get() != true) {
-                            throw new RuntimeException("contradictory annotations about preferred status!");
-                        }
-                        answer.set(true);
-                    } else if (latest.get().value().getComponentNid() == MetaData.ACCEPTABLE.getNid()) {
-                        if (answer.get() != null && answer.get() != false) {
-                            throw new RuntimeException("contradictory annotations about preferred status!");
-                        }
-                        answer.set(false);
-                    } else {
-                        throw new RuntimeException("Unexpected component nid!");
-                    }
+				uuids = Get.identifierService().getUuidArrayForNid(nid);
+			}
+			else
+			{
+				Optional<UUID> uuidId = UUIDUtil.getUUID(id);
+				if (uuidId.isPresent())
+				{
+					// id interpreted as the id of either a sememe or a concept
+					nid = Get.identifierService().getNidForUuids(uuidId.get());
+					typeOfPassedId = Get.identifierService().getChronologyTypeForNid(nid);
 
-                }
-            }
-        });
-        if (answer.get() == null) {
-            log.warn("Description nid {} does not have an acceptability sememe!", descriptionSememeNid);
-            return false;
-        }
-        return answer.get();
-    }
+					switch (typeOfPassedId) {
+					case CONCEPT: {
+						seq = Get.identifierService().getConceptSequenceForUuids(uuidId.get());
+						break;
+					}
+					case SEMEME: {
+						seq = Get.identifierService().getSememeSequenceForUuids(uuidId.get());
+						break;
+					}
+					case UNKNOWN_NID:
+					default:
+					}
+				}
+			}
 
-    /**
-     * Returns a Map correlating each dialect sequence for a passed
-     * descriptionSememeId with its respective acceptability nid (preferred vs
-     * acceptable)
-     *
-     * @param descriptionSememeNid
-     * @param stamp - optional - if not provided, uses default from config
-     * service
-     * @throws RuntimeException If there is inconsistent data (incorrectly)
-     * attached to the sememe
-     */
-    public static Map<Integer, Integer> getAcceptabilities(int descriptionSememeNid, StampCoordinate stamp) throws RuntimeException {
-        Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
+			if (nid != null) {
+				idInfo.put("DESC", Get.conceptDescriptionText(nid));
+			}
+		} catch (Exception e) {
+			log.warn("Problem getting idInfo for \"" + id + "\". Caught " + e.getClass().getName() + " " + e.getLocalizedMessage());
+		}
+		idInfo.put("PASSED_ID", id);
+		idInfo.put("SEQ", seq);
+		idInfo.put("NID", nid);
+		idInfo.put("UUIDs", Arrays.toString(uuids));
+		idInfo.put("TYPE", typeOfPassedId);
 
-        Get.sememeService().getSememesForComponent(descriptionSememeNid).forEach(nestedSememe
-                -> {
-            if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
-                int dialectSequence = nestedSememe.getAssemblageSequence();
+		return idInfo;
+	}
+	/**
+	 * @param lgs The LogicGraphSememe containing the logic graph data
+	 * @return true if the corresponding concept is fully defined, otherwise returns false (for primitive concepts)
+	 * 
+	 * Things that are defined with a SUFFICIENT_SET are defined.
+	 * Things that are defined with a NECESSARY_SET are primitive.
+	 */
+	public static <T extends LogicGraphSememe<T>> boolean isConceptFullyDefined(LogicGraphSememe<T> lgs) {
+		LogicalExpression le = lgs.getLogicalExpression();
+		LogicNode rootNode = le.getRoot();
+		return rootNode.getChildren()[0].getNodeSemantic() == NodeSemantic.SUFFICIENT_SET;
+	}
 
-                @SuppressWarnings({"rawtypes", "unchecked"})
-                Optional<LatestVersion<ComponentNidSememe>> latest = ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
-                        stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
+	/**
+	 * @param id The int sequence or NID of the Concept for which the logic graph is requested
+	 * @param stated boolean indicating stated vs inferred definition chronology should be used
+	 * @return An Optional containing a LogicGraphSememe SememeChronology
+	 */
+	public static Optional<SememeChronology<? extends LogicGraphSememe<?>>> getLogicGraphChronology(int id, boolean stated)
+	{
+		log.debug("Getting " + (stated ? "stated" : "inferred") + " logic graph chronology for " + Frills.getIdInfo(id));
+		Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional = stated ? Get.statedDefinitionChronology(id) : Get.inferredDefinitionChronology(id);
+		if (defChronologyOptional.isPresent())
+		{
+			log.debug("Got " + (stated ? "stated" : "inferred") + " logic graph chronology for " + Frills.getIdInfo(id));
 
-                if (latest.isPresent()) {
-                    if (latest.get().value().getComponentNid() == MetaData.PREFERRED.getNid()
-                            || latest.get().value().getComponentNid() == MetaData.ACCEPTABLE.getNid()) {
-                        if (dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null
-                                && dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != latest.get().value().getComponentNid()) {
-                            throw new RuntimeException("contradictory annotations about acceptability!");
-                        } else {
-                            dialectSequenceToAcceptabilityNidMap.put(dialectSequence, latest.get().value().getComponentNid());
-                        }
-                    } else {
-                        UUID uuid = null;
-                        String componentDesc = null;
-                        try {
-                            Optional<UUID> uuidOptional = Get.identifierService().getUuidPrimordialForNid(latest.get().value().getComponentNid());
-                            if (uuidOptional.isPresent()) {
-                                uuid = uuidOptional.get();
-                            }
-                            Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService().getSnapshot(StampCoordinates.getDevelopmentLatest(), LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()).getDescriptionOptional(latest.get().value().getComponentNid());
-                            componentDesc = desc.isPresent() ? desc.get().value().getText() : null;
-                        } catch (Exception e) {
-                            // NOOP
-                        }
+			@SuppressWarnings("unchecked")
+			SememeChronology<? extends LogicGraphSememe<?>> sememeChronology = (SememeChronology<? extends LogicGraphSememe<?>>)defChronologyOptional.get();
 
-                        log.warn("Unexpected component " + componentDesc + " (uuid=" + uuid + ", nid=" + latest.get().value().getComponentNid() + ")");
-                        //throw new RuntimeException("Unexpected component " + componentDesc + " (uuid=" + uuid + ", nid=" + latest.get().value().getComponentNid() + ")");
-                        //dialectSequenceToAcceptabilityNidMap.put(dialectSequence, latest.get().value().getComponentNid());
-                    }
-                }
-            }
-        });
-        return dialectSequenceToAcceptabilityNidMap;
-    }
+			return Optional.of(sememeChronology);
+		} else {
+			log.warn("NO " + (stated ? "stated" : "inferred") + " logic graph chronology for " + Frills.getIdInfo(id));
 
-    /**
-     * Convenience method to extract the latest version of descriptions of the
-     * requested type
-     *
-     * @param conceptNid The concept to read descriptions for
-     * @param descriptionType expected to be one of
-     * {@link MetaData#SYNONYM} or
-     * {@link MetaData#FULLY_SPECIFIED_NAME} or
-     * {@link MetaData#DEFINITION_DESCRIPTION_TYPE}
-     * @param stamp - optional - if not provided gets the default from the
-     * config service
-     * @return the descriptions - may be empty, will not be null
-     */
-    public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid, ConceptSpecification descriptionType,
-            StampCoordinate stamp) {
-        ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
-        Get.sememeService().getSememesForComponent(conceptNid)
-                .forEach(descriptionC
-                        -> {
-                    if (descriptionC.getSememeType() == SememeType.DESCRIPTION) {
-                        @SuppressWarnings({"unchecked", "rawtypes"})
-                        Optional<LatestVersion<DescriptionSememe<?>>> latest = ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
-                                stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
-                        if (latest.isPresent()) {
-                            DescriptionSememe<?> ds = latest.get().value();
-                            if (ds.getDescriptionTypeConceptSequence() == descriptionType.getConceptSequence()) {
-                                results.add(ds);
-                            }
-                        }
-                    } else {
-                        log.warn("Description attached to concept nid {} is not of the expected type!", conceptNid);
-                    }
-                });
-        return results;
-    }
+			return Optional.empty();
+		}
+	}
+	/**
+	 * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphSememe<?>> chronology for which the logic graph version is requested
+	 * @param stampCoordinate StampCoordinate to be used for selecting latest version
+	 * @return An Optional containing a LogicGraphSememe SememeChronology
+	 */
+	public static Optional<LatestVersion<LogicGraphSememe<?>>> getLogicGraphVersion(SememeChronology<? extends LogicGraphSememe<?>> logicGraphSememeChronology, StampCoordinate stampCoordinate)
+	{
+		log.debug("Getting logic graph sememe for " + Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
 
-    public static Optional<Integer> getNidForSCTID(long sctID) {
-        IndexServiceBI si = LookupService.get().getService(IndexServiceBI.class, "sememe indexer");
-        if (si != null) {
-            //force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-            List<SearchResult> result = si.query(sctID + " ", true,
-                    new Integer[] {MetaData.SNOMED_INTEGER_ID.getConceptSequence()}, 5, Long.MIN_VALUE);
-            if (result.size() > 0) {
-                return Optional.of(Get.sememeService().getSememe(result.get(0).getNid()).getReferencedComponentNid());
-            }
-        } else {
-            log.warn("Sememe Index not available - can't lookup SCTID");
-        }
-        return Optional.empty();
-    }
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Optional<LatestVersion<LogicGraphSememe<?>>> latest = ((SememeChronology)logicGraphSememeChronology).getLatestVersion(LogicGraphSememe.class, stampCoordinate);
+		if (latest.isPresent()) {
+			log.debug("Got logic graph sememe for " + Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
+		} else {
+			log.warn("NO logic graph sememe for " + Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
+		}
+		return latest;
+	}
+	/**
+	 *
+	 * Determine if Chronology has nested sememes
+	 *
+	 * @param chronology
+	 * @return true if there is a nested sememe, false otherwise
+	 */
+	public static boolean hasNestedSememe(ObjectChronology<?> chronology) {
+		return !chronology.getSememeList().isEmpty();
+	}
 
-    /**
-     * Convenience method to return sequences of a distinct set of modules in
-     * which versions of an ObjectChronology have been defined
-     *
-     * @param chronology The ObjectChronology
-     * @return sequences of a distinct set of modules in which versions of an
-     * ObjectChronology have been defined
-     */
-    public static Set<Integer> getAllModuleSequences(ObjectChronology<? extends StampedVersion> chronology) {
-        Set<Integer> moduleSequences = new HashSet<>();
-        for (StampedVersion version : chronology.getVersionList()) {
-            moduleSequences.add(version.getModuleSequence());
-        }
+	/**
+	 * Find the SCTID for a component (if it has one)
+	 *
+	 * @param componentNid
+	 * @param stamp - optional - if not provided uses default from config
+	 * service
+	 * @return the id, if found, or empty (will not return null)
+	 */
+	public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
+		try {
+			Optional<LatestVersion<StringSememeImpl>> sememe = Get.sememeService().getSnapshot(StringSememeImpl.class,
+					stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp)
+					.getLatestSememeVersionsForComponentFromAssemblage(componentNid,
+							MetaData.SNOMED_INTEGER_ID.getConceptSequence()).findFirst();
+			if (sememe.isPresent()) {
+				return Optional.of(Long.parseLong(sememe.get().value().getString()));
+			}
+		} catch (Exception e) {
+			log.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
+		}
+		return Optional.empty();
+	}
 
-        return Collections.unmodifiableSet(moduleSequences);
-    }
+	/**
+	 * Determine if a particular description sememe is flagged as preferred IN
+	 * ANY LANGUAGE. Returns false if there is no acceptability sememe.
+	 *
+	 * @param descriptionSememeNid
+	 * @param stamp - optional - if not provided, uses default from config
+	 * service
+	 * @throws RuntimeException If there is unexpected data (incorrectly)
+	 * attached to the sememe
+	 */
+	public static boolean isDescriptionPreferred(int descriptionSememeNid, StampCoordinate stamp) throws RuntimeException {
+		AtomicReference<Boolean> answer = new AtomicReference<>();
 
-    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate, int requiredModuleSequence, int... optionalModuleSequences) {
-        ConceptSequenceSet moduleSequenceSet = new ConceptSequenceSet();
-        moduleSequenceSet.add(requiredModuleSequence);
-        if (optionalModuleSequences != null) {
-            for (int seq : optionalModuleSequences) {
-                moduleSequenceSet.add(seq);
-            }
-        }
+		//Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
+		Get.sememeService().getSememesForComponent(descriptionSememeNid).forEach(nestedSememe
+				-> {
+			if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
+				@SuppressWarnings({"rawtypes", "unchecked"})
+				Optional<LatestVersion<ComponentNidSememe>> latest = ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
+						stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
 
-        EnumSet<State> allowedStates = EnumSet.allOf(State.class);
-        allowedStates.addAll(existingStampCoordinate.getAllowedStates());
-        StampCoordinate newStampCoordinate = new StampCoordinateImpl(
-                existingStampCoordinate.getStampPrecedence(),
-                existingStampCoordinate.getStampPosition(),
-                moduleSequenceSet, allowedStates);
+				if (latest.isPresent()) {
+					if (latest.get().value().getComponentNid() == MetaData.PREFERRED.getNid()) {
+						if (answer.get() != null && answer.get() != true) {
+							throw new RuntimeException("contradictory annotations about preferred status!");
+						}
+						answer.set(true);
+					} else if (latest.get().value().getComponentNid() == MetaData.ACCEPTABLE.getNid()) {
+						if (answer.get() != null && answer.get() != false) {
+							throw new RuntimeException("contradictory annotations about preferred status!");
+						}
+						answer.set(false);
+					} else {
+						throw new RuntimeException("Unexpected component nid!");
+					}
 
-        return newStampCoordinate;
-    }
+				}
+			}
+		});
+		if (answer.get() == null) {
+			log.warn("Description nid {} does not have an acceptability sememe!", descriptionSememeNid);
+			return false;
+		}
+		return answer.get();
+	}
 
-    public static void refreshIndexes() {
-        LookupService.get().getAllServiceHandles(IndexServiceBI.class).forEach(index
-                -> {
-            //Making a query, with long.maxValue, causes the index to refresh itself, and look at the latest updates, if there have been updates.
-            index.getService().query("hi", null, 1, Long.MAX_VALUE);
-        });
-    }
-    
-    /**
-     * Get isA children of a concept.  Does not return the requested concept in any circumstance.
-     * @param conceptSequence The concept to look at
-     * @param recursive recurse down from the concept
-     * @param leafOnly only return leaf nodes
-     * @return the set of concept sequence ids that represent the children
-     */
-    public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly)
-    {
-        Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptSequence, recursive, leafOnly);
-        if (leafOnly && temp.size() == 1)
-        {
-            temp.remove(conceptSequence);
-        }
-        return temp;
-    }
-    
-    /**
-     * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and 
-     * there are no children.
-     */
-    private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds, int conceptSequence, boolean recursive, boolean leafOnly)
-    {
-        Set<Integer> results = new HashSet<>();
-        
-        // This both prevents infinite recursion and avoids processing or returning of duplicates
-        if (handledConceptSequenceIds.contains(conceptSequence)) {
-            return results;
-        }
+	/**
+	 * Returns a Map correlating each dialect sequence for a passed
+	 * descriptionSememeId with its respective acceptability nid (preferred vs
+	 * acceptable)
+	 *
+	 * @param descriptionSememeNid
+	 * @param stamp - optional - if not provided, uses default from config
+	 * service
+	 * @throws RuntimeException If there is inconsistent data (incorrectly)
+	 * attached to the sememe
+	 */
+	public static Map<Integer, Integer> getAcceptabilities(int descriptionSememeNid, StampCoordinate stamp) throws RuntimeException {
+		Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
 
-        AtomicInteger count = new AtomicInteger();
-        IntStream children = Get.taxonomyService().getTaxonomyChildSequences(conceptSequence);
+		Get.sememeService().getSememesForComponent(descriptionSememeNid).forEach(nestedSememe
+				-> {
+			if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
+				int dialectSequence = nestedSememe.getAssemblageSequence();
 
-        children.forEach((conSequence) ->
-        {
-            count.getAndIncrement();
-            if (!leafOnly)
-            {
-                results.add(conSequence);
-            }
-            if (recursive)
-            {
-                results.addAll(getAllChildrenOfConcept(handledConceptSequenceIds, conSequence, recursive, leafOnly));
-            }
-        });
-        
-        
-        if (leafOnly && count.get() == 0)
-        {
-            results.add(conceptSequence);
-        }
-        handledConceptSequenceIds.add(conceptSequence);
-        return results;
-    }
-    
+				@SuppressWarnings({"rawtypes", "unchecked"})
+				Optional<LatestVersion<ComponentNidSememe>> latest = ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
+						stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
+
+				if (latest.isPresent()) {
+					if (latest.get().value().getComponentNid() == MetaData.PREFERRED.getNid()
+							|| latest.get().value().getComponentNid() == MetaData.ACCEPTABLE.getNid()) {
+						if (dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null
+								&& dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != latest.get().value().getComponentNid()) {
+							throw new RuntimeException("contradictory annotations about acceptability!");
+						} else {
+							dialectSequenceToAcceptabilityNidMap.put(dialectSequence, latest.get().value().getComponentNid());
+						}
+					} else {
+						UUID uuid = null;
+						String componentDesc = null;
+						try {
+							Optional<UUID> uuidOptional = Get.identifierService().getUuidPrimordialForNid(latest.get().value().getComponentNid());
+							if (uuidOptional.isPresent()) {
+								uuid = uuidOptional.get();
+							}
+							Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService().getSnapshot(StampCoordinates.getDevelopmentLatest(), LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()).getDescriptionOptional(latest.get().value().getComponentNid());
+							componentDesc = desc.isPresent() ? desc.get().value().getText() : null;
+						} catch (Exception e) {
+							// NOOP
+						}
+
+						log.warn("Unexpected component " + componentDesc + " (uuid=" + uuid + ", nid=" + latest.get().value().getComponentNid() + ")");
+						//throw new RuntimeException("Unexpected component " + componentDesc + " (uuid=" + uuid + ", nid=" + latest.get().value().getComponentNid() + ")");
+						//dialectSequenceToAcceptabilityNidMap.put(dialectSequence, latest.get().value().getComponentNid());
+					}
+				}
+			}
+		});
+		return dialectSequenceToAcceptabilityNidMap;
+	}
+
+	/**
+	 * Convenience method to extract the latest version of descriptions of the
+	 * requested type
+	 *
+	 * @param conceptNid The concept to read descriptions for
+	 * @param descriptionType expected to be one of
+	 * {@link MetaData#SYNONYM} or
+	 * {@link MetaData#FULLY_SPECIFIED_NAME} or
+	 * {@link MetaData#DEFINITION_DESCRIPTION_TYPE}
+	 * @param stamp - optional - if not provided gets the default from the
+	 * config service
+	 * @return the descriptions - may be empty, will not be null
+	 */
+	public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid, ConceptSpecification descriptionType,
+			StampCoordinate stamp) {
+		ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
+		Get.sememeService().getSememesForComponent(conceptNid)
+				.forEach(descriptionC
+						-> {
+					if (descriptionC.getSememeType() == SememeType.DESCRIPTION) {
+						@SuppressWarnings({"unchecked", "rawtypes"})
+						Optional<LatestVersion<DescriptionSememe<?>>> latest = ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
+								stamp == null ? Get.configurationService().getDefaultStampCoordinate() : stamp);
+						if (latest.isPresent()) {
+							DescriptionSememe<?> ds = latest.get().value();
+							if (ds.getDescriptionTypeConceptSequence() == descriptionType.getConceptSequence()) {
+								results.add(ds);
+							}
+						}
+					} else {
+						log.warn("Description attached to concept nid {} is not of the expected type!", conceptNid);
+					}
+				});
+		return results;
+	}
+
+	public static Optional<Integer> getNidForSCTID(long sctID) {
+		IndexServiceBI si = LookupService.get().getService(IndexServiceBI.class, "sememe indexer");
+		if (si != null) {
+			//force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
+			List<SearchResult> result = si.query(sctID + " ", true,
+					new Integer[] {MetaData.SNOMED_INTEGER_ID.getConceptSequence()}, 5, Long.MIN_VALUE);
+			if (result.size() > 0) {
+				return Optional.of(Get.sememeService().getSememe(result.get(0).getNid()).getReferencedComponentNid());
+			}
+		} else {
+			log.warn("Sememe Index not available - can't lookup SCTID");
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * Convenience method to return sequences of a distinct set of modules in
+	 * which versions of an ObjectChronology have been defined
+	 *
+	 * @param chronology The ObjectChronology
+	 * @return sequences of a distinct set of modules in which versions of an
+	 * ObjectChronology have been defined
+	 */
+	public static Set<Integer> getAllModuleSequences(ObjectChronology<? extends StampedVersion> chronology) {
+		Set<Integer> moduleSequences = new HashSet<>();
+		for (StampedVersion version : chronology.getVersionList()) {
+			moduleSequences.add(version.getModuleSequence());
+		}
+
+		return Collections.unmodifiableSet(moduleSequences);
+	}
+
+	public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate, int requiredModuleSequence, int... optionalModuleSequences) {
+		ConceptSequenceSet moduleSequenceSet = new ConceptSequenceSet();
+		moduleSequenceSet.add(requiredModuleSequence);
+		if (optionalModuleSequences != null) {
+			for (int seq : optionalModuleSequences) {
+				moduleSequenceSet.add(seq);
+			}
+		}
+
+		EnumSet<State> allowedStates = EnumSet.allOf(State.class);
+		allowedStates.addAll(existingStampCoordinate.getAllowedStates());
+		StampCoordinate newStampCoordinate = new StampCoordinateImpl(
+				existingStampCoordinate.getStampPrecedence(),
+				existingStampCoordinate.getStampPosition(),
+				moduleSequenceSet, allowedStates);
+
+		return newStampCoordinate;
+	}
+
+	public static void refreshIndexes() {
+		LookupService.get().getAllServiceHandles(IndexServiceBI.class).forEach(index
+				-> {
+			//Making a query, with long.maxValue, causes the index to refresh itself, and look at the latest updates, if there have been updates.
+			index.getService().query("hi", null, 1, Long.MAX_VALUE);
+		});
+	}
+	
+	/**
+	 * Get isA children of a concept.  Does not return the requested concept in any circumstance.
+	 * @param conceptSequence The concept to look at
+	 * @param recursive recurse down from the concept
+	 * @param leafOnly only return leaf nodes
+	 * @return the set of concept sequence ids that represent the children
+	 */
+	public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly)
+	{
+		Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptSequence, recursive, leafOnly);
+		if (leafOnly && temp.size() == 1)
+		{
+			temp.remove(conceptSequence);
+		}
+		return temp;
+	}
+	
+	/**
+	 * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and 
+	 * there are no children.
+	 */
+	private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds, int conceptSequence, boolean recursive, boolean leafOnly)
+	{
+		Set<Integer> results = new HashSet<>();
+		
+		// This both prevents infinite recursion and avoids processing or returning of duplicates
+		if (handledConceptSequenceIds.contains(conceptSequence)) {
+			return results;
+		}
+
+		AtomicInteger count = new AtomicInteger();
+		IntStream children = Get.taxonomyService().getTaxonomyChildSequences(conceptSequence);
+
+		children.forEach((conSequence) ->
+		{
+			count.getAndIncrement();
+			if (!leafOnly)
+			{
+				results.add(conSequence);
+			}
+			if (recursive)
+			{
+				results.addAll(getAllChildrenOfConcept(handledConceptSequenceIds, conSequence, recursive, leafOnly));
+			}
+		});
+		
+		
+		if (leafOnly && count.get() == 0)
+		{
+			results.add(conceptSequence);
+		}
+		handledConceptSequenceIds.add(conceptSequence);
+		return results;
+	}
+	
 	/**
 	 * Create a new concept using the provided columnName and columnDescription values which is suitable 
 	 * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
