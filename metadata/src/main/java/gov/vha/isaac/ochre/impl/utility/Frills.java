@@ -90,6 +90,7 @@ public class Frills implements DynamicSememeColumnUtility {
 	public static Map<String, Object> getIdInfo(String id) {
 		Map<String, Object> idInfo = new HashMap<>();
 
+		Long sctId = null;
 		Integer seq = null;
 		Integer nid = null;
 		UUID[] uuids = null;
@@ -100,16 +101,18 @@ public class Frills implements DynamicSememeColumnUtility {
 			if (intId.isPresent())
 			{
 				// id interpreted as the id of the referenced component
-				seq = Get.identifierService().getConceptSequence(intId.get());
-				if (seq == intId.get()) {
+				if (intId.get() > 0) {
+					seq = intId.get();
 					nid = Get.identifierService().getConceptNid(seq);
-				} else {
+				} else if (intId.get() < 0) {
 					nid = intId.get();
+					seq = Get.identifierService().getConceptSequence(intId.get());
 				}
 
-				typeOfPassedId = Get.identifierService().getChronologyTypeForNid(nid);
-
-				uuids = Get.identifierService().getUuidArrayForNid(nid);
+				if (nid != null) {
+					typeOfPassedId = Get.identifierService().getChronologyTypeForNid(nid);
+					uuids = Get.identifierService().getUuidArrayForNid(nid);
+				}
 			}
 			else
 			{
@@ -137,6 +140,14 @@ public class Frills implements DynamicSememeColumnUtility {
 
 			if (nid != null) {
 				idInfo.put("DESC", Get.conceptDescriptionText(nid));
+				if (typeOfPassedId == ObjectChronologyType.CONCEPT) {
+					Optional<Long> optSctId = Frills.getSctId(nid, StampCoordinates.getDevelopmentLatest());
+					if (optSctId.isPresent()) {
+						sctId = optSctId.get();
+						
+						idInfo.put("DEVLATEST_SCTID", sctId);
+					}
+				}
 			}
 		} catch (Exception e) {
 			log.warn("Problem getting idInfo for \"" + id + "\". Caught " + e.getClass().getName() + " " + e.getLocalizedMessage());
