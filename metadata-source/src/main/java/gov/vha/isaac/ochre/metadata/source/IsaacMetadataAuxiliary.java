@@ -61,7 +61,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(TermAux.SNOMED_CT_CORE_MODULE);
                     createConcept("US Extension module");
                     createConcept("LOINC module");
+                    createConcept("LOINC Solor module");
                     createConcept("RxNorm module");
+                    createConcept("RxNorm Solor module");
                     createConcept("AMT module");
                     createConcept("VHA module");
                     createConcept("DOD module");
@@ -332,6 +334,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept("solor metadata");
                 pushParent(current());
                     createConcept("Content Source Artifact Version");
+                    createConcept("Content Source Release Date");
                     createConcept("Content Converter Version");
                     createConcept("Content Converted IBDF Artifact Version");
                     createConcept("Content Converted IBDF Artifact Classifier");
