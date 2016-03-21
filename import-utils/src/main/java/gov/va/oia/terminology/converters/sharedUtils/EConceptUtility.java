@@ -80,6 +80,7 @@ import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.logic.LogicalExpression;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
+import gov.vha.isaac.ochre.api.util.ChecksumGenerator;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 import gov.vha.isaac.ochre.model.concept.ConceptChronologyImpl;
 import gov.vha.isaac.ochre.model.configuration.LogicCoordinates;
@@ -188,10 +189,6 @@ public class EConceptUtility
 		authorSeq_ = MetaData.USER.getConceptSequence();
 		terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();
 		
-		ConverterUUID.addMapping("isA", isARelUuid_);
-		ConverterUUID.addMapping("Synonym", MetaData.SYNONYM.getPrimordialUuid());
-		ConverterUUID.addMapping("Fully Specified Name", MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid());
-		
 		//TODO automate this somehow....
 		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getUUID(), 
 				DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getDynamicSememeColumns());
@@ -232,7 +229,7 @@ public class EConceptUtility
 		
 		if (moduleToCreate.isPresent())
 		{
-			ConceptChronology<? extends ConceptVersion<?>> module =  createConcept(moduleUUID, moduleToCreate.get(), MetaData.MODULE.getPrimordialUuid());
+			ConceptChronology<? extends ConceptVersion<?>> module =  createConcept(moduleUUID, moduleToCreate.get(), true, MetaData.MODULE.getPrimordialUuid());
 			moduleSeq_ = module.getConceptSequence();
 		}
 		else
@@ -251,17 +248,17 @@ public class EConceptUtility
 	 * Create a concept, automatically setting as many fields as possible (adds a description, calculates
 	 * the UUID, status current, etc)
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(String preferredDescription)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn, boolean createSynonymFromFSN)
 	{
-		return createConcept(ConverterUUID.createNamespaceUUIDFromString(preferredDescription), preferredDescription);
+		return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
 	}
 
 	/**
 	 * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(String name, UUID parentConceptPrimordial)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn, boolean createSynonymFromFSN, UUID parentConceptPrimordial)
 	{
-		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(name);
+		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(fsn, createSynonymFromFSN);
 		addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
 		return concept;
 	}
@@ -269,9 +266,9 @@ public class EConceptUtility
 	/**
 	 * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String name, UUID relParentPrimordial)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String fsn, boolean createSynonymFromFSN, UUID relParentPrimordial)
 	{
-		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(conceptPrimordialUuid, name);
+		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(conceptPrimordialUuid, fsn, createSynonymFromFSN);
 		addParent(ComponentReference.fromConcept(concept), relParentPrimordial);
 		return concept;
 	}
@@ -285,9 +282,9 @@ public class EConceptUtility
 	 * Create a concept, automatically setting as many fields as possible (adds a description (en US)
 	 * status current, etc
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String preferredDescription)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String fsn, boolean createSynonymFromFSN)
 	{
-		return createConcept(conceptPrimordialUuid, preferredDescription, null, State.ACTIVE);
+		return createConcept(conceptPrimordialUuid, fsn, createSynonymFromFSN, null, State.ACTIVE);
 	}
 
 	/**
@@ -295,12 +292,15 @@ public class EConceptUtility
 	 * 
 	 * @param time - set to now if null
 	 */
-	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String preferredDescription, Long time, State status)
+	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid, String fsn, boolean createSynonymFromFSN, Long time, State status)
 	{
 		ConceptChronology<? extends ConceptVersion<?>> cc = createConcept(conceptPrimordialUuid, time, status, null);
 		ComponentReference concept = ComponentReference.fromConcept(cc);
-		addFullySpecifiedName(concept, preferredDescription);
-		addDescription(concept, preferredDescription, DescriptionType.SYNONYM, true, null, null, State.ACTIVE);
+		addFullySpecifiedName(concept, fsn);
+		if (createSynonymFromFSN)
+		{
+			addDescription(concept, fsn, DescriptionType.SYNONYM, true, null, null, State.ACTIVE);
+		}
 		return cc;
 	}
 
@@ -329,7 +329,7 @@ public class EConceptUtility
 	public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial, String fsnName, String preferredName, String altName, 
 			String definition, UUID relParentPrimordial, UUID secondParent)
 	{
-		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(primordial, fsnName);
+		ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(primordial, fsnName, false);
 		
 		LogicalExpressionBuilder leb = expressionBuilderService_.getLogicalExpressionBuilder();
 
@@ -646,7 +646,7 @@ public class EConceptUtility
 					else
 					{
 						temp.append(d.getDynamicSememeDataType().getDisplayName());
-						temp.append(new String(d.getData()));
+						temp.append(new String(ChecksumGenerator.calculateChecksum("SHA1", d.getData())));
 					}
 				}
 			}
@@ -678,29 +678,6 @@ public class EConceptUtility
 						getOriginStringForUuid(referencedComponent.getPrimordialUuid())
 								: referencedComponent.getTypeString()), getOriginStringForUuid(refexDynamicTypeUuid));
 			}
-			
-			
-			//TODO not sure if we need any special handling for these cases any longer.  Might need better handling for rel... but not sure 
-			//how to do it at the moment...
-//			else if (component instanceof TtkRelationshipChronicle)
-//			{
-//				ls_.addAnnotation(getOriginStringForUuid(((TtkRelationshipChronicle) component).getTypeUuid()), getOriginStringForUuid(refsetUuid));
-//			}
-//			else if (component instanceof TtkRefexStringMemberChronicle)
-//			{
-//				ls_.addAnnotation(getOriginStringForUuid(((TtkRefexStringMemberChronicle) component).getAssemblageUuid()), 
-//						(BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "")  + getOriginStringForUuid(refsetUuid));
-//			}
-//			else if (component instanceof TtkRefexUuidMemberChronicle)
-//			{
-//				ls_.addAnnotation(getOriginStringForUuid(((TtkRefexUuidMemberChronicle) component).getAssemblageUuid()), getOriginStringForUuid(refsetUuid));
-//			}
-//			else if (component instanceof TtkRefexDynamicMemberChronicle)
-//			{
-//				ls_.addAnnotation((BPT_Associations.isAssociation(refsetUuid) ? "Association:" : "") 
-//					+ getOriginStringForUuid(((TtkRefexDynamicMemberChronicle) component).getRefexAssemblageUuid()), getOriginStringForUuid(refsetUuid));
-//			}
-			
 		}
 		return sc;
 	}
@@ -914,8 +891,10 @@ public class EConceptUtility
 	{
 		if (conceptHasStatedGraph.contains(concept.getPrimordialUuid()))
 		{
-			throw new RuntimeException("Can only call addParent once!  Must utilize addRelationshipGraph for more complex objects");
+			throw new RuntimeException("Can only call addParent once!  Must utilize addRelationshipGraph for more complex objects.  " 
+					+ "Parent: " + targetUuid + " Child: " + concept.getPrimordialUuid()); 
 		}
+		
 		conceptHasStatedGraph.add(concept.getPrimordialUuid());
 		LogicalExpressionBuilder leb = expressionBuilderService_.getLogicalExpressionBuilder();
 
@@ -1077,12 +1056,12 @@ public class EConceptUtility
 				continue;
 			}
 			
-			createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription(), parentPrimordial);
+			createConcept(pt.getPropertyTypeUUID(), pt.getPropertyTypeDescription(), true, parentPrimordial);
 			
 			UUID secondParent = null;
 			if (pt instanceof BPT_Refsets)
 			{
-				ConceptChronology<? extends ConceptVersion<?>> refsetTermGroup = createConcept(pt.getPropertyTypeReferenceSetName(), 
+				ConceptChronology<? extends ConceptVersion<?>> refsetTermGroup = createConcept(pt.getPropertyTypeReferenceSetName(), true, 
 						MetaData.SOLOR_REFSETS.getPrimordialUuid());
 				((BPT_Refsets) pt).setRefsetIdentityParent(refsetTermGroup.getPrimordialUuid());
 				secondParent = refsetTermGroup.getPrimordialUuid(); 
@@ -1195,7 +1174,7 @@ public class EConceptUtility
 		}
 		
 		//Create the terminology specific refset type
-		ConceptChronology<? extends ConceptVersion<?>> cc = createConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), refsetSynonymParent);
+		ConceptChronology<? extends ConceptVersion<?>> cc = createConcept(pt.getPropertyTypeReferenceSetUUID(), pt.getPropertyTypeReferenceSetName(), true, refsetSynonymParent);
 		ConverterUUID.addMapping(pt.getPropertyTypeReferenceSetName(), pt.getPropertyTypeReferenceSetUUID());
 		configureConceptAsDynamicRefex(ComponentReference.fromConcept(cc), "Carries the source description type information", 
 				new DynamicSememeColumnInfo[] {
@@ -1206,7 +1185,7 @@ public class EConceptUtility
 		//Now create the terminology specific refset type as a child - very similar to above, but since this isn't the refset concept, just an organization
 		//concept, I add an 's' to make it plural, and use a different UUID (calculated from the new plural)
 		return createConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getPropertyTypeReferenceSetName() + "s", true), 
-				pt.getPropertyTypeReferenceSetName() + "s", refsetValueParent).getPrimordialUuid();
+				pt.getPropertyTypeReferenceSetName() + "s", true, refsetValueParent).getPrimordialUuid();
 	}
 	
 	public void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo)
