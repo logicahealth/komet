@@ -204,6 +204,9 @@ public class EConceptUtility
 				DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION.getDynamicSememeColumns());
 		registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getUUID(), 
 				DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE.getDynamicSememeColumns());
+		//TODO figure out how to get rid of this copy/paste mess too
+		registerDynamicSememeColumnInfo(MetaData.LOINC_NUM.getPrimordialUuid(), new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
+				DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(), DynamicSememeDataType.STRING, null, true, true) });
 		
 		
 		conceptBuilderService_ = Get.conceptBuilderService();
@@ -1086,7 +1089,6 @@ public class EConceptUtility
 					//This came from a conceptSpecification (metadata in ISAAC), and we don't need to create it.
 					//Just need to add one relationship to the existing concept.
 					addParent(ComponentReference.fromConcept(p.getUUID()), pt.getPropertyTypeUUID());
-					ConverterUUID.addMapping(p.getSourcePropertyNameFSN(), p.getUUID());
 				}
 				else
 				{
