@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
-
 import gov.va.oia.terminology.converters.sharedUtils.ConsoleUtil;
 import gov.va.oia.terminology.converters.sharedUtils.ConverterBaseMojo;
+import gov.vha.isaac.MetaData;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 
 /**
@@ -46,6 +48,24 @@ public class ConverterUUID
 	private static Hashtable<UUID, String> masterUUIDMap_ = new Hashtable<UUID, String>();
 	private static UUID namespace_ = null;
 
+	private static ConceptSpecification[] constants = new ConceptSpecification[] {
+			MetaData.IS_A,
+			MetaData.SYNONYM,
+			MetaData.FULLY_SPECIFIED_NAME,
+			MetaData.DEFINITION_DESCRIPTION_TYPE,
+			MetaData.US_ENGLISH_DIALECT,
+			MetaData.GB_ENGLISH_DIALECT,
+			MetaData.CONTENT_CONVERTED_IBDF_ARTIFACT_CLASSIFIER,
+			MetaData.CONTENT_CONVERTED_IBDF_ARTIFACT_VERSION,
+			MetaData.CONTENT_CONVERTER_VERSION,
+			MetaData.CONTENT_SOURCE_ARTIFACT_VERSION,
+			MetaData.CONTENT_SOURCE_RELEASE_DATE,
+			DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION,
+			DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION,
+			DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION,
+			DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION,
+			DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME};
+	
 	/**
 	 * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
 	 * 
@@ -151,7 +171,18 @@ public class ConverterUUID
 		{
 			return null;
 		}
-		return masterUUIDMap_.get(uuid);
+		String found = masterUUIDMap_.get(uuid);
+		if (found == null)
+		{
+			for (ConceptSpecification cs : constants)
+			{
+				if (uuid.equals(cs.getPrimordialUuid()))
+				{
+					return cs.getConceptDescriptionText();
+				}
+			}
+		}
+		return found;
 	}
 
 	/**
