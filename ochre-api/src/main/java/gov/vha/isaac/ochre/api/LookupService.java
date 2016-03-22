@@ -186,7 +186,9 @@ public class LookupService {
      * Start the WorkExecutor services (without starting ISAAC core services), blocking until started (or failed). 
      */
     public static void startupWorkExecutors() {
-        setRunLevel(WORKERS_STARTED_RUNLEVEL);
+        if (getService(RunLevelController.class).getCurrentRunLevel() < WORKERS_STARTED_RUNLEVEL) {
+            setRunLevel(WORKERS_STARTED_RUNLEVEL);
+        }
     }
     
     /**
