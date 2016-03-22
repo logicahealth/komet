@@ -17,16 +17,25 @@ package gov.vha.isaac.ochre.logic.csiro.classify.tasks;
 
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
 import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.NecessarySet;
-
-import gov.vha.isaac.ochre.api.commit.CommitRecord;
-import gov.vha.isaac.ochre.logic.csiro.classify.ClassifierData;
-import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.logging.log4j.LogManager;
+import au.csiro.ontology.Node;
+import au.csiro.ontology.Ontology;
 import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.IdentifierService;
 import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
 import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
 import gov.vha.isaac.ochre.api.commit.ChangeCheckerMode;
+import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.api.commit.CommitService;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilder;
 import gov.vha.isaac.ochre.api.component.sememe.SememeBuilderService;
@@ -42,19 +51,8 @@ import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilderService;
 import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 import gov.vha.isaac.ochre.api.logic.assertions.ConceptAssertion;
 import gov.vha.isaac.ochre.api.task.TimedTask;
-import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import au.csiro.ontology.Node;
-import au.csiro.ontology.Ontology;
+import gov.vha.isaac.ochre.logic.csiro.classify.ClassifierData;
+import gov.vha.isaac.ochre.model.configuration.EditCoordinates;
 import javafx.concurrent.Task;
 
 /**
@@ -76,7 +74,7 @@ import javafx.concurrent.Task;
     protected ClassifierResults call() throws Exception {
         ClassifierData cd = ClassifierData.get(stampCoordinate, logicCoordinate);
         Ontology inferredAxioms = cd.getClassifiedOntology();
-		  
+
         ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
         return classifierResults;
     }
@@ -124,77 +122,87 @@ import javafx.concurrent.Task;
         SememeBuilderService sememeBuilderService = Get.sememeBuilderService();
         CommitService commitService = Get.commitService();
 
+        //TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  JVisualVM tells me that all of this
+        //work is occurring on a single thread.  Need to figure out why...
         affectedConcepts.parallelStream().forEach((conceptSequence) -> {
-            SememeSequenceSet inferredSememeSequences
-                    = sememeService.getSememeSequencesForComponentFromAssemblage(idService.getConceptNid(conceptSequence), logicCoordinate.getInferredAssemblageSequence());
-            SememeSequenceSet statedSememeSequences
-                    = sememeService.getSememeSequencesForComponentFromAssemblage(idService.getConceptNid(conceptSequence), logicCoordinate.getStatedAssemblageSequence());
-            testForProperSetSize(inferredSememeSequences, conceptSequence, statedSememeSequences, sememeService);
-
-            //SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) sememeService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
-            SememeChronology rawStatedChronology = sememeService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
-
-            Optional<LatestVersion<LogicGraphSememe>> latestStatedDefinitionOptional = ((SememeChronology<LogicGraphSememe>)rawStatedChronology).getLatestVersion(LogicGraphSememe.class, stampCoordinate);
-            if (latestStatedDefinitionOptional.isPresent()) {
-                LogicalExpressionBuilder inferredBuilder = logicalExpressionBuilderService.getLogicalExpressionBuilder();
-
-                LatestVersion<LogicGraphSememe> latestStatedDefinition = latestStatedDefinitionOptional.get();
-                LogicalExpression statedDefinition = latestStatedDefinition.value().getLogicalExpression();
-                if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
-                    sufficientSets.incrementAndGet();
-                    // Sufficient sets are copied exactly to the inferred form. 
-                    statedDefinition.getNodesOfType(NodeSemantic.SUFFICIENT_SET).forEach((sufficientSetNode) -> {
-                        inferredBuilder.cloneSubTree(sufficientSetNode);
-                    });
-                }
-
-                // Need to construct the necessary set from classifier results. 
-                Node inferredNode = inferredAxioms.getNode(Integer.toString(conceptSequence));
-
-                List<ConceptAssertion> parentList = new ArrayList<>();
-                inferredNode.getParents().forEach((parent) -> {
-                    parent.getEquivalentConcepts().forEach((parentString) -> {
-                        try {
-                            parentList.add(inferredBuilder.conceptAssertion(Integer.parseInt(parentString)));
-                        } catch (NumberFormatException numberFormatException) {
-                            if (parentString.equals("_BOTTOM_")
-                                    || parentString.equals("_TOP_")) {
-                                // do nothing. 
-                            } else {
-                                throw numberFormatException;
+            try {
+                SememeSequenceSet inferredSememeSequences
+                        = sememeService.getSememeSequencesForComponentFromAssemblage(idService.getConceptNid(conceptSequence), logicCoordinate.getInferredAssemblageSequence());
+                SememeSequenceSet statedSememeSequences
+                        = sememeService.getSememeSequencesForComponentFromAssemblage(idService.getConceptNid(conceptSequence), logicCoordinate.getStatedAssemblageSequence());
+                //TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
+                //TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
+                testForProperSetSize(inferredSememeSequences, conceptSequence, statedSememeSequences, sememeService);
+                
+    
+                //SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) sememeService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
+                SememeChronology rawStatedChronology = sememeService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
+    
+                Optional<LatestVersion<LogicGraphSememe>> latestStatedDefinitionOptional = ((SememeChronology<LogicGraphSememe>)rawStatedChronology).getLatestVersion(LogicGraphSememe.class, stampCoordinate);
+                if (latestStatedDefinitionOptional.isPresent()) {
+                    LogicalExpressionBuilder inferredBuilder = logicalExpressionBuilderService.getLogicalExpressionBuilder();
+    
+                    LatestVersion<LogicGraphSememe> latestStatedDefinition = latestStatedDefinitionOptional.get();
+                    LogicalExpression statedDefinition = latestStatedDefinition.value().getLogicalExpression();
+                    if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
+                        sufficientSets.incrementAndGet();
+                        // Sufficient sets are copied exactly to the inferred form. 
+                        statedDefinition.getNodesOfType(NodeSemantic.SUFFICIENT_SET).forEach((sufficientSetNode) -> {
+                            inferredBuilder.cloneSubTree(sufficientSetNode);
+                        });
+                    }
+    
+                    // Need to construct the necessary set from classifier results. 
+                    Node inferredNode = inferredAxioms.getNode(Integer.toString(conceptSequence));
+    
+                    List<ConceptAssertion> parentList = new ArrayList<>();
+                    inferredNode.getParents().forEach((parent) -> {
+                        parent.getEquivalentConcepts().forEach((parentString) -> {
+                            try {
+                                parentList.add(inferredBuilder.conceptAssertion(Integer.parseInt(parentString)));
+                            } catch (NumberFormatException numberFormatException) {
+                                if (parentString.equals("_BOTTOM_")
+                                        || parentString.equals("_TOP_")) {
+                                    // do nothing. 
+                                } else {
+                                    throw numberFormatException;
+                                }
                             }
-                        }
+                        });
                     });
-                });
-                if (!parentList.isEmpty()) {
-                    NecessarySet(And(parentList.toArray(new ConceptAssertion[parentList.size()])));
-                    LogicalExpression inferredExpression = inferredBuilder.build();
-
-                    if (inferredSememeSequences.isEmpty()) {
-                        SememeBuilder builder = sememeBuilderService.getLogicalExpressionSememeBuilder(inferredExpression,
-                                idService.getConceptNid(conceptSequence),
-                                logicCoordinate.getInferredAssemblageSequence());
-                        // get classifier edit coordinate...
-                        builder.build(
-                                EditCoordinates.getClassifierSolorOverlay(),
-                                ChangeCheckerMode.INACTIVE);
-                    } else {
-                        SememeChronology inferredChronology =  sememeService.getSememe(inferredSememeSequences.stream().findFirst().getAsInt());
-                        // check to see if changed from old...
-                        Optional<LatestVersion<LogicGraphSememe>> latestDefinitionOptional = inferredChronology.getLatestVersion(LogicGraphSememe.class, stampCoordinate);
-                        if (latestDefinitionOptional.isPresent()) {
-                            if (!latestDefinitionOptional.get().value().getLogicalExpression().equals(inferredExpression)) {
-                                MutableLogicGraphSememe newVersion = ((SememeChronology<LogicGraphSememe>)inferredChronology).createMutableVersion(MutableLogicGraphSememe.class, gov.vha.isaac.ochre.api.State.ACTIVE,
-                                        EditCoordinates.getClassifierSolorOverlay());
-                                newVersion.setGraphData(inferredExpression.getData(DataTarget.INTERNAL));
-                                commitService.addUncommittedNoChecks(inferredChronology);
+                    if (!parentList.isEmpty()) {
+                        NecessarySet(And(parentList.toArray(new ConceptAssertion[parentList.size()])));
+                        LogicalExpression inferredExpression = inferredBuilder.build();
+    
+                        if (inferredSememeSequences.isEmpty()) {
+                            SememeBuilder builder = sememeBuilderService.getLogicalExpressionSememeBuilder(inferredExpression,
+                                    idService.getConceptNid(conceptSequence),
+                                    logicCoordinate.getInferredAssemblageSequence());
+                            // get classifier edit coordinate...
+                            builder.build(
+                                    EditCoordinates.getClassifierSolorOverlay(),
+                                    ChangeCheckerMode.INACTIVE);
+                        } else {
+                            SememeChronology inferredChronology =  sememeService.getSememe(inferredSememeSequences.stream().findFirst().getAsInt());
+                            // check to see if changed from old...
+                            Optional<LatestVersion<LogicGraphSememe>> latestDefinitionOptional = inferredChronology.getLatestVersion(LogicGraphSememe.class, stampCoordinate);
+                            if (latestDefinitionOptional.isPresent()) {
+                                if (!latestDefinitionOptional.get().value().getLogicalExpression().equals(inferredExpression)) {
+                                    MutableLogicGraphSememe newVersion = ((SememeChronology<LogicGraphSememe>)inferredChronology).createMutableVersion(MutableLogicGraphSememe.class, gov.vha.isaac.ochre.api.State.ACTIVE,
+                                            EditCoordinates.getClassifierSolorOverlay());
+                                    newVersion.setGraphData(inferredExpression.getData(DataTarget.INTERNAL));
+                                    commitService.addUncommittedNoChecks(inferredChronology);
+                                }
                             }
                         }
                     }
-                }
 
-            } else {
-                throw new IllegalStateException("Empty latest version for stated definition. " + rawStatedChronology);
+                } else {
+                    throw new IllegalStateException("Empty latest version for stated definition. " + rawStatedChronology);
+                }
+            }
+            catch (Exception e) {
+                LogManager.getLogger().error("Error during writeback - skipping concept ", e);
             }
 
         });
@@ -215,7 +223,7 @@ import javafx.concurrent.Task;
         } catch (InterruptedException|ExecutionException e) {
             throw new RuntimeException(e);
         }
-	 }
+    }
 
     private void testForProperSetSize(SememeSequenceSet inferredSememeSequences, int conceptSequence, SememeSequenceSet statedSememeSequences, SememeService sememeService) throws IllegalStateException {
         if (inferredSememeSequences.size() > 1) {
