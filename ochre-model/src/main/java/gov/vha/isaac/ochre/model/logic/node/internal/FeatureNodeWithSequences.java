@@ -69,7 +69,7 @@ public final class FeatureNodeWithSequences extends TypedNodeWithSequences {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                Get.identifierService().getUuidPrimordialForNid(typeConceptSequence).toString()
+                Get.identifierService().getUuidPrimordialFromConceptSequence(typeConceptSequence).get().toString()
                         + operator
                         //+ Get.identifierService().getUuidPrimordialForNid(unitsConceptSequence)
                         .toString());

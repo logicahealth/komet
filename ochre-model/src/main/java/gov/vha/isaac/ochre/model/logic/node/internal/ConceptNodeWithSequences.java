@@ -73,7 +73,7 @@ public final class ConceptNodeWithSequences extends AbstractLogicNode {
     @Override
     protected UUID initNodeUuid() {
         return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                Get.identifierService().getUuidPrimordialForNid(conceptSequence).toString());
+                Get.identifierService().getUuidPrimordialFromConceptSequence(conceptSequence).get().toString());
     }
 
     @Override
