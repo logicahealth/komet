@@ -149,9 +149,11 @@ public class DownloadUnzipTask extends Task<File>
 						break;
 					}
 					updateProgress(zipFile.getProgressMonitor().getPercentDone(), 100);
+					updateMessage("Unzipping " + dataFile.getName() + " at " + zipFile.getProgressMonitor().getPercentDone() + "%");
 					try
 					{
-						Thread.sleep(100);
+						//TODO see if there is an API where I don't have to poll for completion
+						Thread.sleep(25);
 					}
 					catch (InterruptedException e)
 					{
@@ -180,6 +182,7 @@ public class DownloadUnzipTask extends Task<File>
 	private File download(URL url) throws Exception
 	{
 		log.debug("Beginning download from " + url);
+		updateMessage("Download from " + url);
 		HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 		if (StringUtils.isNotBlank(username_) || StringUtils.isNotBlank(password_))
 		{
@@ -207,7 +210,7 @@ public class DownloadUnzipTask extends Task<File>
 			//update every 1 MB
 			updateProgress(totalRead, fileLength);
 			float percentDone = (float)((int)(((float)totalRead / (float)fileLength) * 1000)) / 10f;
-			updateTitle("Downloading - " + percentDone + " % - out of " + fileLength + " bytes");
+			updateMessage("Downloading - " + url + " - " + percentDone + " % - out of " + fileLength + " bytes");
 			fos.write(buf, 0, read);
 		}
 		fos.flush();
