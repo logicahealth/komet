@@ -36,7 +36,7 @@ public class BPT_Associations extends PropertyType
 	
 	public BPT_Associations(String terminologyName)
 	{
-		super("Associations Types", terminologyName + " Association Type", false, null);
+		super("Association Types", terminologyName + " Association Type", false, null);
 	}
 	
 	public BPT_Associations(String propertyTypeDescription, String terminologyName)

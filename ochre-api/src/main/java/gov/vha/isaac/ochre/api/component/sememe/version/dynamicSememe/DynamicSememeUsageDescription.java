@@ -97,7 +97,7 @@ public interface DynamicSememeUsageDescription
 	 * (Convenience method)
 	 * @return returns the FSN of the assemblage concept this was read from
 	 */
-	public String getDyanmicSememeName();
+	public String getDynamicSememeName();
 	
 
 	/**

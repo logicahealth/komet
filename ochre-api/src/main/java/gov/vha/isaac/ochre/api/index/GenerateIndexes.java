@@ -61,6 +61,7 @@ public class GenerateIndexes extends TimedTask<Void> {
             }
             log.info("Clearing index for: " + i.getIndexerName());
             i.clearIndex();
+            i.clearIndexedStatistics();
         });
 
     }
@@ -69,7 +70,6 @@ public class GenerateIndexes extends TimedTask<Void> {
     protected Void call() throws Exception {
         Get.activeTasks().add(this);
         try {
-            //TODO performance problem... all of these count methods are incredibly slow
             //We only need to indexes sememes now
             //In the future, there may be a need for indexing Concepts from the concept service - for instance, if we wanted to index the concepts
             //by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
@@ -101,6 +101,12 @@ public class GenerateIndexes extends TimedTask<Void> {
                 }
                 i.commitWriter();
                 i.forceMerge();
+                log.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
+                i.reportIndexedItems().forEach((name, value) ->
+                {
+                    log.info(name + ": " + value);
+                });
+                i.clearIndexedStatistics();
             });
             return null;
         } finally {

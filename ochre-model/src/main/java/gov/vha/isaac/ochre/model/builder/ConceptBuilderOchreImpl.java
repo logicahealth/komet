@@ -114,10 +114,10 @@ public class ConceptBuilderOchreImpl extends ComponentBuilder<ConceptChronology<
     }
 
     @Override
-    public DescriptionBuilder getPreferredDescriptionBuilder() {
+    public DescriptionBuilder getSynonymPreferredDescriptionBuilder() {
         return LookupService.getService(DescriptionBuilderService.class).
                 getDescriptionBuilder(conceptName, this,
-                        TermAux.PREFERRED,
+                        TermAux.SYNONYM_DESCRIPTION_TYPE,
                         defaultLanguageForDescriptions).
                 setPreferredInDialectAssemblage(defaultDialectAssemblageForDescriptions);
     }
@@ -149,7 +149,7 @@ public class ConceptBuilderOchreImpl extends ComponentBuilder<ConceptChronology<
         conceptChronology.createMutableVersion(State.ACTIVE, editCoordinate);
         builtObjects.add(conceptChronology);
         descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
-        descriptionBuilders.add(getPreferredDescriptionBuilder());
+        descriptionBuilders.add(getSynonymPreferredDescriptionBuilder());
         descriptionBuilders.forEach((builder) -> {
             builder.build(editCoordinate, changeCheckerMode, builtObjects);
         });
@@ -180,7 +180,7 @@ public class ConceptBuilderOchreImpl extends ComponentBuilder<ConceptChronology<
         conceptChronology.createMutableVersion(stampCoordinate);
         builtObjects.add(conceptChronology);
         descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
-        descriptionBuilders.add(getPreferredDescriptionBuilder());
+        descriptionBuilders.add(getSynonymPreferredDescriptionBuilder());
         descriptionBuilders.forEach((builder) -> {
             builder.build(stampCoordinate, builtObjects);
         });

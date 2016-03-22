@@ -19,6 +19,7 @@
 package gov.va.oia.terminology.converters.sharedUtils.propertyTypes;
 
 import java.util.UUID;
+import gov.va.oia.terminology.converters.sharedUtils.stats.ConverterUUID;
 import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
@@ -115,6 +116,7 @@ public class Property
 	{
 		this(owner, cs.getConceptDescriptionText(), null, null, null, false, Integer.MAX_VALUE, null);
 		propertyUUID = cs.getPrimordialUuid();
+		ConverterUUID.addMapping(cs.getConceptDescriptionText(), cs.getPrimordialUuid());
 		isFromConceptSpec_ = true;
 	}
 	

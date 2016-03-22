@@ -36,7 +36,7 @@ public class Interval
 		this.rightInclusive_ = rightInclusive;
 	}
 	
-	public Interval(String parseFrom)
+	public Interval(String parseFrom) throws NumberFormatException
 	{
 		String s = parseFrom.trim();
 

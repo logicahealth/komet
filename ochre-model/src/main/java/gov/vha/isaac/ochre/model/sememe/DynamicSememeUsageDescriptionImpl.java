@@ -351,7 +351,7 @@ public class DynamicSememeUsageDescriptionImpl implements DynamicSememeUsageDesc
 	 * @see gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getDyanmicSememeName()
      */
     @Override
-    public String getDyanmicSememeName() {
+    public String getDynamicSememeName() {
         return name_;
     }
 

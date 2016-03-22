@@ -80,10 +80,10 @@ public class RefsetLuceneMatch extends LeafClause {
         if (si == null) {
             throw new IllegalStateException("sememeIndexer is null");
         }
-        List<SearchResult> queryResults = si.query(Long.parseLong(luceneMatch), 1000);
-        queryResults.stream().forEach((s) -> {
-            nids.add(s.nid);
-        });
+//        List<SearchResult> queryResults = si.query(Long.parseLong(luceneMatch), 1000);
+//        queryResults.stream().forEach((s) -> {
+//            nids.add(s.nid);
+//        });
       //TODO FIX BACK UP
 //        nids.stream().forEach((nid) -> {
 //            Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObject

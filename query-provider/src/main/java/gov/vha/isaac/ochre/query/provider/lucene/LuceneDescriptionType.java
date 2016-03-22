@@ -38,4 +38,16 @@ public enum LuceneDescriptionType
 		}
 		throw new RuntimeException("No Match!");
 	}
+
+	public static LuceneDescriptionType parse(String descriptionType)
+	{
+		for (LuceneDescriptionType ldt : LuceneDescriptionType.values())
+		{
+			if (ldt.name().equalsIgnoreCase(descriptionType))
+			{
+				return ldt;
+			}
+		}
+		return null;
+	}
 }

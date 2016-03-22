@@ -60,4 +60,10 @@ public interface DynamicSememe<T extends DynamicSememe<T>> extends SememeVersion
      * information that is contained within that concept.
      */
     public DynamicSememeUsageDescription getDynamicSememeUsageDescription();
+    
+    /**
+     * Return a string representation of the data fields
+     * @return
+     */
+    public String dataToString();
 }

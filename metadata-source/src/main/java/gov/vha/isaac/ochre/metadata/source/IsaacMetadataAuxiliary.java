@@ -18,15 +18,52 @@
  */
 package gov.vha.isaac.ochre.metadata.source;
 
-import gov.vha.isaac.ochre.api.IsaacTaxonomy;
-import gov.vha.isaac.ochre.api.bootstrap.TermAux;
-import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
-import gov.vha.isaac.ochre.api.logic.NodeSemantic;
-
-import static gov.vha.isaac.ochre.model.observable.ObservableFields.*;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.CLASSIFIER_SEQUENCE_FOR_LOGIC_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.COMMITTED_STATE_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.COMMITTED_STATE_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.CONCEPT_SEQUENCE_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.INFERRED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.MODULE_SEQUENCE_FOR_EDIT_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.MODULE_SEQUENCE_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.NATIVE_ID_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PATH_SEQUENCE_FOR_EDIT_CORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PATH_SEQUENCE_FOR_STAMP_PATH;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PATH_SEQUENCE_FOR_STAMP_POSITION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PATH_SEQUENCE_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.PRIMORDIAL_UUID_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.SEMEME_LIST_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.STAMP_POSITION_FOR_STAMP_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.STAMP_PRECEDENCE_FOR_STAMP_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.STAMP_SEQUENCE_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.STATUS_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.TEXT_FOR_DESCRIPTION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.TIME_FOR_STAMP_POSITION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.TIME_FOR_VERSION;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.UUID_FOR_TAXONOMY_COORDINATE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.UUID_LIST_FOR_CHRONICLE;
+import static gov.vha.isaac.ochre.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONICLE;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
@@ -35,6 +72,14 @@ import java.util.logging.Logger;
 import javax.inject.Singleton;
 import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
+import gov.vha.isaac.ochre.api.IsaacTaxonomy;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
+import gov.vha.isaac.ochre.api.component.concept.ConceptBuilder;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
+import gov.vha.isaac.ochre.api.constants.MetadataDynamicSememeConstant;
+import gov.vha.isaac.ochre.api.logic.NodeSemantic;
 
 /**
  * @author kec
@@ -61,7 +106,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(TermAux.SNOMED_CT_CORE_MODULE);
                     createConcept("US Extension module");
                     createConcept("LOINC module");
+                    createConcept("LOINC Solor module");
                     createConcept("RxNorm module");
+                    createConcept("RxNorm Solor module");
                     createConcept("AMT module");
                     createConcept("VHA module");
                     createConcept("DOD module");
@@ -86,7 +133,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 pushParent(current());
                     createConcept("SNOMED integer id").setPrimordialUuid("0418a591-f75b-39ad-be2c-3ab849326da9");
                     createConcept("generated UUID").setPrimordialUuid(TermAux.GENERATED_UUID.getPrimordialUuid());
-                    createConcept("LOINC Num");
+                    createConcept(new MetadataDynamicSememeConstant("LOINC_NUM", null, "LOINC Identifier", new DynamicSememeColumnInfo[] 
+                        {new DynamicSememeColumnInfo(0, DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(), 
+                            DynamicSememeDataType.STRING, null, true, true)}));
                     createConcept("RXCUI").setPrimordialUuid("617761d2-80ef-5585-83a0-60851dd44158");//comes from the algorithm in the rxnorm econ loader
                     createConcept("VUID");
                 popParent();
@@ -133,7 +182,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("logic assemblage");
                         pushParent(current());
                         createConcept("EL++ stated form assemblage").setPrimordialUuid("1f201994-960e-11e5-8994-feff819cdc9f");
-                        createConcept("EL++ inferred form").setPrimordialUuid("1f20182c-960e-11e5-8994-feff819cdc9f");
+                        createConcept("EL++ inferred form assemblage").setPrimordialUuid("1f20182c-960e-11e5-8994-feff819cdc9f");
                     popParent();
                     createConcept("assemblage related to path management");
                     pushParent(current());
@@ -332,6 +381,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 createConcept("solor metadata");
                 pushParent(current());
                     createConcept("Content Source Artifact Version");
+                    createConcept("Content Source Release Date");
                     createConcept("Content Converter Version");
                     createConcept("Content Converted IBDF Artifact Version");
                     createConcept("Content Converted IBDF Artifact Classifier");

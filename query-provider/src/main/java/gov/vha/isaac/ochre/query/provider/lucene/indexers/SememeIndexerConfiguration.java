@@ -56,15 +56,14 @@ import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 
 /**
- * {@link DynamicSememeIndexerConfiguration} Holds a cache of the configuration for the dynamic sememe indexer (which is read from the DB, and may
- * be changed at any point
- * the user wishes). Keeps track of which assemblage types need to be indexing, and what attributes should be indexed on them.
+ * {@link SememeIndexerConfiguration} Holds a cache of the configuration for the sememe indexer (which is read from the DB, and may
+ * be changed at any point the user wishes). Keeps track of which assemblage types need to be indexing, and what attributes should be indexed on them.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
 @Singleton
-public class DynamicSememeIndexerConfiguration
+public class SememeIndexerConfiguration
 {
 	private static final Logger log = LogManager.getLogger();
 
@@ -158,11 +157,11 @@ public class DynamicSememeIndexerConfiguration
 	@SuppressWarnings("unchecked")
 	public static void configureColumnsToIndex(int assemblageNidOrSequence, Integer[] columnsToIndex, boolean skipReindex) throws RuntimeException
 	{
-		LookupService.get().getService(DynamicSememeIndexerConfiguration.class).readNeeded_.incrementAndGet();
+		LookupService.get().getService(SememeIndexerConfiguration.class).readNeeded_.incrementAndGet();
 		List<IndexStatusListenerBI> islList = LookupService.get().getAllServices(IndexStatusListenerBI.class);
 		for (IndexStatusListenerBI isl : islList)
 		{
-			isl.indexConfigurationChanged(LookupService.get().getService(DynamicSememeIndexer.class));
+			isl.indexConfigurationChanged(LookupService.get().getService(SememeIndexer.class));
 		}
 
 		ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService().getConcept(assemblageNidOrSequence);
@@ -197,7 +196,7 @@ public class DynamicSememeIndexerConfiguration
 		
 		if (!skipReindex)
 		{
-			Get.startIndexTask(new Class[] {DynamicSememeIndexer.class});
+			Get.startIndexTask(new Class[] {SememeIndexer.class});
 		}
 	}
 	
@@ -210,7 +209,7 @@ public class DynamicSememeIndexerConfiguration
 	 */
 	public static Integer[] readIndexInfo(int assemblageSequence) throws RuntimeException
 	{
-		return LookupService.get().getService(DynamicSememeIndexerConfiguration.class).whatColumnsToIndex(assemblageSequence);
+		return LookupService.get().getService(SememeIndexerConfiguration.class).whatColumnsToIndex(assemblageSequence);
 	}
 	
 	private static DynamicSememe<? extends DynamicSememe<?>> findCurrentIndexConfigRefex(int assemblageNidOrSequence) throws RuntimeException
@@ -250,11 +249,11 @@ public class DynamicSememeIndexerConfiguration
 		
 		if (rdv != null && rdv.getState() == State.ACTIVE)
 		{
-			LookupService.get().getService(DynamicSememeIndexerConfiguration.class).readNeeded_.incrementAndGet();
+			LookupService.get().getService(SememeIndexerConfiguration.class).readNeeded_.incrementAndGet();
 			List<IndexStatusListenerBI> islList = LookupService.get().getAllServices(IndexStatusListenerBI.class);
 			for (IndexStatusListenerBI isl : islList)
 			{
-				isl.indexConfigurationChanged(LookupService.get().getService(DynamicSememeIndexer.class));
+				isl.indexConfigurationChanged(LookupService.get().getService(SememeIndexer.class));
 			}
 			
 			((SememeChronology)rdv.getChronology()).createMutableVersion(MutableDynamicSememe.class, State.INACTIVE, EditCoordinates.getDefaultUserMetadata());
@@ -262,7 +261,7 @@ public class DynamicSememeIndexerConfiguration
 			Get.commitService().commit("Index Config Change");
 			log.info("Index disabled for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
 
-			Get.startIndexTask(new Class[] {DynamicSememeIndexer.class});
+			Get.startIndexTask(new Class[] {SememeIndexer.class});
 			return;
 		}
 		else
@@ -282,6 +281,6 @@ public class DynamicSememeIndexerConfiguration
 	
 	public static boolean isAssemblageIndexed(int assemblageConceptSequence)
 	{
-		return LookupService.get().getService(DynamicSememeIndexerConfiguration.class).needsIndexing(assemblageConceptSequence);
+		return LookupService.get().getService(SememeIndexerConfiguration.class).needsIndexing(assemblageConceptSequence);
 	}
 }

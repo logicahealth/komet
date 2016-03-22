@@ -21,11 +21,12 @@ package gov.vha.isaac.ochre.model.sememe.dataTypes;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import org.slf4j.LoggerFactory;
 import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
+import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 
 /**
  * {@link DynamicSememeData}
@@ -132,6 +133,34 @@ public abstract class DynamicSememeDataImpl implements DynamicSememeData
 		}
 		
 		return "(" + getDynamicSememeDataType().name() + " - " + name + " - " + getDataObject() +")";
+	}
+	
+	@Override
+	public String dataToString()
+	{
+		switch (this.getDynamicSememeDataType())
+		{
+			case BOOLEAN: case DOUBLE: case FLOAT: case INTEGER: case LONG: case NID: case SEQUENCE: case STRING: case UUID:
+				return getDataObject().toString();
+			case ARRAY:
+				String temp = "[";
+				for (DynamicSememeData dsdNest : ((DynamicSememeArray<?>)this).getDataArray())
+				{
+					temp += dsdNest.dataToString() + ", ";
+				}
+				if (temp.length() > 1)
+				{
+					temp = temp.substring(0,  temp.length() - 2);
+				}
+				temp += "]";
+				return temp;
+			case BYTEARRAY:
+				return "[-byte array size " + data_.length + "]";
+			case POLYMORPHIC: case UNKNOWN: 
+			default:
+				LoggerFactory.getLogger(DynamicSememeDataImpl.class).error("Unexpected case!");
+				return "--internal error--";
+		}
 	}
 
 	/**

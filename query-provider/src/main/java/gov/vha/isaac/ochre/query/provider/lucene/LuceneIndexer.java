@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -76,12 +78,12 @@ import gov.vha.isaac.ochre.api.Get;
 import gov.vha.isaac.ochre.api.LookupService;
 import gov.vha.isaac.ochre.api.SystemStatusService;
 import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.commit.ChronologyChangeListener;
 import gov.vha.isaac.ochre.api.commit.CommitRecord;
 import gov.vha.isaac.ochre.api.component.concept.ConceptChronology;
 import gov.vha.isaac.ochre.api.component.sememe.SememeChronology;
 import gov.vha.isaac.ochre.api.component.sememe.version.SememeVersion;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
 import gov.vha.isaac.ochre.api.index.IndexedGenerationCallable;
 import gov.vha.isaac.ochre.api.index.SearchResult;
@@ -89,7 +91,7 @@ import gov.vha.isaac.ochre.api.util.NamedThreadFactory;
 import gov.vha.isaac.ochre.api.util.UuidT5Generator;
 import gov.vha.isaac.ochre.api.util.WorkExecutors;
 import gov.vha.isaac.ochre.query.provider.lucene.indexers.DescriptionIndexer;
-import gov.vha.isaac.ochre.query.provider.lucene.indexers.DynamicSememeIndexer;
+import gov.vha.isaac.ochre.query.provider.lucene.indexers.SememeIndexer;
 
 // See example for help with the Controlled Real-time indexing...
 // http://stackoverflow.com/questions/17993960/lucene-4-4-0-new-controlledrealtimereopenthread-sample-usage?answertab=votes#tab-top
@@ -104,9 +106,6 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     private static AtomicReference<File> luceneRootFolder_ = new AtomicReference<>();
     private File indexFolder_ = null;
     
-    protected static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
-    protected static final String FIELD_INDEXED_LONG_VALUE = "_long_content_";
-    
     //don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
     //exact matches.
     protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;  
@@ -114,7 +113,6 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     protected static final String FIELD_COMPONENT_NID = "_component_nid_";
     
     protected static final FieldType FIELD_TYPE_INT_STORED_NOT_INDEXED;
-    protected static final FieldType FIELD_TYPE_LONG_INDEXED_NOT_STORED;
 
     static {
         FIELD_TYPE_INT_STORED_NOT_INDEXED = new FieldType();
@@ -123,13 +121,9 @@ public abstract class LuceneIndexer implements IndexServiceBI {
         FIELD_TYPE_INT_STORED_NOT_INDEXED.setStored(true);
         FIELD_TYPE_INT_STORED_NOT_INDEXED.setTokenized(false);
         FIELD_TYPE_INT_STORED_NOT_INDEXED.freeze();
-        FIELD_TYPE_LONG_INDEXED_NOT_STORED = new FieldType();
-        FIELD_TYPE_LONG_INDEXED_NOT_STORED.setNumericType(FieldType.NumericType.LONG);
-        FIELD_TYPE_LONG_INDEXED_NOT_STORED.setIndexed(true);
-        FIELD_TYPE_LONG_INDEXED_NOT_STORED.setStored(false);
-        FIELD_TYPE_LONG_INDEXED_NOT_STORED.setTokenized(false);
-        FIELD_TYPE_LONG_INDEXED_NOT_STORED.freeze();
     }
+    
+    private final HashMap<String, AtomicInteger> indexedComponentStatistics = new HashMap<>();
 
     private final ConcurrentHashMap<Integer, IndexedGenerationCallable> componentNidLatch = new ConcurrentHashMap<>();
     private boolean enabled_ = true;
@@ -272,10 +266,9 @@ public abstract class LuceneIndexer implements IndexServiceBI {
     * in-progress indexing operations are completed - and then use the latest index.
     * @return a List of {@code SearchResult} that contains the nid of the component that matched, and the score of 
     * that match relative to other matches.
-    * @throws IOException
     */
    @Override
-    public final List<SearchResult> query(String query, Integer[] semeneConceptSequence, int sizeLimit, long targetGeneration) {
+    public final List<SearchResult> query(String query, Integer[] semeneConceptSequence, int sizeLimit, Long targetGeneration) {
        return query(query, false, semeneConceptSequence, sizeLimit, targetGeneration);
    }
 
@@ -284,7 +277,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
      * are detailed below.
      * 
      * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
-     * queries.  Specifically both {@link DynamicSememeIndexer} and {@link DescriptionIndexer} have their own 
+     * queries.  Specifically both {@link SememeIndexer} and {@link DescriptionIndexer} have their own 
      * query(...) methods which allow for more advanced queries.
      *
      * @param query The query to apply.
@@ -312,16 +305,7 @@ public abstract class LuceneIndexer implements IndexServiceBI {
      * to other matches.
      */
     @Override
-    public final List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration) {
-        try {
-            return search(
-                    restrictToSememe(buildTokenizedStringQuery(query, FIELD_INDEXED_STRING_VALUE, prefixSearch), sememeConceptSequence),
-                    sizeLimit, targetGeneration);
-        }
-        catch (IOException | ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public abstract List<SearchResult> query(String query, boolean prefixSearch, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration);
 
     @Override
     public final void clearIndex() {
@@ -479,16 +463,23 @@ public abstract class LuceneIndexer implements IndexServiceBI {
             latch.setIndexGeneration(indexGeneration);
         }
     }
-    
     protected Query restrictToSememe(Query query, Integer[] sememeConceptSequence)
     {
-        if (sememeConceptSequence != null && sememeConceptSequence.length > 0) {
+        ArrayList<Integer> nullSafe = new ArrayList<>();
+        if (sememeConceptSequence != null) {
+            for (Integer i : sememeConceptSequence) {
+                if (i != null) {
+                    nullSafe.add(i);
+                }
+            }
+        }
+        if (nullSafe.size() > 0) {
             BooleanQuery outerWrap = new BooleanQuery();
             outerWrap.add(query, Occur.MUST);
             BooleanQuery wrap = new BooleanQuery();
 
             //or together the sememeConceptSequences, but require at least one of them to match.
-            for (int i : sememeConceptSequence) {
+            for (int i : nullSafe) {
                 wrap.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
             }
             outerWrap.add(wrap, Occur.MUST);
@@ -506,26 +497,33 @@ public abstract class LuceneIndexer implements IndexServiceBI {
      * Uses the Lucene Query Parser if prefixSearch is false, otherwise, uses a custom prefix algorithm.  
      * See {@link LuceneIndexer#query(String, boolean, Integer, int, Long)} for details on the prefix search algorithm. 
      */
-    protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch) throws IOException, ParseException
+    protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch)
     {
-        BooleanQuery bq = new BooleanQuery();
-        
-        if (prefixSearch) 
+        try
         {
-            bq.add(buildPrefixQuery(query,field, new PerFieldAnalyzer()), Occur.SHOULD);
-            bq.add(buildPrefixQuery(query,field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()), Occur.SHOULD);
+            BooleanQuery bq = new BooleanQuery();
+            
+            if (prefixSearch) 
+            {
+                bq.add(buildPrefixQuery(query,field, new PerFieldAnalyzer()), Occur.SHOULD);
+                bq.add(buildPrefixQuery(query,field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()), Occur.SHOULD);
+            }
+            else {
+                QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
+                qp1.setAllowLeadingWildcard(true);
+                bq.add(qp1.parse(query), Occur.SHOULD);
+                QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
+                qp2.setAllowLeadingWildcard(true);
+                bq.add(qp2.parse(query), Occur.SHOULD);
+            }
+            BooleanQuery wrap = new BooleanQuery();
+            wrap.add(bq, Occur.MUST);
+            return wrap;
         }
-        else {
-            QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
-            qp1.setAllowLeadingWildcard(true);
-            bq.add(qp1.parse(query), Occur.SHOULD);
-            QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer());
-            qp2.setAllowLeadingWildcard(true);
-            bq.add(qp2.parse(query), Occur.SHOULD);
+        catch (IOException|ParseException e)
+        {
+            throw new RuntimeException(e);
         }
-        BooleanQuery wrap = new BooleanQuery();
-        wrap.add(bq, Occur.MUST);
-        return wrap;
     }
     
     protected Query buildPrefixQuery(String searchString, String field, Analyzer analyzer) throws IOException
@@ -669,6 +667,35 @@ public abstract class LuceneIndexer implements IndexServiceBI {
         }
     }
     
+    @Override
+    public HashMap<String, Integer> reportIndexedItems() {
+        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        indexedComponentStatistics.forEach((name, value) ->
+        {
+            result.put(name, value.get());
+        });
+        return result;
+    }
+
+    @Override
+    public void clearIndexedStatistics() {
+        indexedComponentStatistics.clear();
+    }
+    
+    protected void incrementIndexedItemCount(String name) {
+        AtomicInteger temp = indexedComponentStatistics.get(name);
+        if (temp == null) {
+            synchronized (indexedComponentStatistics) {
+                temp = indexedComponentStatistics.get(name);
+                if (temp == null) {
+                    temp = new AtomicInteger(0);
+                    indexedComponentStatistics.put(name, temp);
+                }
+            }
+        }
+        temp.incrementAndGet();
+    }
+
     @PreDestroy
     private void stopMe() {
         log.info("Stopping " + getIndexerName() + " pre-destroy. ");

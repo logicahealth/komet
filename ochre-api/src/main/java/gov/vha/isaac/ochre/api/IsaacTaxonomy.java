@@ -198,7 +198,7 @@ public class IsaacTaxonomy {
     }
 
     /**
-     * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#DEFINITION_DESCRIPTION_TYPE}
+     * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#SYNONYM_DESCRIPTION_TYPE}
      * This currently only creates english language descriptions
      */
     private DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> addDescription(String description, 

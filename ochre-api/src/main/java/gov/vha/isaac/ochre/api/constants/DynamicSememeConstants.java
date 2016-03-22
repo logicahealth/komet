@@ -250,11 +250,11 @@ public class DynamicSememeConstants implements ModuleProvidedConstants
 			"This concept is used as an assemblage for defining new Sememe extensions.  "
 			+ "The attached data columns describe what columns are required to define a new Sememe.",
 			new DynamicSememeColumnInfo[]{
-				new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_ORDER.getUUID(), DynamicSememeDataType.INTEGER, null, true, false),
-				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_NAME.getUUID(), DynamicSememeDataType.UUID, null, true, false),
-				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(), DynamicSememeDataType.STRING, null, true, false),
-				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.POLYMORPHIC, null, false, false),
-				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(), DynamicSememeDataType.BOOLEAN, null, false, false),
+				new DynamicSememeColumnInfo(0, DYNAMIC_SEMEME_COLUMN_ORDER.getUUID(), DynamicSememeDataType.INTEGER, null, true, true),
+				new DynamicSememeColumnInfo(1, DYNAMIC_SEMEME_COLUMN_NAME.getUUID(), DynamicSememeDataType.UUID, null, true, true),
+				new DynamicSememeColumnInfo(2, DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(), DynamicSememeDataType.STRING, null, true, true),
+				new DynamicSememeColumnInfo(3, DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(), DynamicSememeDataType.POLYMORPHIC, null, false, true),
+				new DynamicSememeColumnInfo(4, DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(), DynamicSememeDataType.BOOLEAN, null, false, true),
 				new DynamicSememeColumnInfo(5, DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(), DynamicSememeDataType.ARRAY, null, false,
 						DynamicSememeValidatorType.REGEXP,
 						LookupService.getService(DynamicSememeUtility.class).createDynamicStringData(
@@ -267,8 +267,8 @@ public class DynamicSememeConstants implements ModuleProvidedConstants
 								+ DynamicSememeValidatorType.IS_KIND_OF.name() + "|"
 								+ DynamicSememeValidatorType.LESS_THAN.name() + "|"
 								+ DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.name() + "|"
-								+ DynamicSememeValidatorType.REGEXP.name()), false),
-				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(), DynamicSememeDataType.ARRAY, null, false, false)
+								+ DynamicSememeValidatorType.REGEXP.name()), true),
+				new DynamicSememeColumnInfo(6, DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(), DynamicSememeDataType.ARRAY, null, false, true)
 			},
 			null) {
 	};
