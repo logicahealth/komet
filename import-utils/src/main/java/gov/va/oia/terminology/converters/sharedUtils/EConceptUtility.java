@@ -1263,7 +1263,7 @@ public class EConceptUtility
 	{
 		writer_.close();
 		LookupService.shutdownIsaac();
-		//TODO figure out why the VHAT mojo requires this call
-		Platform.exit();
+		ConverterUUID.clearCache();
+		clearLoadStats();
 	}
 }
