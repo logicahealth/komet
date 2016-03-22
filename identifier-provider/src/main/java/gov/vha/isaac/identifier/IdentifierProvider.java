@@ -272,6 +272,9 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
 
     @Override
     public Optional<UUID> getUuidPrimordialForNid(int nid) {
+        if (nid > 0) {
+            throw new RuntimeException("Sequence passed to a function that expects a nid!");
+        }
         //If we have a cache in uuidIntMapMap, read from there, it is faster.
         //If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
         if (!uuidIntMapMap.cacheContainsNid(nid)) {
