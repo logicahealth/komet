@@ -227,7 +227,7 @@ public class UuidIntMapMap implements UuidToIntMap {
     public UUID[] getKeysForValue(int value) {
         if (nidToPrimoridialCache != null) {
             UUID[] cacheHit = nidToPrimoridialCache.get(value);
-            if (cacheHit != null) {
+            if (cacheHit != null && cacheHit.length > 0) {
                 return cacheHit;
             }
         }
@@ -238,7 +238,7 @@ public class UuidIntMapMap implements UuidToIntMap {
             });
         }
         UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
-        if (nidToPrimoridialCache != null) {
+        if (nidToPrimoridialCache != null && temp.length > 0) {
             nidToPrimoridialCache.put(value, temp);
         }
         return temp;
