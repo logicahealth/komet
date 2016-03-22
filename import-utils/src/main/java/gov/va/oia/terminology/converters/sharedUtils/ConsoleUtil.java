@@ -175,5 +175,8 @@ public class ConsoleUtil
 		BufferedWriter bw = Files.newBufferedWriter(path, Charset.forName("UTF-8"), new OpenOption[] {StandardOpenOption.CREATE});
 		bw.append(consoleOutputCache.toString());
 		bw.close();
+		
+		consoleOutputCache.setLength(0);
+		printsSinceReturn = 0;
 	}
 }
