@@ -43,13 +43,7 @@
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <sonar.jacoco.itReportPath>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPath>
         <jersey.version>2.22.1</jersey.version>
-        <maven-project-info-reports-plugin.version>2.8.2-SNAPSHOT</maven-project-info-reports-plugin.version>  
-        <!-- 2.8.1 has a transitive dependency on /org/apache/bcel/bcel/5.2/ - which is completely broken for java 1.8.  
-        Maven is completely broken for fixing this transitive dependency for a plugin, so the workaround at the moment is to either 
-        hack the pom file for the above project, to swap out the bcel dependency to a build that works (a different build of bcel - from google I think)
-        or to replace the bcel-5.2.jar with a SNAPSHOT version of the latest BCEL (which the maintainers have refused to release for 2 years now) -->
-        <!-- See https://csfe.aceworkspace.net/sf/tracker/do/viewArtifact/projects.informatics_architecture/tracker.4_defects/artf232420 -->
-        
+        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>  
     </properties>
     
     <organization>
