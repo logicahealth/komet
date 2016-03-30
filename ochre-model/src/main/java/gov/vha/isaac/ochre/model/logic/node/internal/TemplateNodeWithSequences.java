@@ -39,10 +39,10 @@ public final class TemplateNodeWithSequences extends AbstractLogicNode {
         assemblageConceptSequence = dataInputStream.readInt();
     }
 
-    public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int templateConceptNid, int assemblageConceptNid) {
+    public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int templateConceptId, int assemblageConceptId) {
         super(logicGraphVersion);
-        this.templateConceptSequence = Get.identifierService().getConceptSequence(templateConceptNid);
-        this.assemblageConceptSequence = Get.identifierService().getConceptSequence(assemblageConceptNid);
+        this.templateConceptSequence = Get.identifierService().getConceptSequence(templateConceptId);
+        this.assemblageConceptSequence = Get.identifierService().getConceptSequence(assemblageConceptId);
     }
 
     public TemplateNodeWithSequences(TemplateNodeWithUuids externalForm) {
@@ -149,11 +149,11 @@ public final class TemplateNodeWithSequences extends AbstractLogicNode {
 
     }
 
-    public int getTemplateConceptNid() {
+    public int getTemplateConceptSequence() {
         return templateConceptSequence;
     }
 
-    public int getAssemblageConceptNid() {
+    public int getAssemblageConceptSequence() {
         return assemblageConceptSequence;
     }
 

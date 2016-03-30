@@ -50,8 +50,8 @@ public class TemplateNodeWithUuids extends AbstractLogicNode {
 
     public TemplateNodeWithUuids(TemplateNodeWithSequences internalForm) {
         super(internalForm);
-        this.templateConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getTemplateConceptNid()).get();
-        this.assemblageConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalForm.getAssemblageConceptNid()).get();
+        this.templateConceptUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(internalForm.getTemplateConceptSequence()).get();
+        this.assemblageConceptUuid = Get.identifierService().getUuidPrimordialFromConceptSequence(internalForm.getAssemblageConceptSequence()).get();
     }
 
 

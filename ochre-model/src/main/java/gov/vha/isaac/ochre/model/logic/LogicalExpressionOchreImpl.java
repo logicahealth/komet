@@ -120,8 +120,8 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
                     results[i] = Concept(((ConceptNodeWithSequences) oldLogicNode).getConceptSequence());
                     break;
                 case TEMPLATE:
-                    results[i] = Template(((TemplateNodeWithSequences) oldLogicNode).getTemplateConceptNid(),
-                            ((TemplateNodeWithSequences) oldLogicNode).getAssemblageConceptNid());
+                    results[i] = Template(((TemplateNodeWithSequences) oldLogicNode).getTemplateConceptSequence(),
+                            ((TemplateNodeWithSequences) oldLogicNode).getAssemblageConceptSequence());
                     break;
                 case SUBSTITUTION_BOOLEAN:
                     results[i] = BooleanSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
@@ -560,8 +560,8 @@ public class LogicalExpressionOchreImpl implements LogicalExpression {
         return new ConceptNodeWithUuids(this, dataInputStream);
     }
 
-    public TemplateNodeWithSequences Template(int templateConceptSequence, int assemblageConceptSequence) {
-        return new TemplateNodeWithSequences(this, templateConceptSequence, assemblageConceptSequence);
+    public TemplateNodeWithSequences Template(int templateConceptId, int assemblageConceptId) {
+        return new TemplateNodeWithSequences(this, templateConceptId, assemblageConceptId);
     }
 
     public final TemplateNodeWithSequences Template(DataInputStream dataInputStream) throws IOException {

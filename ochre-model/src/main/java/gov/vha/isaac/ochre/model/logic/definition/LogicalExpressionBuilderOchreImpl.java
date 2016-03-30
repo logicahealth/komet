@@ -141,8 +141,8 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
 
             case TEMPLATE:
                 TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) logicNode;
-                return template(templateNode.getTemplateConceptNid(), 
-                        templateNode.getAssemblageConceptNid());
+                return template(templateNode.getTemplateConceptSequence(), 
+                        templateNode.getAssemblageConceptSequence());
             case SUBSTITUTION_CONCEPT:
                 SubstitutionNodeConcept substitutionNodeConcept = (SubstitutionNodeConcept) logicNode;
                 return conceptSubstitution(substitutionNodeConcept.getSubstitutionFieldSpecification());
@@ -265,10 +265,10 @@ public class LogicalExpressionBuilderOchreImpl implements LogicalExpressionBuild
         axiomParameters.put(axiom.getIndex(), new Object[]{templateChronology, assemblageToPopulateTemplateConcept});
         return axiom;
     }
-    private Template template(Integer templateChronologyNid, Integer assemblageToPopulateTemplateConceptNid) {
+    private Template template(Integer templateChronologyId, Integer assemblageToPopulateTemplateConceptId) {
         checkNotBuilt();
         GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
-        axiomParameters.put(axiom.getIndex(), new Object[]{templateChronologyNid, assemblageToPopulateTemplateConceptNid});
+        axiomParameters.put(axiom.getIndex(), new Object[]{templateChronologyId, assemblageToPopulateTemplateConceptId});
         return axiom;
     }
 
