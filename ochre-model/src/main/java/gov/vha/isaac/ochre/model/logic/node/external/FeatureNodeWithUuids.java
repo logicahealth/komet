@@ -85,7 +85,6 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
 
         FeatureNodeWithUuids that = (FeatureNodeWithUuids) o;
 
-        if (!typeConceptUuid.equals(that.typeConceptUuid)) return false;
         return operator == that.operator;
     }
 

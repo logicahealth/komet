@@ -102,5 +102,27 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
         return compareTypedNodeFields(o);
     }
     protected abstract int compareTypedNodeFields(LogicNode o);
-}
+    
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 31 * hash + this.typeConceptUuid.hashCode();
+        return hash;
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TypedNodeWithUuids other = (TypedNodeWithUuids) obj;
+        if (!this.typeConceptUuid.equals(other.typeConceptUuid)) {
+            return false;
+        }
+        return super.equals(obj);
+    }
+}
