@@ -42,11 +42,6 @@ public abstract class TypedNodeWithSequences extends ConnectorNode {
     }
     
     @Override
-    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
-        super.writeData(dataOutput, dataTarget);
-    }
-
-    @Override
     public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
         super.addConceptsReferencedByNode(conceptSequenceSet); 
         conceptSequenceSet.add(typeConceptSequence);

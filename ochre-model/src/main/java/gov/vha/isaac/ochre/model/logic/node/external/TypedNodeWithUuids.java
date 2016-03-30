@@ -57,17 +57,19 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
                 TypedNodeWithSequences internalForm = null;
                 if (this instanceof FeatureNodeWithUuids) {
                     internalForm = new FeatureNodeWithSequences((FeatureNodeWithUuids)this);
+                    ((FeatureNodeWithSequences)internalForm).writeNodeData(dataOutput, dataTarget);
                 }
                 else if (this instanceof RoleNodeAllWithUuids) {
                     internalForm = new RoleNodeAllWithSequences((RoleNodeAllWithUuids)this);
+                    ((RoleNodeAllWithSequences)internalForm).writeNodeData(dataOutput, dataTarget);
                 }
                 else if (this instanceof RoleNodeSomeWithUuids) {
                     internalForm = new RoleNodeSomeWithSequences((RoleNodeSomeWithUuids)this);
+                    ((RoleNodeSomeWithSequences)internalForm).writeNodeData(dataOutput, dataTarget);
                 }
                 else {
                     throw new RuntimeException("Can't write internal form!");
                 }
-                internalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             default: throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);
         }
