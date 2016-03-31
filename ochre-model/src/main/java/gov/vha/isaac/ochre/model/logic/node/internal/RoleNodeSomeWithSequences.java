@@ -39,7 +39,7 @@ public final class RoleNodeSomeWithSequences extends TypedNodeWithSequences {
                 externalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             case INTERNAL:
-                super.writeData(dataOutput, dataTarget);
+                super.writeNodeData(dataOutput, dataTarget);
                 break;
             default:
                 throw new UnsupportedOperationException("Can't handle dataTarget: " + dataTarget);

@@ -52,7 +52,7 @@ public final class FeatureNodeWithSequences extends TypedNodeWithSequences {
                 externalForm.writeNodeData(dataOutput, dataTarget);
                 break;
             case INTERNAL:
-                super.writeData(dataOutput, dataTarget);
+                super.writeNodeData(dataOutput, dataTarget);
                 dataOutput.writeByte(operator.ordinal());
 //                dataOutput.writeInt(unitsConceptSequence);
                 break;
