@@ -57,9 +57,9 @@ public class TemplateNodeWithUuids extends AbstractLogicNode {
 
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
-        super.writeData(dataOutput, dataTarget);
         switch (dataTarget) {
             case EXTERNAL:
+                super.writeData(dataOutput, dataTarget);
                 dataOutput.writeLong(templateConceptUuid.getMostSignificantBits());
                 dataOutput.writeLong(templateConceptUuid.getLeastSignificantBits());
                 dataOutput.writeLong(assemblageConceptUuid.getMostSignificantBits());

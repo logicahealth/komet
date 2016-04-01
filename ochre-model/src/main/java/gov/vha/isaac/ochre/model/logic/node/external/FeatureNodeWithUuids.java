@@ -46,9 +46,9 @@ public class FeatureNodeWithUuids extends TypedNodeWithUuids {
 
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
-        super.writeNodeData(dataOutput, dataTarget);
         switch (dataTarget) {
             case EXTERNAL:
+                super.writeNodeData(dataOutput, dataTarget);
                 dataOutput.writeByte(operator.ordinal());
 //                dataOutput.writeLong(unitsConceptUuid.getMostSignificantBits());
 //                dataOutput.writeLong(unitsConceptUuid.getLeastSignificantBits());

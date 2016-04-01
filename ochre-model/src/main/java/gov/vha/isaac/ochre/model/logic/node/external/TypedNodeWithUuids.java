@@ -47,9 +47,9 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
     
     @Override
     public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget) throws IOException {
-        super.writeData(dataOutput, dataTarget);
         switch (dataTarget) {
             case EXTERNAL:
+                super.writeData(dataOutput, dataTarget);
                 dataOutput.writeLong(typeConceptUuid.getMostSignificantBits());
                 dataOutput.writeLong(typeConceptUuid.getLeastSignificantBits());
                 break;
@@ -81,7 +81,12 @@ public abstract class TypedNodeWithUuids extends ConnectorNode {
 
     @Override
     public String toString() {
-        return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString() +" "+ super.toString();
+        return toString("");
+    }
+    
+    @Override
+    public String toString(String nodeIdSuffix) {
+        return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString();
     }
 
     public LogicNode getOnlyChild() {
