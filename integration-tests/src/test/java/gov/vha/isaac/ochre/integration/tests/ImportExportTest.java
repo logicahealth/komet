@@ -183,7 +183,7 @@ public class ImportExportTest {
         }
     }
 
-    @Test
+    @Test (groups = {"load"}, dependsOnMethods = {"testLoad"})
     public void testConvertLogicGraphForm() throws Exception {
         LogicalExpressionBuilder defBuilder = builderProvider.getLogicalExpressionBuilder();
 
