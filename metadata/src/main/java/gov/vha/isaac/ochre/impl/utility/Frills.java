@@ -56,6 +56,7 @@ import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSem
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
 import gov.vha.isaac.ochre.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
 import gov.vha.isaac.ochre.api.constants.DynamicSememeConstants;
+import gov.vha.isaac.ochre.api.coordinate.LanguageCoordinate;
 import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
 import gov.vha.isaac.ochre.api.identity.StampedVersion;
 import gov.vha.isaac.ochre.api.index.IndexServiceBI;
@@ -97,6 +98,8 @@ public class Frills implements DynamicSememeColumnUtility {
 	};
 	/**
 	 * @param id UUID identifier
+	 * @param sc StampCoordinate (defaults to development latest)
+	 * @param lc LanguageCoordinate (defaults to US English FSN)
 	 * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
 	 * 
 	 * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -104,8 +107,13 @@ public class Frills implements DynamicSememeColumnUtility {
 	public static IdInfo getIdInfo(UUID id) {
 		return getIdInfo(id.toString());
 	}
+	public static IdInfo getIdInfo(UUID id, StampCoordinate sc, LanguageCoordinate lc) {
+		return getIdInfo(id.toString(), sc, lc);
+	}
 	/**
 	 * @param id int identifier
+	 * @param sc StampCoordinate (defaults to development latest)
+	 * @param lc LanguageCoordinate (defaults to US English FSN)
 	 * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
 	 * 
 	 * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -113,13 +121,21 @@ public class Frills implements DynamicSememeColumnUtility {
 	public static IdInfo getIdInfo(int id) {
 		return getIdInfo(Integer.toString(id));
 	}
+	public static IdInfo getIdInfo(int id, StampCoordinate sc, LanguageCoordinate lc) {
+		return getIdInfo(Integer.toString(id), sc, lc);
+	}
 	/**
 	 * @param id String identifier may parse to int NID, int sequence or UUID
+	 * @param sc StampCoordinate (defaults to development latest)
+	 * @param lc LanguageCoordinate (defaults to US English FSN)
 	 * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
 	 * 
 	 * This method should only be used for logging. The returned data structure is not meant to be parsed.
 	 */
 	public static IdInfo getIdInfo(String id) {
+		return getIdInfo(id, StampCoordinates.getDevelopmentLatest(), LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate());
+	}
+	public static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
 		Map<String, Object> idInfo = new HashMap<>();
 
 		Long sctId = null;
@@ -171,13 +187,13 @@ public class Frills implements DynamicSememeColumnUtility {
 			}
 
 			if (nid != null) {
-				idInfo.put("DESC", Get.conceptDescriptionText(nid));
+				idInfo.put("DESC", Get.conceptService().getSnapshot(sc, lc).conceptDescriptionText(nid));
 				if (typeOfPassedId == ObjectChronologyType.CONCEPT) {
-					Optional<Long> optSctId = Frills.getSctId(nid, StampCoordinates.getDevelopmentLatest());
+					Optional<Long> optSctId = Frills.getSctId(nid, sc);
 					if (optSctId.isPresent()) {
 						sctId = optSctId.get();
 						
-						idInfo.put("DEVLATEST_SCTID", sctId);
+						idInfo.put("SCTID", sctId);
 					}
 				}
 			}
@@ -212,18 +228,18 @@ public class Frills implements DynamicSememeColumnUtility {
 	 */
 	public static Optional<SememeChronology<? extends LogicGraphSememe<?>>> getLogicGraphChronology(int id, boolean stated)
 	{
-		log.debug("Getting {} logic graph chronology for {}", (stated ? "stated" : "inferred"), Frills.getIdInfo(id));
+		log.debug("Getting {} logic graph chronology for {}", () -> (stated ? "stated" : "inferred"), () -> Frills.getIdInfo(id));
 		Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional = stated ? Get.statedDefinitionChronology(id) : Get.inferredDefinitionChronology(id);
 		if (defChronologyOptional.isPresent())
 		{
-			log.debug("Got {} logic graph chronology for {}", (stated ? "stated" : "inferred"), Frills.getIdInfo(id));
+			log.debug("Got {} logic graph chronology for {}", () -> (stated ? "stated" : "inferred"), () -> Frills.getIdInfo(id));
 
 			@SuppressWarnings("unchecked")
 			SememeChronology<? extends LogicGraphSememe<?>> sememeChronology = (SememeChronology<? extends LogicGraphSememe<?>>)defChronologyOptional.get();
 
 			return Optional.of(sememeChronology);
 		} else {
-			log.warn("NO {} logic graph chronology for {}", (stated ? "stated" : "inferred"), Frills.getIdInfo(id));
+			log.warn("NO {} logic graph chronology for {}", () -> (stated ? "stated" : "inferred"), () -> Frills.getIdInfo(id));
 
 			return Optional.empty();
 		}
@@ -235,14 +251,14 @@ public class Frills implements DynamicSememeColumnUtility {
 	 */
 	public static Optional<LatestVersion<LogicGraphSememe<?>>> getLogicGraphVersion(SememeChronology<? extends LogicGraphSememe<?>> logicGraphSememeChronology, StampCoordinate stampCoordinate)
 	{
-		log.debug("Getting logic graph sememe for {}", Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
+		log.debug("Getting logic graph sememe for {}", () -> Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Optional<LatestVersion<LogicGraphSememe<?>>> latest = ((SememeChronology)logicGraphSememeChronology).getLatestVersion(LogicGraphSememe.class, stampCoordinate);
 		if (latest.isPresent()) {
-			log.debug("Got logic graph sememe for {}", Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
+			log.debug("Got logic graph sememe for {}", () -> Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
 		} else {
-			log.warn("NO logic graph sememe for {}", Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
+			log.warn("NO logic graph sememe for {}", () -> Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid()));
 		}
 		return latest;
 	}

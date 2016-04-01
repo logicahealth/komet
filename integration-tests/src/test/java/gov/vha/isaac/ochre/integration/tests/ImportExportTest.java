@@ -1,6 +1,9 @@
 package gov.vha.isaac.ochre.integration.tests;
 
+import gov.vha.isaac.MetaData;
+import gov.vha.isaac.ochre.api.DataTarget;
 import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.bootstrap.TermAux;
 import gov.vha.isaac.ochre.api.classifier.ClassifierResults;
 import gov.vha.isaac.ochre.api.classifier.ClassifierService;
 import gov.vha.isaac.ochre.api.commit.CommitService;
@@ -8,14 +11,25 @@ import gov.vha.isaac.ochre.api.coordinate.*;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataReaderService;
 import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
+import gov.vha.isaac.ochre.api.logic.LogicalExpression;
+import gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder;
 import gov.vha.isaac.ochre.api.tree.Tree;
 import gov.vha.isaac.ochre.api.tree.TreeNodeVisitData;
+import gov.vha.isaac.ochre.model.logic.LogicByteArrayConverterService;
+import gov.vha.isaac.ochre.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.testing.hk2testng.HK2;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.And;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.Feature;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.FloatLiteral;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SomeRole;
+import static gov.vha.isaac.ochre.api.logic.LogicalExpressionBuilder.SufficientSet;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
@@ -31,6 +45,7 @@ import java.util.stream.IntStream;
 public class ImportExportTest {
     private static final Logger LOG = LogManager.getLogger();
     OchreExternalizableStatsTestFilter importStats;
+	LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
 
     @Test (groups = {"load"})
     public void testLoad() {
@@ -168,5 +183,26 @@ public class ImportExportTest {
         }
     }
 
+    @Test
+    public void testConvertLogicGraphForm() throws Exception {
+        LogicalExpressionBuilder defBuilder = builderProvider.getLogicalExpressionBuilder();
 
+        SufficientSet(
+                And(
+                    SomeRole(MetaData.ROLE_GROUP,
+                        And(
+                            Feature(MetaData.HAS_STRENGTH, FloatLiteral(1.2345F, defBuilder)),
+                            ConceptAssertion(TermAux.MASTER_PATH, defBuilder)))));
+        LogicalExpression logicGraphDef = defBuilder.build();
+
+        LogicByteArrayConverterService converter = new LogicByteArrayConverterService();
+
+        byte[][] internalizedData = logicGraphDef.getData(DataTarget.INTERNAL);
+        byte[][] externalizedData = converter.convertLogicGraphForm(internalizedData, DataTarget.EXTERNAL);
+        byte[][] reinternalizedData = converter.convertLogicGraphForm(externalizedData, DataTarget.INTERNAL);
+
+        if (! Arrays.deepEquals(internalizedData, reinternalizedData)) {
+            Assert.fail("convertLogicGraphForm() FAILED: Reinternalized LogicGraph LogicalExpression does not match original internalized version");
+        }
+    }
 }
