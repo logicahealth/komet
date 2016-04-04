@@ -51,6 +51,11 @@ public class MockConceptService implements ConceptService {
     }
 
     @Override
+    public boolean hasConcept(int conceptId) {
+        return conceptsMap.containsKey(Get.identifierService().getConceptSequence(conceptId));
+    }
+
+	@Override
     public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
         return Optional.ofNullable(getConcept(conceptUuids));
     }

@@ -50,11 +50,10 @@ public class MockSememeService implements SememeService {
         return Optional.ofNullable(getSememe(sememeId));
     }
     
-    
-
-    
-
-
+    @Override
+    public boolean hasSememe(int sememeId) {
+        return sememeMap.containsKey(Get.identifierService().getSememeSequence(sememeId));
+    }
 
 	@Override
     public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence) {

@@ -144,6 +144,14 @@ public class ConceptProvider implements ConceptService {
         }
         return conceptMap.getOptional(conceptId);
     }
+    
+    @Override
+    public boolean hasConcept(int conceptId) {
+        if (conceptId < 0) {
+            conceptId = Get.identifierService().getConceptSequence(conceptId);
+        }
+        return conceptMap.containsKey(conceptId);
+    }
 
     @Override
     public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {

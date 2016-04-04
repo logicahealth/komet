@@ -103,4 +103,11 @@ public interface IdentifierService {
 
     boolean hasUuid(Collection<UUID> uuids);
 
+    /**
+     * A method to remove refs to sememe or concept sequences that never had data stored.  
+     * This should not be necessary in normal operation.  This supports patterns where objects are 
+     * being deserialized from an ibdf file (causing refs to be stored here) but then not loaded into the DB.
+     */
+    void clearUnusedIds();
+
 }

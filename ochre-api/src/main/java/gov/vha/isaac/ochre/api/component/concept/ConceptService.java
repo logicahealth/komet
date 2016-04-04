@@ -51,6 +51,15 @@ public interface ConceptService {
      * @return an Optional ConceptChronology.
      */
     Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId);
+    
+    /**
+     * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
+     * without incurring the overhead of reading back the object. 
+     * @param conceptId Either a nid or concept sequence
+     * @return true if present, false otherwise
+     */
+    boolean hasConcept(int conceptId);
+    
     /**
      * Use in circumstances when not all concepts may have been loaded. 
      * @param conceptUuids uuids that identify the concept

@@ -140,6 +140,19 @@ public class SequenceMap {
             sl.unlockWrite(stamp);
         }
     }
+    
+    public void removeNid(int nid) {
+        long stamp = sl.writeLock();
+        try {
+            if (nidSequenceMap.containsKey(nid)) {
+                int sequence = nidSequenceMap.get(nid);
+                nidSequenceMap.removeKey(nid);
+                sequenceNidMap.removeKey(sequence);
+            }
+        } finally {
+            sl.unlockWrite(stamp);
+        }
+    }
 
     public int addNidIfMissing(int nid) {
         long stamp = sl.tryOptimisticRead();

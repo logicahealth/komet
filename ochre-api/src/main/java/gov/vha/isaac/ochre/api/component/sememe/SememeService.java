@@ -50,6 +50,14 @@ public interface SememeService {
      */
     Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeId);
     
+    /**
+     * Use in circumstances when not all sememes may have been loaded to find out if a sememe is present,
+     * without incurring the overhead of reading back the object. 
+     * @param sememeId Either a nid or concept sequence
+     * @return true if present, false otherwise
+     */
+    boolean hasSememe(int sememeId);
+    
     Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
     SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet, int assemblageConceptSequence, StampPosition position);

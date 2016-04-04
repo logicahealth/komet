@@ -379,6 +379,14 @@ public class SememeProvider implements SememeService {
         sememeSequence = Get.identifierService().getSememeSequence(sememeSequence);
         return sememeMap.getOptional(sememeSequence);
     }
+    
+    @Override
+    public boolean hasSememe(int conceptId) {
+        if (conceptId < 0) {
+            conceptId = Get.identifierService().getSememeSequence(conceptId);
+        }
+        return sememeMap.containsKey(conceptId);
+    }
 
     @Override
     public Stream<Integer> getAssemblageTypes()

@@ -15,20 +15,6 @@
  */
 package gov.vha.isaac.identifier;
 
-import gov.vha.isaac.ochre.api.*;
-import gov.vha.isaac.ochre.api.collections.UuidIntMapMap;
-import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
-import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
-import gov.vha.isaac.ochre.api.identity.StampedVersion;
-import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
-import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
-import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
-import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
-import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
-import gov.vha.isaac.ochre.api.collections.LruCache;
-import gov.vha.isaac.ochre.api.collections.NidSet;
-import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -48,6 +35,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import gov.vha.isaac.ochre.api.ConfigurationService;
+import gov.vha.isaac.ochre.api.Get;
+import gov.vha.isaac.ochre.api.IdentifiedObjectService;
+import gov.vha.isaac.ochre.api.IdentifierService;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.SystemStatusService;
+import gov.vha.isaac.ochre.api.chronicle.LatestVersion;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronology;
+import gov.vha.isaac.ochre.api.chronicle.ObjectChronologyType;
+import gov.vha.isaac.ochre.api.collections.ConceptSequenceSet;
+import gov.vha.isaac.ochre.api.collections.LruCache;
+import gov.vha.isaac.ochre.api.collections.NidSet;
+import gov.vha.isaac.ochre.api.collections.SememeSequenceSet;
+import gov.vha.isaac.ochre.api.collections.UuidIntMapMap;
+import gov.vha.isaac.ochre.api.component.concept.ConceptSpecification;
+import gov.vha.isaac.ochre.api.component.sememe.SememeSnapshotService;
+import gov.vha.isaac.ochre.api.component.sememe.version.StringSememe;
+import gov.vha.isaac.ochre.api.coordinate.StampCoordinate;
+import gov.vha.isaac.ochre.api.identity.StampedVersion;
 
 /**
  *
@@ -428,5 +434,39 @@ public class IdentifierProvider implements IdentifierService, IdentifiedObjectSe
         }
         throw new UnsupportedOperationException("Unknown chronology type: " + getChronologyTypeForNid(nid));
 
+    }
+    
+    /**
+     * A method to remove refs to sememe or concept sequences that never had data stored.  
+     * This should not be necessary in normal operation.  This supports patterns where objects are 
+     * being deserialized from an ibdf file (causing refs to be stored here) but then not loaded into the DB.
+     */
+    @Override
+	public void clearUnusedIds() {
+        AtomicInteger cleaned = new AtomicInteger();
+        conceptSequenceMap.getSequenceStream().parallel().forEach((conceptSequence) -> 
+        {
+            if (!Get.conceptService().hasConcept(conceptSequence)) {
+                int nid = conceptSequenceMap.getNid(conceptSequence).getAsInt();
+                conceptSequenceMap.removeNid(nid);
+                cleaned.incrementAndGet();
+            }
+        });
+        
+        LOG.info("Removed " + cleaned.get() + " unused concept references");
+        cleaned.set(0);
+        
+        sememeSequenceMap.getSequenceStream().parallel().forEach((sememeSequence) -> 
+        {
+            if (!Get.sememeService().hasSememe(sememeSequence)) {
+                int nid = sememeSequenceMap.getNid(sememeSequence).getAsInt();
+                sememeSequenceMap.removeNid(nid);
+                cleaned.incrementAndGet();
+            }
+        });
+        LOG.info("Removed " + cleaned.get() + " unused sememe references");
+        
+        //We could also clear refs from the uuid map here... but that would take longer / 
+        //provide minimal gain
     }
 }
