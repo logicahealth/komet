@@ -91,6 +91,7 @@ public class ImportExportTest {
                 writer.put(ochreExternalizable);
                 exportCount.incrementAndGet();
             });
+            writer.close();
             LOG.info("exported components: " + exportStats);
             Assert.assertEquals(exportStats, importStats);
             BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target", "data", "IsaacMetadataAuxiliary.export.ibdf"));
@@ -166,6 +167,7 @@ public class ImportExportTest {
                     LOG.info(ochreExternalizable);
                 }
             });
+            writer.close();
             LOG.info("exported components: " + exportStats);
             if (exportStats.concepts.get() != importStats.concepts.get()) {
                 Get.conceptService().getConceptChronologyStream().forEach((conceptChronology) -> LOG.info(conceptChronology));

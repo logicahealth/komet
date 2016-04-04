@@ -20,7 +20,7 @@ import gov.vha.isaac.ochre.api.externalizable.BinaryDataWriterService;
 import gov.vha.isaac.ochre.api.externalizable.ByteArrayDataBuffer;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizable;
 import gov.vha.isaac.ochre.api.externalizable.OchreExternalizableObjectType;
-
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -45,7 +45,7 @@ public class BinaryDataWriterProvider implements BinaryDataWriterService {
 
     public BinaryDataWriterProvider(Path dataPath) throws FileNotFoundException {
         this.dataPath = dataPath;
-        this.output = new DataOutputStream(new FileOutputStream(dataPath.toFile()));
+        this.output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataPath.toFile())));
         this.buffer.setExternalData(true);
     }
 
@@ -78,6 +78,7 @@ public class BinaryDataWriterProvider implements BinaryDataWriterService {
     @Override
     public void close() {
         try {
+            this.output.flush();
             this.output.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
