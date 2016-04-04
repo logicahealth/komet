@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.plexus.util.FileUtils;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import gov.va.oia.terminology.converters.sharedUtils.gson.MultipleDataWriterService;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Descriptions;
@@ -88,7 +88,8 @@ import gov.vha.isaac.ochre.model.coordinate.StampCoordinateImpl;
 import gov.vha.isaac.ochre.model.coordinate.StampPositionImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeStringImpl;
 import gov.vha.isaac.ochre.model.sememe.dataTypes.DynamicSememeUUIDImpl;
-import javafx.application.Platform;
+import gov.vha.isaac.ochre.mojo.IndexTermstore;
+import gov.vha.isaac.ochre.mojo.LoadTermstore;
 
 /**
  * 
@@ -165,26 +166,71 @@ public class EConceptUtility
 	private BinaryDataWriterService writer_;
 
 	private LoadStats ls_ = new LoadStats();
-
+	
 	/**
 	 * Creates and stores the path concept - sets up the various namespace details.
 	 * @param moduleToCreate - if present, a new concept will be created, using this value as the FSN / preferred term for use as the module
 	 * @param preExistingModule - if moduleToCreate is not present, lookup the concept with this UUID to use as the module.
-	 * @param outputFile - The path to write the output file to
+	 * @param outputDirectory - The path to write the output files to
+	 * @param outputFileNameWithoutExtension - The name to use for the final ibdf file
+	 * @param outputGson - true to dump out the data in gson format for debug
 	 * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
 	 * @throws Exception
 	 */
 	public EConceptUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, File outputDirectory, 
 			String outputFileNameWithoutExtension, boolean outputGson, long defaultTime) throws Exception
 	{
+		this(moduleToCreate, preExistingModule, outputDirectory, outputFileNameWithoutExtension, outputGson, defaultTime, null);
+	}
+
+	/**
+	 * Creates and stores the path concept - sets up the various namespace details.
+	 * @param moduleToCreate - if present, a new concept will be created, using this value as the FSN / preferred term for use as the module
+	 * @param preExistingModule - if moduleToCreate is not present, lookup the concept with this UUID to use as the module.
+	 * @param outputDirectory - The path to write the output files to
+	 * @param outputFileNameWithoutExtension - The name to use for the final ibdf file
+	 * @param outputGson - true to dump out the data in gson format for debug
+	 * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
+	 * @param sememeTypesToSkip - if ibdfPreLoadFiles are provided, this list of types can be specified as the types to ignore in the preload files
+	 * @param ibdfPreLoadFiles (optional) load these ibdf files into the isaac DB after starting (required for some conversions like LOINC)
+	 * @throws Exception
+	 */
+	public EConceptUtility(Optional<String> moduleToCreate, Optional<ConceptSpecification> preExistingModule, File outputDirectory, 
+			String outputFileNameWithoutExtension, boolean outputGson, long defaultTime, Collection<SememeType> sememeTypesToSkip, 
+			File ... ibdfPreLoadFiles) throws Exception
+	{
 		UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 2500000;
 		File file = new File(outputDirectory, "isaac-db");
-		//make sure this is empty
-		FileUtils.deleteDirectory(file);
+		
+		boolean isaacDBExists = file.isDirectory();
 		
 		System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, file.getCanonicalPath());
 
 		LookupService.startupIsaac();
+		
+		if (ibdfPreLoadFiles != null && ibdfPreLoadFiles.length > 0)
+		{
+			if (isaacDBExists)
+			{
+				ConsoleUtil.println("Using existing isaac DB (skipping provided ibdf preload files (use 'mvn clean' to force it to rebuild the db)");
+			}
+			else
+			{
+				ConsoleUtil.println("Loading ibdf files");
+				LoadTermstore lt = new LoadTermstore();
+				lt.setLog(new SystemStreamLog());
+				lt.setibdfFiles(ibdfPreLoadFiles);
+				lt.setActiveOnly(true);
+				//skip descriptions, acceptabilities
+				if (sememeTypesToSkip != null)
+				{
+					lt.skipSememeTypes(sememeTypesToSkip);
+				}
+				lt.execute();
+				
+				new IndexTermstore().execute();
+			}
+		}
 		
 		authorSeq_ = MetaData.USER.getConceptSequence();
 		terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();

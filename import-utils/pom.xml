@@ -88,6 +88,16 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>gov.vha.isaac.ochre.modules</groupId>
+			<artifactId>ochre-mojo</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>gov.vha.isaac.ochre.modules</groupId>
+			<artifactId>progress-provider</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.cedarsoftware</groupId>
 			<artifactId>json-io</artifactId>
 		</dependency>

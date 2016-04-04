@@ -11,6 +11,8 @@
 		<Logger name="gov.vha.isaac.ochre.api.collections.UuidIntMapMap" level="info" />
 		<Logger name="gov.vha.isaac.ochre.model.waitfree.CasSequenceObjectMap" level="error" />
 		<Logger name="gov.vha.isaac.identifier.IdentifierProvider" level="info" />
+		<Logger name="gov.vha.isaac.ochre.query.provider.lucene" level="info" />
+		<Logger name="gov.vha.isaac.ochre.logic.provider" level="info" />
 		<Root level="debug">
 			<AppenderRef ref="STDOUT" />
 		</Root>
