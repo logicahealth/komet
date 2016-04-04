@@ -81,7 +81,8 @@ public class LoadTermstore extends AbstractMojo
 	
 	private int conceptCount, sememeCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
 	private HashSet<Integer> skippedItems = new HashSet<>();
-
+	private boolean skippedAny = false;
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void execute() throws MojoExecutionException
@@ -181,8 +182,7 @@ public class LoadTermstore extends AbstractMojo
 				
 				if (skippedItems.size() > 0)
 				{
-					//Loading with activeOnly set to true causes a number of gaps in the concept / sememe providers
-					Get.identifierService().clearUnusedIds();
+					skippedAny = true;
 				}
 				
 				getLog().info("Loaded " + conceptCount + " concepts, " + sememeCount + " sememes, " + stampAliasCount + " stampAlias, " 
@@ -193,6 +193,12 @@ public class LoadTermstore extends AbstractMojo
 				stampAliasCount = 0;
 				stampCommentCount = 0;
 				skippedItems.clear();
+			}
+			
+			if (skippedAny)
+			{
+				//Loading with activeOnly set to true causes a number of gaps in the concept / sememe providers
+				Get.identifierService().clearUnusedIds();
 			}
 		}
 		catch (Exception ex)
