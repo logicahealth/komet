@@ -15,8 +15,6 @@
  */
 package gov.vha.isaac.ochre.api.externalizable;
 
-import gov.vha.isaac.ochre.api.commit.CommittableComponent;
-
 /**
  * A interface that can write OCHRE objects in a UUID-based format for universal exchange without 
  * depending on centrally allocated identifiers. References to other objects are only allowed via UUID, and
@@ -27,7 +25,7 @@ public interface OchreExternalizable  {
     
     /**
      * The object implements the putExternal method to save its contents 
- by calling the methods of ByteArrayDataBuffer for primitive values.
+     * by calling the methods of ByteArrayDataBuffer for primitive values.
      * @param out the ByteArrayDataBuffer to write to. 
      */
     void putExternal(ByteArrayDataBuffer out);

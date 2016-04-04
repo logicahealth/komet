@@ -81,7 +81,12 @@ public class GenerateIndexes extends TimedTask<Void> {
             Get.sememeService().getParallelSememeStream().forEach((SememeChronology<?> sememe) -> {
                 indexers.stream().forEach((i) -> {
                         try {
-                            i.index(sememe).get();
+                            if (sememe == null) {
+                                //noop - this error is already logged elsewhere.  Just skip.
+                            }
+                            else {
+                                i.index(sememe).get();
+                            }
                         }
                         catch (Exception e) {
                             throw new RuntimeException(e);
