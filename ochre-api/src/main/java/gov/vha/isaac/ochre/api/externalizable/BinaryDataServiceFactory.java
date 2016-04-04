@@ -25,7 +25,6 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface BinaryDataServiceFactory {
-    
     /**
      * 
      * @param dataPath data file location
@@ -37,9 +36,16 @@ public interface BinaryDataServiceFactory {
     /**
      * 
      * @param dataPath data file location
+     * @return the BinaryDataReaderService for the given dataPath
+     * @throws java.io.FileNotFoundException
+     */
+    BinaryDataReaderQueueService getQueueReader(Path dataPath) throws FileNotFoundException;
+    
+    /**
+     * 
+     * @param dataPath data file location
      * @return the BinaryDataWriterService for the given dataPath
      * @throws java.io.FileNotFoundException
      */
     BinaryDataWriterService getWriter(Path dataPath) throws FileNotFoundException;
-    
 }

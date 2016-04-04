@@ -330,6 +330,10 @@ public class Get implements OchreCache {
         return getService(BinaryDataServiceFactory.class).getReader(dataPath);
     }
     
+    public static BinaryDataReaderQueueService binaryDataQueueReader(Path dataPath) throws FileNotFoundException {
+        return getService(BinaryDataServiceFactory.class).getQueueReader(dataPath);
+    }
+    
     public static BinaryDataWriterService binaryDataWriter(Path dataPath) throws FileNotFoundException {
         return getService(BinaryDataServiceFactory.class).getWriter(dataPath);
     }
