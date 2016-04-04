@@ -85,6 +85,8 @@ public class BinaryDataReaderProvider
     public void close() {
         try {
             input.close();
+            done();
+            complete.countDown();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -143,5 +145,4 @@ public class BinaryDataReaderProvider
     public int characteristics() {
         return IMMUTABLE | NONNULL;
     }
-
 }
