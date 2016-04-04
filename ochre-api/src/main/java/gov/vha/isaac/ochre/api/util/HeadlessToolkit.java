@@ -268,7 +268,9 @@ public class HeadlessToolkit extends Toolkit
 
     @Override
     public void setAnimationRunnable(DelayedRunnable animationRunnable) {
-        tasks.add(animationRunnable);
+        if (animationRunnable != null) {
+            tasks.add(animationRunnable);
+        }
     }
 
     @Override
