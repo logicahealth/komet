@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.plexus.util.FileUtils;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import gov.va.oia.terminology.converters.sharedUtils.gson.MultipleDataWriterService;
 import gov.va.oia.terminology.converters.sharedUtils.propertyTypes.BPT_Associations;
@@ -199,10 +200,10 @@ public class EConceptUtility
 			String outputFileNameWithoutExtension, boolean outputGson, long defaultTime, Collection<SememeType> sememeTypesToSkip, 
 			File ... ibdfPreLoadFiles) throws Exception
 	{
-		UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 2500000;
+		UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 5000000;
 		File file = new File(outputDirectory, "isaac-db");
-		
-		boolean isaacDBExists = file.isDirectory();
+		//make sure this is empty
+		FileUtils.deleteDirectory(file);
 		
 		System.setProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY, file.getCanonicalPath());
 
@@ -210,26 +211,19 @@ public class EConceptUtility
 		
 		if (ibdfPreLoadFiles != null && ibdfPreLoadFiles.length > 0)
 		{
-			if (isaacDBExists)
+			ConsoleUtil.println("Loading ibdf files");
+			LoadTermstore lt = new LoadTermstore();
+			lt.setLog(new SystemStreamLog());
+			lt.setibdfFiles(ibdfPreLoadFiles);
+			lt.setActiveOnly(true);
+			//skip descriptions, acceptabilities
+			if (sememeTypesToSkip != null)
 			{
-				ConsoleUtil.println("Using existing isaac DB (skipping provided ibdf preload files (use 'mvn clean' to force it to rebuild the db)");
+				lt.skipSememeTypes(sememeTypesToSkip);
 			}
-			else
-			{
-				ConsoleUtil.println("Loading ibdf files");
-				LoadTermstore lt = new LoadTermstore();
-				lt.setLog(new SystemStreamLog());
-				lt.setibdfFiles(ibdfPreLoadFiles);
-				lt.setActiveOnly(true);
-				//skip descriptions, acceptabilities
-				if (sememeTypesToSkip != null)
-				{
-					lt.skipSememeTypes(sememeTypesToSkip);
-				}
-				lt.execute();
-				
-				new IndexTermstore().execute();
-			}
+			lt.execute();
+			
+			new IndexTermstore().execute();
 		}
 		
 		authorSeq_ = MetaData.USER.getConceptSequence();
