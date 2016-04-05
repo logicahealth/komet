@@ -144,6 +144,10 @@
                                     <classifier>all</classifier>
                                     <file>${project.build.directory}/${project.build.finalName}-xml-all.zip</file>
                                 </artifact>
+                                <artifact>
+                                    <type>yaml.zip</type>
+                                    <file>${project.build.directory}/${project.build.finalName}-yaml.zip</file>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
@@ -168,6 +172,7 @@
                     <descriptors>
                         <descriptor>src/main/assembly/ibdf.xml</descriptor>
                         <descriptor>src/main/assembly/xml-all.xml</descriptor>
+                        <descriptor>src/main/assembly/yaml.xml</descriptor>
                     </descriptors>
                     <!-- the default puts these in with the info in the classifier, but we want it as part of the type -->
                     <attach>false</attach>

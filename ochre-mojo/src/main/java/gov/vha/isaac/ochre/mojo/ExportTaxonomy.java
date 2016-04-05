@@ -5,11 +5,6 @@
  */
 package gov.vha.isaac.ochre.mojo;
 
-import gov.vha.isaac.ochre.api.IsaacTaxonomy;
-import gov.vha.isaac.ochre.api.LookupService;
-import gov.vha.isaac.ochre.api.constants.MetadataConceptConstant;
-import gov.vha.isaac.ochre.api.constants.ModuleProvidedConstants;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -19,12 +14,15 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import gov.vha.isaac.ochre.api.IsaacTaxonomy;
+import gov.vha.isaac.ochre.api.LookupService;
+import gov.vha.isaac.ochre.api.constants.MetadataConceptConstant;
+import gov.vha.isaac.ochre.api.constants.ModuleProvidedConstants;
 
 /**
  *
@@ -62,6 +60,8 @@ public class ExportTaxonomy extends AbstractMojo {
                          new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)))) {
                 
                 taxonomy.exportJavaBinding(writer, bindingPackage,  bindingClass);
+                taxonomy.exportYamlBinding(new FileWriter(new File(metadataDirectory.getAbsolutePath(), taxonomy.getClass().getSimpleName() + ".yaml")), 
+                    bindingPackage, bindingClass);
 
                 //taxonomy.exportJaxb(xmlData);
             }

@@ -25,7 +25,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -283,6 +282,32 @@ public class IsaacTaxonomy {
         }
 
         out.append("\n}\n");
+        out.close();
+    }
+    
+    public void exportYamlBinding(Writer out, String packageName, String className) throws IOException  {
+        out.append("#YAML Bindings for " + packageName + "." + className + "\n");
+        
+        for (ConceptBuilder concept : conceptBuildersInInsertionOrder) {
+            String preferredName = concept.getConceptDescriptionText();
+            String constantName = preferredName.toUpperCase();
+
+            if (preferredName.indexOf("(") > 0 || preferredName.indexOf(")") > 0) {
+                throw new RuntimeException("The metadata concept '" + preferredName + "' contains parens, which is illegal.");
+            }
+            constantName = constantName.replace(" ", "_");
+            constantName = constantName.replace("-", "_");
+            constantName = constantName.replace("+", "_PLUS");
+            constantName = constantName.replace("/", "_AND");
+
+            out.append("\n- " + constantName + ":\n");
+            out.append("    fsn: " + preferredName + "\n");
+            out.append("    uuids:\n");
+            for (UUID uuid : concept.getUuidList()) {
+                out.append("        - " + uuid.toString() + "\n");
+            }
+        }
+        out.close();
     }
 
     public void exportIBDF(Path exportFilePath) throws FileNotFoundException {
