@@ -619,7 +619,11 @@ public class EConceptUtility
 		@SuppressWarnings("unchecked")
 		SememeChronology<ComponentNidSememe<?>> sc = (SememeChronology<ComponentNidSememe<?>>)sb.build(
 				createStamp(state, selectTime(time, description), module), builtObjects);
-		
+		for (OchreExternalizable ochreObject : builtObjects)
+		{
+			writer_.put(ochreObject);
+		}
+
 		ls_.addAnnotation("Description", getOriginStringForUuid(dialectRefset));
 		return sc;
 	}
