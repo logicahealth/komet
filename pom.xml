@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gov.vha.isaac.ochre</groupId>
     <artifactId>isaac-parent</artifactId>
-    <version>3.02-SNAPSHOT</version>
+    <version>3.01</version>
     
     <name>ISAAC: (MMP) InformaticS Architecture ACceleration</name>
     
