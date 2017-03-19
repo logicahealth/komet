@@ -108,7 +108,7 @@ public class ObservableConceptChronologyImpl
             FXCollections.observableArrayList();
 
          this.descriptionListProperty =
-            new SimpleListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>>(this,
+            new SimpleListProperty<>(this,
                   ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT.toExternalString(),
                   observableList);
          this.chronicledObjectLocal.getConceptDescriptionList().stream().forEach((conceptDescriptionChronicle) -> {

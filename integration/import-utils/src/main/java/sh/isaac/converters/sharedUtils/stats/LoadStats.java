@@ -70,20 +70,19 @@ public class LoadStats {
    private final AtomicInteger generatedPreferredTermCount = new AtomicInteger();
 
    /** The descriptions. */
-   private final TreeMap<String, Integer> descriptions = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> descriptions = new TreeMap<>();
 
    /** The refset members. */
-   private final TreeMap<String, Integer> refsetMembers = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> refsetMembers = new TreeMap<>();
 
    /** The relationships. */
-   private final TreeMap<String, Integer> relationships = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> relationships = new TreeMap<>();
 
    /** The associations. */
-   private final TreeMap<String, Integer> associations = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> associations = new TreeMap<>();
 
    /** The annotations. */
-   private final TreeMap<String, TreeMap<String, Integer>> annotations = new TreeMap<String,
-                                                                             TreeMap<String, Integer>>();
+   private final TreeMap<String, TreeMap<String, Integer>> annotations = new TreeMap<>();
 
    /** The sync lock. */
    private final Object syncLock = new Object();
@@ -203,7 +202,7 @@ public class LoadStats {
          TreeMap<String, Integer> map = dataHolder.get(annotatedType);
 
          if (map == null) {
-            map = new TreeMap<String, Integer>();
+            map = new TreeMap<>();
          }
 
          Integer i = map.get(type);
@@ -254,7 +253,7 @@ public class LoadStats {
     * @return the summary
     */
    public ArrayList<String> getSummary() {
-      final ArrayList<String> result = new ArrayList<String>();
+      final ArrayList<String> result = new ArrayList<>();
 
       result.add("Concepts: " + this.concepts.get());
       result.add("Graphs: " + this.graphs.get());

@@ -107,7 +107,7 @@ public class TestConversionConfiguration {
       for (final ConverterOptionParam x: optionTypes) {
          if (x.getInternalName()
               .equals("moduleUUID")) {
-            options.put(x, new HashSet<String>(Arrays.asList(new String[] { "c82efad7-f4bf-5e81-b223-b5b0305f6652" })));
+            options.put(x, new HashSet<>(Arrays.asList(new String[] { "c82efad7-f4bf-5e81-b223-b5b0305f6652" })));
          }
       }
 

@@ -94,7 +94,7 @@ public class MappingUtils {
     * @return the code systems
     */
    public static List<SimpleDisplayConcept> getCodeSystems() {
-      final List<SimpleDisplayConcept> codeSystems = new ArrayList<SimpleDisplayConcept>();
+      final List<SimpleDisplayConcept> codeSystems = new ArrayList<>();
 
       CODE_SYSTEM_CONCEPTS.entrySet()
                           .forEach((item) -> codeSystems.add(new SimpleDisplayConcept(item.getKey(),

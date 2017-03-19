@@ -75,7 +75,7 @@ public class DynamicSememeArrayTest {
                                                                                       new DynamicSememeIntegerImpl(
                                                                                          Integer.MAX_VALUE) };
       final DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
-         new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(testDataOne);
+         new DynamicSememeArrayImpl<>(testDataOne);
 
       assertEquals(3, testOne.getDataArray().length);
       assertEquals(5, testOne.getDataArray()[0]
@@ -112,7 +112,7 @@ public class DynamicSememeArrayTest {
                                                                                     new DynamicSememeStringImpl(
                                                                                        "bye") };
       final DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
-         new DynamicSememeArrayImpl<DynamicSememeStringImpl>(testDataTwo);
+         new DynamicSememeArrayImpl<>(testDataTwo);
 
       assertEquals(2, testTwo.getDataArray().length);
       assertEquals("hi", testTwo.getDataArray()[0]

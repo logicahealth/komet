@@ -327,7 +327,7 @@ public class ConceptBuilderOchreImpl
                             .addUncommittedNoChecks(conceptChronology);
       }
 
-      return new OptionalWaitTask<ConceptChronology<?>>(primaryNested, conceptChronology, nestedBuilders);
+      return new OptionalWaitTask<>(primaryNested, conceptChronology, nestedBuilders);
    }
 
    /**

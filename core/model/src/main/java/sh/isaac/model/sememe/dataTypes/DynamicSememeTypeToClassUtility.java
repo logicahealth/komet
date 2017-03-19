@@ -67,7 +67,7 @@ public class DynamicSememeTypeToClassUtility {
          int columnNumber) {
       switch (type) {
       case ARRAY:
-         return new DynamicSememeArrayImpl<DynamicSememeData>(data, assemblageSequence, columnNumber);
+         return new DynamicSememeArrayImpl<>(data, assemblageSequence, columnNumber);
 
       case BOOLEAN:
          return new DynamicSememeBooleanImpl(data, assemblageSequence, columnNumber);
@@ -168,7 +168,7 @@ public class DynamicSememeTypeToClassUtility {
    protected static DynamicSememeData typeToClass(DynamicSememeDataType type, byte[] data) {
       switch (type) {
       case ARRAY:
-         return new DynamicSememeArrayImpl<DynamicSememeData>(data);
+         return new DynamicSememeArrayImpl<>(data);
 
       case BOOLEAN:
          return new DynamicSememeBooleanImpl(data);

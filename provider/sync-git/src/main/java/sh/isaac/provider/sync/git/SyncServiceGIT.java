@@ -867,7 +867,7 @@ public class SyncServiceGIT
                 .getName()
                 .equals(masterIdBeforeMerge.getName())) {
             log.info("No changes to merge");
-            return new HashSet<String>();
+            return new HashSet<>();
          }
 
          RevCommit stash = null;

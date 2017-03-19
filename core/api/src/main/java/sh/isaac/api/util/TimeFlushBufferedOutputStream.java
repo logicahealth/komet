@@ -133,7 +133,7 @@ public class TimeFlushBufferedOutputStream
     */
    private void scheduleFlush() {
       synchronized (instances) {
-         instances.add(new WeakReference<TimeFlushBufferedOutputStream>(this));
+         instances.add(new WeakReference<>(this));
       }
 
       // Just sync on something at the class level
@@ -141,7 +141,7 @@ public class TimeFlushBufferedOutputStream
          if (scheduledJob == null) {
             logger.info("Scheduling thread to flush time flush buffers");
             scheduledJob = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
-                     if (instances.size() == 0) {
+                     if (instances.isEmpty()) {
                         scheduledJob.cancel(false);
                         scheduledJob = null;
                         logger.info("Stopping time flush buffer thread, as no instances are registered");

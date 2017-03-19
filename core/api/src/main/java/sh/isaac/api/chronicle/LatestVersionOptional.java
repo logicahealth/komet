@@ -109,7 +109,7 @@ public class LatestVersionOptional<V> {
       if (contradictions == null) {
          this.contradictions = Optional.empty();
       } else {
-         this.contradictions = Optional.of(new HashSet<V>(contradictions));
+         this.contradictions = Optional.of(new HashSet<>(contradictions));
       }
    }
 
@@ -125,7 +125,7 @@ public class LatestVersionOptional<V> {
          this.value = value;
       } else {
          if (!this.contradictions.isPresent()) {
-            this.contradictions = Optional.of(new HashSet<V>());
+            this.contradictions = Optional.of(new HashSet<>());
          }
 
          this.contradictions.get()

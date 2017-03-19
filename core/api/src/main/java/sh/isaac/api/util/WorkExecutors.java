@@ -223,7 +223,7 @@ public class WorkExecutors {
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
-            new SynchronousQueue<Runnable>(),
+            new SynchronousQueue<>(),
             new NamedThreadFactory("ISAAC-B-work-thread", true));
       this.blockingThreadPoolExecutor.setRejectedExecutionHandler((runnable, executor) -> {
                try {
@@ -240,7 +240,7 @@ public class WorkExecutors {
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
-            new LinkedBlockingQueue<Runnable>(),
+            new LinkedBlockingQueue<>(),
             new NamedThreadFactory("ISAAC-Q-work-thread", true));
       this.threadPoolExecutor.allowCoreThreadTimeOut(true);
 
@@ -250,7 +250,7 @@ public class WorkExecutors {
             4,
             keepAliveTime,
             timeUnit,
-            new LinkedBlockingQueue<Runnable>(),
+            new LinkedBlockingQueue<>(),
             new NamedThreadFactory("ISAAC-IO-work-thread", true));
       this.ioThreadPoolExecutor.allowCoreThreadTimeOut(true);
 

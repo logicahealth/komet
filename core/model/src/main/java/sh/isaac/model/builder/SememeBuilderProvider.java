@@ -202,7 +202,7 @@ public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVe
       return new SememeBuilderImpl(referencedComponent,
                                    assemblageConceptSequence,
                                    SememeType.DYNAMIC,
-                                   new AtomicReference<DynamicSememeData[]>(data));
+                                   new AtomicReference<>(data));
    }
 
    /**
@@ -224,7 +224,7 @@ public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVe
       return new SememeBuilderImpl(referencedComponentNid,
                                    assemblageConceptSequence,
                                    SememeType.DYNAMIC,
-                                   new AtomicReference<DynamicSememeData[]>(data));
+                                   new AtomicReference<>(data));
    }
 
    /**

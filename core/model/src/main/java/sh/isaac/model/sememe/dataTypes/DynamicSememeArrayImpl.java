@@ -179,7 +179,7 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    @Override
    public ReadOnlyObjectProperty<T[]> getDataArrayProperty() {
       if (this.property == null) {
-         this.property = new SimpleObjectProperty<T[]>(null, getName(), getDataArray());
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataArray());
       }
 
       return this.property;

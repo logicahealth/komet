@@ -1779,7 +1779,7 @@ public class IBDFCreationUtility {
     */
    public void loadMetaDataItems(PropertyType propertyType, UUID parentPrimordial)
             throws Exception {
-      final ArrayList<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+      final ArrayList<PropertyType> propertyTypes = new ArrayList<>();
 
       propertyTypes.add(propertyType);
       loadMetaDataItems(propertyTypes, parentPrimordial);

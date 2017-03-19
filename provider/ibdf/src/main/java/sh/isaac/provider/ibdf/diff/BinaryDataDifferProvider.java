@@ -202,7 +202,7 @@ public class BinaryDataDifferProvider
 
       // Find existing
       for (final OchreExternalizableObjectType type: OchreExternalizableObjectType.values()) {
-         final Set<UUID> matchedSet = new HashSet<UUID>();
+         final Set<UUID> matchedSet = new HashSet<>();
 
          if ((type != OchreExternalizableObjectType.CONCEPT) && (type != OchreExternalizableObjectType.SEMEME)) {
             // Given using the OchreExternalizableObjectType.values()
@@ -348,8 +348,8 @@ public class BinaryDataDifferProvider
 
       final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> retMap = new HashMap<>();
 
-      retMap.put(OchreExternalizableObjectType.CONCEPT, new HashSet<OchreExternalizable>());
-      retMap.put(OchreExternalizableObjectType.SEMEME, new HashSet<OchreExternalizable>());
+      retMap.put(OchreExternalizableObjectType.CONCEPT, new HashSet<>());
+      retMap.put(OchreExternalizableObjectType.SEMEME, new HashSet<>());
 
       try {
          reader.getStream().forEach((object) -> {

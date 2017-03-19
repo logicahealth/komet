@@ -113,7 +113,7 @@ public abstract class PropertyType {
    protected PropertyType(String propertyTypeDescription,
                           boolean createAsDynamicRefex,
                           DynamicSememeDataType defaultDynamicRefexColumnType) {
-      this.properties              = new HashMap<String, Property>();
+      this.properties              = new HashMap<>();
       this.propertyTypeDescription = propertyTypeDescription;
       this.createAsDynamicRefex    = createAsDynamicRefex;
       this.defaultDataColumn       = defaultDynamicRefexColumnType;

@@ -162,7 +162,7 @@ public class SememeIndexerConfiguration {
          }
 
          if (cols.length > 0) {
-            data = new DynamicSememeData[] { new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(cols) };
+            data = new DynamicSememeData[] { new DynamicSememeArrayImpl<>(cols) };
          }
       } else if (((columnsToIndex == null) || (columnsToIndex.length == 0))) {
          throw new RuntimeException("It doesn't make sense to index a dynamic sememe without indexing any column data");
@@ -237,7 +237,7 @@ public class SememeIndexerConfiguration {
          }
 
          if (cols.length > 0) {
-            data = new DynamicSememeData[] { new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(cols) };
+            data = new DynamicSememeData[] { new DynamicSememeArrayImpl<>(cols) };
          }
       } else if (((columnsToIndex == null) || (columnsToIndex.length == 0))) {
          throw new RuntimeException("It doesn't make sense to index a dynamic sememe without indexing any column data");

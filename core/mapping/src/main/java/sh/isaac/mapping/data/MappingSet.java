@@ -290,7 +290,7 @@ public class MappingSet
          mappingItems = MappingItemDAO.getMappingItems(this.getPrimordialUUID(), stampCoord);
       } catch (final Exception e) {
          LOG.error("Error retrieving Mapping Items for " + this.getName(), e);
-         mappingItems = new ArrayList<MappingItem>();
+         mappingItems = new ArrayList<>();
       }
 
       return mappingItems;

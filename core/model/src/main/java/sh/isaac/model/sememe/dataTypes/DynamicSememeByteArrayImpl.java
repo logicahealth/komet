@@ -104,7 +104,7 @@ public class DynamicSememeByteArrayImpl
    @Override
    public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() {
       if (this.property == null) {
-         this.property = new SimpleObjectProperty<byte[]>(null, getName(), this.data);
+         this.property = new SimpleObjectProperty<>(null, getName(), this.data);
       }
 
       return this.property;

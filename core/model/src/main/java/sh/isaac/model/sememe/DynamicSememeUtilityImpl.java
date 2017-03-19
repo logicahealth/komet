@@ -120,7 +120,7 @@ public class DynamicSememeUtilityImpl
          }
 
          if (temp.size() > 0) {
-            return new DynamicSememeArrayImpl<DynamicSememeData>(temp.toArray(new DynamicSememeData[temp.size()]));
+            return new DynamicSememeArrayImpl<>(temp.toArray(new DynamicSememeData[temp.size()]));
          }
       }
 
@@ -155,7 +155,7 @@ public class DynamicSememeUtilityImpl
             validators[i] = new DynamicSememeStringImpl(ci.getValidator()[i].name());
          }
 
-         data[5] = new DynamicSememeArrayImpl<DynamicSememeString>(validators);
+         data[5] = new DynamicSememeArrayImpl<>(validators);
       } else {
          data[5] = null;
       }
@@ -169,7 +169,7 @@ public class DynamicSememeUtilityImpl
                     .getDynamicSememeDataType());
          }
 
-         data[6] = new DynamicSememeArrayImpl<DynamicSememeData>(validatorData);
+         data[6] = new DynamicSememeArrayImpl<>(validatorData);
       } else {
          data[6] = null;
       }

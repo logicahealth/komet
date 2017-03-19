@@ -560,7 +560,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public HashMap<String, Integer> reportIndexedItems() {
-      final HashMap<String, Integer> result = new HashMap<String, Integer>();
+      final HashMap<String, Integer> result = new HashMap<>();
 
       this.indexedComponentStatistics.forEach((name, value) -> {
                result.put(name, value.get());

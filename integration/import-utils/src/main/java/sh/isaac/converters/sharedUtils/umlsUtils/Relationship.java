@@ -88,10 +88,10 @@ public class Relationship {
    //~--- fields --------------------------------------------------------------
 
    /** The name 1 snomed code. */
-   private final HashSet<String> name1SnomedCode = new HashSet<String>();
+   private final HashSet<String> name1SnomedCode = new HashSet<>();
 
    /** The name 2 snomed code. */
-   private final HashSet<String> name2SnomedCode = new HashSet<String>();
+   private final HashSet<String> name2SnomedCode = new HashSet<>();
 
    /** The name 1. */
    private String name1;
@@ -400,7 +400,7 @@ public class Relationship {
                }
             }
 
-            if (new HashSet<String>(Arrays.asList(new String[] {
+            if (new HashSet<>(Arrays.asList(new String[] {
                "RB", "RN", "QB", "AQ", "PAR", "CHD"
             })).contains(rel)) {
                if (rel.equals("RN") || rel.equals("AQ") || rel.equals("CHD")) {

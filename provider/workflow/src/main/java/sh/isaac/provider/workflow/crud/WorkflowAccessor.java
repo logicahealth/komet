@@ -515,7 +515,7 @@ public class WorkflowAccessor {
             .values()) {
          if (action.getDefinitionId().equals(definitionId) && userRoles.contains(action.getRole())) {
             if (!applicableActions.containsKey(action.getInitialState())) {
-               applicableActions.put(action.getInitialState(), new HashSet<AvailableAction>());
+               applicableActions.put(action.getInitialState(), new HashSet<>());
             }
 
             applicableActions.get(action.getInitialState())

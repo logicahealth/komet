@@ -274,7 +274,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
       this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
-      return new OptionalWaitTask<T>(null, (T) newDescription.getNoWait(), nestedBuilders);
+      return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);
    }
 }
 

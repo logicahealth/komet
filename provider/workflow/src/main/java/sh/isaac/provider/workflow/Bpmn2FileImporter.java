@@ -115,7 +115,7 @@ public class Bpmn2FileImporter {
    final boolean printForAnalysis = false;
 
    /** The nodes discovered and processed when importing a BPMN2 file. */
-   private final List<Node> processNodes = new ArrayList<Node>();
+   private final List<Node> processNodes = new ArrayList<>();
 
    /**
     * The list of nodes already processed to prevent re-processing already
@@ -133,13 +133,13 @@ public class Bpmn2FileImporter {
     * A map detailing each node's outgoing connections to other nodes.
     * Populated during node discovery and used during node processing.
     */
-   private final Map<Long, List<Long>> nodeToOutgoingMap = new HashMap<Long, List<Long>>();
+   private final Map<Long, List<Long>> nodeToOutgoingMap = new HashMap<>();
 
    /**
     * A map of all nodes to their name. Populated during node discovery and
     * used during node processing.
     */
-   private final Map<Long, String> nodeNameMap = new HashMap<Long, String>();
+   private final Map<Long, String> nodeNameMap = new HashMap<>();
 
    /** A list of all editing states observed during importing of BPMN2 file. */
    private final Set<String> currentEditStates = new HashSet<>();
@@ -425,7 +425,7 @@ public class Bpmn2FileImporter {
          this.visitedNodes.add(node.getId());
          retList.add(node.getId());
 
-         final List<Long> outgoingNodeIds = new ArrayList<Long>();
+         final List<Long> outgoingNodeIds = new ArrayList<>();
 
          for (final Node n: getOutgoingNodes(node)) {
             outgoingNodeIds.add(n.getId());
@@ -486,14 +486,14 @@ public class Bpmn2FileImporter {
       // Handle special cases denoted by flag
       if (flag.equalsIgnoreCase(EndWorkflowType.CANCELED.toString())) {
          if (!this.endNodeTypeMap.containsKey(EndWorkflowType.CANCELED)) {
-            this.endNodeTypeMap.put(EndWorkflowType.CANCELED, new HashSet<AvailableAction>());
+            this.endNodeTypeMap.put(EndWorkflowType.CANCELED, new HashSet<>());
          }
 
          this.endNodeTypeMap.get(EndWorkflowType.CANCELED)
                             .addAll(availActions);
       } else if (flag.equalsIgnoreCase(EndWorkflowType.CONCLUDED.toString())) {
          if (!this.endNodeTypeMap.containsKey(EndWorkflowType.CONCLUDED)) {
-            this.endNodeTypeMap.put(EndWorkflowType.CONCLUDED, new HashSet<AvailableAction>());
+            this.endNodeTypeMap.put(EndWorkflowType.CONCLUDED, new HashSet<>());
          }
 
          this.endNodeTypeMap.get(EndWorkflowType.CONCLUDED)
@@ -521,7 +521,7 @@ public class Bpmn2FileImporter {
       final List<Long> nodesInOrder = identifyOutputOrder(this.ruleFlow.getStartNodes()
                                                                        .iterator()
                                                                        .next(),
-                                                          new ArrayList<Long>());
+                                                          new ArrayList<>());
 
       // Populate the actual nodes object
       for (final Long nodeId: nodesInOrder) {
@@ -902,7 +902,7 @@ public class Bpmn2FileImporter {
     * @return The outgoing nodes
     */
    private List<Node> getOutgoingNodes(Node node) {
-      final List<Node> retList = new ArrayList<Node>();
+      final List<Node> retList = new ArrayList<>();
 
       for (final Iterator<List<Connection>> it = node.getOutgoingConnections().values().iterator(); it.hasNext(); ) {
          final List<Connection> list = it.next();

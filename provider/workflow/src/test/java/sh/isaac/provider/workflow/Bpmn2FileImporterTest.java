@@ -152,7 +152,7 @@ public class Bpmn2FileImporterTest
             .getAvailableActionStore()
             .values()) {
          if (!actionMap.containsKey(action.getInitialState())) {
-            actionMap.put(action.getInitialState(), new HashSet<AvailableAction>());
+            actionMap.put(action.getInitialState(), new HashSet<>());
          }
 
          actionMap.get(action.getInitialState())

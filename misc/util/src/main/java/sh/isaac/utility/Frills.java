@@ -882,7 +882,7 @@ public class Frills
     * @return the set of concept sequence ids that represent the children
     */
    public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly) {
-      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptSequence, recursive, leafOnly);
+      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<>(), conceptSequence, recursive, leafOnly);
 
       if (leafOnly && (temp.size() == 1)) {
          temp.remove(conceptSequence);

@@ -148,7 +148,7 @@ public class RRFDatabaseHandle
             HashMap<String, String> nested = mrCol.get(temp[6]);
 
             if (nested == null) {
-               nested = new HashMap<String, String>();
+               nested = new HashMap<>();
                mrCol.put(temp[6], nested);
             }
 

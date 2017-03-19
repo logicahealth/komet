@@ -679,10 +679,10 @@ public class RelativePositionCalculator
       }
 
       if (latestVersionList.size() == 1) {
-         return Optional.of(new LatestVersion<V>(latestVersionList.get(0)));
+         return Optional.of(new LatestVersion<>(latestVersionList.get(0)));
       }
 
-      return Optional.of(new LatestVersion<V>(latestVersionList.get(0),
+      return Optional.of(new LatestVersion<>(latestVersionList.get(0),
             latestVersionList.subList(1, latestVersionList.size())));
    }
 
@@ -729,10 +729,10 @@ public class RelativePositionCalculator
       }
 
       if (latestVersionList.size() == 1) {
-         return Optional.of(new LatestVersion<V>(latestVersionList.get(0)));
+         return Optional.of(new LatestVersion<>(latestVersionList.get(0)));
       }
 
-      return Optional.of(new LatestVersion<V>(latestVersionList.get(0),
+      return Optional.of(new LatestVersion<>(latestVersionList.get(0),
             latestVersionList.subList(1, latestVersionList.size())));
    }
 

@@ -207,7 +207,7 @@ public class MappingItemCommentDAO
    public static List<MappingItemComment> getComments(UUID mappingUUID,
          StampCoordinate stampCoord)
             throws RuntimeException {
-      final List<MappingItemComment> comments = new ArrayList<MappingItemComment>();
+      final List<MappingItemComment> comments = new ArrayList<>();
 
       Get.sememeService().getSememesForComponentFromAssemblage(Get.identifierService()
             .getNidForUuids(mappingUUID),

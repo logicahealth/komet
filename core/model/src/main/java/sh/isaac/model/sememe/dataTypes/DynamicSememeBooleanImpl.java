@@ -116,7 +116,7 @@ public class DynamicSememeBooleanImpl
    @Override
    public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
       if (this.property == null) {
-         this.property = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataBoolean());
       }
 
       return this.property;

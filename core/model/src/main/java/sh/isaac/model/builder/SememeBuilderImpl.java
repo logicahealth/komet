@@ -381,7 +381,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
             changeCheckerMode,
             builtObjects)));
       builtObjects.add(sememeChronicle);
-      return new OptionalWaitTask<C>(primaryNested, (C) sememeChronicle, nested);
+      return new OptionalWaitTask<>(primaryNested, (C) sememeChronicle, nested);
    }
 }
 

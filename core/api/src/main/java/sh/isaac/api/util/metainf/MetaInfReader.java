@@ -111,7 +111,7 @@ public class MetaInfReader {
 
          // find the pom.properties file in the hierarchy
          final File                    dbMetadata      = new File(dbLocation.toFile(), "META-INF");
-         final AtomicReference<String> metadataVersion = new AtomicReference<String>("");
+         final AtomicReference<String> metadataVersion = new AtomicReference<>("");
 
          if (dbMetadata.isDirectory()) {
             Files.walkFileTree(dbMetadata.toPath(),

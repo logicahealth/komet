@@ -182,19 +182,19 @@ public class WorkflowProvider
     */
    private synchronized void reCacheStoreRefs() {
       this.logger.info("Getting storage refs from metastore " + this);
-      this.availableActionContentStore = new WorkflowContentStore<AvailableAction>(Get.metaContentService().<UUID,
+      this.availableActionContentStore = new WorkflowContentStore<>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.AVAILABLE_ACTION.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new AvailableAction(bytes));
-      this.definitionDetailContentStore = new WorkflowContentStore<DefinitionDetail>(Get.metaContentService().<UUID,
+      this.definitionDetailContentStore = new WorkflowContentStore<>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.DEFINITION_DETAIL.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new DefinitionDetail(bytes));
-      this.processDetailContentStore = new WorkflowContentStore<ProcessDetail>(Get.metaContentService().<UUID,
+      this.processDetailContentStore = new WorkflowContentStore<>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.PROCESS_DEFINITION.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new ProcessDetail(bytes));
-      this.processHistoryContentStore = new WorkflowContentStore<ProcessHistory>(Get.metaContentService().<UUID,
+      this.processHistoryContentStore = new WorkflowContentStore<>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.HISTORICAL_WORKFLOW.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new ProcessHistory(bytes));

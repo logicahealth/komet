@@ -124,10 +124,10 @@ public class RepositoryModel
       this.lastChange           = lastchange;
       this.accessRestriction    = AccessRestrictionType.VIEW.toString();
       this.authorizationControl = AuthorizationControl.NAMED.toString();
-      this.federationSets       = new ArrayList<String>();
+      this.federationSets       = new ArrayList<>();
       this.federationStrategy   = FederationStrategy.FEDERATE_THIS.toString();
       this.projectPath          = StringUtils.getFirstPathElement(name);
-      this.owners               = new ArrayList<String>();
+      this.owners               = new ArrayList<>();
       this.isBare               = true;
       this.acceptNewTickets     = true;
       this.acceptNewPatchsets   = true;
