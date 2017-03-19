@@ -80,12 +80,7 @@ public abstract class AbstractUuidToIntHashMap
     * @return {@code true} if the receiver contains the specified key.
     */
    public boolean containsKey(final long[] key) {
-      return !forEachKey(new UuidProcedure() {
-                            @Override
-                            public boolean apply(long[] iterKey) {
-                               return ((key[0] != iterKey[0]) || (key[1] != iterKey[1]));
-                            }
-                         });
+      return !forEachKey(iterKey -> ((key[0] != iterKey[0]) || (key[1] != iterKey[1])));
    }
 
    /**
@@ -124,11 +119,7 @@ public abstract class AbstractUuidToIntHashMap
     * otherwise.
     */
    public boolean forEachPair(final UuidIntProcedure procedure) {
-      return forEachKey(new UuidProcedure() {
-                           public boolean apply(long[] key) {
-                              return procedure.apply(key, get(key));
-                           }
-                        });
+      return forEachKey(key -> procedure.apply(key, get(key)));
    }
 
    /**
@@ -142,9 +133,9 @@ public abstract class AbstractUuidToIntHashMap
     */
    public long[] keyOf(final int value) {
       final long[] foundKey = new long[2];
-      boolean      notFound = forEachPair((long[] iterKey,
+      final boolean      notFound = forEachPair((long[] iterKey,
                                            int iterValue) -> {
-               boolean found = value == iterValue;
+               final boolean found = value == iterValue;
 
                if (found) {
                   foundKey[0] = iterKey[0];
@@ -170,7 +161,7 @@ public abstract class AbstractUuidToIntHashMap
     * @return the keys.
     */
    public UuidArrayList keys() {
-      UuidArrayList list = new UuidArrayList(size());
+      final UuidArrayList list = new UuidArrayList(size());
 
       keys(list);
       return list;
@@ -187,13 +178,10 @@ public abstract class AbstractUuidToIntHashMap
     */
    public void keys(final UuidArrayList list) {
       list.clear();
-      forEachKey(new UuidProcedure() {
-                    @Override
-                    public boolean apply(long[] key) {
-                       list.add(key);
-                       return true;
-                    }
-                 });
+      forEachKey(key -> {
+	   list.add(key);
+	   return true;
+	});
    }
 
    /**
@@ -298,19 +286,19 @@ public abstract class AbstractUuidToIntHashMap
     */
    @Override
    public String toString() {
-      UuidArrayList theKeys = keys();
+      final UuidArrayList theKeys = keys();
 
       theKeys.sort();
 
-      StringBuilder buf = new StringBuilder();
+      final StringBuilder buf = new StringBuilder();
 
       buf.append("[");
 
-      int maxIndex = theKeys.size() - 1;
+      final int maxIndex = theKeys.size() - 1;
 
       for (int i = 0; i <= maxIndex; i++) {
-         long[] key     = theKeys.get(i);
-         UUID   uuidKey = new UUID(key[0], key[1]);
+         final long[] key     = theKeys.get(i);
+         final UUID   uuidKey = new UUID(key[0], key[1]);
 
          buf.append(uuidKey.toString());
          buf.append("->");
@@ -334,7 +322,7 @@ public abstract class AbstractUuidToIntHashMap
     * @return the values.
     */
    public IntArrayList values() {
-      IntArrayList list = new IntArrayList(size());
+      final IntArrayList list = new IntArrayList(size());
 
       values(list);
       return list;
@@ -351,13 +339,10 @@ public abstract class AbstractUuidToIntHashMap
     */
    public void values(final IntArrayList list) {
       list.clear();
-      forEachKey(new UuidProcedure() {
-                    @Override
-                    public boolean apply(long[] key) {
-                       list.add(get(key));
-                       return true;
-                    }
-                 });
+      forEachKey(key -> {
+	   list.add(get(key));
+	   return true;
+	});
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -65,7 +65,7 @@ public enum ObjectChronologyType {
    //~--- constructors --------------------------------------------------------
 
    private ObjectChronologyType(String niceName) {
-      niceName_ = niceName;
+      this.niceName_ = niceName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -75,14 +75,14 @@ public enum ObjectChronologyType {
          return null;
       }
 
-      String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
                                  .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;
       }
 
-      for (ObjectChronologyType ct: values()) {
+      for (final ObjectChronologyType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
                ct.niceName_.toLowerCase(Locale.ENGLISH).equals(clean) ||
                (ct.ordinal() + "").equals(clean)) {
@@ -102,7 +102,7 @@ public enum ObjectChronologyType {
     */
    @Override
    public String toString() {
-      return niceName_;
+      return this.niceName_;
    }
 }
 

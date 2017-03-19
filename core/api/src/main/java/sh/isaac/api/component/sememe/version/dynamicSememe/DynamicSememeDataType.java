@@ -97,9 +97,9 @@ public enum DynamicSememeDataType {
    private DynamicSememeDataType(int externalizedToken,
                                  Class<? extends DynamicSememeData> dataClass,
                                  String displayName) {
-      externalizedToken_ = externalizedToken;
-      dataClass_         = dataClass;
-      displayName_       = displayName;
+      this.externalizedToken_ = externalizedToken;
+      this.dataClass_         = dataClass;
+      this.displayName_       = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -163,7 +163,7 @@ public enum DynamicSememeDataType {
          return null;
       }
 
-      String clean = nameOrTokenOrEnumId.toLowerCase(Locale.ENGLISH)
+      final String clean = nameOrTokenOrEnumId.toLowerCase(Locale.ENGLISH)
                                         .trim();
 
       if (StringUtils.isBlank(clean)) {
@@ -171,7 +171,7 @@ public enum DynamicSememeDataType {
       }
 
       try {
-         int i = Integer.parseInt(clean);
+         final int i = Integer.parseInt(clean);
 
          if (i > 100) {
             return getFromToken(i);
@@ -179,8 +179,8 @@ public enum DynamicSememeDataType {
             // enumId
             return DynamicSememeDataType.values()[i];
          }
-      } catch (NumberFormatException e) {
-         for (DynamicSememeDataType x: DynamicSememeDataType.values()) {
+      } catch (final NumberFormatException e) {
+         for (final DynamicSememeDataType x: DynamicSememeDataType.values()) {
             if (x.displayName_.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
                return x;
             }
@@ -261,11 +261,11 @@ public enum DynamicSememeDataType {
    }
 
    public String getDisplayName() {
-      return displayName_;
+      return this.displayName_;
    }
 
    public Class<? extends DynamicSememeData> getDynamicSememeMemberClass() {
-      return dataClass_;
+      return this.dataClass_;
    }
 
    public static DynamicSememeDataType getFromToken(int type)

@@ -61,7 +61,7 @@ public interface ConceptSpecification
     * @return A string to specify a concept externally, including a description, followed by a FIELD_SEPARATOR, and the Uuids for this concept, each UUID also separated by a FIELD_SEPARATOR.
     */
    default String toExternalString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append(getConceptDescriptionText());
       getUuidList().stream().forEach((uuid) -> {

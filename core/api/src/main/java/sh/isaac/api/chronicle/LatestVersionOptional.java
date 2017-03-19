@@ -76,12 +76,12 @@ public class LatestVersionOptional<V> {
    //~--- constructors --------------------------------------------------------
 
    public LatestVersionOptional() {
-      contradictions = Optional.empty();
+      this.contradictions = Optional.empty();
    }
 
    public LatestVersionOptional(V latest) {
       this.value     = Objects.requireNonNull(latest, "latest version cannot be null");
-      contradictions = Optional.empty();
+      this.contradictions = Optional.empty();
    }
 
    public LatestVersionOptional(V latest, Collection<V> contradictions) {
@@ -100,11 +100,11 @@ public class LatestVersionOptional<V> {
       if (this.value == null) {
          this.value = value;
       } else {
-         if (!contradictions.isPresent()) {
-            contradictions = Optional.of(new HashSet<V>());
+         if (!this.contradictions.isPresent()) {
+            this.contradictions = Optional.of(new HashSet<V>());
          }
 
-         contradictions.get()
+         this.contradictions.get()
                        .add(value);
       }
    }
@@ -123,6 +123,7 @@ public class LatestVersionOptional<V> {
     */
    public static <V> LatestVersionOptional<V> empty() {
       @SuppressWarnings("unchecked")
+	final
       LatestVersionOptional<V> t = (LatestVersionOptional<V>) EMPTY;
 
       return t;
@@ -151,9 +152,9 @@ public class LatestVersionOptional<V> {
          return false;
       }
 
-      LatestVersionOptional<?> other = (LatestVersionOptional<?>) obj;
+      final LatestVersionOptional<?> other = (LatestVersionOptional<?>) obj;
 
-      return Objects.equals(value, other.value);
+      return Objects.equals(this.value, other.value);
    }
 
    /**
@@ -173,7 +174,7 @@ public class LatestVersionOptional<V> {
       if (!isPresent()) {
          return this;
       } else {
-         return predicate.test(value) ? this
+         return predicate.test(this.value) ? this
                                       : empty();
       }
    }
@@ -201,7 +202,7 @@ public class LatestVersionOptional<V> {
       if (!isPresent()) {
          return empty();
       } else {
-         return Objects.requireNonNull(mapper.apply(value));
+         return Objects.requireNonNull(mapper.apply(this.value));
       }
    }
 
@@ -213,7 +214,7 @@ public class LatestVersionOptional<V> {
     */
    @Override
    public int hashCode() {
-      return Objects.hashCode(value);
+      return Objects.hashCode(this.value);
    }
 
    /**
@@ -225,8 +226,8 @@ public class LatestVersionOptional<V> {
     * null
     */
    public void ifPresent(Consumer<? super V> consumer) {
-      if (value != null) {
-         consumer.accept(value);
+      if (this.value != null) {
+         consumer.accept(this.value);
       }
    }
 
@@ -265,7 +266,7 @@ public class LatestVersionOptional<V> {
       if (!isPresent()) {
          return empty();
       } else {
-         return LatestVersionOptional.ofNullable(mapper.apply(value));
+         return LatestVersionOptional.ofNullable(mapper.apply(this.value));
       }
    }
 
@@ -303,7 +304,7 @@ public class LatestVersionOptional<V> {
     * @return the value, if present, otherwise {@code other}
     */
    public V orElse(V other) {
-      return (value != null) ? value
+      return (this.value != null) ? this.value
                              : other;
    }
 
@@ -318,7 +319,7 @@ public class LatestVersionOptional<V> {
     * null
     */
    public V orElseGet(Supplier<? extends V> other) {
-      return (value != null) ? value
+      return (this.value != null) ? this.value
                              : other.get();
    }
 
@@ -340,8 +341,8 @@ public class LatestVersionOptional<V> {
     */
    public <X extends Throwable> V orElseThrow(Supplier<? extends X> exceptionSupplier)
             throws X {
-      if (value != null) {
-         return value;
+      if (this.value != null) {
+         return this.value;
       } else {
          throw exceptionSupplier.get();
       }
@@ -360,7 +361,7 @@ public class LatestVersionOptional<V> {
     */
    @Override
    public String toString() {
-      return (value != null) ? String.format("LatestVersionOptional[%s]", value)
+      return (this.value != null) ? String.format("LatestVersionOptional[%s]", this.value)
                              : "LatestVersionOptional.empty";
    }
 
@@ -376,11 +377,11 @@ public class LatestVersionOptional<V> {
     * @see LatestVersionOptional#isPresent()
     */
    public V get() {
-      if (value == null) {
+      if (this.value == null) {
          throw new NoSuchElementException("No value present");
       }
 
-      return value;
+      return this.value;
    }
 
    /**
@@ -389,7 +390,7 @@ public class LatestVersionOptional<V> {
     * @return {@code true} if there is a value present, otherwise {@code false}
     */
    public boolean isPresent() {
-      return value != null;
+      return this.value != null;
    }
 }
 

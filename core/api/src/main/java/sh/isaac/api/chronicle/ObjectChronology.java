@@ -137,10 +137,10 @@ public interface ObjectChronology<V extends StampedVersion>
     * ascending order (oldest version first, newest version last).
     */
    default List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-      RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
-      SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
+      final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
+      final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
                                                                     V graph2) -> {
-               RelativePosition relativePosition = calc.fastRelativePosition(graph1,
+               final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
                                                                              graph2,
                                                                              stampCoordinate.getStampPrecedence());
 

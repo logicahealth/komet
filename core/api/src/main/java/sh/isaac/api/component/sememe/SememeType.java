@@ -75,7 +75,7 @@ public enum SememeType {
    DYNAMIC((byte) 6, "Dynamic Sememe"),
    DESCRIPTION((byte) 7, "Description"),
    RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
-   UNKNOWN((byte) Byte.MAX_VALUE, "Unknown");
+   UNKNOWN(Byte.MAX_VALUE, "Unknown");
 
    final byte   sememeToken;
    final String niceName_;
@@ -94,14 +94,14 @@ public enum SememeType {
          return null;
       }
 
-      String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
                                  .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;
       }
 
-      for (SememeType ct: values()) {
+      for (final SememeType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
                ct.niceName_.toLowerCase(Locale.ENGLISH).equals(clean) ||
                (ct.ordinal() + "").equals(clean)) {
@@ -118,7 +118,7 @@ public enum SememeType {
 
    @Override
    public String toString() {
-      return niceName_;
+      return this.niceName_;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -155,13 +155,13 @@ public enum SememeType {
    public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
       switch (this) {
       case COMPONENT_NID:
-         return (Class<? extends ObservableSememeVersion>) ObservableComponentNidSememe.class;
+         return ObservableComponentNidSememe.class;
 
       case DESCRIPTION:
-         return (Class<? extends ObservableSememeVersion>) ObservableDescriptionSememe.class;
+         return ObservableDescriptionSememe.class;
 
       case MEMBER:
-         return (Class<? extends ObservableSememeVersion>) ObservableSememeVersion.class;
+         return ObservableSememeVersion.class;
 
       case DYNAMIC:
 
@@ -181,32 +181,32 @@ public enum SememeType {
    }
 
    public byte getSememeToken() {
-      return sememeToken;
+      return this.sememeToken;
    }
 
    @SuppressWarnings("rawtypes")
    public Class<? extends SememeVersion> getSememeVersionClass() {
       switch (this) {
       case COMPONENT_NID:
-         return (Class<? extends SememeVersion>) ComponentNidSememe.class;
+         return ComponentNidSememe.class;
 
       case DESCRIPTION:
-         return (Class<? extends SememeVersion>) DescriptionSememe.class;
+         return DescriptionSememe.class;
 
       case MEMBER:
-         return (Class<? extends SememeVersion>) SememeVersion.class;
+         return SememeVersion.class;
 
       case DYNAMIC:
-         return (Class<? extends SememeVersion>) DynamicSememe.class;
+         return DynamicSememe.class;
 
       case LOGIC_GRAPH:
-         return (Class<? extends SememeVersion>) LogicGraphSememe.class;
+         return LogicGraphSememe.class;
 
       case LONG:
-         return (Class<? extends SememeVersion>) LongSememe.class;
+         return LongSememe.class;
 
       case STRING:
-         return (Class<? extends SememeVersion>) StringSememe.class;
+         return StringSememe.class;
 
       default:
          throw new RuntimeException("Can't handle: " + this);

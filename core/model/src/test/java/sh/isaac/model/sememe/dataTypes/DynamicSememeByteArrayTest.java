@@ -64,22 +64,22 @@ public class DynamicSememeByteArrayTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      byte[][] testValues = new byte[][] {
+      final byte[][] testValues = new byte[][] {
          "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes()
       };
 
-      for (byte[] i: testValues) {
+      for (final byte[] i: testValues) {
          test(i);
       }
    }
 
    private void test(byte[] value)
             throws PropertyVetoException, IOException {
-      DynamicSememeByteArrayImpl i = new DynamicSememeByteArrayImpl(value);
+      final DynamicSememeByteArrayImpl i = new DynamicSememeByteArrayImpl(value);
 
       assertEquals(value, i.getDataByteArray());
-      assertEquals(value, (byte[]) i.getDataObject());
-      assertEquals(value, (byte[]) i.getDataObjectProperty()
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
                                     .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BYTEARRAY);
    }

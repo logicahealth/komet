@@ -124,7 +124,7 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
              .append(Get.stampService()
-                        .describeStampSequence(stampSequence));
+                        .describeStampSequence(this.stampSequence));
       return builder;
    }
 
@@ -141,8 +141,8 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
    }
 
    protected void writeVersionData(ByteArrayDataBuffer data) {
-      data.putStampSequence(stampSequence);
-      data.putShort(versionSequence);
+      data.putStampSequence(this.stampSequence);
+      data.putShort(this.versionSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -150,7 +150,7 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
    @Override
    public int getAuthorSequence() {
       return Get.stampService()
-                .getAuthorSequenceForStamp(stampSequence);
+                .getAuthorSequenceForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -180,7 +180,7 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
    @Override
    public int getModuleSequence() {
       return Get.stampService()
-                .getModuleSequenceForStamp(stampSequence);
+                .getModuleSequenceForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -200,13 +200,13 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    @Override
    public int getNid() {
-      return chronicle.getNid();
+      return this.chronicle.getNid();
    }
 
    @Override
    public int getPathSequence() {
       return Get.stampService()
-                .getPathSequenceForStamp(stampSequence);
+                .getPathSequenceForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -226,24 +226,24 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    @Override
    public UUID getPrimordialUuid() {
-      return chronicle.getPrimordialUuid();
+      return this.chronicle.getPrimordialUuid();
    }
 
    @Override
    public int getStampSequence() {
-      return stampSequence;
+      return this.stampSequence;
    }
 
    @Override
    public State getState() {
       return Get.stampService()
-                .getStatusForStamp(stampSequence);
+                .getStatusForStamp(this.stampSequence);
    }
 
    @Override
    public long getTime() {
       return Get.stampService()
-                .getTimeForStamp(stampSequence);
+                .getTimeForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -268,11 +268,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    @Override
    public List<UUID> getUuidList() {
-      return chronicle.getUuidList();
+      return this.chronicle.getUuidList();
    }
 
    public short getVersionSequence() {
-      return versionSequence;
+      return this.versionSequence;
    }
 
    //~--- set methods ---------------------------------------------------------

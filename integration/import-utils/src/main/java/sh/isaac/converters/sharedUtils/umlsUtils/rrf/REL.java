@@ -58,10 +58,25 @@ import sh.isaac.converters.sharedUtils.umlsUtils.Relationship;
 //~--- classes ----------------------------------------------------------------
 
 public class REL {
-   private String cui1, aui1, stype1, rel, cui2, aui2, stype2, rela, rui, srui, sab, sl, rg, dir, suppress, cvf,
-                  targetSAB, targetCODE, sourceSAB;
+   private final String cui1, aui1, stype1;
+private String rel;
+private final String cui2;
+private final String aui2;
+private final String stype2;
+private String rela;
+private final String rui;
+private final String srui;
+private final String sab;
+private final String sl;
+private final String rg;
+private final String dir;
+private final String suppress;
+private final String cvf;
+private String targetSAB;
+private String targetCODE;
+private final String sourceSAB;
    private UUID    sourceUUID_, targetUUID_, relHash_;
-   private boolean lookedUp2_;
+   private final boolean lookedUp2_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -71,40 +86,40 @@ public class REL {
                boolean isRxNorm,
                Function<String, String> relReverser)
             throws SQLException {
-      sourceSAB  = sourceSab;
-      lookedUp2_ = lookedUp2;
-      cui1       = rs.getString(isRxNorm ? "RXCUI1"
+      this.sourceSAB  = sourceSab;
+      this.lookedUp2_ = lookedUp2;
+      this.cui1       = rs.getString(isRxNorm ? "RXCUI1"
                                          : "CUI1");
-      aui1       = rs.getString(isRxNorm ? "RXAUI1"
+      this.aui1       = rs.getString(isRxNorm ? "RXAUI1"
                                          : "AUI1");
-      stype1     = rs.getString("STYPE1");
-      rel        = rs.getString("REL");
-      cui2       = rs.getString(isRxNorm ? "RXCUI2"
+      this.stype1     = rs.getString("STYPE1");
+      this.rel        = rs.getString("REL");
+      this.cui2       = rs.getString(isRxNorm ? "RXCUI2"
                                          : "CUI2");
-      aui2       = rs.getString(isRxNorm ? "RXAUI2"
+      this.aui2       = rs.getString(isRxNorm ? "RXAUI2"
                                          : "AUI2");
-      stype2     = rs.getString("STYPE2");
-      rela       = rs.getString("RELA");
-      rui        = rs.getString("RUI");
-      srui       = rs.getString("SRUI");
-      sab        = rs.getString("SAB");
-      sl         = rs.getString("SL");
-      rg         = rs.getString("RG");
-      dir        = rs.getString("DIR");
-      suppress   = rs.getString("SUPPRESS");
-      cvf        = (rs.getObject("CVF") == null) ? null
+      this.stype2     = rs.getString("STYPE2");
+      this.rela       = rs.getString("RELA");
+      this.rui        = rs.getString("RUI");
+      this.srui       = rs.getString("SRUI");
+      this.sab        = rs.getString("SAB");
+      this.sl         = rs.getString("SL");
+      this.rg         = rs.getString("RG");
+      this.dir        = rs.getString("DIR");
+      this.suppress   = rs.getString("SUPPRESS");
+      this.cvf        = (rs.getObject("CVF") == null) ? null
             : rs.getString("CVF");  // integer or string
 
-      if ((lookedUp2 ? aui2
-                     : aui1) != null) {
+      if ((lookedUp2 ? this.aui2
+                     : this.aui1) != null) {
          // when the AUI is not null, we have a couple extra vars to read
-         targetSAB  = rs.getString("targetSAB");
-         targetCODE = rs.getString("targetCODE");
+         this.targetSAB  = rs.getString("targetSAB");
+         this.targetCODE = rs.getString("targetCODE");
       }
 
-      if (!lookedUp2_) {
-         rel  = relReverser.apply(rel);
-         rela = relReverser.apply(rela);
+      if (!this.lookedUp2_) {
+         this.rel  = relReverser.apply(this.rel);
+         this.rela = relReverser.apply(this.rela);
       }
    }
 
@@ -118,10 +133,10 @@ public class REL {
                                 boolean isRxNorm,
                                 Function<String, String> relReverser)
             throws SQLException {
-      ArrayList<REL> result = new ArrayList<>();
+      final ArrayList<REL> result = new ArrayList<>();
 
       while (rs.next()) {
-         REL rel = new REL(sourceSab, rs, lookedUp2, isRxNorm, relReverser);
+         final REL rel = new REL(sourceSab, rs, lookedUp2, isRxNorm, relReverser);
 
          if ((allowedCUIs != null) && (!allowedCUIs.contains(rel.cui1) ||!allowedCUIs.contains(rel.cui2))) {
             cuiSkipCounter.getAndIncrement();
@@ -138,129 +153,129 @@ public class REL {
    //~--- get methods ---------------------------------------------------------
 
    public String getCvf() {
-      return cvf;
+      return this.cvf;
    }
 
    public String getDir() {
-      return dir;
+      return this.dir;
    }
 
    public UUID getInverseRelHash(Function<String, Relationship> nameToRelMapper) {
       // reverse the direction of the rels, and the source/target
-      String relInverse  = nameToRelMapper.apply(rel)
+      final String relInverse  = nameToRelMapper.apply(this.rel)
                                           .getFSNName();
       String relaInverse = null;
 
-      if (rela != null) {
-         relaInverse = nameToRelMapper.apply(rela)
+      if (this.rela != null) {
+         relaInverse = nameToRelMapper.apply(this.rela)
                                       .getFSNName();
       }
 
-      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + targetUUID_ + sourceUUID_).getBytes());
+      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID_ + this.sourceUUID_).getBytes());
    }
 
    public String getRel() {
-      return rel;
+      return this.rel;
    }
 
    public UUID getRelHash() {
-      if (relHash_ == null) {
-         relHash_ = UUID.nameUUIDFromBytes(new String(rel + rela + sourceUUID_ + targetUUID_).getBytes());
+      if (this.relHash_ == null) {
+         this.relHash_ = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID_ + this.targetUUID_).getBytes());
       }
 
-      return relHash_;
+      return this.relHash_;
    }
 
    public String getRela() {
-      return rela;
+      return this.rela;
    }
 
    public String getRg() {
-      return rg;
+      return this.rg;
    }
 
    public String getRui() {
-      return rui;
+      return this.rui;
    }
 
    public String getSab() {
-      return sab;
+      return this.sab;
    }
 
    public String getSl() {
-      return sl;
+      return this.sl;
    }
 
    public String getSourceAUI() {
-      return lookedUp2_ ? aui2
-                        : aui1;
+      return this.lookedUp2_ ? this.aui2
+                        : this.aui1;
    }
 
    public String getSourceCUI() {
-      return lookedUp2_ ? cui2
-                        : cui1;
+      return this.lookedUp2_ ? this.cui2
+                        : this.cui1;
    }
 
    public String getSourceSAB() {
-      return sourceSAB;
+      return this.sourceSAB;
    }
 
    public UUID getSourceUUID() {
-      return sourceUUID_;
+      return this.sourceUUID_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setSourceUUID(UUID sourceUUID) {
-      sourceUUID_ = sourceUUID;
-      relHash_    = null;
+      this.sourceUUID_ = sourceUUID;
+      this.relHash_    = null;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getSrui() {
-      return srui;
+      return this.srui;
    }
 
    public String getStype1() {
-      return stype1;
+      return this.stype1;
    }
 
    public String getStype2() {
-      return stype2;
+      return this.stype2;
    }
 
    public String getSuppress() {
-      return suppress;
+      return this.suppress;
    }
 
    public String getTargetAUI() {
-      return lookedUp2_ ? aui1
-                        : aui2;
+      return this.lookedUp2_ ? this.aui1
+                        : this.aui2;
    }
 
    public String getTargetCUI() {
-      return lookedUp2_ ? cui1
-                        : cui2;
+      return this.lookedUp2_ ? this.cui1
+                        : this.cui2;
    }
 
    public String getTargetCode() {
-      return targetCODE;
+      return this.targetCODE;
    }
 
    public String getTargetSAB() {
-      return targetSAB;
+      return this.targetSAB;
    }
 
    public UUID getTargetUUID() {
-      return targetUUID_;
+      return this.targetUUID_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setTargetUUID(UUID targetUUID) {
-      targetUUID_ = targetUUID;
-      relHash_    = null;
+      this.targetUUID_ = targetUUID;
+      this.relHash_    = null;
    }
 }
 

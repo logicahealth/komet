@@ -74,20 +74,20 @@ public class StampPathImpl
 
    @Override
    public int compareTo(StampPath o) {
-      return Integer.compare(pathConceptSequence, o.getPathConceptSequence());
+      return Integer.compare(this.pathConceptSequence, o.getPathConceptSequence());
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getPathConceptSequence() {
-      return pathConceptSequence;
+      return this.pathConceptSequence;
    }
 
    @Override
    public Collection<? extends StampPosition> getPathOrigins() {
       return Get.pathService()
-                .getOrigins(pathConceptSequence);
+                .getOrigins(this.pathConceptSequence);
    }
 }
 

@@ -58,7 +58,7 @@ import sh.isaac.model.coordinate.StampPositionImpl;
  */
 public class StampCoordinates {
    public static StampCoordinate getDevelopmentLatest() {
-      StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
                                                           TermAux.DEVELOPMENT_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
@@ -68,7 +68,7 @@ public class StampCoordinates {
    }
 
    public static StampCoordinate getDevelopmentLatestActiveOnly() {
-      StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
                                                           TermAux.DEVELOPMENT_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
@@ -78,7 +78,7 @@ public class StampCoordinates {
    }
 
    public static StampCoordinate getMasterLatest() {
-      StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -87,7 +87,7 @@ public class StampCoordinates {
    }
 
    public static StampCoordinate getMasterLatestActiveOnly() {
-      StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,

@@ -52,21 +52,21 @@ public class Interval {
 
    public Interval(String parseFrom)
             throws NumberFormatException {
-      String s = parseFrom.trim();
+      final String s = parseFrom.trim();
 
       if (s.charAt(0) == '[') {
-         leftInclusive_ = true;
+         this.leftInclusive_ = true;
       } else if (s.charAt(0) == '(') {
-         leftInclusive_ = false;
+         this.leftInclusive_ = false;
       } else {
          throw new NumberFormatException(
              "Invalid INTERVAL definition in the validator definition data - char 0 should be [ or (");
       }
 
       if (s.charAt(s.length() - 1) == ']') {
-         rightInclusive_ = true;
+         this.rightInclusive_ = true;
       } else if (s.charAt(s.length() - 1) == ')') {
-         rightInclusive_ = false;
+         this.rightInclusive_ = false;
       } else {
          throw new NumberFormatException(
              "Invalid INTERVAL definition in the validator definition data - last char should be ] or )");
@@ -76,24 +76,24 @@ public class Interval {
 
       numeric = numeric.replaceAll("\\s", "");
 
-      int pos = numeric.indexOf(',');
+      final int pos = numeric.indexOf(',');
 
       if (pos == 0) {
          // left is null (- infinity)
-         right_ = NumericUtils.parseUnknown(numeric.substring(1, numeric.length()));
+         this.right_ = NumericUtils.parseUnknown(numeric.substring(1, numeric.length()));
       } else if (pos > 0) {
-         left_ = NumericUtils.parseUnknown(numeric.substring(0, pos));
+         this.left_ = NumericUtils.parseUnknown(numeric.substring(0, pos));
 
          if (numeric.length() > (pos + 1)) {
-            right_ = NumericUtils.parseUnknown(numeric.substring(pos + 1));
+            this.right_ = NumericUtils.parseUnknown(numeric.substring(pos + 1));
          }
       } else {
          throw new NumberFormatException("Invalid INTERVAL definition in the validator definition data");
       }
 
       // make sure interval is properly specified
-      if ((left_ != null) && (right_ != null)) {
-         if (NumericUtils.compare(left_, right_) > 0) {
+      if ((this.left_ != null) && (this.right_ != null)) {
+         if (NumericUtils.compare(this.left_, this.right_) > 0) {
             throw new NumberFormatException("Invalid INTERVAL definition the left value should be <= the right value");
          }
       }
@@ -112,28 +112,28 @@ public class Interval {
     * @return the left
     */
    public Number getLeft() {
-      return left_;
+      return this.left_;
    }
 
    /**
     * @return the leftInclusive
     */
    public boolean isLeftInclusive() {
-      return leftInclusive_;
+      return this.leftInclusive_;
    }
 
    /**
     * @return the right
     */
    public Number getRight() {
-      return right_;
+      return this.right_;
    }
 
    /**
     * @return the rightInclusive
     */
    public boolean isRightInclusive() {
-      return rightInclusive_;
+      return this.rightInclusive_;
    }
 }
 

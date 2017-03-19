@@ -42,7 +42,6 @@ package sh.isaac.provider.identifier;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 
 import java.nio.file.Files;
@@ -135,32 +134,32 @@ public class IdentifierProvider
             throws IOException {
       // for HK2
       LOG.info("IdentifierProvider constructed");
-      folderPath = LookupService.getService(ConfigurationService.class)
+      this.folderPath = LookupService.getService(ConfigurationService.class)
                                 .getChronicleFolderPath()
                                 .resolve("identifier-provider");
 
-      if (!Files.exists(folderPath)) {
-         databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+      if (!Files.exists(this.folderPath)) {
+         this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
       }
 
-      loadRequired.set(!Files.exists(folderPath));
-      Files.createDirectories(folderPath);
-      uuidIntMapMap      = UuidIntMapMap.create(new File(folderPath.toAbsolutePath().toFile(), "uuid-nid-map"));
-      conceptSequenceMap = new SequenceMap(450000);
-      sememeSequenceMap  = new SequenceMap(3000000);
+      this.loadRequired.set(!Files.exists(this.folderPath));
+      Files.createDirectories(this.folderPath);
+      this.uuidIntMapMap      = UuidIntMapMap.create(new File(this.folderPath.toAbsolutePath().toFile(), "uuid-nid-map"));
+      this.conceptSequenceMap = new SequenceMap(450000);
+      this.sememeSequenceMap  = new SequenceMap(3000000);
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public void addUuidForNid(UUID uuid, int nid) {
-      uuidIntMapMap.put(uuid, nid);
+      this.uuidIntMapMap.put(uuid, nid);
    }
 
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
-      databaseValidity = DatabaseValidity.NOT_SET;
+      this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
    /**
@@ -170,27 +169,27 @@ public class IdentifierProvider
     */
    @Override
    public void clearUnusedIds() {
-      AtomicInteger cleaned = new AtomicInteger();
+      final AtomicInteger cleaned = new AtomicInteger();
 
-      conceptSequenceMap.getSequenceStream().parallel().forEach((conceptSequence) -> {
+      this.conceptSequenceMap.getSequenceStream().parallel().forEach((conceptSequence) -> {
                                     if (!Get.conceptService()
                                             .hasConcept(conceptSequence)) {
-                                       int nid = conceptSequenceMap.getNid(conceptSequence)
+                                       final int nid = this.conceptSequenceMap.getNid(conceptSequence)
                                                                    .getAsInt();
 
-                                       conceptSequenceMap.removeNid(nid);
+                                       this.conceptSequenceMap.removeNid(nid);
                                        cleaned.incrementAndGet();
                                     }
                                  });
       LOG.info("Removed " + cleaned.get() + " unused concept references");
       cleaned.set(0);
-      sememeSequenceMap.getSequenceStream().parallel().forEach((sememeSequence) -> {
+      this.sememeSequenceMap.getSequenceStream().parallel().forEach((sememeSequence) -> {
                                    if (!Get.sememeService()
                                            .hasSememe(sememeSequence)) {
-                                      int nid = sememeSequenceMap.getNid(sememeSequence)
+                                      final int nid = this.sememeSequenceMap.getNid(sememeSequence)
                                                                  .getAsInt();
 
-                                      sememeSequenceMap.removeNid(nid);
+                                      this.sememeSequenceMap.removeNid(nid);
                                       cleaned.incrementAndGet();
                                    }
                                 });
@@ -212,35 +211,35 @@ public class IdentifierProvider
    @PostConstruct
    private void startMe() {
       try {
-         LOG.info("Starting IdentifierProvider post-construct - reading from " + folderPath);
+         LOG.info("Starting IdentifierProvider post-construct - reading from " + this.folderPath);
 
-         if (!loadRequired.get()) {
+         if (!this.loadRequired.get()) {
             final String conceptSequenceMapBaseName = "concept-sequence.map";
 
             LOG.info("Loading {} from dir {}.",
                      conceptSequenceMapBaseName,
-                     folderPath.toAbsolutePath()
+                     this.folderPath.toAbsolutePath()
                                .normalize()
                                .toString());
-            conceptSequenceMap.read(new File(folderPath.toFile(), conceptSequenceMapBaseName));
+            this.conceptSequenceMap.read(new File(this.folderPath.toFile(), conceptSequenceMapBaseName));
 
             final String sememeSequenceMapBaseName = "sememe-sequence.map";
 
             LOG.info("Loading {} from dir {}.",
                      sememeSequenceMapBaseName,
-                     folderPath.toAbsolutePath()
+                     this.folderPath.toAbsolutePath()
                                .normalize()
                                .toString());
-            sememeSequenceMap.read(new File(folderPath.toFile(), sememeSequenceMapBaseName));
+            this.sememeSequenceMap.read(new File(this.folderPath.toFile(), sememeSequenceMapBaseName));
 
             // uuid-nid-map can do dynamic load, no need to read all at the beginning.
             // LOG.info("Loading uuid-nid-map.");
             // uuidIntMapMap.read();
             if (isPopulated()) {
-               databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+               this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
             }
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Identifier Provider", e);
          throw new RuntimeException(e);
@@ -250,15 +249,15 @@ public class IdentifierProvider
    @PreDestroy
    private void stopMe() {
       try {
-         uuidIntMapMap.setShutdown(true);
-         LOG.info("conceptSequence: {}", conceptSequenceMap.getNextSequence());
+         this.uuidIntMapMap.setShutdown(true);
+         LOG.info("conceptSequence: {}", this.conceptSequenceMap.getNextSequence());
          LOG.info("writing concept-sequence.map.");
-         conceptSequenceMap.write(new File(folderPath.toFile(), "concept-sequence.map"));
+         this.conceptSequenceMap.write(new File(this.folderPath.toFile(), "concept-sequence.map"));
          LOG.info("writing sememe-sequence.map.");
-         sememeSequenceMap.write(new File(folderPath.toFile(), "sememe-sequence.map"));
+         this.sememeSequenceMap.write(new File(this.folderPath.toFile(), "sememe-sequence.map"));
          LOG.info("writing uuid-nid-map.");
-         uuidIntMapMap.write();
-      } catch (IOException e) {
+         this.uuidIntMapMap.write();
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
@@ -267,11 +266,11 @@ public class IdentifierProvider
 
    @Override
    public ObjectChronologyType getChronologyTypeForNid(int nid) {
-      if (sememeSequenceMap.containsNid(nid)) {
+      if (this.sememeSequenceMap.containsNid(nid)) {
          return ObjectChronologyType.SEMEME;
       }
 
-      if (conceptSequenceMap.containsNid(nid)) {
+      if (this.conceptSequenceMap.containsNid(nid)) {
          return ObjectChronologyType.CONCEPT;
       }
 
@@ -292,7 +291,7 @@ public class IdentifierProvider
          return conceptSequence;
       }
 
-      int conceptNid = conceptSequenceMap.getNidFast(conceptSequence);
+      final int conceptNid = this.conceptSequenceMap.getNidFast(conceptSequence);
 
       if ((conceptSequence != 0) && (conceptNid == 0)) {
          LOG.warn("retrieved nid=" + conceptNid + " for sequence=" + conceptSequence);
@@ -314,7 +313,7 @@ public class IdentifierProvider
          return nid;
       }
 
-      return conceptSequenceMap.addNidIfMissing(nid);
+      return this.conceptSequenceMap.addNidIfMissing(nid);
    }
 
    @Override
@@ -334,35 +333,35 @@ public class IdentifierProvider
 
    @Override
    public IntStream getConceptSequenceStream() {
-      return conceptSequenceMap.getSequenceStream();
+      return this.conceptSequenceMap.getSequenceStream();
    }
 
    @Override
    public ConceptSequenceSet getConceptSequencesForConceptNids(int[] conceptNidArray) {
-      ConceptSequenceSet sequences = new ConceptSequenceSet();
+      final ConceptSequenceSet sequences = new ConceptSequenceSet();
 
       IntStream.of(conceptNidArray)
-               .forEach((nid) -> sequences.add(conceptSequenceMap.getSequenceFast(nid)));
+               .forEach((nid) -> sequences.add(this.conceptSequenceMap.getSequenceFast(nid)));
       return sequences;
    }
 
    @Override
    public ConceptSequenceSet getConceptSequencesForConceptNids(NidSet conceptNidSet) {
-      ConceptSequenceSet sequences = new ConceptSequenceSet();
+      final ConceptSequenceSet sequences = new ConceptSequenceSet();
 
       conceptNidSet.stream()
-                   .forEach((nid) -> sequences.add(conceptSequenceMap.getSequenceFast(nid)));
+                   .forEach((nid) -> sequences.add(this.conceptSequenceMap.getSequenceFast(nid)));
       return sequences;
    }
 
    @Override
    public Path getDatabaseFolder() {
-      return folderPath;
+      return this.folderPath;
    }
 
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
-      return databaseValidity;
+      return this.databaseValidity;
    }
 
    @Override
@@ -391,18 +390,18 @@ public class IdentifierProvider
          throw new IllegalStateException("Not a nid: " + nid);
       }
 
-      int authoritySequence = getConceptSequenceForUuids(identifierAuthorityUuid);
-      SememeSnapshotService<StringSememe> snapshot = Get.sememeService()
+      final int authoritySequence = getConceptSequenceForUuids(identifierAuthorityUuid);
+      final SememeSnapshotService<StringSememe> snapshot = Get.sememeService()
                                                         .getSnapshot(StringSememe.class, stampCoordinate);
 
       return snapshot.getLatestSememeVersionsForComponentFromAssemblage(nid, authoritySequence)
                      .findAny()
                      .map((LatestVersion<StringSememe> latestSememe) -> {
-                             LatestVersion<String> latestString = new LatestVersion<>(latestSememe.value().getString());
+                             final LatestVersion<String> latestString = new LatestVersion<>(latestSememe.value().getString());
 
                              if (latestSememe.contradictions()
                                    .isPresent()) {
-                                for (StringSememe version: latestSememe.contradictions()
+                                for (final StringSememe version: latestSememe.contradictions()
                                       .get()) {
                                    latestString.addLatest(version.getString());
                                 }
@@ -414,7 +413,7 @@ public class IdentifierProvider
 
    @Override
    public int getMaxNid() {
-      return uuidIntMapMap.getNextNidProvider()
+      return UuidIntMapMap.getNextNidProvider()
                           .get();
    }
 
@@ -430,19 +429,19 @@ public class IdentifierProvider
 
    @Override
    public int getNidForUuids(UUID... uuids) {
-      LinkedHashMap<UUID, Integer> cacheMap = THREAD_LOCAL_CACHE.get();
-      Integer                      cacheNid = cacheMap.get(uuids[0]);
+      final LinkedHashMap<UUID, Integer> cacheMap = THREAD_LOCAL_CACHE.get();
+      final Integer                      cacheNid = cacheMap.get(uuids[0]);
 
       if (cacheNid != null) {
          return cacheNid;
       }
 
-      for (UUID uuid: uuids) {
+      for (final UUID uuid: uuids) {
 //       if (watchSet.contains(uuid)) {
 //          System.out.println("Found watch: " + Arrays.asList(uuids));
 //          watchSet.remove(uuid);
 //       }
-         int nid = uuidIntMapMap.get(uuid);
+         final int nid = this.uuidIntMapMap.get(uuid);
 
          if (nid != Integer.MAX_VALUE) {
             cacheMap.put(uuids[0], nid);
@@ -450,12 +449,12 @@ public class IdentifierProvider
          }
       }
 
-      int nid = uuidIntMapMap.getWithGeneration(uuids[0]);
+      final int nid = this.uuidIntMapMap.getWithGeneration(uuids[0]);
 
       cacheMap.put(uuids[0], nid);
 
       for (int i = 1; i < uuids.length; i++) {
-         uuidIntMapMap.put(uuids[i], nid);
+         this.uuidIntMapMap.put(uuids[i], nid);
       }
 
       return nid;
@@ -463,13 +462,13 @@ public class IdentifierProvider
 
    @Override
    public IntStream getParallelConceptSequenceStream() {
-      return conceptSequenceMap.getSequenceStream()
+      return this.conceptSequenceMap.getSequenceStream()
                                .parallel();
    }
 
    @Override
    public IntStream getParallelSememeSequenceStream() {
-      return sememeSequenceMap.getSequenceStream()
+      return this.sememeSequenceMap.getSequenceStream()
                               .parallel();
    }
 
@@ -477,13 +476,8 @@ public class IdentifierProvider
     * Investigate if "uuid-nid-map" directory is populated with at least one *.map file.
     */
    private boolean isPopulated() {
-      File segmentDirectory     = new File(folderPath.toAbsolutePath().toFile(), "uuid-nid-map");
-      int  numberOfSegmentFiles = segmentDirectory.list(new FilenameFilter() {
-               @Override
-               public boolean accept(File segmentDirectory, String name) {
-                  return (name.endsWith("map"));
-               }
-            }).length;
+      final File segmentDirectory     = new File(this.folderPath.toAbsolutePath().toFile(), "uuid-nid-map");
+      final int  numberOfSegmentFiles = segmentDirectory.list((segmentDirectory1, name) -> (name.endsWith("map"))).length;
 
       return numberOfSegmentFiles > 0;
    }
@@ -494,7 +488,7 @@ public class IdentifierProvider
          return sememeId;
       }
 
-      return sememeSequenceMap.getNidFast(sememeId);
+      return this.sememeSequenceMap.getNidFast(sememeId);
    }
 
    @Override
@@ -510,7 +504,7 @@ public class IdentifierProvider
          return sememeId;
       }
 
-      return sememeSequenceMap.addNidIfMissing(sememeId);
+      return this.sememeSequenceMap.addNidIfMissing(sememeId);
    }
 
    @Override
@@ -525,15 +519,15 @@ public class IdentifierProvider
 
    @Override
    public IntStream getSememeSequenceStream() {
-      return sememeSequenceMap.getSequenceStream();
+      return this.sememeSequenceMap.getSequenceStream();
    }
 
    @Override
    public SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray) {
-      SememeSequenceSet sequences = new SememeSequenceSet();
+      final SememeSequenceSet sequences = new SememeSequenceSet();
 
       IntStream.of(sememeNidArray)
-               .forEach((nid) -> sequences.add(sememeSequenceMap.getSequenceFast(nid)));
+               .forEach((nid) -> sequences.add(this.sememeSequenceMap.getSequenceFast(nid)));
       return sequences;
    }
 
@@ -546,7 +540,7 @@ public class IdentifierProvider
       final LinkedHashMap<UUID, Integer> cacheMap = THREAD_LOCAL_CACHE.get();
 
       // Check the cache to (hopefully) avoid a potential disk read
-      boolean cacheHit = uuids.stream()
+      final boolean cacheHit = uuids.stream()
                               .anyMatch((uuid) -> (cacheMap.get(uuid) != null));
 
       if (cacheHit) {
@@ -554,7 +548,7 @@ public class IdentifierProvider
       }
 
       return uuids.stream()
-                  .anyMatch((uuid) -> (uuidIntMapMap.containsKey(uuid)));
+                  .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
    }
 
    @Override
@@ -564,7 +558,7 @@ public class IdentifierProvider
       }
 
       return Arrays.stream(uuids)
-                   .anyMatch((uuid) -> (uuidIntMapMap.containsKey(uuid)));
+                   .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
    }
 
    @Override
@@ -575,8 +569,8 @@ public class IdentifierProvider
 
       // If we have a cache in uuidIntMapMap, read from there, it is faster.
       // If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
-      if (!uuidIntMapMap.cacheContainsNid(nid)) {
-         Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
+      if (!this.uuidIntMapMap.cacheContainsNid(nid)) {
+         final Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
                                                                                          .getIdentifiedObjectChronology(
                                                                                             nid);
 
@@ -586,7 +580,7 @@ public class IdentifierProvider
          }
       }
 
-      UUID[] uuids = uuidIntMapMap.getKeysForValue(nid);
+      final UUID[] uuids = this.uuidIntMapMap.getKeysForValue(nid);
 
       // In the use case of directly writing files (converting terminology) this is a normal occurrence
       LOG.debug("[1] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
@@ -618,7 +612,7 @@ public class IdentifierProvider
          throw new RuntimeException("Method expected nid!");
       }
 
-      Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
+      final Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
                                                                                       .getIdentifiedObjectChronology(
                                                                                          nid);
 
@@ -627,7 +621,7 @@ public class IdentifierProvider
                            .getUuidList();
       }
 
-      UUID[] uuids = uuidIntMapMap.getKeysForValue(nid);
+      final UUID[] uuids = this.uuidIntMapMap.getKeysForValue(nid);
 
       LOG.warn("[3] No object for nid: " + nid + " Found uuids: " + Arrays.asList(uuids));
       return Arrays.asList(uuids);

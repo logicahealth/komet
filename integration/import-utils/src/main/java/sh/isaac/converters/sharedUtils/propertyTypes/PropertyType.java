@@ -77,14 +77,14 @@ public abstract class PropertyType {
       false;  // It could make sense to set this at the individual Property level... but in general, everything of the same type
    private Map<String, String> altNamePropertyMap_ = null;
    protected List<String>      skipList_           = null;
-   private String              propertyTypeDescription_;
+   private final String              propertyTypeDescription_;
 
    // will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
-   private DynamicSememeDataType defaultDataColumn_;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
+   private final DynamicSememeDataType defaultDataColumn_;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
 
    // use this information to configure the (single) data column.
 
-   private Map<String, Property> properties_;
+   private final Map<String, Property> properties_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -107,8 +107,8 @@ public abstract class PropertyType {
    //~--- methods -------------------------------------------------------------
 
    public Property addProperty(Property property) {
-      if (skipList_ != null) {
-         for (String s: skipList_) {
+      if (this.skipList_ != null) {
+         for (final String s: this.skipList_) {
             if (property.getSourcePropertyNameFSN()
                         .equals(s)) {
                ConsoleUtil.println("Skipping property '" + s + "' because of skip list configuration");
@@ -119,14 +119,14 @@ public abstract class PropertyType {
 
       property.setOwner(this);
 
-      Property old = properties_.put(property.getSourcePropertyNameFSN(), property);
+      final Property old = this.properties_.put(property.getSourcePropertyNameFSN(), property);
 
       if (old != null) {
          throw new RuntimeException("Duplicate property name: " + property.getSourcePropertyNameFSN());
       }
 
-      if ((altNamePropertyMap_ != null) && StringUtils.isNotEmpty(property.getSourcePropertyAltName())) {
-         String s = altNamePropertyMap_.put(property.getSourcePropertyAltName(), property.getSourcePropertyNameFSN());
+      if ((this.altNamePropertyMap_ != null) && StringUtils.isNotEmpty(property.getSourcePropertyAltName())) {
+         final String s = this.altNamePropertyMap_.put(property.getSourcePropertyAltName(), property.getSourcePropertyNameFSN());
 
          if (s != null) {
             throw new RuntimeException("Alt Indexing Error - duplicate!");
@@ -200,13 +200,13 @@ public abstract class PropertyType {
    }
 
    public boolean containsProperty(String propertyName) {
-      boolean result = properties_.containsKey(propertyName);
+      boolean result = this.properties_.containsKey(propertyName);
 
-      if (!result && (altNamePropertyMap_ != null)) {
-         String altKey = altNamePropertyMap_.get(propertyName);
+      if (!result && (this.altNamePropertyMap_ != null)) {
+         final String altKey = this.altNamePropertyMap_.get(propertyName);
 
          if (altKey != null) {
-            result = properties_.containsKey(altKey);
+            result = this.properties_.containsKey(altKey);
          }
       }
 
@@ -214,36 +214,36 @@ public abstract class PropertyType {
    }
 
    public boolean createAsDynamicRefex() {
-      return createAsDynamicRefex_;
+      return this.createAsDynamicRefex_;
    }
 
    /**
     * Enable index and lookup of properties by their altName field
     */
    public void indexByAltNames() {
-      if (altNamePropertyMap_ == null) {
-         altNamePropertyMap_ = new HashMap<>();
+      if (this.altNamePropertyMap_ == null) {
+         this.altNamePropertyMap_ = new HashMap<>();
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    protected DynamicSememeDataType getDefaultColumnInfo() {
-      return defaultDataColumn_;
+      return this.defaultDataColumn_;
    }
 
    public Collection<Property> getProperties() {
-      return properties_.values();
+      return this.properties_.values();
    }
 
    public Property getProperty(String propertyName) {
-      Property p = properties_.get(propertyName);
+      Property p = this.properties_.get(propertyName);
 
-      if ((p == null) && (altNamePropertyMap_ != null)) {
-         String altKey = altNamePropertyMap_.get(propertyName);
+      if ((p == null) && (this.altNamePropertyMap_ != null)) {
+         final String altKey = this.altNamePropertyMap_.get(propertyName);
 
          if (altKey != null) {
-            p = properties_.get(altKey);
+            p = this.properties_.get(altKey);
          }
       }
 
@@ -251,23 +251,23 @@ public abstract class PropertyType {
    }
 
    public Set<String> getPropertyNames() {
-      return properties_.keySet();
+      return this.properties_.keySet();
    }
 
    public String getPropertyTypeDescription() {
-      return propertyTypeDescription_;
+      return this.propertyTypeDescription_;
    }
 
    public UUID getPropertyTypeUUID() {
-      if (propertyTypeUUID == null) {
-         propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(propertyTypeDescription_);
+      if (this.propertyTypeUUID == null) {
+         this.propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription_);
       }
 
-      return propertyTypeUUID;
+      return this.propertyTypeUUID;
    }
 
    protected UUID getPropertyUUID(String propertyName) {
-      return ConverterUUID.createNamespaceUUIDFromString(propertyTypeDescription_ + ":" + propertyName);
+      return ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription_ + ":" + propertyName);
    }
 
    //~--- set methods ---------------------------------------------------------

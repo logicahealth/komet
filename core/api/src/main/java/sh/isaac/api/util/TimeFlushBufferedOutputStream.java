@@ -96,7 +96,7 @@ public class TimeFlushBufferedOutputStream
    public void close()
             throws IOException {
       synchronized (instances_) {
-         Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
+         final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
 
          while (it.hasNext()) {
             if (it.next()
@@ -128,10 +128,10 @@ public class TimeFlushBufferedOutputStream
                         logger.debug("Calling flush on " + instances_.size() + " buffered writers");
 
                         synchronized (instances_) {
-                           Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
+                           final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
 
                            while (it.hasNext()) {
-                              WeakReference<TimeFlushBufferedOutputStream> item = it.next();
+                              final WeakReference<TimeFlushBufferedOutputStream> item = it.next();
 
                               if (item.get() == null) {
                                  it.remove();
@@ -139,7 +139,7 @@ public class TimeFlushBufferedOutputStream
                                  try {
                                     item.get()
                                         .flush();
-                                 } catch (Exception e) {
+                                 } catch (final Exception e) {
                                     logger.error("error during time flush", e);
                                  }
                               }

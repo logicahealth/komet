@@ -85,84 +85,84 @@ public class ObservableTaxonomyCoordinateImpl
 
    @Override
    public ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty() {
-      if (languageCoordinateProperty == null) {
-         languageCoordinateProperty = new SimpleObjectProperty<>(this,
+      if (this.languageCoordinateProperty == null) {
+         this.languageCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               new ObservableLanguageCoordinateImpl(taxonomyCoordinate.getLanguageCoordinate()));
+               new ObservableLanguageCoordinateImpl(this.taxonomyCoordinate.getLanguageCoordinate()));
       }
 
-      return languageCoordinateProperty;
+      return this.languageCoordinateProperty;
    }
 
    @Override
    public ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty() {
-      if (logicCoordinateProperty == null) {
-         logicCoordinateProperty = new SimpleObjectProperty<>(this,
+      if (this.logicCoordinateProperty == null) {
+         this.logicCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               new ObservableLogicCoordinateImpl(taxonomyCoordinate.getLogicCoordinate()));
+               new ObservableLogicCoordinateImpl(this.taxonomyCoordinate.getLogicCoordinate()));
       }
 
-      return logicCoordinateProperty;
+      return this.logicCoordinateProperty;
    }
 
    @Override
    public ObservableTaxonomyCoordinate makeAnalog(long stampPositionTime) {
-      return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(stampPositionTime));
+      return new ObservableTaxonomyCoordinateImpl(this.taxonomyCoordinate.makeAnalog(stampPositionTime));
    }
 
    @Override
    public TaxonomyCoordinate makeAnalog(PremiseType taxonomyType) {
-      return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(taxonomyType));
+      return new ObservableTaxonomyCoordinateImpl(this.taxonomyCoordinate.makeAnalog(taxonomyType));
    }
 
    @Override
    public ObservableTaxonomyCoordinate makeAnalog(State... state) {
-      return new ObservableTaxonomyCoordinateImpl(taxonomyCoordinate.makeAnalog(state));
+      return new ObservableTaxonomyCoordinateImpl(this.taxonomyCoordinate.makeAnalog(state));
    }
 
    @Override
    public ObjectProperty<PremiseType> premiseTypeProperty() {
-      if (taxonomyTypeProperty == null) {
-         taxonomyTypeProperty = new SimpleObjectProperty<>(this,
+      if (this.taxonomyTypeProperty == null) {
+         this.taxonomyTypeProperty = new SimpleObjectProperty<>(this,
                ObservableFields.PREMISE_TYPE_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               taxonomyCoordinate.getTaxonomyType());
+               this.taxonomyCoordinate.getTaxonomyType());
       }
 
-      return taxonomyTypeProperty;
+      return this.taxonomyTypeProperty;
    }
 
    @Override
    public ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty() {
-      if (stampCoordinateProperty == null) {
-         stampCoordinateProperty = new SimpleObjectProperty<>(this,
+      if (this.stampCoordinateProperty == null) {
+         this.stampCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               new ObservableStampCoordinateImpl(taxonomyCoordinate.getStampCoordinate()));
+               new ObservableStampCoordinateImpl(this.taxonomyCoordinate.getStampCoordinate()));
       }
 
-      return stampCoordinateProperty;
+      return this.stampCoordinateProperty;
    }
 
    @Override
    public String toString() {
-      return "ObservableTaxonomyCoordinateImpl{" + taxonomyCoordinate + '}';
+      return "ObservableTaxonomyCoordinateImpl{" + this.taxonomyCoordinate + '}';
    }
 
    @Override
    public ObjectProperty<UUID> uuidProperty() {
-      if (uuidProperty == null) {
-         uuidProperty = new SimpleObjectProperty<>(this,
+      if (this.uuidProperty == null) {
+         this.uuidProperty = new SimpleObjectProperty<>(this,
                ObservableFields.UUID_FOR_TAXONOMY_COORDINATE.toExternalString(),
-               taxonomyCoordinate.getUuid());
+               this.taxonomyCoordinate.getUuid());
       }
 
-      return uuidProperty;
+      return this.uuidProperty;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getIsaConceptSequence() {
-      return taxonomyCoordinate.getIsaConceptSequence();
+      return this.taxonomyCoordinate.getIsaConceptSequence();
    }
 
    @Override

@@ -82,54 +82,54 @@ public class ObservableStampPathImpl
 
    @Override
    public int compareTo(StampPath o) {
-      return stampPath.compareTo(o);
+      return this.stampPath.compareTo(o);
    }
 
    @Override
    public ReadOnlyIntegerProperty pathConceptSequenceProperty() {
-      if (pathConceptSequenceProperty == null) {
-         pathConceptSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.pathConceptSequenceProperty == null) {
+         this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_SEQUENCE_FOR_STAMP_PATH.toExternalString(),
                getPathConceptSequence());
       }
 
-      return pathConceptSequenceProperty;
+      return this.pathConceptSequenceProperty;
    }
 
    @Override
    public ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty() {
-      if (pathOriginsProperty == null) {
-         pathOriginsProperty = new ReadOnlyListWrapper<>(this,
+      if (this.pathOriginsProperty == null) {
+         this.pathOriginsProperty = new ReadOnlyListWrapper<>(this,
                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
                FXCollections.<ObservableStampPosition>observableList(getPathOrigins()));
       }
 
-      return pathOriginsProperty;
+      return this.pathOriginsProperty;
    }
 
    @Override
    public String toString() {
-      return "ObservableStampPathImpl{" + stampPath + '}';
+      return "ObservableStampPathImpl{" + this.stampPath + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getPathConceptSequence() {
-      if (pathConceptSequenceProperty != null) {
-         return pathConceptSequenceProperty.get();
+      if (this.pathConceptSequenceProperty != null) {
+         return this.pathConceptSequenceProperty.get();
       }
 
-      return stampPath.getPathConceptSequence();
+      return this.stampPath.getPathConceptSequence();
    }
 
    @Override
    public List<ObservableStampPosition> getPathOrigins() {
-      if (pathOriginsProperty != null) {
-         return pathOriginsProperty.get();
+      if (this.pathOriginsProperty != null) {
+         return this.pathOriginsProperty.get();
       }
 
-      return stampPath.getPathOrigins()
+      return this.stampPath.getPathOrigins()
                       .stream()
                       .map((origin) -> new ObservableStampPositionImpl(origin))
                       .collect(Collectors.toList());

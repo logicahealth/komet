@@ -65,8 +65,8 @@ public class PerFieldAnalyzer
 
    //~--- fields --------------------------------------------------------------
 
-   private WhitespaceAnalyzer wa = new WhitespaceAnalyzer();
-   private StandardAnalyzer   sa = new StandardAnalyzer();
+   private final WhitespaceAnalyzer wa = new WhitespaceAnalyzer();
+   private final StandardAnalyzer   sa = new StandardAnalyzer();
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +78,7 @@ public class PerFieldAnalyzer
 
    @Override
    public String toString() {
-      return "PerFieldAnalyzer(default=" + sa + ", fields ending with '" + WHITE_SPACE_FIELD_MARKER + "': " + wa + ")";
+      return "PerFieldAnalyzer(default=" + this.sa + ", fields ending with '" + WHITE_SPACE_FIELD_MARKER + "': " + this.wa + ")";
    }
 
    /**
@@ -101,9 +101,9 @@ public class PerFieldAnalyzer
    @Override
    protected Analyzer getWrappedAnalyzer(String fieldName) {
       if (fieldName.endsWith(WHITE_SPACE_FIELD_MARKER)) {
-         return wa;
+         return this.wa;
       } else {
-         return sa;
+         return this.sa;
       }
    }
 }

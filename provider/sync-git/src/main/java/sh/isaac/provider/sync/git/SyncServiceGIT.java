@@ -154,7 +154,7 @@ public class SyncServiceGIT
          if (jschConfigured.getCount() > 0) {
             log.debug("Disabling strict host key checking");
 
-            SshSessionFactory factory = new JschConfigSessionFactory() {
+            final SshSessionFactory factory = new JschConfigSessionFactory() {
                @Override
                protected void configure(Host hc, Session session) {
                   session.setConfig("StrictHostKeyChecking", "no");
@@ -163,30 +163,30 @@ public class SyncServiceGIT
 
             SshSessionFactory.setInstance(factory);
             JSch.setLogger(new com.jcraft.jsch.Logger() {
-                              private HashMap<Integer, Consumer<String>> logMap     = new HashMap<>();
-                              private HashMap<Integer, BooleanSupplier>  enabledMap = new HashMap<>();
+                              private final HashMap<Integer, Consumer<String>> logMap     = new HashMap<>();
+                              private final HashMap<Integer, BooleanSupplier>  enabledMap = new HashMap<>();
                               {
 
                                  // Note- JSCH is _really_  verbose at the INFO level, so I'm mapping info to DEBUG.
-                                 logMap.put(com.jcraft.jsch.Logger.DEBUG, log::debug);
-                                 logMap.put(com.jcraft.jsch.Logger.ERROR, log::debug);  // error
-                                 logMap.put(com.jcraft.jsch.Logger.FATAL, log::debug);  // error
-                                 logMap.put(com.jcraft.jsch.Logger.INFO, log::debug);
-                                 logMap.put(com.jcraft.jsch.Logger.WARN, log::debug);   // warn
-                                 enabledMap.put(com.jcraft.jsch.Logger.DEBUG, log::isDebugEnabled);
-                                 enabledMap.put(com.jcraft.jsch.Logger.ERROR, log::isErrorEnabled);
-                                 enabledMap.put(com.jcraft.jsch.Logger.FATAL, log::isErrorEnabled);
-                                 enabledMap.put(com.jcraft.jsch.Logger.INFO, log::isDebugEnabled);
-                                 enabledMap.put(com.jcraft.jsch.Logger.WARN, log::isWarnEnabled);
+                                 this.logMap.put(com.jcraft.jsch.Logger.DEBUG, log::debug);
+                                 this.logMap.put(com.jcraft.jsch.Logger.ERROR, log::debug);  // error
+                                 this.logMap.put(com.jcraft.jsch.Logger.FATAL, log::debug);  // error
+                                 this.logMap.put(com.jcraft.jsch.Logger.INFO, log::debug);
+                                 this.logMap.put(com.jcraft.jsch.Logger.WARN, log::debug);   // warn
+                                 this.enabledMap.put(com.jcraft.jsch.Logger.DEBUG, log::isDebugEnabled);
+                                 this.enabledMap.put(com.jcraft.jsch.Logger.ERROR, log::isErrorEnabled);
+                                 this.enabledMap.put(com.jcraft.jsch.Logger.FATAL, log::isErrorEnabled);
+                                 this.enabledMap.put(com.jcraft.jsch.Logger.INFO, log::isDebugEnabled);
+                                 this.enabledMap.put(com.jcraft.jsch.Logger.WARN, log::isWarnEnabled);
                               }
                               @Override
                               public void log(int level, String message) {
-                                 logMap.get(level)
+                                 this.logMap.get(level)
                                        .accept(message);
                               }
                               @Override
                               public boolean isEnabled(int level) {
-                                 return enabledMap.get(level)
+                                 return this.enabledMap.get(level)
                                                   .getAsBoolean();
                               }
                            });
@@ -209,9 +209,9 @@ public class SyncServiceGIT
          if (files.length == 0) {
             log.debug("No files to add");
          } else {
-            AddCommand ac = git.add();
+            final AddCommand ac = git.add();
 
-            for (String file: files) {
+            for (final String file: files) {
                ac.addFilepattern(file);
             }
 
@@ -219,7 +219,7 @@ public class SyncServiceGIT
          }
 
          log.info("addFiles Complete.  Current status: " + statusToString(git.status().call()));
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -234,12 +234,12 @@ public class SyncServiceGIT
       log.info("Add Untracked files called");
 
       try (Git git = getGit()) {
-         Status s = git.status()
+         final Status s = git.status()
                        .call();
 
          addFiles(s.getUntracked()
                    .toArray(new String[s.getUntracked().size()]));
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -258,7 +258,7 @@ public class SyncServiceGIT
             .setName(branchName)
             .setOrphan(true)
             .call();
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -280,7 +280,7 @@ public class SyncServiceGIT
          git.tag()
             .setName(tagName)
             .call();
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -298,7 +298,7 @@ public class SyncServiceGIT
                    IOException,
                    AuthenticationException {
       log.info("linkAndFetchFromRemote called - folder: {}, remoteAddress: {}, username: {}",
-               localFolder,
+               this.localFolder,
                remoteAddress,
                username);
 
@@ -306,7 +306,7 @@ public class SyncServiceGIT
       Git        git = null;
 
       try {
-         File gitFolder = new File(localFolder, ".git");
+         final File gitFolder = new File(this.localFolder, ".git");
 
          r = new FileRepository(gitFolder);
 
@@ -318,12 +318,12 @@ public class SyncServiceGIT
          relinkRemote(remoteAddress, username, password);
          git = new Git(r);
 
-         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
                : password));
 
          log.debug("Fetching");
 
-         FetchResult fr = git.fetch()
+         final FetchResult fr = git.fetch()
                              .setCheckFetchedObjects(true)
                              .setCredentialsProvider(cp)
                              .call();
@@ -331,11 +331,11 @@ public class SyncServiceGIT
          log.debug("Fetch messages: {}", fr.getMessages());
 
          boolean         remoteHasMaster = false;
-         Collection<Ref> refs            = git.lsRemote()
+         final Collection<Ref> refs            = git.lsRemote()
                                               .setCredentialsProvider(cp)
                                               .call();
 
-         for (Ref ref: refs) {
+         for (final Ref ref: refs) {
             if ("refs/heads/master".equals(ref.getName())) {
                remoteHasMaster = true;
                log.debug("Remote already has 'heads/master'");
@@ -347,7 +347,7 @@ public class SyncServiceGIT
             // we need to fetch and (maybe) merge - get onto origin/master.
             log.debug("Fetching from remote");
 
-            String fetchResult = git.fetch()
+            final String fetchResult = git.fetch()
                                     .setCredentialsProvider(cp)
                                     .call()
                                     .getMessages();
@@ -362,7 +362,7 @@ public class SyncServiceGIT
             // Get the files from master that we didn't have in our working folder
             log.debug("Checking out missing files from origin/master");
 
-            for (String missing: git.status()
+            for (final String missing: git.status()
                                     .call()
                                     .getMissing()) {
                log.debug("Checkout {}", missing);
@@ -371,7 +371,7 @@ public class SyncServiceGIT
                   .call();
             }
 
-            for (String newFile: makeInitialFilesAsNecessary(localFolder)) {
+            for (final String newFile: makeInitialFilesAsNecessary(this.localFolder)) {
                log.debug("Adding and committing {}", newFile);
                git.add()
                   .addFilepattern(newFile)
@@ -381,7 +381,7 @@ public class SyncServiceGIT
                   .setAuthor(username, "42")
                   .call();
 
-               for (PushResult pr: git.push()
+               for (final PushResult pr: git.push()
                                       .setCredentialsProvider(cp)
                                       .call()) {
                   log.debug("Push Message: {}", pr.getMessages());
@@ -390,7 +390,7 @@ public class SyncServiceGIT
          } else {
             // just push
             // make sure we have something to push
-            for (String newFile: makeInitialFilesAsNecessary(localFolder)) {
+            for (final String newFile: makeInitialFilesAsNecessary(this.localFolder)) {
                log.debug("Adding and committing {}", newFile);
                git.add()
                   .addFilepattern(newFile)
@@ -403,7 +403,7 @@ public class SyncServiceGIT
                .call();
             log.debug("Pushing repository");
 
-            for (PushResult pr: git.push()
+            for (final PushResult pr: git.push()
                                    .setCredentialsProvider(cp)
                                    .call()) {
                log.debug("Push Result: {}", pr.getMessages());
@@ -411,7 +411,7 @@ public class SyncServiceGIT
          }
 
          log.info("linkAndFetchFromRemote Complete.  Current status: " + statusToString(git.status().call()));
-      } catch (TransportException te) {
+      } catch (final TransportException te) {
          if (te.getMessage().contains("Auth fail") || te.getMessage().contains("not authorized")) {
             log.info("Auth fail", te);
             throw new AuthenticationException("Auth fail");
@@ -419,7 +419,7 @@ public class SyncServiceGIT
             log.error("Unexpected", te);
             throw new IOException("Internal error", te);
          }
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       } finally {
@@ -440,32 +440,29 @@ public class SyncServiceGIT
                    IOException,
                    AuthenticationException {
       try (Git git = getGit()) {
-         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
                : password));
-         Iterable<PushResult> pr = git.push()
+         final Iterable<PushResult> pr = git.push()
                                       .setRefSpecs(new RefSpec("refs/tags/" + tagName))
                                       .setCredentialsProvider(cp)
                                       .call();
          final StringBuilder failures = new StringBuilder();
 
-         pr.forEach(new Consumer<PushResult>() {
-                       @Override
-                       public void accept(PushResult t) {
-                          log.debug("Push Result Messages: " + t.getMessages());
+         pr.forEach(t -> {
+		      log.debug("Push Result Messages: " + t.getMessages());
 
-                          if (t.getRemoteUpdate("refs/tags/" + tagName)
-                               .getStatus() != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK) {
-                             failures.append("Push Failed: " +
-                                             t.getRemoteUpdate("refs/tags/" + tagName).getStatus().name() +
-                                             " reason: " + t.getRemoteUpdate("refs/tags/" + tagName).getMessage());
-                          }
-                       }
-                    });
+		      if (t.getRemoteUpdate("refs/tags/" + tagName)
+		           .getStatus() != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK) {
+		         failures.append("Push Failed: " +
+		                         t.getRemoteUpdate("refs/tags/" + tagName).getStatus().name() +
+		                         " reason: " + t.getRemoteUpdate("refs/tags/" + tagName).getMessage());
+		      }
+		   });
 
          if (failures.length() > 0) {
             throw new IOException(failures.toString());
          }
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          if (e.getMessage().contains("Auth fail") || e.getMessage().contains("not authorized")) {
             log.info("Auth fail", e);
             throw new AuthenticationException("Auth fail");
@@ -482,8 +479,8 @@ public class SyncServiceGIT
                    IOException,
                    AuthenticationException {
       try (Git git = getGit()) {
-         ArrayList<String>   results = new ArrayList<>();
-         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final ArrayList<String>   results = new ArrayList<>();
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
                : password));
 
          git.fetch()
@@ -491,14 +488,14 @@ public class SyncServiceGIT
             .setCredentialsProvider(cp)
             .call();
 
-         for (Ref x: git.tagList()
+         for (final Ref x: git.tagList()
                         .call()) {
             results.add(x.getName());
          }
 
          git.close();
          return results;
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          if (e.getMessage().contains("Auth fail") || e.getMessage().contains("not authorized")) {
             log.info("Auth fail", e);
             throw new AuthenticationException("Auth fail");
@@ -521,7 +518,7 @@ public class SyncServiceGIT
       try (Git git = getGit()) {
          log.debug("Configuring remote URL and fetch defaults to {}", remoteAddress);
 
-         StoredConfig sc = git.getRepository()
+         final StoredConfig sc = git.getRepository()
                               .getConfig();
 
          sc.setString("remote", "origin", "url", remoteAddress);
@@ -542,9 +539,9 @@ public class SyncServiceGIT
          if (files.length == 0) {
             log.debug("No files to remove");
          } else {
-            RmCommand rm = git.rm();
+            final RmCommand rm = git.rm();
 
-            for (String file: files) {
+            for (final String file: files) {
                rm.addFilepattern(file);
             }
 
@@ -552,7 +549,7 @@ public class SyncServiceGIT
          }
 
          log.info("removeFiles Complete.  Current status: " + statusToString(git.status().call()));
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -572,9 +569,9 @@ public class SyncServiceGIT
       log.info("resolve merge failures called - resolutions: {}", resolutions);
 
       try (Git git = getGit()) {
-         List<Note>  notes       = git.notesList()
+         final List<Note>  notes       = git.notesList()
                                       .call();
-         Set<String> conflicting = git.status()
+         final Set<String> conflicting = git.status()
                                       .call()
                                       .getConflicting();
 
@@ -587,7 +584,7 @@ public class SyncServiceGIT
                 "You must provide a resolution for each conflicting file.  Files in conflict: " + conflicting);
          }
 
-         for (String s: conflicting) {
+         for (final String s: conflicting) {
             if (!resolutions.containsKey(s)) {
                throw new IllegalArgumentException("No conflit resolution specified for file " + s +
                                                   ".  Resolutions must be specified for all files");
@@ -599,12 +596,12 @@ public class SyncServiceGIT
                 "The 'note' that is required for tracking state is missing.  This merge failure must be resolved on the command line");
          }
 
-         String        noteValue = new String(git.getRepository().open(notes.get(0).getData()).getBytes());
+         final String        noteValue = new String(git.getRepository().open(notes.get(0).getData()).getBytes());
          MergeFailType mergeFailType;
 
-         if (noteValue.startsWith(NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE)) {
+         if (noteValue.startsWith(this.NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE)) {
             mergeFailType = MergeFailType.REMOTE_TO_LOCAL;
-         } else if (noteValue.startsWith(NOTE_FAILED_MERGE_HAPPENED_ON_STASH)) {
+         } else if (noteValue.startsWith(this.NOTE_FAILED_MERGE_HAPPENED_ON_STASH)) {
             mergeFailType = MergeFailType.STASH_TO_LOCAL;
          } else {
             throw new IllegalArgumentException(
@@ -613,8 +610,8 @@ public class SyncServiceGIT
 
          String stashIdToApply = null;
 
-         if (noteValue.contains(STASH_MARKER)) {
-            stashIdToApply = noteValue.substring(noteValue.indexOf(STASH_MARKER) + STASH_MARKER.length());
+         if (noteValue.contains(this.STASH_MARKER)) {
+            stashIdToApply = noteValue.substring(noteValue.indexOf(this.STASH_MARKER) + this.STASH_MARKER.length());
          }
 
          return resolveMergeFailures(mergeFailType, stashIdToApply, resolutions);
@@ -636,7 +633,7 @@ public class SyncServiceGIT
    @Override
    public String substituteURL(String url, String username) {
       if (url.startsWith("ssh://") && url.contains("@")) {
-         int index = url.indexOf("@");
+         final int index = url.indexOf("@");
 
          url = "ssh://" + username + url.substring(index);
       }
@@ -685,40 +682,35 @@ public class SyncServiceGIT
          }
 
          if (files.length > 0) {
-            CommitCommand commit = git.commit();
+            final CommitCommand commit = git.commit();
 
-            for (String file: files) {
+            for (final String file: files) {
                commit.setOnly(file);
             }
 
             commit.setAuthor(username, "42");
             commit.setMessage(commitMessage);
 
-            RevCommit rv = commit.call();
+            final RevCommit rv = commit.call();
 
             log.debug("Local commit completed: " + rv.getFullMessage());
          }
 
          // need to merge origin/master into master now, prior to push
-         Set<String> result = updateFromRemote(username, password, mergeFailOption);
+         final Set<String> result = updateFromRemote(username, password, mergeFailOption);
 
          log.debug("Pushing");
 
-         CredentialsProvider  cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider  cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
                : password));
-         Iterable<PushResult> pr = git.push()
+         final Iterable<PushResult> pr = git.push()
                                       .setCredentialsProvider(cp)
                                       .call();
 
-         pr.forEach(new Consumer<PushResult>() {
-                       @Override
-                       public void accept(PushResult t) {
-                          log.debug("Push Result Messages: " + t.getMessages());
-                       }
-                    });
+         pr.forEach(t -> log.debug("Push Result Messages: " + t.getMessages()));
          log.info("commit and push complete.  Current status: " + statusToString(git.status().call()));
          return result;
-      } catch (TransportException te) {
+      } catch (final TransportException te) {
          if (te.getMessage().contains("Auth fail") || te.getMessage().contains("not authorized")) {
             log.info("Auth fail", te);
             throw new AuthenticationException("Auth fail");
@@ -726,7 +718,7 @@ public class SyncServiceGIT
             log.error("Unexpected", te);
             throw new IOException("Internal error", te);
          }
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -761,12 +753,12 @@ public class SyncServiceGIT
             throw new MergeFailure(git.status().call().getConflicting(), new HashSet<>());
          }
 
-         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
                : password));
 
          log.debug("Fetch Message" + git.fetch().setCredentialsProvider(cp).call().getMessages());
 
-         ObjectId masterIdBeforeMerge = git.getRepository()
+         final ObjectId masterIdBeforeMerge = git.getRepository()
                                            .findRef("master")
                                            .getObjectId();
 
@@ -793,25 +785,25 @@ public class SyncServiceGIT
          {
             log.debug("Merging from remotes/origin/master");
 
-            MergeResult mr = git.merge()
+            final MergeResult mr = git.merge()
                                 .include(git.getRepository()
                                             .exactRef("refs/remotes/origin/master"))
                                 .call();
-            AnyObjectId headAfterMergeID = mr.getNewHead();
+            final AnyObjectId headAfterMergeID = mr.getNewHead();
 
             if (!mr.getMergeStatus()
                    .isSuccessful()) {
                if ((mergeFailOption == null) || (MergeFailOption.FAIL == mergeFailOption)) {
-                  addNote(NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE + ((stash == null) ? ":NO_STASH"
-                        : STASH_MARKER + stash.getName()), git);
+                  addNote(this.NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE + ((stash == null) ? ":NO_STASH"
+                        : this.STASH_MARKER + stash.getName()), git);
 
                   // We can use the status here - because we already stashed the stuff that they had uncommitted above.
                   throw new MergeFailure(mr.getConflicts().keySet(), git.status().call().getUncommittedChanges());
                } else if ((MergeFailOption.KEEP_LOCAL == mergeFailOption) ||
                           (MergeFailOption.KEEP_REMOTE == mergeFailOption)) {
-                  HashMap<String, MergeFailOption> resolutions = new HashMap<>();
+                  final HashMap<String, MergeFailOption> resolutions = new HashMap<>();
 
-                  for (String s: mr.getConflicts()
+                  for (final String s: mr.getConflicts()
                                    .keySet()) {
                      resolutions.put(s, mergeFailOption);
                   }
@@ -846,17 +838,17 @@ public class SyncServiceGIT
                log.debug("stash applied cleanly, dropping stash");
                git.stashDrop()
                   .call();
-            } catch (StashApplyFailureException e) {
+            } catch (final StashApplyFailureException e) {
                log.debug("Stash failed to merge");
 
                if ((mergeFailOption == null) || (MergeFailOption.FAIL == mergeFailOption)) {
-                  addNote(NOTE_FAILED_MERGE_HAPPENED_ON_STASH, git);
+                  addNote(this.NOTE_FAILED_MERGE_HAPPENED_ON_STASH, git);
                   throw new MergeFailure(git.status().call().getConflicting(), filesChangedDuringPull);
                } else if ((MergeFailOption.KEEP_LOCAL == mergeFailOption) ||
                           (MergeFailOption.KEEP_REMOTE == mergeFailOption)) {
-                  HashMap<String, MergeFailOption> resolutions = new HashMap<>();
+                  final HashMap<String, MergeFailOption> resolutions = new HashMap<>();
 
-                  for (String s: git.status()
+                  for (final String s: git.status()
                                     .call()
                                     .getConflicting()) {
                      resolutions.put(s, mergeFailOption);
@@ -866,7 +858,7 @@ public class SyncServiceGIT
                   resolveMergeFailures(MergeFailType.STASH_TO_LOCAL, null, resolutions);
 
                   // When we auto resolve to KEEP_LOCAL - these files won't have really changed, even though we recorded a change above.
-                  for (Entry<String, MergeFailOption> r: resolutions.entrySet()) {
+                  for (final Entry<String, MergeFailOption> r: resolutions.entrySet()) {
                      if (MergeFailOption.KEEP_LOCAL == r.getValue()) {
                         filesChangedDuringPull.remove(r.getKey());
                      }
@@ -879,13 +871,13 @@ public class SyncServiceGIT
 
          log.info("Files changed during updateFromRemote: {}", filesChangedDuringPull);
          return filesChangedDuringPull;
-      } catch (CheckoutConflictException e) {
+      } catch (final CheckoutConflictException e) {
          log.error("Unexpected", e);
          throw new IOException(
              "A local file exists (but is not yet added to source control) which conflicts with a file from the server." +
              "  Either delete the local file, or call addFile(...) on the offending file prior to attempting to update from remote.",
              e);
-      } catch (TransportException te) {
+      } catch (final TransportException te) {
          if (te.getMessage().contains("Auth fail") || te.getMessage().contains("not authorized")) {
             log.info("Auth fail", te);
             throw new AuthenticationException("Auth fail");
@@ -893,7 +885,7 @@ public class SyncServiceGIT
             log.error("Unexpected", te);
             throw new IOException("Internal error", te);
          }
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -901,10 +893,10 @@ public class SyncServiceGIT
 
    private void addNote(String message, Git git)
             throws IOException, GitAPIException {
-      RevWalk   walk   = new RevWalk(git.getRepository());
-      Ref       head   = git.getRepository()
+      final RevWalk   walk   = new RevWalk(git.getRepository());
+      final Ref       head   = git.getRepository()
                             .exactRef("refs/heads/master");
-      RevCommit commit = walk.parseCommit(head.getObjectId());
+      final RevCommit commit = walk.parseCommit(head.getObjectId());
 
       git.notesAdd()
          .setObjectId(commit)
@@ -921,22 +913,22 @@ public class SyncServiceGIT
                    IOException {
       log.info("calculating files changed in commit");
 
-      HashSet<String> result       = new HashSet<>();
-      RevWalk         rw           = new RevWalk(repository);
-      RevCommit       commitBefore = rw.parseCommit(beforeID);
-      RevCommit       commitAfter  = rw.parseCommit(afterID);
+      final HashSet<String> result       = new HashSet<>();
+      final RevWalk         rw           = new RevWalk(repository);
+      final RevCommit       commitBefore = rw.parseCommit(beforeID);
+      final RevCommit       commitAfter  = rw.parseCommit(afterID);
 
       rw.close();
 
-      DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+      final DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
 
       df.setRepository(repository);
       df.setDiffComparator(RawTextComparator.DEFAULT);
       df.setDetectRenames(true);
 
-      List<DiffEntry> diffs = df.scan(commitBefore.getTree(), commitAfter.getTree());
+      final List<DiffEntry> diffs = df.scan(commitBefore.getTree(), commitAfter.getTree());
 
-      for (DiffEntry diff: diffs) {
+      for (final DiffEntry diff: diffs) {
          result.add(diff.getNewPath());
       }
 
@@ -950,29 +942,29 @@ public class SyncServiceGIT
     */
    private List<String> makeInitialFilesAsNecessary(File containingFolder)
             throws IOException {
-      ArrayList<String> result = new ArrayList<>();
-      File              readme = new File(containingFolder, "README.md");
+      final ArrayList<String> result = new ArrayList<>();
+      final File              readme = new File(containingFolder, "README.md");
 
       if (!readme.isFile()) {
          log.debug("Creating {}", readme.getAbsolutePath());
-         Files.write(readme.toPath(), new String(readMeFileContent_).getBytes(), StandardOpenOption.CREATE_NEW);
+         Files.write(readme.toPath(), new String(this.readMeFileContent_).getBytes(), StandardOpenOption.CREATE_NEW);
          result.add(readme.getName());
       } else {
          log.debug("README.md already exists");
       }
 
-      File ignore = new File(containingFolder, ".gitignore");
+      final File ignore = new File(containingFolder, ".gitignore");
 
       if (!ignore.isFile()) {
          log.debug("Creating {}", ignore.getAbsolutePath());
-         Files.write(ignore.toPath(), new String(gitIgnoreText_).getBytes(), StandardOpenOption.CREATE_NEW);
+         Files.write(ignore.toPath(), new String(this.gitIgnoreText_).getBytes(), StandardOpenOption.CREATE_NEW);
          result.add(ignore.getName());
       } else {
          log.debug(".gitignore already exists");
 
-         if (!new String(Files.readAllBytes(ignore.toPath())).contains(gitIgnoreText_)) {
+         if (!new String(Files.readAllBytes(ignore.toPath())).contains(this.gitIgnoreText_)) {
             log.debug("Appending onto existing .gitignore file");
-            Files.write(ignore.toPath(), new String("\r\n" + gitIgnoreText_).getBytes(), StandardOpenOption.APPEND);
+            Files.write(ignore.toPath(), new String("\r\n" + this.gitIgnoreText_).getBytes(), StandardOpenOption.APPEND);
             result.add(ignore.getName());
          }
       }
@@ -994,7 +986,7 @@ public class SyncServiceGIT
       try (Git git = getGit();) {
          // We unfortunately, must know the mergeFailType option, because the resolution mechanism here uses OURS and THEIRS - but the
          // meaning of OURS and THEIRS reverse, depending on if you are recovering from a merge failure, or a stash apply failure.
-         for (Entry<String, MergeFailOption> r: resolutions.entrySet()) {
+         for (final Entry<String, MergeFailOption> r: resolutions.entrySet()) {
             if (MergeFailOption.FAIL == r.getValue()) {
                throw new IllegalArgumentException("MergeFailOption.FAIL is not a valid option");
             } else if (MergeFailOption.KEEP_LOCAL == r.getValue()) {
@@ -1028,15 +1020,15 @@ public class SyncServiceGIT
                .call();
          }
 
-         RevWalk   walk                    = new RevWalk(git.getRepository());
-         Ref       head                    = git.getRepository()
+         final RevWalk   walk                    = new RevWalk(git.getRepository());
+         final Ref       head                    = git.getRepository()
                                                 .exactRef("refs/heads/master");
-         RevCommit commitWithPotentialNote = walk.parseCommit(head.getObjectId());
+         final RevCommit commitWithPotentialNote = walk.parseCommit(head.getObjectId());
 
          walk.close();
          log.info("resolve merge failures Complete.  Current status: " + statusToString(git.status().call()));
 
-         RevCommit rc = git.commit()
+         final RevCommit rc = git.commit()
                            .setMessage("Merging with user specified merge failure resolution for files " +
                                        resolutions.keySet())
                            .call();
@@ -1045,14 +1037,14 @@ public class SyncServiceGIT
             .setObjectId(commitWithPotentialNote)
             .call();
 
-         Set<String> filesChangedInCommit = listFilesChangedInCommit(git.getRepository(),
+         final Set<String> filesChangedInCommit = listFilesChangedInCommit(git.getRepository(),
                                                                      commitWithPotentialNote.getId(),
                                                                      rc);
 
          // When we auto resolve to KEEP_REMOTE - these will have changed - make sure they are in the list.
          // seems like this shouldn't really be necessary - need to look into the listFilesChangedInCommit algorithm closer.
          // this might already be fixed by the rework on 11/12/14, but no time to validate at the moment. - doesn't do any harm.
-         for (Entry<String, MergeFailOption> r: resolutions.entrySet()) {
+         for (final Entry<String, MergeFailOption> r: resolutions.entrySet()) {
             if (MergeFailOption.KEEP_REMOTE == r.getValue()) {
                filesChangedInCommit.add(r.getKey());
             }
@@ -1072,22 +1064,22 @@ public class SyncServiceGIT
                log.debug("stash applied cleanly, dropping stash");
                git.stashDrop()
                   .call();
-            } catch (StashApplyFailureException e) {
+            } catch (final StashApplyFailureException e) {
                log.debug("Stash failed to merge");
-               addNote(NOTE_FAILED_MERGE_HAPPENED_ON_STASH, git);
+               addNote(this.NOTE_FAILED_MERGE_HAPPENED_ON_STASH, git);
                throw new MergeFailure(git.status().call().getConflicting(), filesChangedInCommit);
             }
          }
 
          return filesChangedInCommit;
-      } catch (GitAPIException e) {
+      } catch (final GitAPIException e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
    }
 
    private String statusToString(Status status) {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append(" Is clean: ")
         .append(status.isClean())
@@ -1138,7 +1130,7 @@ public class SyncServiceGIT
          return git.status()
                    .call()
                    .getConflicting();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -1146,19 +1138,19 @@ public class SyncServiceGIT
 
    private Git getGit()
             throws IOException, IllegalArgumentException {
-      if (localFolder == null) {
+      if (this.localFolder == null) {
          throw new IllegalArgumentException("localFolder has not yet been set - please call setRootLocation(...)");
       }
 
-      if (!localFolder.isDirectory()) {
-         log.error("The passed in local folder '{}' didn't exist", localFolder);
+      if (!this.localFolder.isDirectory()) {
+         log.error("The passed in local folder '{}' didn't exist", this.localFolder);
          throw new IllegalArgumentException("The localFolder must be a folder, and must exist");
       }
 
-      File gitFolder = new File(localFolder, ".git");
+      final File gitFolder = new File(this.localFolder, ".git");
 
       if (!gitFolder.isDirectory()) {
-         log.error("The passed in local folder '{}' does not appear to be a git repository", localFolder);
+         log.error("The passed in local folder '{}' does not appear to be a git repository", this.localFolder);
          throw new IllegalArgumentException("The localFolder does not appear to be a git repository");
       }
 
@@ -1172,7 +1164,7 @@ public class SyncServiceGIT
     * @param gitIgnoreContent
     */
    public void setGitIgnoreContent(String gitIgnoreContent) {
-      gitIgnoreText_ = gitIgnoreContent;
+      this.gitIgnoreText_ = gitIgnoreContent;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -1189,7 +1181,7 @@ public class SyncServiceGIT
                    .call()
                    .getUncommittedChanges()
                    .size();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected", e);
          throw new IOException("Internal error", e);
       }
@@ -1202,7 +1194,7 @@ public class SyncServiceGIT
     */
    @Override
    public void setReadmeFileContent(String readmeFileContent) {
-      readMeFileContent_ = readmeFileContent;
+      this.readMeFileContent_ = readmeFileContent;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -1242,7 +1234,7 @@ public class SyncServiceGIT
     */
    @Override
    public boolean isRootLocationConfiguredForSCM() {
-      return new File(localFolder, ".git").isDirectory();
+      return new File(this.localFolder, ".git").isDirectory();
    }
 }
 

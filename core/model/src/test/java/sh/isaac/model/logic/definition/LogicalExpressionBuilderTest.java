@@ -66,7 +66,7 @@ public class LogicalExpressionBuilderTest {
    @Test
    public void testAddToRoot()
             throws Exception {
-      LogicalExpressionBuilder builder = builderProvider.getLogicalExpressionBuilder();
+      this.builderProvider.getLogicalExpressionBuilder();
    }
 
    //~--- set methods ---------------------------------------------------------

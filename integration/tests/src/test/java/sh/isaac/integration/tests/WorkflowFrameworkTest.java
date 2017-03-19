@@ -149,49 +149,49 @@ public class WorkflowFrameworkTest {
       LOG.info("Testing Ability to cancel changes made to a sememe's text");
 
       try {
-         UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                             .createWorkflowProcess(wp_.getBPMNInfo()
+         final UUID processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                             .createWorkflowProcess(this.wp_.getBPMNInfo()
                                    .getDefinitionId(),
                                    userId,
                                    "Framework Workflow Name",
                                    " Framework Workflow Description");
-         ConceptChronology<? extends ConceptVersion<?>> con = Get.conceptService()
+         final ConceptChronology<? extends ConceptVersion<?>> con = Get.conceptService()
                                                                  .getConcept(firstTestConceptNid);
-         SememeChronologyImpl descSem = (SememeChronologyImpl) con.getConceptDescriptionList()
+         final SememeChronologyImpl descSem = (SememeChronologyImpl) con.getConceptDescriptionList()
                                                                   .iterator()
                                                                   .next();
          Optional<LatestVersion<DescriptionSememe<?>>> latestDescVersion =
             ((SememeChronology) descSem).getLatestVersion(DescriptionSememe.class,
                                                           Get.configurationService()
                                                                 .getDefaultStampCoordinate());
-         String originalText = latestDescVersion.get()
+         final String originalText = latestDescVersion.get()
                                                 .value()
                                                 .getText();
 
          // Modify Sememe Text
-         DescriptionSememeImpl createdVersion = cloneVersion(descSem, State.ACTIVE);
+         final DescriptionSememeImpl createdVersion = cloneVersion(descSem, State.ACTIVE);
 
          createdVersion.setText("New Text");
          Get.commitService()
             .addUncommitted(descSem)
             .get();
 
-         Optional<CommitRecord> commitRecord = Get.commitService()
+         final Optional<CommitRecord> commitRecord = Get.commitService()
                                                   .commit("Inactivating sememe for Testing")
                                                   .get();
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
             .advanceWorkflow(processId,
                              userId,
                              "Cancel Workflow",
                              "Canceling Workflow for Testing",
-                             defaultEditCoordinate);
+                             this.defaultEditCoordinate);
 
-         SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
+         final SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
                                                                     .getSememe(descSem.getNid());
 
          latestDescVersion = ((SememeChronology) semChron).getLatestVersion(DescriptionSememe.class,
@@ -200,7 +200,7 @@ public class WorkflowFrameworkTest {
          Assert.assertEquals(originalText, latestDescVersion.get()
                .value()
                .getText());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail(e.getMessage());
       }
    }
@@ -214,25 +214,25 @@ public class WorkflowFrameworkTest {
       LOG.info("Testing Ability to cancel change on a concept and a sememe made inactive when originally was active");
 
       try {
-         UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                             .createWorkflowProcess(wp_.getBPMNInfo()
+         final UUID processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                             .createWorkflowProcess(this.wp_.getBPMNInfo()
                                    .getDefinitionId(),
                                    userId,
                                    "Framework Workflow Name",
                                    " Framework Workflow Description");
-         ConceptChronologyImpl con      = (ConceptChronologyImpl) Get.conceptService()
+         final ConceptChronologyImpl con      = (ConceptChronologyImpl) Get.conceptService()
                                                                      .getConcept(firstTestConceptNid);
-         int                   semNid   = con.getConceptDescriptionList()
+         final int                   semNid   = con.getConceptDescriptionList()
                                              .iterator()
                                              .next()
                                              .getNid();
-         SememeChronologyImpl  semChron = (SememeChronologyImpl) Get.sememeService()
+         final SememeChronologyImpl  semChron = (SememeChronologyImpl) Get.sememeService()
                                                                     .getSememe(semNid);
 
          verifyState(con, semChron, State.ACTIVE);
 
          // Inactivate Concept
-         con.createMutableVersion(State.INACTIVE, defaultEditCoordinate);
+         con.createMutableVersion(State.INACTIVE, this.defaultEditCoordinate);
          Get.commitService()
             .addUncommitted(con)
             .get();
@@ -241,11 +241,11 @@ public class WorkflowFrameworkTest {
                                                   .commit("Inactivating concept for Testing")
                                                   .get();
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
 
          // Inactivate Sememe
-         DescriptionSememeImpl createdVersion = cloneVersion(semChron, State.INACTIVE);
+         final DescriptionSememeImpl createdVersion = cloneVersion(semChron, State.INACTIVE);
 
          Get.commitService()
             .addUncommitted(semChron)
@@ -253,19 +253,19 @@ public class WorkflowFrameworkTest {
          commitRecord = Get.commitService()
                            .commit("Inactivating sememe for Testing")
                            .get();
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
          verifyState(con, semChron, State.INACTIVE);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
             .advanceWorkflow(processId,
                              userId,
                              "Cancel Workflow",
                              "Canceling Workflow for Testing",
-                             defaultEditCoordinate);
+                             this.defaultEditCoordinate);
          verifyState(con, semChron, State.ACTIVE);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -299,24 +299,24 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
-         wp_.getWorkflowProcessInitializerConcluder()
+         this.wp_.getWorkflowProcessInitializerConcluder()
             .endWorkflowProcess(processId,
                                 getCancelAction(),
                                 userId,
                                 "Canceling Workflow for Testing",
                                 EndWorkflowType.CANCELED,
-                                defaultEditCoordinate);
+                                this.defaultEditCoordinate);
          Assert.assertEquals(ProcessStatus.CANCELED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -332,24 +332,24 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
-         wp_.getWorkflowProcessInitializerConcluder()
+         this.wp_.getWorkflowProcessInitializerConcluder()
             .endWorkflowProcess(processId,
                                 getConcludeAction(),
                                 userId,
                                 "Concluding Workflow for Testing",
                                 EndWorkflowType.CONCLUDED,
-                                defaultEditCoordinate);
-      } catch (Exception e) {
+                                this.defaultEditCoordinate);
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
-      Assert.assertEquals(ProcessStatus.DEFINED, wp_.getWorkflowAccessor()
+      Assert.assertEquals(ProcessStatus.DEFINED, this.wp_.getWorkflowAccessor()
             .getProcessDetails(processId)
             .getStatus());
    }
@@ -365,40 +365,40 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
 
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", defaultEditCoordinate);
-         Assert.assertFalse(wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", this.defaultEditCoordinate);
+         Assert.assertFalse(this.wp_.getWorkflowUpdater()
                                .advanceWorkflow(processId,
                                      userId,
                                      "Cancel Workflow",
                                      "Canceling Workflow for Testing",
-                                     defaultEditCoordinate));
+                                     this.defaultEditCoordinate));
          Assert.assertEquals(ProcessStatus.CONCLUDED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
 
          Assert.assertTrue(isEndState(hx.getOutcomeState(), EndWorkflowType.CONCLUDED));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -414,55 +414,55 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
 
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
 
-         Assert.assertTrue(wp_.getBPMNInfo()
+         Assert.assertTrue(this.wp_.getBPMNInfo()
                               .getEditStatesMap()
-                              .get(wp_.getBPMNInfo()
+                              .get(this.wp_.getBPMNInfo()
                                       .getDefinitionId())
                               .contains(hx.getOutcomeState()));
-         Assert.assertTrue(isStartState(wp_.getBPMNInfo()
+         Assert.assertTrue(isStartState(this.wp_.getBPMNInfo()
                                            .getDefinitionId(), hx.getInitialState()));
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
 
-         boolean result = wp_.getWorkflowUpdater()
+         final boolean result = this.wp_.getWorkflowUpdater()
                              .advanceWorkflow(processId,
                                    userId,
                                    "Approve",
                                    "Concluding Workflow for Testing",
-                                   defaultEditCoordinate);
+                                   this.defaultEditCoordinate);
 
          Assert.assertFalse(result);
          Assert.assertEquals(ProcessStatus.LAUNCHED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
-         hx = wp_.getWorkflowAccessor()
+         hx = this.wp_.getWorkflowAccessor()
                  .getProcessHistory(processId)
                  .last();
-         Assert.assertFalse(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getBPMNInfo()
                                .getEditStatesMap()
-                               .get(wp_.getBPMNInfo()
+                               .get(this.wp_.getBPMNInfo()
                                        .getDefinitionId())
                                .contains(hx.getOutcomeState()));
-         Assert.assertFalse(isStartState(wp_.getBPMNInfo()
+         Assert.assertFalse(isStartState(this.wp_.getBPMNInfo()
                                             .getDefinitionId(), hx.getInitialState()));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -498,8 +498,8 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
@@ -507,33 +507,33 @@ public class WorkflowFrameworkTest {
 
          Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
          commitRecord = createNewVersion(firstTestConceptNid, null);
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
 
          try {
             commitRecord = createNewVersion(firstTestConceptNid, null);
-            wp_.getWorkflowUpdater()
+            this.wp_.getWorkflowUpdater()
                .addCommitRecordToWorkflow(processId, commitRecord);
             Assert.fail();
-         } catch (Exception e) {
+         } catch (final Exception e) {
             Assert.assertTrue(true);
          }
 
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Fails", "QA Fail", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Fails", "QA Fail", this.defaultEditCoordinate);
          commitRecord = createNewVersion(firstTestConceptNid, null);
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
          Assert.assertEquals(ProcessStatus.LAUNCHED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -546,16 +546,16 @@ public class WorkflowFrameworkTest {
       clearStores();
       LOG.info("Testing inability to launch a workflow that has yet to be defined");
 
-      UUID processId = UUID.randomUUID();
+      final UUID processId = UUID.randomUUID();
 
       try {
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
          Assert.assertTrue(true);
 
          AbstractStorableWorkflowContents process = null;
 
-         process = wp_.getWorkflowAccessor()
+         process = this.wp_.getWorkflowAccessor()
                       .getProcessDetails(processId);
 
          if (process == null) {
@@ -563,7 +563,7 @@ public class WorkflowFrameworkTest {
          } else {
             Assert.fail();
          }
-      } catch (Exception ee) {
+      } catch (final Exception ee) {
          Assert.fail();
       }
    }
@@ -581,9 +581,9 @@ public class WorkflowFrameworkTest {
       // pass.
       Assert.assertTrue(true);
 
-      UUID          processId = createFirstWorkflowProcess(wp_.getBPMNInfo()
+      final UUID          processId = createFirstWorkflowProcess(this.wp_.getBPMNInfo()
                                                               .getDefinitionId());
-      ProcessDetail details   = wp_.getProcessDetailStore()
+      ProcessDetail details   = this.wp_.getProcessDetailStore()
                                    .get(processId);
 
       Assert.assertFalse(details.getComponentToInitialEditMap()
@@ -591,11 +591,11 @@ public class WorkflowFrameworkTest {
                                 .contains(firstTestConceptNid));
 
       Optional<CommitRecord> commitRecord      = createNewVersion(firstTestConceptNid, null);
-      Stamp                  commitRecordStamp = createStampFromCommitRecord(commitRecord);
+      final Stamp                  commitRecordStamp = createStampFromCommitRecord(commitRecord);
 
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(processId, commitRecord);
-      details = wp_.getProcessDetailStore()
+      details = this.wp_.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(1, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -610,11 +610,11 @@ public class WorkflowFrameworkTest {
             .get(firstTestConceptNid)));
       commitRecord = createNewVersion(firstTestConceptNid, null);
 
-      Stamp updatedCommitRecordStamp = createStampFromCommitRecord(commitRecord);
+      final Stamp updatedCommitRecordStamp = createStampFromCommitRecord(commitRecord);
 
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(processId, commitRecord);
-      details = wp_.getProcessDetailStore()
+      details = this.wp_.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(1, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -651,58 +651,58 @@ public class WorkflowFrameworkTest {
             throws Exception {
       clearStores();
 
-      UUID processId = UUID.randomUUID();
+      final UUID processId = UUID.randomUUID();
 
       try {
-         wp_.getWorkflowUpdater()
-            .removeComponentFromWorkflow(processId, firstTestConceptNid, defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .removeComponentFromWorkflow(processId, firstTestConceptNid, this.defaultEditCoordinate);
          Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
-      UUID                   firstProcessId = createFirstWorkflowProcess(wp_.getBPMNInfo()
+      final UUID                   firstProcessId = createFirstWorkflowProcess(this.wp_.getBPMNInfo()
                                                                             .getDefinitionId());
-      Optional<CommitRecord> commitRecord   = createNewVersion(firstTestConceptNid, null);
+      final Optional<CommitRecord> commitRecord   = createNewVersion(firstTestConceptNid, null);
 
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(firstProcessId, commitRecord);
-      wp_.getWorkflowUpdater()
-         .advanceWorkflow(firstProcessId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
+      this.wp_.getWorkflowUpdater()
+         .advanceWorkflow(firstProcessId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
 
       try {
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(firstProcessId, commitRecord);
          Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
       try {
          // Go back to no components in any workflow
-         wp_.getWorkflowUpdater()
-            .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, this.defaultEditCoordinate);
          Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
       executeSendForReviewAdvancement(firstProcessId);
 
       try {
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(firstProcessId, commitRecord);
          Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
       try {
          // Go back to no components in any workflow
-         wp_.getWorkflowUpdater()
-            .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, this.defaultEditCoordinate);
          Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
@@ -710,14 +710,14 @@ public class WorkflowFrameworkTest {
       executeRejectReviewAdvancement(firstProcessId);
 
       // Go back to no components in any workflow
-      wp_.getWorkflowUpdater()
-         .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, defaultEditCoordinate);
+      this.wp_.getWorkflowUpdater()
+         .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, this.defaultEditCoordinate);
 
       // Testing LAUNCHED-EDIT Case
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(firstProcessId, commitRecord);
 
-      ProcessDetail details = wp_.getProcessDetailStore()
+      final ProcessDetail details = this.wp_.getProcessDetailStore()
                                  .get(firstProcessId);
 
       Assert.assertEquals(1, details.getComponentToInitialEditMap()
@@ -734,10 +734,10 @@ public class WorkflowFrameworkTest {
       cancelWorkflow(firstProcessId);
 
       try {
-         wp_.getWorkflowUpdater()
-            .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .removeComponentFromWorkflow(firstProcessId, firstTestConceptNid, this.defaultEditCoordinate);
          Assert.fail();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.assertTrue(true);
       }
    }
@@ -750,9 +750,9 @@ public class WorkflowFrameworkTest {
             throws Exception {
       clearStores();
 
-      UUID          processId = createFirstWorkflowProcess(wp_.getBPMNInfo()
+      final UUID          processId = createFirstWorkflowProcess(this.wp_.getBPMNInfo()
                                                               .getDefinitionId());
-      ProcessDetail details   = wp_.getProcessDetailStore()
+      ProcessDetail details   = this.wp_.getProcessDetailStore()
                                    .get(processId);
 
       Assert.assertEquals(0, details.getComponentToInitialEditMap()
@@ -761,25 +761,25 @@ public class WorkflowFrameworkTest {
 
       Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(processId, commitRecord);
       commitRecord = createNewVersion(firstTestConceptNid, null);
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(processId, commitRecord);
       commitRecord = createNewVersion(secondTestConceptNid, null);
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(processId, commitRecord);
       commitRecord = createNewVersion(secondTestConceptNid, null);
-      wp_.getWorkflowUpdater()
+      this.wp_.getWorkflowUpdater()
          .addCommitRecordToWorkflow(processId, commitRecord);
-      details = wp_.getProcessDetailStore()
+      details = this.wp_.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()
                                     .keySet()
                                     .size());
-      wp_.getWorkflowUpdater()
-         .removeComponentFromWorkflow(processId, firstTestConceptNid, defaultEditCoordinate);
-      details = wp_.getProcessDetailStore()
+      this.wp_.getWorkflowUpdater()
+         .removeComponentFromWorkflow(processId, firstTestConceptNid, this.defaultEditCoordinate);
+      details = this.wp_.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(1, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -790,9 +790,9 @@ public class WorkflowFrameworkTest {
       Assert.assertTrue(details.getComponentToInitialEditMap()
                                .keySet()
                                .contains(secondTestConceptNid));
-      wp_.getWorkflowUpdater()
-         .removeComponentFromWorkflow(processId, secondTestConceptNid, defaultEditCoordinate);
-      details = wp_.getProcessDetailStore()
+      this.wp_.getWorkflowUpdater()
+         .removeComponentFromWorkflow(processId, secondTestConceptNid, this.defaultEditCoordinate);
+      details = this.wp_.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(0, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -808,21 +808,21 @@ public class WorkflowFrameworkTest {
       firstTestConceptNid        = MetaData.ISAAC_METADATA.getNid();
       secondTestConceptNid       = MetaData.ACCEPTABLE.getNid();
       WorkflowProvider.BPMN_PATH = BPMN_FILE_PATH;
-      wp_                        = LookupService.get()
+      this.wp_                        = LookupService.get()
             .getService(WorkflowProvider.class);
-      cancelAction = wp_.getBPMNInfo()
+      cancelAction = this.wp_.getBPMNInfo()
                         .getEndWorkflowTypeMap()
                         .get(EndWorkflowType.CONCLUDED)
                         .iterator()
                         .next();
-      defaultEditCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
+      this.defaultEditCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
             MetaData.ISAAC_MODULE.getNid(),
             MetaData.DEVELOPMENT_PATH.getNid());
 
-      ObservableStampCoordinate defaultSC = Get.configurationService()
+      final ObservableStampCoordinate defaultSC = Get.configurationService()
                                                .getDefaultStampCoordinate();
 
-      defaultStampCoordinate = new StampCoordinateImpl(defaultSC.getStampPrecedence(),
+      this.defaultStampCoordinate = new StampCoordinateImpl(defaultSC.getStampPrecedence(),
             defaultSC.getStampPosition(),
             defaultSC.getModuleSequences(),
             State.ANY_STATE_SET);
@@ -840,19 +840,19 @@ public class WorkflowFrameworkTest {
 
       try {
          // Create WF
-         UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                             .createWorkflowProcess(wp_.getBPMNInfo()
+         final UUID processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                             .createWorkflowProcess(this.wp_.getBPMNInfo()
                                    .getDefinitionId(),
                                    userId,
                                    "Framework Workflow Name",
                                    " Framework Workflow Description");
-         long timeCreated = wp_.getWorkflowAccessor()
+         long timeCreated = this.wp_.getWorkflowAccessor()
                                .getProcessDetails(processId)
                                .getTimeCreated();
-         long timeCanceledOrConcluded = wp_.getWorkflowAccessor()
+         long timeCanceledOrConcluded = this.wp_.getWorkflowAccessor()
                                            .getProcessDetails(processId)
                                            .getTimeCanceledOrConcluded();
-         long timeLaunched = wp_.getWorkflowAccessor()
+         long timeLaunched = this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getTimeLaunched();
 
@@ -861,19 +861,19 @@ public class WorkflowFrameworkTest {
          Assert.assertEquals(-1, timeCanceledOrConcluded);
 
          // Launch WF
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         timeCreated             = wp_.getWorkflowAccessor()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         timeCreated             = this.wp_.getWorkflowAccessor()
                                       .getProcessDetails(processId)
                                       .getTimeCreated();
-         timeCanceledOrConcluded = wp_.getWorkflowAccessor()
+         timeCanceledOrConcluded = this.wp_.getWorkflowAccessor()
                                       .getProcessDetails(processId)
                                       .getTimeCanceledOrConcluded();
-         timeLaunched            = wp_.getWorkflowAccessor()
+         timeLaunched            = this.wp_.getWorkflowAccessor()
                                       .getProcessDetails(processId)
                                       .getTimeLaunched();
          Assert.assertTrue(timeCreated > -1);
@@ -881,25 +881,25 @@ public class WorkflowFrameworkTest {
          Assert.assertEquals(-1, timeCanceledOrConcluded);
 
          // Cancel WF
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .advanceWorkflow(processId,
                              userId,
                              "Cancel Workflow",
                              "Canceling Workflow for Testing",
-                             defaultEditCoordinate);
-         timeCreated             = wp_.getWorkflowAccessor()
+                             this.defaultEditCoordinate);
+         timeCreated             = this.wp_.getWorkflowAccessor()
                                       .getProcessDetails(processId)
                                       .getTimeCreated();
-         timeCanceledOrConcluded = wp_.getWorkflowAccessor()
+         timeCanceledOrConcluded = this.wp_.getWorkflowAccessor()
                                       .getProcessDetails(processId)
                                       .getTimeCanceledOrConcluded();
-         timeLaunched            = wp_.getWorkflowAccessor()
+         timeLaunched            = this.wp_.getWorkflowAccessor()
                                       .getProcessDetails(processId)
                                       .getTimeLaunched();
          Assert.assertTrue(timeCreated > -1);
          Assert.assertTrue(timeLaunched > -1);
          Assert.assertTrue(timeCanceledOrConcluded > -1);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail(e.getMessage());
       }
    }
@@ -913,42 +913,42 @@ public class WorkflowFrameworkTest {
       LOG.info("Testing ability to define and launch workflow on a concept that has an already-concluded workflow");
 
       try {
-         UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                             .createWorkflowProcess(wp_.getBPMNInfo()
+         UUID processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                             .createWorkflowProcess(this.wp_.getBPMNInfo()
                                    .getDefinitionId(),
                                    userId,
                                    "Framework Workflow Name",
                                    " Framework Workflow Description");
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", this.defaultEditCoordinate);
          Assert.assertEquals(ProcessStatus.CONCLUDED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
 
          Assert.assertTrue(isEndState(hx.getOutcomeState(), EndWorkflowType.CONCLUDED));
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name2",
                               " Framework Workflow Description");
-         Assert.assertEquals(ProcessStatus.DEFINED, wp_.getWorkflowAccessor()
+         Assert.assertEquals(ProcessStatus.DEFINED, this.wp_.getWorkflowAccessor()
                .getProcessDetails(processId)
                .getStatus());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -965,57 +965,57 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
 
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Fails", "Fail Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Second Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Reject Edit", "Reject Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Third Edit Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Passes", "Second Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Reject Review", "Reject Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Passes", "Third Review Comment", defaultEditCoordinate);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Fails", "Fail Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Second Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Reject Edit", "Reject Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Third Edit Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Passes", "Second Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Reject Review", "Reject Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Passes", "Third Review Comment", this.defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", this.defaultEditCoordinate);
 
-         boolean result = wp_.getWorkflowUpdater()
+         final boolean result = this.wp_.getWorkflowUpdater()
                              .advanceWorkflow(processId,
                                    userId,
                                    "Approve",
                                    "Concluding Workflow for Testing",
-                                   defaultEditCoordinate);
+                                   this.defaultEditCoordinate);
 
          Assert.assertFalse(result);
          Assert.assertEquals(ProcessStatus.CONCLUDED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
 
          Assert.assertTrue(isEndState(hx.getOutcomeState(), EndWorkflowType.CONCLUDED));
-      } catch (Exception ee) {
+      } catch (final Exception ee) {
          Assert.fail();
       }
    }
@@ -1031,72 +1031,72 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
-         Assert.assertEquals(userId, wp_.getProcessDetailStore()
+         Assert.assertEquals(userId, this.wp_.getProcessDetailStore()
                                         .get(processId)
                                         .getOwnerId());
 
-         ProcessDetail process = wp_.getProcessDetailStore()
+         ProcessDetail process = this.wp_.getProcessDetailStore()
                                     .get(processId);
 
          Assert.assertEquals(userId, process.getOwnerId());
 
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         process = wp_.getProcessDetailStore()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         process = this.wp_.getProcessDetailStore()
                       .get(processId);
          Assert.assertEquals(BPMNInfo.UNOWNED_PROCESS, process.getOwnerId());
          process.setOwnerId(userId);
-         wp_.getProcessDetailStore()
+         this.wp_.getProcessDetailStore()
             .put(processId, process);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", defaultEditCoordinate);
-         process = wp_.getProcessDetailStore()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "QA Passes", "Review Comment", this.defaultEditCoordinate);
+         process = this.wp_.getProcessDetailStore()
                       .get(processId);
          Assert.assertEquals(BPMNInfo.UNOWNED_PROCESS, process.getOwnerId());
          process.setOwnerId(userId);
-         wp_.getProcessDetailStore()
+         this.wp_.getProcessDetailStore()
             .put(processId, process);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", defaultEditCoordinate);
-         process = wp_.getProcessDetailStore()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Approve", "Approve Comment", this.defaultEditCoordinate);
+         process = this.wp_.getProcessDetailStore()
                       .get(processId);
          Assert.assertEquals(ProcessStatus.CONCLUDED, process.getStatus());
          Assert.assertEquals(BPMNInfo.UNOWNED_PROCESS, process.getOwnerId());
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
 
          Assert.assertTrue(isEndState(hx.getOutcomeState(), EndWorkflowType.CONCLUDED));
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
-         process = wp_.getProcessDetailStore()
+         process = this.wp_.getProcessDetailStore()
                       .get(processId);
          Assert.assertEquals(userId, process.getOwnerId());
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .advanceWorkflow(processId,
                              userId,
                              "Cancel Workflow",
                              "Canceling Workflow for Testing",
-                             defaultEditCoordinate);
-         process = wp_.getProcessDetailStore()
+                             this.defaultEditCoordinate);
+         process = this.wp_.getProcessDetailStore()
                       .get(processId);
          Assert.assertEquals(BPMNInfo.UNOWNED_PROCESS, process.getOwnerId());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -1112,38 +1112,38 @@ public class WorkflowFrameworkTest {
       UUID processId = null;
 
       try {
-         processId = wp_.getWorkflowProcessInitializerConcluder()
-                        .createWorkflowProcess(wp_.getBPMNInfo()
+         processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                        .createWorkflowProcess(this.wp_.getBPMNInfo()
                               .getDefinitionId(),
                               userId,
                               "Framework Workflow Name",
                               " Framework Workflow Description");
 
-         Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
+         final Optional<CommitRecord> commitRecord = createNewVersion(firstTestConceptNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
          Thread.sleep(1);  // TODO fix Dan Work around bug in design
-         wp_.getWorkflowProcessInitializerConcluder()
+         this.wp_.getWorkflowProcessInitializerConcluder()
             .endWorkflowProcess(processId,
                                 getCancelAction(),
                                 userId,
                                 "Canceling Workflow for Testing",
                                 EndWorkflowType.CANCELED,
-                                defaultEditCoordinate);
+                                this.defaultEditCoordinate);
          Assert.assertEquals(ProcessStatus.CANCELED,
-                             wp_.getWorkflowAccessor()
+                             this.wp_.getWorkflowAccessor()
                                 .getProcessDetails(processId)
                                 .getStatus());
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
 
          Assert.assertTrue(isEndState(hx.getOutcomeState(), EndWorkflowType.CANCELED));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -1156,71 +1156,71 @@ public class WorkflowFrameworkTest {
       clearStores();
       LOG.info("Testing Workflow History Accessor isComponentInActiveWorkflow()");
 
-      ConceptChronology<? extends ConceptVersion<?>>   con     = Get.conceptService()
+      final ConceptChronology<? extends ConceptVersion<?>>   con     = Get.conceptService()
                                                                     .getConcept(firstTestConceptNid);
-      SememeChronology<? extends DescriptionSememe<?>> descSem = con.getConceptDescriptionList()
+      final SememeChronology<? extends DescriptionSememe<?>> descSem = con.getConceptDescriptionList()
                                                                     .iterator()
                                                                     .next();
-      int                                              conNid  = con.getNid();
-      int                                              semNid  = descSem.getNid();
+      final int                                              conNid  = con.getNid();
+      final int                                              semNid  = descSem.getNid();
 
       try {
-         Assert.assertFalse(wp_.getWorkflowAccessor()
-                               .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getWorkflowAccessor()
+                               .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                      .getDefinitionId(), conNid));
-         Assert.assertFalse(wp_.getWorkflowAccessor()
-                               .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getWorkflowAccessor()
+                               .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                      .getDefinitionId(), semNid));
 
-         UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                             .createWorkflowProcess(wp_.getBPMNInfo()
+         final UUID processId = this.wp_.getWorkflowProcessInitializerConcluder()
+                             .createWorkflowProcess(this.wp_.getBPMNInfo()
                                    .getDefinitionId(),
                                    userId,
                                    "Framework Workflow Name",
                                    " Framework Workflow Description");
 
-         Assert.assertFalse(wp_.getWorkflowAccessor()
-                               .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getWorkflowAccessor()
+                               .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                      .getDefinitionId(), conNid));
-         Assert.assertFalse(wp_.getWorkflowAccessor()
-                               .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getWorkflowAccessor()
+                               .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                      .getDefinitionId(), semNid));
 
          Optional<CommitRecord> commitRecord = createNewVersion(conNid, null);
 
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
          commitRecord = createNewVersion(null, semNid);
-         wp_.getWorkflowUpdater()
+         this.wp_.getWorkflowUpdater()
             .addCommitRecordToWorkflow(processId, commitRecord);
-         Assert.assertTrue(wp_.getWorkflowAccessor()
-                              .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertTrue(this.wp_.getWorkflowAccessor()
+                              .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                     .getDefinitionId(), conNid));
-         Assert.assertTrue(wp_.getWorkflowAccessor()
-                              .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertTrue(this.wp_.getWorkflowAccessor()
+                              .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                     .getDefinitionId(), semNid));
-         wp_.getWorkflowUpdater()
-            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", defaultEditCoordinate);
-         Assert.assertTrue(wp_.getWorkflowAccessor()
-                              .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         this.wp_.getWorkflowUpdater()
+            .advanceWorkflow(processId, userId, "Edit", "Edit Comment", this.defaultEditCoordinate);
+         Assert.assertTrue(this.wp_.getWorkflowAccessor()
+                              .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                     .getDefinitionId(), conNid));
-         Assert.assertTrue(wp_.getWorkflowAccessor()
-                              .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertTrue(this.wp_.getWorkflowAccessor()
+                              .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                     .getDefinitionId(), semNid));
-         wp_.getWorkflowProcessInitializerConcluder()
+         this.wp_.getWorkflowProcessInitializerConcluder()
             .endWorkflowProcess(processId,
                                 getCancelAction(),
                                 userId,
                                 "Canceling Workflow for Testing",
                                 EndWorkflowType.CANCELED,
                                 null);
-         Assert.assertFalse(wp_.getWorkflowAccessor()
-                               .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getWorkflowAccessor()
+                               .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                      .getDefinitionId(), conNid));
-         Assert.assertFalse(wp_.getWorkflowAccessor()
-                               .isComponentInActiveWorkflow(wp_.getBPMNInfo()
+         Assert.assertFalse(this.wp_.getWorkflowAccessor()
+                               .isComponentInActiveWorkflow(this.wp_.getBPMNInfo()
                                      .getDefinitionId(), semNid));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail(e.getMessage());
       }
    }
@@ -1229,7 +1229,7 @@ public class WorkflowFrameworkTest {
       try {
          Thread.sleep(1);
          finishWorkflowProcess(processId, cancelAction, userId, "Canceled Workflow", EndWorkflowType.CANCELED);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          Assert.fail();
       }
    }
@@ -1246,14 +1246,14 @@ public class WorkflowFrameworkTest {
       try {
          Thread.sleep(1);
 
-         ProcessDetail entry = wp_.getProcessDetailStore()
+         final ProcessDetail entry = this.wp_.getProcessDetailStore()
                                   .get(processId);
 
          entry.setStatus(ProcessStatus.LAUNCHED);
          entry.setTimeLaunched(new Date().getTime());
-         wp_.getProcessDetailStore()
+         this.wp_.getProcessDetailStore()
             .put(processId, entry);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
          throw new RuntimeException(e);
       }
    }
@@ -1262,10 +1262,10 @@ public class WorkflowFrameworkTest {
       try {
          Thread.sleep(1);
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(requestedProcessId)
                                 .last();
-         ProcessHistory entry = new ProcessHistory(requestedProcessId,
+         final ProcessHistory entry = new ProcessHistory(requestedProcessId,
                                                    userId,
                                                    new Date().getTime(),
                                                    REJECT_REVIEW_STATE,
@@ -1274,9 +1274,9 @@ public class WorkflowFrameworkTest {
                                                    REJECT_REVIEW_COMMENT,
                                                    hx.getHistorySequence() + 1);
 
-         wp_.getProcessHistoryStore()
+         this.wp_.getProcessHistoryStore()
             .add(entry);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
          throw new RuntimeException(e);
       }
    }
@@ -1285,10 +1285,10 @@ public class WorkflowFrameworkTest {
       try {
          Thread.sleep(1);
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(requestedProcessId)
                                 .last();
-         ProcessHistory entry = new ProcessHistory(requestedProcessId,
+         final ProcessHistory entry = new ProcessHistory(requestedProcessId,
                                                    userId,
                                                    new Date().getTime(),
                                                    SEND_TO_APPROVAL_STATE,
@@ -1297,24 +1297,24 @@ public class WorkflowFrameworkTest {
                                                    SEND_TO_APPROVAL_COMMENT,
                                                    hx.getHistorySequence() + 1);
 
-         wp_.getProcessHistoryStore()
+         this.wp_.getProcessHistoryStore()
             .add(entry);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
          throw new RuntimeException(e);
       }
    }
 
    protected void executeSendForReviewAdvancement(UUID processId) {
-      ProcessDetail entry = wp_.getProcessDetailStore()
+      final ProcessDetail entry = this.wp_.getProcessDetailStore()
                                .get(processId);
 
       try {
          Thread.sleep(1);
 
-         ProcessHistory hx = wp_.getWorkflowAccessor()
+         final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                                 .getProcessHistory(processId)
                                 .last();
-         ProcessHistory advanceEntry = new ProcessHistory(processId,
+         final ProcessHistory advanceEntry = new ProcessHistory(processId,
                                                           entry.getCreatorId(),
                                                           new Date().getTime(),
                                                           LAUNCH_STATE,
@@ -1323,17 +1323,17 @@ public class WorkflowFrameworkTest {
                                                           LAUNCH_COMMENT,
                                                           hx.getHistorySequence() + 1);
 
-         wp_.getProcessHistoryStore()
+         this.wp_.getProcessHistoryStore()
             .add(advanceEntry);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
          throw new RuntimeException(e);
       }
    }
 
    private void clearStores() {
-      wp_.getProcessDetailStore()
+      this.wp_.getProcessDetailStore()
          .clear();
-      wp_.getProcessHistoryStore()
+      this.wp_.getProcessHistoryStore()
          .clear();
    }
 
@@ -1341,15 +1341,15 @@ public class WorkflowFrameworkTest {
          State state)
             throws InterruptedException,
                    ExecutionException {
-      DescriptionSememe<?> latestVersion =
+      final DescriptionSememe<?> latestVersion =
          ((LatestVersion<DescriptionSememe<?>>) semChron.getLatestVersion(DescriptionSememe.class,
                                                                           Get.configurationService()
                                                                                 .getDefaultStampCoordinate())
                                                         .get()).value();
-      DescriptionSememeImpl createdVersion =
+      final DescriptionSememeImpl createdVersion =
          (DescriptionSememeImpl) semChron.createMutableVersion(DescriptionSememeImpl.class,
                                                                state,
-                                                               defaultEditCoordinate);
+                                                               this.defaultEditCoordinate);
 
       createdVersion.setCaseSignificanceConceptSequence(latestVersion.getCaseSignificanceConceptSequence());
       createdVersion.setDescriptionTypeConceptSequence((latestVersion.getDescriptionTypeConceptSequence()));
@@ -1363,10 +1363,10 @@ public class WorkflowFrameworkTest {
             throws InterruptedException,
                    ExecutionException {
       if (conNid != null) {
-         ConceptChronologyImpl con = (ConceptChronologyImpl) Get.conceptService()
+         final ConceptChronologyImpl con = (ConceptChronologyImpl) Get.conceptService()
                                                                 .getConcept(conNid);
 
-         con.createMutableVersion(State.ACTIVE, defaultEditCoordinate);
+         con.createMutableVersion(State.ACTIVE, this.defaultEditCoordinate);
          Get.commitService()
             .addUncommitted(con)
             .get();
@@ -1374,9 +1374,9 @@ public class WorkflowFrameworkTest {
                    .commit("Inactivating concept for Testing")
                    .get();
       } else {
-         SememeChronologyImpl  semChron       = (SememeChronologyImpl) Get.sememeService()
+         final SememeChronologyImpl  semChron       = (SememeChronologyImpl) Get.sememeService()
                                                                           .getSememe(semNid);
-         DescriptionSememeImpl createdVersion = cloneVersion(semChron, State.ACTIVE);
+         final DescriptionSememeImpl createdVersion = cloneVersion(semChron, State.ACTIVE);
 
          Get.commitService()
             .addUncommitted(semChron)
@@ -1388,7 +1388,7 @@ public class WorkflowFrameworkTest {
    }
 
    private Stamp createStamp(int userSeq, State state) {
-      if ((moduleSeq < 0) || (pathSeq < 0)) {
+      if ((this.moduleSeq < 0) || (this.pathSeq < 0)) {
          if (Get.configurationService()
                 .getDefaultStampCoordinate()
                 .getModuleSequences()
@@ -1396,65 +1396,65 @@ public class WorkflowFrameworkTest {
             return null;
          }
 
-         moduleSeq = Get.configurationService()
+         this.moduleSeq = Get.configurationService()
                         .getDefaultStampCoordinate()
                         .getModuleSequences()
                         .getIntIterator()
                         .nextInt();
-         pathSeq = Get.configurationService()
+         this.pathSeq = Get.configurationService()
                       .getDefaultStampCoordinate()
                       .getStampPosition()
                       .getStampPathSequence();
       }
 
-      return new Stamp(state, new Date().getTime(), moduleSeq, userSeq, pathSeq);
+      return new Stamp(state, new Date().getTime(), this.moduleSeq, userSeq, this.pathSeq);
    }
 
    private Stamp createStampFromCommitRecord(Optional<CommitRecord> commitRecord) {
-      int   stampSeq = commitRecord.get()
+      final int   stampSeq = commitRecord.get()
                                    .getStampsInCommit()
                                    .getIntIterator()
                                    .next();
-      State status   = Get.stampService()
+      final State status   = Get.stampService()
                           .getStatusForStamp(stampSeq);
-      long  time     = Get.stampService()
+      final long  time     = Get.stampService()
                           .getTimeForStamp(stampSeq);
-      int   author   = Get.stampService()
+      final int   author   = Get.stampService()
                           .getAuthorSequenceForStamp(stampSeq);
-      int   module   = Get.stampService()
+      final int   module   = Get.stampService()
                           .getModuleSequenceForStamp(stampSeq);
-      int   path     = Get.stampService()
+      final int   path     = Get.stampService()
                           .getPathSequenceForStamp(stampSeq);
 
       return new Stamp(status, time, author, module, path);
    }
 
    private UUID createWorkflowProcess(UUID requestedDefinitionId, String name, String description) {
-      AvailableAction startNodeAction = wp_.getBPMNInfo()
+      final AvailableAction startNodeAction = this.wp_.getBPMNInfo()
                                            .getDefinitionStartActionMap()
-                                           .get(wp_.getBPMNInfo()
+                                           .get(this.wp_.getBPMNInfo()
                                                  .getDefinitionId())
                                            .iterator()
                                            .next();
 
       // Mimick the wp_.getWorkflowProcessInitializerConcluder()'s create new
       // process
-      ProcessDetail details = new ProcessDetail(requestedDefinitionId,
+      final ProcessDetail details = new ProcessDetail(requestedDefinitionId,
                                                 userId,
                                                 new Date().getTime(),
                                                 ProcessStatus.DEFINED,
                                                 name,
                                                 description);
-      UUID processId = wp_.getProcessDetailStore()
+      final UUID processId = this.wp_.getProcessDetailStore()
                           .add(details);
 
       // Add Process History with START_STATE-AUTOMATED-EDIT_STATE
-      AvailableAction startAdvancement = new AvailableAction(requestedDefinitionId,
+      final AvailableAction startAdvancement = new AvailableAction(requestedDefinitionId,
                                                              startNodeAction.getInitialState(),
                                                              startNodeAction.getAction(),
                                                              startNodeAction.getOutcomeState(),
                                                              UserRole.AUTOMATED);
-      ProcessHistory advanceEntry = new ProcessHistory(processId,
+      final ProcessHistory advanceEntry = new ProcessHistory(processId,
                                                        userId,
                                                        new Date().getTime(),
                                                        startAdvancement.getInitialState(),
@@ -1463,7 +1463,7 @@ public class WorkflowFrameworkTest {
                                                        "",
                                                        1);
 
-      wp_.getProcessHistoryStore()
+      this.wp_.getProcessHistoryStore()
          .add(advanceEntry);
       return processId;
    }
@@ -1476,7 +1476,7 @@ public class WorkflowFrameworkTest {
             throws Exception {
       // Mimick the wp_.getWorkflowProcessInitializerConcluder()'s finish
       // workflow process
-      ProcessDetail entry = wp_.getProcessDetailStore()
+      final ProcessDetail entry = this.wp_.getProcessDetailStore()
                                .get(processId);
 
       if (endType.equals(EndWorkflowType.CANCELED)) {
@@ -1486,15 +1486,15 @@ public class WorkflowFrameworkTest {
       }
 
       entry.setTimeCanceledOrConcluded(new Date().getTime());
-      wp_.getProcessDetailStore()
+      this.wp_.getProcessDetailStore()
          .put(processId, entry);
 
       // Only add Cancel state in Workflow if process has already been
       // launched
-      ProcessHistory hx = wp_.getWorkflowAccessor()
+      final ProcessHistory hx = this.wp_.getWorkflowAccessor()
                              .getProcessHistory(processId)
                              .last();
-      ProcessHistory advanceEntry = new ProcessHistory(processId,
+      final ProcessHistory advanceEntry = new ProcessHistory(processId,
                                                        userId,
                                                        new Date().getTime(),
                                                        actionToProcess.getInitialState(),
@@ -1503,7 +1503,7 @@ public class WorkflowFrameworkTest {
                                                        comment,
                                                        hx.getHistorySequence() + 1);
 
-      wp_.getProcessHistoryStore()
+      this.wp_.getProcessHistoryStore()
          .add(advanceEntry);
 
       if (endType.equals(EndWorkflowType.CANCELED)) {
@@ -1514,21 +1514,21 @@ public class WorkflowFrameworkTest {
    private void verifyState(ConceptChronology<? extends ConceptVersion<?>> con,
                             SememeChronology<? extends DescriptionSememe<?>> descSem,
                             State state) {
-      ConceptChronology<? extends ConceptVersion<?>> cc = (ConceptChronologyImpl) Get.conceptService()
+      final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
                                                                                      .getConcept(con.getNid());
-      Optional<LatestVersion<ConceptVersion>> latestConVersion =
+      final Optional<LatestVersion<ConceptVersion>> latestConVersion =
          ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
-                                                   defaultStampCoordinate);
+                                                   this.defaultStampCoordinate);
 
       Assert.assertEquals(latestConVersion.get()
             .value()
             .getState(), state);
 
-      SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
+      final SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
                                                                  .getSememe(descSem.getNid());
-      Optional<LatestVersion<DescriptionSememe<?>>> latestDescVersion =
+      final Optional<LatestVersion<DescriptionSememe<?>>> latestDescVersion =
          ((SememeChronology) semChron).getLatestVersion(DescriptionSememe.class,
-                                                        defaultStampCoordinate);
+                                                        this.defaultStampCoordinate);
 
       Assert.assertEquals(latestDescVersion.get()
             .value()
@@ -1538,7 +1538,7 @@ public class WorkflowFrameworkTest {
    //~--- get methods ---------------------------------------------------------
 
    private AvailableAction getCancelAction() {
-      return wp_.getBPMNInfo()
+      return this.wp_.getBPMNInfo()
                 .getEndWorkflowTypeMap()
                 .get(EndWorkflowType.CANCELED)
                 .iterator()
@@ -1546,7 +1546,7 @@ public class WorkflowFrameworkTest {
    }
 
    private AvailableAction getConcludeAction() {
-      return wp_.getBPMNInfo()
+      return this.wp_.getBPMNInfo()
                 .getEndWorkflowTypeMap()
                 .get(EndWorkflowType.CONCLUDED)
                 .iterator()
@@ -1554,7 +1554,7 @@ public class WorkflowFrameworkTest {
    }
 
    private boolean isEndState(String state, EndWorkflowType type) {
-      for (AvailableAction action: wp_.getBPMNInfo()
+      for (final AvailableAction action: this.wp_.getBPMNInfo()
                                       .getEndWorkflowTypeMap()
                                       .get(type)) {
          if (action.getOutcomeState()
@@ -1567,7 +1567,7 @@ public class WorkflowFrameworkTest {
    }
 
    private boolean isStartState(UUID defId, String state) {
-      for (AvailableAction action: wp_.getBPMNInfo()
+      for (final AvailableAction action: this.wp_.getBPMNInfo()
                                       .getDefinitionStartActionMap()
                                       .get(defId)) {
          if (action.getInitialState()
@@ -1586,7 +1586,7 @@ public class WorkflowFrameworkTest {
             throws Exception {
       userId = UUID.randomUUID();
 
-      SimpleUserRoleService rolesService = LookupService.get()
+      final SimpleUserRoleService rolesService = LookupService.get()
                                                         .getService(SimpleUserRoleService.class);
 
       rolesService.addRole(UserRole.EDITOR);
@@ -1594,7 +1594,7 @@ public class WorkflowFrameworkTest {
       rolesService.addRole(UserRole.APPROVER);
       rolesService.addRole(UserRole.AUTOMATED);
 
-      HashSet<UserRole> roles = new HashSet<>();
+      final HashSet<UserRole> roles = new HashSet<>();
 
       roles.add(UserRole.EDITOR);
       roles.add(UserRole.APPROVER);

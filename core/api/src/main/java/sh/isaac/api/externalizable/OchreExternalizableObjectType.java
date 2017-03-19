@@ -90,7 +90,7 @@ public enum OchreExternalizableObjectType {
 
    public static OchreExternalizableObjectType fromDataStream(DataInput input)
             throws IOException {
-      byte token = input.readByte();
+      final byte token = input.readByte();
 
       switch (token) {
       case 1:
@@ -115,13 +115,13 @@ public enum OchreExternalizableObjectType {
 
    public void toDataStream(DataOutput out)
             throws IOException {
-      out.writeByte(token);
+      out.writeByte(this.token);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public byte getToken() {
-      return token;
+      return this.token;
    }
 }
 

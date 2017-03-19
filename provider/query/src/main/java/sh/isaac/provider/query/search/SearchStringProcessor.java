@@ -99,10 +99,10 @@ public class SearchStringProcessor {
    }
 
    public static String removeStopWords(String s) {
-      String[]      words = s.trim()
+      final String[]      words = s.trim()
                              .toLowerCase()
                              .split("\\s+");
-      StringBuilder sb    = new StringBuilder("");
+      final StringBuilder sb    = new StringBuilder("");
 
       for (String w: words) {
          w = w.trim();
@@ -118,7 +118,7 @@ public class SearchStringProcessor {
    }
 
    public static String stripAll(String s) {
-      String allRegEx = punctuationRegEx + "|" + symbolsRegEx + "|" + operatorsRegEx + "|" + parensRegEx + "|" +
+      final String allRegEx = punctuationRegEx + "|" + symbolsRegEx + "|" + operatorsRegEx + "|" + parensRegEx + "|" +
                         nonPrintableRegEx;
 
       return s.replaceAll(allRegEx, " ");

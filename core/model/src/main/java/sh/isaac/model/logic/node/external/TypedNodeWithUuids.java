@@ -139,7 +139,7 @@ public abstract class TypedNodeWithUuids
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
    }
 
    @Override
@@ -148,8 +148,8 @@ public abstract class TypedNodeWithUuids
       switch (dataTarget) {
       case EXTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeLong(typeConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(typeConceptUuid.getLeastSignificantBits());
+         dataOutput.writeLong(this.typeConceptUuid.getMostSignificantBits());
+         dataOutput.writeLong(this.typeConceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:
@@ -178,10 +178,10 @@ public abstract class TypedNodeWithUuids
    @Override
    protected final int compareNodeFields(LogicNode o) {
       // node semantic already determined equals.
-      TypedNodeWithUuids other = (TypedNodeWithUuids) o;
+      final TypedNodeWithUuids other = (TypedNodeWithUuids) o;
 
-      if (!typeConceptUuid.equals(other.typeConceptUuid)) {
-         return typeConceptUuid.compareTo(other.typeConceptUuid);
+      if (!this.typeConceptUuid.equals(other.typeConceptUuid)) {
+         return this.typeConceptUuid.compareTo(other.typeConceptUuid);
       }
 
       return compareTypedNodeFields(o);
@@ -192,7 +192,7 @@ public abstract class TypedNodeWithUuids
    //~--- get methods ---------------------------------------------------------
 
    public LogicNode getOnlyChild() {
-      LogicNode[] children = getChildren();
+      final LogicNode[] children = getChildren();
 
       if (children.length == 1) {
          return children[0];
@@ -202,7 +202,7 @@ public abstract class TypedNodeWithUuids
    }
 
    public UUID getTypeConceptUuid() {
-      return typeConceptUuid;
+      return this.typeConceptUuid;
    }
 }
 

@@ -99,16 +99,16 @@ public class ConcurrentUuidToIntHashMap
 
    @Override
    public boolean containsKey(long[] key) {
-      long    stamp       = sl.tryOptimisticRead();
+      long    stamp       = this.sl.tryOptimisticRead();
       boolean containsKey = indexOfKey(key) >= 0;
 
-      if (!sl.validate(stamp)) {
-         stamp = sl.readLock();
+      if (!this.sl.validate(stamp)) {
+         stamp = this.sl.readLock();
 
          try {
             containsKey = indexOfKey(key) >= 0;
          } finally {
-            sl.unlockRead(stamp);
+            this.sl.unlockRead(stamp);
          }
       }
 
@@ -126,14 +126,14 @@ public class ConcurrentUuidToIntHashMap
    }
 
    public boolean put(long[] key, int value, long stamp) {
-      sl.validate(stamp);
+      this.sl.validate(stamp);
       return super.put(key, value);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getDistinct() {
-      return distinct;
+      return this.distinct;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -146,16 +146,16 @@ public class ConcurrentUuidToIntHashMap
 
    @Override
    public int get(long[] key) {
-      long stamp = sl.tryOptimisticRead();
+      long stamp = this.sl.tryOptimisticRead();
       int  value = super.get(key);
 
-      if (!sl.validate(stamp)) {
-         stamp = sl.readLock();
+      if (!this.sl.validate(stamp)) {
+         stamp = this.sl.readLock();
 
          try {
             value = super.get(key);
          } finally {
-            sl.unlockRead(stamp);
+            this.sl.unlockRead(stamp);
          }
       }
 
@@ -176,7 +176,7 @@ public class ConcurrentUuidToIntHashMap
    }
 
    public StampedLock getStampedLock() {
-      return sl;
+      return this.sl;
    }
 
    public String getStats() {

@@ -69,7 +69,7 @@ public class WeakSetChangeListener<T>
 
    @Override
    public void onChanged(Change<? extends T> change) {
-      SetChangeListener<T> listener = ref.get();
+      final SetChangeListener<T> listener = this.ref.get();
 
       if (listener != null) {
          listener.onChanged(change);
@@ -84,7 +84,7 @@ public class WeakSetChangeListener<T>
 
    @Override
    public boolean wasGarbageCollected() {
-      return (ref.get() == null);
+      return (this.ref.get() == null);
    }
 }
 

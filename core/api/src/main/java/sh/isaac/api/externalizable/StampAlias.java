@@ -60,12 +60,12 @@ public class StampAlias
    //~--- constructors --------------------------------------------------------
 
    public StampAlias(ByteArrayDataBuffer in) {
-      byte version = in.getByte();
+      final byte version = in.getByte();
 
       if (version == getDataFormatVersion()) {
-         stampSequence = StampUniversal.get(in)
+         this.stampSequence = StampUniversal.get(in)
                                        .getStampSequence();
-         stampAlias    = StampUniversal.get(in)
+         this.stampAlias    = StampUniversal.get(in)
                                        .getStampSequence();
       } else {
          throw new UnsupportedOperationException("Can't handle version: " + version);
@@ -89,35 +89,35 @@ public class StampAlias
          return false;
       }
 
-      StampAlias that = (StampAlias) o;
+      final StampAlias that = (StampAlias) o;
 
-      if (stampSequence != that.stampSequence) {
+      if (this.stampSequence != that.stampSequence) {
          return false;
       }
 
-      return stampAlias == that.stampAlias;
+      return this.stampAlias == that.stampAlias;
    }
 
    @Override
    public int hashCode() {
-      int result = stampSequence;
+      int result = this.stampSequence;
 
-      result = 31 * result + stampAlias;
+      result = 31 * result + this.stampAlias;
       return result;
    }
 
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
       out.putByte(getDataFormatVersion());
-      StampUniversal.get(stampSequence)
+      StampUniversal.get(this.stampSequence)
                     .writeExternal(out);
-      StampUniversal.get(stampAlias)
+      StampUniversal.get(this.stampAlias)
                     .writeExternal(out);
    }
 
    @Override
    public String toString() {
-      return "StampAlias{" + "stampSequence=" + stampSequence + ", stampAlias=" + stampAlias + '}';
+      return "StampAlias{" + "stampSequence=" + this.stampSequence + ", stampAlias=" + this.stampAlias + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -133,11 +133,11 @@ public class StampAlias
    }
 
    public int getStampAlias() {
-      return stampAlias;
+      return this.stampAlias;
    }
 
    public int getStampSequence() {
-      return stampSequence;
+      return this.stampSequence;
    }
 }
 

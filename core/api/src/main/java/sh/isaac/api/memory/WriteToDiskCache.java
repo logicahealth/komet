@@ -85,7 +85,7 @@ public class WriteToDiskCache {
       @Override
       public void run() {
          while (true) {
-            Optional<MemoryManagedReference> optionalReference = cacheSet.stream()
+            final Optional<MemoryManagedReference> optionalReference = cacheSet.stream()
                                                                          .filter((memoryManagedReference) -> {
                      if (memoryManagedReference.get() == null) {
                         cacheSet.remove(memoryManagedReference);
@@ -110,7 +110,7 @@ public class WriteToDiskCache {
             if (optionalReference.isPresent()) {
                written = true;
 
-               MemoryManagedReference ref = (MemoryManagedReference) optionalReference.get();
+               final MemoryManagedReference ref = optionalReference.get();
 
                if (ref.msSinceLastUnwrittenUpdate() > WRITE_INTERVAL_IN_MS) {
                   ref.write();
@@ -120,7 +120,7 @@ public class WriteToDiskCache {
             if (!written) {
                try {
                   writerThread.wait(WRITE_INTERVAL_IN_MS);
-               } catch (InterruptedException e) {
+               } catch (final InterruptedException e) {
                   // continue work
                }
             }

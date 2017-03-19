@@ -65,15 +65,15 @@ public class QueryFactory {
 
       @Override
       public Clause Where() {
-         return rootClause[0];
+         return this.rootClause[0];
       }
 
       @Override
       protected ForSetSpecification ForSetSpecification() {
-         ForSetSpecification forSetSpec = new ForSetSpecification();
+         final ForSetSpecification forSetSpec = new ForSetSpecification();
 
-         forSetSpec.setForCollectionTypes(forCollectionTypes);
-         forSetSpec.setCustomCollection(customCollection);
+         forSetSpec.setForCollectionTypes(this.forCollectionTypes);
+         forSetSpec.setCustomCollection(this.customCollection);
          return forSetSpec;
       }
    }

@@ -167,7 +167,7 @@ public interface IdentifierService
    boolean hasUuid(UUID... uuids);
 
    default UUID[] getUuidArrayForNid(int nid) {
-      List<UUID> uuids = getUuidsForNid(nid);
+      final List<UUID> uuids = getUuidsForNid(nid);
 
       return uuids.toArray(new UUID[uuids.size()]);
    }

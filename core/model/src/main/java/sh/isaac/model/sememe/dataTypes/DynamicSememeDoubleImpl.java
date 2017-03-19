@@ -72,7 +72,7 @@ public class DynamicSememeDoubleImpl
 
    public DynamicSememeDoubleImpl(double d) {
       super();
-      data_ = ByteBuffer.allocate(8)
+      this.data_ = ByteBuffer.allocate(8)
                         .putDouble(d)
                         .array();
    }
@@ -88,7 +88,7 @@ public class DynamicSememeDoubleImpl
     */
    @Override
    public double getDataDouble() {
-      return ByteBuffer.wrap(data_)
+      return ByteBuffer.wrap(this.data_)
                        .getDouble();
    }
 
@@ -97,11 +97,11 @@ public class DynamicSememeDoubleImpl
     */
    @Override
    public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

@@ -86,8 +86,8 @@ public class Writers {
       @Override
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
-         ConceptChronology<?> cc         = (ConceptChronology<?>) obj;
-         JsonWriter           mainWriter = Support.getWriter(args);
+         final ConceptChronology<?> cc         = (ConceptChronology<?>) obj;
+         final JsonWriter           mainWriter = Support.getWriter(args);
 
          output.write("\"nid\":\"");
          output.write(cc.getNid() + "");
@@ -100,9 +100,9 @@ public class Writers {
          output.write("\"uuidList\":[");
          mainWriter.tabIn();
 
-         StringBuilder temp = new StringBuilder();
+         final StringBuilder temp = new StringBuilder();
 
-         for (UUID uuid: cc.getUuidList()) {
+         for (final UUID uuid: cc.getUuidList()) {
             temp.append("\"" + uuid);
             temp.append("\", ");
          }
@@ -130,8 +130,9 @@ public class Writers {
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
          @SuppressWarnings("unchecked")
+		final
          SememeChronology<SememeVersion<?>> sc         = (SememeChronology<SememeVersion<?>>) obj;
-         JsonWriter                         mainWriter = Support.getWriter(args);
+         final JsonWriter                         mainWriter = Support.getWriter(args);
 
          output.write("\"sememeType\":\"");
          output.write(sc.getSememeType()
@@ -149,9 +150,9 @@ public class Writers {
          output.write("\"uuidList\":[");
          mainWriter.tabIn();
 
-         StringBuilder temp = new StringBuilder();
+         final StringBuilder temp = new StringBuilder();
 
-         for (UUID uuid: sc.getUuidList()) {
+         for (final UUID uuid: sc.getUuidList()) {
             temp.append("\"" + uuid);
             temp.append("\", ");
          }
@@ -173,6 +174,7 @@ public class Writers {
          output.write("\",");
 
          @SuppressWarnings("unchecked")
+		final
          List<SememeVersion<?>> versions = (List<SememeVersion<?>>) sc.getVersionList();
 
          mainWriter.newLine();
@@ -181,7 +183,7 @@ public class Writers {
 
          boolean first = true;
 
-         for (SememeVersion<?> sv: versions) {
+         for (final SememeVersion<?> sv: versions) {
             if (first) {
                first = false;
                output.write("{");
@@ -202,7 +204,7 @@ public class Writers {
             }
 
             if (sv instanceof DescriptionSememe<?>) {
-               DescriptionSememe<?> ds = (DescriptionSememe<?>) sv;
+               final DescriptionSememe<?> ds = (DescriptionSememe<?>) sv;
 
                output.write("\"caseSignificanceSequence\":\"");
                output.write(ds.getCaseSignificanceConceptSequence() + "");
@@ -220,13 +222,13 @@ public class Writers {
                output.write(ds.getText() + "");
                output.write("\"");
             } else if (sv instanceof ComponentNidSememe<?>) {
-               ComponentNidSememe<?> cns = (ComponentNidSememe<?>) sv;
+               final ComponentNidSememe<?> cns = (ComponentNidSememe<?>) sv;
 
                output.write("\"componentNid\":\"");
                output.write(cns.getComponentNid() + "");
                output.write("\"");
             } else if (sv instanceof DynamicSememe<?>) {
-               DynamicSememe<?> ds = (DynamicSememe<?>) sv;
+               final DynamicSememe<?> ds = (DynamicSememe<?>) sv;
 
                output.write("\"data\":\"");
                output.write(ds.dataToString());
@@ -235,17 +237,17 @@ public class Writers {
                // A hack for the moment, to just write out the parent of the concept from the logic graph,
                // as that is often what is wanted for debugging.
                // TODO represent the entire logic graph in JSON?
-               LogicGraphSememe<?> lgs  = (LogicGraphSememe<?>) sv;
-               LogicalExpression   le   = lgs.getLogicalExpression();
-               LogicNode           root = le.getRoot();
+               final LogicGraphSememe<?> lgs  = (LogicGraphSememe<?>) sv;
+               final LogicalExpression   le   = lgs.getLogicalExpression();
+               final LogicNode           root = le.getRoot();
 
-               for (LogicNode necessaryOrSufficient: root.getChildren()) {
-                  for (LogicNode connector: necessaryOrSufficient.getChildren()) {
-                     for (LogicNode target: connector.getChildren()) {
+               for (final LogicNode necessaryOrSufficient: root.getChildren()) {
+                  for (final LogicNode connector: necessaryOrSufficient.getChildren()) {
+                     for (final LogicNode target: connector.getChildren()) {
                         if (target.getNodeSemantic() == NodeSemantic.CONCEPT) {
                            // Hack ALERT!
                            // This should look like this: Concept[1] ISAAC metadata (ISAAC) <14>
-                           String conceptString = target.toString();
+                           final String conceptString = target.toString();
 
                            if (conceptString.contains("<") && conceptString.contains(">")) {
                               output.write("\"parentConceptSequence\":\"");
@@ -262,13 +264,13 @@ public class Writers {
                   }
                }
             } else if (sv instanceof LongSememe<?>) {
-               LongSememe<?> ls = (LongSememe<?>) sv;
+               final LongSememe<?> ls = (LongSememe<?>) sv;
 
                output.write("\"long\":\"");
                output.write(ls.getLongValue() + "");
                output.write("\"");
             } else if (sv instanceof StringSememe<?>) {
-               StringSememe<?> ss = (StringSememe<?>) sv;
+               final StringSememe<?> ss = (StringSememe<?>) sv;
 
                output.write("\"string\":\"");
                output.write(ss.getString());

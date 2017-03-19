@@ -112,12 +112,12 @@ public class LogicalExpressionOchreImpl
 
    public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource) {
       try {
-         logicNodes = new ArrayList<>(nodeDataArray.length);
+         this.logicNodes = new ArrayList<>(nodeDataArray.length);
 
-         for (byte[] nodeDataArray1: nodeDataArray) {
-            DataInputStream dataInputStream   = new DataInputStream(new ByteArrayInputStream(nodeDataArray1));
-            byte            nodeSemanticIndex = dataInputStream.readByte();
-            NodeSemantic    nodeSemantic      = NODE_SEMANTICS[nodeSemanticIndex];
+         for (final byte[] nodeDataArray1: nodeDataArray) {
+            final DataInputStream dataInputStream   = new DataInputStream(new ByteArrayInputStream(nodeDataArray1));
+            final byte            nodeSemanticIndex = dataInputStream.readByte();
+            final NodeSemantic    nodeSemantic      = NODE_SEMANTICS[nodeSemanticIndex];
 
             switch (nodeSemantic) {
             case DEFINITION_ROOT:
@@ -273,8 +273,8 @@ public class LogicalExpressionOchreImpl
             }
          }
 
-         logicNodes.trimToSize();
-      } catch (IOException e) {
+         this.logicNodes.trimToSize();
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
@@ -290,7 +290,7 @@ public class LogicalExpressionOchreImpl
     */
    public LogicalExpressionOchreImpl(LogicalExpressionOchreImpl another, int[] solution) {
       addNodesWithMap(another, solution, new int[another.getNodeCount()], another.rootNodeIndex);
-      logicNodes.trimToSize();
+      this.logicNodes.trimToSize();
    }
 
    /**
@@ -322,7 +322,7 @@ public class LogicalExpressionOchreImpl
     */
    public LogicalExpressionOchreImpl(LogicalExpressionOchreImpl another, int[] solution, int[] anotherToThisNodeIdMap) {
       addNodesWithMap(another, solution, anotherToThisNodeIdMap, another.rootNodeIndex);
-      logicNodes.trimToSize();
+      this.logicNodes.trimToSize();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -493,7 +493,7 @@ public class LogicalExpressionOchreImpl
    }
 
    public RootNode Root(ConnectorNode... children) {
-      RootNode rootNode = new RootNode(this, children);
+      final RootNode rootNode = new RootNode(this, children);
 
       this.rootNodeIndex = rootNode.getNodeIndex();
       return rootNode;
@@ -501,7 +501,7 @@ public class LogicalExpressionOchreImpl
 
    public final RootNode Root(DataInputStream dataInputStream)
             throws IOException {
-      RootNode rootNode = new RootNode(this, dataInputStream);
+      final RootNode rootNode = new RootNode(this, dataInputStream);
 
       this.rootNodeIndex = rootNode.getNodeIndex();
       return rootNode;
@@ -563,8 +563,8 @@ public class LogicalExpressionOchreImpl
    }
 
    public void addNode(LogicNode logicNode) {
-      logicNode.setNodeIndex((short) logicNodes.size());
-      logicNodes.add(logicNode);
+      logicNode.setNodeIndex((short) this.logicNodes.size());
+      this.logicNodes.add(logicNode);
    }
 
    /**
@@ -589,7 +589,7 @@ public class LogicalExpressionOchreImpl
 
    @Override
    public boolean contains(NodeSemantic semantic) {
-      return logicNodes.stream()
+      return this.logicNodes.stream()
                        .anyMatch((node) -> (node.getNodeSemantic() == semantic));
    }
 
@@ -614,7 +614,7 @@ public class LogicalExpressionOchreImpl
             return false;
          }
 
-         TreeNodeVisitData graphVisitData = new TreeNodeVisitData(logicNodes.size());
+         final TreeNodeVisitData graphVisitData = new TreeNodeVisitData(this.logicNodes.size());
 
          depthFirstVisit(null, getRoot(), graphVisitData, 0);
          return graphsEqual(this.getRoot(), other.getRoot(), 0, graphVisitData.getMaxDepth());
@@ -651,13 +651,13 @@ public class LogicalExpressionOchreImpl
    public void processDepthFirst(LogicNode fragmentRoot, BiConsumer<LogicNode, TreeNodeVisitData> consumer) {
       init();
 
-      TreeNodeVisitData graphVisitData = new TreeNodeVisitData(logicNodes.size());
+      final TreeNodeVisitData graphVisitData = new TreeNodeVisitData(this.logicNodes.size());
 
       depthFirstVisit(consumer, fragmentRoot, graphVisitData, 0);
    }
 
    public void sort() {
-      logicNodes.forEach((node) -> node.sort());
+      this.logicNodes.forEach((node) -> node.sort());
    }
 
    @Override
@@ -667,7 +667,7 @@ public class LogicalExpressionOchreImpl
 
    @Override
    public String toString(String nodeIdSuffix) {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
       processDepthFirst((LogicNode logicNode,
                          TreeNodeVisitData graphVisitData) -> {
@@ -692,7 +692,7 @@ public class LogicalExpressionOchreImpl
 
       graphVisitData.startNodeVisit(logicNode.getNodeIndex(), depth);
 
-      ConceptSequenceSet conceptsAtNodeOrAbove = new ConceptSequenceSet();
+      final ConceptSequenceSet conceptsAtNodeOrAbove = new ConceptSequenceSet();
 
       logicNode.addConceptsReferencedByNode(conceptsAtNodeOrAbove);
       graphVisitData.getConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex());
@@ -726,7 +726,7 @@ public class LogicalExpressionOchreImpl
             siblingGroupSequence = graphVisitData.getSiblingGroupForSequence(logicNode.getNodeIndex());
          }
 
-         for (LogicNode child: logicNode.getChildren()) {
+         for (final LogicNode child: logicNode.getChildren()) {
             graphVisitData.setSiblingGroupForSequence(child.getNodeIndex(), siblingGroupSequence);
             graphVisitData.setPredecessorSequence(child.getNodeIndex(), logicNode.getNodeIndex());
             depthFirstVisit(consumer, child, graphVisitData, depth + 1);
@@ -737,7 +737,7 @@ public class LogicalExpressionOchreImpl
    }
 
    protected void init() {
-      logicNodes.trimToSize();
+      this.logicNodes.trimToSize();
    }
 
    /**
@@ -761,10 +761,10 @@ public class LogicalExpressionOchreImpl
          int[] solution,
          int[] anotherToThisNodeIdMap,
          int... oldIds) {
-      AbstractLogicNode[] results = new AbstractLogicNode[oldIds.length];
+      final AbstractLogicNode[] results = new AbstractLogicNode[oldIds.length];
 
       for (int i = 0; i < oldIds.length; i++) {
-         LogicNode oldLogicNode = another.getNode(oldIds[i]);
+         final LogicNode oldLogicNode = another.getNode(oldIds[i]);
 
          switch (oldLogicNode.getNodeSemantic()) {
          case DEFINITION_ROOT:
@@ -786,7 +786,7 @@ public class LogicalExpressionOchreImpl
                                     .toArray(
                                     ConnectorNode[]::new)                        // convert LogicNode[] to ConnectorNode[] to pass into the Root method call.
                                     );
-            rootNodeIndex = results[i].getNodeIndex();
+            this.rootNodeIndex = results[i].getNodeIndex();
             break;
 
          case NECESSARY_SET:
@@ -939,8 +939,8 @@ public class LogicalExpressionOchreImpl
 
    private boolean graphsEqual(AbstractLogicNode g1, AbstractLogicNode g2, int depth, int maxDepth) {
       if (g1.equals(g2)) {
-         AbstractLogicNode[] g1children = g1.getChildren();
-         AbstractLogicNode[] g2children = g2.getChildren();
+         final AbstractLogicNode[] g1children = g1.getChildren();
+         final AbstractLogicNode[] g2children = g2.getChildren();
 
          if (g1children.length != g2children.length) {
             return false;
@@ -950,18 +950,18 @@ public class LogicalExpressionOchreImpl
             return true;
          }
 
-         HashMap<Set<UUID>, IntArrayList> uuidSetNodeListMap = new HashMap<>();
+         final HashMap<Set<UUID>, IntArrayList> uuidSetNodeListMap = new HashMap<>();
          int                              depthToTest        = 0;
 
          while ((uuidSetNodeListMap.size() < g1children.length) && (depthToTest < maxDepth - depth)) {
             depthToTest++;
             uuidSetNodeListMap.clear();
 
-            for (AbstractLogicNode child: g1children) {
-               Set<UUID> nodeUuidSetForDepth = child.getNodeUuidSetForDepth(depthToTest);
+            for (final AbstractLogicNode child: g1children) {
+               final Set<UUID> nodeUuidSetForDepth = child.getNodeUuidSetForDepth(depthToTest);
 
                if (!uuidSetNodeListMap.containsKey(nodeUuidSetForDepth)) {
-                  IntArrayList nodeList = new IntArrayList();
+                  final IntArrayList nodeList = new IntArrayList();
 
                   nodeList.add(child.getNodeIndex());
                   uuidSetNodeListMap.put(nodeUuidSetForDepth, nodeList);
@@ -973,9 +973,9 @@ public class LogicalExpressionOchreImpl
          }
 
          // need to try all combinations
-         for (AbstractLogicNode g2Child: g2children) {
-            Set<UUID>    nodeUuidSetForDepth = g2Child.getNodeUuidSetForDepth(depthToTest);
-            IntArrayList possibleMatches     = uuidSetNodeListMap.get(nodeUuidSetForDepth);
+         for (final AbstractLogicNode g2Child: g2children) {
+            final Set<UUID>    nodeUuidSetForDepth = g2Child.getNodeUuidSetForDepth(depthToTest);
+            final IntArrayList possibleMatches     = uuidSetNodeListMap.get(nodeUuidSetForDepth);
 
             if (possibleMatches == null) {
                return false;
@@ -983,7 +983,7 @@ public class LogicalExpressionOchreImpl
 
             int match = -1;
 
-            for (int possibleMatchIndex: possibleMatches.elements()) {
+            for (final int possibleMatchIndex: possibleMatches.elements()) {
                if (graphsEqual((AbstractLogicNode) this.logicNodes.get(possibleMatchIndex),
                                g2Child,
                                depth + 1,
@@ -1010,17 +1010,17 @@ public class LogicalExpressionOchreImpl
 
    @Override
    public int getConceptSequence() {
-      return conceptSequence;
+      return this.conceptSequence;
    }
 
    @Override
    public byte[][] getData(DataTarget dataTarget) {
       init();
 
-      byte[][] byteArrayArray = new byte[logicNodes.size()][];
+      final byte[][] byteArrayArray = new byte[this.logicNodes.size()][];
 
       for (int index = 0; index < byteArrayArray.length; index++) {
-         byteArrayArray[index] = logicNodes.get(index)
+         byteArrayArray[index] = this.logicNodes.get(index)
                                            .getBytes(dataTarget);
       }
 
@@ -1029,33 +1029,33 @@ public class LogicalExpressionOchreImpl
 
    @Override
    public boolean isMeaningful() {
-      return logicNodes.stream()
+      return this.logicNodes.stream()
                        .anyMatch((node) -> (MEANINGFUL_NODE_SEMANTICS.contains(node.getNodeSemantic())));
    }
 
    @Override
    public LogicNode getNode(int nodeIndex) {
-      return logicNodes.get(nodeIndex);
+      return this.logicNodes.get(nodeIndex);
    }
 
    @Override
    public int getNodeCount() {
-      return logicNodes.size();
+      return this.logicNodes.size();
    }
 
    @Override
    public Stream<LogicNode> getNodesOfType(NodeSemantic semantic) {
-      return logicNodes.stream()
+      return this.logicNodes.stream()
                        .filter((node) -> (node.getNodeSemantic() == semantic));
    }
 
    @Override
    public final RootNode getRoot() {
-      if (logicNodes.isEmpty()) {
+      if (this.logicNodes.isEmpty()) {
          return Root();
       }
 
-      return (RootNode) logicNodes.get(rootNodeIndex);
+      return (RootNode) this.logicNodes.get(this.rootNodeIndex);
    }
 }
 

@@ -84,9 +84,9 @@ public class IndexTermstore
    public void execute()
             throws MojoExecutionException {
       try {
-         List<IndexServiceBI> indexers     = LookupService.get()
+         final List<IndexServiceBI> indexers     = LookupService.get()
                                                           .getAllServices(IndexServiceBI.class);
-         List<String>         indexerNames = new ArrayList<>();
+         final List<String>         indexerNames = new ArrayList<>();
 
          indexers.stream()
                  .forEach((IndexServiceBI i) -> indexerNames.add(i.getIndexerName()));
@@ -95,7 +95,7 @@ public class IndexTermstore
          Get.startIndexTask((Class<? extends IndexServiceBI>[]) null)
             .get();
          getLog().info("Finished indexing. ");
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       }
    }

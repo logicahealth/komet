@@ -68,30 +68,30 @@ public class ChecksumGenerator {
     */
    public static String calculateChecksum(String type, byte[] data) {
       try {
-         MessageDigest     md  = MessageDigest.getInstance(type);
-         DigestInputStream dis = new DigestInputStream(new ByteArrayInputStream(data), md);
+         final MessageDigest     md  = MessageDigest.getInstance(type);
+         final DigestInputStream dis = new DigestInputStream(new ByteArrayInputStream(data), md);
 
          dis.read(data);
          return getStringValue(md);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException("Unexpected error: " + e);
       }
    }
 
    public static Task<String> calculateChecksum(String type, File data) {
-      Task<String> checkSumCalculator = new Task<String>() {
+      final Task<String> checkSumCalculator = new Task<String>() {
          @Override
          protected String call()
                   throws Exception {
-            long fileLength = data.length();
+            final long fileLength = data.length();
 
             updateProgress(0, fileLength);
 
-            MessageDigest md = MessageDigest.getInstance(type);
+            final MessageDigest md = MessageDigest.getInstance(type);
 
             try (InputStream is = Files.newInputStream(data.toPath())) {
-               DigestInputStream dis       = new DigestInputStream(is, md);
-               byte[]            buffer    = new byte[8192];
+               final DigestInputStream dis       = new DigestInputStream(is, md);
+               final byte[]            buffer    = new byte[8192];
                long              loopCount = 0;
                int               read      = 0;
 
@@ -120,7 +120,7 @@ public class ChecksumGenerator {
    //~--- get methods ---------------------------------------------------------
 
    private static String getStringValue(MessageDigest md) {
-      byte[] digest = md.digest();
+      final byte[] digest = md.digest();
 
       return new HexBinaryAdapter().marshal(digest)
                                    .toLowerCase();

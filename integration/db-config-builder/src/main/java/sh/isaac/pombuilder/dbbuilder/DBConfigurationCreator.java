@@ -128,11 +128,11 @@ public class DBConfigurationCreator {
          LOG.debug("metadataVersion: {}, IBDF Files: {}", metadataVersion, Arrays.toString(ibdfFiles));
       }
 
-      Model model = new Model();
+      final Model model = new Model();
 
       model.setModelVersion("4.0.0");
 
-      Parent parent = new Parent();
+      final Parent parent = new Parent();
 
       parent.setGroupId(parentGroupId);
       parent.setArtifactId(parentArtifactId);
@@ -145,13 +145,13 @@ public class DBConfigurationCreator {
       model.setPackaging("pom");
       model.setDescription(description);
 
-      Scm scm = new Scm();
+      final Scm scm = new Scm();
 
       scm.setUrl(GitPublish.constructChangesetRepositoryURL(gitRepositoryURL));
       scm.setTag(groupId + "/" + name + "/" + version);
       model.setScm(scm);
 
-      Properties properties = new Properties();
+      final Properties properties = new Properties();
 
       properties.setInParent("false");
 
@@ -161,8 +161,8 @@ public class DBConfigurationCreator {
 
       model.setProperties(properties);
 
-      Licenses licenses = new Licenses();
-      License  l        = new License();
+      final Licenses licenses = new Licenses();
+      final License  l        = new License();
 
       l.setName("The Apache Software License, Version 2.0");
       l.setUrl("http://www.apache.org/licenses/LICENSE-2.0.txt");
@@ -176,7 +176,7 @@ public class DBConfigurationCreator {
       // TODO extract licenses from IBDF file(s), include here.
       model.setLicenses(licenses);
 
-      Dependencies dependencies = new Dependencies();
+      final Dependencies dependencies = new Dependencies();
       Dependency   dependency   = new Dependency();
 
       dependency.setGroupId("sh.isaac.modules");
@@ -188,7 +188,7 @@ public class DBConfigurationCreator {
       dependencies.getDependency()
                   .add(dependency);
 
-      for (IBDFFile ibdf: ibdfFiles) {
+      for (final IBDFFile ibdf: ibdfFiles) {
          dependency = new Dependency();
          dependency.setGroupId(ibdf.getGroupId());
          dependency.setArtifactId(ibdf.getArtifactId());
@@ -208,8 +208,8 @@ public class DBConfigurationCreator {
 
       model.setDependencies(dependencies);
 
-      Build   build   = new Build();
-      Plugins plugins = new Plugins();
+      final Build   build   = new Build();
+      final Plugins plugins = new Plugins();
       Plugin  plugin  = new Plugin();
 
       plugin.setGroupId("org.apache.maven.plugins");
@@ -230,9 +230,9 @@ public class DBConfigurationCreator {
       pe.setGoals(goals);
 
       Configuration configuration = new Configuration();
-      StringBuilder sb            = new StringBuilder();
+      final StringBuilder sb            = new StringBuilder();
 
-      for (IBDFFile ibdf: ibdfFiles) {
+      for (final IBDFFile ibdf: ibdfFiles) {
          sb.append(ibdf.getArtifactId());
          sb.append(",");
       }
@@ -328,7 +328,7 @@ public class DBConfigurationCreator {
       build.setPlugins(plugins);
       model.setBuild(build);
 
-      File f = Files.createTempDirectory("db-builder")
+      final File f = Files.createTempDirectory("db-builder")
                     .toFile();
 
       FileUtil.writePomFile(model, f);
@@ -341,11 +341,11 @@ public class DBConfigurationCreator {
       FileUtil.writeFile("dbProjectTemplate", "src/assembly/MANIFEST.MF", f);
       GitPublish.publish(f, gitRepositoryURL, gitUsername, gitPassword, scm.getTag());
 
-      String tag = scm.getTag();
+      final String tag = scm.getTag();
 
       try {
          FileUtil.recursiveDelete(f);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          LOG.error("Problem cleaning up temp folder " + f, e);
       }
 

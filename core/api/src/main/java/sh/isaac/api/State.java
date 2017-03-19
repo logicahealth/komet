@@ -102,22 +102,23 @@ public enum State {
       }
    }
 
-   public String toString() {
-      return name;
+   @Override
+public String toString() {
+      return this.name;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getAbbreviation() {
-      return abbreviation;
+      return this.abbreviation;
    }
 
    public boolean isActive() {
-      return isActive;
+      return this.isActive;
    }
 
    public boolean getBoolean() {
-      return isActive;
+      return this.isActive;
    }
 
    public static State getFromBoolean(boolean isActive) {

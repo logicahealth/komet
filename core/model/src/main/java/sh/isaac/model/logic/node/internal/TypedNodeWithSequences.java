@@ -95,7 +95,7 @@ public abstract class TypedNodeWithSequences
    @Override
    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
-      conceptSequenceSet.add(typeConceptSequence);
+      conceptSequenceSet.add(this.typeConceptSequence);
    }
 
    @Override
@@ -132,17 +132,17 @@ public abstract class TypedNodeWithSequences
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return " " + Get.conceptDescriptionText(typeConceptSequence) + " <" +
-             Get.identifierService().getConceptSequence(typeConceptSequence) + ">" + super.toString(nodeIdSuffix);
+      return " " + Get.conceptDescriptionText(this.typeConceptSequence) + " <" +
+             Get.identifierService().getConceptSequence(this.typeConceptSequence) + ">" + super.toString(nodeIdSuffix);
    }
 
    @Override
    protected final int compareNodeFields(LogicNode o) {
       // node semantic already determined equals.
-      TypedNodeWithSequences other = (TypedNodeWithSequences) o;
+      final TypedNodeWithSequences other = (TypedNodeWithSequences) o;
 
-      if (typeConceptSequence != other.typeConceptSequence) {
-         return Integer.compare(typeConceptSequence, other.typeConceptSequence);
+      if (this.typeConceptSequence != other.typeConceptSequence) {
+         return Integer.compare(this.typeConceptSequence, other.typeConceptSequence);
       }
 
       return compareTypedNodeFields(o);
@@ -154,13 +154,13 @@ public abstract class TypedNodeWithSequences
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeInt(typeConceptSequence);
+      dataOutput.writeInt(this.typeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public LogicNode getOnlyChild() {
-      LogicNode[] children = getChildren();
+      final LogicNode[] children = getChildren();
 
       if (children.length == 1) {
          return children[0];
@@ -170,7 +170,7 @@ public abstract class TypedNodeWithSequences
    }
 
    public int getTypeConceptSequence() {
-      return typeConceptSequence;
+      return this.typeConceptSequence;
    }
 }
 

@@ -74,22 +74,22 @@ public class ClassifierResults {
 
    @Override
    public String toString() {
-      return "ClassifierResults{" + "affectedConcepts=" + affectedConcepts.size() + ", equivalentSets=" +
-             equivalentSets.size() + '}';
+      return "ClassifierResults{" + "affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" +
+             this.equivalentSets.size() + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public ConceptSequenceSet getAffectedConcepts() {
-      return affectedConcepts;
+      return this.affectedConcepts;
    }
 
    public Optional<CommitRecord> getCommitRecord() {
-      return commitRecord;
+      return this.commitRecord;
    }
 
    public Set<ConceptSequenceSet> getEquivalentSets() {
-      return equivalentSets;
+      return this.equivalentSets;
    }
 }
 

@@ -88,7 +88,7 @@ public enum TaxonomyFlags {
    //~--- get methods ---------------------------------------------------------
 
    private static EnumSet<TaxonomyFlags> getFlags(int justFlags) {
-      EnumSet<TaxonomyFlags> flagSet = EnumSet.noneOf(TaxonomyFlags.class);
+      final EnumSet<TaxonomyFlags> flagSet = EnumSet.noneOf(TaxonomyFlags.class);
 
       Arrays.stream(TaxonomyFlags.values()).forEach((flag) -> {
                         if ((justFlags & flag.bits) == flag.bits) {
@@ -122,7 +122,7 @@ public enum TaxonomyFlags {
    public static int getTaxonomyFlagsAsInt(EnumSet<TaxonomyFlags> flagSet) {
       int flags = 0;
 
-      for (TaxonomyFlags flag: flagSet) {
+      for (final TaxonomyFlags flag: flagSet) {
          flags += flag.bits;
       }
 

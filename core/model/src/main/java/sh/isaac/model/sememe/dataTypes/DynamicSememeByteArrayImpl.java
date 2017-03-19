@@ -77,7 +77,7 @@ public class DynamicSememeByteArrayImpl
     */
    @Override
    public byte[] getDataByteArray() {
-      return data_;
+      return this.data_;
    }
 
    /**
@@ -85,11 +85,11 @@ public class DynamicSememeByteArrayImpl
     */
    @Override
    public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<byte[]>(null, getName(), data_);
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<byte[]>(null, getName(), this.data_);
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

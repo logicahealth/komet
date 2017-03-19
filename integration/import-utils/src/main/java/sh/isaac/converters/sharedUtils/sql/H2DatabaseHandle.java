@@ -84,7 +84,7 @@ public class H2DatabaseHandle {
       boolean createdNew = true;
 
       if (dbFile != null) {
-         File temp = new File(dbFile.getParentFile(), dbFile.getName() + ".h2.db");
+         final File temp = new File(dbFile.getParentFile(), dbFile.getName() + ".h2.db");
 
          if (temp.exists()) {
             createdNew = false;
@@ -94,9 +94,9 @@ public class H2DatabaseHandle {
       Class.forName("org.h2.Driver");
 
       if (dbFile == null) {
-         connection_ = DriverManager.getConnection("jdbc:h2:mem:;MV_STORE=FALSE");
+         this.connection_ = DriverManager.getConnection("jdbc:h2:mem:;MV_STORE=FALSE");
       } else {
-         connection_ = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath() +
+         this.connection_ = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath() +
                ";LOG=0;CACHE_SIZE=1024000;LOCK_MODE=0;;MV_STORE=FALSE");
       }
 
@@ -105,8 +105,8 @@ public class H2DatabaseHandle {
 
    public void createTable(TableDefinition td)
             throws SQLException {
-      Statement     s         = connection_.createStatement();
-      StringBuilder sql       = new StringBuilder();
+      final Statement     s         = this.connection_.createStatement();
+      final StringBuilder sql       = new StringBuilder();
       String        tableName = td.getTableName();
 
       if (tableName.indexOf('/') > 0) {
@@ -115,7 +115,7 @@ public class H2DatabaseHandle {
 
       sql.append("CREATE TABLE " + tableName + " (");
 
-      for (ColumnDefinition cd: td.getColumns()) {
+      for (final ColumnDefinition cd: td.getColumns()) {
          sql.append(cd.asH2());
          sql.append(",");
       }
@@ -152,7 +152,7 @@ public class H2DatabaseHandle {
                    IOException {
       ConsoleUtil.println("Loading table " + td.getTableName());
 
-      StringBuilder insert = new StringBuilder();
+      final StringBuilder insert = new StringBuilder();
 
       insert.append("INSERT INTO ");
 
@@ -165,7 +165,7 @@ public class H2DatabaseHandle {
       insert.append(tableName);
       insert.append("(");
 
-      for (ColumnDefinition cd: td.getColumns()) {
+      for (final ColumnDefinition cd: td.getColumns()) {
          insert.append(cd.getColumnName());
          insert.append(",");
       }
@@ -180,7 +180,7 @@ public class H2DatabaseHandle {
       insert.setLength(insert.length() - 1);
       insert.append(")");
 
-      PreparedStatement ps           = connection_.prepareStatement(insert.toString());
+      final PreparedStatement ps           = this.connection_.prepareStatement(insert.toString());
       int               filterColumn = -1;
       HashSet<String>   sabHashSet   = null;
 
@@ -190,7 +190,7 @@ public class H2DatabaseHandle {
          int pos = 0;
 
          // Find the skip column in this table, if it has one.
-         for (ColumnDefinition cd: td.getColumns()) {
+         for (final ColumnDefinition cd: td.getColumns()) {
             if (cd.getColumnName()
                   .equalsIgnoreCase(includeValuesColumnName)) {
                filterColumn = pos;
@@ -203,10 +203,10 @@ public class H2DatabaseHandle {
 
       int             rowCount     = 0;
       int             sabSkipCount = 0;
-      HashSet<String> skippedSabs  = new HashSet<>();
+      final HashSet<String> skippedSabs  = new HashSet<>();
 
       while (data.hasNextRow()) {
-         List<String> cols = data.getNextRow();
+         final List<String> cols = data.getNextRow();
 
          if (cols.size() != td.getColumns().length) {
             throw new RuntimeException("Data length mismatch!");
@@ -224,8 +224,8 @@ public class H2DatabaseHandle {
 
          int psIndex = 1;
 
-         for (String s: cols) {
-            DataType colType = td.getColumns()[psIndex - 1]
+         for (final String s: cols) {
+            final DataType colType = td.getColumns()[psIndex - 1]
                                  .getDataType();
 
             if (colType.isBoolean()) {
@@ -287,13 +287,13 @@ public class H2DatabaseHandle {
 
    public void shutdown()
             throws SQLException {
-      connection_.close();
+      this.connection_.close();
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public Connection getConnection() {
-      return connection_;
+      return this.connection_;
    }
 }
 

@@ -67,7 +67,7 @@ public class RoleConfigurator {
    //~--- methods -------------------------------------------------------------
 
    public static void configureForTest() {
-      SimpleUserRoleService rolesService = LookupService.get()
+      final SimpleUserRoleService rolesService = LookupService.get()
                                                         .getService(SimpleUserRoleService.class);
 
       rolesService.addRole(UserRole.EDITOR);

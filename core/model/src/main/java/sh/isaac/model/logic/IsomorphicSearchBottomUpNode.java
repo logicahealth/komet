@@ -72,9 +72,9 @@ public class IsomorphicSearchBottomUpNode
       this.size                                = conceptsReferencedAtNodeOrAbove.size();
       this.conceptsReferencedAtNodeOrAboveHash = 1;
 
-      for (int element: conceptsReferencedAtNodeOrAbove.keys()
+      for (final int element: conceptsReferencedAtNodeOrAbove.keys()
             .elements()) {
-         conceptsReferencedAtNodeOrAboveHash = 31 * conceptsReferencedAtNodeOrAboveHash + element;
+         this.conceptsReferencedAtNodeOrAboveHash = 31 * this.conceptsReferencedAtNodeOrAboveHash + element;
       }
 
       this.childNodeId = childNodeId;
@@ -91,7 +91,7 @@ public class IsomorphicSearchBottomUpNode
          return comparison;
       }
 
-      comparison = Integer.compare(childNodeId, o.childNodeId);
+      comparison = Integer.compare(this.childNodeId, o.childNodeId);
 
       if (comparison != 0) {
          return comparison;
@@ -115,7 +115,7 @@ public class IsomorphicSearchBottomUpNode
          return comparison;
       }
 
-      return Integer.compare(nodeId, o.nodeId);
+      return Integer.compare(this.nodeId, o.nodeId);
    }
 
    @Override
@@ -133,13 +133,13 @@ public class IsomorphicSearchBottomUpNode
 
    @Override
    public int hashCode() {
-      return conceptsReferencedAtNodeOrAboveHash;
+      return this.conceptsReferencedAtNodeOrAboveHash;
    }
 
    @Override
    public String toString() {
-      return "BottomUpNode{" + nodeSemantic + ", conceptsAtOrAbove=" + conceptsReferencedAtNodeOrAbove + ", childId=" +
-             childNodeId + ", nodeId=" + nodeId + '}';
+      return "BottomUpNode{" + this.nodeSemantic + ", conceptsAtOrAbove=" + this.conceptsReferencedAtNodeOrAbove + ", childId=" +
+             this.childNodeId + ", nodeId=" + this.nodeId + '}';
    }
 }
 

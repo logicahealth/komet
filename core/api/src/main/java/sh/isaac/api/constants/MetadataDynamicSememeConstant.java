@@ -53,10 +53,10 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnIn
 
 public class MetadataDynamicSememeConstant
         extends MetadataConceptConstant {
-   private String                    dynamicSememeDescription_;
-   private DynamicSememeColumnInfo[] dynamicSememeColumns_;
-   private ObjectChronologyType      referencedComponentRestriction_;
-   private SememeType                referencedComponentSubRestriction_;
+   private final String                    dynamicSememeDescription_;
+   private final DynamicSememeColumnInfo[] dynamicSememeColumns_;
+   private final ObjectChronologyType      referencedComponentRestriction_;
+   private final SememeType                referencedComponentSubRestriction_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -148,21 +148,21 @@ public class MetadataDynamicSememeConstant
       super(fsn, uuid);
 
       if (definitions != null) {
-         for (String s: definitions) {
+         for (final String s: definitions) {
             addDefinition(s);
          }
       }
 
       if (synonyms != null) {
-         for (String s: synonyms) {
+         for (final String s: synonyms) {
             addSynonym(s);
          }
       }
 
-      dynamicSememeDescription_          = sememeDescription;
-      dynamicSememeColumns_              = columns;
-      referencedComponentRestriction_    = referencedComponentRestriction;
-      referencedComponentSubRestriction_ = refererenceComponentSubRestriction;
+      this.dynamicSememeDescription_          = sememeDescription;
+      this.dynamicSememeColumns_              = columns;
+      this.referencedComponentRestriction_    = referencedComponentRestriction;
+      this.referencedComponentSubRestriction_ = refererenceComponentSubRestriction;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -171,28 +171,28 @@ public class MetadataDynamicSememeConstant
     * @return the sememeColumns
     */
    public DynamicSememeColumnInfo[] getDynamicSememeColumns() {
-      return dynamicSememeColumns_;
+      return this.dynamicSememeColumns_;
    }
 
    /**
     * @return The limit (if any) on which {@link SememeType} this dynamic sememe is restricted to.
     */
    public SememeType getReferencedComponentSubTypeRestriction() {
-      return referencedComponentSubRestriction_;
+      return this.referencedComponentSubRestriction_;
    }
 
    /**
     * @return The limit (if any) on which {@link ObjectChronologyType} this DynamicSememe is restricted to.
     */
    public ObjectChronologyType getReferencedComponentTypeRestriction() {
-      return referencedComponentRestriction_;
+      return this.referencedComponentRestriction_;
    }
 
    /**
     * @return the dynamicSememeDescription_
     */
    public String getSememeAssemblageDescription() {
-      return dynamicSememeDescription_;
+      return this.dynamicSememeDescription_;
    }
 }
 

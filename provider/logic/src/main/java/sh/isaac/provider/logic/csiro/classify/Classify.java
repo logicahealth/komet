@@ -69,14 +69,14 @@ public class Classify {
                               OpenIntHashSet roleSequences,
                               OpenIntHashSet neverGroupRoleSequences,
                               int roleGroupConceptSequence) {
-      Stream<LogicalExpressionOchreImpl> logicGraphStream = null;
-      AxiomCollector axiomCollector = new AxiomCollector(conceptSequences,
+      final Stream<LogicalExpressionOchreImpl> logicGraphStream = null;
+      final AxiomCollector axiomCollector = new AxiomCollector(conceptSequences,
                                                          roleSequences,
                                                          neverGroupRoleSequences,
                                                          roleGroupConceptSequence);
 
       if (logicGraphStream != null) {
-         Set<Axiom> axioms = logicGraphStream.collect(axiomCollector);
+         final Set<Axiom> axioms = logicGraphStream.collect(axiomCollector);
 
          // Create a classifier and classify the axioms
          IReasoner r = new SnorocketReasoner();
@@ -84,8 +84,7 @@ public class Classify {
          r.loadAxioms(axioms);
          r = r.classify();
 
-         // Get only the taxonomy
-         Ontology res = r.getClassifiedOntology();
+         r.getClassifiedOntology();
       }
    }
 }

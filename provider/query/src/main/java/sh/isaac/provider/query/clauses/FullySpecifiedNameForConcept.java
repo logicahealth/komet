@@ -83,18 +83,18 @@ public class FullySpecifiedNameForConcept
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      LanguageCoordinate languageCoordinate         = getEnclosingQuery().getLanguageCoordinate();
-      StampCoordinate    stampCoordinate            = getEnclosingQuery().getStampCoordinate();
-      NidSet             outgoingFullySpecifiedNids = new NidSet();
+      final LanguageCoordinate languageCoordinate         = getEnclosingQuery().getLanguageCoordinate();
+      final StampCoordinate    stampCoordinate            = getEnclosingQuery().getStampCoordinate();
+      final NidSet             outgoingFullySpecifiedNids = new NidSet();
 
-      for (Clause childClause: getChildren()) {
-         NidSet             childPossibleComponentNids = childClause.computePossibleComponents(incomingComponents);
-         ConceptSequenceSet conceptSequenceSet         = ConceptSequenceSet.of(childPossibleComponentNids);
+      for (final Clause childClause: getChildren()) {
+         final NidSet             childPossibleComponentNids = childClause.computePossibleComponents(incomingComponents);
+         final ConceptSequenceSet conceptSequenceSet         = ConceptSequenceSet.of(childPossibleComponentNids);
 
          Get.conceptService()
             .getConceptChronologyStream(conceptSequenceSet)
             .forEach((conceptChronology) -> {
-                        Optional<LatestVersion<DescriptionSememe<?>>> desc =
+                        final Optional<LatestVersion<DescriptionSememe<?>>> desc =
                            conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
 
                         if (desc.isPresent()) {
@@ -117,11 +117,11 @@ public class FullySpecifiedNameForConcept
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.FULLY_SPECIFIED_NAME_FOR_CONCEPT);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

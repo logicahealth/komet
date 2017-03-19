@@ -105,18 +105,18 @@ public class MemoryManagedReference<T extends Object>
    //~--- methods -------------------------------------------------------------
 
    public void cacheEntry() {
-      int count = cacheCount.incrementAndGet();
+      final int count = this.cacheCount.incrementAndGet();
 
       if (count == 1) {
-         strongReferenceForCache.set(this.get());
+         this.strongReferenceForCache.set(this.get());
       }
    }
 
    public void cacheExit() {
-      int count = cacheCount.decrementAndGet();
+      final int count = this.cacheCount.decrementAndGet();
 
       if (count == 0) {
-         strongReferenceForCache.set(null);
+         this.strongReferenceForCache.set(null);
       }
    }
 
@@ -126,14 +126,14 @@ public class MemoryManagedReference<T extends Object>
    }
 
    public void elementRead() {
-      hits.increment();
+      this.hits.increment();
       this.lastElementReadTime = System.currentTimeMillis();
    }
 
    public void elementUpdated() {
       this.strongReferenceForUpdate.set(this.get());
-      lastElementUpdateSequence = referenceSequenceSupplier.getAndIncrement();
-      lastElementUpdateTime     = System.currentTimeMillis();
+      this.lastElementUpdateSequence = referenceSequenceSupplier.getAndIncrement();
+      this.lastElementUpdateTime     = System.currentTimeMillis();
    }
 
    @Override
@@ -146,41 +146,41 @@ public class MemoryManagedReference<T extends Object>
          return false;
       }
 
-      MemoryManagedReference<?> that = (MemoryManagedReference<?>) o;
+      final MemoryManagedReference<?> that = (MemoryManagedReference<?>) o;
 
-      return objectId == that.objectId;
+      return this.objectId == that.objectId;
    }
 
    @Override
    public int hashCode() {
-      return HashFunctions.hash(objectId);
+      return HashFunctions.hash(this.objectId);
    }
 
    public long msSinceLastUnwrittenUpdate() {
-      return lastElementUpdateTime - lastWriteToDiskTime;
+      return this.lastElementUpdateTime - this.lastWriteToDiskTime;
    }
 
    public Duration timeSinceLastRead() {
-      return Duration.ofMillis(System.currentTimeMillis() - lastElementReadTime);
+      return Duration.ofMillis(System.currentTimeMillis() - this.lastElementReadTime);
    }
 
    public void write() {
-      T objectToWrite = strongReferenceForUpdate.get();
+      final T objectToWrite = this.strongReferenceForUpdate.get();
 
       if (objectToWrite != null) {
-         strongReferenceForUpdate.set(null);
+         this.strongReferenceForUpdate.set(null);
          DiskSemaphore.acquire();
-         lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
-         lastWriteToDiskTime     = System.currentTimeMillis();
-         diskLocation.getParentFile()
+         this.lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
+         this.lastWriteToDiskTime     = System.currentTimeMillis();
+         this.diskLocation.getParentFile()
                      .mkdirs();
 
          try (DataOutputStream out =
-               new DataOutputStream(new BufferedOutputStream(new FileOutputStream(diskLocation)))) {
-            serializer.serialize(out, objectToWrite);
-         } catch (FileNotFoundException e) {
+               new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.diskLocation)))) {
+            this.serializer.serialize(out, objectToWrite);
+         } catch (final FileNotFoundException e) {
             throw new RuntimeException(e);
-         } catch (IOException e) {
+         } catch (final IOException e) {
             throw new RuntimeException(e);
          } finally {
             DiskSemaphore.release();
@@ -191,11 +191,11 @@ public class MemoryManagedReference<T extends Object>
    //~--- get methods ---------------------------------------------------------
 
    public long getLastWriteToDiskTime() {
-      return lastWriteToDiskTime;
+      return this.lastWriteToDiskTime;
    }
 
    public boolean hasUnwrittenUpdate() {
-      return lastWriteToDiskSequence < lastElementUpdateSequence;
+      return this.lastWriteToDiskSequence < this.lastElementUpdateSequence;
    }
 }
 

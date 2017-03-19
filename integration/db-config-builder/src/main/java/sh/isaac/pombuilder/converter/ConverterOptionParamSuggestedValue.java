@@ -88,13 +88,13 @@ public class ConverterOptionParamSuggestedValue {
          return false;
       }
 
-      ConverterOptionParamSuggestedValue other = (ConverterOptionParamSuggestedValue) obj;
+      final ConverterOptionParamSuggestedValue other = (ConverterOptionParamSuggestedValue) obj;
 
-      if (value == null) {
+      if (this.value == null) {
          if (other.value != null) {
             return false;
          }
-      } else if (!value.equals(other.value)) {
+      } else if (!this.value.equals(other.value)) {
          return false;
       }
 
@@ -115,14 +115,14 @@ public class ConverterOptionParamSuggestedValue {
       int       result = 1;
 
       result = prime * result + getDescription().hashCode();
-      result = prime * result + ((value == null) ? 0
-            : value.hashCode());
+      result = prime * result + ((this.value == null) ? 0
+            : this.value.hashCode());
       return result;
    }
 
    @Override
    public String toString() {
-      return "ConverterOptionParamSuggestedValue [value=" + value + ", description=" + description + "]";
+      return "ConverterOptionParamSuggestedValue [value=" + this.value + ", description=" + this.description + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -132,15 +132,15 @@ public class ConverterOptionParamSuggestedValue {
     * upon construction, this will return the same thing as {@link #getValue()}
     */
    public String getDescription() {
-      return StringUtils.isNotBlank(description) ? description
-            : value;
+      return StringUtils.isNotBlank(this.description) ? this.description
+            : this.value;
    }
 
    /**
     * The value to be passed in to the {@link ConverterOptionValue} class
     */
    public String getValue() {
-      return value;
+      return this.value;
    }
 }
 

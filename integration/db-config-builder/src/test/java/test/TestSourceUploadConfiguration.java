@@ -51,8 +51,6 @@ import java.util.ArrayList;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-
 import javafx.concurrent.Task;
 
 import sh.isaac.api.util.WorkExecutors;
@@ -66,16 +64,16 @@ import sh.isaac.pombuilder.upload.SrcUploadCreator;
 public class TestSourceUploadConfiguration {
    public static void main(String[] args)
             throws Throwable {
-      String gitTestURL         = "https://git.isaac.sh/git/r/junk.git";
-      String gitUsername        = "";
-      char[] gitPassword        = "".toCharArray();
-      String artifactRepository = "https://vadev.mantech.com:8080/nexus/content/sites/ets_tooling_snapshot/";
-      String repositoryUsername = "";
-      String repositoryPassword = "";
+      final String gitTestURL         = "https://git.isaac.sh/git/r/junk.git";
+      final String gitUsername        = "";
+      final char[] gitPassword        = "".toCharArray();
+      final String artifactRepository = "https://vadev.mantech.com:8080/nexus/content/sites/ets_tooling_snapshot/";
+      final String repositoryUsername = "";
+      final String repositoryPassword = "";
 
       System.setProperty("java.awt.headless", "true");
 
-      File f = new File("testJunk");
+      final File f = new File("testJunk");
 
       f.mkdir();
       Files.write(new File(f, "foo.txt").toPath(),
@@ -83,12 +81,12 @@ public class TestSourceUploadConfiguration {
                   StandardOpenOption.WRITE,
                   StandardOpenOption.CREATE);
 
-      ArrayList<File> files = new ArrayList<>();
+      final ArrayList<File> files = new ArrayList<>();
 
       files.add(new File(f, "foo.txt"));
       System.out.println(GitPublish.readTags(gitTestURL, gitUsername, gitPassword));
 
-      Task<String> t = SrcUploadCreator.createSrcUploadConfiguration(SupportedConverterTypes.SCT_EXTENSION,
+      final Task<String> t = SrcUploadCreator.createSrcUploadConfiguration(SupportedConverterTypes.SCT_EXTENSION,
                                                                      "50.6",
                                                                      "us",
                                                                      files,
@@ -99,27 +97,9 @@ public class TestSourceUploadConfiguration {
                                                                      repositoryUsername,
                                                                      repositoryPassword);
 
-      t.progressProperty().addListener(new ChangeListener<Number>() {
-                       @Override
-                       public void changed(
-                               ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                          System.out.println("[Change] Progress " + newValue);
-                       }
-                    });
-      t.messageProperty().addListener(new ChangeListener<String>() {
-                       @Override
-                       public void changed(
-                               ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                          System.out.println("[Change] Message " + newValue);
-                       }
-                    });
-      t.titleProperty().addListener(new ChangeListener<String>() {
-                       @Override
-                       public void changed(
-                               ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                          System.out.println("[Change] Title " + newValue);
-                       }
-                    });
+      t.progressProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> System.out.println("[Change] Progress " + newValue));
+      t.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> System.out.println("[Change] Message " + newValue));
+      t.titleProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> System.out.println("[Change] Title " + newValue));
       WorkExecutors.get()
                    .getExecutor()
                    .execute(t);

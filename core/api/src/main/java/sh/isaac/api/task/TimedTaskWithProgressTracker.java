@@ -79,17 +79,17 @@ public abstract class TimedTaskWithProgressTracker<T>
 
    static {
       try {
-         Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
+         final Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
 
          FortifyFun.fixAccessible(setTotalWork);  // setTotalWork.setAccessible(true);
          MH_SET_TOTAL_WORK = publicLookup().unreflect(setTotalWork);
 
-         Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
+         final Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
 
          FortifyFun.fixAccessible(setProgress);   // setProgress.setAccessible(true);
          MH_SET_PROGRESS = publicLookup().unreflect(setProgress);
 
-         Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
+         final Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
 
          FortifyFun.fixAccessible(setWorkDone);   // setWorkDone.setAccessible(true);
          MH_SET_WORK_DONE = publicLookup().unreflect(setWorkDone);
@@ -109,45 +109,45 @@ public abstract class TimedTaskWithProgressTracker<T>
 
    @Override
    public void addToTotalWork(long amountOfWork) {
-      totalWork.addAndGet(amountOfWork);
+      this.totalWork.addAndGet(amountOfWork);
    }
 
    @Override
    public void completedUnitOfWork() {
-      completedUnitsOfWork.increment();
+      this.completedUnitsOfWork.increment();
    }
 
    @Override
    public void completedUnitsOfWork(long unitsCompleted) {
-      completedUnitsOfWork.add(unitsCompleted);
+      this.completedUnitsOfWork.add(unitsCompleted);
    }
 
    @Override
    protected void done() {
       super.done();
-      progressTicker.stop();
+      this.progressTicker.stop();
    }
 
    @Override
    protected void running() {
       super.running();
 
-      long currentTotalWork = totalWork.get();
+      final long currentTotalWork = this.totalWork.get();
 
-      progressTicker.start(progressUpdateIntervalInSecs,
+      this.progressTicker.start(progressUpdateIntervalInSecs,
                            (value) -> {
                               try {
                                  if (currentTotalWork > 0) {
-                                    MH_SET_WORK_DONE.invoke(this, completedUnitsOfWork.doubleValue());
+                                    MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
                                     MH_SET_PROGRESS.invoke(this,
-                                          completedUnitsOfWork.doubleValue() / totalWork.doubleValue());
-                                    MH_SET_TOTAL_WORK.invoke(this, totalWork.doubleValue());
+                                          this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());
+                                    MH_SET_TOTAL_WORK.invoke(this, this.totalWork.doubleValue());
                                  } else {
                                     MH_SET_WORK_DONE.invoke(this, -1d);
                                     MH_SET_PROGRESS.invoke(this, -1d);
                                     MH_SET_TOTAL_WORK.invoke(this, -1d);
                                  }
-                              } catch (Throwable throwable) {
+                              } catch (final Throwable throwable) {
                                  throw new RuntimeException(throwable);
                               }
                            });

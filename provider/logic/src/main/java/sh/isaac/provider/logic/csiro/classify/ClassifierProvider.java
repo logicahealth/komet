@@ -106,29 +106,29 @@ public class ClassifierProvider
    }
 
    protected HashTreeWithBitSets getInferredTaxonomyGraph() {
-      IntStream conceptSequenceStream = Get.identifierService()
+      final IntStream conceptSequenceStream = Get.identifierService()
                                            .getParallelConceptSequenceStream();
-      GraphCollector collector =
+      final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
                             TaxonomyCoordinates.getInferredTaxonomyCoordinate(
                                 StampCoordinates.getDevelopmentLatestActiveOnly(),
                                 Get.configurationService().getDefaultLanguageCoordinate()));
-      HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
-      HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
+      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
+      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
 
       return resultGraph;
    }
 
    protected HashTreeWithBitSets getStatedTaxonomyGraph() {
-      IntStream conceptSequenceStream = Get.identifierService()
+      final IntStream conceptSequenceStream = Get.identifierService()
                                            .getParallelConceptSequenceStream();
-      GraphCollector collector =
+      final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
                             TaxonomyCoordinates.getStatedTaxonomyCoordinate(
                                 StampCoordinates.getDevelopmentLatestActiveOnly(),
                                 Get.configurationService().getDefaultLanguageCoordinate()));
-      HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
-      HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
+      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
+      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
 
       return resultGraph;
    }

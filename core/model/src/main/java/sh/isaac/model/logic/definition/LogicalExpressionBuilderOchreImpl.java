@@ -128,7 +128,7 @@ public class LogicalExpressionBuilderOchreImpl
          axiom = new GenericAxiom(NodeSemantic.SUFFICIENT_SET, this);
       }
 
-      rootSets.add(axiom);
+      this.rootSets.add(axiom);
       addToDefinitionTree(axiom, logicalSet);
    }
 
@@ -136,10 +136,10 @@ public class LogicalExpressionBuilderOchreImpl
    public AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
 
       addToDefinitionTree(axiom, roleRestriction);
-      axiomParameters.put(axiom.getIndex(), roleTypeChronology);
+      this.axiomParameters.put(axiom.getIndex(), roleTypeChronology);
       return axiom;
    }
 
@@ -147,10 +147,10 @@ public class LogicalExpressionBuilderOchreImpl
    public AllRole allRole(ConceptSpecification roleTypeSpecification, Assertion roleRestriction) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
 
       addToDefinitionTree(axiom, roleRestriction);
-      axiomParameters.put(axiom.getIndex(), roleTypeSpecification);
+      this.axiomParameters.put(axiom.getIndex(), roleTypeSpecification);
       return axiom;
    }
 
@@ -158,7 +158,7 @@ public class LogicalExpressionBuilderOchreImpl
    public And and(Assertion... assertions) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.AND, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.AND, this);
 
       addToDefinitionTree(axiom, assertions);
       return axiom;
@@ -168,9 +168,9 @@ public class LogicalExpressionBuilderOchreImpl
    public BooleanLiteral booleanLiteral(boolean booleanLiteral) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_BOOLEAN, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_BOOLEAN, this);
 
-      axiomParameters.put(axiom.getIndex(), booleanLiteral);
+      this.axiomParameters.put(axiom.getIndex(), booleanLiteral);
       return axiom;
    }
 
@@ -178,9 +178,9 @@ public class LogicalExpressionBuilderOchreImpl
    public BooleanSubstitution booleanSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_BOOLEAN, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_BOOLEAN, this);
 
-      axiomParameters.put(axiom.getIndex(), fieldSpecification);
+      this.axiomParameters.put(axiom.getIndex(), fieldSpecification);
       return axiom;
    }
 
@@ -189,12 +189,12 @@ public class LogicalExpressionBuilderOchreImpl
             throws IllegalStateException {
       checkNotBuilt();
 
-      LogicalExpressionOchreImpl definition = new LogicalExpressionOchreImpl();
+      final LogicalExpressionOchreImpl definition = new LogicalExpressionOchreImpl();
 
       definition.Root();
-      rootSets.forEach((axiom) -> addToDefinition(axiom, definition));
+      this.rootSets.forEach((axiom) -> addToDefinition(axiom, definition));
       definition.sort();
-      built = true;
+      this.built = true;
       return definition;
    }
 
@@ -207,9 +207,9 @@ public class LogicalExpressionBuilderOchreImpl
    public ConceptAssertion conceptAssertion(ConceptChronology<?> conceptChronology) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
 
-      axiomParameters.put(axiom.getIndex(), conceptChronology);
+      this.axiomParameters.put(axiom.getIndex(), conceptChronology);
       return axiom;
    }
 
@@ -217,9 +217,9 @@ public class LogicalExpressionBuilderOchreImpl
    public ConceptAssertion conceptAssertion(ConceptSpecification conceptSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
 
-      axiomParameters.put(axiom.getIndex(), conceptSpecification);
+      this.axiomParameters.put(axiom.getIndex(), conceptSpecification);
       return axiom;
    }
 
@@ -227,9 +227,9 @@ public class LogicalExpressionBuilderOchreImpl
    public ConceptAssertion conceptAssertion(Integer conceptNid) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
 
-      axiomParameters.put(axiom.getIndex(), conceptNid);
+      this.axiomParameters.put(axiom.getIndex(), conceptNid);
       return axiom;
    }
 
@@ -237,9 +237,9 @@ public class LogicalExpressionBuilderOchreImpl
    public ConceptSubstitution conceptSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_CONCEPT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_CONCEPT, this);
 
-      axiomParameters.put(axiom.getIndex(), fieldSpecification);
+      this.axiomParameters.put(axiom.getIndex(), fieldSpecification);
       return axiom;
    }
 
@@ -247,9 +247,9 @@ public class LogicalExpressionBuilderOchreImpl
    public DisjointWith disjointWith(ConceptChronology<?> conceptChronology) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
 
-      axiomParameters.put(axiom.getIndex(), conceptChronology);
+      this.axiomParameters.put(axiom.getIndex(), conceptChronology);
       return axiom;
    }
 
@@ -257,9 +257,9 @@ public class LogicalExpressionBuilderOchreImpl
    public DisjointWith disjointWith(ConceptSpecification conceptSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
 
-      axiomParameters.put(axiom.getIndex(), conceptSpecification);
+      this.axiomParameters.put(axiom.getIndex(), conceptSpecification);
       return axiom;
    }
 
@@ -267,10 +267,10 @@ public class LogicalExpressionBuilderOchreImpl
    public Feature feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
 
       addToDefinitionTree(axiom, literal);
-      axiomParameters.put(axiom.getIndex(), featureTypeChronology);
+      this.axiomParameters.put(axiom.getIndex(), featureTypeChronology);
       return axiom;
    }
 
@@ -278,10 +278,10 @@ public class LogicalExpressionBuilderOchreImpl
    public Feature feature(ConceptSpecification featureTypeSpecification, LiteralAssertion literal) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
 
       addToDefinitionTree(axiom, literal);
-      axiomParameters.put(axiom.getIndex(), featureTypeSpecification);
+      this.axiomParameters.put(axiom.getIndex(), featureTypeSpecification);
       return axiom;
    }
 
@@ -289,9 +289,9 @@ public class LogicalExpressionBuilderOchreImpl
    public FloatLiteral floatLiteral(float floatLiteral) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_FLOAT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_FLOAT, this);
 
-      axiomParameters.put(axiom.getIndex(), floatLiteral);
+      this.axiomParameters.put(axiom.getIndex(), floatLiteral);
       return axiom;
    }
 
@@ -299,9 +299,9 @@ public class LogicalExpressionBuilderOchreImpl
    public FloatSubstitution floatSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_FLOAT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_FLOAT, this);
 
-      axiomParameters.put(axiom.getIndex(), fieldSpecification);
+      this.axiomParameters.put(axiom.getIndex(), fieldSpecification);
       return axiom;
    }
 
@@ -309,9 +309,9 @@ public class LogicalExpressionBuilderOchreImpl
    public InstantLiteral instantLiteral(Instant literalValue) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_INSTANT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_INSTANT, this);
 
-      axiomParameters.put(axiom.getIndex(), literalValue);
+      this.axiomParameters.put(axiom.getIndex(), literalValue);
       return axiom;
    }
 
@@ -319,9 +319,9 @@ public class LogicalExpressionBuilderOchreImpl
    public InstantSubstitution instantSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_INSTANT, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_INSTANT, this);
 
-      axiomParameters.put(axiom.getIndex(), fieldSpecification);
+      this.axiomParameters.put(axiom.getIndex(), fieldSpecification);
       return axiom;
    }
 
@@ -329,9 +329,9 @@ public class LogicalExpressionBuilderOchreImpl
    public IntegerLiteral integerLiteral(int literalValue) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_INTEGER, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_INTEGER, this);
 
-      axiomParameters.put(axiom.getIndex(), literalValue);
+      this.axiomParameters.put(axiom.getIndex(), literalValue);
       return axiom;
    }
 
@@ -339,9 +339,9 @@ public class LogicalExpressionBuilderOchreImpl
    public IntegerSubstitution integerSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_INTEGER, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_INTEGER, this);
 
-      axiomParameters.put(axiom.getIndex(), fieldSpecification);
+      this.axiomParameters.put(axiom.getIndex(), fieldSpecification);
       return axiom;
    }
 
@@ -349,9 +349,9 @@ public class LogicalExpressionBuilderOchreImpl
    public NecessarySet necessarySet(Connector... connector) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.NECESSARY_SET, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.NECESSARY_SET, this);
 
-      rootSets.add(axiom);
+      this.rootSets.add(axiom);
       addToDefinitionTree(axiom, connector);
       return axiom;
    }
@@ -360,7 +360,7 @@ public class LogicalExpressionBuilderOchreImpl
    public Or or(Assertion... assertions) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.OR, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.OR, this);
 
       addToDefinitionTree(axiom, assertions);
       return axiom;
@@ -370,10 +370,10 @@ public class LogicalExpressionBuilderOchreImpl
    public SomeRole someRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
 
       addToDefinitionTree(axiom, roleRestriction);
-      axiomParameters.put(axiom.getIndex(), roleTypeChronology);
+      this.axiomParameters.put(axiom.getIndex(), roleTypeChronology);
       return axiom;
    }
 
@@ -381,10 +381,10 @@ public class LogicalExpressionBuilderOchreImpl
    public SomeRole someRole(ConceptSpecification roleTypeSpecification, Assertion roleRestriction) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
 
       addToDefinitionTree(axiom, roleRestriction);
-      axiomParameters.put(axiom.getIndex(), roleTypeSpecification);
+      this.axiomParameters.put(axiom.getIndex(), roleTypeSpecification);
       return axiom;
    }
 
@@ -392,10 +392,10 @@ public class LogicalExpressionBuilderOchreImpl
    public SomeRole someRole(Integer roleTypeConceptNid, Assertion roleRestriction) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
 
       addToDefinitionTree(axiom, roleRestriction);
-      axiomParameters.put(axiom.getIndex(), roleTypeConceptNid);
+      this.axiomParameters.put(axiom.getIndex(), roleTypeConceptNid);
       return axiom;
    }
 
@@ -403,9 +403,9 @@ public class LogicalExpressionBuilderOchreImpl
    public StringLiteral stringLiteral(String literalValue) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_STRING, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.LITERAL_STRING, this);
 
-      axiomParameters.put(axiom.getIndex(), literalValue);
+      this.axiomParameters.put(axiom.getIndex(), literalValue);
       return axiom;
    }
 
@@ -413,9 +413,9 @@ public class LogicalExpressionBuilderOchreImpl
    public StringSubstitution stringSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_STRING, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUBSTITUTION_STRING, this);
 
-      axiomParameters.put(axiom.getIndex(), fieldSpecification);
+      this.axiomParameters.put(axiom.getIndex(), fieldSpecification);
       return axiom;
    }
 
@@ -423,9 +423,9 @@ public class LogicalExpressionBuilderOchreImpl
    public SufficientSet sufficientSet(Connector... connector) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUFFICIENT_SET, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.SUFFICIENT_SET, this);
 
-      rootSets.add(axiom);
+      this.rootSets.add(axiom);
       addToDefinitionTree(axiom, connector);
       return axiom;
    }
@@ -435,9 +435,9 @@ public class LogicalExpressionBuilderOchreImpl
                             ConceptChronology<?> assemblageToPopulateTemplateConcept) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
 
-      axiomParameters.put(axiom.getIndex(), new Object[] { templateChronology, assemblageToPopulateTemplateConcept });
+      this.axiomParameters.put(axiom.getIndex(), new Object[] { templateChronology, assemblageToPopulateTemplateConcept });
       return axiom;
    }
 
@@ -446,15 +446,15 @@ public class LogicalExpressionBuilderOchreImpl
                             ConceptSpecification assemblageToPopulateTemplateSpecification) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
 
-      axiomParameters.put(axiom.getIndex(),
+      this.axiomParameters.put(axiom.getIndex(),
                           new Object[] { templateSpecification, assemblageToPopulateTemplateSpecification });
       return axiom;
    }
 
    protected void addToDefinitionTree(GenericAxiom axiom, Assertion... connectors) {
-      definitionTree.put(axiom, asList(connectors));
+      this.definitionTree.put(axiom, asList(connectors));
    }
 
    private AbstractLogicNode addToDefinition(GenericAxiom axiom,
@@ -482,161 +482,161 @@ public class LogicalExpressionBuilderOchreImpl
          return definition.Or(getChildren(axiom, definition));
 
       case FEATURE:
-         if (axiomParameters.get(axiom.getIndex()) instanceof Integer) {
-            return definition.Feature((Integer) axiomParameters.get(axiom.getIndex()),
-                                      addToDefinition(definitionTree.get(axiom)
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
+            return definition.Feature((Integer) this.axiomParameters.get(axiom.getIndex()),
+                                      addToDefinition(this.definitionTree.get(axiom)
                                             .get(0), definition));
          }
 
-         if (axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
-            return definition.Feature(((ConceptSpecification) axiomParameters.get(axiom.getIndex())).getNid(),
-                                      addToDefinition(definitionTree.get(axiom)
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
+            return definition.Feature(((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getNid(),
+                                      addToDefinition(this.definitionTree.get(axiom)
                                             .get(0), definition));
          }
 
-         ConceptChronology<?> featureTypeSpecification = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
+         final ConceptChronology<?> featureTypeSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
 
          return definition.Feature(featureTypeSpecification.getNid(),
-                                   addToDefinition(definitionTree.get(axiom)
+                                   addToDefinition(this.definitionTree.get(axiom)
                                          .get(0), definition));
 
       case CONCEPT:
-         if (axiomParameters.get(axiom.getIndex()) instanceof Integer) {
-            return definition.Concept(((Integer) axiomParameters.get(axiom.getIndex())));
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
+            return definition.Concept(((Integer) this.axiomParameters.get(axiom.getIndex())));
          }
 
-         if (axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
             return definition.Concept(
-                ((ConceptSpecification) axiomParameters.get(axiom.getIndex())).getConceptSequence());
+                ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence());
          }
 
-         ConceptChronology<?> conceptSpecification = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
+         final ConceptChronology<?> conceptSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
 
          return definition.Concept(conceptSpecification.getConceptSequence());
 
       case ROLE_ALL:
-         if (axiomParameters.get(axiom.getIndex()) instanceof Integer) {
-            return definition.AllRole(((Integer) axiomParameters.get(axiom.getIndex())),
-                                      addToDefinition(definitionTree.get(axiom)
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
+            return definition.AllRole(((Integer) this.axiomParameters.get(axiom.getIndex())),
+                                      addToDefinition(this.definitionTree.get(axiom)
                                             .get(0), definition));
          }
 
-         if (axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
-            return definition.AllRole(((ConceptSpecification) axiomParameters.get(axiom.getIndex())).getNid(),
-                                      addToDefinition(definitionTree.get(axiom)
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
+            return definition.AllRole(((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getNid(),
+                                      addToDefinition(this.definitionTree.get(axiom)
                                             .get(0), definition));
          }
 
-         ConceptChronology<?> roleTypeSpecification = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
+         ConceptChronology<?> roleTypeSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
 
          return definition.AllRole(roleTypeSpecification.getNid(),
-                                   addToDefinition(definitionTree.get(axiom)
+                                   addToDefinition(this.definitionTree.get(axiom)
                                          .get(0), definition));
 
       case ROLE_SOME:
-         if (axiomParameters.get(axiom.getIndex()) instanceof Integer) {
-            return definition.SomeRole(((Integer) axiomParameters.get(axiom.getIndex())),
-                                       addToDefinition(definitionTree.get(axiom)
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
+            return definition.SomeRole(((Integer) this.axiomParameters.get(axiom.getIndex())),
+                                       addToDefinition(this.definitionTree.get(axiom)
                                              .get(0), definition));
          }
 
-         if (axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
-            return definition.SomeRole(((ConceptSpecification) axiomParameters.get(axiom.getIndex())).getNid(),
-                                       addToDefinition(definitionTree.get(axiom)
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
+            return definition.SomeRole(((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getNid(),
+                                       addToDefinition(this.definitionTree.get(axiom)
                                              .get(0), definition));
          }
 
-         roleTypeSpecification = (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
+         roleTypeSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
          return definition.SomeRole(roleTypeSpecification.getNid(),
-                                    addToDefinition(definitionTree.get(axiom)
+                                    addToDefinition(this.definitionTree.get(axiom)
                                           .get(0), definition));
 
       case TEMPLATE:
-         Object[] params = (Object[]) axiomParameters.get(axiom.getIndex());
+         final Object[] params = (Object[]) this.axiomParameters.get(axiom.getIndex());
 
          if (params[0] instanceof Integer) {
             return definition.Template((Integer) params[0], (Integer) params[1]);
          }
 
          if (params[0] instanceof ConceptSpecification) {
-            ConceptSpecification templateConceptSpecification                     = (ConceptSpecification) params[0];
-            ConceptSpecification assemblageToPopulateTemplateConceptSpecification = (ConceptSpecification) params[1];
+            final ConceptSpecification templateConceptSpecification                     = (ConceptSpecification) params[0];
+            final ConceptSpecification assemblageToPopulateTemplateConceptSpecification = (ConceptSpecification) params[1];
 
             return definition.Template(templateConceptSpecification.getConceptSequence(),
                                        assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
          }
 
-         ConceptChronology<?> templateConceptSpecification                     = (ConceptChronology<?>) params[0];
-         ConceptChronology<?> assemblageToPopulateTemplateConceptSpecification = (ConceptChronology<?>) params[1];
+         final ConceptChronology<?> templateConceptSpecification                     = (ConceptChronology<?>) params[0];
+         final ConceptChronology<?> assemblageToPopulateTemplateConceptSpecification = (ConceptChronology<?>) params[1];
 
          return definition.Template(templateConceptSpecification.getConceptSequence(),
                                     assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
 
       case DISJOINT_WITH:
-         if (axiomParameters.get(axiom.getIndex()) instanceof Integer) {
-            return definition.DisjointWith(definition.Concept(((Integer) axiomParameters.get(axiom.getIndex()))));
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
+            return definition.DisjointWith(definition.Concept(((Integer) this.axiomParameters.get(axiom.getIndex()))));
          }
 
-         if (axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
+         if (this.axiomParameters.get(axiom.getIndex()) instanceof ConceptSpecification) {
             return definition.DisjointWith(
                 definition.Concept(
-                    ((ConceptSpecification) axiomParameters.get(axiom.getIndex())).getConceptSequence()));
+                    ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence()));
          }
 
-         ConceptChronology<?> disjointConceptSpecification =
-            (ConceptChronology<?>) axiomParameters.get(axiom.getIndex());
+         final ConceptChronology<?> disjointConceptSpecification =
+            (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
 
          return definition.DisjointWith(definition.Concept(disjointConceptSpecification.getConceptSequence()));
 
       case LITERAL_BOOLEAN:
-         boolean booleanLiteral = (Boolean) axiomParameters.get(axiom.getIndex());
+         final boolean booleanLiteral = (Boolean) this.axiomParameters.get(axiom.getIndex());
 
          return definition.BooleanLiteral(booleanLiteral);
 
       case LITERAL_FLOAT:
-         float floatLiteral = (Float) axiomParameters.get(axiom.getIndex());
+         final float floatLiteral = (Float) this.axiomParameters.get(axiom.getIndex());
 
          return definition.FloatLiteral(floatLiteral);
 
       case LITERAL_INSTANT:
-         Instant instantLiteral = (Instant) axiomParameters.get(axiom.getIndex());
+         final Instant instantLiteral = (Instant) this.axiomParameters.get(axiom.getIndex());
 
          return definition.InstantLiteral(instantLiteral);
 
       case LITERAL_INTEGER:
-         int integerLiteral = (Integer) axiomParameters.get(axiom.getIndex());
+         final int integerLiteral = (Integer) this.axiomParameters.get(axiom.getIndex());
 
          return definition.IntegerLiteral(integerLiteral);
 
       case LITERAL_STRING:
-         String stringLiteral = (String) axiomParameters.get(axiom.getIndex());
+         final String stringLiteral = (String) this.axiomParameters.get(axiom.getIndex());
 
          return definition.StringLiteral(stringLiteral);
 
       case SUBSTITUTION_BOOLEAN:
          SubstitutionFieldSpecification fieldSpecification =
-            (SubstitutionFieldSpecification) axiomParameters.get(axiom.getIndex());
+            (SubstitutionFieldSpecification) this.axiomParameters.get(axiom.getIndex());
 
          return definition.BooleanSubstitution(fieldSpecification);
 
       case SUBSTITUTION_CONCEPT:
-         fieldSpecification = (SubstitutionFieldSpecification) axiomParameters.get(axiom.getIndex());
+         fieldSpecification = (SubstitutionFieldSpecification) this.axiomParameters.get(axiom.getIndex());
          return definition.ConceptSubstitution(fieldSpecification);
 
       case SUBSTITUTION_FLOAT:
-         fieldSpecification = (SubstitutionFieldSpecification) axiomParameters.get(axiom.getIndex());
+         fieldSpecification = (SubstitutionFieldSpecification) this.axiomParameters.get(axiom.getIndex());
          return definition.FloatSubstitution(fieldSpecification);
 
       case SUBSTITUTION_INSTANT:
-         fieldSpecification = (SubstitutionFieldSpecification) axiomParameters.get(axiom.getIndex());
+         fieldSpecification = (SubstitutionFieldSpecification) this.axiomParameters.get(axiom.getIndex());
          return definition.InstantSubstitution(fieldSpecification);
 
       case SUBSTITUTION_INTEGER:
-         fieldSpecification = (SubstitutionFieldSpecification) axiomParameters.get(axiom.getIndex());
+         fieldSpecification = (SubstitutionFieldSpecification) this.axiomParameters.get(axiom.getIndex());
          return definition.IntegerSubstitution(fieldSpecification);
 
       case SUBSTITUTION_STRING:
-         fieldSpecification = (SubstitutionFieldSpecification) axiomParameters.get(axiom.getIndex());
+         fieldSpecification = (SubstitutionFieldSpecification) this.axiomParameters.get(axiom.getIndex());
          return definition.StringSubstitution(fieldSpecification);
 
       default:
@@ -647,15 +647,15 @@ public class LogicalExpressionBuilderOchreImpl
    private AllRole allRole(Integer roleTypeNid, Assertion roleRestriction) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
 
       addToDefinitionTree(axiom, roleRestriction);
-      axiomParameters.put(axiom.getIndex(), roleTypeNid);
+      this.axiomParameters.put(axiom.getIndex(), roleTypeNid);
       return axiom;
    }
 
    private List<GenericAxiom> asList(Assertion... assertions) {
-      ArrayList<GenericAxiom> list = new ArrayList<>(assertions.length);
+      final ArrayList<GenericAxiom> list = new ArrayList<>(assertions.length);
 
       Arrays.stream(assertions)
             .forEach((assertion) -> list.add((GenericAxiom) assertion));
@@ -664,7 +664,7 @@ public class LogicalExpressionBuilderOchreImpl
 
    private void checkNotBuilt()
             throws IllegalStateException {
-      if (built) {
+      if (this.built) {
          throw new IllegalStateException("Builder has already built. Builders cannot be reused.");
       }
    }
@@ -672,10 +672,10 @@ public class LogicalExpressionBuilderOchreImpl
    private Feature feature(Integer featureTypeNid, LiteralAssertion literal) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
 
       addToDefinitionTree(axiom, literal);
-      axiomParameters.put(axiom.getIndex(), featureTypeNid);
+      this.axiomParameters.put(axiom.getIndex(), featureTypeNid);
       return axiom;
    }
 
@@ -700,83 +700,83 @@ public class LogicalExpressionBuilderOchreImpl
          break;
 
       case ROLE_ALL:
-         RoleNodeAllWithSequences allRoleNode = (RoleNodeAllWithSequences) logicNode;
+         final RoleNodeAllWithSequences allRoleNode = (RoleNodeAllWithSequences) logicNode;
 
          return allRole(allRoleNode.getTypeConceptSequence(), makeAssertionFromNode(allRoleNode.getOnlyChild()));
 
       case ROLE_SOME:
-         RoleNodeSomeWithSequences someRoleNode = (RoleNodeSomeWithSequences) logicNode;
+         final RoleNodeSomeWithSequences someRoleNode = (RoleNodeSomeWithSequences) logicNode;
 
          return someRole(someRoleNode.getTypeConceptSequence(), makeAssertionFromNode(someRoleNode.getOnlyChild()));
 
       case CONCEPT:
-         ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
+         final ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) logicNode;
 
          return conceptAssertion(conceptNode.getConceptSequence());
 
       case FEATURE:
-         FeatureNodeWithSequences featureNode = (FeatureNodeWithSequences) logicNode;
+         final FeatureNodeWithSequences featureNode = (FeatureNodeWithSequences) logicNode;
 
          return feature(featureNode.getTypeConceptSequence(),
                         (LiteralAssertion) makeAssertionFromNode(featureNode.getOnlyChild()));
 
       case LITERAL_BOOLEAN:
-         LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) logicNode;
+         final LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) logicNode;
 
          return booleanLiteral(literalNodeBoolean.getLiteralValue());
 
       case LITERAL_FLOAT:
-         LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
+         final LiteralNodeFloat literalNodeFloat = (LiteralNodeFloat) logicNode;
 
          return floatLiteral(literalNodeFloat.getLiteralValue());
 
       case LITERAL_INSTANT:
-         LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) logicNode;
+         final LiteralNodeInstant literalNodeInstant = (LiteralNodeInstant) logicNode;
 
          return instantLiteral(literalNodeInstant.getLiteralValue());
 
       case LITERAL_INTEGER:
-         LiteralNodeInteger literalNodeInteger = (LiteralNodeInteger) logicNode;
+         final LiteralNodeInteger literalNodeInteger = (LiteralNodeInteger) logicNode;
 
          return integerLiteral(literalNodeInteger.getLiteralValue());
 
       case LITERAL_STRING:
-         LiteralNodeString literalNodeString = (LiteralNodeString) logicNode;
+         final LiteralNodeString literalNodeString = (LiteralNodeString) logicNode;
 
          return stringLiteral(literalNodeString.getLiteralValue());
 
       case TEMPLATE:
-         TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) logicNode;
+         final TemplateNodeWithSequences templateNode = (TemplateNodeWithSequences) logicNode;
 
          return template(templateNode.getTemplateConceptSequence(), templateNode.getAssemblageConceptSequence());
 
       case SUBSTITUTION_CONCEPT:
-         SubstitutionNodeConcept substitutionNodeConcept = (SubstitutionNodeConcept) logicNode;
+         final SubstitutionNodeConcept substitutionNodeConcept = (SubstitutionNodeConcept) logicNode;
 
          return conceptSubstitution(substitutionNodeConcept.getSubstitutionFieldSpecification());
 
       case SUBSTITUTION_BOOLEAN:
-         SubstitutionNodeBoolean substitutionNodeBoolean = (SubstitutionNodeBoolean) logicNode;
+         final SubstitutionNodeBoolean substitutionNodeBoolean = (SubstitutionNodeBoolean) logicNode;
 
          return booleanSubstitution(substitutionNodeBoolean.getSubstitutionFieldSpecification());
 
       case SUBSTITUTION_FLOAT:
-         SubstitutionNodeFloat substitutionNodeFloat = (SubstitutionNodeFloat) logicNode;
+         final SubstitutionNodeFloat substitutionNodeFloat = (SubstitutionNodeFloat) logicNode;
 
          return floatSubstitution(substitutionNodeFloat.getSubstitutionFieldSpecification());
 
       case SUBSTITUTION_INSTANT:
-         SubstitutionNodeInstant substitutionNodeInstant = (SubstitutionNodeInstant) logicNode;
+         final SubstitutionNodeInstant substitutionNodeInstant = (SubstitutionNodeInstant) logicNode;
 
          return instantSubstitution(substitutionNodeInstant.getSubstitutionFieldSpecification());
 
       case SUBSTITUTION_INTEGER:
-         SubstitutionNodeInteger substitutionNodeInteger = (SubstitutionNodeInteger) logicNode;
+         final SubstitutionNodeInteger substitutionNodeInteger = (SubstitutionNodeInteger) logicNode;
 
          return integerSubstitution(substitutionNodeInteger.getSubstitutionFieldSpecification());
 
       case SUBSTITUTION_STRING:
-         SubstitutionNodeString substitutionNodeString = (SubstitutionNodeString) logicNode;
+         final SubstitutionNodeString substitutionNodeString = (SubstitutionNodeString) logicNode;
 
          return stringSubstitution(substitutionNodeString.getSubstitutionFieldSpecification());
       }
@@ -793,9 +793,9 @@ public class LogicalExpressionBuilderOchreImpl
    private Template template(Integer templateChronologyId, Integer assemblageToPopulateTemplateConceptId) {
       checkNotBuilt();
 
-      GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
 
-      axiomParameters.put(axiom.getIndex(),
+      this.axiomParameters.put(axiom.getIndex(),
                           new Object[] { templateChronologyId, assemblageToPopulateTemplateConceptId });
       return axiom;
    }
@@ -803,15 +803,15 @@ public class LogicalExpressionBuilderOchreImpl
    //~--- get methods ---------------------------------------------------------
 
    protected AbstractLogicNode[] getChildren(GenericAxiom axiom, LogicalExpressionOchreImpl definition) {
-      List<GenericAxiom>      childrenAxioms = definitionTree.get(axiom);
-      List<AbstractLogicNode> children       = new ArrayList<>(childrenAxioms.size());
+      final List<GenericAxiom>      childrenAxioms = this.definitionTree.get(axiom);
+      final List<AbstractLogicNode> children       = new ArrayList<>(childrenAxioms.size());
 
       childrenAxioms.forEach((childAxiom) -> children.add(addToDefinition(childAxiom, definition)));
       return children.toArray(new AbstractLogicNode[children.size()]);
    }
 
    public short getNextAxiomIndex() {
-      return nextAxiomId++;
+      return this.nextAxiomId++;
    }
 }
 

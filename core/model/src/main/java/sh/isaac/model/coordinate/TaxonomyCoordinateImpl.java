@@ -141,72 +141,74 @@ public class TaxonomyCoordinateImpl
 
    @Override
    public TaxonomyCoordinateImpl makeAnalog(long stampPositionTime) {
-      return new TaxonomyCoordinateImpl(taxonomyType,
-                                        stampCoordinate.makeAnalog(stampPositionTime),
-                                        languageCoordinate,
-                                        logicCoordinate);
+      return new TaxonomyCoordinateImpl(this.taxonomyType,
+                                        this.stampCoordinate.makeAnalog(stampPositionTime),
+                                        this.languageCoordinate,
+                                        this.logicCoordinate);
    }
 
    @Override
    public TaxonomyCoordinateImpl makeAnalog(PremiseType taxonomyType) {
-      return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate, languageCoordinate, logicCoordinate);
+      return new TaxonomyCoordinateImpl(taxonomyType, this.stampCoordinate, this.languageCoordinate, this.logicCoordinate);
    }
 
    @Override
    public TaxonomyCoordinateImpl makeAnalog(State... state) {
-      return new TaxonomyCoordinateImpl(taxonomyType,
-                                        stampCoordinate.makeAnalog(state),
-                                        languageCoordinate,
-                                        logicCoordinate);
+      return new TaxonomyCoordinateImpl(this.taxonomyType,
+                                        this.stampCoordinate.makeAnalog(state),
+                                        this.languageCoordinate,
+                                        this.logicCoordinate);
    }
 
    @Override
    public String toString() {
-      return "TaxonomyCoordinate{" + taxonomyType + ",\n" + stampCoordinate + ", \n" + languageCoordinate + ", \n" +
-             logicCoordinate + ", uuid=" + uuid + '}';
+      return "TaxonomyCoordinate{" + this.taxonomyType + ",\n" + this.stampCoordinate + ", \n" + this.languageCoordinate + ", \n" +
+             this.logicCoordinate + ", uuid=" + this.uuid + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getIsaConceptSequence() {
-      return isaConceptSequence;
+      return this.isaConceptSequence;
    }
 
    @Override
    public LanguageCoordinate getLanguageCoordinate() {
-      return languageCoordinate;
+      return this.languageCoordinate;
    }
 
    @Override
    public LogicCoordinate getLogicCoordinate() {
-      return logicCoordinate;
+      return this.logicCoordinate;
    }
 
    @Override
    public StampCoordinate getStampCoordinate() {
-      return stampCoordinate;
+      return this.stampCoordinate;
    }
 
    @Override
    public PremiseType getTaxonomyType() {
-      return taxonomyType;
+      return this.taxonomyType;
    }
 
    @Override
    public UUID getUuid() {
-      return uuid;
+      return this.uuid;
    }
 
    //~--- inner classes -------------------------------------------------------
 
    private static class AnyTypeAdapter
            extends XmlAdapter<Object, Object> {
-      public Object marshal(Object v) {
+      @Override
+	public Object marshal(Object v) {
          return v;
       }
 
-      public Object unmarshal(Object v) {
+      @Override
+	public Object unmarshal(Object v) {
          return v;
       }
    }

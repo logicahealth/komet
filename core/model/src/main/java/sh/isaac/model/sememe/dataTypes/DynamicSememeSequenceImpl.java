@@ -68,7 +68,7 @@ public class DynamicSememeSequenceImpl
 
    public DynamicSememeSequenceImpl(int nid) {
       super();
-      data_ = DynamicSememeIntegerImpl.intToByteArray(nid);
+      this.data_ = DynamicSememeIntegerImpl.intToByteArray(nid);
    }
 
    protected DynamicSememeSequenceImpl(byte[] data, int assemblageSequence, int columnNumber) {
@@ -98,7 +98,7 @@ public class DynamicSememeSequenceImpl
     */
    @Override
    public int getDataSequence() {
-      return DynamicSememeIntegerImpl.getIntFromByteArray(data_);
+      return DynamicSememeIntegerImpl.getIntFromByteArray(this.data_);
    }
 
    /**
@@ -106,11 +106,11 @@ public class DynamicSememeSequenceImpl
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataSequenceProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataSequence());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataSequence());
       }
 
-      return property_;
+      return this.property_;
    }
 }
 

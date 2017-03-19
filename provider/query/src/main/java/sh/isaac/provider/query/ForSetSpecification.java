@@ -81,9 +81,9 @@ public class ForSetSpecification {
 
    public NidSet getCollection()
             throws IOException {
-      NidSet forSet = NidSet.of();
+      final NidSet forSet = NidSet.of();
 
-      for (ComponentCollectionTypes collection: forCollectionTypes) {
+      for (final ComponentCollectionTypes collection: this.forCollectionTypes) {
          switch (collection) {
          case ALL_COMPONENTS:
             forSet.or(NidSet.ofAllComponentNids());
@@ -100,7 +100,7 @@ public class ForSetSpecification {
             break;
 
          case CUSTOM_SET:
-            for (UUID uuid: customCollection) {
+            for (final UUID uuid: this.customCollection) {
                forSet.add(Get.identifierService()
                              .getNidForUuids(uuid));
             }
@@ -116,7 +116,7 @@ public class ForSetSpecification {
    }
 
    public Set<UUID> getCustomCollection() {
-      return customCollection;
+      return this.customCollection;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -128,7 +128,7 @@ public class ForSetSpecification {
    //~--- get methods ---------------------------------------------------------
 
    public List<ComponentCollectionTypes> getForCollectionTypes() {
-      return forCollectionTypes;
+      return this.forCollectionTypes;
    }
 
    //~--- set methods ---------------------------------------------------------

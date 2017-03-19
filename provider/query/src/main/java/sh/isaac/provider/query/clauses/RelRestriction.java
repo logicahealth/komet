@@ -111,16 +111,16 @@ public class RelRestriction
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                 .get(viewCoordinateKey);
-      ConceptSpecification destinationSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                                  .get(destinationSpecKey);
-      ConceptSpecification relType = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                          .get(relTypeKey);
-      Boolean              relTypeSubsumption = (Boolean) enclosingQuery.getLetDeclarations()
-                                                                        .get(relTypeSubsumptionKey);
-      Boolean destinationSubsumption = (Boolean) enclosingQuery.getLetDeclarations()
-                                                               .get(destinationSubsumptionKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                 .get(this.viewCoordinateKey);
+      final ConceptSpecification destinationSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                  .get(this.destinationSpecKey);
+      final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                          .get(this.relTypeKey);
+      Boolean              relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                        .get(this.relTypeSubsumptionKey);
+      Boolean destinationSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                               .get(this.destinationSubsumptionKey);
 
       // The default is to set relTypeSubsumption and destinationSubsumption to true.
       if (relTypeSubsumption == null) {
@@ -131,19 +131,19 @@ public class RelRestriction
          destinationSubsumption = true;
       }
 
-      relTypeSet = new ConceptSequenceSet();
-      relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new ConceptSequenceSet();
+      this.relTypeSet.add(relType.getConceptSequence());
 
       if (relTypeSubsumption) {
-         relTypeSet.or(Get.taxonomyService()
+         this.relTypeSet.or(Get.taxonomyService()
                           .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
       }
 
-      destinationSet = new ConceptSequenceSet();
-      destinationSet.add(destinationSpec.getConceptSequence());
+      this.destinationSet = new ConceptSequenceSet();
+      this.destinationSet.add(destinationSpec.getConceptSequence());
 
       if (destinationSubsumption) {
-         destinationSet.or(Get.taxonomyService()
+         this.destinationSet.or(Get.taxonomyService()
                               .getKindOfSequenceSet(destinationSpec.getConceptSequence(), taxonomyCoordinate));
       }
 
@@ -159,16 +159,16 @@ public class RelRestriction
 
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                 .get(viewCoordinateKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                 .get(this.viewCoordinateKey);
 
       Get.taxonomyService()
          .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
                .getConceptSequence(),
-               relTypeSet,
+               this.relTypeSet,
                taxonomyCoordinate)
          .forEach((destinationSequence) -> {
-                     if (destinationSet.contains(destinationSequence)) {
+                     if (this.destinationSet.contains(destinationSequence)) {
                         getResultsCache().add(conceptVersion.getChronology()
                               .getNid());
                      }
@@ -177,19 +177,19 @@ public class RelRestriction
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REL_RESTRICTION);
       whereClause.getLetKeys()
-                 .add(relTypeKey);
+                 .add(this.relTypeKey);
       whereClause.getLetKeys()
-                 .add(destinationSpecKey);
+                 .add(this.destinationSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       whereClause.getLetKeys()
-                 .add(destinationSubsumptionKey);
+                 .add(this.destinationSubsumptionKey);
       whereClause.getLetKeys()
-                 .add(relTypeSubsumptionKey);
+                 .add(this.relTypeSubsumptionKey);
 
 //    System.out.println("Where clause size: " + whereClause.getLetKeys().size());
       return whereClause;

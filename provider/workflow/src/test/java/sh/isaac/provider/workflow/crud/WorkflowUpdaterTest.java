@@ -108,7 +108,7 @@ public class WorkflowUpdaterTest
     */
    public void testAddComponentsToProcess()
             throws Exception {
-      UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
       ProcessDetail details   = wp_.getProcessDetailStore()
                                    .get(processId);
 
@@ -168,7 +168,7 @@ public class WorkflowUpdaterTest
    @Test
    public void testAdvanceWorkflow()
             throws Exception {
-      UUID processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID processId = createFirstWorkflowProcess(mainDefinitionId);
 
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
       executeLaunchWorkflow(processId);
@@ -224,7 +224,7 @@ public class WorkflowUpdaterTest
     */
    public void testRemoveComponentsFromProcess()
             throws Exception {
-      UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
       ProcessDetail details   = wp_.getProcessDetailStore()
                                    .get(processId);
 
@@ -273,7 +273,7 @@ public class WorkflowUpdaterTest
       LookupService.startupMetadataStore();
       globalSetup();
 
-      for (Integer nid: conceptsForTesting) {
+      for (final Integer nid: conceptsForTesting) {
          if (firstConceptNid == 0) {
             firstConceptNid = nid;
          } else {

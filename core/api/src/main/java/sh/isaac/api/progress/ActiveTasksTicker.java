@@ -68,7 +68,7 @@ public class ActiveTasksTicker {
    public static void start(int intervalInSeconds) {
       ticker.start(intervalInSeconds,
                    (tick) -> {
-                      Set<Task<?>> taskSet = Get.activeTasks()
+                      final Set<Task<?>> taskSet = Get.activeTasks()
                                                 .get();
 
                       taskSet.stream().forEach((task) -> {

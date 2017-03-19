@@ -72,30 +72,30 @@ public class OchreExternalizableStatsTestFilter
          return false;
       }
 
-      OchreExternalizableStatsTestFilter that = (OchreExternalizableStatsTestFilter) o;
+      final OchreExternalizableStatsTestFilter that = (OchreExternalizableStatsTestFilter) o;
 
-      if (concepts.get() != that.concepts.get()) {
+      if (this.concepts.get() != that.concepts.get()) {
          return false;
       }
 
-      if (sememes.get() != that.sememes.get()) {
+      if (this.sememes.get() != that.sememes.get()) {
          return false;
       }
 
-      if (stampAliases.get() != that.stampAliases.get()) {
+      if (this.stampAliases.get() != that.stampAliases.get()) {
          return false;
       }
 
-      return stampComments.get() == that.stampComments.get();
+      return this.stampComments.get() == that.stampComments.get();
    }
 
    @Override
    public int hashCode() {
-      int result = concepts.hashCode();
+      int result = this.concepts.hashCode();
 
-      result = 31 * result + sememes.hashCode();
-      result = 31 * result + stampAliases.hashCode();
-      result = 31 * result + stampComments.hashCode();
+      result = 31 * result + this.sememes.hashCode();
+      result = 31 * result + this.stampAliases.hashCode();
+      result = 31 * result + this.stampComments.hashCode();
       return result;
    }
 
@@ -103,19 +103,19 @@ public class OchreExternalizableStatsTestFilter
    public boolean test(OchreExternalizable ochreExternalizable) {
       switch (ochreExternalizable.getOchreObjectType()) {
       case CONCEPT:
-         concepts.incrementAndGet();
+         this.concepts.incrementAndGet();
          break;
 
       case SEMEME:
-         sememes.incrementAndGet();
+         this.sememes.incrementAndGet();
          break;
 
       case STAMP_ALIAS:
-         stampAliases.incrementAndGet();
+         this.stampAliases.incrementAndGet();
          break;
 
       case STAMP_COMMENT:
-         stampComments.incrementAndGet();
+         this.stampComments.incrementAndGet();
          break;
 
       default:
@@ -127,8 +127,8 @@ public class OchreExternalizableStatsTestFilter
 
    @Override
    public String toString() {
-      return "OchreExternalizableStatsTestFilter{" + "concepts=" + concepts + ", sememes=" + sememes +
-             ", stampAliases=" + stampAliases + ", stampComments=" + stampComments + '}';
+      return "OchreExternalizableStatsTestFilter{" + "concepts=" + this.concepts + ", sememes=" + this.sememes +
+             ", stampAliases=" + this.stampAliases + ", stampComments=" + this.stampComments + '}';
    }
 }
 

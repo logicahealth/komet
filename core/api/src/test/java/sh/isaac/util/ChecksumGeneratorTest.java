@@ -57,7 +57,7 @@ public class ChecksumGeneratorTest {
    @Test
    public void checksumTestOne()
             throws Exception {
-      String hash = ChecksumGenerator.calculateChecksum("MD5", "Some random data".getBytes());
+      final String hash = ChecksumGenerator.calculateChecksum("MD5", "Some random data".getBytes());
 
       Assert.assertTrue(hash.equals("b08f254d76b1c6a7ad924708c0032251"));
    }
@@ -65,7 +65,7 @@ public class ChecksumGeneratorTest {
    @Test
    public void checksumTestTwo()
             throws Exception {
-      String hash = ChecksumGenerator.calculateChecksum("SHA1", "Some random data".getBytes());
+      final String hash = ChecksumGenerator.calculateChecksum("SHA1", "Some random data".getBytes());
 
       Assert.assertTrue(hash.equals("3b0af1dd47d543b2166440b83bbf0ed0235173d8"));
    }

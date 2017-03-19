@@ -58,12 +58,7 @@ import sh.isaac.api.util.StringUtils;
 
 public class MappingObject
         extends StampedItem {
-   public static final Comparator<MappingObject> editorStatusComparator = new Comparator<MappingObject>() {
-      @Override
-      public int compare(MappingObject o1, MappingObject o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(), o2.getEditorStatusName());
-      }
-   };
+   public static final Comparator<MappingObject> editorStatusComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(), o2.getEditorStatusName());
 
    //~--- fields --------------------------------------------------------------
 
@@ -78,17 +73,17 @@ public class MappingObject
       if (uuid == null) {
          property.set(null);
       } else {
-         String cachedValue = cachedValues.get(uuid);
+         final String cachedValue = this.cachedValues.get(uuid);
 
          if (cachedValue != null) {
             property.set(cachedValue);
          } else {
             property.set("-");
             Get.workExecutors().getExecutor().execute(() -> {
-                           String s = Get.conceptDescriptionText(Get.identifierService()
+                           final String s = Get.conceptDescriptionText(Get.identifierService()
                                                                     .getConceptSequenceForUuids(uuid));
 
-                           cachedValues.put(uuid, s);
+                           this.cachedValues.put(uuid, s);
                            Platform.runLater(() -> {
                                                 property.set(s);
                                              });
@@ -103,7 +98,7 @@ public class MappingObject
     * @return the editorStatusConcept
     */
    public UUID getEditorStatusConcept() {
-      return editorStatusConcept;
+      return this.editorStatusConcept;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -114,21 +109,21 @@ public class MappingObject
    public void setEditorStatusConcept(UUID editorStatusConcept) {
       this.editorStatusConcept    = editorStatusConcept;
       this.editorStatusConceptNid = getNidForUuidSafe(editorStatusConcept);
-      propertyLookup(editorStatusConcept, editorStatusConceptProperty);
+      propertyLookup(editorStatusConcept, this.editorStatusConceptProperty);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getEditorStatusConceptNid() {
-      return editorStatusConceptNid;
+      return this.editorStatusConceptNid;
    }
 
    public SimpleStringProperty getEditorStatusConceptProperty() {
-      return editorStatusConceptProperty;
+      return this.editorStatusConceptProperty;
    }
 
    public String getEditorStatusName() {
-      return editorStatusConceptProperty.get();
+      return this.editorStatusConceptProperty.get();
    }
 
    public static int getNidForUuidSafe(UUID uuid) {

@@ -92,8 +92,8 @@ public class ConceptIs
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      getResultsCache().add(((ConceptSpecification) enclosingQuery.getLetDeclarations()
-            .get(conceptSpecString)).getNid());
+      getResultsCache().add(((ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+            .get(this.conceptSpecString)).getNid());
       return getResultsCache();
    }
 
@@ -111,13 +111,13 @@ public class ConceptIs
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_IS);
       whereClause.getLetKeys()
-                 .add(conceptSpecString);
+                 .add(this.conceptSpecString);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

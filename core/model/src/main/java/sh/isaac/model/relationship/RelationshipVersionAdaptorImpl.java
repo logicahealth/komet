@@ -109,10 +109,10 @@ public class RelationshipVersionAdaptorImpl
 
    @Override
    public String toString() {
-      return "{[" + Get.conceptDescriptionText(relationshipAdaptorChronicleKey.originSequence) + "]➞(" +
-             Get.conceptDescriptionText(relationshipAdaptorChronicleKey.typeSequence) + ")➞[" +
-             Get.conceptDescriptionText(relationshipAdaptorChronicleKey.destinationSequence) + "]" + " " +
-             Get.stampService().describeStampSequence(stampSequence) + "}";
+      return "{[" + Get.conceptDescriptionText(this.relationshipAdaptorChronicleKey.originSequence) + "]➞(" +
+             Get.conceptDescriptionText(this.relationshipAdaptorChronicleKey.typeSequence) + ")➞[" +
+             Get.conceptDescriptionText(this.relationshipAdaptorChronicleKey.destinationSequence) + "]" + " " +
+             Get.stampService().describeStampSequence(this.stampSequence) + "}";
    }
 
    @Override
@@ -124,23 +124,23 @@ public class RelationshipVersionAdaptorImpl
 
    @Override
    public int getAssemblageSequence() {
-      return chronology.getAssemblageSequence();
+      return this.chronology.getAssemblageSequence();
    }
 
    @Override
    public int getAuthorSequence() {
       return Get.stampService()
-                .getAuthorSequenceForStamp(stampSequence);
+                .getAuthorSequenceForStamp(this.stampSequence);
    }
 
    @Override
    public RelationshipAdaptorChronicleKey getChronicleKey() {
-      return relationshipAdaptorChronicleKey;
+      return this.relationshipAdaptorChronicleKey;
    }
 
    @Override
    public RelationshipAdaptorChronologyImpl getChronology() {
-      return chronology;
+      return this.chronology;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -158,86 +158,86 @@ public class RelationshipVersionAdaptorImpl
 
    @Override
    public int getDestinationSequence() {
-      return relationshipAdaptorChronicleKey.destinationSequence;
+      return this.relationshipAdaptorChronicleKey.destinationSequence;
    }
 
    @Override
    public int getGroup() {
-      return relationshipAdaptorChronicleKey.group;
+      return this.relationshipAdaptorChronicleKey.group;
    }
 
    @Override
    public int getModuleSequence() {
       return Get.stampService()
-                .getModuleSequenceForStamp(stampSequence);
+                .getModuleSequenceForStamp(this.stampSequence);
    }
 
    @Override
    public int getNid() {
-      return chronology.getNid();
+      return this.chronology.getNid();
    }
 
    @Override
    public short getNodeSequence() {
-      return relationshipAdaptorChronicleKey.getNodeSequence();
+      return this.relationshipAdaptorChronicleKey.getNodeSequence();
    }
 
    @Override
    public int getOriginSequence() {
-      return relationshipAdaptorChronicleKey.originSequence;
+      return this.relationshipAdaptorChronicleKey.originSequence;
    }
 
    @Override
    public int getPathSequence() {
       return Get.stampService()
-                .getPathSequenceForStamp(stampSequence);
+                .getPathSequenceForStamp(this.stampSequence);
    }
 
    @Override
    public PremiseType getPremiseType() {
-      return relationshipAdaptorChronicleKey.premiseType;
+      return this.relationshipAdaptorChronicleKey.premiseType;
    }
 
    @Override
    public UUID getPrimordialUuid() {
-      return chronology.getPrimordialUuid();
+      return this.chronology.getPrimordialUuid();
    }
 
    @Override
    public int getReferencedComponentNid() {
-      return chronology.getReferencedComponentNid();
+      return this.chronology.getReferencedComponentNid();
    }
 
    @Override
    public int getSememeSequence() {
-      return chronology.getSememeSequence();
+      return this.chronology.getSememeSequence();
    }
 
    @Override
    public int getStampSequence() {
-      return stampSequence;
+      return this.stampSequence;
    }
 
    @Override
    public State getState() {
       return Get.stampService()
-                .getStatusForStamp(stampSequence);
+                .getStatusForStamp(this.stampSequence);
    }
 
    @Override
    public long getTime() {
       return Get.stampService()
-                .getTimeForStamp(stampSequence);
+                .getTimeForStamp(this.stampSequence);
    }
 
    @Override
    public int getTypeSequence() {
-      return relationshipAdaptorChronicleKey.typeSequence;
+      return this.relationshipAdaptorChronicleKey.typeSequence;
    }
 
    @Override
    public List<UUID> getUuidList() {
-      return chronology.getUuidList();
+      return this.chronology.getUuidList();
    }
 }
 

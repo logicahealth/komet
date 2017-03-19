@@ -67,7 +67,7 @@ public class WhereClause {
    //~--- get methods ---------------------------------------------------------
 
    public List<WhereClause> getChildren() {
-      return children;
+      return this.children;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -79,7 +79,7 @@ public class WhereClause {
    //~--- get methods ---------------------------------------------------------
 
    public List<String> getLetKeys() {
-      return letKeys;
+      return this.letKeys;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -92,7 +92,7 @@ public class WhereClause {
 
    @XmlTransient
    public ClauseSemantic getSemantic() {
-      return semantic;
+      return this.semantic;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -104,7 +104,7 @@ public class WhereClause {
    //~--- get methods ---------------------------------------------------------
 
    public String getSemanticString() {
-      return semantic.name();
+      return this.semantic.name();
    }
 
    //~--- set methods ---------------------------------------------------------

@@ -60,8 +60,8 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- classes ----------------------------------------------------------------
 
 public class ComponentReference {
-   private IntSupplier      sequenceProvider_;
-   private Supplier<UUID>   uuidProvider_;
+   private final IntSupplier      sequenceProvider_;
+   private final Supplier<UUID>   uuidProvider_;
    private Supplier<Long>   timeProvider_;
    private IntSupplier      nidProvider_;
    private Supplier<String> typeLabelSupplier_;
@@ -69,10 +69,10 @@ public class ComponentReference {
    //~--- constructors --------------------------------------------------------
 
    private ComponentReference(Supplier<UUID> uuidProvider, IntSupplier sequenceProvider) {
-      uuidProvider_     = uuidProvider;
-      timeProvider_     = () -> null;                                     // a lambda that retuns null time.
-      sequenceProvider_ = sequenceProvider;
-      nidProvider_ = () -> Get.identifierService()
+      this.uuidProvider_     = uuidProvider;
+      this.timeProvider_     = () -> null;                                     // a lambda that retuns null time.
+      this.sequenceProvider_ = sequenceProvider;
+      this.nidProvider_ = () -> Get.identifierService()
                               .getNidForUuids(this.uuidProvider_.get());  // a lambda that returns a nid
    }
 
@@ -80,7 +80,7 @@ public class ComponentReference {
                               IntSupplier sequenceProvider,
                               Supplier<String> typeLabelSupplier) {
       this(uuidProvider, sequenceProvider);
-      typeLabelSupplier_ = typeLabelSupplier;
+      this.typeLabelSupplier_ = typeLabelSupplier;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -125,6 +125,7 @@ public class ComponentReference {
       cr.nidProvider_  = () -> object.getNid();
       cr.timeProvider_ = () -> {
                             @SuppressWarnings({ "unchecked" })
+							final
                             Optional<LatestVersion<StampedVersion>> latest =
                                ((ObjectChronology) object).getLatestVersion(StampedVersion.class,
                                                                             IBDFCreationUtility.readBackStamp_);
@@ -137,13 +138,14 @@ public class ComponentReference {
    }
 
    public static ComponentReference fromConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
-      ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
+      final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
                                                      () -> concept.getConceptSequence(),
                                                      () -> "Concept");
 
       cr.nidProvider_  = () -> concept.getNid();
       cr.timeProvider_ = () -> {
                             @SuppressWarnings({ "rawtypes", "unchecked" })
+							final
                             Optional<LatestVersion<StampedVersion>> latest =
                                ((ObjectChronology) concept).getLatestVersion(StampedVersion.class,
                                                                              IBDFCreationUtility.readBackStamp_);
@@ -176,11 +178,11 @@ public class ComponentReference {
    //~--- get methods ---------------------------------------------------------
 
    public int getNid() {
-      return nidProvider_.getAsInt();
+      return this.nidProvider_.getAsInt();
    }
 
    public UUID getPrimordialUuid() {
-      return uuidProvider_.get();
+      return this.uuidProvider_.get();
    }
 
    /**
@@ -188,15 +190,15 @@ public class ComponentReference {
     * Don't use this unless you KNOW the type of component you have a handle to....
     */
    protected int getSequence() {
-      return sequenceProvider_.getAsInt();
+      return this.sequenceProvider_.getAsInt();
    }
 
    public Long getTime() {
-      return timeProvider_.get();
+      return this.timeProvider_.get();
    }
 
    public String getTypeString() {
-      return typeLabelSupplier_.get();
+      return this.typeLabelSupplier_.get();
    }
 }
 

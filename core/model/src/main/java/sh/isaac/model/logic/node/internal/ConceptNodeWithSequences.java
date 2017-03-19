@@ -80,7 +80,7 @@ public final class ConceptNodeWithSequences
                                    DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      conceptSequence = dataInputStream.readInt();
+      this.conceptSequence = dataInputStream.readInt();
    }
 
    public ConceptNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int conceptId) {
@@ -99,7 +99,7 @@ public final class ConceptNodeWithSequences
    @Override
    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
-      conceptSequenceSet.add(conceptSequence);
+      conceptSequenceSet.add(this.conceptSequence);
    }
 
    @Override
@@ -116,16 +116,16 @@ public final class ConceptNodeWithSequences
          return false;
       }
 
-      ConceptNodeWithSequences that = (ConceptNodeWithSequences) o;
+      final ConceptNodeWithSequences that = (ConceptNodeWithSequences) o;
 
-      return conceptSequence == that.conceptSequence;
+      return this.conceptSequence == that.conceptSequence;
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + conceptSequence;
+      result = 31 * result + this.conceptSequence;
       return result;
    }
 
@@ -136,8 +136,8 @@ public final class ConceptNodeWithSequences
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Concept[" + getNodeIndex() + nodeIdSuffix + "] " + Get.conceptDescriptionText(conceptSequence) + " <" +
-             Get.identifierService().getConceptSequence(conceptSequence) + ">" + super.toString(nodeIdSuffix);
+      return "Concept[" + getNodeIndex() + nodeIdSuffix + "] " + Get.conceptDescriptionText(this.conceptSequence) + " <" +
+             Get.identifierService().getConceptSequence(this.conceptSequence) + ">" + super.toString(nodeIdSuffix);
    }
 
    @Override
@@ -145,14 +145,14 @@ public final class ConceptNodeWithSequences
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
-         ConceptNodeWithUuids externalForm = new ConceptNodeWithUuids(this);
+         final ConceptNodeWithUuids externalForm = new ConceptNodeWithUuids(this);
 
          externalForm.writeNodeData(dataOutput, dataTarget);
          break;
 
       case INTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeInt(conceptSequence);
+         dataOutput.writeInt(this.conceptSequence);
          break;
 
       default:
@@ -162,14 +162,14 @@ public final class ConceptNodeWithSequences
 
    @Override
    protected int compareFields(LogicNode o) {
-      return Integer.compare(conceptSequence, ((ConceptNodeWithSequences) o).getConceptSequence());
+      return Integer.compare(this.conceptSequence, ((ConceptNodeWithSequences) o).getConceptSequence());
    }
 
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
                                  Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(conceptSequence)
+                                    .getUuidPrimordialFromConceptId(this.conceptSequence)
                                     .get()
                                     .toString());
    }
@@ -182,7 +182,7 @@ public final class ConceptNodeWithSequences
    }
 
    public int getConceptSequence() {
-      return conceptSequence;
+      return this.conceptSequence;
    }
 
    @Override

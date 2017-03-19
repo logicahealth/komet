@@ -55,13 +55,13 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
 
 public class UMLSFileReader
          implements TerminologyFileReader {
-   private BufferedReader reader_;
+   private final BufferedReader reader_;
    private List<String>   nextLine_;
 
    //~--- constructors --------------------------------------------------------
 
    public UMLSFileReader(BufferedReader reader) {
-      reader_ = reader;
+      this.reader_ = reader;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -72,25 +72,25 @@ public class UMLSFileReader
    @Override
    public void close()
             throws IOException {
-      reader_.close();
+      this.reader_.close();
    }
 
    private void readNextLine()
             throws IOException {
-      String line = reader_.readLine();
+      final String line = this.reader_.readLine();
 
       if (line != null) {
-         String[] cols = line.split("\\|", -1);
+         final String[] cols = line.split("\\|", -1);
 
          // remove the last because the files have a trailing separator, with no data after it
-         nextLine_ = new ArrayList<>(cols.length - 1);
+         this.nextLine_ = new ArrayList<>(cols.length - 1);
 
-         for (String s: cols) {
-            if ((nextLine_.size() == cols.length - 1) && ((s.length() == 0) || (s == null))) {
+         for (final String s: cols) {
+            if ((this.nextLine_.size() == cols.length - 1) && ((s.length() == 0) || (s == null))) {
                break;
             }
 
-            nextLine_.add(s);
+            this.nextLine_.add(s);
          }
       }
    }
@@ -103,13 +103,13 @@ public class UMLSFileReader
    @Override
    public List<String> getNextRow()
             throws IOException {
-      if (nextLine_ == null) {
+      if (this.nextLine_ == null) {
          readNextLine();
       }
 
-      List<String> temp = nextLine_;
+      final List<String> temp = this.nextLine_;
 
-      nextLine_ = null;
+      this.nextLine_ = null;
       return temp;
    }
 
@@ -119,11 +119,11 @@ public class UMLSFileReader
    @Override
    public boolean hasNextRow()
             throws IOException {
-      if (nextLine_ == null) {
+      if (this.nextLine_ == null) {
          readNextLine();
       }
 
-      return nextLine_ != null;
+      return this.nextLine_ != null;
    }
 }
 

@@ -126,41 +126,41 @@ public class RelationshipAdaptorChronicleKeyImpl
 
    @Override
    public String toString() {
-      return "RelAdaptorKey{" + "originSequence=" + originSequence + ", destinationSequence=" + destinationSequence +
-             ", typeSequence=" + typeSequence + ", group=" + group + ", premiseType=" + premiseType +
-             ", nodeSequence=" + nodeSequence + '}';
+      return "RelAdaptorKey{" + "originSequence=" + this.originSequence + ", destinationSequence=" + this.destinationSequence +
+             ", typeSequence=" + this.typeSequence + ", group=" + this.group + ", premiseType=" + this.premiseType +
+             ", nodeSequence=" + this.nodeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getDestinationSequence() {
-      return destinationSequence;
+      return this.destinationSequence;
    }
 
    @Override
    public int getGroup() {
-      return group;
+      return this.group;
    }
 
    @Override
    public short getNodeSequence() {
-      return nodeSequence;
+      return this.nodeSequence;
    }
 
    @Override
    public int getOriginSequence() {
-      return originSequence;
+      return this.originSequence;
    }
 
    @Override
    public PremiseType getPremiseType() {
-      return premiseType;
+      return this.premiseType;
    }
 
    @Override
    public int getTypeSequence() {
-      return typeSequence;
+      return this.typeSequence;
    }
 }
 

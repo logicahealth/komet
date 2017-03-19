@@ -78,22 +78,22 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
 
    @Override
    public int getAssemblageSequence() {
-      return chronicle.getAssemblageSequence();
+      return this.chronicle.getAssemblageSequence();
    }
 
    @Override
    public SememeChronology<V> getChronology() {
-      return chronicle;
+      return this.chronicle;
    }
 
    @Override
    public int getReferencedComponentNid() {
-      return chronicle.getReferencedComponentNid();
+      return this.chronicle.getReferencedComponentNid();
    }
 
    @Override
    public int getSememeSequence() {
-      return chronicle.getSememeSequence();
+      return this.chronicle.getSememeSequence();
    }
 
    public SememeType getSememeType() {

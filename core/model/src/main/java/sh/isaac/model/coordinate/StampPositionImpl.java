@@ -89,10 +89,10 @@ public class StampPositionImpl
    @Override
    public int compareTo(StampPosition o) {
       if (this.stampPathSequence != o.getStampPathSequence()) {
-         return Integer.compare(stampPathSequence, o.getStampPathSequence());
+         return Integer.compare(this.stampPathSequence, o.getStampPathSequence());
       }
 
-      return Long.compare(time, o.getTime());
+      return Long.compare(this.time, o.getTime());
    }
 
    @Override
@@ -125,20 +125,20 @@ public class StampPositionImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("StampPosition:{");
 
-      if (time == Long.MAX_VALUE) {
+      if (this.time == Long.MAX_VALUE) {
          sb.append("latest");
-      } else if (time == Long.MIN_VALUE) {
+      } else if (this.time == Long.MIN_VALUE) {
          sb.append("CANCELED");
       } else {
          sb.append(getTimeAsInstant());
       }
 
       sb.append(" on '")
-        .append(Get.conceptDescriptionText(stampPathSequence))
+        .append(Get.conceptDescriptionText(this.stampPathSequence))
         .append("' path}");
       return sb.toString();
    }
@@ -147,21 +147,21 @@ public class StampPositionImpl
 
    @Override
    public StampPath getStampPath() {
-      return new StampPathImpl(stampPathSequence);
+      return new StampPathImpl(this.stampPathSequence);
    }
 
    @Override
    public int getStampPathSequence() {
-      return stampPathSequence;
+      return this.stampPathSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setStampPathSequenceProperty(IntegerProperty stampPathSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           stampPathSequence = newValue.intValue();
+                                           this.stampPathSequence = newValue.intValue();
                                         };
 
       stampPathSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -172,16 +172,16 @@ public class StampPositionImpl
 
    @Override
    public long getTime() {
-      return time;
+      return this.time;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setTimeProperty(LongProperty timeProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           time = newValue.longValue();
+                                           this.time = newValue.longValue();
                                         };
 
       timeProperty.addListener(new WeakChangeListener<>(listener));

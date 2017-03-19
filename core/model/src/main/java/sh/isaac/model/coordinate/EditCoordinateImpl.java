@@ -113,15 +113,15 @@ public class EditCoordinateImpl
 
    @Override
    public String toString() {
-      return "EditCoordinate{a: " + Get.conceptDescriptionText(authorSequence) + ", m: " +
-             Get.conceptDescriptionText(moduleSequence) + ", p: " + Get.conceptDescriptionText(pathSequence) + '}';
+      return "EditCoordinate{a: " + Get.conceptDescriptionText(this.authorSequence) + ", m: " +
+             Get.conceptDescriptionText(this.moduleSequence) + ", p: " + Get.conceptDescriptionText(this.pathSequence) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getAuthorSequence() {
-      return authorSequence;
+      return this.authorSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -132,10 +132,10 @@ public class EditCoordinateImpl
    }
 
    public ChangeListener<Number> setAuthorSequenceProperty(IntegerProperty authorSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           authorSequence = newValue.intValue();
+                                           this.authorSequence = newValue.intValue();
                                         };
 
       authorSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -146,7 +146,7 @@ public class EditCoordinateImpl
 
    @Override
    public int getModuleSequence() {
-      return moduleSequence;
+      return this.moduleSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -157,10 +157,10 @@ public class EditCoordinateImpl
    }
 
    public ChangeListener<Number> setModuleSequenceProperty(IntegerProperty moduleSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           moduleSequence = newValue.intValue();
+                                           this.moduleSequence = newValue.intValue();
                                         };
 
       moduleSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -171,7 +171,7 @@ public class EditCoordinateImpl
 
    @Override
    public int getPathSequence() {
-      return pathSequence;
+      return this.pathSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -182,10 +182,10 @@ public class EditCoordinateImpl
    }
 
    public ChangeListener<Number> setPathSequenceProperty(IntegerProperty pathSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           pathSequence = newValue.intValue();
+                                           this.pathSequence = newValue.intValue();
                                         };
 
       pathSequenceProperty.addListener(new WeakChangeListener<>(listener));

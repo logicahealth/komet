@@ -90,9 +90,9 @@ public class BinaryDataReaderProvider
       this.input    = new DataInputStream(new FileInputStream(dataPath.toFile()));
 
       try {
-         streamBytes = input.available();
-         addToTotalWork(streamBytes);
-      } catch (IOException ex) {
+         this.streamBytes = this.input.available();
+         addToTotalWork(this.streamBytes);
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -107,10 +107,10 @@ public class BinaryDataReaderProvider
    @Override
    public void close() {
       try {
-         input.close();
+         this.input.close();
          done();
-         complete.countDown();
-      } catch (IOException ex) {
+         this.complete.countDown();
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -123,15 +123,15 @@ public class BinaryDataReaderProvider
    @Override
    public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
       try {
-         int                           startBytes        = input.available();
-         OchreExternalizableObjectType type              = OchreExternalizableObjectType.fromDataStream(input);
-         byte                          dataFormatVersion = input.readByte();
-         int                           recordSize        = input.readInt();
-         byte[]                        objectData        = new byte[recordSize];
+         final int                           startBytes        = this.input.available();
+         final OchreExternalizableObjectType type              = OchreExternalizableObjectType.fromDataStream(this.input);
+         final byte                          dataFormatVersion = this.input.readByte();
+         final int                           recordSize        = this.input.readInt();
+         final byte[]                        objectData        = new byte[recordSize];
 
-         input.readFully(objectData);
+         this.input.readFully(objectData);
 
-         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
+         final ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
 
          buffer.setExternalData(true);
          buffer.setObjectDataFormatVersion(dataFormatVersion);
@@ -157,13 +157,13 @@ public class BinaryDataReaderProvider
             throw new UnsupportedOperationException("Can't handle: " + type);
          }
 
-         objects++;
-         completedUnitsOfWork(startBytes - input.available());
+         this.objects++;
+         completedUnitsOfWork(startBytes - this.input.available());
          return true;
-      } catch (EOFException ex) {
+      } catch (final EOFException ex) {
          close();
          return false;
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -180,12 +180,12 @@ public class BinaryDataReaderProvider
    @Override
    protected Integer call() {
       try {
-         complete.await();
-      } catch (InterruptedException ex) {
+         this.complete.await();
+      } catch (final InterruptedException ex) {
          throw new RuntimeException(ex);
       }
 
-      return objects;
+      return this.objects;
    }
 
    //~--- get methods ---------------------------------------------------------

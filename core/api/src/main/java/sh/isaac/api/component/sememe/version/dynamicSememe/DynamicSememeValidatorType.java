@@ -136,7 +136,7 @@ public enum DynamicSememeValidatorType {
    //~--- constructors --------------------------------------------------------
 
    private DynamicSememeValidatorType(String displayName) {
-      displayName_ = displayName;
+      this.displayName_ = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -146,7 +146,7 @@ public enum DynamicSememeValidatorType {
          return null;
       }
 
-      String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
                                  .trim();
 
       if (StringUtils.isBlank(clean)) {
@@ -154,12 +154,12 @@ public enum DynamicSememeValidatorType {
       }
 
       try {
-         int i = Integer.parseInt(clean);
+         final int i = Integer.parseInt(clean);
 
          // enumId
          return DynamicSememeValidatorType.values()[i];
-      } catch (NumberFormatException e) {
-         for (DynamicSememeValidatorType x: DynamicSememeValidatorType.values()) {
+      } catch (final NumberFormatException e) {
+         for (final DynamicSememeValidatorType x: DynamicSememeValidatorType.values()) {
             if (x.displayName_.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
                return x;
             }
@@ -179,7 +179,7 @@ public enum DynamicSememeValidatorType {
          return null;
       }
 
-      DynamicSememeValidatorType[] temp = new DynamicSememeValidatorType[nameOrEnumId.length];
+      final DynamicSememeValidatorType[] temp = new DynamicSememeValidatorType[nameOrEnumId.length];
 
       {
          for (int i = 0; i < nameOrEnumId.length; i++) {
@@ -213,7 +213,7 @@ public enum DynamicSememeValidatorType {
 
       if (userData instanceof DynamicSememeArray) {
          // If the user data is an array, unwrap, and validate each.
-         for (DynamicSememeData userDataItem: ((DynamicSememeArray<?>) userData).getDataArray()) {
+         for (final DynamicSememeData userDataItem: ((DynamicSememeArray<?>) userData).getDataArray()) {
             if (!passesValidator(userDataItem, validatorDefinitionData, sc, tc)) {
                return false;
             }
@@ -259,7 +259,7 @@ public enum DynamicSememeValidatorType {
             return Pattern.matches(((DynamicSememeString) validatorDefinitionData).getDataString(),
                                    userData.getDataObject()
                                            .toString());
-         } catch (Exception e) {
+         } catch (final Exception e) {
             throw new RuntimeException("The specified validator data object was not a valid regular expression: " +
                                        e.getMessage());
          }
@@ -307,9 +307,9 @@ public enum DynamicSememeValidatorType {
                             .isKindOf(childId, parentId, tc);
                }
             }
-         } catch (IllegalArgumentException e) {
+         } catch (final IllegalArgumentException e) {
             throw e;
-         } catch (Exception e) {
+         } catch (final Exception e) {
             logger.log(Level.WARNING, "Failure executing validator", e);
             throw new RuntimeException("Failure executing validator", e);
          }
@@ -318,7 +318,7 @@ public enum DynamicSememeValidatorType {
             int nid;
 
             if (userData instanceof DynamicSememeUUID) {
-               DynamicSememeUUID uuid = (DynamicSememeUUID) userData;
+               final DynamicSememeUUID uuid = (DynamicSememeUUID) userData;
 
                if (!Get.identifierService()
                        .hasUuid(uuid.getDataUUID())) {
@@ -335,10 +335,10 @@ public enum DynamicSememeValidatorType {
             }
 
             // Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) SememeType of the assemblage restriction
-            DynamicSememeString[] valData =
+            final DynamicSememeString[] valData =
                ((DynamicSememeArray<DynamicSememeString>) validatorDefinitionData).getDataArray();
-            ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
-            ObjectChronologyType component  = Get.identifierService()
+            final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
+            final ObjectChronologyType component  = Get.identifierService()
                                                  .getChronologyTypeForNid(nid);
 
             if (expectedCT == ObjectChronologyType.UNKNOWN_NID) {
@@ -352,9 +352,9 @@ public enum DynamicSememeValidatorType {
 
             if ((expectedCT == ObjectChronologyType.SEMEME) && (valData.length == 2)) {
                // they specified a specific sememe type.  Verify.
-               SememeType                                   st     = SememeType.parse(valData[1].getDataString(),
+               final SememeType                                   st     = SememeType.parse(valData[1].getDataString(),
                                                                                       false);
-               SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
+               final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
                                                                         .getSememe(nid);
 
                if (sememe.getSememeType() != st) {
@@ -364,24 +364,24 @@ public enum DynamicSememeValidatorType {
             }
 
             return true;
-         } catch (RuntimeException e) {
+         } catch (final RuntimeException e) {
             throw e;
-         } catch (Exception e) {
+         } catch (final Exception e) {
             logger.log(Level.WARNING, "Failure executing validator", e);
             throw new RuntimeException("Failure executing validator", e);
          }
       } else {
-         Number userDataNumber = NumericUtils.readNumber(userData);
+         final Number userDataNumber = NumericUtils.readNumber(userData);
          Number validatorDefinitionDataNumber;
 
          if (this == DynamicSememeValidatorType.INTERVAL) {
-            String   s        = validatorDefinitionData.getDataObject()
+            final String   s        = validatorDefinitionData.getDataObject()
                                                        .toString()
                                                        .trim();
-            Interval interval = new Interval(s);
+            final Interval interval = new Interval(s);
 
             if (interval.getLeft() != null) {
-               int compareLeft = NumericUtils.compare(userDataNumber, interval.getLeft());
+               final int compareLeft = NumericUtils.compare(userDataNumber, interval.getLeft());
 
                if ((!interval.isLeftInclusive() && (compareLeft == 0)) || (compareLeft < 0)) {
                   return false;
@@ -389,7 +389,7 @@ public enum DynamicSememeValidatorType {
             }
 
             if (interval.getRight() != null) {
-               int compareRight = NumericUtils.compare(userDataNumber, interval.getRight());
+               final int compareRight = NumericUtils.compare(userDataNumber, interval.getRight());
 
                if ((!interval.isRightInclusive() && (compareRight == 0)) || (compareRight > 0)) {
                   return false;
@@ -400,7 +400,7 @@ public enum DynamicSememeValidatorType {
          } else {
             validatorDefinitionDataNumber = NumericUtils.readNumber(validatorDefinitionData);
 
-            int compareResult = NumericUtils.compare(userDataNumber, validatorDefinitionDataNumber);
+            final int compareResult = NumericUtils.compare(userDataNumber, validatorDefinitionDataNumber);
 
             switch (this) {
             case LESS_THAN:
@@ -445,7 +445,7 @@ public enum DynamicSememeValidatorType {
          } else {
             return "The value does not pass the validator";
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          return e.getMessage();
       }
    }
@@ -516,7 +516,7 @@ public enum DynamicSememeValidatorType {
    //~--- get methods ---------------------------------------------------------
 
    public String getDisplayName() {
-      return displayName_;
+      return this.displayName_;
    }
 }
 

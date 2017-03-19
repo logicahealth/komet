@@ -82,41 +82,41 @@ public class ConceptSnapshotImpl
       this.stampCoordinate    = stampCoordinate;
       this.languageCoordinate = languageCoordinate;
 
-      Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
+      final Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
          RelativePositionCalculator.getCalculator(stampCoordinate)
                                    .getLatestVersion(conceptChronology);
 
-      snapshotVersion = optionalVersion.get();
+      this.snapshotVersion = optionalVersion.get();
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public boolean containsActiveDescription(String descriptionText) {
-      return conceptChronology.containsDescription(descriptionText, stampCoordinate);
+      return this.conceptChronology.containsDescription(descriptionText, this.stampCoordinate);
    }
 
    @Override
    public String toUserString() {
-      return snapshotVersion.toString();
+      return this.snapshotVersion.toString();
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getAuthorSequence() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getAuthorSequence();
    }
 
    @Override
    public ConceptChronologyImpl getChronology() {
-      return conceptChronology;
+      return this.conceptChronology;
    }
 
    @Override
    public CommitStates getCommitState() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getCommitState();
    }
 
@@ -127,24 +127,24 @@ public class ConceptSnapshotImpl
 
    @Override
    public int getConceptSequence() {
-      return conceptChronology.getConceptSequence();
+      return this.conceptChronology.getConceptSequence();
    }
 
    @Override
    public Optional<? extends Set<? extends StampedVersion>> getContradictions() {
-      return snapshotVersion.contradictions();
+      return this.snapshotVersion.contradictions();
    }
 
    @Override
    public DescriptionSememe<?> getDescription() {
-      Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
+      final Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
 
       if (fsd.isPresent()) {
          return fsd.get()
                    .value();
       }
 
-      Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
+      final Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
 
       if (pd.isPresent()) {
          return pd.get()
@@ -161,75 +161,75 @@ public class ConceptSnapshotImpl
 
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
-      return languageCoordinate.getFullySpecifiedDescription(Get.sememeService()
+      return this.languageCoordinate.getFullySpecifiedDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
-            stampCoordinate);
+            this.stampCoordinate);
    }
 
    @Override
    public LanguageCoordinate getLanguageCoordinate() {
-      return languageCoordinate;
+      return this.languageCoordinate;
    }
 
    @Override
    public int getModuleSequence() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getModuleSequence();
    }
 
    @Override
    public int getNid() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getNid();
    }
 
    @Override
    public int getPathSequence() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getPathSequence();
    }
 
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
-      return languageCoordinate.getPreferredDescription(Get.sememeService()
+      return this.languageCoordinate.getPreferredDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
-            stampCoordinate);
+            this.stampCoordinate);
    }
 
    @Override
    public UUID getPrimordialUuid() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getPrimordialUuid();
    }
 
    @Override
    public StampCoordinate getStampCoordinate() {
-      return stampCoordinate;
+      return this.stampCoordinate;
    }
 
    @Override
    public int getStampSequence() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getStampSequence();
    }
 
    @Override
    public State getState() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getState();
    }
 
    @Override
    public long getTime() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getTime();
    }
 
    @Override
    public List<UUID> getUuidList() {
-      return snapshotVersion.value()
+      return this.snapshotVersion.value()
                             .getUuidList();
    }
 }

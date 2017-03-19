@@ -88,7 +88,7 @@ public class SimpleDisplayConcept
 
    public SimpleDisplayConcept(ConceptChronology<? extends ConceptVersion<?>> c,
                                Function<ConceptChronology<? extends ConceptVersion<?>>, String> descriptionReader) {
-      Function<ConceptChronology<? extends ConceptVersion<?>>, String> dr = ((descriptionReader == null)
+      final Function<ConceptChronology<? extends ConceptVersion<?>>, String> dr = ((descriptionReader == null)
                                                                              ? (conceptVersion) -> {
                return ((conceptVersion == null) ? ""
                : Frills.getDescription(conceptVersion.getConceptSequence())
@@ -96,10 +96,10 @@ public class SimpleDisplayConcept
             }
             : descriptionReader);
 
-      description_ = dr.apply(c);
-      nid_         = (c == null) ? 0
+      this.description_ = dr.apply(c);
+      this.nid_         = (c == null) ? 0
                                  : c.getNid();
-      customLogic_ = null;
+      this.customLogic_ = null;
    }
 
    /**
@@ -125,16 +125,16 @@ public class SimpleDisplayConcept
     * See {@link #shouldIgnoreChange()}
     */
    public SimpleDisplayConcept(String description, int nid, Supplier<Boolean> customLogic) {
-      description_ = description;
-      nid_         = nid;
-      customLogic_ = customLogic;
+      this.description_ = description;
+      this.nid_         = nid;
+      this.customLogic_ = customLogic;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public SimpleDisplayConcept clone() {
-      return new SimpleDisplayConcept(this.description_, this.nid_, customLogic_);
+      return new SimpleDisplayConcept(this.description_, this.nid_, this.customLogic_);
    }
 
    /**
@@ -149,7 +149,7 @@ public class SimpleDisplayConcept
     * Return back whatever customLogic supplier was passed in
     */
    public Supplier<Boolean> customLogic() {
-      return customLogic_;
+      return this.customLogic_;
    }
 
    /**
@@ -162,9 +162,9 @@ public class SimpleDisplayConcept
       }
 
       if (obj instanceof SimpleDisplayConcept) {
-         SimpleDisplayConcept other = (SimpleDisplayConcept) obj;
+         final SimpleDisplayConcept other = (SimpleDisplayConcept) obj;
 
-         return (nid_ == other.nid_) && StringUtils.equals(description_, other.description_);
+         return (this.nid_ == other.nid_) && StringUtils.equals(this.description_, other.description_);
       }
 
       return false;
@@ -178,43 +178,43 @@ public class SimpleDisplayConcept
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + ((description_ == null) ? 0
-            : description_.hashCode());
-      result = prime * result + nid_;
+      result = prime * result + ((this.description_ == null) ? 0
+            : this.description_.hashCode());
+      result = prime * result + this.nid_;
       return result;
    }
 
    @Override
    public String toString() {
-      return description_;
+      return this.description_;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getDescription() {
-      return description_;
+      return this.description_;
    }
 
    public int getNid() {
-      return nid_;
+      return this.nid_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setNid(int nid) {
-      nid_ = nid;
+      this.nid_ = nid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public boolean isUncommitted() {
-      return uncommitted_;
+      return this.uncommitted_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setUncommitted(boolean val) {
-      uncommitted_ = val;
+      this.uncommitted_ = val;
    }
 }
 

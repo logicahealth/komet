@@ -53,8 +53,8 @@ import sh.isaac.api.snapshot.Snapshot;
  */
 public class Snapshots {
    public static Snapshot getDefaultSolorInferredSnapshot() {
-      LanguageCoordinate language        = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
-      StampCoordinate    stampCoordinate = StampCoordinates.getDevelopmentLatest();
+      final LanguageCoordinate language        = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
+      final StampCoordinate    stampCoordinate = StampCoordinates.getDevelopmentLatest();
 
       return new Snapshot(language,
                           LogicCoordinates.getStandardElProfile(),
@@ -63,8 +63,8 @@ public class Snapshots {
    }
 
    public static Snapshot getDefaultSolorStatedSnapshot() {
-      LanguageCoordinate language        = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
-      StampCoordinate    stampCoordinate = StampCoordinates.getDevelopmentLatest();
+      final LanguageCoordinate language        = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
+      final StampCoordinate    stampCoordinate = StampCoordinates.getDevelopmentLatest();
 
       return new Snapshot(language,
                           LogicCoordinates.getStandardElProfile(),

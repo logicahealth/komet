@@ -59,7 +59,7 @@ public class PT_Refsets
       super(terminologyName);
 
       // owner autofiled by addProperty call
-      CUI_CONCEPTS = addProperty("All " + terminologyName + " CUI Concepts");
+      this.CUI_CONCEPTS = addProperty("All " + terminologyName + " CUI Concepts");
    }
 }
 

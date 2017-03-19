@@ -84,7 +84,7 @@ public class PostCommitProvider
 
    //~--- fields --------------------------------------------------------------
 
-   private UUID                                            listenerId         = UUID.randomUUID();
+   private final UUID                                            listenerId         = UUID.randomUUID();
    ConcurrentSkipListSet<WeakReference<ChangeSetListener>> changeSetListeners = new ConcurrentSkipListSet<>();
 
    //~--- constructors --------------------------------------------------------
@@ -98,7 +98,7 @@ public class PostCommitProvider
    @Override
    public void addChangeSetListener(ChangeSetListener changeSetListener) {
       LOG.debug("add listener");
-      changeSetListeners.add(new ChangeSetListenerReference(changeSetListener));
+      this.changeSetListeners.add(new ChangeSetListenerReference(changeSetListener));
    }
 
    @Override
@@ -113,12 +113,12 @@ public class PostCommitProvider
 
    @Override
    public void handleCommit(CommitRecord commitRecord) {
-      LOG.debug("change set listeners size: {}", changeSetListeners.size());
-      changeSetListeners.forEach((listenerReference) -> {
-                                    ChangeSetListener listener = listenerReference.get();
+      LOG.debug("change set listeners size: {}", this.changeSetListeners.size());
+      this.changeSetListeners.forEach((listenerReference) -> {
+                                    final ChangeSetListener listener = listenerReference.get();
 
                                     if (listener == null) {
-                                       changeSetListeners.remove(listenerReference);
+                                       this.changeSetListeners.remove(listenerReference);
                                     } else {
                                        listener.handlePostCommit(commitRecord);
                                     }
@@ -128,7 +128,7 @@ public class PostCommitProvider
    @Override
    public void removeChangeSetListener(ChangeSetListener changeSetListener) {
       LOG.debug("remove listener");
-      changeSetListeners.remove(new ChangeSetListenerReference(changeSetListener));
+      this.changeSetListeners.remove(new ChangeSetListenerReference(changeSetListener));
    }
 
    @PostConstruct
@@ -148,7 +148,7 @@ public class PostCommitProvider
    // ChronologyChangeListener interfaces
    @Override
    public UUID getListenerUuid() {
-      return listenerId;
+      return this.listenerId;
    }
 
    //~--- inner classes -------------------------------------------------------

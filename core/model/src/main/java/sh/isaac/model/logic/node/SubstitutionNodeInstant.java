@@ -85,7 +85,7 @@ public class SubstitutionNodeInstant
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), substitutionFieldSpecification.toString());
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.substitutionFieldSpecification.toString());
    }
 
    //~--- get methods ---------------------------------------------------------

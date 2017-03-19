@@ -74,7 +74,7 @@ public class Or
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet results = new NidSet();
+      final NidSet results = new NidSet();
 
       getChildren().stream().forEach((clause) -> {
                                results.or(clause.computeComponents(incomingComponents));
@@ -84,7 +84,7 @@ public class Or
 
    @Override
    public NidSet computePossibleComponents(NidSet searchSpace) {
-      NidSet results = new NidSet();
+      final NidSet results = new NidSet();
 
       getChildren().stream().forEach((clause) -> {
                                results.or(clause.computePossibleComponents(searchSpace));
@@ -96,7 +96,7 @@ public class Or
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.OR);
       getChildren().stream().forEach((clause) -> {

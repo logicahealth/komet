@@ -93,22 +93,22 @@ public class RRFDatabaseHandle
       filesToSkip.add("MRFILES.RRF");
       filesToSkip.add("MRCOLS.RRF");
 
-      ArrayList<String> prefixSkips = new ArrayList<>();
+      final ArrayList<String> prefixSkips = new ArrayList<>();
 
-      for (String s: filesToSkip) {
+      for (final String s: filesToSkip) {
          if (s.endsWith("*")) {
             prefixSkips.add(s.substring(0, s.length() - 1));
          }
       }
 
-      ArrayList<String[]> mrFile = new ArrayList<>();
+      final ArrayList<String[]> mrFile = new ArrayList<>();
       BufferedReader      br     = new BufferedReader(new InputStreamReader(MRFILES));
 
       br.lines()
         .map(line -> line.trim())
         .filter(line -> !StringUtils.isBlank(line))
         .forEach(line -> {
-                    String[] temp = line.split("\\|");
+                    final String[] temp = line.split("\\|");
 
                     if (temp.length > 0) {
                        mrFile.add(temp);
@@ -117,14 +117,14 @@ public class RRFDatabaseHandle
       br.close();
 
       // Filename -> col -> datatype
-      HashMap<String, HashMap<String, String>> mrCol = new HashMap<>();
+      final HashMap<String, HashMap<String, String>> mrCol = new HashMap<>();
 
       br = new BufferedReader(new InputStreamReader(MRCOLS));
 
       String line = br.readLine();
 
       while (line != null) {
-         String[] temp = line.split("\\|");
+         final String[] temp = line.split("\\|");
 
          if (temp.length > 0) {
             HashMap<String, String> nested = mrCol.get(temp[6]);
@@ -142,13 +142,13 @@ public class RRFDatabaseHandle
 
       br.close();
 
-      ArrayList<TableDefinition> tables = new ArrayList<>();
+      final ArrayList<TableDefinition> tables = new ArrayList<>();
 
-      for (String[] table: mrFile) {
-         String  fileName = table[0];
+      for (final String[] table: mrFile) {
+         final String  fileName = table[0];
          boolean skip     = false;
 
-         for (String prefix: prefixSkips) {
+         for (final String prefix: prefixSkips) {
             if (fileName.startsWith(prefix)) {
                skip = true;
                break;
@@ -159,10 +159,10 @@ public class RRFDatabaseHandle
             continue;
          }
 
-         TableDefinition         td   = new TableDefinition(fileName.substring(0, fileName.indexOf('.')));
-         HashMap<String, String> cols = mrCol.get(fileName);
+         final TableDefinition         td   = new TableDefinition(fileName.substring(0, fileName.indexOf('.')));
+         final HashMap<String, String> cols = mrCol.get(fileName);
 
-         for (String col: table[2].split(",")) {
+         for (final String col: table[2].split(",")) {
             td.addColumn(new ColumnDefinition(col, new DataType(cols.get(col), null)));
          }
 
@@ -180,15 +180,15 @@ public class RRFDatabaseHandle
     */
    public List<TableDefinition> loadTableDefinitionsFromXML(InputStream is)
             throws Exception {
-      SAXBuilder                 builder = new SAXBuilder();
-      Document                   d       = builder.build(is);
-      Element                    root    = d.getRootElement();
-      ArrayList<TableDefinition> tables  = new ArrayList<>();
+      final SAXBuilder                 builder = new SAXBuilder();
+      final Document                   d       = builder.build(is);
+      final Element                    root    = d.getRootElement();
+      final ArrayList<TableDefinition> tables  = new ArrayList<>();
 
-      for (Element table: root.getChildren()) {
-         TableDefinition td = new TableDefinition(table.getAttributeValue("name"));
+      for (final Element table: root.getChildren()) {
+         final TableDefinition td = new TableDefinition(table.getAttributeValue("name"));
 
-         for (Element column: table.getChildren()) {
+         for (final Element column: table.getChildren()) {
             Integer size = null;
 
             if (column.getAttributeValue("size") != null) {
@@ -218,11 +218,11 @@ public class RRFDatabaseHandle
 
    public static void main(String[] args)
             throws ClassNotFoundException, SQLException {
-      RRFDatabaseHandle rrf = new RRFDatabaseHandle();
+      final RRFDatabaseHandle rrf = new RRFDatabaseHandle();
 
       rrf.createOrOpenDatabase(new File("/mnt/SSD/scratch/h2Test"));
 
-      TableDefinition td = new TableDefinition("Test");
+      final TableDefinition td = new TableDefinition("Test");
 
       td.addColumn(new ColumnDefinition("testcol", new DataType(DataType.SUPPORTED_DATA_TYPE.STRING, 50, true)));
       rrf.createTable(td);

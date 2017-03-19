@@ -85,31 +85,31 @@ public class TopDocsFilteredCollector
                                    IndexSearcher searcher,
                                    Predicate<Integer> filter)
             throws IOException {
-      collector_ = TopScoreDocCollector.create(numHits,
+      this.collector_ = TopScoreDocCollector.create(numHits,
             null,
             !searcher.createNormalizedWeight(query)
                      .scoresDocsOutOfOrder());
-      searcher_ = searcher;
-      filter_   = filter;
+      this.searcher_ = searcher;
+      this.filter_   = filter;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public boolean acceptsDocsOutOfOrder() {
-      return collector_.acceptsDocsOutOfOrder();
+      return this.collector_.acceptsDocsOutOfOrder();
    }
 
    @Override
    public void collect(int docId)
             throws IOException {
-      Document document     = searcher_.doc(docId);
-      int      componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
+      final Document document     = this.searcher_.doc(docId);
+      final int      componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
                                       .numericValue()
                                       .intValue();
 
-      if (filter_.test(componentNid)) {
-         collector_.collect(docId);
+      if (this.filter_.test(componentNid)) {
+         this.collector_.collect(docId);
       }
    }
 
@@ -118,19 +118,19 @@ public class TopDocsFilteredCollector
    @Override
    public void setNextReader(AtomicReaderContext context)
             throws IOException {
-      collector_.setNextReader(context);
+      this.collector_.setNextReader(context);
    }
 
    @Override
    public void setScorer(Scorer scorer)
             throws IOException {
-      collector_.setScorer(scorer);
+      this.collector_.setScorer(scorer);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public TopDocs getTopDocs() {
-      return collector_.topDocs();
+      return this.collector_.topDocs();
    }
 }
 

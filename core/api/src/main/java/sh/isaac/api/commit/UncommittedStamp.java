@@ -102,12 +102,12 @@ public class UncommittedStamp {
    @Override
    public boolean equals(Object obj) {
       if (obj instanceof UncommittedStamp) {
-         UncommittedStamp other = (UncommittedStamp) obj;
+         final UncommittedStamp other = (UncommittedStamp) obj;
 
-         if ((status == other.status) &&
-               (authorSequence == other.authorSequence) &&
-               (pathSequence == other.pathSequence) &&
-               (moduleSequence == other.moduleSequence)) {
+         if ((this.status == other.status) &&
+               (this.authorSequence == other.authorSequence) &&
+               (this.pathSequence == other.pathSequence) &&
+               (this.moduleSequence == other.moduleSequence)) {
             return true;
          }
       }
@@ -117,35 +117,35 @@ public class UncommittedStamp {
 
    @Override
    public int hashCode() {
-      if (hashCode == Integer.MAX_VALUE) {
-         hashCode = Hashcode.compute(new int[] { status.ordinal(), authorSequence, pathSequence, moduleSequence });
+      if (this.hashCode == Integer.MAX_VALUE) {
+         this.hashCode = Hashcode.compute(new int[] { this.status.ordinal(), this.authorSequence, this.pathSequence, this.moduleSequence });
       }
 
-      return hashCode;
+      return this.hashCode;
    }
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("UncommittedStamp{s:");
-      sb.append(status);
+      sb.append(this.status);
       sb.append(", a:");
-      sb.append(Get.conceptDescriptionText(authorSequence));
+      sb.append(Get.conceptDescriptionText(this.authorSequence));
       sb.append(", m:");
-      sb.append(Get.conceptDescriptionText(moduleSequence));
+      sb.append(Get.conceptDescriptionText(this.moduleSequence));
       sb.append(", p: ");
-      sb.append(Get.conceptDescriptionText(pathSequence));
+      sb.append(Get.conceptDescriptionText(this.pathSequence));
       sb.append('}');
       return sb.toString();
    }
 
    public void write(DataOutput output)
             throws IOException {
-      output.writeBoolean(status.isActive());
-      output.writeInt(authorSequence);
-      output.writeInt(moduleSequence);
-      output.writeInt(pathSequence);
+      output.writeBoolean(this.status.isActive());
+      output.writeInt(this.authorSequence);
+      output.writeInt(this.moduleSequence);
+      output.writeInt(this.pathSequence);
    }
 }
 

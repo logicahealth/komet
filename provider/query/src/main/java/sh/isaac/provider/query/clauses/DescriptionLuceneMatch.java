@@ -97,16 +97,16 @@ public class DescriptionLuceneMatch
 
    @Override
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      String luceneMatch = (String) enclosingQuery.getLetDeclarations()
-                                                  .get(luceneMatchKey);
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      NidSet               nids               = new NidSet();
-      List<IndexServiceBI> indexers           = LookupService.get()
+      final String luceneMatch = (String) this.enclosingQuery.getLetDeclarations()
+                                                  .get(this.luceneMatchKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                      .get(this.viewCoordinateKey);
+      final NidSet               nids               = new NidSet();
+      final List<IndexServiceBI> indexers           = LookupService.get()
                                                              .getAllServices(IndexServiceBI.class);
       IndexServiceBI       descriptionIndexer = null;
 
-      for (IndexServiceBI li: indexers) {
+      for (final IndexServiceBI li: indexers) {
          if (li.getIndexerName()
                .equals("descriptions")) {
             descriptionIndexer = li;
@@ -117,7 +117,7 @@ public class DescriptionLuceneMatch
          throw new IllegalStateException("No description indexer found in: " + indexers);
       }
 
-      List<SearchResult> queryResults = descriptionIndexer.query(luceneMatch, 1000);
+      final List<SearchResult> queryResults = descriptionIndexer.query(luceneMatch, 1000);
 
       queryResults.stream().forEach((s) -> {
                               nids.add(s.getNid());
@@ -125,7 +125,7 @@ public class DescriptionLuceneMatch
 
       // Filter the results, based upon the input ViewCoordinate
       nids.stream().forEach((nid) -> {
-                      Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
+                      final Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
                          Get.identifiedObjectService()
                             .getIdentifiedObjectChronology(nid);
 
@@ -156,11 +156,11 @@ public class DescriptionLuceneMatch
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(luceneMatchKey);
+                 .add(this.luceneMatchKey);
       return whereClause;
    }
 }

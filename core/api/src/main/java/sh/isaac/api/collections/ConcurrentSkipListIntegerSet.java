@@ -66,20 +66,20 @@ public class ConcurrentSkipListIntegerSet
    protected ConcurrentSkipListIntegerSet() {}
 
    protected ConcurrentSkipListIntegerSet(int... members) {
-      for (int member: members) {
-         set.add(member);
+      for (final int member: members) {
+         this.set.add(member);
       }
    }
 
    protected ConcurrentSkipListIntegerSet(IntStream memberStream) {
-      memberStream.forEach((member) -> set.add(member));
+      memberStream.forEach((member) -> this.set.add(member));
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public void add(int item) {
-      set.add(item);
+      this.set.add(item);
    }
 
    @Override
@@ -105,12 +105,12 @@ public class ConcurrentSkipListIntegerSet
 
    @Override
    public void clear() {
-      set.clear();
+      this.set.clear();
    }
 
    @Override
    public boolean contains(int item) {
-      return set.contains(item);
+      return this.set.contains(item);
    }
 
    @Override
@@ -130,23 +130,23 @@ public class ConcurrentSkipListIntegerSet
 
    @Override
    public void remove(int item) {
-      set.remove(item);
+      this.set.remove(item);
    }
 
    @Override
    public int size() {
-      return set.size();
+      return this.set.size();
    }
 
    @Override
    public IntStream stream() {
-      return set.stream()
+      return this.set.stream()
                 .mapToInt(item -> (int) item);
    }
 
    @Override
    public String toString() {
-      return set.toString();
+      return this.set.toString();
    }
 
    @Override
@@ -158,7 +158,7 @@ public class ConcurrentSkipListIntegerSet
 
    @Override
    public boolean isEmpty() {
-      return set.isEmpty();
+      return this.set.isEmpty();
    }
 
    @Override
@@ -168,7 +168,7 @@ public class ConcurrentSkipListIntegerSet
 
    @Override
    public PrimitiveIterator.OfInt getReverseIntIterator() {
-      return set.descendingSet()
+      return this.set.descendingSet()
                 .stream()
                 .mapToInt(item -> (int) item)
                 .iterator();

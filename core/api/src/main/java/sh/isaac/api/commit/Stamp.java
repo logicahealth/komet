@@ -78,21 +78,21 @@ public class Stamp
       this.authorSequence = in.readInt();
       this.moduleSequence = in.readInt();
       this.pathSequence   = in.readInt();
-      assert time != 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert status != null:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert pathSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert moduleSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert authorSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
+      assert this.time != 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
+             this.pathSequence;
+      assert this.status != null:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
+             this.pathSequence;
+      assert this.pathSequence > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
+             this.pathSequence;
+      assert this.moduleSequence > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
+             this.pathSequence;
+      assert this.authorSequence > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
+             this.pathSequence;
    }
 
    public Stamp(State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
@@ -157,15 +157,15 @@ public class Stamp
 
    @Override
    public int hashCode() {
-      if (hashCode == Integer.MAX_VALUE) {
-         hashCode = Hashcode.compute(new int[] { authorSequence, status.ordinal(), pathSequence, (int) time });
+      if (this.hashCode == Integer.MAX_VALUE) {
+         this.hashCode = Hashcode.compute(new int[] { this.authorSequence, this.status.ordinal(), this.pathSequence, (int) this.time });
       }
 
-      return hashCode;
+      return this.hashCode;
    }
 
    public static String stampArrayToString(AbstractIntSet stampSet) {
-      StringBuilder sb = setupToString();
+      final StringBuilder sb = setupToString();
 
       stampSet.forEachKey((int stamp) -> {
                              sb.append(stampFromIntStamp(stamp));
@@ -177,7 +177,7 @@ public class Stamp
    }
 
    public static String stampArrayToString(Collection<Integer> stampCollection) {
-      StringBuilder sb = setupToString();
+      final StringBuilder sb = setupToString();
 
       stampCollection.stream()
                      .map((stamp) -> {
@@ -192,9 +192,9 @@ public class Stamp
    }
 
    public static String stampArrayToString(int[] stampArray) {
-      StringBuilder sb = setupToString();
+      final StringBuilder sb = setupToString();
 
-      for (int stamp: stampArray) {
+      for (final int stamp: stampArray) {
          sb.append(stampFromIntStamp(stamp));
          sb.append(",");
       }
@@ -204,15 +204,15 @@ public class Stamp
    }
 
    public static Stamp stampFromIntStamp(int stamp) {
-      State status         = Get.stampService()
+      final State status         = Get.stampService()
                                 .getStatusForStamp(stamp);
-      long  time           = Get.stampService()
+      final long  time           = Get.stampService()
                                 .getTimeForStamp(stamp);
-      int   authorSequence = Get.stampService()
+      final int   authorSequence = Get.stampService()
                                 .getAuthorSequenceForStamp(stamp);
-      int   moduleSequence = Get.stampService()
+      final int   moduleSequence = Get.stampService()
                                 .getModuleSequenceForStamp(stamp);
-      int   pathSequence   = Get.stampService()
+      final int   pathSequence   = Get.stampService()
                                 .getPathSequenceForStamp(stamp);
 
       return new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
@@ -220,40 +220,40 @@ public class Stamp
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("Stamp{s:");
-      sb.append(status);
+      sb.append(this.status);
       sb.append(", t:");
       sb.append(getTimeAsInstant());
       sb.append(", a:");
-      sb.append(Get.conceptDescriptionText(authorSequence));
+      sb.append(Get.conceptDescriptionText(this.authorSequence));
       sb.append(", m:");
-      sb.append(Get.conceptDescriptionText(moduleSequence));
+      sb.append(Get.conceptDescriptionText(this.moduleSequence));
       sb.append(", p: ");
-      sb.append(Get.conceptDescriptionText(pathSequence));
+      sb.append(Get.conceptDescriptionText(this.pathSequence));
       sb.append('}');
       return sb.toString();
    }
 
    public void write(DataOutput out)
             throws IOException {
-      out.writeInt(status.ordinal());
-      out.writeLong(time);
-      out.writeInt(authorSequence);
-      out.writeInt(moduleSequence);
-      out.writeInt(pathSequence);
+      out.writeInt(this.status.ordinal());
+      out.writeLong(this.time);
+      out.writeInt(this.authorSequence);
+      out.writeInt(this.moduleSequence);
+      out.writeInt(this.pathSequence);
    }
 
    private static void finishToString(StringBuilder sb) {
-      int lastIndexOf = sb.lastIndexOf(",");
+      final int lastIndexOf = sb.lastIndexOf(",");
 
       sb.delete(lastIndexOf, lastIndexOf + 1);
       sb.append("]");
    }
 
    private static StringBuilder setupToString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("[");
       return sb;
@@ -262,27 +262,27 @@ public class Stamp
    //~--- get methods ---------------------------------------------------------
 
    public int getAuthorSequence() {
-      return authorSequence;
+      return this.authorSequence;
    }
 
    public int getModuleSequence() {
-      return moduleSequence;
+      return this.moduleSequence;
    }
 
    public int getPathSequence() {
-      return pathSequence;
+      return this.pathSequence;
    }
 
    public State getStatus() {
-      return status;
+      return this.status;
    }
 
    public long getTime() {
-      return time;
+      return this.time;
    }
 
    public Instant getTimeAsInstant() {
-      return Instant.ofEpochMilli(time);
+      return Instant.ofEpochMilli(this.time);
    }
 }
 

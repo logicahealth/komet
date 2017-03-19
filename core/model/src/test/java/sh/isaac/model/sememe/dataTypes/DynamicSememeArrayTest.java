@@ -64,11 +64,11 @@ public class DynamicSememeArrayTest {
    @Test
    public void testSerializationOne()
             throws PropertyVetoException, IOException {
-      DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] { new DynamicSememeIntegerImpl(5),
+      final DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] { new DynamicSememeIntegerImpl(5),
                                                                                 new DynamicSememeIntegerImpl(8),
                                                                                 new DynamicSememeIntegerImpl(
                                                                                    Integer.MAX_VALUE) };
-      DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
+      final DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
          new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(testDataOne);
 
       assertEquals(3, testOne.getDataArray().length);
@@ -96,9 +96,9 @@ public class DynamicSememeArrayTest {
    @Test
    public void testSerializationTwo()
             throws PropertyVetoException, IOException {
-      DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] { new DynamicSememeStringImpl("hi"),
+      final DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] { new DynamicSememeStringImpl("hi"),
                                                                               new DynamicSememeStringImpl("bye") };
-      DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
+      final DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
          new DynamicSememeArrayImpl<DynamicSememeStringImpl>(testDataTwo);
 
       assertEquals(2, testTwo.getDataArray().length);

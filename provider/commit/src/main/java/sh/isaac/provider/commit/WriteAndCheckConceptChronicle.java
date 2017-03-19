@@ -118,39 +118,39 @@ public class WriteAndCheckConceptChronicle
             throws Exception {
       try {
          Get.conceptService()
-            .writeConcept(cc);
-         uncommittedTracking.accept(cc, true);
+            .writeConcept(this.cc);
+         this.uncommittedTracking.accept(this.cc, true);
          updateProgress(1, 3);
 
          // TODO dan disabled for the same reason as above.
-         updateMessage("checking nid: " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("checking nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
 
-         if (cc.isUncommitted()) {
-            checkers.stream().forEach((check) -> {
-                                check.check(cc, alertCollection, CheckPhase.ADD_UNCOMMITTED);
+         if (this.cc.isUncommitted()) {
+            this.checkers.stream().forEach((check) -> {
+                                check.check(this.cc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
                              });
          }
 
          updateProgress(2, 3);
 
          // TODO dan disabled for the same reason as above.
-         updateMessage("notifying nid: " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         this.changeListeners.forEach((listenerRef) -> {
+                                    final ChronologyChangeListener listener = listenerRef.get();
 
                                     if (listener == null) {
-                                       changeListeners.remove(listenerRef);
+                                       this.changeListeners.remove(listenerRef);
                                     } else {
-                                       listener.handleChange(cc);
+                                       listener.handleChange(this.cc);
                                     }
                                  });
          updateProgress(3, 3);
 
          // TODO dan disabled for the same reason as above.
-         updateMessage("complete nid: " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("complete nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

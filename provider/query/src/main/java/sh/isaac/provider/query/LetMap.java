@@ -67,7 +67,7 @@ public class LetMap {
    //~--- get methods ---------------------------------------------------------
 
    public Map<String, Object> getMap() {
-      return map;
+      return this.map;
    }
 
    //~--- set methods ---------------------------------------------------------

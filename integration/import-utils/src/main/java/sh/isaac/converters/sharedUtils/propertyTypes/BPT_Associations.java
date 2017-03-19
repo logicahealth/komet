@@ -76,7 +76,7 @@ public class BPT_Associations
          throw new RuntimeException("Must add PropertyAssociation objects to BPT_Associations type");
       }
 
-      Property p = super.addProperty(property);
+      final Property p = super.addProperty(property);
 
       allAssociations_.add(p.getUUID());  // For stats, later
       return p;

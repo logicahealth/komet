@@ -55,7 +55,7 @@ public class ObservableCoordinateImpl {
    //~--- methods -------------------------------------------------------------
 
    protected void addListenerReference(Object listener) {
-      listenerReferences.add(listener);
+      this.listenerReferences.add(listener);
    }
 }
 

@@ -101,23 +101,23 @@ public class RelationshipIsCircular
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                 .get(viewCoordinateKey);
-      ConceptSpecification relType = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                          .get(relTypeKey);
-      Boolean              relTypeSubsumption = (Boolean) enclosingQuery.getLetDeclarations()
-                                                                        .get(relTypeSubsumptionKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                 .get(this.viewCoordinateKey);
+      final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                          .get(this.relTypeKey);
+      Boolean              relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                        .get(this.relTypeSubsumptionKey);
 
       // The default is to set relTypeSubsumption and destinationSubsumption to true.
       if (relTypeSubsumption == null) {
          relTypeSubsumption = true;
       }
 
-      relTypeSet = new ConceptSequenceSet();
-      relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new ConceptSequenceSet();
+      this.relTypeSet.add(relType.getConceptSequence());
 
       if (relTypeSubsumption) {
-         relTypeSet.or(Get.taxonomyService()
+         this.relTypeSet.or(Get.taxonomyService()
                           .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
       }
 
@@ -149,15 +149,15 @@ public class RelationshipIsCircular
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.RELATIONSHIP_IS_CIRCULAR);
       whereClause.getLetKeys()
-                 .add(relTypeKey);
+                 .add(this.relTypeKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       whereClause.getLetKeys()
-                 .add(relTypeSubsumptionKey);
+                 .add(this.relTypeSubsumptionKey);
 
 //    System.out.println("Where clause size: " + whereClause.getLetKeys().size());
       return whereClause;

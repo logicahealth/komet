@@ -82,45 +82,45 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
 
    @Override
    public IntegerProperty assemblageSequenceProperty() {
-      if (assemblageSequenceProperty == null) {
-         assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.assemblageSequenceProperty == null) {
+         this.assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
                getAssemblageSequence());
       }
 
-      return assemblageSequenceProperty;
+      return this.assemblageSequenceProperty;
    }
 
    @Override
    public <M extends OV> M createMutableVersion(Class<M> type, int stampSequence) {
-      return (M) wrapInObservable(chronicledObjectLocal.createMutableVersion(getSvForOv(type), stampSequence));
+      return (M) wrapInObservable(this.chronicledObjectLocal.createMutableVersion(getSvForOv(type), stampSequence));
    }
 
    @Override
    public <M extends OV> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-      return (M) wrapInObservable(chronicledObjectLocal.createMutableVersion(getSvForOv(type), status, ec));
+      return (M) wrapInObservable(this.chronicledObjectLocal.createMutableVersion(getSvForOv(type), status, ec));
    }
 
    @Override
    public IntegerProperty referencedComponentNidProperty() {
-      if (referencedComponentNidProperty == null) {
-         referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
+      if (this.referencedComponentNidProperty == null) {
+         this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
                getReferencedComponentNid());
       }
 
-      return referencedComponentNidProperty;
+      return this.referencedComponentNidProperty;
    }
 
    @Override
    public IntegerProperty sememeSequenceProperty() {
-      if (sememeSequenceProperty == null) {
-         sememeSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.sememeSequenceProperty == null) {
+         this.sememeSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE.toExternalString(),
                getSememeSequence());
       }
 
-      return sememeSequenceProperty;
+      return this.sememeSequenceProperty;
    }
 
    private OV wrapInObservable(SememeVersion<?> sememeVersion) {
@@ -136,18 +136,18 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
 
    @Override
    public int getAssemblageSequence() {
-      if (assemblageSequenceProperty != null) {
-         return assemblageSequenceProperty.get();
+      if (this.assemblageSequenceProperty != null) {
+         return this.assemblageSequenceProperty.get();
       }
 
-      return chronicledObjectLocal.getAssemblageSequence();
+      return this.chronicledObjectLocal.getAssemblageSequence();
    }
 
    @Override
    protected ObservableList<? extends OV> getObservableVersionList() {
-      ObservableList<OV> observableList = FXCollections.observableArrayList();
+      final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
-      chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
+      this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
                                        observableList.add(wrapInObservable(sememeVersion));
                                     });
       return observableList;
@@ -155,25 +155,25 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
 
    @Override
    public int getReferencedComponentNid() {
-      if (referencedComponentNidProperty != null) {
-         return referencedComponentNidProperty.get();
+      if (this.referencedComponentNidProperty != null) {
+         return this.referencedComponentNidProperty.get();
       }
 
-      return chronicledObjectLocal.getReferencedComponentNid();
+      return this.chronicledObjectLocal.getReferencedComponentNid();
    }
 
    @Override
    public int getSememeSequence() {
-      if (sememeSequenceProperty != null) {
-         return sememeSequenceProperty.get();
+      if (this.sememeSequenceProperty != null) {
+         return this.sememeSequenceProperty.get();
       }
 
-      return chronicledObjectLocal.getSememeSequence();
+      return this.chronicledObjectLocal.getSememeSequence();
    }
 
    @Override
    public SememeType getSememeType() {
-      return chronicledObjectLocal.getSememeType();
+      return this.chronicledObjectLocal.getSememeType();
    }
 
    private <M extends OV, T> Class<T> getSvForOv(Class<M> type) {

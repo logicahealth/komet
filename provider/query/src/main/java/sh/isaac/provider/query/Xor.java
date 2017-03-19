@@ -78,7 +78,7 @@ public class Xor
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet xorSet = new NidSet();
+      final NidSet xorSet = new NidSet();
 
       getChildren().stream().forEach((c) -> {
                                xorSet.xor(c.computeComponents(incomingComponents));
@@ -88,7 +88,7 @@ public class Xor
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      NidSet unionSet = new NidSet();
+      final NidSet unionSet = new NidSet();
 
       getChildren().stream().forEach((c) -> {
                                unionSet.or(c.computePossibleComponents(incomingPossibleComponents));
@@ -100,11 +100,11 @@ public class Xor
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.XOR);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

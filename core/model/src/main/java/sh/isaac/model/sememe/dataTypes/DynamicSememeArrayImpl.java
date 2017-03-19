@@ -82,7 +82,7 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
          throw new RuntimeException("The dataArray cannot be null", null);
       }
 
-      byte[][] allData    = new byte[dataArray.length][];
+      final byte[][] allData    = new byte[dataArray.length][];
       long     totalBytes = 0;
 
       for (int i = 0; i < dataArray.length; i++) {
@@ -95,11 +95,11 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
          throw new RuntimeException("To much data to store", null);
       }
 
-      int expectedDataSize = (int) totalBytes + (dataArray.length * 8);
+      final int expectedDataSize = (int) totalBytes + (dataArray.length * 8);
 
-      data_ = new byte[expectedDataSize];
+      this.data_ = new byte[expectedDataSize];
 
-      ByteBuffer data = ByteBuffer.wrap(data_);
+      final ByteBuffer data = ByteBuffer.wrap(this.data_);
 
       // Then, for each data item, 4 bytes for the type, 4 bytes for the int size marker of the data, then the data.
       for (int i = 0; i < dataArray.length; i++) {
@@ -123,27 +123,27 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    @SuppressWarnings("unchecked")
    @Override
    public T[] getDataArray() {
-      ArrayList<T>                   result     = new ArrayList<>();
-      ByteBuffer                     bb         = ByteBuffer.wrap(data_);
-      HashSet<DynamicSememeDataType> foundTypes = new HashSet<>();
+      final ArrayList<T>                   result     = new ArrayList<>();
+      final ByteBuffer                     bb         = ByteBuffer.wrap(this.data_);
+      final HashSet<DynamicSememeDataType> foundTypes = new HashSet<>();
 
       while (bb.hasRemaining()) {
-         int                   type = bb.getInt();
-         DynamicSememeDataType dt   = DynamicSememeDataType.getFromToken(type);
+         final int                   type = bb.getInt();
+         final DynamicSememeDataType dt   = DynamicSememeDataType.getFromToken(type);
 
          foundTypes.add(dt);
 
-         int    nextReadSize = bb.getInt();
-         byte[] dataArray    = new byte[nextReadSize];
+         final int    nextReadSize = bb.getInt();
+         final byte[] dataArray    = new byte[nextReadSize];
 
          bb.get(dataArray);
 
-         T data = (T) DynamicSememeTypeToClassUtility.typeToClass(dt, dataArray);
+         final T data = (T) DynamicSememeTypeToClassUtility.typeToClass(dt, dataArray);
 
          result.add(data);
       }
 
-      return (T[]) result.toArray((T[]) Array.newInstance((foundTypes.size() > 1) ? DynamicSememeData.class
+      return result.toArray((T[]) Array.newInstance((foundTypes.size() > 1) ? DynamicSememeData.class
             : DynamicSememeTypeToClassUtility.implClassForType(foundTypes.iterator()
                   .next()), result.size()));
    }
@@ -153,11 +153,11 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
     */
    @Override
    public ReadOnlyObjectProperty<T[]> getDataArrayProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<T[]>(null, getName(), getDataArray());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<T[]>(null, getName(), getDataArray());
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

@@ -85,49 +85,49 @@ public class WriteCompletionService
    public void run() {
       log.info("WriteCompletionService starting");
 
-      while (run) {
+      while (this.run) {
          try {
-            conversionService.take()
+            this.conversionService.take()
                              .get();
-         } catch (InterruptedException ex) {
-            if (run) {
+         } catch (final InterruptedException ex) {
+            if (this.run) {
                // Only warn if we were not asked to shutdown
                log.warn(ex.getLocalizedMessage(), ex);
             }
-         } catch (ExecutionException ex) {
+         } catch (final ExecutionException ex) {
             log.error(ex.getLocalizedMessage(), ex);
          }
       }
 
-      conversionService                   = null;
-      writeConceptCompletionServiceThread = null;
-      workerPool                          = null;
+      this.conversionService                   = null;
+      this.writeConceptCompletionServiceThread = null;
+      this.workerPool                          = null;
       log.info("WriteCompletionService closed");
    }
 
    public void start() {
       log.info("Starting WriteCompletionService");
-      run        = true;
-      workerPool = Executors.newFixedThreadPool(4,
+      this.run        = true;
+      this.workerPool = Executors.newFixedThreadPool(4,
             (Runnable r) -> {
                return new Thread(r, "writeCommitDataPool");
             });
-      conversionService                   = new ExecutorCompletionService<>(workerPool);
-      writeConceptCompletionServiceThread = Executors.newSingleThreadExecutor((Runnable r) -> {
+      this.conversionService                   = new ExecutorCompletionService<>(this.workerPool);
+      this.writeConceptCompletionServiceThread = Executors.newSingleThreadExecutor((Runnable r) -> {
                return new Thread(r, "writeCompletionService");
             });
-      writeConceptCompletionServiceThread.submit(this);
+      this.writeConceptCompletionServiceThread.submit(this);
    }
 
    public void stop() {
       log.info("Stopping WriteCompletionService");
-      run = false;
-      writeConceptCompletionServiceThread.shutdown();
-      workerPool.shutdown();
+      this.run = false;
+      this.writeConceptCompletionServiceThread.shutdown();
+      this.workerPool.shutdown();
    }
 
    protected Future<Void> submit(Task<Void> task) {
-      return conversionService.submit(task, null);
+      return this.conversionService.submit(task, null);
    }
 }
 

@@ -75,12 +75,12 @@ public class SequentialAggregateTask<T>
       this.subTasks = subTasks;
       this.updateTitle(title);
       this.setProgressMessageGenerator((task) -> {
-                                          int taskId = currentTask;
+                                          final int taskId = this.currentTask;
 
                                           if (taskId < subTasks.length) {
                                              updateMessage("Executing subtask: " + subTasks[taskId].getTitle() + " [" +
-                                             Integer.toString(currentTask + 1) + " of " + subTasks.length + " tasks]");
-                                             updateProgress((currentTask * 100) + Math.max(0,
+                                             Integer.toString(this.currentTask + 1) + " of " + subTasks.length + " tasks]");
+                                             updateProgress((this.currentTask * 100) + Math.max(0,
                                                    subTasks[taskId].getProgress() * 100),
                                                    subTasks.length * 100);
                                           }
@@ -108,11 +108,11 @@ public class SequentialAggregateTask<T>
       try {
          Object returnValue = null;
 
-         for (; currentTask < subTasks.length; currentTask++) {
+         for (; this.currentTask < this.subTasks.length; this.currentTask++) {
             Get.workExecutors()
                .getExecutor()
-               .execute(subTasks[currentTask]);
-            returnValue = subTasks[currentTask].get();
+               .execute(this.subTasks[this.currentTask]);
+            returnValue = this.subTasks[this.currentTask].get();
          }
 
          return (T) returnValue;
@@ -129,7 +129,7 @@ public class SequentialAggregateTask<T>
     * @return the sub tasks of this aggregate task.
     */
    public Task<?>[] getSubTasks() {
-      return subTasks;
+      return this.subTasks;
    }
 }
 

@@ -105,12 +105,12 @@ public class DescriptionRegexMatch
 
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      String                                      regex = (String) enclosingQuery.getLetDeclarations()
-                                                                                 .get(regexKey);
-      ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
+      final String                                      regex = (String) this.enclosingQuery.getLetDeclarations()
+                                                                                 .get(this.regexKey);
+      final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().forEach((description) -> {
-                                   if (cache.contains(description.getNid())) {
+                                   if (this.cache.contains(description.getNid())) {
                                       description.getVersionList().forEach((dv) -> {
                      if (dv.getText()
                            .matches(regex)) {
@@ -123,13 +123,13 @@ public class DescriptionRegexMatch
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_REGEX_MATCH);
       whereClause.getLetKeys()
-                 .add(regexKey);
+                 .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

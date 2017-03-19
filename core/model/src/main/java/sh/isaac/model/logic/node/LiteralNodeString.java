@@ -70,7 +70,7 @@ public class LiteralNodeString
                             DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      literalValue = dataInputStream.readUTF();
+      this.literalValue = dataInputStream.readUTF();
    }
 
    public LiteralNodeString(LogicalExpressionOchreImpl logicGraphVersion, String literalValue) {
@@ -94,52 +94,52 @@ public class LiteralNodeString
          return false;
       }
 
-      LiteralNodeString that = (LiteralNodeString) o;
+      final LiteralNodeString that = (LiteralNodeString) o;
 
-      return literalValue.equals(that.literalValue);
+      return this.literalValue.equals(that.literalValue);
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + literalValue.hashCode();
+      result = 31 * result + this.literalValue.hashCode();
       return result;
    }
 
    @Override
    public String toString() {
-      return "String literal[" + getNodeIndex() + "]" + literalValue + super.toString();
+      return "String literal[" + getNodeIndex() + "]" + this.literalValue + super.toString();
    }
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "String literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+      return "String literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
 
    @Override
    protected int compareFields(LogicNode o) {
-      LiteralNodeString that = (LiteralNodeString) o;
+      final LiteralNodeString that = (LiteralNodeString) o;
 
       return this.literalValue.compareTo(that.literalValue);
    }
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), literalValue);
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.literalValue);
    }
 
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeUTF(literalValue);
+      dataOutput.writeUTF(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getLiteralValue() {
-      return literalValue;
+      return this.literalValue;
    }
 
    @Override

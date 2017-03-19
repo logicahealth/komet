@@ -103,7 +103,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    public <M extends V> M createMutableVersion(Class<M> type, int stampSequence) {
-      M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
+      final M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
 
       addVersion(version);
       return version;
@@ -111,13 +111,13 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-      int stampSequence = Get.stampService()
+      final int stampSequence = Get.stampService()
                              .getStampSequence(status,
                                    Long.MAX_VALUE,
                                    ec.getAuthorSequence(),
                                    ec.getModuleSequence(),
                                    ec.getPathSequence());
-      M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
+      final M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
 
       addVersion(version);
       return version;
@@ -128,45 +128,45 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
          int stampSequence,
          short versionSequence,
          ByteArrayDataBuffer bb) {
-      SememeType st = SememeType.getFromToken(token);
+      final SememeType st = SememeType.getFromToken(token);
 
       switch (st) {
       case MEMBER:
-         return (SememeVersionImpl<?>) new SememeVersionImpl<>(container, stampSequence, versionSequence);
+         return new SememeVersionImpl<>(container, stampSequence, versionSequence);
 
       case COMPONENT_NID:
-         return (SememeVersionImpl<?>) new ComponentNidSememeImpl(
+         return new ComponentNidSememeImpl(
              (SememeChronologyImpl<ComponentNidSememeImpl>) container,
              stampSequence,
              versionSequence,
              bb);
 
       case LONG:
-         return (SememeVersionImpl<?>) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) container,
+         return new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) container,
                stampSequence,
                versionSequence,
                bb);
 
       case LOGIC_GRAPH:
-         return (SememeVersionImpl<?>) new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>) container,
+         return new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>) container,
                stampSequence,
                versionSequence,
                bb);
 
       case DYNAMIC:
-         return (SememeVersionImpl<?>) new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) container,
+         return new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) container,
                stampSequence,
                versionSequence,
                bb);
 
       case STRING:
-         return (SememeVersionImpl<?>) new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>) container,
+         return new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>) container,
                stampSequence,
                versionSequence,
                bb);
 
       case DESCRIPTION:
-         return (SememeVersionImpl<?>) (new DescriptionSememeImpl(
+         return (new DescriptionSememeImpl(
              (SememeChronologyImpl<DescriptionSememeImpl>) container,
              stampSequence,
              versionSequence,
@@ -178,7 +178,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
    }
 
    public static SememeChronologyImpl make(ByteArrayDataBuffer data) {
-      SememeChronologyImpl sememeChronology = new SememeChronologyImpl();
+      final SememeChronologyImpl sememeChronology = new SememeChronologyImpl();
 
       sememeChronology.readData(data);
       return sememeChronology;
@@ -186,44 +186,44 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    public String toString() {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
       builder.append("SememeChronology{");
 
-      if (sememeTypeToken == -1) {
+      if (this.sememeTypeToken == -1) {
          builder.append("SememeType token not initialized");
       } else {
-         builder.append(SememeType.getFromToken(sememeTypeToken));
+         builder.append(SememeType.getFromToken(this.sememeTypeToken));
       }
 
       builder.append("\n assemblage:")
-             .append(Get.conceptDescriptionText(assemblageSequence))
+             .append(Get.conceptDescriptionText(this.assemblageSequence))
              .append(" <")
-             .append(assemblageSequence)
+             .append(this.assemblageSequence)
              .append(">\n rc:");
 
       switch (Get.identifierService()
-                 .getChronologyTypeForNid(referencedComponentNid)) {
+                 .getChronologyTypeForNid(this.referencedComponentNid)) {
       case CONCEPT:
          builder.append("CONCEPT: ")
-                .append(Get.conceptDescriptionText(referencedComponentNid));
+                .append(Get.conceptDescriptionText(this.referencedComponentNid));
          break;
 
       case SEMEME:
          builder.append("SEMEME: ")
                 .append(Get.sememeService()
-                           .getSememe(referencedComponentNid));
+                           .getSememe(this.referencedComponentNid));
          break;
 
       default:
          builder.append(Get.identifierService()
-                           .getChronologyTypeForNid(referencedComponentNid))
+                           .getChronologyTypeForNid(this.referencedComponentNid))
                 .append(" ")
-                .append(referencedComponentNid);
+                .append(this.referencedComponentNid);
       }
 
       builder.append(" <")
-             .append(referencedComponentNid)
+             .append(this.referencedComponentNid)
              .append(">\n ");
       super.toString(builder);
       builder.append('}');
@@ -309,14 +309,14 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    protected V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
-      return (V) createSememe(sememeTypeToken, this, stampSequence, db.getShort(), db);
+      return (V) createSememe(this.sememeTypeToken, this, stampSequence, db.getShort(), db);
    }
 
    @Override
    protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
-      out.putByte(sememeTypeToken);
-      out.putConceptSequence(assemblageSequence);
-      out.putNid(referencedComponentNid);
+      out.putByte(this.sememeTypeToken);
+      out.putConceptSequence(this.assemblageSequence);
+      out.putNid(this.referencedComponentNid);
    }
 
    @Override
@@ -330,14 +330,14 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    protected void getAdditionalChronicleFields(ByteArrayDataBuffer in) {
-      sememeTypeToken        = in.getByte();
-      assemblageSequence     = in.getConceptSequence();
-      referencedComponentNid = in.getNid();
+      this.sememeTypeToken        = in.getByte();
+      this.assemblageSequence     = in.getConceptSequence();
+      this.referencedComponentNid = in.getNid();
    }
 
    @Override
    public int getAssemblageSequence() {
-      return assemblageSequence;
+      return this.assemblageSequence;
    }
 
    @Override
@@ -352,7 +352,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    public int getReferencedComponentNid() {
-      return referencedComponentNid;
+      return this.referencedComponentNid;
    }
 
    @Override
@@ -362,7 +362,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    @Override
    public SememeType getSememeType() {
-      return SememeType.getFromToken(sememeTypeToken);
+      return SememeType.getFromToken(this.sememeTypeToken);
    }
 }
 

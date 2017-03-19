@@ -61,7 +61,7 @@ public class GitBlitTests {
     */
    public static void main(String[] args)
             throws IOException {
-      for (String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
+      for (final String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
          System.out.println(s);
       }
 
@@ -72,7 +72,7 @@ public class GitBlitTests {
                                     "".toCharArray(),
                                     true);
 
-      for (String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
+      for (final String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
          System.out.println(s);
       }
    }

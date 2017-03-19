@@ -59,25 +59,25 @@ import org.apache.mahout.math.map.OpenObjectIntHashMap;
  */
 public class ConcurrentObjectIntMap<T> {
    private final ReentrantReadWriteLock rwl        = new ReentrantReadWriteLock();
-   private final Lock                   read       = rwl.readLock();
-   private final Lock                   write      = rwl.writeLock();
+   private final Lock                   read       = this.rwl.readLock();
+   private final Lock                   write      = this.rwl.writeLock();
    OpenObjectIntHashMap<T>              backingMap = new OpenObjectIntHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
    public boolean containsKey(T key) {
       try {
-         read.lock();
-         return backingMap.containsKey(key);
+         this.read.lock();
+         return this.backingMap.containsKey(key);
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }
 
    public void forEachPair(ObjIntConsumer<T> consumer) {
-      backingMap.forEachPair((T first,
+      this.backingMap.forEachPair((T first,
                               int second) -> {
                                 consumer.accept(first, second);
                                 return true;
@@ -86,33 +86,33 @@ public class ConcurrentObjectIntMap<T> {
 
    public boolean put(T key, int value) {
       try {
-         write.lock();
-         return backingMap.put(key, value);
+         this.write.lock();
+         return this.backingMap.put(key, value);
       } finally {
-         if (write != null) {
-            write.unlock();
+         if (this.write != null) {
+            this.write.unlock();
          }
       }
    }
 
    public int size() {
-      return backingMap.size();
+      return this.backingMap.size();
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public OptionalInt get(T key) {
       try {
-         read.lock();
+         this.read.lock();
 
-         if (backingMap.containsKey(key)) {
-            return OptionalInt.of(backingMap.get(key));
+         if (this.backingMap.containsKey(key)) {
+            return OptionalInt.of(this.backingMap.get(key));
          }
 
          return OptionalInt.empty();
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }

@@ -64,20 +64,20 @@ public class DynamicSememeBooleanTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      boolean[] testValues = new boolean[] { true, false };
+      final boolean[] testValues = new boolean[] { true, false };
 
-      for (boolean i: testValues) {
+      for (final boolean i: testValues) {
          test(i);
       }
    }
 
    private void test(boolean value)
             throws PropertyVetoException, IOException {
-      DynamicSememeBooleanImpl i = new DynamicSememeBooleanImpl(value);
+      final DynamicSememeBooleanImpl i = new DynamicSememeBooleanImpl(value);
 
       assertEquals(value, i.getDataBoolean());
-      assertEquals(value, (Boolean) i.getDataObject());
-      assertEquals(value, (Boolean) i.getDataObjectProperty()
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
                                      .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BOOLEAN);
    }

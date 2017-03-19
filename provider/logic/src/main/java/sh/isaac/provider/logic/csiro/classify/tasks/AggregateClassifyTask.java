@@ -74,7 +74,7 @@ public class AggregateClassifyTask
     * @return an {@code AggregateClassifyTask} already submitted to an executor.
     */
    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
+      final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
 
       Get.activeTasks()
          .add(classifyTask);

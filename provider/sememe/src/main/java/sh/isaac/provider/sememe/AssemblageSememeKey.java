@@ -59,19 +59,19 @@ public class AssemblageSememeKey
 
    @Override
    public int compareTo(AssemblageSememeKey o) {
-      if (assemblageSequence != o.assemblageSequence) {
-         if (assemblageSequence < o.assemblageSequence) {
+      if (this.assemblageSequence != o.assemblageSequence) {
+         if (this.assemblageSequence < o.assemblageSequence) {
             return -1;
          }
 
          return 1;
       }
 
-      if (sememeSequence == o.sememeSequence) {
+      if (this.sememeSequence == o.sememeSequence) {
          return 0;
       }
 
-      if (sememeSequence < o.sememeSequence) {
+      if (this.sememeSequence < o.sememeSequence) {
          return -1;
       }
 
@@ -88,37 +88,37 @@ public class AssemblageSememeKey
          return false;
       }
 
-      AssemblageSememeKey otherKey = (AssemblageSememeKey) o;
+      final AssemblageSememeKey otherKey = (AssemblageSememeKey) o;
 
-      if (assemblageSequence != otherKey.assemblageSequence) {
+      if (this.assemblageSequence != otherKey.assemblageSequence) {
          return false;
       }
 
-      return sememeSequence == otherKey.sememeSequence;
+      return this.sememeSequence == otherKey.sememeSequence;
    }
 
    @Override
    public int hashCode() {
-      int result = assemblageSequence;
+      int result = this.assemblageSequence;
 
-      result = 31 * result + sememeSequence;
+      result = 31 * result + this.sememeSequence;
       return result;
    }
 
    @Override
    public String toString() {
-      return "AssemblageSememeKey{" + "assemblageSequence=" + assemblageSequence + ", sememeSequence=" +
-             sememeSequence + '}';
+      return "AssemblageSememeKey{" + "assemblageSequence=" + this.assemblageSequence + ", sememeSequence=" +
+             this.sememeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getAssemblageSequence() {
-      return assemblageSequence;
+      return this.assemblageSequence;
    }
 
    public int getSememeSequence() {
-      return sememeSequence;
+      return this.sememeSequence;
    }
 }
 

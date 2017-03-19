@@ -88,7 +88,7 @@ public class AddCommitAndPushProfilesToSCMMojo
       }
 
       try {
-         getLog().info("Committing " + userProfileFolderLocation.getAbsolutePath() + " for SCM management");
+         getLog().info("Committing " + this.userProfileFolderLocation.getAbsolutePath() + " for SCM management");
          getProfileSyncImpl().addUntrackedFiles();
          getProfileSyncImpl().updateCommitAndPush("Adding profiles after executing GenerateUsersMojo",
                getUsername(),
@@ -96,7 +96,7 @@ public class AddCommitAndPushProfilesToSCMMojo
                MergeFailOption.KEEP_REMOTE,
                (String[]) null);
          getLog().info("Done Committing SCM for profiles");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException("Unexpected error committing SCM for the profiles", e);
       }
    }

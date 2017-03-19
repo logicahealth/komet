@@ -75,7 +75,7 @@ public class LiteralNodeBoolean
                              DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      literalValue = dataInputStream.readBoolean();
+      this.literalValue = dataInputStream.readBoolean();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -94,16 +94,16 @@ public class LiteralNodeBoolean
          return false;
       }
 
-      LiteralNodeBoolean that = (LiteralNodeBoolean) o;
+      final LiteralNodeBoolean that = (LiteralNodeBoolean) o;
 
-      return literalValue == that.literalValue;
+      return this.literalValue == that.literalValue;
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + (literalValue ? 1
+      result = 31 * result + (this.literalValue ? 1
             : 0);
       return result;
    }
@@ -115,32 +115,32 @@ public class LiteralNodeBoolean
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Boolean literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+      return "Boolean literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
 
    @Override
    protected int compareFields(LogicNode o) {
-      LiteralNodeBoolean that = (LiteralNodeBoolean) o;
+      final LiteralNodeBoolean that = (LiteralNodeBoolean) o;
 
       return Boolean.compare(this.literalValue, that.literalValue);
    }
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Boolean.toString(literalValue));
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Boolean.toString(this.literalValue));
    }
 
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeBoolean(literalValue);
+      dataOutput.writeBoolean(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public boolean getLiteralValue() {
-      return literalValue;
+      return this.literalValue;
    }
 
    @Override

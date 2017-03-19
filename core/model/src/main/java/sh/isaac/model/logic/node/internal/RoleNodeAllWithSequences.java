@@ -98,7 +98,7 @@ public final class RoleNodeAllWithSequences
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
-         RoleNodeAllWithUuids externalForm = new RoleNodeAllWithUuids(this);
+         final RoleNodeAllWithUuids externalForm = new RoleNodeAllWithUuids(this);
 
          externalForm.writeNodeData(dataOutput, dataTarget);
          break;
@@ -122,7 +122,7 @@ public final class RoleNodeAllWithSequences
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
                                  Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(typeConceptSequence)
+                                    .getUuidPrimordialFromConceptId(this.typeConceptSequence)
                                     .get()
                                     .toString());
    }

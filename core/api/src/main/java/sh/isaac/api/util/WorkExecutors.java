@@ -120,30 +120,27 @@ public class WorkExecutors {
 
    public static void main(String[] args)
             throws InterruptedException {
-      WorkExecutors we = new WorkExecutors();
+      final WorkExecutors we = new WorkExecutors();
 
       we.startMe();
 
-      AtomicInteger counter = new AtomicInteger();
+      final AtomicInteger counter = new AtomicInteger();
 
       for (int i = 0; i < 24; i++) {
          System.out.println("submit " + i);
-         we.getPotentiallyBlockingExecutor().submit(new Runnable() {
-                      @Override
-                      public void run() {
-                         int id = counter.getAndIncrement();
+         we.getPotentiallyBlockingExecutor().submit(() -> {
+		     final int id = counter.getAndIncrement();
 
-                         System.out.println(id + " started");
+		     System.out.println(id + " started");
 
-                         try {
-                            Thread.sleep(5000);
-                         } catch (InterruptedException e) {
-                            e.printStackTrace();
-                         }
+		     try {
+		        Thread.sleep(5000);
+		     } catch (final InterruptedException e) {
+		        e.printStackTrace();
+		     }
 
-                         System.out.println(id + " finished");
-                      }
-                   });
+		     System.out.println(id + " finished");
+		  });
       }
 
       Thread.sleep(7000);
@@ -151,22 +148,19 @@ public class WorkExecutors {
 
       for (int i = 24; i < 48; i++) {
          System.out.println("submit " + i);
-         we.getExecutor().submit(new Runnable() {
-                      @Override
-                      public void run() {
-                         int id = counter.getAndIncrement();
+         we.getExecutor().submit(() -> {
+		     final int id = counter.getAndIncrement();
 
-                         System.out.println(id + " started");
+		     System.out.println(id + " started");
 
-                         try {
-                            Thread.sleep(5000);
-                         } catch (InterruptedException e) {
-                            e.printStackTrace();
-                         }
+		     try {
+		        Thread.sleep(5000);
+		     } catch (final InterruptedException e) {
+		        e.printStackTrace();
+		     }
 
-                         System.out.println(id + " finished");
-                      }
-                   });
+		     System.out.println(id + " finished");
+		  });
       }
 
       while (we.getExecutor()
@@ -188,59 +182,59 @@ public class WorkExecutors {
       }
 
       // The java default ForkJoinPool.commmonPool starts with only 1 thread, on 1 and 2 core systems, which can get us deadlocked pretty easily.
-      int procCount   = Runtime.getRuntime()
+      final int procCount   = Runtime.getRuntime()
                                .availableProcessors();
-      int parallelism = ((procCount - 1) < 6 ? 6
+      final int parallelism = ((procCount - 1) < 6 ? 6
             : procCount - 1);  // set between 6 and 1 less than proc count (not less than 6)
 
-      forkJoinExecutor_ = new ForkJoinPool(parallelism);
+      this.forkJoinExecutor_ = new ForkJoinPool(parallelism);
 
-      int      corePoolSize    = 2;
-      int      maximumPoolSize = parallelism;
-      int      keepAliveTime   = 60;
-      TimeUnit timeUnit        = TimeUnit.SECONDS;
+      final int      corePoolSize    = 2;
+      final int      maximumPoolSize = parallelism;
+      final int      keepAliveTime   = 60;
+      final TimeUnit timeUnit        = TimeUnit.SECONDS;
 
       // The blocking executor
-      blockingThreadPoolExecutor_ = new ThreadPoolExecutor(corePoolSize,
+      this.blockingThreadPoolExecutor_ = new ThreadPoolExecutor(corePoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
             new SynchronousQueue<Runnable>(),
             new NamedThreadFactory("ISAAC-B-work-thread", true));
-      blockingThreadPoolExecutor_.setRejectedExecutionHandler((runnable, executor) -> {
+      this.blockingThreadPoolExecutor_.setRejectedExecutionHandler((runnable, executor) -> {
                try {
                   executor.getQueue()
                           .offer(runnable, Long.MAX_VALUE, TimeUnit.HOURS);
-               } catch (Exception e) {
+               } catch (final Exception e) {
                   throw new RejectedExecutionException("Interrupted while waiting to enqueue");
                }
             });
 
       // The non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      threadPoolExecutor_ = new ThreadPoolExecutor(maximumPoolSize,
+      this.threadPoolExecutor_ = new ThreadPoolExecutor(maximumPoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
             new LinkedBlockingQueue<Runnable>(),
             new NamedThreadFactory("ISAAC-Q-work-thread", true));
-      threadPoolExecutor_.allowCoreThreadTimeOut(true);
+      this.threadPoolExecutor_.allowCoreThreadTimeOut(true);
 
       // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      ioThreadPoolExecutor_ = new ThreadPoolExecutor(4,
+      this.ioThreadPoolExecutor_ = new ThreadPoolExecutor(4,
             4,
             keepAliveTime,
             timeUnit,
             new LinkedBlockingQueue<Runnable>(),
             new NamedThreadFactory("ISAAC-IO-work-thread", true));
-      ioThreadPoolExecutor_.allowCoreThreadTimeOut(true);
+      this.ioThreadPoolExecutor_.allowCoreThreadTimeOut(true);
 
       // Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial
       // init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
       // should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID.
       getExecutor().execute(() -> UUID.randomUUID());
-      scheduledExecutor_ = Executors.newScheduledThreadPool(1, new NamedThreadFactory("ISAAC-Scheduled-Thread", true));
+      this.scheduledExecutor_ = Executors.newScheduledThreadPool(1, new NamedThreadFactory("ISAAC-Scheduled-Thread", true));
       log.debug("WorkExecutors thread pools ready");
    }
 
@@ -248,29 +242,29 @@ public class WorkExecutors {
    private void stopMe() {
       log.info("Stopping WorkExecutors thread pools");
 
-      if (forkJoinExecutor_ != null) {
-         forkJoinExecutor_.shutdownNow();
-         forkJoinExecutor_ = null;
+      if (this.forkJoinExecutor_ != null) {
+         this.forkJoinExecutor_.shutdownNow();
+         this.forkJoinExecutor_ = null;
       }
 
-      if (blockingThreadPoolExecutor_ != null) {
-         blockingThreadPoolExecutor_.shutdownNow();
-         blockingThreadPoolExecutor_ = null;
+      if (this.blockingThreadPoolExecutor_ != null) {
+         this.blockingThreadPoolExecutor_.shutdownNow();
+         this.blockingThreadPoolExecutor_ = null;
       }
 
-      if (threadPoolExecutor_ != null) {
-         threadPoolExecutor_.shutdownNow();
-         threadPoolExecutor_ = null;
+      if (this.threadPoolExecutor_ != null) {
+         this.threadPoolExecutor_.shutdownNow();
+         this.threadPoolExecutor_ = null;
       }
 
-      if (ioThreadPoolExecutor_ != null) {
-         ioThreadPoolExecutor_.shutdownNow();
-         ioThreadPoolExecutor_ = null;
+      if (this.ioThreadPoolExecutor_ != null) {
+         this.ioThreadPoolExecutor_.shutdownNow();
+         this.ioThreadPoolExecutor_ = null;
       }
 
-      if (scheduledExecutor_ != null) {
-         scheduledExecutor_.shutdownNow();
-         scheduledExecutor_ = null;
+      if (this.scheduledExecutor_ != null) {
+         this.scheduledExecutor_.shutdownNow();
+         this.scheduledExecutor_ = null;
       }
 
       nonHK2Instance_ = null;
@@ -286,7 +280,7 @@ public class WorkExecutors {
     * intensive jobs.
     */
    public ThreadPoolExecutor getExecutor() {
-      return threadPoolExecutor_;
+      return this.threadPoolExecutor_;
    }
 
    /**
@@ -294,7 +288,7 @@ public class WorkExecutors {
     * This is backed by an unbounded queue - it won't block / reject submissions because of being full.
     */
    public ForkJoinPool getForkJoinPoolExecutor() {
-      return forkJoinExecutor_;
+      return this.forkJoinExecutor_;
    }
 
    /**
@@ -330,7 +324,7 @@ public class WorkExecutors {
                   // if we aren't relying on the lookup service, we need to make sure the headless toolkit was installed (otherwise, the task APIs end up broken)
                   LookupService.startupFxPlatform();
 
-                  WorkExecutors temp = new WorkExecutors();
+                  final WorkExecutors temp = new WorkExecutors();
 
                   temp.startMe();
                   nonHK2Instance_ = temp;
@@ -355,7 +349,7 @@ public class WorkExecutors {
     * jobs that tend to block on IO.
     */
    public ThreadPoolExecutor getIOExecutor() {
-      return ioThreadPoolExecutor_;
+      return this.ioThreadPoolExecutor_;
    }
 
    /**
@@ -364,7 +358,7 @@ public class WorkExecutors {
     * is available to accept the job.
     */
    public ThreadPoolExecutor getPotentiallyBlockingExecutor() {
-      return blockingThreadPoolExecutor_;
+      return this.blockingThreadPoolExecutor_;
    }
 
    /**
@@ -372,7 +366,7 @@ public class WorkExecutors {
     * This pool only has a single thread - submitted jobs should be fast executing.
     */
    public ScheduledExecutorService getScheduledThreadPoolExecutor() {
-      return scheduledExecutor_;
+      return this.scheduledExecutor_;
    }
 }
 

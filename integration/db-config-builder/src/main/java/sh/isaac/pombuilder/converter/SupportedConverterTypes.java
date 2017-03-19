@@ -189,7 +189,7 @@ public enum SupportedConverterTypes {
                   new String[] { "" })  // TODO
                   ;
 
-   private String       converterGroupId_ = "sh.isaac.terminology.converters";
+   private final String       converterGroupId_ = "sh.isaac.terminology.converters";
    private String       srcArtifactId_;
    private List<String> artifactSrcDependencies_;
    private List<String> artifactIBDFDependencies_;
@@ -220,35 +220,35 @@ public enum SupportedConverterTypes {
                                    String niceName,
                                    String[] licenseFilePaths,
                                    String[] noticeFilePaths) {
-      srcArtifactId_             = artifactId;
-      artifactSrcDependencies_   = Arrays.asList(artifactSourceDependencies);
-      artifactIBDFDependencies_  = Arrays.asList(artifactIBDFDependencies);
-      uploadFileInfo_            = Arrays.asList(uploadFileInfo);
-      converterArtifactId_       = converterArtifactId;
-      converterOutputArtifactId_ = converterOutputArtifactId;
-      converterMojoName_         = converterMojoName;
-      sourceUploadGroupId_       = sourceUploadGroupId;
-      niceName_                  = niceName;
-      licenseInformation         = new String[licenseFilePaths.length];
-      noticeInformation          = new String[noticeFilePaths.length];
+      this.srcArtifactId_             = artifactId;
+      this.artifactSrcDependencies_   = Arrays.asList(artifactSourceDependencies);
+      this.artifactIBDFDependencies_  = Arrays.asList(artifactIBDFDependencies);
+      this.uploadFileInfo_            = Arrays.asList(uploadFileInfo);
+      this.converterArtifactId_       = converterArtifactId;
+      this.converterOutputArtifactId_ = converterOutputArtifactId;
+      this.converterMojoName_         = converterMojoName;
+      this.sourceUploadGroupId_       = sourceUploadGroupId;
+      this.niceName_                  = niceName;
+      this.licenseInformation         = new String[licenseFilePaths.length];
+      this.noticeInformation          = new String[noticeFilePaths.length];
 
       try {
          for (int i = 0; i < licenseFilePaths.length; i++) {
-            if (StringUtils.isBlank(licenseFilePaths[i])) {
-               licenseInformation[i] = "";
+            if (org.apache.commons.lang3.StringUtils.isBlank(licenseFilePaths[i])) {
+               this.licenseInformation[i] = "";
             } else {
-               licenseInformation[i] = FileUtil.readFile(licenseFilePaths[i]);
+               this.licenseInformation[i] = FileUtil.readFile(licenseFilePaths[i]);
             }
          }
 
          for (int i = 0; i < noticeFilePaths.length; i++) {
-            if (StringUtils.isBlank(noticeFilePaths[i])) {
-               noticeInformation[i] = "";
+            if (org.apache.commons.lang3.StringUtils.isBlank(noticeFilePaths[i])) {
+               this.noticeInformation[i] = "";
             } else {
-               noticeInformation[i] = FileUtil.readFile(noticeFilePaths[i]);
+               this.noticeInformation[i] = FileUtil.readFile(noticeFilePaths[i]);
             }
          }
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
@@ -262,7 +262,7 @@ public enum SupportedConverterTypes {
     * This is used during SOURCE UPLOAD
     */
    public List<String> getArtifactDependencies() {
-      return artifactSrcDependencies_;
+      return this.artifactSrcDependencies_;
    }
 
    /**
@@ -272,35 +272,35 @@ public enum SupportedConverterTypes {
     * This is used during SOURCE UPLOAD
     */
    public String getArtifactId() {
-      return srcArtifactId_;
+      return this.srcArtifactId_;
    }
 
    /**
     * Not for PRISME
     */
    protected String getConverterArtifactId() {
-      return converterArtifactId_;
+      return this.converterArtifactId_;
    }
 
    /**
     * Not for PRISME
     */
    protected String getConverterGroupId() {
-      return converterGroupId_;
+      return this.converterGroupId_;
    }
 
    /**
     * Not for PRISME
     */
    protected String getConverterMojoName() {
-      return converterMojoName_;
+      return this.converterMojoName_;
    }
 
    /**
     * Not for PRISME
     */
    protected String getConverterOutputArtifactId() {
-      return converterOutputArtifactId_;
+      return this.converterOutputArtifactId_;
    }
 
    /**
@@ -310,35 +310,35 @@ public enum SupportedConverterTypes {
     * This is used during IBDF CONVERSION
     */
    public List<String> getIBDFDependencies() {
-      return artifactIBDFDependencies_;
+      return this.artifactIBDFDependencies_;
    }
 
    /**
     * Not for PRISME
     */
    public String[] getLicenseInformation() {
-      return licenseInformation;
+      return this.licenseInformation;
    }
 
    /**
     * Not for PRISME (but you can use it if you want)
     */
    public String getNiceName() {
-      return niceName_;
+      return this.niceName_;
    }
 
    /**
     * Not for PRISME
     */
    public String[] getNoticeInformation() {
-      return noticeInformation;
+      return this.noticeInformation;
    }
 
    /**
     * Not for PRISME
     */
    public String getSourceUploadGroupId() {
-      return sourceUploadGroupId_;
+      return this.sourceUploadGroupId_;
    }
 
    /**
@@ -347,7 +347,7 @@ public enum SupportedConverterTypes {
     * This is used during SOURCE UPLOAD
     */
    public List<UploadFileInfo> getUploadFileInfo() {
-      return uploadFileInfo_;
+      return this.uploadFileInfo_;
    }
 }
 

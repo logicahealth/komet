@@ -54,62 +54,62 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Daniel Armbrust
  */
 public class LoadStats {
-   private AtomicInteger                             concepts_                    = new AtomicInteger();
-   private AtomicInteger                             graphs_                      = new AtomicInteger();
-   private AtomicInteger                             clonedConcepts_              = new AtomicInteger();
-   private AtomicInteger                             skippedPropertiesCounter_    = new AtomicInteger();
-   private AtomicInteger                             generatedPreferredTermCount_ = new AtomicInteger();
-   private TreeMap<String, Integer>                  descriptions_                = new TreeMap<String, Integer>();
-   private TreeMap<String, Integer>                  refsetMembers_               = new TreeMap<String, Integer>();
-   private TreeMap<String, Integer>                  relationships_               = new TreeMap<String, Integer>();
-   private TreeMap<String, Integer>                  associations_                = new TreeMap<String, Integer>();
-   private TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String, TreeMap<String, Integer>>();
-   private Object                                    syncLock                     = new Object();
+   private final AtomicInteger                             concepts_                    = new AtomicInteger();
+   private final AtomicInteger                             graphs_                      = new AtomicInteger();
+   private final AtomicInteger                             clonedConcepts_              = new AtomicInteger();
+   private final AtomicInteger                             skippedPropertiesCounter_    = new AtomicInteger();
+   private final AtomicInteger                             generatedPreferredTermCount_ = new AtomicInteger();
+   private final TreeMap<String, Integer>                  descriptions_                = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer>                  refsetMembers_               = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer>                  relationships_               = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer>                  associations_                = new TreeMap<String, Integer>();
+   private final TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String, TreeMap<String, Integer>>();
+   private final Object                                    syncLock                     = new Object();
 
    //~--- methods -------------------------------------------------------------
 
    public void addAnnotation(String annotatedItem, String annotationName) {
-      increment(annotations_, annotatedItem, annotationName);
+      increment(this.annotations_, annotatedItem, annotationName);
    }
 
    public void addAssociation(String assnName) {
-      increment(associations_, assnName);
+      increment(this.associations_, assnName);
    }
 
    public void addConcept() {
-      concepts_.incrementAndGet();
+      this.concepts_.incrementAndGet();
    }
 
    public void addConceptClone() {
-      clonedConcepts_.incrementAndGet();
+      this.clonedConcepts_.incrementAndGet();
    }
 
    public void addDescription(String descName) {
-      increment(descriptions_, descName);
+      increment(this.descriptions_, descName);
    }
 
    public void addGraph() {
-      graphs_.incrementAndGet();
+      this.graphs_.incrementAndGet();
    }
 
    public void addRefsetMember(String refsetName) {
-      increment(refsetMembers_, refsetName);
+      increment(this.refsetMembers_, refsetName);
    }
 
    public void addRelationship(String relName) {
-      increment(relationships_, relName);
+      increment(this.relationships_, relName);
    }
 
    public void addSkippedProperty() {
-      skippedPropertiesCounter_.incrementAndGet();
+      this.skippedPropertiesCounter_.incrementAndGet();
    }
 
    public void incDescriptionCopiedFromFSNCount() {
-      generatedPreferredTermCount_.incrementAndGet();
+      this.generatedPreferredTermCount_.incrementAndGet();
    }
 
    private void increment(TreeMap<String, Integer> dataHolder, String type) {
-      synchronized (syncLock) {
+      synchronized (this.syncLock) {
          Integer i = dataHolder.get(type);
 
          if (i == null) {
@@ -123,7 +123,7 @@ public class LoadStats {
    }
 
    private void increment(TreeMap<String, TreeMap<String, Integer>> dataHolder, String annotatedType, String type) {
-      synchronized (syncLock) {
+      synchronized (this.syncLock) {
          TreeMap<String, Integer> map = dataHolder.get(annotatedType);
 
          if (map == null) {
@@ -146,30 +146,30 @@ public class LoadStats {
    //~--- get methods ---------------------------------------------------------
 
    public int getClonedConceptCount() {
-      return clonedConcepts_.get();
+      return this.clonedConcepts_.get();
    }
 
    public int getConceptCount() {
-      return concepts_.get();
+      return this.concepts_.get();
    }
 
    public int getSkippedPropertyCount() {
-      return skippedPropertiesCounter_.get();
+      return this.skippedPropertiesCounter_.get();
    }
 
    public ArrayList<String> getSummary() {
-      ArrayList<String> result = new ArrayList<String>();
+      final ArrayList<String> result = new ArrayList<String>();
 
-      result.add("Concepts: " + concepts_.get());
-      result.add("Graphs: " + graphs_.get());
+      result.add("Concepts: " + this.concepts_.get());
+      result.add("Graphs: " + this.graphs_.get());
 
-      if (clonedConcepts_.get() > 0) {
-         result.add("Cloned Concepts: " + clonedConcepts_.get());
+      if (this.clonedConcepts_.get() > 0) {
+         result.add("Cloned Concepts: " + this.clonedConcepts_.get());
       }
 
       int sum = 0;
 
-      for (Map.Entry<String, Integer> value: relationships_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.relationships_.entrySet()) {
          sum += value.getValue();
          result.add("Relationship '" + value.getKey() + "': " + value.getValue());
       }
@@ -177,7 +177,7 @@ public class LoadStats {
       result.add("Relationships Total: " + sum);
       sum = 0;
 
-      for (Map.Entry<String, Integer> value: associations_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.associations_.entrySet()) {
          sum += value.getValue();
          result.add("Association '" + value.getKey() + "': " + value.getValue());
       }
@@ -185,25 +185,25 @@ public class LoadStats {
       result.add("Associations Total: " + sum);
       sum = 0;
 
-      for (Map.Entry<String, Integer> value: descriptions_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.descriptions_.entrySet()) {
          sum += value.getValue();
          result.add("Description '" + value.getKey() + "': " + value.getValue());
       }
 
       result.add("Descriptions Total: " + sum);
 
-      if (generatedPreferredTermCount_.get() > 0) {
-         result.add("Descriptions duplicated from FSN: " + generatedPreferredTermCount_.get());
+      if (this.generatedPreferredTermCount_.get() > 0) {
+         result.add("Descriptions duplicated from FSN: " + this.generatedPreferredTermCount_.get());
       }
 
       sum = 0;
 
       int nestedSum = 0;
 
-      for (Map.Entry<String, TreeMap<String, Integer>> value: annotations_.entrySet()) {
+      for (final Map.Entry<String, TreeMap<String, Integer>> value: this.annotations_.entrySet()) {
          nestedSum = 0;
 
-         for (Map.Entry<String, Integer> nestedValue: value.getValue()
+         for (final Map.Entry<String, Integer> nestedValue: value.getValue()
                .entrySet()) {
             result.add("Annotation '" + value.getKey() + ":" + nestedValue.getKey() + "': " + nestedValue.getValue());
             nestedSum += nestedValue.getValue();
@@ -219,13 +219,13 @@ public class LoadStats {
 
       result.add("Annotations Total: " + sum);
 
-      if (skippedPropertiesCounter_.get() > 0) {
-         result.add("Skipped Properties: " + skippedPropertiesCounter_.get());
+      if (this.skippedPropertiesCounter_.get() > 0) {
+         result.add("Skipped Properties: " + this.skippedPropertiesCounter_.get());
       }
 
       sum = 0;
 
-      for (Map.Entry<String, Integer> value: refsetMembers_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.refsetMembers_.entrySet()) {
          sum += value.getValue();
          result.add("Refset Members '" + value.getKey() + "': " + value.getValue());
       }

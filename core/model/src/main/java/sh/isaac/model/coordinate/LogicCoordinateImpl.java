@@ -127,27 +127,27 @@ public class LogicCoordinateImpl
 
    @Override
    public String toString() {
-      return "LogicCoordinateImpl{" + Get.conceptDescriptionText(statedAssemblageSequence) + "<" +
-             statedAssemblageSequence + ">,\n" + Get.conceptDescriptionText(inferredAssemblageSequence) + "<" +
-             inferredAssemblageSequence + ">, \n" + Get.conceptDescriptionText(descriptionLogicProfileSequence) + "<" +
-             descriptionLogicProfileSequence + ">, \n" + Get.conceptDescriptionText(classifierSequence) + "<" +
-             classifierSequence + ">}";
+      return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblageSequence) + "<" +
+             this.statedAssemblageSequence + ">,\n" + Get.conceptDescriptionText(this.inferredAssemblageSequence) + "<" +
+             this.inferredAssemblageSequence + ">, \n" + Get.conceptDescriptionText(this.descriptionLogicProfileSequence) + "<" +
+             this.descriptionLogicProfileSequence + ">, \n" + Get.conceptDescriptionText(this.classifierSequence) + "<" +
+             this.classifierSequence + ">}";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getClassifierSequence() {
-      return classifierSequence;
+      return this.classifierSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setClassifierSequenceProperty(IntegerProperty classifierSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           classifierSequence = newValue.intValue();
+                                           this.classifierSequence = newValue.intValue();
                                         };
 
       classifierSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -158,17 +158,17 @@ public class LogicCoordinateImpl
 
    @Override
    public int getDescriptionLogicProfileSequence() {
-      return descriptionLogicProfileSequence;
+      return this.descriptionLogicProfileSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setDescriptionLogicProfileSequenceProperty(
            IntegerProperty descriptionLogicProfileSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           descriptionLogicProfileSequence = newValue.intValue();
+                                           this.descriptionLogicProfileSequence = newValue.intValue();
                                         };
 
       descriptionLogicProfileSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -179,17 +179,17 @@ public class LogicCoordinateImpl
 
    @Override
    public int getInferredAssemblageSequence() {
-      return inferredAssemblageSequence;
+      return this.inferredAssemblageSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setInferredAssemblageSequenceProperty(
            IntegerProperty inferredAssemblageSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           inferredAssemblageSequence = newValue.intValue();
+                                           this.inferredAssemblageSequence = newValue.intValue();
                                         };
 
       inferredAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -200,16 +200,16 @@ public class LogicCoordinateImpl
 
    @Override
    public int getStatedAssemblageSequence() {
-      return statedAssemblageSequence;
+      return this.statedAssemblageSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setStatedAssemblageSequenceProperty(IntegerProperty statedAssemblageSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           statedAssemblageSequence = newValue.intValue();
+                                           this.statedAssemblageSequence = newValue.intValue();
                                         };
 
       statedAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));

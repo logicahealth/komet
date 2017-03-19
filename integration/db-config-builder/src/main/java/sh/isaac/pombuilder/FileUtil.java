@@ -87,7 +87,7 @@ public class FileUtil {
    public static String readFile(String fileName)
             throws IOException {
       try (InputStream is = DBConfigurationCreator.class.getResourceAsStream("/" + fileName);) {
-         byte[] buffer = new byte[is.available()];
+         final byte[] buffer = new byte[is.available()];
 
          is.read(buffer);
          return new String(buffer, Charset.forName("UTF-8"));
@@ -130,14 +130,14 @@ public class FileUtil {
                                 String append)
             throws IOException {
       try (InputStream is = FileUtil.class.getResourceAsStream("/" + fromFolder + "/" + relativePath);) {
-         byte[] buffer = new byte[is.available()];
+         final byte[] buffer = new byte[is.available()];
 
          is.read(buffer);
 
          String temp = new String(buffer, Charset.forName("UTF-8"));
 
          if (replacementValues != null) {
-            for (Entry<String, String> item: replacementValues.entrySet()) {
+            for (final Entry<String, String> item: replacementValues.entrySet()) {
                while (temp.contains(item.getKey())) {
                   temp = temp.replace(item.getKey(), item.getValue());
                }
@@ -150,7 +150,7 @@ public class FileUtil {
             relativePath = relativePath.replaceFirst("/DOT", "/.");  // down in the relative path
          }
 
-         File targetFile = new File(toFolder, relativePath);
+         final File targetFile = new File(toFolder, relativePath);
 
          targetFile.getParentFile()
                    .mkdirs();
@@ -168,14 +168,14 @@ public class FileUtil {
    public static void writePomFile(Model model, File projectFolder)
             throws Exception {
       try {
-         JAXBContext ctx = JAXBContext.newInstance(Model.class);
-         Marshaller  ma  = ctx.createMarshaller();
+         final JAXBContext ctx = JAXBContext.newInstance(Model.class);
+         final Marshaller  ma  = ctx.createMarshaller();
 
          ma.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
                         "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd");
          ma.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
          ma.marshal(new ObjectFactory().createProject(model), new File(projectFolder, "pom.xml"));
-      } catch (JAXBException e) {
+      } catch (final JAXBException e) {
          LOG.error("Error writing", e);
          throw new Exception("Error writing pom: " + e);
       }

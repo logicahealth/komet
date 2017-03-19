@@ -76,10 +76,10 @@ public class StringSememeImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{String≤");
-      sb.append(string);
+      sb.append(this.string);
       toString(sb);
       sb.append("≥S}");
       return sb.toString();
@@ -88,7 +88,7 @@ public class StringSememeImpl
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putUTF(string);
+      data.putUTF(this.string);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -100,7 +100,7 @@ public class StringSememeImpl
 
    @Override
    public String getString() {
-      return string;
+      return this.string;
    }
 
    //~--- set methods ---------------------------------------------------------

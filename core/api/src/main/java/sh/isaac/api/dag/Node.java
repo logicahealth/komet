@@ -74,9 +74,9 @@ public class Node<T> {
    //~--- methods -------------------------------------------------------------
 
    public final Node<T> addChild(T t) {
-      Node<T> child = new Node<>(t, this);
+      final Node<T> child = new Node<>(t, this);
 
-      children.add(child);
+      this.children.add(child);
       this.graph.setLastAddedNode(child);
       return child;
    }
@@ -84,19 +84,19 @@ public class Node<T> {
    //~--- get methods ---------------------------------------------------------
 
    public List<Node<T>> getChildren() {
-      return children;
+      return this.children;
    }
 
    public T getData() {
-      return data;
+      return this.data;
    }
 
    public Graph<T> getGraph() {
-      return graph;
+      return this.graph;
    }
 
    public Node<T> getParent() {
-      return parent;
+      return this.parent;
    }
 }
 

@@ -240,7 +240,7 @@ public class TermAux {
    }
 
    public static boolean conceptIdToCaseSignificance(int id) {
-      int nid = Get.identifierService()
+      final int nid = Get.identifierService()
                    .getConceptNid(id);
 
       return TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getNid() == nid;

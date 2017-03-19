@@ -62,11 +62,11 @@ public class FortifyFun {
             throws SecurityException {
       // o.setAccessible(true);
       try {
-         Method m = o.getClass()
+         final Method m = o.getClass()
                      .getMethod("setAccessible", boolean.class);
 
          m.invoke(o, true);
-      } catch (SecurityException e) {
+      } catch (final SecurityException e) {
          throw e;
       } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
                | InvocationTargetException e) {

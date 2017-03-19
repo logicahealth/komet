@@ -187,16 +187,16 @@ public abstract class ConverterBaseMojo
             throws MojoExecutionException {
       Get.configurationService()
          .setBootstrapMode();
-      ConverterUUID.disableUUIDMap_ = (((createDebugUUIDMap == null) || (createDebugUUIDMap.length() == 0)) ? false
-            : Boolean.parseBoolean(createDebugUUIDMap));
+      ConverterUUID.disableUUIDMap_ = (((this.createDebugUUIDMap == null) || (this.createDebugUUIDMap.length() == 0)) ? false
+            : Boolean.parseBoolean(this.createDebugUUIDMap));
 
       if (ConverterUUID.disableUUIDMap_) {
          ConsoleUtil.println("The UUID Debug map is disabled - this also prevents duplicate ID detection");
       }
 
       // Set up the output
-      if (!outputDirectory.exists()) {
-         outputDirectory.mkdirs();
+      if (!this.outputDirectory.exists()) {
+         this.outputDirectory.mkdirs();
       }
 
       checkSkipListSupport();
@@ -224,23 +224,23 @@ public abstract class ConverterBaseMojo
    }
 
    private void checkSkipListSupport() {
-      if (notEmpty(annotationSkipList)) {
+      if (notEmpty(this.annotationSkipList)) {
          supportsAnnotationSkipList();
       }
 
-      if (notEmpty(idSkipList)) {
+      if (notEmpty(this.idSkipList)) {
          supportsIdSkipList();
       }
 
-      if (notEmpty(refsetSkipList)) {
+      if (notEmpty(this.refsetSkipList)) {
          supportsRefsetSkipList();
       }
 
-      if (notEmpty(relationshipSkipList)) {
+      if (notEmpty(this.relationshipSkipList)) {
          supportsRelationshipSkipList();
       }
 
-      if (notEmpty(descriptionSkipList)) {
+      if (notEmpty(this.descriptionSkipList)) {
          supportsDescriptionSkipList();
       }
    }

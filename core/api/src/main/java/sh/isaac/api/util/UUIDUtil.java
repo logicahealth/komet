@@ -58,7 +58,7 @@ public class UUIDUtil {
    }
 
    public static long[] convert(UUID id) {
-      long[] data = new long[2];
+      final long[] data = new long[2];
 
       data[0] = id.getMostSignificantBits();
       data[1] = id.getLeastSignificantBits();
@@ -78,7 +78,7 @@ public class UUIDUtil {
 
       try {
          return Optional.of(UUID.fromString(string));
-      } catch (IllegalArgumentException e) {
+      } catch (final IllegalArgumentException e) {
          return Optional.empty();
       }
    }

@@ -103,40 +103,40 @@ public class ExportTaxonomy
          Get.configurationService()
             .setDBBuildMode();
 
-         IsaacTaxonomy taxonomy = LookupService.get()
+         final IsaacTaxonomy taxonomy = LookupService.get()
                                                .getService(IsaacTaxonomy.class);
-         File          javaDir  = new File(buildDirectory, "src/generated");
+         final File          javaDir  = new File(this.buildDirectory, "src/generated");
 
          javaDir.mkdirs();
 
-         File metadataDirectory = new File(buildDirectory, "generated-resources");
+         final File metadataDirectory = new File(this.buildDirectory, "generated-resources");
 
          metadataDirectory.mkdirs();
 
-         File   metadataXmlDataFile  = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
-         String bindingFileDirectory = bindingPackage.concat(".")
-                                                     .concat(bindingClass)
+         final File   metadataXmlDataFile  = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
+         final String bindingFileDirectory = this.bindingPackage.concat(".")
+                                                     .concat(this.bindingClass)
                                                      .replace('.', '/');
 
          // Write out the java binding file before we read in the MetadataConceptConstant objects, as these already come from classes
          // and I don't want to have duplicate constants in the system
-         File bindingFile = new File(javaDir, bindingFileDirectory + ".java");
+         final File bindingFile = new File(javaDir, bindingFileDirectory + ".java");
 
          bindingFile.getParentFile()
                     .mkdirs();
 
          try (Writer javaWriter = new BufferedWriter(new FileWriter(bindingFile));) {
-            taxonomy.exportJavaBinding(javaWriter, bindingPackage, bindingClass);
+            taxonomy.exportJavaBinding(javaWriter, this.bindingPackage, this.bindingClass);
          }
 
          // Read in the MetadataConceptConstant constant objects
-         for (ModuleProvidedConstants mpc: LookupService.get()
+         for (final ModuleProvidedConstants mpc: LookupService.get()
                .getAllServices(ModuleProvidedConstants.class)) {
             getLog().info("Adding metadata constants from " + mpc.getClass().getName());
 
             int count = 0;
 
-            for (MetadataConceptConstant mc: mpc.getConstantsToCreate()) {
+            for (final MetadataConceptConstant mc: mpc.getConstantsToCreate()) {
                taxonomy.createConcept(mc);
                count++;
             }
@@ -149,17 +149,17 @@ public class ExportTaxonomy
                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(metadataXmlDataFile)));
             FileWriter yamlFile = new FileWriter(new File(metadataDirectory.getAbsolutePath(),
                                                           taxonomy.getClass().getSimpleName() + ".yaml"));) {
-            taxonomy.exportYamlBinding(yamlFile, bindingPackage, bindingClass);
+            taxonomy.exportYamlBinding(yamlFile, this.bindingPackage, this.bindingClass);
             taxonomy.exportJaxb(xmlData);
          }
 
-         Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass()
+         final Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass()
                                                                                 .getSimpleName() + ".ibdf");
-         Path jsonPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass()
+         final Path jsonPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass()
                                                                                 .getSimpleName() + ".json");
 
          taxonomy.export(Optional.of(jsonPath), Optional.of(ibdfPath));
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
       }
    }

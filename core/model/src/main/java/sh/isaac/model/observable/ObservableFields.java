@@ -122,10 +122,11 @@ public enum ObservableFields
 
    //~--- methods -------------------------------------------------------------
 
-   public String toExternalString() {
-      StringBuilder sb = new StringBuilder();
+   @Override
+public String toExternalString() {
+      final StringBuilder sb = new StringBuilder();
 
-      sb.append(description);
+      sb.append(this.description);
       sb.append(FIELD_SEPARATOR)
         .append(getUuid().toString());
       return sb.toString();
@@ -139,7 +140,7 @@ public enum ObservableFields
    }
 
    public String getDescription() {
-      return description;
+      return this.description;
    }
 
    public UUID getUuid() {

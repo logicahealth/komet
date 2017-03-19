@@ -63,13 +63,13 @@ public class OchreExternalizableSpliterator
    //~--- constructors --------------------------------------------------------
 
    public OchreExternalizableSpliterator() {
-      streams.add(Get.conceptService()
+      this.streams.add(Get.conceptService()
                      .getConceptChronologyStream());
-      streams.add(Get.sememeService()
+      this.streams.add(Get.sememeService()
                      .getSememeChronologyStream());
-      streams.add(Get.commitService()
+      this.streams.add(Get.commitService()
                      .getStampAliasStream());
-      streams.add(Get.commitService()
+      this.streams.add(Get.commitService()
                      .getStampCommentStream());
    }
 
@@ -87,7 +87,7 @@ public class OchreExternalizableSpliterator
 
    @Override
    public void forEachRemaining(Consumer<? super OchreExternalizable> action) {
-      for (Stream<? extends OchreExternalizable> stream: streams) {
+      for (final Stream<? extends OchreExternalizable> stream: this.streams) {
          stream.forEach(action);
       }
    }

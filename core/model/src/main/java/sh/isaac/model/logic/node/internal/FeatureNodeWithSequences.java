@@ -77,7 +77,7 @@ public final class FeatureNodeWithSequences
 
    public FeatureNodeWithSequences(FeatureNodeWithUuids externalForm) {
       super(externalForm);
-      operator = externalForm.getOperator();
+      this.operator = externalForm.getOperator();
 
 //    unitsConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getUnitsConceptUuid());
    }
@@ -87,7 +87,7 @@ public final class FeatureNodeWithSequences
                                    DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      operator = concreteDomainOperators[dataInputStream.readByte()];
+      this.operator = concreteDomainOperators[dataInputStream.readByte()];
 
 //    unitsConceptSequence = dataInputStream.readInt();
    }
@@ -96,7 +96,7 @@ public final class FeatureNodeWithSequences
                                    int typeConceptId,
                                    AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptId, child);
-      operator = ConcreteDomainOperators.EQUALS;  // TODO - Keith, Dan hardcoded it, it broke when not set.
+      this.operator = ConcreteDomainOperators.EQUALS;  // TODO - Keith, Dan hardcoded it, it broke when not set.
    }
 
    //~--- methods -------------------------------------------------------------
@@ -122,19 +122,19 @@ public final class FeatureNodeWithSequences
          return false;
       }
 
-      FeatureNodeWithSequences that = (FeatureNodeWithSequences) o;
+      final FeatureNodeWithSequences that = (FeatureNodeWithSequences) o;
 
 //    if (unitsConceptSequence != that.unitsConceptSequence) {
 //        return false;
 //    }
-      return operator == that.operator;
+      return this.operator == that.operator;
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + operator.hashCode();
+      result = 31 * result + this.operator.hashCode();
 
 //    result = 31 * result + unitsConceptSequence;
       return result;
@@ -147,7 +147,7 @@ public final class FeatureNodeWithSequences
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Feature[" + getNodeIndex() + nodeIdSuffix + "] " + operator +
+      return "Feature[" + getNodeIndex() + nodeIdSuffix + "] " + this.operator +
              ", units:"  // + Get.conceptDescriptionText(unitsConceptSequence)
             + super.toString(nodeIdSuffix);
    }
@@ -157,14 +157,14 @@ public final class FeatureNodeWithSequences
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
-         FeatureNodeWithUuids externalForm = new FeatureNodeWithUuids(this);
+         final FeatureNodeWithUuids externalForm = new FeatureNodeWithUuids(this);
 
          externalForm.writeNodeData(dataOutput, dataTarget);
          break;
 
       case INTERNAL:
          super.writeNodeData(dataOutput, dataTarget);
-         dataOutput.writeByte(operator.ordinal());
+         dataOutput.writeByte(this.operator.ordinal());
 
 //       dataOutput.writeInt(unitsConceptSequence);
          break;
@@ -180,25 +180,25 @@ public final class FeatureNodeWithSequences
    @Override
    protected int compareTypedNodeFields(LogicNode o) {
       // node semantic already determined equals.
-      FeatureNodeWithSequences other = (FeatureNodeWithSequences) o;
+      final FeatureNodeWithSequences other = (FeatureNodeWithSequences) o;
 
 //    if (unitsConceptSequence != other.unitsConceptSequence) {
 //        return Integer.compare(unitsConceptSequence, other.unitsConceptSequence);
 //    }
-      if (operator != other.operator) {
-         return operator.compareTo(other.operator);
+      if (this.operator != other.operator) {
+         return this.operator.compareTo(other.operator);
       }
 
-      return Integer.compare(typeConceptSequence, other.typeConceptSequence);
+      return Integer.compare(this.typeConceptSequence, other.typeConceptSequence);
    }
 
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
                                  Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(typeConceptSequence)
+                                    .getUuidPrimordialFromConceptId(this.typeConceptSequence)
                                     .get()
-                                    .toString() + operator
+                                    .toString() + this.operator
 
       // + Get.identifierService().getUuidPrimordialForNid(unitsConceptSequence)
       .toString());
@@ -212,7 +212,7 @@ public final class FeatureNodeWithSequences
    }
 
    public ConcreteDomainOperators getOperator() {
-      return operator;
+      return this.operator;
    }
 }
 

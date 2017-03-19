@@ -92,14 +92,14 @@ public class TreeNodeVisitData {
 
    public void endNodeVisit(int nodeSequence) {
       setNodeStatus(nodeSequence, NodeStatus.FINISHED);
-      setFinishTime(nodeSequence, time++);
+      setFinishTime(nodeSequence, this.time++);
    }
 
    public void startNodeVisit(int nodeSequence, int depth) {
       setNodeStatus(nodeSequence, NodeStatus.PROCESSING);
-      setDiscoveryTime(nodeSequence, time++);
+      setDiscoveryTime(nodeSequence, this.time++);
       setDistance(nodeSequence, depth);
-      nodesVisited++;
+      this.nodesVisited++;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -108,18 +108,18 @@ public class TreeNodeVisitData {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (conceptsReferencedAtNodeOrAbove == null) {
-            conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+         if (this.conceptsReferencedAtNodeOrAbove == null) {
+            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
          }
 
-         if (conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
-            conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(graphSize);
+         if (this.conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
+            this.conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(this.graphSize);
          }
 
-         return conceptsReferencedAtNodeOrAbove[nodeSequence];
+         return this.conceptsReferencedAtNodeOrAbove[nodeSequence];
       }
 
-      return new OpenIntHashSet(graphSize);
+      return new OpenIntHashSet(this.graphSize);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -128,11 +128,11 @@ public class TreeNodeVisitData {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (conceptsReferencedAtNodeOrAbove == null) {
-            conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+         if (this.conceptsReferencedAtNodeOrAbove == null) {
+            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
          }
 
-         conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
+         this.conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
       }
    }
 
@@ -140,98 +140,98 @@ public class TreeNodeVisitData {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (conceptsReferencedAtNodeOrAbove == null) {
-            conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+         if (this.conceptsReferencedAtNodeOrAbove == null) {
+            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
          }
 
-         conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
+         this.conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getDiscoveryTime(int sequence) {
-      return discoveryTimeList.getQuick(sequence);
+      return this.discoveryTimeList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    private void setDiscoveryTime(int sequence, int discoveryTime) {
-      if (sequence >= discoveryTimeList.size()) {
-         discoveryTimeList.setSize(sequence + 1);
+      if (sequence >= this.discoveryTimeList.size()) {
+         this.discoveryTimeList.setSize(sequence + 1);
       }
 
-      discoveryTimeList.set(sequence, discoveryTime);
+      this.discoveryTimeList.set(sequence, discoveryTime);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getDistance(int sequence) {
-      return distanceList.getQuick(sequence);
+      return this.distanceList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setDistance(int sequence, int distance) {
-      if (sequence >= distanceList.size()) {
-         distanceList.setSize(sequence + 1);
+      if (sequence >= this.distanceList.size()) {
+         this.distanceList.setSize(sequence + 1);
       }
 
-      distanceList.set(sequence, distance);
-      maxDepth = Math.max(maxDepth, distance);
+      this.distanceList.set(sequence, distance);
+      this.maxDepth = Math.max(this.maxDepth, distance);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getFinishTime(int sequence) {
-      return finishTimeList.getQuick(sequence);
+      return this.finishTimeList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    private void setFinishTime(int sequence, int finishTime) {
-      if (sequence >= finishTimeList.size()) {
-         finishTimeList.setSize(sequence + 1);
+      if (sequence >= this.finishTimeList.size()) {
+         this.finishTimeList.setSize(sequence + 1);
       }
 
-      finishTimeList.set(sequence, finishTime);
+      this.finishTimeList.set(sequence, finishTime);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getGraphSize() {
-      return graphSize;
+      return this.graphSize;
    }
 
    public SequenceSet<?> getIntermediateNodes() {
-      SequenceSet intermediateNodes = new SequenceSet<>();
+      final SequenceSet intermediateNodes = new SequenceSet<>();
 
-      intermediateNodes.or(visitEnded);
-      intermediateNodes.andNot(leafNodes);
+      intermediateNodes.or(this.visitEnded);
+      intermediateNodes.andNot(this.leafNodes);
       return intermediateNodes;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setLeafNode(int sequence) {
-      leafNodes.add(sequence);
+      this.leafNodes.add(sequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public SequenceSet<?> getLeafNodes() {
-      return leafNodes;
+      return this.leafNodes;
    }
 
    public int getMaxDepth() {
-      return maxDepth;
+      return this.maxDepth;
    }
 
    public SequenceSet<?> getNodeIdsForDepth(int depth) {
-      SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
+      final SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
 
-      for (int i = 0; i < distanceList.size(); i++) {
-         if (distanceList.get(i) == depth) {
+      for (int i = 0; i < this.distanceList.size(); i++) {
+         if (this.distanceList.get(i) == depth) {
             nodeIdsForDepth.add(i);
          }
       }
@@ -240,11 +240,11 @@ public class TreeNodeVisitData {
    }
 
    public NodeStatus getNodeStatus(int nodeSequence) {
-      if (!visitStarted.contains(nodeSequence)) {
+      if (!this.visitStarted.contains(nodeSequence)) {
          return NodeStatus.UNDISCOVERED;
       }
 
-      if (visitEnded.contains(nodeSequence)) {
+      if (this.visitEnded.contains(nodeSequence)) {
          return NodeStatus.FINISHED;
       }
 
@@ -256,11 +256,11 @@ public class TreeNodeVisitData {
    public void setNodeStatus(int nodeSequence, NodeStatus nodeStatus) {
       switch (nodeStatus) {
       case FINISHED:
-         visitEnded.add(nodeSequence);
+         this.visitEnded.add(nodeSequence);
          break;
 
       case PROCESSING:
-         visitStarted.add(nodeSequence);
+         this.visitStarted.add(nodeSequence);
          break;
 
       case UNDISCOVERED:
@@ -274,39 +274,39 @@ public class TreeNodeVisitData {
    //~--- get methods ---------------------------------------------------------
 
    public int getNodesVisited() {
-      return nodesVisited;
+      return this.nodesVisited;
    }
 
    public int getPredecessorSequence(int sequence) {
-      return predecessorSequenceList.getQuick(sequence);
+      return this.predecessorSequenceList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setPredecessorSequence(int sequence, int predecessorSequence) {
-      if (sequence >= predecessorSequenceList.size()) {
-         predecessorSequenceList.setSize(sequence + 1);
+      if (sequence >= this.predecessorSequenceList.size()) {
+         this.predecessorSequenceList.setSize(sequence + 1);
       }
 
-      predecessorSequenceList.set(sequence, predecessorSequence);
+      this.predecessorSequenceList.set(sequence, predecessorSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getSiblingGroupForSequence(int sequence) {
-      return siblingGroupSequenceList.get(sequence);
+      return this.siblingGroupSequenceList.get(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setSiblingGroupForSequence(int sequence, int value) {
-      siblingGroupSequenceList.set(sequence, value);
+      this.siblingGroupSequenceList.set(sequence, value);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getTime() {
-      return time;
+      return this.time;
    }
 }
 

@@ -57,7 +57,12 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
  */
 public class NativeIntIntHashMap
         extends OpenIntIntHashMap {
-   public NativeIntIntHashMap() {}
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public NativeIntIntHashMap() {}
 
    public NativeIntIntHashMap(int initialCapacity) {
       super(initialCapacity);
@@ -71,7 +76,7 @@ public class NativeIntIntHashMap
 
    @Override
    protected int indexOfInsertion(int key) {
-      return indexOfInsertion(key, table, state);
+      return indexOfInsertion(key, this.table, this.state);
    }
 
    protected int indexOfInsertion(int key, int[] newTable, byte[] newState) {
@@ -136,20 +141,20 @@ public class NativeIntIntHashMap
     */
    @Override
    protected void rehash(int newCapacity) {
-      int oldCapacity = table.length;
+      final int oldCapacity = this.table.length;
 
       // if (oldCapacity == newCapacity) return;
-      int[]  oldTable  = table;
-      int[]  oldValues = values;
-      byte[] oldState  = state;
-      int[]  newTable  = new int[newCapacity];
-      int[]  newValues = new int[newCapacity];
-      byte[] newState  = new byte[newCapacity];
+      final int[]  oldTable  = this.table;
+      final int[]  oldValues = this.values;
+      final byte[] oldState  = this.state;
+      final int[]  newTable  = new int[newCapacity];
+      final int[]  newValues = new int[newCapacity];
+      final byte[] newState  = new byte[newCapacity];
 
       for (int i = oldCapacity; i-- > 0; ) {
          if (oldState[i] == FULL) {
-            int element = oldTable[i];
-            int index   = indexOfInsertion(element, newTable, newState);
+            final int element = oldTable[i];
+            final int index   = indexOfInsertion(element, newTable, newState);
 
             newTable[index]  = element;
             newValues[index] = oldValues[i];
@@ -172,7 +177,7 @@ public class NativeIntIntHashMap
    //~--- get methods ---------------------------------------------------------
 
    public int getDistinct() {
-      return distinct;
+      return this.distinct;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -184,7 +189,7 @@ public class NativeIntIntHashMap
    //~--- get methods ---------------------------------------------------------
 
    public int getFreeEntries() {
-      return freeEntries;
+      return this.freeEntries;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -196,7 +201,7 @@ public class NativeIntIntHashMap
    //~--- get methods ---------------------------------------------------------
 
    public byte[] getState() {
-      return state;
+      return this.state;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -208,7 +213,7 @@ public class NativeIntIntHashMap
    //~--- get methods ---------------------------------------------------------
 
    public int[] getTable() {
-      return table;
+      return this.table;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -220,7 +225,7 @@ public class NativeIntIntHashMap
    //~--- get methods ---------------------------------------------------------
 
    public int[] getValues() {
-      return values;
+      return this.values;
    }
 
    //~--- set methods ---------------------------------------------------------

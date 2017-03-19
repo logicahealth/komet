@@ -77,7 +77,7 @@ public interface ConfigurationService {
     * feature to be enabled by setting the system property {@link Constants#ISAAC_DEBUG} to 'true'
     */
    public default boolean enableVerboseDebug() {
-      String value = System.getProperty(Constants.ISAAC_DEBUG);
+      final String value = System.getProperty(Constants.ISAAC_DEBUG);
 
       if (StringUtils.isNotBlank(value)) {
          return value.trim()
@@ -125,7 +125,7 @@ public interface ConfigurationService {
     */
    public default Path getChronicleFolderPath() {
       Path           result;
-      Optional<Path> rootPath = getDataStoreFolderPath();
+      final Optional<Path> rootPath = getDataStoreFolderPath();
 
       if (!rootPath.isPresent()) {
          throw new IllegalStateException(
@@ -139,7 +139,7 @@ public interface ConfigurationService {
 
       try {
          Files.createDirectories(result);
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
 
@@ -388,7 +388,7 @@ public interface ConfigurationService {
     */
    public default Path getSearchFolderPath() {
       Path           result;
-      Optional<Path> rootPath = getDataStoreFolderPath();
+      final Optional<Path> rootPath = getDataStoreFolderPath();
 
       if (!rootPath.isPresent()) {
          throw new IllegalStateException(
@@ -402,7 +402,7 @@ public interface ConfigurationService {
 
       try {
          Files.createDirectories(result);
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
 

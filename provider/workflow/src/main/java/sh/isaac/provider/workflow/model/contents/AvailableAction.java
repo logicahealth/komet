@@ -126,7 +126,7 @@ public class AvailableAction
 
    @Override
    public boolean equals(Object obj) {
-      AvailableAction other = (AvailableAction) obj;
+      final AvailableAction other = (AvailableAction) obj;
 
       return this.definitionId.equals(other.definitionId) &&
              this.initialState.equals(other.initialState) &&
@@ -137,24 +137,24 @@ public class AvailableAction
 
    @Override
    public int hashCode() {
-      return definitionId.hashCode() + initialState.hashCode() + action.hashCode() + outcomeState.hashCode() +
-             role.hashCode();
+      return this.definitionId.hashCode() + this.initialState.hashCode() + this.action.hashCode() + this.outcomeState.hashCode() +
+             this.role.hashCode();
    }
 
    @Override
    public String toString() {
-      return "\n\t\tId: " + id + "\n\t\tDefinition Id: " + definitionId.toString() + "\n\t\tInitial State: " +
-             initialState + "\n\t\tAction: " + action + "\n\t\tOutcome State: " + outcomeState + "\n\t\tRole: " + role;
+      return "\n\t\tId: " + this.id + "\n\t\tDefinition Id: " + this.definitionId.toString() + "\n\t\tInitial State: " +
+             this.initialState + "\n\t\tAction: " + this.action + "\n\t\tOutcome State: " + this.outcomeState + "\n\t\tRole: " + this.role;
    }
 
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
-      out.putLong(definitionIdMsb);
-      out.putLong(definitionIdLsb);
-      out.putByteArrayField(initialState.getBytes());
-      out.putByteArrayField(action.getBytes());
-      out.putByteArrayField(outcomeState.getBytes());
-      out.putInt(role.ordinal());
+      out.putLong(this.definitionIdMsb);
+      out.putLong(this.definitionIdLsb);
+      out.putByteArrayField(this.initialState.getBytes());
+      out.putByteArrayField(this.action.getBytes());
+      out.putByteArrayField(this.outcomeState.getBytes());
+      out.putInt(this.role.ordinal());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -165,19 +165,19 @@ public class AvailableAction
     * @return the action
     */
    public String getAction() {
-      return action;
+      return this.action;
    }
 
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
-      definitionIdMsb = in.getLong();
-      definitionIdLsb = in.getLong();
-      initialState    = new String(in.getByteArrayField());
-      action          = new String(in.getByteArrayField());
-      outcomeState    = new String(in.getByteArrayField());
-      role            = UserRole.safeValueOf(in.getInt())
+      this.definitionIdMsb = in.getLong();
+      this.definitionIdLsb = in.getLong();
+      this.initialState    = new String(in.getByteArrayField());
+      this.action          = new String(in.getByteArrayField());
+      this.outcomeState    = new String(in.getByteArrayField());
+      this.role            = UserRole.safeValueOf(in.getInt())
                                 .get();
-      definitionId    = new UUID(definitionIdMsb, definitionIdLsb);
+      this.definitionId    = new UUID(this.definitionIdMsb, this.definitionIdLsb);
    }
 
    /**
@@ -186,7 +186,7 @@ public class AvailableAction
     * @return the key of the definition from which the process is created
     */
    public UUID getDefinitionId() {
-      return definitionId;
+      return this.definitionId;
    }
 
    /**
@@ -195,7 +195,7 @@ public class AvailableAction
     * @return the initial state
     */
    public String getInitialState() {
-      return initialState;
+      return this.initialState;
    }
 
    /**
@@ -204,7 +204,7 @@ public class AvailableAction
     * @return the outcomeState
     */
    public String getOutcomeState() {
-      return outcomeState;
+      return this.outcomeState;
    }
 
    /**
@@ -213,7 +213,7 @@ public class AvailableAction
     * @return the role
     */
    public UserRole getRole() {
-      return role;
+      return this.role;
    }
 }
 

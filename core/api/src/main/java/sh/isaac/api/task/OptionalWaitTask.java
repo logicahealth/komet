@@ -66,17 +66,17 @@ import javafx.concurrent.Task;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class OptionalWaitTask<T> {
-   private ArrayList<OptionalWaitTask<?>> backgroundTasks = new ArrayList<>();
-   private Task<Void>                     primaryTask;
-   private T                              value;
+   private final ArrayList<OptionalWaitTask<?>> backgroundTasks = new ArrayList<>();
+   private final Task<Void>                     primaryTask;
+   private final T                              value;
 
    //~--- constructors --------------------------------------------------------
 
    public OptionalWaitTask(Task<Void> task, T value, List<OptionalWaitTask<?>> nestedTasks) {
-      primaryTask = task;
+      this.primaryTask = task;
 
       if (nestedTasks != null) {
-         backgroundTasks.addAll(nestedTasks);
+         this.backgroundTasks.addAll(nestedTasks);
       }
 
       this.value = value;
@@ -91,15 +91,15 @@ public class OptionalWaitTask<T> {
     */
    public T get()
             throws InterruptedException, ExecutionException {
-      for (OptionalWaitTask<?> t: backgroundTasks) {
+      for (final OptionalWaitTask<?> t: this.backgroundTasks) {
          t.get();
       }
 
-      if (primaryTask != null) {
-         primaryTask.get();
+      if (this.primaryTask != null) {
+         this.primaryTask.get();
       }
 
-      return value;
+      return this.value;
    }
 
    /**
@@ -117,7 +117,7 @@ public class OptionalWaitTask<T> {
     * Return the object immediately (but this object may not yet be serialized throughout the system)
     */
    public T getNoWait() {
-      return value;
+      return this.value;
    }
 }
 

@@ -67,13 +67,13 @@ public enum StampPrecedence {
 
    @Override
    public String toString() {
-      return label;
+      return this.label;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getDescription() {
-      return description;
+      return this.description;
    }
 }
 

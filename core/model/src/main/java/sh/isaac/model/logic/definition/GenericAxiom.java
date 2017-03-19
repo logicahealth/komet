@@ -119,22 +119,22 @@ public class GenericAxiom
 
    @Override
    public String toString() {
-      return "GenericAxiom{" + "index=" + index + ", semantic=" + semantic + '}';
+      return "GenericAxiom{" + "index=" + this.index + ", semantic=" + this.semantic + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public LogicalExpressionBuilder getBuilder() {
-      return builder;
+      return this.builder;
    }
 
    public short getIndex() {
-      return index;
+      return this.index;
    }
 
    public NodeSemantic getSemantic() {
-      return semantic;
+      return this.semantic;
    }
 }
 

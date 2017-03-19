@@ -110,9 +110,7 @@ public class SctId {
          9, 8, 7, 6, 5, 4, 3, 2, 1, 0
       }
    };
-   private static int[]   InverseD5_ = {
-      0, 4, 3, 2, 1, 5, 6, 7, 8, 9
-   };
+   
 
    //~--- static initializers -------------------------------------------------
 
@@ -155,7 +153,7 @@ public class SctId {
        */
       SUBSET("13");
 
-      private String digits_;
+      private final String digits_;
 
       //~--- constructors -----------------------------------------------------
 
@@ -176,7 +174,7 @@ public class SctId {
        * @return the digits specifying the SCT ID type
        */
       public String getDigits() {
-         return digits_;
+         return this.digits_;
       }
    }
 
@@ -289,12 +287,12 @@ public class SctId {
       }
 
       try {
-         long l = Long.parseLong(idAsString);
+         final long l = Long.parseLong(idAsString);
 
          if ((l < 100000) || (l > 999999999999999999l)) {
             return false;
          }
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
          return false;
       }
 

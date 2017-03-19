@@ -133,8 +133,8 @@ public interface DynamicSememeUtility {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
             (dsud.getReferencedComponentTypeRestriction() != ObjectChronologyType.UNKNOWN_NID)) {
-         ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
-         ObjectChronologyType foundType    = Get.identifierService()
+         final ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
+         final ObjectChronologyType foundType    = Get.identifierService()
                                                 .getChronologyTypeForNid(referencedComponentNid);
 
          if (requiredType != foundType) {
@@ -145,8 +145,8 @@ public interface DynamicSememeUtility {
          if ((requiredType == ObjectChronologyType.SEMEME) &&
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
                (dsud.getReferencedComponentTypeSubRestriction() != SememeType.UNKNOWN)) {
-            SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
-            SememeType foundSememeType    = Get.sememeService()
+            final SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
+            final SememeType foundSememeType    = Get.sememeService()
                                                .getSememe(referencedComponentNid)
                                                .getSememeType();
 
@@ -185,7 +185,7 @@ public interface DynamicSememeUtility {
       }
 
       for (int i = 0; i < dsud.getColumnInfo().length; i++) {
-         DynamicSememeData defaultValue = dsud.getColumnInfo()[i]
+         final DynamicSememeData defaultValue = dsud.getColumnInfo()[i]
                                               .getDefaultColumnValue();
 
          if ((defaultValue != null) && (data[i] == null)) {
@@ -204,7 +204,7 @@ public interface DynamicSememeUtility {
       }
 
       for (int dataColumn = 0; dataColumn < data.length; dataColumn++) {
-         DynamicSememeColumnInfo dsci = dsud.getColumnInfo()[dataColumn];
+         final DynamicSememeColumnInfo dsci = dsud.getColumnInfo()[dataColumn];
 
          if (data[dataColumn] == null) {
             if (dsci.isColumnRequired()) {
@@ -212,7 +212,7 @@ public interface DynamicSememeUtility {
                                                   " but the column is specified as a required column");
             }
          } else {
-            DynamicSememeDataType allowedDT = dsci.getColumnDataType();
+            final DynamicSememeDataType allowedDT = dsci.getColumnDataType();
 
             if ((data[dataColumn] != null) &&
                   (allowedDT != DynamicSememeDataType.POLYMORPHIC) &&
@@ -240,7 +240,7 @@ public interface DynamicSememeUtility {
                                data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
                                " Validator Data: " + dsci.getValidatorData()[i].dataToString());
                         }
-                     } catch (IllegalArgumentException e) {
+                     } catch (final IllegalArgumentException e) {
                         if (rethrow) {
                            throw e;
                         } else {
@@ -249,9 +249,9 @@ public interface DynamicSememeUtility {
                         }
                      }
                   }
-               } catch (IllegalArgumentException e) {
+               } catch (final IllegalArgumentException e) {
                   throw e;
-               } catch (RuntimeException e) {
+               } catch (final RuntimeException e) {
                   throw new IllegalArgumentException(e.getMessage());
                }
             }

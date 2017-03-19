@@ -61,8 +61,8 @@ public class ConceptSerializer
 
    @Override
    public ConceptChronologyImpl merge(ConceptChronologyImpl a, ConceptChronologyImpl b, int writeSequence) {
-      byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
-      ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
+      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
+      final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
 
       return ConceptChronologyImpl.make(db);
    }
@@ -72,7 +72,7 @@ public class ConceptSerializer
       Get.conceptActiveService()
          .updateStatus(conceptChronicle);
 
-      byte[] data = conceptChronicle.getDataToWrite();
+      final byte[] data = conceptChronicle.getDataToWrite();
 
       d.put(data, 0, data.length);
    }

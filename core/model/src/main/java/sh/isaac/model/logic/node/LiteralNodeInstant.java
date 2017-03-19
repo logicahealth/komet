@@ -72,7 +72,7 @@ public class LiteralNodeInstant
                              DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      literalValue = Instant.ofEpochSecond(dataInputStream.readLong());
+      this.literalValue = Instant.ofEpochSecond(dataInputStream.readLong());
    }
 
    public LiteralNodeInstant(LogicalExpressionOchreImpl logicGraphVersion, Instant literalValue) {
@@ -96,16 +96,16 @@ public class LiteralNodeInstant
          return false;
       }
 
-      LiteralNodeInstant that = (LiteralNodeInstant) o;
+      final LiteralNodeInstant that = (LiteralNodeInstant) o;
 
-      return literalValue.equals(that.literalValue);
+      return this.literalValue.equals(that.literalValue);
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + literalValue.hashCode();
+      result = 31 * result + this.literalValue.hashCode();
       return result;
    }
 
@@ -116,32 +116,32 @@ public class LiteralNodeInstant
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+      return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
 
    @Override
    protected int compareFields(LogicNode o) {
-      LiteralNodeInstant that = (LiteralNodeInstant) o;
+      final LiteralNodeInstant that = (LiteralNodeInstant) o;
 
       return this.literalValue.compareTo(that.literalValue);
    }
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), literalValue.toString());
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.literalValue.toString());
    }
 
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeLong(literalValue.getEpochSecond());
+      dataOutput.writeLong(this.literalValue.getEpochSecond());
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public Instant getLiteralValue() {
-      return literalValue;
+      return this.literalValue;
    }
 
    @Override

@@ -78,12 +78,12 @@ public class ArtifactUtilities {
    public static void main(String[] args)
             throws InterruptedException, ExecutionException, IOException {
       try {
-         String username = "foo";
-         String userpd   = "foo";
+         final String username = "foo";
+         final String userpd   = "foo";
 
          LookupService.startupWorkExecutors();
 
-         URL release = new URL("http://artifactory.isaac.sh/artifactory/libs-release-local" +
+         final URL release = new URL("http://artifactory.isaac.sh/artifactory/libs-release-local" +
                                makeMavenRelativePath("aopalliance",
                                      "aopalliance",
                                      "1.0",
@@ -102,7 +102,7 @@ public class ArtifactUtilities {
          foo.getParentFile()
             .delete();
 
-         File where = new File("").getAbsoluteFile();
+         final File where = new File("").getAbsoluteFile();
          URL snapshot = new URL("http://artifactory.isaac.sh/artifactory/libs-snapshot" +
                                 makeMavenRelativePath("http://artifactory.isaac.sh/artifactory/libs-snapshot",
                                       username,
@@ -133,7 +133,7 @@ public class ArtifactUtilities {
             .submit(task);
          foo = task.get();
          System.out.println(foo.getCanonicalPath());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          e.printStackTrace();
       }
 
@@ -185,7 +185,7 @@ public class ArtifactUtilities {
 
       try {
          return makeMavenRelativePath(null, null, null, groupId, artifactId, version, classifier, type);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException("Unexpected", e);
       }
    }
@@ -213,41 +213,41 @@ public class ArtifactUtilities {
          String classifier,
          String type)
             throws Exception {
-      String temp                   = groupId.replaceAll("\\.", "/");
+      final String temp                   = groupId.replaceAll("\\.", "/");
       String snapshotVersion        = "";
       String versionWithoutSnapshot = version;
 
       if (version.endsWith("-SNAPSHOT")) {
          versionWithoutSnapshot = version.substring(0, version.lastIndexOf("-SNAPSHOT"));
 
-         URL metadataUrl = new URL(baseMavenURL + (baseMavenURL.endsWith("/") ? ""
+         final URL metadataUrl = new URL(baseMavenURL + (baseMavenURL.endsWith("/") ? ""
                : "/") + temp + "/" + artifactId + "/" + version + "/maven-metadata.xml");
 
          // Need to download the maven-metadata.xml file
-         Task<File> task = new DownloadUnzipTask(mavenUsername, mavenPassword, metadataUrl, false, false, null);
+         final Task<File> task = new DownloadUnzipTask(mavenUsername, mavenPassword, metadataUrl, false, false, null);
 
          WorkExecutors.get()
                       .getExecutor()
                       .execute(task);
 
-         File                   metadataFile = task.get();
-         DocumentBuilderFactory domFactory   = DocumentBuilderFactory.newInstance();
+         final File                   metadataFile = task.get();
+         final DocumentBuilderFactory domFactory   = DocumentBuilderFactory.newInstance();
 
          // added to avoid XXE injections
          domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
          DocumentBuilder builder;
          Document        dDoc  = null;
-         XPath           xPath = XPathFactory.newInstance()
+         final XPath           xPath = XPathFactory.newInstance()
                                              .newXPath();
 
          builder = domFactory.newDocumentBuilder();
          dDoc    = builder.parse(metadataFile);
 
-         String timestamp = ((Node) xPath.evaluate("/metadata/versioning/snapshot/timestamp",
+         final String timestamp = ((Node) xPath.evaluate("/metadata/versioning/snapshot/timestamp",
                                                    dDoc,
                                                    XPathConstants.NODE)).getTextContent();
-         String buildNumber = ((Node) xPath.evaluate("/metadata/versioning/snapshot/buildNumber",
+         final String buildNumber = ((Node) xPath.evaluate("/metadata/versioning/snapshot/buildNumber",
                                                      dDoc,
                                                      XPathConstants.NODE)).getTextContent();
 

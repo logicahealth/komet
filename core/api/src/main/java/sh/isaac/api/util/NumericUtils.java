@@ -75,23 +75,23 @@ public class NumericUtils {
          throw new NumberFormatException("No value");
       }
 
-      String temp = value.trim();
+      final String temp = value.trim();
 
       try {
          return Integer.parseInt(temp);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          // noop
       }
 
       try {
          return Long.parseLong(temp);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          // noop
       }
 
       try {
          return Float.parseFloat(temp);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          // noop
       }
 
@@ -129,7 +129,7 @@ public class NumericUtils {
    public static Optional<Integer> getInt(String string) {
       try {
          return Optional.of(Integer.parseInt(string.trim()));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          return Optional.empty();
       }
    }
@@ -141,7 +141,7 @@ public class NumericUtils {
    public static Optional<Long> getLong(String string) {
       try {
          return Optional.of(Long.parseLong(string.trim()));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          return Optional.empty();
       }
    }
@@ -156,7 +156,7 @@ public class NumericUtils {
     * @return
     */
    public static Optional<Integer> getNID(String string) {
-      Optional<Integer> possibleInt = getInt(string);
+      final Optional<Integer> possibleInt = getInt(string);
 
       return (possibleInt.isPresent() && (possibleInt.get().intValue() < 0)) ? possibleInt
             : Optional.empty();
@@ -167,8 +167,8 @@ public class NumericUtils {
    }
 
    private static boolean isSpecial(final Number x) {
-      boolean specialDouble = (x instanceof Double) && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
-      boolean specialFloat  = (x instanceof Float) && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
+      final boolean specialDouble = (x instanceof Double) && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
+      final boolean specialFloat  = (x instanceof Float) && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
 
       return specialDouble || specialFloat;
    }

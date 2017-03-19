@@ -97,7 +97,7 @@ public class RpcUtils {
       //~--- methods ----------------------------------------------------------
 
       public String asRole(String repository) {
-         return code + ":" + repository;
+         return this.code + ":" + repository;
       }
 
       public boolean atLeast(AccessPermission perm) {
@@ -113,7 +113,7 @@ public class RpcUtils {
       }
 
       public static AccessPermission fromCode(String code) {
-         for (AccessPermission perm: values()) {
+         for (final AccessPermission perm: values()) {
             if (perm.code.equalsIgnoreCase(code)) {
                return perm;
             }
@@ -123,7 +123,7 @@ public class RpcUtils {
       }
 
       public static AccessPermission permissionFromRole(String role) {
-         String[] fields = role.split(":", 2);
+         final String[] fields = role.split(":", 2);
 
          if (fields.length == 1) {
             // legacy/undefined assume full permissions
@@ -135,7 +135,7 @@ public class RpcUtils {
       }
 
       public static String repositoryFromRole(String role) {
-         String[] fields = role.split(":", 2);
+         final String[] fields = role.split(":", 2);
 
          if (fields.length == 1) {
             // legacy/undefined assume full permissions
@@ -148,7 +148,7 @@ public class RpcUtils {
 
       @Override
       public String toString() {
-         return code;
+         return this.code;
       }
    }
 
@@ -182,7 +182,7 @@ public class RpcUtils {
       }
 
       public static AccessRestrictionType fromName(String name) {
-         for (AccessRestrictionType type: values()) {
+         for (final AccessRestrictionType type: values()) {
             if (type.name()
                     .equalsIgnoreCase(name)) {
                return type;
@@ -239,7 +239,7 @@ public class RpcUtils {
       NAMED;
 
       public static AuthorizationControl fromName(String name) {
-         for (AuthorizationControl type: values()) {
+         for (final AuthorizationControl type: values()) {
             if (type.name()
                     .equalsIgnoreCase(name)) {
                return type;
@@ -272,7 +272,7 @@ public class RpcUtils {
       }
 
       public static FederationStrategy fromName(String name) {
-         for (FederationStrategy type: values()) {
+         for (final FederationStrategy type: values()) {
             if (type.name()
                     .equalsIgnoreCase(name)) {
                return type;
@@ -301,7 +301,7 @@ public class RpcUtils {
       }
 
       public static RpcRequest fromName(String name) {
-         for (RpcRequest type: values()) {
+         for (final RpcRequest type: values()) {
             if (type.name()
                     .equalsIgnoreCase(name)) {
                return type;
@@ -385,8 +385,8 @@ public class RpcUtils {
                                      String account,
                                      char[] password)
             throws IOException {
-      String url        = asLink(serverUrl, request, name);
-      int    resultCode = JsonUtils.sendJsonString(url, JsonUtils.toJsonString(object), account, password);
+      final String url        = asLink(serverUrl, request, name);
+      final int    resultCode = JsonUtils.sendJsonString(url, JsonUtils.toJsonString(object), account, password);
 
       return resultCode == 200;
    }
@@ -407,7 +407,7 @@ public class RpcUtils {
          String account,
          char[] password)
             throws IOException {
-      String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORIES, null);
+      final String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORIES, null);
 
       return JsonUtils.retrieveJson(url, account, password);
    }

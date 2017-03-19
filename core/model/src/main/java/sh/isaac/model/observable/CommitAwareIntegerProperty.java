@@ -63,7 +63,7 @@ public class CommitAwareIntegerProperty
    public static void checkChangesAllowed(Object bean)
             throws RuntimeException {
       if (bean instanceof CommittableComponent) {
-         CommittableComponent committableComponent = (CommittableComponent) bean;
+         final CommittableComponent committableComponent = (CommittableComponent) bean;
 
          if (committableComponent.getCommitState() == CommitStates.COMMITTED) {
             throw new RuntimeException("Cannot change value, component is already committed.");

@@ -168,7 +168,7 @@ public class SememeIndexer
                                    Integer[] searchColumns,
                                    int sizeLimit,
                                    Long targetGeneration) {
-      Query q = new QueryWrapperForColumnHandling() {
+      final Query q = new QueryWrapperForColumnHandling() {
          @Override
          Query buildQuery(String columnName) {
             return new TermQuery(new Term(columnName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, nid + ""));
@@ -275,7 +275,7 @@ public class SememeIndexer
                         ((queryData instanceof DynamicSememeInteger) &&
                          ((DynamicSememeInteger) queryData).getDataInteger() < 0)) {
                      // Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
-                     BooleanQuery wrapper = new BooleanQuery();
+                     final BooleanQuery wrapper = new BooleanQuery();
 
                      wrapper.add(new TermQuery(new Term(columnName, queryData.getDataObject().toString())),
                                  Occur.SHOULD);
@@ -321,7 +321,7 @@ public class SememeIndexer
          Integer[] searchColumns,
          int sizeLimit,
          Long targetGeneration) {
-      Query q = new QueryWrapperForColumnHandling() {
+      final Query q = new QueryWrapperForColumnHandling() {
          @Override
          Query buildQuery(String columnName) {
             return buildNumericQuery(queryDataLower,
@@ -337,22 +337,22 @@ public class SememeIndexer
 
    @Override
    protected void addFields(ObjectChronology<?> chronicle, Document doc) {
-      SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+      final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
                             sememeChronology.getAssemblageSequence() + "",
                             Field.Store.NO));
 
-      for (Object sv: sememeChronology.getVersionList()) {
+      for (final Object sv: sememeChronology.getVersionList()) {
          if (sv instanceof DynamicSememe) {
-            DynamicSememe<?> dsv     = (DynamicSememe<?>) sv;
-            Integer[]        columns = lric.whatColumnsToIndex(dsv.getAssemblageSequence());
+            final DynamicSememe<?> dsv     = (DynamicSememe<?>) sv;
+            final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageSequence());
 
             if (columns != null) {
-               int dataColCount = dsv.getData().length;
+               final int dataColCount = dsv.getData().length;
 
-               for (int col: columns) {
-                  DynamicSememeData dataCol = (col >= dataColCount) ? null
+               for (final int col: columns) {
+                  final DynamicSememeData dataCol = (col >= dataColCount) ? null
                         : dsv.getData(col);
 
                   // Only pass in a column number if we were asked to index more than one column for this sememe
@@ -365,23 +365,23 @@ public class SememeIndexer
          // TODO enhance the index configuration to allow us to configure Static sememes as indexed, or not indexed
          // static sememe types are never more than 1 column, always pass -1
          else if (sv instanceof StringSememe) {
-            StringSememe<?> ssv = (StringSememe<?>) sv;
+            final StringSememe<?> ssv = (StringSememe<?>) sv;
 
             handleType(doc, new DynamicSememeStringImpl(ssv.getString()), -1);
             incrementIndexedItemCount("Sememe String");
          } else if (sv instanceof LongSememe) {
-            LongSememe<?> lsv = (LongSememe<?>) sv;
+            final LongSememe<?> lsv = (LongSememe<?>) sv;
 
             handleType(doc, new DynamicSememeLongImpl(lsv.getLongValue()), -1);
             incrementIndexedItemCount("Sememe Long");
          } else if (sv instanceof ComponentNidSememe) {
-            ComponentNidSememe<?> csv = (ComponentNidSememe<?>) sv;
+            final ComponentNidSememe<?> csv = (ComponentNidSememe<?>) sv;
 
             handleType(doc, new DynamicSememeNidImpl(csv.getComponentNid()), -1);
             incrementIndexedItemCount("Sememe Component Nid");
          } else if (sv instanceof LogicGraphSememe) {
-            LogicGraphSememe<?> lgsv = (LogicGraphSememe<?>) sv;
-            ConceptSequenceSet  css  = new ConceptSequenceSet();
+            final LogicGraphSememe<?> lgsv = (LogicGraphSememe<?>) sv;
+            final ConceptSequenceSet  css  = new ConceptSequenceSet();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {
                                       logicNode.addConceptsReferencedByNode(css);
@@ -397,12 +397,12 @@ public class SememeIndexer
 
       // Due to indexing all of the versions, we may have added duplicate field name/value combinations to the document.
       // Remove the dupes.
-      Iterator<IndexableField> it           = doc.iterator();
-      HashSet<String>          uniqueFields = new HashSet<>();
+      final Iterator<IndexableField> it           = doc.iterator();
+      final HashSet<String>          uniqueFields = new HashSet<>();
 
       while (it.hasNext()) {
-         IndexableField field = it.next();
-         String         temp  = field.name() + "::" + field.stringValue();
+         final IndexableField field = it.next();
+         final String         temp  = field.name() + "::" + field.stringValue();
 
          if (uniqueFields.contains(temp)) {
             it.remove();
@@ -415,7 +415,7 @@ public class SememeIndexer
    @Override
    protected boolean indexChronicle(ObjectChronology<?> chronicle) {
       if (chronicle instanceof SememeChronology<?>) {
-         SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
          if ((sememeChronology.getSememeType() == SememeType.DYNAMIC) ||
                (sememeChronology.getSememeType() == SememeType.STRING) ||
@@ -438,16 +438,16 @@ public class SememeIndexer
       // Also - if they pass in longs that would fit in an int, also generate an int query.
       // likewise, with Double - if they pass in a double, that would fit in a float, also generate a float query.
       try {
-         BooleanQuery bq          = new BooleanQuery();
+         final BooleanQuery bq          = new BooleanQuery();
          boolean      fitsInFloat = false;
          boolean      fitsInInt   = false;
 
          if ((queryDataLower instanceof DynamicSememeDouble) || (queryDataUpper instanceof DynamicSememeDouble)) {
-            Double upperVal = ((queryDataUpper == null) ? null
+            final Double upperVal = ((queryDataUpper == null) ? null
                   : ((queryDataUpper instanceof DynamicSememeDouble)
                      ? ((DynamicSememeDouble) queryDataUpper).getDataDouble()
                      : ((Number) queryDataUpper.getDataObject()).doubleValue()));
-            Double lowerVal = ((queryDataLower == null) ? null
+            final Double lowerVal = ((queryDataLower == null) ? null
                   : ((queryDataLower instanceof DynamicSememeDouble)
                      ? ((DynamicSememeDouble) queryDataLower).getDataDouble()
                      : ((Number) queryDataLower.getDataObject()).doubleValue()));
@@ -468,14 +468,14 @@ public class SememeIndexer
          if (fitsInFloat ||
                (queryDataLower instanceof DynamicSememeFloat) ||
                (queryDataUpper instanceof DynamicSememeFloat)) {
-            Float upperVal = ((queryDataUpper == null) ? null
+            final Float upperVal = ((queryDataUpper == null) ? null
                   : ((queryDataUpper == null) ? null
                                               : ((queryDataUpper instanceof DynamicSememeFloat)
                                                  ? ((DynamicSememeFloat) queryDataUpper).getDataFloat()
                   : ((fitsInFloat &&
                       ((Number) queryDataUpper.getDataObject()).doubleValue() > Float.MAX_VALUE) ? Float.MAX_VALUE
                   : ((Number) queryDataUpper.getDataObject()).floatValue()))));
-            Float lowerVal = ((queryDataLower == null) ? null
+            final Float lowerVal = ((queryDataLower == null) ? null
                   : ((queryDataLower instanceof DynamicSememeFloat)
                      ? ((DynamicSememeFloat) queryDataLower).getDataFloat()
                      : ((fitsInFloat &&
@@ -491,10 +491,10 @@ public class SememeIndexer
          }
 
          if ((queryDataLower instanceof DynamicSememeLong) || (queryDataUpper instanceof DynamicSememeLong)) {
-            Long upperVal = ((queryDataUpper == null) ? null
+            final Long upperVal = ((queryDataUpper == null) ? null
                   : ((queryDataUpper instanceof DynamicSememeLong) ? ((DynamicSememeLong) queryDataUpper).getDataLong()
                   : ((Number) queryDataUpper.getDataObject()).longValue()));
-            Long lowerVal = ((queryDataLower == null) ? null
+            final Long lowerVal = ((queryDataLower == null) ? null
                   : ((queryDataLower instanceof DynamicSememeLong) ? ((DynamicSememeLong) queryDataLower).getDataLong()
                   : ((Number) queryDataLower.getDataObject()).longValue()));
 
@@ -516,7 +516,7 @@ public class SememeIndexer
                (queryDataUpper instanceof DynamicSememeInteger) ||
                (queryDataLower instanceof DynamicSememeSequence) ||
                (queryDataUpper instanceof DynamicSememeSequence)) {
-            Integer upperVal = ((queryDataUpper == null) ? null
+            final Integer upperVal = ((queryDataUpper == null) ? null
                   : ((queryDataUpper instanceof DynamicSememeInteger)
                      ? ((DynamicSememeInteger) queryDataUpper).getDataInteger()
                      : ((queryDataUpper instanceof DynamicSememeSequence)
@@ -525,7 +525,7 @@ public class SememeIndexer
                             ((Number) queryDataUpper.getDataObject()).longValue() >
                             Integer.MAX_VALUE) ? Integer.MAX_VALUE
                                                : ((Number) queryDataUpper.getDataObject()).intValue()))));
-            Integer lowerVal = ((queryDataLower == null) ? null
+            final Integer lowerVal = ((queryDataLower == null) ? null
                   : ((queryDataLower instanceof DynamicSememeInteger)
                      ? ((DynamicSememeInteger) queryDataLower).getDataInteger()
                      : ((queryDataLower instanceof DynamicSememeSequence)
@@ -546,12 +546,12 @@ public class SememeIndexer
          if (bq.getClauses().length == 0) {
             throw new RuntimeException("Not a numeric data type - can't perform a range query");
          } else {
-            BooleanQuery must = new BooleanQuery();
+            final BooleanQuery must = new BooleanQuery();
 
             must.add(bq, Occur.MUST);
             return must;
          }
-      } catch (ClassCastException e) {
+      } catch (final ClassCastException e) {
          throw new RuntimeException("One of the values is not a numeric data type - can't perform a range query");
       }
    }
@@ -684,7 +684,7 @@ public class SememeIndexer
 
          incrementIndexedItemCount("Dynamic Sememe UUID");
       } else if (dataCol instanceof DynamicSememeArray<?>) {
-         for (DynamicSememeData nestedData: ((DynamicSememeArray<?>) dataCol).getDataArray()) {
+         for (final DynamicSememeData nestedData: ((DynamicSememeArray<?>) dataCol).getDataArray()) {
             handleType(doc, nestedData, colNumber);
          }
       } else {
@@ -706,7 +706,7 @@ public class SememeIndexer
                throw new RuntimeException(
                    "If a list of search columns is provided, then the sememeConceptSequence variable must contain 1 (and only 1) sememe");
             } else {
-               sememeIndexedColumns = lric.whatColumnsToIndex(sememeConceptSequence[0]);
+               sememeIndexedColumns = SememeIndexer.this.lric.whatColumnsToIndex(sememeConceptSequence[0]);
             }
          }
 
@@ -718,9 +718,9 @@ public class SememeIndexer
             return buildQuery(COLUMN_FIELD_DATA);
          } else  // If they passed a specific column to search AND the dynamic sememe type has more than 1 indexed column, then do a column specific search.
          {
-            BooleanQuery group = new BooleanQuery();
+            final BooleanQuery group = new BooleanQuery();
 
-            for (int i: searchColumns) {
+            for (final int i: searchColumns) {
                group.add(buildQuery(COLUMN_FIELD_DATA + "_" + i), Occur.SHOULD);
             }
 

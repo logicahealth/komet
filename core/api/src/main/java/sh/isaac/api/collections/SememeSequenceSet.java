@@ -116,7 +116,7 @@ public class SememeSequenceSet
    }
 
    public static SememeSequenceSet of(NidSet sememeNidSet) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
    }

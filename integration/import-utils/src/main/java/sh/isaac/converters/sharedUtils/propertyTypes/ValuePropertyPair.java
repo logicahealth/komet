@@ -49,29 +49,29 @@ public class ValuePropertyPair
          implements Comparable<ValuePropertyPair> {
    private Boolean  valueDisabled_ = null;  // used for overriding the property default with instance data
    protected Long   time_          = null;
-   private Property property_;
-   private String   value_;
+   private final Property property_;
+   private final String   value_;
    private UUID     descriptionUUID_;
 
    //~--- constructors --------------------------------------------------------
 
    public ValuePropertyPair(String value, Property property) {
-      value_           = value;
-      property_        = property;
-      descriptionUUID_ = null;
+      this.value_           = value;
+      this.property_        = property;
+      this.descriptionUUID_ = null;
    }
 
    public ValuePropertyPair(String value, UUID descriptionUUID, Property property) {
-      value_           = value;
-      property_        = property;
-      descriptionUUID_ = descriptionUUID;
+      this.value_           = value;
+      this.property_        = property;
+      this.descriptionUUID_ = descriptionUUID;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public int compareTo(ValuePropertyPair o) {
-      int result = property_.getPropertyType()
+      int result = this.property_.getPropertyType()
                             .getClass()
                             .getName()
                             .compareTo(o.property_.getPropertyType()
@@ -79,14 +79,14 @@ public class ValuePropertyPair
                                   .getName());
 
       if (result == 0) {
-         result = property_.getPropertySubType() - o.property_.getPropertySubType();
+         result = this.property_.getPropertySubType() - o.property_.getPropertySubType();
 
          if (result == 0) {
-            result = property_.getSourcePropertyNameFSN()
+            result = this.property_.getSourcePropertyNameFSN()
                               .compareTo(o.property_.getSourcePropertyNameFSN());
 
             if (result == 0) {
-               result = value_.compareTo(o.value_);
+               result = this.value_.compareTo(o.value_);
             }
          }
       }
@@ -101,51 +101,51 @@ public class ValuePropertyPair
     * @return
     */
    public boolean isDisabled() {
-      if (valueDisabled_ != null) {
-         return valueDisabled_;
+      if (this.valueDisabled_ != null) {
+         return this.valueDisabled_;
       } else {
-         return property_.isDisabled();
+         return this.property_.isDisabled();
       }
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setDisabled(boolean disabled) {
-      valueDisabled_ = disabled;
+      this.valueDisabled_ = disabled;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public Property getProperty() {
-      return property_;
+      return this.property_;
    }
 
    public Long getTime() {
-      return time_;
+      return this.time_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setTime(long time) {
-      time_ = time;
+      this.time_ = time;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public UUID getUUID() {
-      return descriptionUUID_;
+      return this.descriptionUUID_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setUUID(UUID uuid) {
-      descriptionUUID_ = uuid;
+      this.descriptionUUID_ = uuid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getValue() {
-      return value_;
+      return this.value_;
    }
 }
 

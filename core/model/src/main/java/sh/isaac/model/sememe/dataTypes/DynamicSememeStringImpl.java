@@ -73,7 +73,7 @@ public class DynamicSememeStringImpl
          throw new RuntimeException("The string value cannot be null", null);
       }
 
-      data_ = string.getBytes();
+      this.data_ = string.getBytes();
    }
 
    protected DynamicSememeStringImpl(byte[] data, int assemblageSequence, int columnNumber) {
@@ -103,7 +103,7 @@ public class DynamicSememeStringImpl
     */
    @Override
    public String getDataString() {
-      return new String(data_);
+      return new String(this.data_);
    }
 
    /**
@@ -111,11 +111,11 @@ public class DynamicSememeStringImpl
     */
    @Override
    public ReadOnlyObjectProperty<String> getDataStringProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
       }
 
-      return property_;
+      return this.property_;
    }
 }
 

@@ -143,7 +143,7 @@ public abstract class Clause {
     * @return the enclosing <code>Query</code>
     */
    public Query getEnclosingQuery() {
-      return enclosingQuery;
+      return this.enclosingQuery;
    }
 
    //~--- set methods ---------------------------------------------------------

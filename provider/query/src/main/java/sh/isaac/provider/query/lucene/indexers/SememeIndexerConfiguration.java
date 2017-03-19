@@ -105,7 +105,7 @@ public class SememeIndexerConfiguration {
    private HashMap<Integer, Integer[]> whatToIndexSequenceToCol_ = new HashMap<>();
    private final AtomicInteger readNeeded_ =
       new AtomicInteger(1);  // 0 means no readNeeded, anything greater than 0 means it does need a re-read
-   private Semaphore readNeededBlock_ = new Semaphore(1);
+   private final Semaphore readNeededBlock_ = new Semaphore(1);
 
    //~--- methods -------------------------------------------------------------
 
@@ -121,15 +121,15 @@ public class SememeIndexerConfiguration {
                    .getService(SememeIndexerConfiguration.class).readNeeded_
                    .incrementAndGet();
 
-      List<IndexStatusListenerBI> islList = LookupService.get()
+      final List<IndexStatusListenerBI> islList = LookupService.get()
                                                          .getAllServices(IndexStatusListenerBI.class);
 
-      for (IndexStatusListenerBI isl: islList) {
+      for (final IndexStatusListenerBI isl: islList) {
          isl.indexConfigurationChanged(LookupService.get()
                .getService(SememeIndexer.class));
       }
 
-      ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
+      final ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
                                                                                        .getConcept(
                                                                                           assemblageNidOrSequence);
 
@@ -139,7 +139,7 @@ public class SememeIndexerConfiguration {
       DynamicSememeData[] data = null;
 
       if (columnsToIndex != null) {
-         DynamicSememeIntegerImpl[] cols = new DynamicSememeIntegerImpl[columnsToIndex.length];
+         final DynamicSememeIntegerImpl[] cols = new DynamicSememeIntegerImpl[columnsToIndex.length];
 
          for (int i = 0; i < columnsToIndex.length; i++) {
             cols[i] = new DynamicSememeIntegerImpl(columnsToIndex[i]);
@@ -152,7 +152,7 @@ public class SememeIndexerConfiguration {
          throw new RuntimeException("It doesn't make sense to index a dynamic sememe without indexing any column data");
       }
 
-      SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
+      final SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
                                                                                     .getDynamicSememeBuilder(
                                                                                        Get.identifierService()
                                                                                              .getConceptNid(
@@ -195,15 +195,15 @@ public class SememeIndexerConfiguration {
                    .getService(SememeIndexerConfiguration.class).readNeeded_
                    .incrementAndGet();
 
-      List<IndexStatusListenerBI> islList = LookupService.get()
+      final List<IndexStatusListenerBI> islList = LookupService.get()
                                                          .getAllServices(IndexStatusListenerBI.class);
 
-      for (IndexStatusListenerBI isl: islList) {
+      for (final IndexStatusListenerBI isl: islList) {
          isl.indexConfigurationChanged(LookupService.get()
                .getService(SememeIndexer.class));
       }
 
-      ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
+      final ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
                                                                                        .getConcept(
                                                                                           assemblageNidOrSequence);
 
@@ -213,7 +213,7 @@ public class SememeIndexerConfiguration {
       DynamicSememeData[] data = null;
 
       if (columnsToIndex != null) {
-         DynamicSememeIntegerImpl[] cols = new DynamicSememeIntegerImpl[columnsToIndex.length];
+         final DynamicSememeIntegerImpl[] cols = new DynamicSememeIntegerImpl[columnsToIndex.length];
 
          for (int i = 0; i < columnsToIndex.length; i++) {
             cols[i] = new DynamicSememeIntegerImpl(columnsToIndex[i]);
@@ -226,7 +226,7 @@ public class SememeIndexerConfiguration {
          throw new RuntimeException("It doesn't make sense to index a dynamic sememe without indexing any column data");
       }
 
-      SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
+      final SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
                                                                                     .getDynamicSememeBuilder(
                                                                                        Get.identifierService()
                                                                                              .getConceptNid(
@@ -262,17 +262,17 @@ public class SememeIndexerConfiguration {
             throws RuntimeException {
       log.info("Disabling index for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
 
-      DynamicSememe<?> rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
+      final DynamicSememe<?> rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
       if ((rdv != null) && (rdv.getState() == State.ACTIVE)) {
          LookupService.get()
                       .getService(SememeIndexerConfiguration.class).readNeeded_
                       .incrementAndGet();
 
-         List<IndexStatusListenerBI> islList = LookupService.get()
+         final List<IndexStatusListenerBI> islList = LookupService.get()
                                                             .getAllServices(IndexStatusListenerBI.class);
 
-         for (IndexStatusListenerBI isl: islList) {
+         for (final IndexStatusListenerBI isl: islList) {
             isl.indexConfigurationChanged(LookupService.get()
                   .getService(SememeIndexer.class));
          }
@@ -309,27 +309,30 @@ public class SememeIndexerConfiguration {
 
    protected boolean needsIndexing(int assemblageConceptSequence) {
       initCheck();
-      return whatToIndexSequenceToCol_.containsKey(assemblageConceptSequence);
+      return this.whatToIndexSequenceToCol_.containsKey(assemblageConceptSequence);
    }
 
    protected Integer[] whatColumnsToIndex(int assemblageConceptSequence) {
       initCheck();
-      return whatToIndexSequenceToCol_.get(assemblageConceptSequence);
+      return this.whatToIndexSequenceToCol_.get(assemblageConceptSequence);
    }
 
    private static DynamicSememe<? extends DynamicSememe<?>> findCurrentIndexConfigRefex(int indexedSememeId)
             throws RuntimeException {
       @SuppressWarnings("rawtypes")
+	final
       SememeSnapshotService<DynamicSememe> sss = Get.sememeService()
                                                     .getSnapshot(DynamicSememe.class,
                                                           StampCoordinates.getDevelopmentLatest());
       @SuppressWarnings("rawtypes")
+	final
       Stream<LatestVersion<DynamicSememe>> sememes =
          sss.getLatestSememeVersionsForComponentFromAssemblage(Get.identifierService()
                                                                   .getConceptNid(indexedSememeId),
                                                                DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
                                                                      .getSequence());
       @SuppressWarnings("rawtypes")
+	final
       Optional<LatestVersion<DynamicSememe>> ds = sememes.findAny();
 
       if (ds.isPresent()) {
@@ -341,17 +344,17 @@ public class SememeIndexerConfiguration {
    }
 
    private void initCheck() {
-      if (readNeeded_.get() > 0) {
+      if (this.readNeeded_.get() > 0) {
          // During bulk index, prevent all threads from doing this at the same time...
          try {
-            readNeededBlock_.acquireUninterruptibly();
+            this.readNeededBlock_.acquireUninterruptibly();
 
-            if (readNeeded_.get() > 0) {
+            if (this.readNeeded_.get() > 0) {
                log.debug("Reading Dynamic Sememe Index Configuration");
 
                try {
-                  HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
-                  Stream<SememeChronology<? extends SememeVersion<?>>> sememeCs = Get.sememeService()
+                  final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
+                  final Stream<SememeChronology<? extends SememeVersion<?>>> sememeCs = Get.sememeService()
                                                                                      .getSememesFromAssemblage(
                                                                                         DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
                                                                                               .getSequence());
@@ -359,22 +362,24 @@ public class SememeIndexerConfiguration {
                   sememeCs.forEach(sememeC -> {
                                       if (sememeC.getSememeType() == SememeType.DYNAMIC) {
                                          @SuppressWarnings({ "unchecked", "rawtypes" })
+										final
                                          Optional<LatestVersion<DynamicSememe>> dsv =
                                             ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class,
                                                                                           StampCoordinates.getDevelopmentLatest());
 
                                          if (dsv.isPresent() && (dsv.get().value().getState() == State.ACTIVE)) {
-                                            int assemblageToIndex = Get.identifierService()
+                                            final int assemblageToIndex = Get.identifierService()
                                                                        .getConceptSequence(dsv.get()
                                                                              .value()
                                                                              .getReferencedComponentNid());
                                             Integer[]           finalCols = new Integer[] {};
-                                            DynamicSememeData[] data      = dsv.get()
+                                            final DynamicSememeData[] data      = dsv.get()
                                                                                .value()
                                                                                .getData();
 
                                             if ((data != null) && (data.length > 0)) {
                                                @SuppressWarnings("unchecked")
+											final
                                                DynamicSememeInteger[] colsToIndex =
                                                   ((DynamicSememeArray<DynamicSememeInteger>) data[0]).getDataArray();
 
@@ -393,16 +398,16 @@ public class SememeIndexerConfiguration {
                                          }
                                       }
                                    });
-                  whatToIndexSequenceToCol_ = updatedWhatToIndex;
-                  readNeeded_.decrementAndGet();
-               } catch (Exception e) {
+                  this.whatToIndexSequenceToCol_ = updatedWhatToIndex;
+                  this.readNeeded_.decrementAndGet();
+               } catch (final Exception e) {
                   log.error(
                       "Unexpected error reading Dynamic Sememe Index Configuration - generated index will be incomplete!",
                       e);
                }
             }
          } finally {
-            readNeededBlock_.release();
+            this.readNeededBlock_.release();
          }
       }
    }

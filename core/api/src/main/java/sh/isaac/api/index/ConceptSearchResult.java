@@ -74,44 +74,44 @@ public class ConceptSearchResult
 
    public ConceptSearchResult(int conceptSequence, int componentNid, float score) {
       this.conceptSequence = conceptSequence;
-      nids.add(componentNid);
+      this.nids.add(componentNid);
       this.bestScore = score;
    }
 
    //~--- methods -------------------------------------------------------------
 
    public void merge(ConceptSearchResult other) {
-      if (conceptSequence != other.conceptSequence) {
+      if (this.conceptSequence != other.conceptSequence) {
          throw new RuntimeException("Unmergeable!");
       }
 
-      if (other.bestScore > bestScore) {
-         bestScore = other.bestScore;
+      if (other.bestScore > this.bestScore) {
+         this.bestScore = other.bestScore;
       }
 
-      nids.addAll(other.getMatchingComponents());
+      this.nids.addAll(other.getMatchingComponents());
    }
 
    public void merge(SearchResult other) {
-      if (other.getScore() > bestScore) {
-         bestScore = other.getScore();
+      if (other.getScore() > this.bestScore) {
+         this.bestScore = other.getScore();
       }
 
-      nids.add(other.getNid());
+      this.nids.add(other.getNid());
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public float getBestScore() {
-      return bestScore;
+      return this.bestScore;
    }
 
    public int getConceptSequence() {
-      return conceptSequence;
+      return this.conceptSequence;
    }
 
    public Collection<? extends Integer> getMatchingComponents() {
-      return nids;
+      return this.nids;
    }
 
    /**
@@ -119,7 +119,7 @@ public class ConceptSearchResult
     */
    @Override
    public int getNid() {
-      return nids.iterator()
+      return this.nids.iterator()
                  .next();
    }
 

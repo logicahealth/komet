@@ -54,7 +54,7 @@ import sh.isaac.model.coordinate.EditCoordinateImpl;
  */
 public class EditCoordinates {
    public static EditCoordinate getClassifierSolorOverlay() {
-      EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.IHTSDO_CLASSIFIER),
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.IHTSDO_CLASSIFIER),
                                                              getNid(TermAux.SOLOR_OVERLAY_MODULE),
                                                              getNid(TermAux.DEVELOPMENT_PATH));
 
@@ -62,7 +62,7 @@ public class EditCoordinates {
    }
 
    public static EditCoordinate getDefaultUserMetadata() {
-      EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
                                                              getNid(TermAux.ISAAC_MODULE),
                                                              getNid(TermAux.DEVELOPMENT_PATH));
 
@@ -70,7 +70,7 @@ public class EditCoordinates {
    }
 
    public static EditCoordinate getDefaultUserSolorOverlay() {
-      EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
                                                              getNid(TermAux.SOLOR_OVERLAY_MODULE),
                                                              getNid(TermAux.DEVELOPMENT_PATH));
 
@@ -78,7 +78,7 @@ public class EditCoordinates {
    }
 
    public static EditCoordinate getDefaultUserVeteransAdministrationExtension() {
-      EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
+      final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
                                                              getNid(TermAux.VHA_MODULES),
                                                              getNid(TermAux.DEVELOPMENT_PATH));
 

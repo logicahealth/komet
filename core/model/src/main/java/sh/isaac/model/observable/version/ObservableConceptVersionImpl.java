@@ -63,7 +63,7 @@ public class ObservableConceptVersionImpl
 
    @Override
    public ObservableConceptChronology<ObservableConceptVersionImpl> getChronology() {
-      return (ObservableConceptChronology<ObservableConceptVersionImpl>) chronology;
+      return (ObservableConceptChronology<ObservableConceptVersionImpl>) this.chronology;
    }
 }
 

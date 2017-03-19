@@ -146,9 +146,9 @@ public class HeadlessToolkit
 
    //~--- fields --------------------------------------------------------------
 
-   private AtomicBoolean         toolkitRunning = new AtomicBoolean(false);
+   private final AtomicBoolean         toolkitRunning = new AtomicBoolean(false);
    LinkedBlockingQueue<Runnable> tasks          = new LinkedBlockingQueue<>();
-   private Map<Object, Object>   contextMap     = Collections.synchronizedMap(new HashMap<>());
+   private final Map<Object, Object>   contextMap     = Collections.synchronizedMap(new HashMap<>());
 
    //~--- methods -------------------------------------------------------------
 
@@ -169,7 +169,8 @@ public class HeadlessToolkit
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
-   public boolean canStartNestedEventLoop() {
+   @Override
+public boolean canStartNestedEventLoop() {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
@@ -253,7 +254,7 @@ public class HeadlessToolkit
 
    @Override
    public void defer(Runnable runnable) {
-      tasks.add(runnable);
+      this.tasks.add(runnable);
    }
 
    @Override
@@ -293,11 +294,11 @@ public class HeadlessToolkit
       log.debug("installHeadlessToolkit begins");
 
       try {
-         Field f = Toolkit.class.getDeclaredField("TOOLKIT");
+         final Field f = Toolkit.class.getDeclaredField("TOOLKIT");
 
          FortifyFun.fixAccessible(f);  // f.setAccessible(true);
 
-         Object currentToolkit = f.get(null);
+         final Object currentToolkit = f.get(null);
 
          if (currentToolkit == null) {
             log.debug("Installing the headless toolkit via reflection.");
@@ -388,11 +389,11 @@ public class HeadlessToolkit
    public void startup(Runnable runnable) {
       log.info("HeadlessTookit startup method called");
 
-      if (!toolkitRunning.getAndSet(true)) {
+      if (!this.toolkitRunning.getAndSet(true)) {
          log.info("Starting a stand-in JavaFX Application Thread");
 
-         Thread t = new Thread(() -> {
-                                  Thread user = Thread.currentThread();
+         final Thread t = new Thread(() -> {
+                                  final Thread user = Thread.currentThread();
 
                                   user.setName("JavaFX Application Thread");
 
@@ -402,9 +403,9 @@ public class HeadlessToolkit
 
                                   while (true) {
                                      try {
-                                        tasks.take()
+                                        this.tasks.take()
                                              .run();
-                                     } catch (Exception e) {
+                                     } catch (final Exception e) {
                                         // don't care
                                      }
                                   }
@@ -414,7 +415,7 @@ public class HeadlessToolkit
          t.start();
       }
 
-      tasks.add(runnable);
+      this.tasks.add(runnable);
    }
 
    @Override
@@ -464,7 +465,7 @@ public class HeadlessToolkit
    @Override
    public void setAnimationRunnable(DelayedRunnable animationRunnable) {
       if (animationRunnable != null) {
-         tasks.add(animationRunnable);
+         this.tasks.add(animationRunnable);
       }
    }
 
@@ -482,7 +483,7 @@ public class HeadlessToolkit
 
    @Override
    public Map<Object, Object> getContextMap() {
-      return contextMap;
+      return this.contextMap;
    }
 
    @Override
@@ -560,7 +561,8 @@ public class HeadlessToolkit
       return 60;
    }
 
-   public ScreenConfigurationAccessor getScreenConfigurationAccessor() {
+   @Override
+public ScreenConfigurationAccessor getScreenConfigurationAccessor() {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }

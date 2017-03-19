@@ -69,7 +69,7 @@ public class LatestPrimitiveStampCollector
 
    @Override
    public void accept(StampSequenceSet latestResult, int possibleNewLatestStamp) {
-      StampSequenceSet oldResult = StampSequenceSet.of(latestResult.stream());
+      final StampSequenceSet oldResult = StampSequenceSet.of(latestResult.stream());
 
       latestResult.clear();
 
@@ -79,9 +79,9 @@ public class LatestPrimitiveStampCollector
       } else if (oldResult.size() == 1) {
          // Only a single existing result (no contradiction identified), so see which is
          // latest, or if a contradiction exists.
-         int              oldStampSequence = oldResult.getIntIterator()
+         final int              oldStampSequence = oldResult.getIntIterator()
                                                       .next();
-         RelativePosition relativePosition = computer.relativePosition(oldStampSequence, possibleNewLatestStamp);
+         final RelativePosition relativePosition = this.computer.relativePosition(oldStampSequence, possibleNewLatestStamp);
 
          switch (relativePosition) {
          case AFTER:
@@ -105,7 +105,7 @@ public class LatestPrimitiveStampCollector
          case UNREACHABLE:
             latestResult.or(oldResult);
 
-            if (computer.onRoute(possibleNewLatestStamp)) {
+            if (this.computer.onRoute(possibleNewLatestStamp)) {
                latestResult.add(possibleNewLatestStamp);
             }
 
@@ -116,10 +116,10 @@ public class LatestPrimitiveStampCollector
          }
       } else {
          // Complicated case, current results contain at least one contradiction (size > 1)
-         EnumSet<RelativePosition> relativePositions = EnumSet.noneOf(RelativePosition.class);
+         final EnumSet<RelativePosition> relativePositions = EnumSet.noneOf(RelativePosition.class);
 
          oldResult.stream().forEach((oldResultStamp) -> {
-                              relativePositions.add(computer.relativePosition(possibleNewLatestStamp, oldResultStamp));
+                              relativePositions.add(this.computer.relativePosition(possibleNewLatestStamp, oldResultStamp));
                            });
 
          if (relativePositions.size() == 1) {

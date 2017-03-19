@@ -74,26 +74,26 @@ public class ValuePropertyPairWithAttributes
    //~--- methods -------------------------------------------------------------
 
    public void addRefsetMembership(UUID refsetConcept) {
-      refsetMembership.add(refsetConcept);
+      this.refsetMembership.add(refsetConcept);
    }
 
    public void addStringAttribute(UUID type, String value) {
-      ArrayList<String> values = stringAttributes.get(type);
+      ArrayList<String> values = this.stringAttributes.get(type);
 
       if (values == null) {
          values = new ArrayList<>();
-         stringAttributes.put(type, values);
+         this.stringAttributes.put(type, values);
       }
 
       values.add(value);
    }
 
    public void addUUIDAttribute(UUID type, UUID value) {
-      ArrayList<UUID> values = uuidAttributes.get(type);
+      ArrayList<UUID> values = this.uuidAttributes.get(type);
 
       if (values == null) {
          values = new ArrayList<>();
-         uuidAttributes.put(type, values);
+         this.uuidAttributes.put(type, values);
       }
 
       values.add(value);
@@ -103,9 +103,9 @@ public class ValuePropertyPairWithAttributes
          List<? extends ValuePropertyPairWithAttributes> descriptionSource,
          List<SememeChronology<DescriptionSememe<?>>> descriptions) {
       for (int i = 0; i < descriptionSource.size(); i++) {
-         for (Entry<UUID, ArrayList<String>> attributes: descriptionSource.get(i).stringAttributes
+         for (final Entry<UUID, ArrayList<String>> attributes: descriptionSource.get(i).stringAttributes
                .entrySet()) {
-            for (String value: attributes.getValue()) {
+            for (final String value: attributes.getValue()) {
                ibdfCreationUtility.addStringAnnotation(ComponentReference.fromChronology(descriptions.get(i)),
                      value,
                      attributes.getKey(),
@@ -113,16 +113,16 @@ public class ValuePropertyPairWithAttributes
             }
          }
 
-         for (Entry<UUID, ArrayList<UUID>> attributes: descriptionSource.get(i).uuidAttributes
+         for (final Entry<UUID, ArrayList<UUID>> attributes: descriptionSource.get(i).uuidAttributes
                .entrySet()) {
-            for (UUID value: attributes.getValue()) {
+            for (final UUID value: attributes.getValue()) {
                ibdfCreationUtility.addUUIDAnnotation(ComponentReference.fromChronology(descriptions.get(i)),
                      value,
                      attributes.getKey());
             }
          }
 
-         for (UUID refsetConcept: descriptionSource.get(i).refsetMembership) {
+         for (final UUID refsetConcept: descriptionSource.get(i).refsetMembership) {
             ibdfCreationUtility.addRefsetMembership(ComponentReference.fromChronology(descriptions.get(i)),
                   refsetConcept,
                   State.ACTIVE,
@@ -134,7 +134,7 @@ public class ValuePropertyPairWithAttributes
    //~--- get methods ---------------------------------------------------------
 
    public ArrayList<String> getStringAttribute(UUID type) {
-      return stringAttributes.get(type);
+      return this.stringAttributes.get(type);
    }
 }
 

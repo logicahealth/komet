@@ -134,13 +134,13 @@ public abstract class AbstractStorableWorkflowContents
     */
    protected void writeWorkflowData(ByteArrayDataBuffer data) {
       if (!data.isExternalData()) {
-         data.putInt(writeSequence);
+         data.putInt(this.writeSequence);
       }
 
-      primordialUuidMsb = id.getMostSignificantBits();
-      primordialUuidLsb = id.getLeastSignificantBits();
-      data.putLong(primordialUuidMsb);
-      data.putLong(primordialUuidLsb);
+      this.primordialUuidMsb = this.id.getMostSignificantBits();
+      this.primordialUuidLsb = this.id.getLeastSignificantBits();
+      data.putLong(this.primordialUuidMsb);
+      data.putLong(this.primordialUuidLsb);
       putAdditionalWorkflowFields(data);
    }
 
@@ -169,7 +169,7 @@ public abstract class AbstractStorableWorkflowContents
       setWriteSequence(writeSequence);
 
       // creating a brand new object
-      ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
+      final ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
 
       writeWorkflowData(db);
       db.putInt(0);  // zero length version record.
@@ -183,7 +183,7 @@ public abstract class AbstractStorableWorkflowContents
     * @return content-store entry key
     */
    public UUID getId() {
-      return id;
+      return this.id;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -195,14 +195,14 @@ public abstract class AbstractStorableWorkflowContents
     * The key to each content-store entry
     */
    public void setId(UUID key) {
-      id = key;
+      this.id = key;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getWriteSequence() {
-      return writeSequence;
+      return this.writeSequence;
    }
 
    //~--- set methods ---------------------------------------------------------

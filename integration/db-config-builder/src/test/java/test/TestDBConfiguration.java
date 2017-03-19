@@ -49,9 +49,9 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 public class TestDBConfiguration {
    public static void main(String[] args)
             throws Exception {
-      String testURL  = "https://git.isaac.sh/git/r/dantest.git";
-      String username = "";
-      char[] password = "".toCharArray();
+      final String testURL  = "https://git.isaac.sh/git/r/dantest.git";
+      final String username = "";
+      final char[] password = "".toCharArray();
 
       System.setProperty("java.awt.headless", "true");
 

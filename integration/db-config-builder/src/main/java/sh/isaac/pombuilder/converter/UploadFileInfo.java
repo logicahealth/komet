@@ -46,12 +46,12 @@ package sh.isaac.pombuilder.converter;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class UploadFileInfo {
-   private String  suggestedSourceLocation;
-   private String  suggestedSourceURL;
-   private String  sampleName;
-   private String  expectedNamingPatternDescription;
-   private String  expectedNamingPatternRegExpPattern;
-   private boolean fileIsRequired;
+   private final String  suggestedSourceLocation;
+   private final String  suggestedSourceURL;
+   private final String  sampleName;
+   private final String  expectedNamingPatternDescription;
+   private final String  expectedNamingPatternRegExpPattern;
+   private final boolean fileIsRequired;
 
    //~--- constructors --------------------------------------------------------
 
@@ -72,35 +72,35 @@ public class UploadFileInfo {
    //~--- methods -------------------------------------------------------------
 
    public boolean fileIsRequired() {
-      return fileIsRequired;
+      return this.fileIsRequired;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getExpectedNamingPatternDescription() {
-      return expectedNamingPatternDescription;
+      return this.expectedNamingPatternDescription;
    }
 
    public String getExpectedNamingPatternRegExpPattern() {
-      return expectedNamingPatternRegExpPattern;
+      return this.expectedNamingPatternRegExpPattern;
    }
 
    public String getSampleName() {
-      return sampleName;
+      return this.sampleName;
    }
 
    /**
     * This is not always populated - it will typically only be populated if {@link #getSuggestedSourceURL()} is NOT populated.
     */
    public String getSuggestedSourceLocation() {
-      return suggestedSourceLocation;
+      return this.suggestedSourceLocation;
    }
 
    /**
     * This is not always populated - it will typically only be populated if {@link #getSuggestedSourceLocation()} is NOT populated.
     */
    public String getSuggestedSourceURL() {
-      return suggestedSourceURL;
+      return this.suggestedSourceURL;
    }
 }
 

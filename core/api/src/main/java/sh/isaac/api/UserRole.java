@@ -79,7 +79,7 @@ public enum UserRole {
    //~--- methods -------------------------------------------------------------
 
    public static Optional<UserRole> safeValueOf(int ord) {
-      for (UserRole role: UserRole.values()) {
+      for (final UserRole role: UserRole.values()) {
          if (role.ordinal() == ord) {
             return Optional.of(role);
          }
@@ -89,7 +89,7 @@ public enum UserRole {
    }
 
    public static Optional<UserRole> safeValueOf(String str) {
-      for (UserRole role: UserRole.values()) {
+      for (final UserRole role: UserRole.values()) {
          if (role.getText()
                  .equalsIgnoreCase(str)) {
             return Optional.of(role);
@@ -99,14 +99,15 @@ public enum UserRole {
       return Optional.empty();
    }
 
-   public String toString() {
-      return text;
+   @Override
+public String toString() {
+      return this.text;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getText() {
-      return text;
+      return this.text;
    }
 }
 

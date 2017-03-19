@@ -73,11 +73,11 @@ public class SystemStatusProvider
     */
    @Override
    public void notifyServiceConfigurationFailure(String serviceName, Exception failureDetails) {
-      if (configurationFailures == null) {
-         configurationFailures = new ArrayList<>();
+      if (this.configurationFailures == null) {
+         this.configurationFailures = new ArrayList<>();
       }
 
-      configurationFailures.add(new Pair<String, Exception>(serviceName, failureDetails));
+      this.configurationFailures.add(new Pair<String, Exception>(serviceName, failureDetails));
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -88,7 +88,7 @@ public class SystemStatusProvider
     */
    @Override
    public Optional<List<Pair<String, Exception>>> getServiceConfigurationFailures() {
-      return Optional.of(configurationFailures);
+      return Optional.of(this.configurationFailures);
    }
 }
 

@@ -290,7 +290,7 @@ public class DescriptionIndexer
    @Override
    protected void addFields(ObjectChronology<?> chronicle, Document doc) {
       if (chronicle instanceof SememeChronology) {
-         SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             indexDescription(doc,
@@ -305,7 +305,7 @@ public class DescriptionIndexer
       setupNidConstants();
 
       if (chronicle instanceof SememeChronology) {
-         SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             return true;
@@ -332,10 +332,10 @@ public class DescriptionIndexer
 
       String                lastDescText     = null;
       String                lastDescType     = null;
-      TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
+      final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
-      for (DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion: sememeChronology.getVersionList()) {
-         String descType = sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
+      for (final DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion: sememeChronology.getVersionList()) {
+         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
 
          // No need to index if the text is the same as the previous version.
          if ((lastDescText == null) ||
@@ -357,24 +357,25 @@ public class DescriptionIndexer
       String lastExtendedDescType = null;
       String lastValue            = null;
 
-      for (SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
+      for (final SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
          if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
             @SuppressWarnings("unchecked")
+			final
             SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
                (SememeChronology<DynamicSememe<?>>) sememeChronicle;
 
-            for (DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
+            for (final DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
                // If this sememe is the sememe recording a dynamic sememe extended type....
-               if (sememeDynamic.getAssemblageSequence() == descExtendedTypeSequence) {
+               if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
                   // this is a UUID, but we want to treat it as a string anyway
-                  String extendedDescType = sememeDynamic.getData()[0]
+                  final String extendedDescType = sememeDynamic.getData()[0]
                                                          .getDataObject()
                                                          .toString();
                   String value            = null;
 
                   // Find the text that was active at the time of this refex - timestamp on the refex must not be
                   // greater than the timestamp on the value
-                  for (Entry<Long, String> x: uniqueTextValues.entrySet()) {
+                  for (final Entry<Long, String> x: uniqueTextValues.entrySet()) {
                      if ((value == null) || (x.getKey() <= sememeDynamic.getTime())) {
                         value = x.getValue();
                      } else if (x.getKey() > sememeDynamic.getTime()) {
@@ -411,12 +412,12 @@ public class DescriptionIndexer
 
          try {
             if (!sequencesSetup.get()) {
-               sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME.getConceptSequence(),
                                    LuceneDescriptionType.FSN.name());
-               sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
                                    LuceneDescriptionType.DEFINITION.name());
-               sequenceTypeMap.put(MetaData.SYNONYM.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
-               descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+               this.sequenceTypeMap.put(MetaData.SYNONYM.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }
 

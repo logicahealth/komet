@@ -71,8 +71,8 @@ public class AbbreviationExpansion {
 
    public static HashMap<String, AbbreviationExpansion> load(InputStream is)
             throws IOException {
-      HashMap<String, AbbreviationExpansion> results = new HashMap<>();
-      BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
+      final HashMap<String, AbbreviationExpansion> results = new HashMap<>();
+      final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
       String                                 line    = br.readLine();
 
       while (line != null) {
@@ -81,8 +81,8 @@ public class AbbreviationExpansion {
             continue;
          }
 
-         String[]              cols = line.split("\t");
-         AbbreviationExpansion ae   = new AbbreviationExpansion(cols[0], cols[1], ((cols.length > 2) ? cols[2]
+         final String[]              cols = line.split("\t");
+         final AbbreviationExpansion ae   = new AbbreviationExpansion(cols[0], cols[1], ((cols.length > 2) ? cols[2]
                : null));
 
          results.put(ae.getAbbreviation(), ae);
@@ -95,15 +95,15 @@ public class AbbreviationExpansion {
    //~--- get methods ---------------------------------------------------------
 
    public String getAbbreviation() {
-      return abbreviation_;
+      return this.abbreviation_;
    }
 
    public String getDescription() {
-      return description_;
+      return this.description_;
    }
 
    public String getExpansion() {
-      return expansion_;
+      return this.expansion_;
    }
 }
 

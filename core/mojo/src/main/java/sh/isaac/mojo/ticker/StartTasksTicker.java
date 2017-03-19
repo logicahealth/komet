@@ -68,7 +68,7 @@ public class StartTasksTicker
    @Override
    public void execute()
             throws MojoExecutionException {
-      ActiveTasksTicker.start(Integer.parseInt(intervalInSeconds));
+      ActiveTasksTicker.start(Integer.parseInt(this.intervalInSeconds));
    }
 }
 

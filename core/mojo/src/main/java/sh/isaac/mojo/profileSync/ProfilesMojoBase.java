@@ -50,7 +50,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -128,13 +127,13 @@ public abstract class ProfilesMojoBase
     * The username to use for remote operations
     */
    @Parameter(required = false)
-   private String profileSyncUsername = null;
+   private final String profileSyncUsername = null;
 
    /**
     * The password to use for remote operations
     */
    @Parameter(required = false)
-   private String profileSyncPassword = null;
+   private final String profileSyncPassword = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -151,9 +150,9 @@ public abstract class ProfilesMojoBase
    @Override
    public void execute()
             throws MojoExecutionException {
-      if (StringUtils.isNotBlank(changeSetURL) &&
-            !changeSetURLType.equalsIgnoreCase("GIT") &&
-            !changeSetURLType.equalsIgnoreCase("SVN")) {
+      if (StringUtils.isNotBlank(this.changeSetURL) &&
+            !this.changeSetURLType.equalsIgnoreCase("GIT") &&
+            !this.changeSetURLType.equalsIgnoreCase("SVN")) {
          throw new MojoExecutionException("Change set URL type must be GIT or SVN");
       }
    }
@@ -163,7 +162,7 @@ public abstract class ProfilesMojoBase
          return true;
       }
 
-      if (StringUtils.isBlank(changeSetURL)) {
+      if (StringUtils.isBlank(this.changeSetURL)) {
          getLog().info("No SCM configuration will be done - no 'changeSetUrl' parameter was provided");
          return true;
       } else {
@@ -183,57 +182,50 @@ public abstract class ProfilesMojoBase
          // still blank, try the passed in param
          if (pwd.length == 0)  // if (StringUtils.isBlank(pwd))
          {
-            pwd = profileSyncPassword.toCharArray();
+            pwd = this.profileSyncPassword.toCharArray();
          }
 
          // still no password, prompt if allowed
          if ((pwd.length == 0) &&!Boolean.valueOf(System.getProperty(PROFILE_SYNC_NO_PROMPTS))) {
-            Callable<Void> callable = new Callable<Void>() {
-               @Override
-               public Void call()
-                        throws Exception {
-                  try {
-                     if (!disableHintGiven) {
-                        System.out.println("To disable remote sync during build, add '-D" + PROFILE_SYNC_DISABLE +
-                                           "=true' to your maven command");
-                        disableHintGiven = true;
-                     }
+            final Callable<Void> callable = () -> {
+              try {
+                if (!ProfilesMojoBase.this.disableHintGiven) {
+			System.out.println("To disable remote sync during build, add '-D" + PROFILE_SYNC_DISABLE +
+			                   "=true' to your maven command");
+			ProfilesMojoBase.this.disableHintGiven = true;
+                }
 
-                     System.out.println("Enter the " + changeSetURLType +
-                                        " password for the Profiles/Changset remote store: (" + changeSetURL + "):");
+                System.out.println("Enter the " + ProfilesMojoBase.this.changeSetURLType +
+			                " password for the Profiles/Changset remote store: (" + ProfilesMojoBase.this.changeSetURL + "):");
 
-                     // Use console if available, for password masking
-                     Console console = System.console();
+                // Use console if available, for password masking
+                final Console console = System.console();
 
-                     if (console != null) {
-                        pwd = console.readPassword();
-                     } else {
-                        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                if (console != null) {
+			pwd = console.readPassword();
+                } else {
+			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-                        pwd = br.readLine()
-                                .toCharArray();
-                     }
-                  } catch (IOException e) {
-                     throw new MojoExecutionException("Error reading password from console");
-                  }
+			pwd = br.readLine()
+			        .toCharArray();
+                }
+              } catch (final IOException e) {
+                throw new MojoExecutionException("Error reading password from console");
+              }
 
-                  return null;
-               }
+              return null;
             };
 
             try {
-               Executors.newSingleThreadExecutor(new ThreadFactory() {
-                                                    @Override
-                                                    public Thread newThread(Runnable r) {
-                                                       Thread t = new Thread(r, "User Password Prompt Thread");
+               Executors.newSingleThreadExecutor(r -> {
+			   final Thread t = new Thread(r, "User Password Prompt Thread");
 
-                                                       t.setDaemon(true);
-                                                       return t;
-                                                    }
-                                                 }).submit(callable).get(2, TimeUnit.MINUTES);
+			   t.setDaemon(true);
+			   return t;
+			}).submit(callable).get(2, TimeUnit.MINUTES);
             } catch (TimeoutException | InterruptedException e) {
                throw new MojoExecutionException("Password not provided within timeout");
-            } catch (ExecutionException ee) {
+            } catch (final ExecutionException ee) {
                throw((ee.getCause() instanceof MojoExecutionException) ? (MojoExecutionException) ee.getCause()
                      : new MojoExecutionException("Unexpected", ee.getCause()));
             }
@@ -245,8 +237,8 @@ public abstract class ProfilesMojoBase
 
    protected SyncFiles getProfileSyncImpl()
             throws MojoExecutionException {
-      if (changeSetURLType.equalsIgnoreCase("GIT")) {
-         SyncFiles svc = LookupService.getService(SyncFiles.class, "GIT");
+      if (this.changeSetURLType.equalsIgnoreCase("GIT")) {
+         final SyncFiles svc = LookupService.getService(SyncFiles.class, "GIT");
 
          if (svc == null) {
             throw new MojoExecutionException(
@@ -254,10 +246,10 @@ public abstract class ProfilesMojoBase
                 "  Is sh.isaac.gui.modules.sync-git listed as a dependency for the mojo execution?");
          }
 
-         svc.setRootLocation(userProfileFolderLocation);
+         svc.setRootLocation(this.userProfileFolderLocation);
          return svc;
-      } else if (changeSetURLType.equalsIgnoreCase("SVN")) {
-         SyncFiles svc = LookupService.getService(SyncFiles.class, "SVN");
+      } else if (this.changeSetURLType.equalsIgnoreCase("SVN")) {
+         final SyncFiles svc = LookupService.getService(SyncFiles.class, "SVN");
 
          if (svc == null) {
             throw new MojoExecutionException(
@@ -265,7 +257,7 @@ public abstract class ProfilesMojoBase
                 "  Is sh.isaac.gui.modules.sync-svn listed as a dependency for the mojo execution?");
          }
 
-         svc.setRootLocation(userProfileFolderLocation);
+         svc.setRootLocation(this.userProfileFolderLocation);
          return svc;
       } else {
          throw new MojoExecutionException("Unsupported change set URL Type");
@@ -280,7 +272,7 @@ public abstract class ProfilesMojoBase
     */
    protected String getURL()
             throws MojoExecutionException {
-      return getProfileSyncImpl().substituteURL(changeSetURL, getUsername());
+      return getProfileSyncImpl().substituteURL(this.changeSetURL, getUsername());
    }
 
    protected String getUsername()
@@ -290,49 +282,42 @@ public abstract class ProfilesMojoBase
 
          // still blank, try property
          if (StringUtils.isBlank(username)) {
-            username = profileSyncUsername;
+            username = this.profileSyncUsername;
          }
 
          // still no username, prompt if allowed
          if (StringUtils.isBlank(username) &&!Boolean.valueOf(System.getProperty(PROFILE_SYNC_NO_PROMPTS))) {
-            Callable<Void> callable = new Callable<Void>() {
-               @Override
-               public Void call()
-                        throws Exception {
-                  if (!disableHintGiven) {
-                     System.out.println("To disable remote sync during build, add '-D" + PROFILE_SYNC_DISABLE +
-                                        "=true' to your maven command");
-                     disableHintGiven = true;
-                  }
+            final Callable<Void> callable = () -> {
+              if (!ProfilesMojoBase.this.disableHintGiven) {
+                System.out.println("To disable remote sync during build, add '-D" + PROFILE_SYNC_DISABLE +
+			                "=true' to your maven command");
+                ProfilesMojoBase.this.disableHintGiven = true;
+              }
 
-                  try {
-                     System.out.println("Enter the " + changeSetURLType +
-                                        " username for the Profiles/Changset remote store (" + changeSetURL + "):");
+              try {
+                System.out.println("Enter the " + ProfilesMojoBase.this.changeSetURLType +
+			                " username for the Profiles/Changset remote store (" + ProfilesMojoBase.this.changeSetURL + "):");
 
-                     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-                     username = br.readLine();
-                  } catch (IOException e) {
-                     throw new MojoExecutionException("Error reading username from console");
-                  }
+                username = br.readLine();
+              } catch (final IOException e) {
+                throw new MojoExecutionException("Error reading username from console");
+              }
 
-                  return null;
-               }
+              return null;
             };
 
             try {
-               Executors.newSingleThreadExecutor(new ThreadFactory() {
-                                                    @Override
-                                                    public Thread newThread(Runnable r) {
-                                                       Thread t = new Thread(r, "User Prompt Thread");
+               Executors.newSingleThreadExecutor(r -> {
+			   final Thread t = new Thread(r, "User Prompt Thread");
 
-                                                       t.setDaemon(true);
-                                                       return t;
-                                                    }
-                                                 }).submit(callable).get(2, TimeUnit.MINUTES);
+			   t.setDaemon(true);
+			   return t;
+			}).submit(callable).get(2, TimeUnit.MINUTES);
             } catch (TimeoutException | InterruptedException e) {
                throw new MojoExecutionException("Username not provided within timeout");
-            } catch (ExecutionException ee) {
+            } catch (final ExecutionException ee) {
                throw((ee.getCause() instanceof MojoExecutionException) ? (MojoExecutionException) ee.getCause()
                      : new MojoExecutionException("Unexpected", ee.getCause()));
             }

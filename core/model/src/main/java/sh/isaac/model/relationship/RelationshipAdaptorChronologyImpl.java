@@ -100,7 +100,7 @@ public class RelationshipAdaptorChronologyImpl
       this.nid                    = nid;
       this.referencedComponentNid = referencedComponentNid;
 
-      UUID computedUuid = UuidT5Generator.get(REL_ADAPTOR_NAMESPACE, Integer.toString(nid));
+      final UUID computedUuid = UuidT5Generator.get(REL_ADAPTOR_NAMESPACE, Integer.toString(nid));
 
       this.primordialUuidLsb = computedUuid.getLeastSignificantBits();
       this.primordialUuidMsb = computedUuid.getMostSignificantBits();
@@ -127,26 +127,26 @@ public class RelationshipAdaptorChronologyImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("[");
-      versionList.stream().forEach((version) -> {
+      this.versionList.stream().forEach((version) -> {
                              sb.append(version);
                              sb.append(",\n ");
                           });
       sb.delete(sb.length() - 4, sb.length() - 1);
       sb.append("]");
 
-      Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
+      final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
                                                                                            .getOptionalSememe(
-                                                                                              referencedComponentNid);
+                                                                                              this.referencedComponentNid);
 
       if (optionalSememe.isPresent()) {
          return "RelAdaptor{" + Get.conceptDescriptionText(optionalSememe.get().getAssemblageSequence()) + ": " +
                 sb.toString() + '}';
       }
 
-      return "RelAdaptor{" + referencedComponentNid + ": " + sb.toString() + '}';
+      return "RelAdaptor{" + this.referencedComponentNid + ": " + sb.toString() + '}';
    }
 
    @Override
@@ -175,22 +175,22 @@ public class RelationshipAdaptorChronologyImpl
    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(
            Class<RelationshipVersionAdaptorImpl> type,
            StampCoordinate coordinate) {
-      RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
       return calc.getLatestVersion(this);
    }
 
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      RelativePositionCalculator calc       = RelativePositionCalculator.getCalculator(coordinate);
-      StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+      final RelativePositionCalculator calc       = RelativePositionCalculator.getCalculator(coordinate);
+      final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       return !latestStampSequences.isEmpty();
    }
 
    @Override
    public int getNid() {
-      return nid;
+      return this.nid;
    }
 
    @Override
@@ -200,7 +200,7 @@ public class RelationshipAdaptorChronologyImpl
 
    @Override
    public UUID getPrimordialUuid() {
-      return new UUID(primordialUuidMsb, primordialUuidLsb);
+      return new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
    }
 
    /**
@@ -211,7 +211,7 @@ public class RelationshipAdaptorChronologyImpl
     */
    @Override
    public int getReferencedComponentNid() {
-      return referencedComponentNid;
+      return this.referencedComponentNid;
    }
 
    @Override
@@ -254,14 +254,14 @@ public class RelationshipAdaptorChronologyImpl
 
    @Override
    public List<RelationshipVersionAdaptorImpl> getVersionList() {
-      return versionList;
+      return this.versionList;
    }
 
    @Override
    public IntStream getVersionStampSequences() {
-      IntStream.Builder stampSequences = IntStream.builder();
+      final IntStream.Builder stampSequences = IntStream.builder();
 
-      versionList.forEach((version) -> {
+      this.versionList.forEach((version) -> {
                              stampSequences.accept(version.stampSequence);
                           });
       return stampSequences.build();

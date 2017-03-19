@@ -174,7 +174,7 @@ public class CoordinateFactoryProvider
          List<ConceptSpecification> moduleSpecificationList,
          EnumSet<State> allowedStateSet,
          CharSequence dateTimeText) {
-      StampPositionImpl stampPosition =
+      final StampPositionImpl stampPosition =
          new StampPositionImpl(LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
                                stampPath.getConceptSequence());
 
@@ -187,7 +187,7 @@ public class CoordinateFactoryProvider
          List<ConceptSpecification> moduleSpecificationList,
          EnumSet<State> allowedStateSet,
          TemporalAccessor temporal) {
-      StampPositionImpl stampPosition =
+      final StampPositionImpl stampPosition =
          new StampPositionImpl(LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
                                stampPath.getConceptSequence());
 
@@ -205,7 +205,7 @@ public class CoordinateFactoryProvider
          int hour,
          int minute,
          int second) {
-      StampPositionImpl stampPosition = new StampPositionImpl(LocalDateTime.of(year,
+      final StampPositionImpl stampPosition = new StampPositionImpl(LocalDateTime.of(year,
                                                                                month,
                                                                                dayOfMonth,
                                                                                hour,
@@ -268,8 +268,8 @@ public class CoordinateFactoryProvider
    public Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
          LanguageCoordinate languageCoordinate) {
-      for (int descType: languageCoordinate.getDescriptionTypePreferenceList()) {
-         Optional<LatestVersion<DescriptionSememe<?>>> match = getSpecifiedDescription(stampCoordinate,
+      for (final int descType: languageCoordinate.getDescriptionTypePreferenceList()) {
+         final Optional<LatestVersion<DescriptionSememe<?>>> match = getSpecifiedDescription(stampCoordinate,
                                                                                        descriptionList,
                                                                                        descType,
                                                                                        languageCoordinate);
@@ -287,19 +287,20 @@ public class CoordinateFactoryProvider
          List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
-      SememeSnapshotService<ComponentNidSememe> acceptabilitySnapshot = Get.sememeService()
+      final SememeSnapshotService<ComponentNidSememe> acceptabilitySnapshot = Get.sememeService()
                                                                            .getSnapshot(ComponentNidSememe.class,
                                                                                  stampCoordinate);
-      List<DescriptionSememe<?>> descriptionsForLanguageOfType = new ArrayList<>();
+      final List<DescriptionSememe<?>> descriptionsForLanguageOfType = new ArrayList<>();
 
       descriptionList.stream().forEach((descriptionChronicle) -> {
                                  @SuppressWarnings("unchecked")
+								final
                                  Optional<LatestVersion<DescriptionSememe<?>>> latestDescription =
                                     ((SememeChronology) descriptionChronicle).getLatestVersion(DescriptionSememe.class,
                                                                                                stampCoordinate);
 
                                  if (latestDescription.isPresent()) {
-                                    LatestVersion<DescriptionSememe<?>> latestDescriptionVersion =
+                                    final LatestVersion<DescriptionSememe<?>> latestDescriptionVersion =
                                        latestDescription.get();
 
                                     latestDescriptionVersion.versionStream().forEach((descriptionVersion) -> {
@@ -318,12 +319,12 @@ public class CoordinateFactoryProvider
       }
 
       // handle dialect...
-      LatestVersion<DescriptionSememe<?>> preferredForDialect = new LatestVersion(DescriptionSememe.class);
+      final LatestVersion<DescriptionSememe<?>> preferredForDialect = new LatestVersion(DescriptionSememe.class);
 
       IntStream.of(languageCoordinate.getDialectAssemblagePreferenceList()).forEach((dialectAssemblageSequence) -> {
                            if (preferredForDialect.value() == null) {
                               descriptionsForLanguageOfType.forEach((DescriptionSememe description) -> {
-                     Stream<LatestVersion<ComponentNidSememe>> acceptability =
+                     final Stream<LatestVersion<ComponentNidSememe>> acceptability =
                         acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(description.getNid(),
                                                                                                 dialectAssemblageSequence);
 
@@ -348,7 +349,7 @@ public class CoordinateFactoryProvider
          return Optional.empty();
       }
 
-      return Optional.of((LatestVersion<DescriptionSememe<?>>) preferredForDialect);
+      return Optional.of(preferredForDialect);
    }
 
    @Override

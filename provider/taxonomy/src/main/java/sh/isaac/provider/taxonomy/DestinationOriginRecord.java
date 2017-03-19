@@ -75,19 +75,19 @@ public class DestinationOriginRecord
 
    @Override
    public int compareTo(DestinationOriginRecord o) {
-      if (destinationSequence > o.destinationSequence) {
+      if (this.destinationSequence > o.destinationSequence) {
          return 1;
       }
 
-      if (destinationSequence < o.destinationSequence) {
+      if (this.destinationSequence < o.destinationSequence) {
          return -1;
       }
 
-      if (originSequence > o.originSequence) {
+      if (this.originSequence > o.originSequence) {
          return 1;
       }
 
-      if (originSequence < o.originSequence) {
+      if (this.originSequence < o.originSequence) {
          return -1;
       }
 
@@ -124,18 +124,18 @@ public class DestinationOriginRecord
 
    @Override
    public String toString() {
-      return Get.conceptDescriptionText(originSequence) + "<" + originSequence + ">➞" +
-             Get.conceptDescriptionText(destinationSequence) + "<" + destinationSequence + ">";
+      return Get.conceptDescriptionText(this.originSequence) + "<" + this.originSequence + ">➞" +
+             Get.conceptDescriptionText(this.destinationSequence) + "<" + this.destinationSequence + ">";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getDestinationSequence() {
-      return destinationSequence;
+      return this.destinationSequence;
    }
 
    public int getOriginSequence() {
-      return originSequence;
+      return this.originSequence;
    }
 }
 

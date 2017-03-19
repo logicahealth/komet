@@ -67,15 +67,15 @@ public class Graph<T> {
    //~--- methods -------------------------------------------------------------
 
    public final void createRoot(T rootData) {
-      root               = new Node<>(rootData, this);
-      this.lastAddedNode = root;
-      this.nodes.add(lastAddedNode);
+      this.root               = new Node<>(rootData, this);
+      this.lastAddedNode = this.root;
+      this.nodes.add(this.lastAddedNode);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public Node<T> getLastAddedNode() {
-      return lastAddedNode;
+      return this.lastAddedNode;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -88,7 +88,7 @@ public class Graph<T> {
    //~--- get methods ---------------------------------------------------------
 
    public Node<T> getRoot() {
-      return root;
+      return this.root;
    }
 }
 

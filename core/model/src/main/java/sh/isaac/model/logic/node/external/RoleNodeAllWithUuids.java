@@ -112,7 +112,7 @@ public class RoleNodeAllWithUuids
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), typeConceptUuid.toString());
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.typeConceptUuid.toString());
    }
 
    //~--- get methods ---------------------------------------------------------

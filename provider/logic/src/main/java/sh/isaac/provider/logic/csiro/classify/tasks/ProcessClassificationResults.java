@@ -112,28 +112,28 @@ public class ProcessClassificationResults
    @Override
    protected ClassifierResults call()
             throws Exception {
-      ClassifierData    cd                = ClassifierData.get(stampCoordinate, logicCoordinate);
-      Ontology          inferredAxioms    = cd.getClassifiedOntology();
-      ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
+      final ClassifierData    cd                = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
+      final Ontology          inferredAxioms    = cd.getClassifiedOntology();
+      final ClassifierResults classifierResults = collectResults(inferredAxioms, cd.getAffectedConceptSequenceSet());
 
       return classifierResults;
    }
 
    private ClassifierResults collectResults(Ontology classifiedResult, ConceptSequenceSet affectedConcepts) {
-      HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
+      final HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
 
       affectedConcepts.parallelStream().forEach((conceptSequence) -> {
-                                  Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
+                                  final Node node = classifiedResult.getNode(Integer.toString(conceptSequence));
 
                                   if (node == null) {
                                      throw new RuntimeException("Null node for: " + conceptSequence);
                                   }
 
-                                  Set<String> equivalentConcepts = node.getEquivalentConcepts();
+                                  final Set<String> equivalentConcepts = node.getEquivalentConcepts();
 
                                   if (node.getEquivalentConcepts()
                                           .size() > 1) {
-                                     ConceptSequenceSet equivalentSet = new ConceptSequenceSet();
+                                     final ConceptSequenceSet equivalentSet = new ConceptSequenceSet();
 
                                      equivalentSets.add(equivalentSet);
                                      equivalentConcepts.forEach((equivalentConceptSequence) -> {
@@ -144,7 +144,7 @@ public class ProcessClassificationResults
                                      equivalentConcepts.forEach((equivalentConceptSequence) -> {
                      try {
                         affectedConcepts.add(Integer.parseInt(equivalentConceptSequence));
-                     } catch (NumberFormatException numberFormatException) {
+                     } catch (final NumberFormatException numberFormatException) {
                         if (equivalentConceptSequence.equals("_BOTTOM_") ||
                             equivalentConceptSequence.equals("_TOP_")) {
                            // do nothing.
@@ -172,7 +172,7 @@ public class ProcessClassificationResults
       }
 
       if (statedSememeSequences.size() != 1) {
-         StringBuilder builder = new StringBuilder();
+         final StringBuilder builder = new StringBuilder();
 
          builder.append("Must have exactly one stated logic graph per concept. Found: ")
                 .append(statedSememeSequences)
@@ -202,25 +202,25 @@ public class ProcessClassificationResults
    }
 
    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
-      SememeService                   sememeService                   = Get.sememeService();
-      IdentifierService               idService                       = Get.identifierService();
-      AtomicInteger                   sufficientSets                  = new AtomicInteger();
-      LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
-      SememeBuilderService            sememeBuilderService            = Get.sememeBuilderService();
-      CommitService                   commitService                   = Get.commitService();
+      final SememeService                   sememeService                   = Get.sememeService();
+      final IdentifierService               idService                       = Get.identifierService();
+      final AtomicInteger                   sufficientSets                  = new AtomicInteger();
+      final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
+      final SememeBuilderService            sememeBuilderService            = Get.sememeBuilderService();
+      final CommitService                   commitService                   = Get.commitService();
 
       // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
       affectedConcepts.parallelStream().forEach((conceptSequence) -> {
                                   try {
-                                     SememeSequenceSet inferredSememeSequences =
+                                     final SememeSequenceSet inferredSememeSequences =
                                         sememeService.getSememeSequencesForComponentFromAssemblage(
                                             idService.getConceptNid(conceptSequence),
-                                            logicCoordinate.getInferredAssemblageSequence());
-                                     SememeSequenceSet statedSememeSequences =
+                                            this.logicCoordinate.getInferredAssemblageSequence());
+                                     final SememeSequenceSet statedSememeSequences =
                                         sememeService.getSememeSequencesForComponentFromAssemblage(
                                             idService.getConceptNid(conceptSequence),
-                                            logicCoordinate.getStatedAssemblageSequence());
+                                            this.logicCoordinate.getStatedAssemblageSequence());
 
                                      // TODO need to fix merge issues with metadata and snomed..... this is failing on numerous concepts.
                                      // TODO also, what to do when there isn't a graph on a concept?  SCT has orphans....
@@ -230,21 +230,21 @@ public class ProcessClassificationResults
                                            sememeService);
 
                                      // SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) sememeService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
-                                     SememeChronology rawStatedChronology =
+                                     final SememeChronology rawStatedChronology =
                                         sememeService.getSememe(statedSememeSequences.stream()
                                                                                      .findFirst()
                                                                                      .getAsInt());
-                                     Optional<LatestVersion<LogicGraphSememe>> latestStatedDefinitionOptional =
+                                     final Optional<LatestVersion<LogicGraphSememe>> latestStatedDefinitionOptional =
                                         ((SememeChronology<LogicGraphSememe>) rawStatedChronology).getLatestVersion(
                                             LogicGraphSememe.class,
-                                            stampCoordinate);
+                                            this.stampCoordinate);
 
                                      if (latestStatedDefinitionOptional.isPresent()) {
-                                        LogicalExpressionBuilder inferredBuilder =
+                                        final LogicalExpressionBuilder inferredBuilder =
                                            logicalExpressionBuilderService.getLogicalExpressionBuilder();
-                                        LatestVersion<LogicGraphSememe> latestStatedDefinition =
+                                        final LatestVersion<LogicGraphSememe> latestStatedDefinition =
                                            latestStatedDefinitionOptional.get();
-                                        LogicalExpression statedDefinition = latestStatedDefinition.value()
+                                        final LogicalExpression statedDefinition = latestStatedDefinition.value()
                                                                                                    .getLogicalExpression();
 
                                         if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
@@ -257,16 +257,16 @@ public class ProcessClassificationResults
                                         }
 
                                         // Need to construct the necessary set from classifier results.
-                                        Node                   inferredNode =
+                                        final Node                   inferredNode =
                                            inferredAxioms.getNode(Integer.toString(conceptSequence));
-                                        List<ConceptAssertion> parentList   = new ArrayList<>();
+                                        final List<ConceptAssertion> parentList   = new ArrayList<>();
 
                                         inferredNode.getParents().forEach((parent) -> {
                         parent.getEquivalentConcepts().forEach((parentString) -> {
                                           try {
                                              parentList.add(
                                                  inferredBuilder.conceptAssertion(Integer.parseInt(parentString)));
-                                          } catch (NumberFormatException numberFormatException) {
+                                          } catch (final NumberFormatException numberFormatException) {
                                              if (parentString.equals("_BOTTOM_") || parentString.equals("_TOP_")) {
                                                 // do nothing.
                                              } else {
@@ -280,35 +280,35 @@ public class ProcessClassificationResults
                                            NecessarySet(
                                                And(parentList.toArray(new ConceptAssertion[parentList.size()])));
 
-                                           LogicalExpression inferredExpression = inferredBuilder.build();
+                                           final LogicalExpression inferredExpression = inferredBuilder.build();
 
                                            if (inferredSememeSequences.isEmpty()) {
-                                              SememeBuilder builder =
+                                              final SememeBuilder builder =
                                                  sememeBuilderService.getLogicalExpressionSememeBuilder(
                                                      inferredExpression,
                                                      idService.getConceptNid(conceptSequence),
-                                                     logicCoordinate.getInferredAssemblageSequence());
+                                                     this.logicCoordinate.getInferredAssemblageSequence());
 
                                               // get classifier edit coordinate...
                                               builder.build(EditCoordinates.getClassifierSolorOverlay(),
                                                     ChangeCheckerMode.INACTIVE);
                                            } else {
-                                              SememeChronology inferredChronology =
+                                              final SememeChronology inferredChronology =
                                                  sememeService.getSememe(inferredSememeSequences.stream()
                                                                                                 .findFirst()
                                                                                                 .getAsInt());
 
                                               // check to see if changed from old...
-                                              Optional<LatestVersion<LogicGraphSememe>> latestDefinitionOptional =
+                                              final Optional<LatestVersion<LogicGraphSememe>> latestDefinitionOptional =
                                                  inferredChronology.getLatestVersion(LogicGraphSememe.class,
-                                                                                     stampCoordinate);
+                                                                                     this.stampCoordinate);
 
                                               if (latestDefinitionOptional.isPresent()) {
                                                  if (!latestDefinitionOptional.get()
                                                        .value()
                                                        .getLogicalExpression()
                                                        .equals(inferredExpression)) {
-                                                    MutableLogicGraphSememe newVersion =
+                                                    final MutableLogicGraphSememe newVersion =
                                                        ((SememeChronology<LogicGraphSememe>) inferredChronology).createMutableVersion(
                                                            MutableLogicGraphSememe.class,
                                                            sh.isaac.api.State.ACTIVE,
@@ -325,16 +325,16 @@ public class ProcessClassificationResults
                                         throw new IllegalStateException(
                                             "Empty latest version for stated definition. " + rawStatedChronology);
                                      }
-                                  } catch (Exception e) {
+                                  } catch (final Exception e) {
                                      LogManager.getLogger()
                                                .error("Error during writeback - skipping concept ", e);
                                   }
                                });
 
-      Task<Optional<CommitRecord>> commitTask = commitService.commit("classifier run");
+      final Task<Optional<CommitRecord>> commitTask = commitService.commit("classifier run");
 
       try {
-         Optional<CommitRecord> commitRecord = commitTask.get();
+         final Optional<CommitRecord> commitRecord = commitTask.get();
 
          if (commitRecord.isPresent()) {
             log.info("Commit record: " + commitRecord.get());
@@ -343,8 +343,8 @@ public class ProcessClassificationResults
          }
 
          log.info("Processed " + sufficientSets + " sufficient sets.");
-         log.info("stampCoordinate: " + stampCoordinate);
-         log.info("logicCoordinate: " + logicCoordinate);
+         log.info("stampCoordinate: " + this.stampCoordinate);
+         log.info("logicCoordinate: " + this.logicCoordinate);
          return commitRecord;
       } catch (InterruptedException | ExecutionException e) {
          throw new RuntimeException(e);

@@ -85,9 +85,9 @@ public class AxiomCollector
       this.concepts         = new Concept[conceptSequences.length()];
       Arrays.parallelSetAll(this.concepts,
                             conceptSequence -> Factory.createNamedConcept(Integer.toString(conceptSequence)));
-      roles = new OpenIntObjectHashMap<>(roleSequences.size());
+      this.roles = new OpenIntObjectHashMap<>(roleSequences.size());
       roleSequences.forEachKey(roleSequence -> {
-                                  roles.put(roleSequence, Factory.createNamedRole(Integer.toString(roleSequence)));
+                                  this.roles.put(roleSequence, Factory.createNamedRole(Integer.toString(roleSequence)));
                                   return true;
                                });
       this.neverGroupRoleSequences  = neverGroupRoleSequences;
@@ -98,7 +98,7 @@ public class AxiomCollector
 
    @Override
    public BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> accumulator() {
-      return new AxiomAccumulator(concepts, conceptSequences, roles, neverGroupRoleSequences, roleGroupConceptSequence);
+      return new AxiomAccumulator(this.concepts, this.conceptSequences, this.roles, this.neverGroupRoleSequences, this.roleGroupConceptSequence);
    }
 
    @Override

@@ -110,7 +110,7 @@ public abstract class QuasiMojo {
    //~--- get methods ---------------------------------------------------------
 
    public Log getLog() {
-      return log_;
+      return this.log_;
    }
 }
 

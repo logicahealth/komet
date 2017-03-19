@@ -109,20 +109,20 @@ public class MavenArtifactInfo {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("MavenArtifactInfo\r\n");
-      sb.append("  groupId=" + groupId + "\r\n");
-      sb.append("  artifactId=" + artifactId + "\r\n");
-      sb.append("  version=" + version + "\r\n");
-      sb.append("  classifier=" + classifier + "\r\n");
-      sb.append("  type=" + type + "\r\n");
+      sb.append("  groupId=" + this.groupId + "\r\n");
+      sb.append("  artifactId=" + this.artifactId + "\r\n");
+      sb.append("  version=" + this.version + "\r\n");
+      sb.append("  classifier=" + this.classifier + "\r\n");
+      sb.append("  type=" + this.type + "\r\n");
       sb.append("\r\n");
       sb.append("Licenses\r\n");
-      dbLicenses.forEach(license -> sb.append("  " + license.toString() + "\r\n"));
+      this.dbLicenses.forEach(license -> sb.append("  " + license.toString() + "\r\n"));
       sb.append("\r\n");
       sb.append("Database Dependencies\r\n");
-      dbDependencies.forEach(dbDependendy -> sb.append("  " + dbDependendy.toString() + "\r\n"));
+      this.dbDependencies.forEach(dbDependendy -> sb.append("  " + dbDependendy.toString() + "\r\n"));
       return sb.toString();
    }
 

@@ -91,7 +91,7 @@ public class IntegrationSuiteManagement {
       LOG.info("IntegrationSuiteManagement setup");
       System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/testdb/");
 
-      java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+      final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
 
       LOG.info("termstore folder path exists: " + dbFolderPath.toFile().exists());
       LookupService.startupIsaac();

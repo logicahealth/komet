@@ -111,12 +111,12 @@ public class DynamicSememeUtilityImpl
          implements DynamicSememeUtility {
    @Override
    public DynamicSememeArray<DynamicSememeData> configureColumnIndexInfo(DynamicSememeColumnInfo[] columns) {
-      ArrayList<DynamicSememeIntegerImpl> temp = new ArrayList<>();
+      final ArrayList<DynamicSememeIntegerImpl> temp = new ArrayList<>();
 
       if (columns != null) {
          Arrays.sort(columns);
 
-         for (DynamicSememeColumnInfo ci: columns) {
+         for (final DynamicSememeColumnInfo ci: columns) {
             // byte arrays are not currently indexable withing lucene
             if ((ci.getColumnDataType() != DynamicSememeDataType.BYTEARRAY) && ci.getIndexConfig()) {
                temp.add(new DynamicSememeIntegerImpl(ci.getColumnOrder()));
@@ -133,7 +133,7 @@ public class DynamicSememeUtilityImpl
 
    @Override
    public DynamicSememeData[] configureDynamicSememeDefinitionDataForColumn(DynamicSememeColumnInfo ci) {
-      DynamicSememeData[] data = new DynamicSememeData[7];
+      final DynamicSememeData[] data = new DynamicSememeData[7];
 
       data[0] = new DynamicSememeIntegerImpl(ci.getColumnOrder());
       data[1] = new DynamicSememeUUIDImpl(ci.getColumnDescriptionConcept());
@@ -147,7 +147,7 @@ public class DynamicSememeUtilityImpl
       data[4] = new DynamicSememeBooleanImpl(ci.isColumnRequired());
 
       if (ci.getValidator() != null) {
-         DynamicSememeString[] validators = new DynamicSememeString[ci.getValidator().length];
+         final DynamicSememeString[] validators = new DynamicSememeString[ci.getValidator().length];
 
          for (int i = 0; i < validators.length; i++) {
             validators[i] = new DynamicSememeStringImpl(ci.getValidator()[i].name());
@@ -159,7 +159,7 @@ public class DynamicSememeUtilityImpl
       }
 
       if (ci.getValidatorData() != null) {
-         DynamicSememeData[] validatorData = new DynamicSememeData[ci.getValidatorData().length];
+         final DynamicSememeData[] validatorData = new DynamicSememeData[ci.getValidatorData().length];
 
          for (int i = 0; i < validatorData.length; i++) {
             validatorData[i] = convertPolymorphicDataColumn(ci.getValidatorData()[i],
@@ -186,7 +186,7 @@ public class DynamicSememeUtilityImpl
             size = 2;
          }
 
-         DynamicSememeData[] data = new DynamicSememeData[size];
+         final DynamicSememeData[] data = new DynamicSememeData[size];
 
          data[0] = new DynamicSememeStringImpl(referencedComponentRestriction.name());
 
@@ -223,12 +223,12 @@ public class DynamicSememeUtilityImpl
     * @return
     */
    public static String toString(DynamicSememeData[] data) {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("[");
 
       if (data != null) {
-         for (DynamicSememeData dsd: data) {
+         for (final DynamicSememeData dsd: data) {
             if (dsd != null) {
                sb.append(dsd.dataToString());
             }
@@ -252,34 +252,34 @@ public class DynamicSememeUtilityImpl
       if (defaultValue != null) {
          try {
             if (DynamicSememeDataType.BOOLEAN == columnType) {
-               result = (DynamicSememeBoolean) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.BYTEARRAY == columnType) {
-               result = (DynamicSememeByteArray) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.DOUBLE == columnType) {
-               result = (DynamicSememeDouble) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.FLOAT == columnType) {
-               result = (DynamicSememeFloat) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.INTEGER == columnType) {
-               result = (DynamicSememeInteger) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.LONG == columnType) {
-               result = (DynamicSememeLong) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.NID == columnType) {
-               result = (DynamicSememeNid) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.STRING == columnType) {
-               result = (DynamicSememeString) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.UUID == columnType) {
-               result = (DynamicSememeUUID) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.ARRAY == columnType) {
-               result = (DynamicSememeArray<?>) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.SEQUENCE == columnType) {
-               result = (DynamicSememeSequence) defaultValue;
+               result = defaultValue;
             } else if (DynamicSememeDataType.POLYMORPHIC == columnType) {
                throw new RuntimeException(
                    "Error in column - if default value is provided, the type cannot be polymorphic");
             } else {
                throw new RuntimeException("Actually, the implementation is broken.  Ooops.");
             }
-         } catch (ClassCastException e) {
+         } catch (final ClassCastException e) {
             throw new RuntimeException(
                 "Error in column - if default value is provided, the type must be compatible with the the column descriptor type");
          }

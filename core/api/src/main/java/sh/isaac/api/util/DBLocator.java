@@ -84,7 +84,7 @@ public class DBLocator {
 
       // Otherwise see if we can find a .data folder as a direct child
       if (inputFolder.isDirectory()) {
-         for (File f: inputFolder.listFiles()) {
+         for (final File f: inputFolder.listFiles()) {
             if (f.getName().endsWith(".data") && f.isDirectory()) {
                LOG.info("Data Store Location set to " + f.getAbsolutePath());
                return f;
@@ -95,7 +95,7 @@ public class DBLocator {
       // Or as a sibling
       if (inputFolder.getParentFile()
                      .isDirectory()) {
-         for (File f: inputFolder.getParentFile()
+         for (final File f: inputFolder.getParentFile()
                                  .listFiles()) {
             // If it is a folder with a '.bdb' at the end of the name, then berkeley-db will be in a sub-folder.
             if (f.getName().endsWith(".data") && f.isDirectory()) {

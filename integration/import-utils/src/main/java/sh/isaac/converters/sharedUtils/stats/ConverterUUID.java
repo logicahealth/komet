@@ -92,7 +92,7 @@ public class ConverterUUID {
     */
    public static void addMapping(String value, UUID uuid) {
       if (!disableUUIDMap_) {
-         String putResult = masterUUIDMap_.put(uuid, value);
+         final String putResult = masterUUIDMap_.put(uuid, value);
 
          if (putResult != null) {
             throw new RuntimeException("Just made a duplicate UUID! '" + value + "' -> " + uuid);
@@ -152,12 +152,12 @@ public class ConverterUUID {
 
       try {
          uuid = UuidT5Generator.get(namespace, name);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException("Unexpected error configuring UUID generator");
       }
 
       if (!disableUUIDMap_) {
-         String putResult = masterUUIDMap_.put(uuid, name);
+         final String putResult = masterUUIDMap_.put(uuid, name);
 
          if (!skipDupeCheck && (putResult != null)) {
             throw new RuntimeException("Just made a duplicate UUID! '" + name + "' -> " + uuid);
@@ -173,9 +173,9 @@ public class ConverterUUID {
     * Throws a runtime exception if the namespace has not been configured.
     */
    public static UUID createNamespaceUUIDFromStrings(String... values) {
-      StringBuilder uuidKey = new StringBuilder();
+      final StringBuilder uuidKey = new StringBuilder();
 
-      for (String s: values) {
+      for (final String s: values) {
          if (s != null) {
             uuidKey.append(s);
             uuidKey.append("|");
@@ -204,7 +204,7 @@ public class ConverterUUID {
                      System.getProperty("line.separator"));
          }
 
-         for (Map.Entry<UUID, String> entry: masterUUIDMap_.entrySet()) {
+         for (final Map.Entry<UUID, String> entry: masterUUIDMap_.entrySet()) {
             br.write(entry.getKey() + " - " + entry.getValue() + System.getProperty("line.separator"));
          }
       }
@@ -237,10 +237,10 @@ public class ConverterUUID {
          return null;
       }
 
-      String found = masterUUIDMap_.get(uuid);
+      final String found = masterUUIDMap_.get(uuid);
 
       if (found == null) {
-         for (ConceptSpecification cs: constants) {
+         for (final ConceptSpecification cs: constants) {
             if (uuid.equals(cs.getPrimordialUuid())) {
                return cs.getConceptDescriptionText();
             }

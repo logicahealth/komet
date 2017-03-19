@@ -79,7 +79,7 @@ public class TaxonomyRecordPrimitive
    //~--- constructors --------------------------------------------------------
 
    public TaxonomyRecordPrimitive() {
-      taxonomyData = new int[0];
+      this.taxonomyData = new int[0];
    }
 
    public TaxonomyRecordPrimitive(int[] taxonomyData, int writeSequence) {
@@ -127,15 +127,15 @@ public class TaxonomyRecordPrimitive
    }
 
    public boolean inferredFlagSet(int index) {
-      return (taxonomyData[index] & TaxonomyFlags.INFERRED.bits) == TaxonomyFlags.INFERRED.bits;
+      return (this.taxonomyData[index] & TaxonomyFlags.INFERRED.bits) == TaxonomyFlags.INFERRED.bits;
    }
 
    public int nextRecordIndex(int index) {
-      return taxonomyData[index] >>> 24;
+      return this.taxonomyData[index] >>> 24;
    }
 
    public boolean statedFlagSet(int index) {
-      return (taxonomyData[index] & TaxonomyFlags.STATED.bits) == TaxonomyFlags.STATED.bits;
+      return (this.taxonomyData[index] & TaxonomyFlags.STATED.bits) == TaxonomyFlags.STATED.bits;
    }
 
    @Override
@@ -144,17 +144,17 @@ public class TaxonomyRecordPrimitive
    }
 
    public TaxonomyRecordUnpacked unpack() {
-      return new TaxonomyRecordUnpacked(taxonomyData);
+      return new TaxonomyRecordUnpacked(this.taxonomyData);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int[] getArray() {
-      if (unpacked != null) {
-         taxonomyData = unpacked.pack();
+      if (this.unpacked != null) {
+         this.taxonomyData = this.unpacked.pack();
       }
 
-      return taxonomyData;
+      return this.taxonomyData;
    }
 
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
@@ -164,10 +164,10 @@ public class TaxonomyRecordPrimitive
    public static boolean isConceptActive(int conceptSequence,
          CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
          StampCoordinate sc) {
-      Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
+      final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
 
       if (optionalRecord.isPresent()) {
-         TaxonomyRecordPrimitive record = optionalRecord.get();
+         final TaxonomyRecordPrimitive record = optionalRecord.get();
 
          if (record.isConceptActive(conceptSequence, sc)) {
             return true;
@@ -178,7 +178,7 @@ public class TaxonomyRecordPrimitive
    }
 
    public int getConceptSequence(int index) {
-      return taxonomyData[index] & SEQUENCE_BIT_MASK;
+      return this.taxonomyData[index] & SEQUENCE_BIT_MASK;
    }
 
    public int getConceptSequenceIndex(int conceptSequence) {
@@ -188,9 +188,9 @@ public class TaxonomyRecordPrimitive
    //~--- set methods ---------------------------------------------------------
 
    public void setConceptSequenceStampRecordLength(int index, int length) {
-      taxonomyData[index] = taxonomyData[index] & SEQUENCE_BIT_MASK;
+      this.taxonomyData[index] = this.taxonomyData[index] & SEQUENCE_BIT_MASK;
       length              = length << 24;
-      taxonomyData[index] = taxonomyData[index] + length;
+      this.taxonomyData[index] = this.taxonomyData[index] + length;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -216,10 +216,10 @@ public class TaxonomyRecordPrimitive
          CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
          TaxonomyCoordinate vp,
          int flags) {
-      Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
+      final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
 
       if (optionalRecord.isPresent()) {
-         TaxonomyRecordPrimitive record = optionalRecord.get();
+         final TaxonomyRecordPrimitive record = optionalRecord.get();
 
          if (record.containsSequenceViaType(conceptSequence, typeSequence, vp, flags)) {
             return optionalRecord;
@@ -232,10 +232,10 @@ public class TaxonomyRecordPrimitive
    public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptSequence,
          CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
          TaxonomyCoordinate vp) {
-      Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
+      final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
 
       if (optionalRecord.isPresent()) {
-         TaxonomyRecordPrimitive record = optionalRecord.get();
+         final TaxonomyRecordPrimitive record = optionalRecord.get();
 
          if (record.containsSequenceViaType(conceptSequence, conceptSequence, vp, TaxonomyFlags.CONCEPT_STATUS.bits)) {
             return optionalRecord;
@@ -256,39 +256,39 @@ public class TaxonomyRecordPrimitive
    //~--- set methods ---------------------------------------------------------
 
    public void setSequence(int index, int sequence) {
-      taxonomyData[index] = sequence;
+      this.taxonomyData[index] = sequence;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getStamp(int index) {
       // clear any flag bits
-      return taxonomyData[index] & SEQUENCE_BIT_MASK;
+      return this.taxonomyData[index] & SEQUENCE_BIT_MASK;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public void setStampAndFlags(int index, int stamp, TaxonomyFlags... flags) {
-      taxonomyData[index] = stamp;
+      this.taxonomyData[index] = stamp;
 
-      for (TaxonomyFlags flag: flags) {
-         taxonomyData[index] = taxonomyData[index] | flag.bits;
+      for (final TaxonomyFlags flag: flags) {
+         this.taxonomyData[index] = this.taxonomyData[index] | flag.bits;
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int[] getTaxonomyData() {
-      return taxonomyData;
+      return this.taxonomyData;
    }
 
    public TaxonomyRecordUnpacked getTaxonomyRecordUnpacked() {
-      if (unpacked != null) {
-         return unpacked;
+      if (this.unpacked != null) {
+         return this.unpacked;
       }
 
-      unpacked = new TaxonomyRecordUnpacked(taxonomyData);
-      return unpacked;
+      this.unpacked = new TaxonomyRecordUnpacked(this.taxonomyData);
+      return this.unpacked;
    }
 
    public IntStream getTypesForRelationship(int destinationId, TaxonomyCoordinate tc) {
@@ -297,7 +297,7 @@ public class TaxonomyRecordPrimitive
 
    @Override
    public int getWriteSequence() {
-      return writeSequence;
+      return this.writeSequence;
    }
 
    //~--- set methods ---------------------------------------------------------

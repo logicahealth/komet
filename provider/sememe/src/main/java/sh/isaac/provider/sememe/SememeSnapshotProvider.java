@@ -87,23 +87,23 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
 
    @Override
    public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(sememeProvider.getSememeSequencesForComponent(componentNid)
+      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid)
             .parallelStream()
-            .filter(sememeSequence -> (sememeProvider.getSememe(sememeSequence)
+            .filter(sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
                   .getSememeType() == SememeType.DESCRIPTION)));
    }
 
    @Override
    public Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequenceOrNid) {
-      SememeChronologyImpl<?> sc              = (SememeChronologyImpl<?>) sememeProvider.getSememe(sememeSequenceOrNid);
-      IntStream               stampSequences  = sc.getVersionStampSequences();
-      StampSequenceSet        latestSequences = calculator.getLatestStampSequencesAsSet(stampSequences);
+      final SememeChronologyImpl<?> sc              = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequenceOrNid);
+      final IntStream               stampSequences  = sc.getVersionStampSequences();
+      final StampSequenceSet        latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
       if (latestSequences.isEmpty()) {
          return Optional.empty();
       }
 
-      LatestVersion<V> latest = new LatestVersion<>(versionType);
+      final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
       latestSequences.stream().forEach((stampSequence) -> {
                                  latest.addLatest((V) sc.getVersionForStamp(stampSequence)
@@ -116,16 +116,16 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
          ProgressTracker... progressTrackers) {
       return sememeSequenceStream.mapToObj((int sememeSequence) -> {
                try {
-                  SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) sememeProvider.getSememe(sememeSequence);
-                  IntStream               stampSequences       = sc.getVersionStampSequences();
-                  StampSequenceSet        latestStampSequences =
-                     calculator.getLatestStampSequencesAsSet(stampSequences);
+                  final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequence);
+                  final IntStream               stampSequences       = sc.getVersionStampSequences();
+                  final StampSequenceSet        latestStampSequences =
+                     this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
                   if (latestStampSequences.isEmpty()) {
                      return Optional.empty();
                   }
 
-                  LatestVersion<V> latest = new LatestVersion<>(versionType);
+                  final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
                   latestStampSequences.stream().forEach((stampSequence) -> {
                                                   latest.addLatest((V) sc.getVersionForStamp(stampSequence)
@@ -154,20 +154,20 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
 
    @Override
    public Stream<LatestVersion<V>> getLatestSememeVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(sememeProvider.getSememeSequencesForComponent(componentNid));
+      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid));
    }
 
    @Override
    public Stream<LatestVersion<V>> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
-      return getLatestSememeVersions(sememeProvider.getSememeSequencesForComponentFromAssemblage(componentNid,
+      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponentFromAssemblage(componentNid,
             assemblageConceptSequence));
    }
 
    @Override
    public Stream<LatestVersion<V>> getLatestSememeVersionsFromAssemblage(int assemblageConceptSequence,
          ProgressTracker... progressTrackers) {
-      return getLatestSememeVersions(sememeProvider.getSememeSequencesFromAssemblage(assemblageConceptSequence),
+      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesFromAssemblage(assemblageConceptSequence),
                                      progressTrackers);
    }
 }

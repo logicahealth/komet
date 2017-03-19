@@ -78,13 +78,13 @@ import sh.isaac.api.LookupService;
 public class MultipleDataWriterService
          implements DataWriterService {
    ArrayList<DataWriterService>   writers_         = new ArrayList<>();
-   private Logger                 logger           = LoggerFactory.getLogger(MultipleDataWriterService.class);
+   private final Logger                 logger           = LoggerFactory.getLogger(MultipleDataWriterService.class);
    private final SimpleDateFormat sdf              = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-   private AtomicInteger          objectWriteCount = new AtomicInteger();
+   private final AtomicInteger          objectWriteCount = new AtomicInteger();
    private final int rotateAfter =
       10000;  // This will cause us to rotate files after ~ 1 MB of IBDF content, in rough testing.
    private String  prefix;
-   private boolean enableRotate;
+   private final boolean enableRotate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -95,16 +95,16 @@ public class MultipleDataWriterService
     */
    public MultipleDataWriterService(Optional<Path> jsonPath, Optional<Path> ibdfPath)
             throws IOException {
-      enableRotate = false;
+      this.enableRotate = false;
 
       if (jsonPath.isPresent()) {
          // Use HK2 here to make fortify stop false-flagging an open resource error
-         DataWriterService writer = LookupService.get()
+         final DataWriterService writer = LookupService.get()
                                                  .getService(DataWriterService.class, "jsonWriter");
 
          if (writer != null) {
             writer.configure(jsonPath.get());
-            writers_.add(writer);
+            this.writers_.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("json writer was requested, but not found on classpath!");
@@ -112,12 +112,12 @@ public class MultipleDataWriterService
       }
 
       if (ibdfPath.isPresent()) {
-         DataWriterService writer = LookupService.get()
+         final DataWriterService writer = LookupService.get()
                                                  .getService(DataWriterService.class, "ibdfWriter");
 
          if (writer != null) {
             writer.configure(ibdfPath.get());
-            writers_.add(writer);
+            this.writers_.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("ibdf writer was requested, but not found on classpath!");
@@ -144,18 +144,18 @@ public class MultipleDataWriterService
                                     Optional<String> ibdfExtension)
             throws IOException {
       this.prefix  = prefix;
-      enableRotate = true;
+      this.enableRotate = true;
 
-      String fileNamePrefix = prefix + sdf.format(new Date()) + "_" + UUID.randomUUID().toString() + ".";
+      final String fileNamePrefix = prefix + this.sdf.format(new Date()) + "_" + UUID.randomUUID().toString() + ".";
 
       if (jsonExtension.isPresent()) {
          // Use HK2 here to make fortify stop false-flagging an open resource error
-         DataWriterService writer = LookupService.get()
+         final DataWriterService writer = LookupService.get()
                                                  .getService(DataWriterService.class, "jsonWriter");
 
          if (writer != null) {
             writer.configure(folderToWriteInto.resolve(fileNamePrefix + jsonExtension.get()));
-            writers_.add(writer);
+            this.writers_.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("json writer was requested, but not found on classpath!");
@@ -163,12 +163,12 @@ public class MultipleDataWriterService
       }
 
       if (ibdfExtension.isPresent()) {
-         DataWriterService writer = LookupService.get()
+         final DataWriterService writer = LookupService.get()
                                                  .getService(DataWriterService.class, "ibdfWriter");
 
          if (writer != null) {
             writer.configure(folderToWriteInto.resolve(fileNamePrefix + ibdfExtension.get()));
-            writers_.add(writer);
+            this.writers_.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("ibdf writer was requested, but not found on classpath!");
@@ -189,7 +189,7 @@ public class MultipleDataWriterService
                      try {
                         writer.close();
                         return null;
-                     } catch (IOException e) {
+                     } catch (final IOException e) {
                         return e;
                      }
                   });
@@ -214,7 +214,7 @@ public class MultipleDataWriterService
                      try {
                         writer.flush();
                         return null;
-                     } catch (IOException e) {
+                     } catch (final IOException e) {
                         return e;
                      }
                   });
@@ -222,10 +222,10 @@ public class MultipleDataWriterService
 
    public void handleMulti(Function<DataWriterService, IOException> function)
             throws IOException {
-      ArrayList<IOException> exceptions = new ArrayList<>();
+      final ArrayList<IOException> exceptions = new ArrayList<>();
 
-      for (DataWriterService writer: writers_) {
-         IOException e = function.apply(writer);
+      for (final DataWriterService writer: this.writers_) {
+         final IOException e = function.apply(writer);
 
          if (e != null) {
             exceptions.add(e);
@@ -235,7 +235,7 @@ public class MultipleDataWriterService
       if (exceptions.size() > 0) {
          if (exceptions.size() > 1) {
             for (int i = 1; i < exceptions.size(); i++) {
-               logger.error("extra, unthrown exception: ", exceptions.get(i));
+               this.logger.error("extra, unthrown exception: ", exceptions.get(i));
             }
          }
 
@@ -254,7 +254,7 @@ public class MultipleDataWriterService
                      try {
                         writer.pause();
                         return null;
-                     } catch (IOException e) {
+                     } catch (final IOException e) {
                         return e;
                      }
                   });
@@ -272,20 +272,20 @@ public class MultipleDataWriterService
                         try {
                            writer.put(ochreObject);
                            return null;
-                        } catch (RuntimeException e) {
+                        } catch (final RuntimeException e) {
                            return new IOException(e);
                         }
                      });
-      } catch (IOException e) {
+      } catch (final IOException e) {
          if ((e.getCause() != null) && (e.getCause() instanceof RuntimeException)) {
             throw(RuntimeException) e.getCause();
          } else {
-            logger.warn("Unexpected", e);
+            this.logger.warn("Unexpected", e);
             throw new RuntimeException(e);
          }
       }
 
-      if (enableRotate && (objectWriteCount.incrementAndGet() >= rotateAfter)) {
+      if (this.enableRotate && (this.objectWriteCount.incrementAndGet() >= this.rotateAfter)) {
          rotateFiles();
       }
    }
@@ -301,7 +301,7 @@ public class MultipleDataWriterService
                      try {
                         writer.resume();
                         return null;
-                     } catch (IOException e) {
+                     } catch (final IOException e) {
                         return e;
                      }
                   });
@@ -312,9 +312,9 @@ public class MultipleDataWriterService
       try {
          pause();
 
-         String fileNamePrefix = prefix + sdf.format(new Date()) + "_" + UUID.randomUUID().toString();
+         final String fileNamePrefix = this.prefix + this.sdf.format(new Date()) + "_" + UUID.randomUUID().toString();
 
-         for (DataWriterService writer: writers_) {
+         for (final DataWriterService writer: this.writers_) {
             String extension = writer.getCurrentPath()
                                      .getFileName()
                                      .toString();
@@ -325,10 +325,10 @@ public class MultipleDataWriterService
                                    .resolve(fileNamePrefix + extension));
          }
 
-         objectWriteCount.set(0);
+         this.objectWriteCount.set(0);
          resume();
-      } catch (IOException e) {
-         logger.error("Unexpected error rotating changeset files!", e);
+      } catch (final IOException e) {
+         this.logger.error("Unexpected error rotating changeset files!", e);
          throw new RuntimeException(e);
       }
    }

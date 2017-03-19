@@ -57,34 +57,34 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class OchreExternalizableUnparsed {
-   private ByteArrayDataBuffer   data_;
+   private final ByteArrayDataBuffer   data_;
    OchreExternalizableObjectType type_;
 
    //~--- constructors --------------------------------------------------------
 
    public OchreExternalizableUnparsed(OchreExternalizableObjectType type, ByteArrayDataBuffer data) {
-      data_ = data;
-      type_ = type;
+      this.data_ = data;
+      this.type_ = type;
    }
 
    //~--- methods -------------------------------------------------------------
 
    public OchreExternalizable parse() {
-      switch (type_) {
+      switch (this.type_) {
       case CONCEPT:
-         return ConceptChronologyImpl.make(data_);
+         return ConceptChronologyImpl.make(this.data_);
 
       case SEMEME:
-         return SememeChronologyImpl.make(data_);
+         return SememeChronologyImpl.make(this.data_);
 
       case STAMP_ALIAS:
-         return new StampAlias(data_);
+         return new StampAlias(this.data_);
 
       case STAMP_COMMENT:
-         return new StampComment(data_);
+         return new StampComment(this.data_);
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + type_);
+         throw new UnsupportedOperationException("Can't handle: " + this.type_);
       }
    }
 }

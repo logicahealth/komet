@@ -96,16 +96,16 @@ public class MockSememeService
 
    @Override
    public void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints) {
-      if (componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
-         componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
+      if (this.componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
+         this.componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
                            .add(sememeChronicle.getSememeSequence());
       } else {
-         SememeSequenceSet set = SememeSequenceSet.of(sememeChronicle.getSememeSequence());
+         final SememeSequenceSet set = SememeSequenceSet.of(sememeChronicle.getSememeSequence());
 
-         componentSememeMap.put(sememeChronicle.getReferencedComponentNid(), set);
+         this.componentSememeMap.put(sememeChronicle.getReferencedComponentNid(), set);
       }
 
-      sememeMap.put(sememeChronicle.getSememeSequence(),
+      this.sememeMap.put(sememeChronicle.getSememeSequence(),
                     (SememeChronology<? extends SememeVersion<?>>) sememeChronicle);
    }
 
@@ -128,12 +128,12 @@ public class MockSememeService
 
    @Override
    public Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid) {
-      SememeSequenceSet                                                set     = componentSememeMap.get(componentNid);
-      Stream.Builder<SememeChronology<? extends DescriptionSememe<?>>> builder = Stream.builder();
+      final SememeSequenceSet                                                set     = this.componentSememeMap.get(componentNid);
+      final Stream.Builder<SememeChronology<? extends DescriptionSememe<?>>> builder = Stream.builder();
 
       if (set != null) {
          set.stream().forEach((sememeSequence) -> {
-                        SememeChronology sememeChronology = sememeMap.get(sememeSequence);
+                        final SememeChronology sememeChronology = this.sememeMap.get(sememeSequence);
 
                         if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
                            builder.accept(sememeChronology);
@@ -151,43 +151,43 @@ public class MockSememeService
 
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream() {
-      return sememeMap.values()
+      return this.sememeMap.values()
                       .parallelStream();
    }
 
    @Override
    public SememeChronology<? extends SememeVersion<?>> getSememe(int sememeId) {
-      return sememeMap.get(Get.identifierService()
+      return this.sememeMap.get(Get.identifierService()
                               .getSememeSequence(sememeId));
    }
 
    @Override
    public boolean hasSememe(int sememeId) {
-      return sememeMap.containsKey(Get.identifierService()
+      return this.sememeMap.containsKey(Get.identifierService()
                                       .getSememeSequence(sememeId));
    }
 
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream() {
-      return sememeMap.values()
+      return this.sememeMap.values()
                       .stream();
    }
 
    @Override
    public int getSememeCount() {
-      return sememeMap.size();
+      return this.sememeMap.size();
    }
 
    @Override
    public IntStream getSememeKeyParallelStream() {
-      return sememeMap.keySet()
+      return this.sememeMap.keySet()
                       .parallelStream()
                       .mapToInt(i -> i);
    }
 
    @Override
    public IntStream getSememeKeyStream() {
-      return sememeMap.keySet()
+      return this.sememeMap.keySet()
                       .stream()
                       .mapToInt(i -> i);
    }

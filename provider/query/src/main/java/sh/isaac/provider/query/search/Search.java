@@ -91,79 +91,70 @@ public class Search {
                                      Integer memberOfRefsetNid,
                                      Integer kindOfNid)
             throws IOException {
-      ArrayList<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> filters = new ArrayList<>();
+      final ArrayList<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> filters = new ArrayList<>();
 
       if (targetCodeSystemPathNidOrSequence != null) {
-         int pathFilterSequence = (targetCodeSystemPathNidOrSequence < 0) ? Get.identifierService()
+         final int pathFilterSequence = (targetCodeSystemPathNidOrSequence < 0) ? Get.identifierService()
                                                                                .getConceptSequence(
                                                                                   targetCodeSystemPathNidOrSequence)
                : targetCodeSystemPathNidOrSequence;
 
-         filters.add(new Function<List<CompositeSearchResult>, List<CompositeSearchResult>>() {
-                        @Override
-                        public List<CompositeSearchResult> apply(List<CompositeSearchResult> t) {
-                           ArrayList<CompositeSearchResult> keep = new ArrayList<>();
+         filters.add(t -> {
+		   final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-                           for (CompositeSearchResult csr: t) {
-                              if (csr.getContainingConcept().isPresent() &&
-                                  (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence)) {
-                                 keep.add(csr);
-                              }
-                           }
+		   for (final CompositeSearchResult csr: t) {
+		      if (csr.getContainingConcept().isPresent() &&
+		          (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence)) {
+		         keep.add(csr);
+		      }
+		   }
 
-                           return keep;
-                        }
-                     });
+		   return keep;
+		});
       }
 
       if (memberOfRefsetNid != null) {
-         filters.add(new Function<List<CompositeSearchResult>, List<CompositeSearchResult>>() {
-                        @Override
-                        public List<CompositeSearchResult> apply(List<CompositeSearchResult> t) {
-                           try {
-                              ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
-                              HashSet<Integer>                 refsetMembers = new HashSet<>();
+         filters.add(t -> {
+		   try {
+		      final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
+		      final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-                              Get.sememeService().getSememesFromAssemblage(Get.identifierService()
-                                    .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
-                                             refsetMembers.add(sememeC.getReferencedComponentNid());
-                                          });
+		      Get.sememeService().getSememesFromAssemblage(Get.identifierService()
+		            .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
+		                     refsetMembers.add(sememeC.getReferencedComponentNid());
+		                  });
 
-                              for (CompositeSearchResult csr: t) {
-                                 if (csr.getContainingConcept().isPresent() &&
-                                     refsetMembers.contains(csr.getContainingConcept().get().getNid())) {
-                                    keep.add(csr);
-                                 }
-                              }
+		      for (final CompositeSearchResult csr: t) {
+		         if (csr.getContainingConcept().isPresent() &&
+		             refsetMembers.contains(csr.getContainingConcept().get().getNid())) {
+		            keep.add(csr);
+		         }
+		      }
 
-                              return keep;
-                           } catch (Exception e) {
-                              throw new RuntimeException(e);
-                           }
-                        }
-                     });
+		      return keep;
+		   } catch (final Exception e) {
+		      throw new RuntimeException(e);
+		   }
+		});
       }
 
       if (kindOfNid != null) {
-         filters.add(new Function<List<CompositeSearchResult>, List<CompositeSearchResult>>() {
-                        @Override
-                        public List<CompositeSearchResult> apply(List<CompositeSearchResult> t) {
-                           ArrayList<CompositeSearchResult> keep = new ArrayList<>();
+         filters.add(t -> {
+		   final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-                           for (CompositeSearchResult csr: t) {
-                              if (csr.getContainingConcept().isPresent() &&
-                                  Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
-                                        kindOfNid)) {
-                                 keep.add(csr);
-                              }
-                           }
+		   for (final CompositeSearchResult csr: t) {
+		      if (csr.getContainingConcept().isPresent() &&
+		          Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
+		                kindOfNid)) {
+		         keep.add(csr);
+		      }
+		   }
 
-                           return keep;
-                        }
-                     });
+		   return keep;
+		});
       }
 
-      SearchResultsIntersectionFilter filterSet = ((filters.size() > 0) ? new SearchResultsIntersectionFilter(filters)
+      final SearchResultsIntersectionFilter filterSet = ((filters.size() > 0) ? new SearchResultsIntersectionFilter(filters)
             : null);
 
       // TODO At some point, Dan needs to update this to avoid the query processor when we are automating the query generation
@@ -240,6 +231,7 @@ public class Search {
          .getDescriptionsForComponent(sourceConceptNid)
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
+					final
                      Optional<LatestVersion<DescriptionSememe<?>>> latest =
                         ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
                                                                            (stampCoord == null)

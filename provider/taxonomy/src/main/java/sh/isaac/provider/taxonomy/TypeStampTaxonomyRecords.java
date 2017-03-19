@@ -83,15 +83,15 @@ public class TypeStampTaxonomyRecords {
    public TypeStampTaxonomyRecords() {}
 
    public TypeStampTaxonomyRecords(int[] sourceArray, int sourcePosition) {
-      int length    = sourceArray[sourcePosition] >>> 24;
-      int recordEnd = sourcePosition + length;
+      final int length    = sourceArray[sourcePosition] >>> 24;
+      final int recordEnd = sourcePosition + length;
 
       for (sourcePosition = sourcePosition + 1; sourcePosition < recordEnd; sourcePosition += 2) {
          long record = sourceArray[sourcePosition];
 
          record = record << 32;
          record += sourceArray[sourcePosition + 1];
-         typeStampFlagsSet.add(record);
+         this.typeStampFlagsSet.add(record);
       }
    }
 
@@ -102,26 +102,26 @@ public class TypeStampTaxonomyRecords {
    //~--- methods -------------------------------------------------------------
 
    public void addStampRecord(int typeSequence, int stampSequence, int taxonomyFlags) {
-      long record = convertToLong(typeSequence, stampSequence, taxonomyFlags);
+      final long record = convertToLong(typeSequence, stampSequence, taxonomyFlags);
 
-      typeStampFlagsSet.add(record);
+      this.typeStampFlagsSet.add(record);
    }
 
    public void addToIntArray(int conceptSequence, int[] destinationArray, int destinationPosition) {
-      int length = length();
-      int index  = destinationPosition + 1;
+      final int length = length();
+      final int index  = destinationPosition + 1;
 
       destinationArray[destinationPosition] = conceptSequence + (length << 24);
 
-      AddToArrayProcedure addToArrayIntObjectProcedure = new AddToArrayProcedure(index, destinationArray);
+      final AddToArrayProcedure addToArrayIntObjectProcedure = new AddToArrayProcedure(index, destinationArray);
 
-      typeStampFlagsSet.forEachKey(addToArrayIntObjectProcedure);
+      this.typeStampFlagsSet.forEachKey(addToArrayIntObjectProcedure);
    }
 
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
          int flags,
          RelativePositionCalculator computer) {
-      StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequenceSet,
+      final StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequenceSet,
                                                                                                      flags));
 
       return !latestStamps.isEmpty();
@@ -130,13 +130,13 @@ public class TypeStampTaxonomyRecords {
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc,
          RelativePositionCalculator computer) {
-      int flags = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      final int flags = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
 
       return containsConceptSequenceViaType(typeSequenceSet, flags, computer);
    }
 
    public boolean containsConceptSequenceViaType(int typeSequence, int flags, RelativePositionCalculator computer) {
-      StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequence,
+      final StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequence,
                                                                                                      flags));
 
       return !latestStamps.isEmpty();
@@ -145,7 +145,7 @@ public class TypeStampTaxonomyRecords {
    public boolean containsConceptSequenceViaType(int typeSequence,
          TaxonomyCoordinate tc,
          RelativePositionCalculator computer) {
-      int flags = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      final int flags = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
 
       return containsConceptSequenceViaType(typeSequence, flags, computer);
    }
@@ -157,7 +157,7 @@ public class TypeStampTaxonomyRecords {
     * @return true if found.
     */
    public boolean containsStampOfTypeWithFlags(ConceptSequenceSet typeSequenceSet, int flags) {
-      boolean found = !typeStampFlagsSet.forEachKey((long record) -> {
+      final boolean found = !this.typeStampFlagsSet.forEachKey((long record) -> {
                if (typeSequenceSet.isEmpty()) {  // wildcard
                   if (((record >>> 32) & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
                      return false;               // finish search.
@@ -181,7 +181,7 @@ public class TypeStampTaxonomyRecords {
     * @return true if found.
     */
    public boolean containsStampOfTypeWithFlags(int typeSequence, int flags) {
-      boolean found = !typeStampFlagsSet.forEachKey((long record) -> {
+      final boolean found = !this.typeStampFlagsSet.forEachKey((long record) -> {
                if (typeSequence == Integer.MAX_VALUE) {  // wildcard
                   if (flags == 0) {                      // taxonomy flag wildcard--inferred, stated, non-defining, ...
                      return false;                       // finish search
@@ -224,20 +224,20 @@ public class TypeStampTaxonomyRecords {
    public int length() {
       // 1 is for the concept sequence with the top 8 bits set to the length
       // of sequence plus the associated stampSequence records.
-      return 1 + (typeStampFlagsSet.size() * 2);
+      return 1 + (this.typeStampFlagsSet.size() * 2);
    }
 
    public void merge(TypeStampTaxonomyRecords newRecords) {
       newRecords.typeStampFlagsSet.forEachKey((long recordAsLong) -> {
-               typeStampFlagsSet.add(recordAsLong);
+               this.typeStampFlagsSet.add(recordAsLong);
                return true;
             });
    }
 
    public Stream<TypeStampTaxonomyRecord> stream() {
-      Stream.Builder<TypeStampTaxonomyRecord> builder = Stream.builder();
+      final Stream.Builder<TypeStampTaxonomyRecord> builder = Stream.builder();
 
-      typeStampFlagsSet.forEachKey((long record) -> {
+      this.typeStampFlagsSet.forEachKey((long record) -> {
                                       builder.accept(new TypeStampTaxonomyRecord(record));
                                       return true;
                                    });
@@ -246,10 +246,10 @@ public class TypeStampTaxonomyRecords {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
-      typeStampFlagsSet.forEachKey((long record) -> {
-                                      TypeStampTaxonomyRecord str = new TypeStampTaxonomyRecord(record);
+      this.typeStampFlagsSet.forEachKey((long record) -> {
+                                      final TypeStampTaxonomyRecord str = new TypeStampTaxonomyRecord(record);
 
                                       sb.append(str.toString());
                                       return true;
@@ -264,10 +264,10 @@ public class TypeStampTaxonomyRecords {
    }
 
    public IntStream getStampsOfTypeWithFlags(ConceptSequenceSet typeSequenceSet, int flags) {
-      Builder intStreamBuilder = IntStream.builder();
+      final Builder intStreamBuilder = IntStream.builder();
 
-      typeStampFlagsSet.forEachKey((long record) -> {
-                                      int stampAndFlag = (int) (record >>> 32);
+      this.typeStampFlagsSet.forEachKey((long record) -> {
+                                      final int stampAndFlag = (int) (record >>> 32);
 
                                       if (typeSequenceSet.isEmpty()) {  // wildcard
                                          if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
@@ -288,10 +288,10 @@ public class TypeStampTaxonomyRecords {
    }
 
    public IntStream getStampsOfTypeWithFlags(int typeSequence, int flags) {
-      Builder intStreamBuilder = IntStream.builder();
+      final Builder intStreamBuilder = IntStream.builder();
 
-      typeStampFlagsSet.forEachKey((long record) -> {
-                                      int stampAndFlag = (int) (record >>> 32);
+      this.typeStampFlagsSet.forEachKey((long record) -> {
+                                      final int stampAndFlag = (int) (record >>> 32);
 
                                       if (typeSequence == Integer.MAX_VALUE) {  // wildcard
                                          if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
@@ -311,7 +311,7 @@ public class TypeStampTaxonomyRecords {
    }
 
    public LongStream getTypeStampFlagStream() {
-      return LongStream.of(typeStampFlagsSet.keys()
+      return LongStream.of(this.typeStampFlagsSet.keys()
             .elements());
    }
 
@@ -339,10 +339,10 @@ public class TypeStampTaxonomyRecords {
        */
       @Override
       public boolean apply(long record) {
-         int stampAndFlags = (int) (record >>> 32);
+         final int stampAndFlags = (int) (record >>> 32);
 
-         destinationArray[index++] = stampAndFlags;
-         destinationArray[index++] = (int) record;
+         this.destinationArray[this.index++] = stampAndFlags;
+         this.destinationArray[this.index++] = (int) record;
          return true;
       }
    }
@@ -403,20 +403,20 @@ public class TypeStampTaxonomyRecords {
 
       @Override
       public String toString() {
-         StringBuilder sb = new StringBuilder();
+         final StringBuilder sb = new StringBuilder();
 
          sb.append("«");
          sb.append(Get.conceptService()
-                      .getConcept(typeSequence)
+                      .getConcept(this.typeSequence)
                       .toUserString());
          sb.append(" <");
-         sb.append(typeSequence);
+         sb.append(this.typeSequence);
          sb.append(">");
          sb.append(" ss:");
-         sb.append(stampSequence);
+         sb.append(this.stampSequence);
          sb.append(" ");
          sb.append(Get.stampService()
-                      .describeStampSequence(stampSequence));
+                      .describeStampSequence(this.stampSequence));
          sb.append(" ");
          sb.append(getTaxonomyFlagsAsEnum());
          sb.append("»");
@@ -426,23 +426,23 @@ public class TypeStampTaxonomyRecords {
       //~--- get methods ------------------------------------------------------
 
       public long getAsLong() {
-         return convertToLong(typeSequence, stampSequence, taxonomyFlags);
+         return convertToLong(this.typeSequence, this.stampSequence, this.taxonomyFlags);
       }
 
       public int getStampSequence() {
-         return stampSequence;
+         return this.stampSequence;
       }
 
       public int getTaxonomyFlags() {
-         return taxonomyFlags;
+         return this.taxonomyFlags;
       }
 
       public EnumSet<TaxonomyFlags> getTaxonomyFlagsAsEnum() {
-         return TaxonomyFlags.getTaxonomyFlags(taxonomyFlags);
+         return TaxonomyFlags.getTaxonomyFlags(this.taxonomyFlags);
       }
 
       public int getTypeSequence() {
-         return typeSequence;
+         return this.typeSequence;
       }
    }
 }

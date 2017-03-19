@@ -58,7 +58,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  */
 public abstract class BPT_DualParentPropertyType
         extends PropertyType {
-   private String secondParentName_;  // Typically "Term-name Refsets" under "Project Refsets" or "Term-name Descriptions" under "Descriptions in source terminology, etc
+   private final String secondParentName_;  // Typically "Term-name Refsets" under "Project Refsets" or "Term-name Descriptions" under "Descriptions in source terminology, etc
    private UUID secondParentId_;  // calculated from above, but may have semantic tag stuff added.
 
    //~--- constructors --------------------------------------------------------
@@ -82,21 +82,21 @@ public abstract class BPT_DualParentPropertyType
    //~--- set methods ---------------------------------------------------------
 
    public void setSecondParentId(UUID secondParentId) {
-      secondParentId_ = secondParentId;
+      this.secondParentId_ = secondParentId;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getSecondParentName() {
-      return secondParentName_;
+      return this.secondParentName_;
    }
 
    public UUID getSecondParentUUID() {
-      if (secondParentId_ == null) {
+      if (this.secondParentId_ == null) {
          throw new RuntimeException("Second parent ID not yet calculated!");
       }
 
-      return secondParentId_;
+      return this.secondParentId_;
    }
 }
 

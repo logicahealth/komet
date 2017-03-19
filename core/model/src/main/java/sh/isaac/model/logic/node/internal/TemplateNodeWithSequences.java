@@ -93,8 +93,8 @@ public final class TemplateNodeWithSequences
                                     DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      templateConceptSequence   = dataInputStream.readInt();
-      assemblageConceptSequence = dataInputStream.readInt();
+      this.templateConceptSequence   = dataInputStream.readInt();
+      this.assemblageConceptSequence = dataInputStream.readInt();
    }
 
    public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
@@ -117,8 +117,8 @@ public final class TemplateNodeWithSequences
    @Override
    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
-      conceptSequenceSet.add(templateConceptSequence);
-      conceptSequenceSet.add(assemblageConceptSequence);
+      conceptSequenceSet.add(this.templateConceptSequence);
+      conceptSequenceSet.add(this.assemblageConceptSequence);
    }
 
    @Override
@@ -135,21 +135,21 @@ public final class TemplateNodeWithSequences
          return false;
       }
 
-      TemplateNodeWithSequences that = (TemplateNodeWithSequences) o;
+      final TemplateNodeWithSequences that = (TemplateNodeWithSequences) o;
 
-      if (assemblageConceptSequence != that.assemblageConceptSequence) {
+      if (this.assemblageConceptSequence != that.assemblageConceptSequence) {
          return false;
       }
 
-      return templateConceptSequence == that.templateConceptSequence;
+      return this.templateConceptSequence == that.templateConceptSequence;
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + templateConceptSequence;
-      result = 31 * result + assemblageConceptSequence;
+      result = 31 * result + this.templateConceptSequence;
+      result = 31 * result + this.assemblageConceptSequence;
       return result;
    }
 
@@ -161,8 +161,8 @@ public final class TemplateNodeWithSequences
    @Override
    public String toString(String nodeIdSuffix) {
       return "Template[" + getNodeIndex() + nodeIdSuffix + "] " + "assemblage: " +
-             Get.conceptDescriptionText(assemblageConceptSequence) + ", template: " +
-             Get.conceptDescriptionText(templateConceptSequence) + super.toString(nodeIdSuffix);
+             Get.conceptDescriptionText(this.assemblageConceptSequence) + ", template: " +
+             Get.conceptDescriptionText(this.templateConceptSequence) + super.toString(nodeIdSuffix);
    }
 
    @Override
@@ -170,15 +170,15 @@ public final class TemplateNodeWithSequences
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
-         TemplateNodeWithUuids externalForm = new TemplateNodeWithUuids(this);
+         final TemplateNodeWithUuids externalForm = new TemplateNodeWithUuids(this);
 
          externalForm.writeNodeData(dataOutput, dataTarget);
          break;
 
       case INTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeInt(templateConceptSequence);
-         dataOutput.writeInt(assemblageConceptSequence);
+         dataOutput.writeInt(this.templateConceptSequence);
+         dataOutput.writeInt(this.assemblageConceptSequence);
          break;
 
       default:
@@ -188,9 +188,9 @@ public final class TemplateNodeWithSequences
 
    @Override
    protected int compareFields(LogicNode o) {
-      TemplateNodeWithSequences that = (TemplateNodeWithSequences) o;
+      final TemplateNodeWithSequences that = (TemplateNodeWithSequences) o;
 
-      if (assemblageConceptSequence != that.assemblageConceptSequence) {
+      if (this.assemblageConceptSequence != that.assemblageConceptSequence) {
          return Integer.compare(this.assemblageConceptSequence, that.assemblageConceptSequence);
       }
 
@@ -201,16 +201,16 @@ public final class TemplateNodeWithSequences
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
                                  Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(assemblageConceptSequence)
+                                    .getUuidPrimordialFromConceptId(this.assemblageConceptSequence)
                                     .get()
                                     .toString() + Get.identifierService().getUuidPrimordialFromConceptId(
-                                        templateConceptSequence).get().toString());
+                                        this.templateConceptSequence).get().toString());
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getAssemblageConceptSequence() {
-      return assemblageConceptSequence;
+      return this.assemblageConceptSequence;
    }
 
    @Override
@@ -224,7 +224,7 @@ public final class TemplateNodeWithSequences
    }
 
    public int getTemplateConceptSequence() {
-      return templateConceptSequence;
+      return this.templateConceptSequence;
    }
 }
 

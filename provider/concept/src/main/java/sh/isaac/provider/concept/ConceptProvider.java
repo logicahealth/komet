@@ -111,7 +111,7 @@ public class ConceptProvider
 
    //~--- fields --------------------------------------------------------------
 
-   private AtomicBoolean                             loadRequired     = new AtomicBoolean(true);
+   private final AtomicBoolean                             loadRequired     = new AtomicBoolean(true);
    private DatabaseValidity                          databaseValidity = DatabaseValidity.NOT_SET;
    private UUID                                      dbId             = null;
    ConceptActiveService                              conceptActiveService;
@@ -123,24 +123,24 @@ public class ConceptProvider
    public ConceptProvider()
             throws IOException, NumberFormatException, ParseException {
       try {
-         Path propertiesPath = LookupService.getService(ConfigurationService.class)
+         final Path propertiesPath = LookupService.getService(ConfigurationService.class)
                                             .getChronicleFolderPath()
                                             .resolve(CRADLE_PROPERTIES_FILE_NAME);
-         Path dbIdPath = LookupService.getService(ConfigurationService.class)
+         final Path dbIdPath = LookupService.getService(ConfigurationService.class)
                                       .getChronicleFolderPath()
                                       .resolve(CRADLE_ID_FILE_NAME);
-         Path folderPath = LookupService.getService(ConfigurationService.class)
+         final Path folderPath = LookupService.getService(ConfigurationService.class)
                                         .getChronicleFolderPath()
                                         .resolve("ochre-concepts");
 
          Files.createDirectories(folderPath);
          LOG.info("Setting up OCHRE ConceptProvider at " + folderPath.toAbsolutePath());
 
-         Properties cradleProps = new Properties();
+         final Properties cradleProps = new Properties();
 
          if (propertiesPath.toFile()
                            .exists()) {
-            loadRequired.set(true);
+            this.loadRequired.set(true);
 
             try (FileInputStream in = new FileInputStream(propertiesPath.toFile())) {
                cradleProps.load(in);
@@ -154,43 +154,43 @@ public class ConceptProvider
             if (dbIdPath.toFile()
                         .exists()) {
                try {
-                  dbId = UUID.fromString(new String(Files.readAllBytes(dbIdPath)));
-               } catch (Exception e) {
+                  this.dbId = UUID.fromString(new String(Files.readAllBytes(dbIdPath)));
+               } catch (final Exception e) {
                   throw new IllegalStateException("The " + CRADLE_ID_FILE_NAME + " file does not contain a valid UUID!",
                                                   e);
                }
             } else {
                LOG.warn("The " + CRADLE_ID_FILE_NAME + " file is missing from the database folder - creating a new ID");
-               dbId = UUID.randomUUID();
-               Files.write(dbIdPath, dbId.toString()
+               this.dbId = UUID.randomUUID();
+               Files.write(dbIdPath, this.dbId.toString()
                                          .getBytes());
             }
 
             LOG.info("Reading an existing concept store at " + folderPath.toAbsolutePath() + " with the id of '" +
-                     dbId.toString() + "'");
+                     this.dbId.toString() + "'");
          } else {
-            loadRequired.set(false);
+            this.loadRequired.set(false);
             cradleProps.put(CRADLE_DATA_VERSION_PROPERTY, CRADLE_DATA_VERSION);
 
             try (FileOutputStream out = new FileOutputStream(propertiesPath.toFile())) {
                cradleProps.store(out, CRADLE_DATA_VERSION);
             }
 
-            dbId = UUID.randomUUID();
-            Files.write(dbIdPath, dbId.toString()
+            this.dbId = UUID.randomUUID();
+            Files.write(dbIdPath, this.dbId.toString()
                                       .getBytes());
             LOG.info("Creating a new (empty) concept store at " + folderPath.toAbsolutePath() + " with the id of ]" +
-                     dbId.toString() + "'");
+                     this.dbId.toString() + "'");
          }
 
-         ochreConceptPath = folderPath.resolve("ochre");
+         this.ochreConceptPath = folderPath.resolve("ochre");
 
-         if (!Files.exists(ochreConceptPath)) {
-            databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+         if (!Files.exists(this.ochreConceptPath)) {
+            this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
 
-         conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
-               ochreConceptPath,
+         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
+               this.ochreConceptPath,
                "seg.",
                ".ochre-concepts.map");
       } catch (IOException | IllegalStateException e) {
@@ -206,24 +206,24 @@ public class ConceptProvider
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
-      databaseValidity = DatabaseValidity.NOT_SET;
+      this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
    @Override
    public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
-      conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
+      this.conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
    }
 
    @PostConstruct
    private void startMe() {
       LOG.info("Starting OCHRE ConceptProvider post-construct");
-      conceptActiveService = LookupService.getService(ConceptActiveService.class);
+      this.conceptActiveService = LookupService.getService(ConceptActiveService.class);
 
-      if (loadRequired.compareAndSet(true, false)) {
+      if (this.loadRequired.compareAndSet(true, false)) {
          LOG.info("Reading existing OCHRE concept-map.");
 
-         if (conceptMap.initialize()) {
-            databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+         if (this.conceptMap.initialize()) {
+            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
 
          LOG.info("Finished OCHRE read.");
@@ -234,7 +234,7 @@ public class ConceptProvider
    private void stopMe() {
       LOG.info("Stopping OCHRE ConceptProvider.");
       LOG.info("Writing OCHRE concept-map.");
-      conceptMap.write();
+      this.conceptMap.write();
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -246,29 +246,29 @@ public class ConceptProvider
                         .getConceptSequence(conceptId);
       }
 
-      return conceptMap.getQuick(conceptId);
+      return this.conceptMap.getQuick(conceptId);
    }
 
    @Override
    public ConceptChronologyImpl getConcept(UUID... conceptUuids) {
-      int                             conceptNid      = Get.identifierService()
+      final int                             conceptNid      = Get.identifierService()
                                                            .getNidForUuids(conceptUuids);
-      int                             conceptSequence = Get.identifierService()
+      final int                             conceptSequence = Get.identifierService()
                                                            .getConceptSequence(conceptNid);
-      Optional<ConceptChronologyImpl> optionalConcept = conceptMap.get(conceptSequence);
+      final Optional<ConceptChronologyImpl> optionalConcept = this.conceptMap.get(conceptSequence);
 
       if (optionalConcept.isPresent()) {
          return optionalConcept.get();
       }
 
-      ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
+      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
 
       if (conceptUuids.length > 1) {
          concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));
       }
 
-      conceptMap.put(conceptSequence, concept);
-      return conceptMap.getQuick(conceptSequence);
+      this.conceptMap.put(conceptSequence, concept);
+      return this.conceptMap.getQuick(conceptSequence);
    }
 
    @Override
@@ -278,17 +278,17 @@ public class ConceptProvider
                         .getConceptSequence(conceptId);
       }
 
-      return conceptMap.containsKey(conceptId);
+      return this.conceptMap.containsKey(conceptId);
    }
 
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
-      return conceptActiveService.isConceptActive(conceptSequence, stampCoordinate);
+      return this.conceptActiveService.isConceptActive(conceptSequence, stampCoordinate);
    }
 
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
-      return conceptMap.getStream().map((cc) -> {
+      return this.conceptMap.getStream().map((cc) -> {
                                return (ConceptChronology<? extends ConceptVersion<?>>) cc;
                             });
    }
@@ -297,10 +297,10 @@ public class ConceptProvider
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
-                             Optional<ConceptChronologyImpl> result = conceptMap.get(sequence);
+                             final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
 
                              if (result.isPresent()) {
-                                return conceptMap.get(sequence)
+                                return this.conceptMap.get(sequence)
                                       .get();
                              }
 
@@ -310,7 +310,7 @@ public class ConceptProvider
 
    @Override
    public int getConceptCount() {
-      return conceptMap.getSize();
+      return this.conceptMap.getSize();
    }
 
    public Optional<ConceptChronologyImpl> getConceptData(int i)
@@ -320,32 +320,32 @@ public class ConceptProvider
                 .getConceptSequence(i);
       }
 
-      return conceptMap.get(i);
+      return this.conceptMap.get(i);
    }
 
    @Override
    public IntStream getConceptKeyParallelStream() {
-      return conceptMap.getKeyParallelStream();
+      return this.conceptMap.getKeyParallelStream();
    }
 
    @Override
    public IntStream getConceptKeyStream() {
-      return conceptMap.getKeyStream();
+      return this.conceptMap.getKeyStream();
    }
 
    @Override
    public UUID getDataStoreId() {
-      return dbId;
+      return this.dbId;
    }
 
    @Override
    public Path getDatabaseFolder() {
-      return ochreConceptPath;
+      return this.ochreConceptPath;
    }
 
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
-      return databaseValidity;
+      return this.databaseValidity;
    }
 
    @Override
@@ -355,7 +355,7 @@ public class ConceptProvider
                         .getConceptSequence(conceptId);
       }
 
-      return conceptMap.get(conceptId);
+      return this.conceptMap.get(conceptId);
    }
 
    @Override
@@ -372,7 +372,7 @@ public class ConceptProvider
 
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
-      return conceptMap.getParallelStream().map((cc) -> {
+      return this.conceptMap.getParallelStream().map((cc) -> {
                                return cc;
                             });
    }
@@ -381,10 +381,10 @@ public class ConceptProvider
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getParallelConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
-                             Optional<ConceptChronologyImpl> result = conceptMap.get(sequence);
+                             final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
 
                              if (result.isPresent()) {
-                                return conceptMap.get(sequence)
+                                return this.conceptMap.get(sequence)
                                       .get();
                              }
 
@@ -415,7 +415,7 @@ public class ConceptProvider
 
       @Override
       public String conceptDescriptionText(int conceptId) {
-         Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
+         final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
 
          if (descriptionOptional.isPresent()) {
             return descriptionOptional.get()
@@ -428,24 +428,24 @@ public class ConceptProvider
 
       @Override
       public String toString() {
-         return "ConceptSnapshotProvider{" + "stampCoordinate=" + stampCoordinate + ", languageCoordinate=" +
-                languageCoordinate + '}';
+         return "ConceptSnapshotProvider{" + "stampCoordinate=" + this.stampCoordinate + ", languageCoordinate=" +
+                this.languageCoordinate + '}';
       }
 
       //~--- get methods ------------------------------------------------------
 
       @Override
       public boolean isConceptActive(int conceptSequence) {
-         return ConceptProvider.this.isConceptActive(conceptSequence, stampCoordinate);
+         return ConceptProvider.this.isConceptActive(conceptSequence, this.stampCoordinate);
       }
 
       @Override
       public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
-         return new ConceptSnapshotImpl(getConcept(conceptSequence), stampCoordinate, languageCoordinate);
+         return new ConceptSnapshotImpl(getConcept(conceptSequence), this.stampCoordinate, this.languageCoordinate);
       }
 
       private List<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionList(int conceptId) {
-         int conceptNid = Get.identifierService()
+         final int conceptNid = Get.identifierService()
                              .getConceptNid(conceptId);
 
          return Get.sememeService()
@@ -455,27 +455,27 @@ public class ConceptProvider
 
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId) {
-         return languageCoordinate.getDescription(getDescriptionList(conceptId), stampCoordinate);
+         return this.languageCoordinate.getDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
-         return languageCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId), stampCoordinate);
+         return this.languageCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
       @Override
       public LanguageCoordinate getLanguageCoordinate() {
-         return languageCoordinate;
+         return this.languageCoordinate;
       }
 
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
-         return languageCoordinate.getPreferredDescription(getDescriptionList(conceptId), stampCoordinate);
+         return this.languageCoordinate.getPreferredDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
       @Override
       public StampCoordinate getStampCoordinate() {
-         return stampCoordinate;
+         return this.stampCoordinate;
       }
    }
 }

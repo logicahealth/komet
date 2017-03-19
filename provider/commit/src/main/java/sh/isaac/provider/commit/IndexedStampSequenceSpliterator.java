@@ -65,8 +65,8 @@ public abstract class IndexedStampSequenceSpliterator<T>
    //~--- constructors --------------------------------------------------------
 
    public IndexedStampSequenceSpliterator(IntArrayList keys) {
-      size     = keys.size();
-      iterator = IntStream.of(keys.elements())
+      this.size     = keys.size();
+      this.iterator = IntStream.of(keys.elements())
                           .iterator();
    }
 
@@ -79,7 +79,7 @@ public abstract class IndexedStampSequenceSpliterator<T>
 
    @Override
    public final long estimateSize() {
-      return size;
+      return this.size;
    }
 
    @Override
@@ -90,7 +90,7 @@ public abstract class IndexedStampSequenceSpliterator<T>
    //~--- get methods ---------------------------------------------------------
 
    public PrimitiveIterator.OfInt getIterator() {
-      return iterator;
+      return this.iterator;
    }
 }
 

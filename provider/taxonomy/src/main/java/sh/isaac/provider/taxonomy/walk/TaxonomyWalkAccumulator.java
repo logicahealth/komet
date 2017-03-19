@@ -66,9 +66,9 @@ public class TaxonomyWalkAccumulator {
 
    @Override
    public String toString() {
-      return "TaxonomyWalkAccumulator{" + "conceptsProcessed=" + conceptsProcessed + ", connections=" + connections +
-             ", maxConnections=" + maxConnections + ", minConnections=" + minConnections + ", parentConnections=" +
-             parentConnections + '}';
+      return "TaxonomyWalkAccumulator{" + "conceptsProcessed=" + this.conceptsProcessed + ", connections=" + this.connections +
+             ", maxConnections=" + this.maxConnections + ", minConnections=" + this.minConnections + ", parentConnections=" +
+             this.parentConnections + '}';
    }
 
    void combine(TaxonomyWalkAccumulator u) {

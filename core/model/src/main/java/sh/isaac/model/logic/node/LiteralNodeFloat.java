@@ -70,7 +70,7 @@ public class LiteralNodeFloat
                            DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      literalValue = dataInputStream.readFloat();
+      this.literalValue = dataInputStream.readFloat();
    }
 
    public LiteralNodeFloat(LogicalExpressionOchreImpl logicGraphVersion, float literalValue) {
@@ -94,16 +94,16 @@ public class LiteralNodeFloat
          return false;
       }
 
-      LiteralNodeFloat that = (LiteralNodeFloat) o;
+      final LiteralNodeFloat that = (LiteralNodeFloat) o;
 
-      return Float.compare(that.literalValue, literalValue) == 0;
+      return Float.compare(that.literalValue, this.literalValue) == 0;
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + ((literalValue != +0.0f) ? Float.floatToIntBits(literalValue)
+      result = 31 * result + ((this.literalValue != +0.0f) ? Float.floatToIntBits(this.literalValue)
             : 0);
       return result;
    }
@@ -115,32 +115,32 @@ public class LiteralNodeFloat
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Float literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+      return "Float literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
 
    @Override
    protected int compareFields(LogicNode o) {
-      LiteralNodeFloat that = (LiteralNodeFloat) o;
+      final LiteralNodeFloat that = (LiteralNodeFloat) o;
 
       return Float.compare(this.literalValue, that.literalValue);
    }
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Float.toString(literalValue));
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Float.toString(this.literalValue));
    }
 
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeFloat(literalValue);
+      dataOutput.writeFloat(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public float getLiteralValue() {
-      return literalValue;
+      return this.literalValue;
    }
 
    @Override

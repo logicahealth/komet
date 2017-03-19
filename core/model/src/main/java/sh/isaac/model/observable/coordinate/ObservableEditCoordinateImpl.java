@@ -73,72 +73,72 @@ public class ObservableEditCoordinateImpl
 
    @Override
    public IntegerProperty authorSequenceProperty() {
-      if (authorSequenceProperty == null) {
-         authorSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.authorSequenceProperty == null) {
+         this.authorSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.AUTHOR_SEQUENCE_FOR_EDIT_COORDINATE.toExternalString(),
                getAuthorSequence());
-         addListenerReference(editCoordinate.setAuthorSequenceProperty(authorSequenceProperty));
+         addListenerReference(this.editCoordinate.setAuthorSequenceProperty(this.authorSequenceProperty));
       }
 
-      return authorSequenceProperty;
+      return this.authorSequenceProperty;
    }
 
    @Override
    public IntegerProperty moduleSequenceProperty() {
-      if (moduleSequenceProperty == null) {
-         moduleSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.moduleSequenceProperty == null) {
+         this.moduleSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.MODULE_SEQUENCE_FOR_EDIT_COORDINATE.toExternalString(),
                getModuleSequence());
-         addListenerReference(editCoordinate.setModuleSequenceProperty(moduleSequenceProperty));
+         addListenerReference(this.editCoordinate.setModuleSequenceProperty(this.moduleSequenceProperty));
       }
 
-      return moduleSequenceProperty;
+      return this.moduleSequenceProperty;
    }
 
    @Override
    public IntegerProperty pathSequenceProperty() {
-      if (pathSequenceProperty == null) {
-         pathSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.pathSequenceProperty == null) {
+         this.pathSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_SEQUENCE_FOR_EDIT_CORDINATE.toExternalString(),
                getPathSequence());
-         addListenerReference(editCoordinate.setPathSequenceProperty(pathSequenceProperty()));
+         addListenerReference(this.editCoordinate.setPathSequenceProperty(pathSequenceProperty()));
       }
 
-      return pathSequenceProperty;
+      return this.pathSequenceProperty;
    }
 
    @Override
    public String toString() {
-      return "ObservableEditCoordinateImpl{" + editCoordinate + '}';
+      return "ObservableEditCoordinateImpl{" + this.editCoordinate + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getAuthorSequence() {
-      if (authorSequenceProperty != null) {
-         return authorSequenceProperty.get();
+      if (this.authorSequenceProperty != null) {
+         return this.authorSequenceProperty.get();
       }
 
-      return editCoordinate.getAuthorSequence();
+      return this.editCoordinate.getAuthorSequence();
    }
 
    @Override
    public int getModuleSequence() {
-      if (moduleSequenceProperty != null) {
-         return moduleSequenceProperty.get();
+      if (this.moduleSequenceProperty != null) {
+         return this.moduleSequenceProperty.get();
       }
 
-      return editCoordinate.getModuleSequence();
+      return this.editCoordinate.getModuleSequence();
    }
 
    @Override
    public int getPathSequence() {
-      if (pathSequenceProperty != null) {
-         return pathSequenceProperty.get();
+      if (this.pathSequenceProperty != null) {
+         return this.pathSequenceProperty.get();
       }
 
-      return editCoordinate.getPathSequence();
+      return this.editCoordinate.getPathSequence();
    }
 }
 

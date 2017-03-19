@@ -53,16 +53,16 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 public class UserPreference
          implements StorableUserPreferences {
    // TODO finish this class as needed
-   private String sample;
+   private final String sample;
 
    //~--- constructors --------------------------------------------------------
 
    public UserPreference(byte[] data) {
-      sample = new String(data);
+      this.sample = new String(data);
    }
 
    public UserPreference(String foo) {
-      sample = foo;
+      this.sample = foo;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -72,12 +72,12 @@ public class UserPreference
     */
    @Override
    public byte[] serialize() {
-      return sample.getBytes();
+      return this.sample.getBytes();
    }
 
    @Override
    public String toString() {
-      return sample;
+      return this.sample;
    }
 }
 

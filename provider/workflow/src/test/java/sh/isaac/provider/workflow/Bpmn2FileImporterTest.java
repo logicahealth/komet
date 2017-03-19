@@ -105,7 +105,7 @@ public class Bpmn2FileImporterTest
    @Test
    public void testImportBpmn2FileMetadata()
             throws Exception {
-      WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
+      final WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
                                                                                                 .getService(
                                                                                                    WorkflowProvider.class)
                                                                                                 .getDefinitionDetailStore();
@@ -114,10 +114,10 @@ public class Bpmn2FileImporterTest
                         createdDefinitionDetailContentStore.size(),
                         1);
 
-      DefinitionDetail entry         = createdDefinitionDetailContentStore.values()
+      final DefinitionDetail entry         = createdDefinitionDetailContentStore.values()
                                                                           .iterator()
                                                                           .next();
-      Set<UserRole>    expectedRoles = new HashSet<>();
+      final Set<UserRole>    expectedRoles = new HashSet<>();
 
       expectedRoles.add(UserRole.EDITOR);
       expectedRoles.add(UserRole.REVIEWER);
@@ -139,9 +139,9 @@ public class Bpmn2FileImporterTest
    @Test
    public void testStaticBpmnAvailableActions()
             throws Exception {
-      Map<String, Set<AvailableAction>> actionMap = new HashMap<>();
+      final Map<String, Set<AvailableAction>> actionMap = new HashMap<>();
 
-      for (AvailableAction action: LookupService.get()
+      for (final AvailableAction action: LookupService.get()
             .getService(WorkflowProvider.class)
             .getAvailableActionStore()
             .values()) {
@@ -153,7 +153,7 @@ public class Bpmn2FileImporterTest
                   .add(action);
       }
 
-      for (String initState: actionMap.keySet()) {
+      for (final String initState: actionMap.keySet()) {
          if (initState.equals("Assigned")) {
             assertAssignedActions(actionMap.get(initState));
          } else if (initState.equals("Ready for Edit")) {
@@ -175,11 +175,11 @@ public class Bpmn2FileImporterTest
    @Test
    public void testStaticBpmnSetNodes()
             throws Exception {
-      WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
+      final WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
                                                                                                 .getService(
                                                                                                    WorkflowProvider.class)
                                                                                                 .getDefinitionDetailStore();
-      WorkflowContentStore<AvailableAction> createdAvailableActionContentStore = LookupService.get()
+      final WorkflowContentStore<AvailableAction> createdAvailableActionContentStore = LookupService.get()
                                                                                               .getService(
                                                                                                  WorkflowProvider.class)
                                                                                               .getAvailableActionStore();
@@ -188,10 +188,10 @@ public class Bpmn2FileImporterTest
                         createdAvailableActionContentStore.size(),
                         10);
 
-      DefinitionDetail definitionDetails = createdDefinitionDetailContentStore.values()
+      final DefinitionDetail definitionDetails = createdDefinitionDetailContentStore.values()
                                                                               .iterator()
                                                                               .next();
-      List<String> possibleActions = Arrays.asList("Cancel Workflow",
+      final List<String> possibleActions = Arrays.asList("Cancel Workflow",
                                                    "Edit",
                                                    "QA Fails",
                                                    "QA Passes",
@@ -199,7 +199,7 @@ public class Bpmn2FileImporterTest
                                                    "Reject Edit",
                                                    "Reject Review",
                                                    "Create Workflow Process");
-      List<String> possibleStates = Arrays.asList("Assigned",
+      final List<String> possibleStates = Arrays.asList("Assigned",
                                                   "Canceled During Edit",
                                                   "Canceled During Review",
                                                   "Canceled During Approval",
@@ -207,12 +207,12 @@ public class Bpmn2FileImporterTest
                                                   "Ready for Approve",
                                                   "Modeling Review Complete",
                                                   "Ready for Review");
-      Set<AvailableAction> identifiedCanceledActions  = new HashSet<>();
-      Set<AvailableAction> identifiedConcludedActions = new HashSet<>();
-      Set<AvailableAction> identifiedStartTypeActions = new HashSet<>();
-      Set<String>          identifiedEditingActions   = new HashSet<>();
+      final Set<AvailableAction> identifiedCanceledActions  = new HashSet<>();
+      final Set<AvailableAction> identifiedConcludedActions = new HashSet<>();
+      final Set<AvailableAction> identifiedStartTypeActions = new HashSet<>();
+      final Set<String>          identifiedEditingActions   = new HashSet<>();
 
-      for (AvailableAction entry: createdAvailableActionContentStore.values()) {
+      for (final AvailableAction entry: createdAvailableActionContentStore.values()) {
          if (entry.getAction()
                   .equals("Cancel Workflow")) {
             identifiedCanceledActions.add(entry);
@@ -235,12 +235,12 @@ public class Bpmn2FileImporterTest
          Assert.assertTrue(possibleActions.contains(entry.getAction()));
       }
 
-      Set<AvailableAction> concludedActions = LookupService.get()
+      final Set<AvailableAction> concludedActions = LookupService.get()
                                                            .getService(WorkflowProvider.class)
                                                            .getBPMNInfo()
                                                            .getEndWorkflowTypeMap()
                                                            .get(EndWorkflowType.CONCLUDED);
-      Set<AvailableAction> canceledActions = LookupService.get()
+      final Set<AvailableAction> canceledActions = LookupService.get()
                                                           .getService(WorkflowProvider.class)
                                                           .getBPMNInfo()
                                                           .getEndWorkflowTypeMap()
@@ -249,7 +249,7 @@ public class Bpmn2FileImporterTest
       Assert.assertEquals(canceledActions, identifiedCanceledActions);
       Assert.assertEquals(concludedActions, identifiedConcludedActions);
 
-      Map<UUID, Set<AvailableAction>> defStartMap = LookupService.get()
+      final Map<UUID, Set<AvailableAction>> defStartMap = LookupService.get()
                                                                  .getService(WorkflowProvider.class)
                                                                  .getBPMNInfo()
                                                                  .getDefinitionStartActionMap();
@@ -285,7 +285,7 @@ public class Bpmn2FileImporterTest
    private void assertReadyForApprovalActions(Set<AvailableAction> actions) {
       Assert.assertEquals(4, actions.size());
 
-      for (AvailableAction act: actions) {
+      for (final AvailableAction act: actions) {
          Assert.assertEquals(UserRole.APPROVER, act.getRole());
 
          if (act.getAction()
@@ -309,7 +309,7 @@ public class Bpmn2FileImporterTest
    private void assertReadyForEditActions(Set<AvailableAction> actions) {
       Assert.assertEquals(2, actions.size());
 
-      for (AvailableAction act: actions) {
+      for (final AvailableAction act: actions) {
          Assert.assertEquals(UserRole.EDITOR, act.getRole());
 
          if (act.getAction()
@@ -327,7 +327,7 @@ public class Bpmn2FileImporterTest
    private void assertReadyForReviewActions(Set<AvailableAction> actions) {
       Assert.assertEquals(3, actions.size());
 
-      for (AvailableAction act: actions) {
+      for (final AvailableAction act: actions) {
          Assert.assertEquals(UserRole.REVIEWER, act.getRole());
 
          if (act.getAction()

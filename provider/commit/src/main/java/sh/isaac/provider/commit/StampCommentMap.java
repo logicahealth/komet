@@ -78,24 +78,24 @@ import sh.isaac.api.externalizable.StampComment;
  */
 public class StampCommentMap {
    private final ReentrantReadWriteLock rwl             = new ReentrantReadWriteLock();
-   private final Lock                   read            = rwl.readLock();
-   private final Lock                   write           = rwl.writeLock();
+   private final Lock                   read            = this.rwl.readLock();
+   private final Lock                   write           = this.rwl.writeLock();
    OpenIntObjectHashMap<String>         stampCommentMap = new OpenIntObjectHashMap();
 
    //~--- methods -------------------------------------------------------------
 
    public void addComment(int stamp, String comment) {
       try {
-         write.lock();
+         this.write.lock();
 
          if (comment != null) {
-            stampCommentMap.put(stamp, comment);
+            this.stampCommentMap.put(stamp, comment);
          } else {
-            stampCommentMap.removeKey(stamp);
+            this.stampCommentMap.removeKey(stamp);
          }
       } finally {
-         if (write != null) {
-            write.unlock();
+         if (this.write != null) {
+            this.write.unlock();
          }
       }
    }
@@ -103,15 +103,15 @@ public class StampCommentMap {
    public void read(File mapFile)
             throws IOException {
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
-         int size = input.readInt();
+         final int size = input.readInt();
 
-         stampCommentMap.ensureCapacity(size);
+         this.stampCommentMap.ensureCapacity(size);
 
          for (int i = 0; i < size; i++) {
-            int    stamp   = input.readInt();
-            String comment = input.readUTF();
+            final int    stamp   = input.readInt();
+            final String comment = input.readUTF();
 
-            stampCommentMap.put(stamp, comment);
+            this.stampCommentMap.put(stamp, comment);
          }
       }
    }
@@ -119,14 +119,14 @@ public class StampCommentMap {
    public void write(File mapFile)
             throws IOException {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
-         output.writeInt(stampCommentMap.size());
-         stampCommentMap.forEachPair((int nid,
+         output.writeInt(this.stampCommentMap.size());
+         this.stampCommentMap.forEachPair((int nid,
                                       String comment) -> {
                                         try {
                                            output.writeInt(nid);
                                            output.writeUTF(comment);
                                            return true;
-                                        } catch (IOException ex) {
+                                        } catch (final IOException ex) {
                                            throw new RuntimeException(ex);
                                         }
                                      });
@@ -142,17 +142,17 @@ public class StampCommentMap {
     */
    public Optional<String> getComment(int stamp) {
       try {
-         read.lock();
-         return Optional.ofNullable(stampCommentMap.get(stamp));
+         this.read.lock();
+         return Optional.ofNullable(this.stampCommentMap.get(stamp));
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }
 
    public int getSize() {
-      return stampCommentMap.size();
+      return this.stampCommentMap.size();
    }
 
    public Stream<StampComment> getStampCommentStream() {
@@ -164,7 +164,7 @@ public class StampCommentMap {
    private class StampCommentSpliterator
            extends IndexedStampSequenceSpliterator<StampComment> {
       public StampCommentSpliterator() {
-         super(stampCommentMap.keys());
+         super(StampCommentMap.this.stampCommentMap.keys());
       }
 
       //~--- methods ----------------------------------------------------------
@@ -172,8 +172,8 @@ public class StampCommentMap {
       @Override
       public boolean tryAdvance(Consumer<? super StampComment> action) {
          if (getIterator().hasNext()) {
-            int          mapIndex     = getIterator().nextInt();
-            StampComment stampComment = new StampComment(stampCommentMap.get(mapIndex), mapIndex);
+            final int          mapIndex     = getIterator().nextInt();
+            final StampComment stampComment = new StampComment(StampCommentMap.this.stampCommentMap.get(mapIndex), mapIndex);
 
             action.accept(stampComment);
             return true;

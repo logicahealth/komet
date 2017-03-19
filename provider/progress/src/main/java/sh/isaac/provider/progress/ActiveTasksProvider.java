@@ -73,19 +73,19 @@ public class ActiveTasksProvider
 
    @Override
    public void add(Task<?> task) {
-      taskSet.add(task);
+      this.taskSet.add(task);
    }
 
    @Override
    public void remove(Task<?> task) {
-      taskSet.remove(task);
+      this.taskSet.remove(task);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public Set<Task<?>> get() {
-      return taskSet;
+      return this.taskSet;
    }
 }
 

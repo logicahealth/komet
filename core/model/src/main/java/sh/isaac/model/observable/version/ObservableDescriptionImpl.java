@@ -76,67 +76,67 @@ public class ObservableDescriptionImpl
 
    @Override
    public IntegerProperty caseSignificanceConceptSequenceProperty() {
-      if (caseSignificanceConceptSequenceProperty == null) {
-         caseSignificanceConceptSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.caseSignificanceConceptSequenceProperty == null) {
+         this.caseSignificanceConceptSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
                getCaseSignificanceConceptSequence());
       }
 
-      return caseSignificanceConceptSequenceProperty;
+      return this.caseSignificanceConceptSequenceProperty;
    }
 
    @Override
    public IntegerProperty descriptionTypeConceptSequenceProperty() {
-      if (descriptionTypeConceptSequenceProperty == null) {
-         descriptionTypeConceptSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.descriptionTypeConceptSequenceProperty == null) {
+         this.descriptionTypeConceptSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION.toExternalString(),
                getDescriptionTypeConceptSequence());
       }
 
-      return descriptionTypeConceptSequenceProperty;
+      return this.descriptionTypeConceptSequenceProperty;
    }
 
    @Override
    public IntegerProperty languageConceptSequenceProperty() {
-      if (languageConceptSequenceProperty == null) {
-         languageConceptSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.languageConceptSequenceProperty == null) {
+         this.languageConceptSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
                getLanguageConceptSequence());
       }
 
-      return languageConceptSequenceProperty;
+      return this.languageConceptSequenceProperty;
    }
 
    @Override
    public StringProperty textProperty() {
-      if (textProperty == null) {
-         textProperty = new CommitAwareStringProperty(this,
+      if (this.textProperty == null) {
+         this.textProperty = new CommitAwareStringProperty(this,
                ObservableFields.TEXT_FOR_DESCRIPTION.toExternalString(),
                getText());
       }
 
-      return textProperty;
+      return this.textProperty;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getCaseSignificanceConceptSequence() {
-      if (caseSignificanceConceptSequenceProperty != null) {
-         return caseSignificanceConceptSequenceProperty.get();
+      if (this.caseSignificanceConceptSequenceProperty != null) {
+         return this.caseSignificanceConceptSequenceProperty.get();
       }
 
-      return ((DescriptionSememeImpl) stampedVersion).getCaseSignificanceConceptSequence();
+      return ((DescriptionSememeImpl) this.stampedVersion).getCaseSignificanceConceptSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence) {
-      if (caseSignificanceConceptSequenceProperty != null) {
-         caseSignificanceConceptSequenceProperty.set(caseSignificanceConceptSequence);
+      if (this.caseSignificanceConceptSequenceProperty != null) {
+         this.caseSignificanceConceptSequenceProperty.set(caseSignificanceConceptSequence);
       } else {
-         ((DescriptionSememeImpl) stampedVersion).setCaseSignificanceConceptSequence(caseSignificanceConceptSequence);
+         ((DescriptionSememeImpl) this.stampedVersion).setCaseSignificanceConceptSequence(caseSignificanceConceptSequence);
       }
    }
 
@@ -144,43 +144,43 @@ public class ObservableDescriptionImpl
 
    @Override
    public int getDescriptionTypeConceptSequence() {
-      if (descriptionTypeConceptSequenceProperty != null) {
-         return descriptionTypeConceptSequenceProperty.get();
+      if (this.descriptionTypeConceptSequenceProperty != null) {
+         return this.descriptionTypeConceptSequenceProperty.get();
       }
 
-      return ((DescriptionSememeImpl) stampedVersion).getDescriptionTypeConceptSequence();
+      return ((DescriptionSememeImpl) this.stampedVersion).getDescriptionTypeConceptSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence) {
-      if (descriptionTypeConceptSequenceProperty != null) {
-         descriptionTypeConceptSequenceProperty.set(descriptionTypeConceptSequence);
+      if (this.descriptionTypeConceptSequenceProperty != null) {
+         this.descriptionTypeConceptSequenceProperty.set(descriptionTypeConceptSequence);
       }
 
-      ((DescriptionSememeImpl) stampedVersion).setDescriptionTypeConceptSequence(descriptionTypeConceptSequence);
+      ((DescriptionSememeImpl) this.stampedVersion).setDescriptionTypeConceptSequence(descriptionTypeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getLanguageConceptSequence() {
-      if (languageConceptSequenceProperty != null) {
-         return languageConceptSequenceProperty.get();
+      if (this.languageConceptSequenceProperty != null) {
+         return this.languageConceptSequenceProperty.get();
       }
 
-      return ((DescriptionSememeImpl) stampedVersion).getLanguageConceptSequence();
+      return ((DescriptionSememeImpl) this.stampedVersion).getLanguageConceptSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setLanguageConceptSequence(int languageConceptSequence) {
-      if (languageConceptSequenceProperty != null) {
-         languageConceptSequenceProperty.set(languageConceptSequence);
+      if (this.languageConceptSequenceProperty != null) {
+         this.languageConceptSequenceProperty.set(languageConceptSequence);
       } else {
-         ((DescriptionSememeImpl) stampedVersion).setLanguageConceptSequence(languageConceptSequence);
+         ((DescriptionSememeImpl) this.stampedVersion).setLanguageConceptSequence(languageConceptSequence);
       }
    }
 
@@ -188,22 +188,22 @@ public class ObservableDescriptionImpl
 
    @Override
    public String getText() {
-      if (textProperty != null) {
-         return textProperty.get();
+      if (this.textProperty != null) {
+         return this.textProperty.get();
       }
 
-      return ((DescriptionSememeImpl) stampedVersion).getText();
+      return ((DescriptionSememeImpl) this.stampedVersion).getText();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setText(String text) {
-      if (textProperty != null) {
-         textProperty.set(text);
+      if (this.textProperty != null) {
+         this.textProperty.set(text);
       }
 
-      ((DescriptionSememeImpl) stampedVersion).setText(text);
+      ((DescriptionSememeImpl) this.stampedVersion).setText(text);
    }
 }
 

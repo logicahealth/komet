@@ -66,19 +66,19 @@ public class MavenConceptProxy
 
    @Override
    public String toString() {
-      return "MavenConceptProxy " + description + " " + uuid;
+      return "MavenConceptProxy " + this.description + " " + this.uuid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public String getConceptDescriptionText() {
-      return description;
+      return this.description;
    }
 
    @Override
    public List<UUID> getUuidList() {
-      return Arrays.asList(new UUID[] { UUID.fromString(uuid) });
+      return Arrays.asList(new UUID[] { UUID.fromString(this.uuid) });
    }
 }
 

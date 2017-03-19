@@ -55,16 +55,16 @@ import java.util.concurrent.Semaphore;
  */
 public class SearchHandle {
    private final long                  searchStartTime = System.currentTimeMillis();
-   private Semaphore                   resultBlock_    = new Semaphore(1);
+   private final Semaphore                   resultBlock_    = new Semaphore(1);
    private volatile boolean            cancelled       = false;
    private Exception                   error           = null;
-   private Integer                     searchID_;
+   private final Integer                     searchID_;
    private List<CompositeSearchResult> result_;
 
    //~--- constructors --------------------------------------------------------
 
    SearchHandle(Integer searchID) {
-      searchID_ = searchID;
+      this.searchID_ = searchID;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -76,7 +76,7 @@ public class SearchHandle {
    //~--- get methods ---------------------------------------------------------
 
    public boolean isCancelled() {
-      return cancelled;
+      return this.cancelled;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -99,7 +99,7 @@ public class SearchHandle {
             throws Exception {
       int result = 0;
 
-      for (CompositeSearchResult csr: getResults()) {
+      for (final CompositeSearchResult csr: getResults()) {
          result += csr.getMatchingComponents()
                       .size();
       }
@@ -115,34 +115,34 @@ public class SearchHandle {
     */
    public Collection<CompositeSearchResult> getResults()
             throws Exception {
-      if (result_ == null) {
+      if (this.result_ == null) {
          try {
-            resultBlock_.acquireUninterruptibly();
+            this.resultBlock_.acquireUninterruptibly();
 
-            while ((result_ == null) && (error == null) &&!cancelled) {
+            while ((this.result_ == null) && (this.error == null) &&!this.cancelled) {
                try {
                   SearchHandle.this.wait();
-               } catch (InterruptedException e) {
+               } catch (final InterruptedException e) {
                   // noop
                }
             }
          } finally {
-            resultBlock_.release();
+            this.resultBlock_.release();
          }
       }
 
-      if (error != null) {
-         throw error;
+      if (this.error != null) {
+         throw this.error;
       }
 
-      return result_;
+      return this.result_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    protected void setResults(List<CompositeSearchResult> results) {
       synchronized (SearchHandle.this) {
-         result_ = results;
+         this.result_ = results;
          SearchHandle.this.notifyAll();
       }
    }
@@ -150,14 +150,14 @@ public class SearchHandle {
    //~--- get methods ---------------------------------------------------------
 
    public long getSearchStartTime() {
-      return searchStartTime;
+      return this.searchStartTime;
    }
 
    /**
     * Returns the identifier provided (if any) by the caller when the search was started
     */
    public Integer getTaskId() {
-      return searchID_;
+      return this.searchID_;
    }
 }
 

@@ -102,24 +102,23 @@ public class ConceptSuite {
 
    @Test(groups = { "services" })
    public void testFromBuilder() {
-      String                conceptName  = "Test concept";
-      String                semanticTag  = "unit test";
-      String                uuidString   = "bd4d197d-0d88-4543-83dc-09deb2321ee7";
-      long                  time         = System.currentTimeMillis();
-      ConceptChronologyImpl testConcept  = (ConceptChronologyImpl) createConcept(conceptName, uuidString, time);
-      byte[]                data         = testConcept.getDataToWrite();
-      ByteArrayDataBuffer   buffer       = new ByteArrayDataBuffer(data);
-      ConceptChronologyImpl testConcept2 = ConceptChronologyImpl.make(buffer);
+      final String                conceptName  = "Test concept";
+      final String                uuidString   = "bd4d197d-0d88-4543-83dc-09deb2321ee7";
+      final long                  time         = System.currentTimeMillis();
+      final ConceptChronologyImpl testConcept  = (ConceptChronologyImpl) createConcept(conceptName, uuidString, time);
+      final byte[]                data         = testConcept.getDataToWrite();
+      final ByteArrayDataBuffer   buffer       = new ByteArrayDataBuffer(data);
+      final ConceptChronologyImpl testConcept2 = ConceptChronologyImpl.make(buffer);
 
       Assert.assertEquals(testConcept, testConcept2);
 
-      ByteArrayDataBuffer externalBuffer = new ByteArrayDataBuffer();
+      final ByteArrayDataBuffer externalBuffer = new ByteArrayDataBuffer();
 
       externalBuffer.setExternalData(true);
       testConcept2.putExternal(externalBuffer);
       externalBuffer.clear();
 
-      ConceptChronologyImpl testConcept3 = ConceptChronologyImpl.make(externalBuffer);
+      final ConceptChronologyImpl testConcept3 = ConceptChronologyImpl.make(externalBuffer);
 
       Assert.assertEquals(testConcept, testConcept3);
       testConcept3.toString();
@@ -128,38 +127,38 @@ public class ConceptSuite {
    @Test(groups = { "services" })
    public void testSerializationNoVersions()
             throws Exception {
-      IdentifierService     idService         = Get.identifierService();
-      UUID                  primordialUuid    = UUID.fromString("2b2b14cd-ea97-4bbc-a3e7-6f7f00e6eff1");
-      long                  time              = System.currentTimeMillis();
-      UUID                  authorUuid        = UUID.fromString("e6cb85c8-852a-4990-ae16-f8f3c83340b4");
-      int                   authorSequence    = idService.getConceptSequence(idService.getNidForUuids(authorUuid));
-      UUID                  moduleUuid        = UUID.fromString("c428399c-3888-4b88-8758-e8618b4562d3");
-      int                   moduleSequence    = idService.getConceptSequence(idService.getNidForUuids(moduleUuid));
-      UUID                  pathUuid          = UUID.fromString("1d067cb2-d0b7-4715-aefb-9e077090779e");
-      int                   pathSequence      = idService.getConceptSequence(idService.getNidForUuids(pathUuid));
-      int                   nid               = Get.identifierService()
+      final IdentifierService     idService         = Get.identifierService();
+      final UUID                  primordialUuid    = UUID.fromString("2b2b14cd-ea97-4bbc-a3e7-6f7f00e6eff1");
+      final long                  time              = System.currentTimeMillis();
+      final UUID                  authorUuid        = UUID.fromString("e6cb85c8-852a-4990-ae16-f8f3c83340b4");
+      final int                   authorSequence    = idService.getConceptSequence(idService.getNidForUuids(authorUuid));
+      final UUID                  moduleUuid        = UUID.fromString("c428399c-3888-4b88-8758-e8618b4562d3");
+      final int                   moduleSequence    = idService.getConceptSequence(idService.getNidForUuids(moduleUuid));
+      final UUID                  pathUuid          = UUID.fromString("1d067cb2-d0b7-4715-aefb-9e077090779e");
+      final int                   pathSequence      = idService.getConceptSequence(idService.getNidForUuids(pathUuid));
+      final int                   nid               = Get.identifierService()
                                                    .getNidForUuids(primordialUuid);
-      int                   containerSequence = Get.identifierService()
+      final int                   containerSequence = Get.identifierService()
                                                    .getConceptSequence(nid);
-      ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, nid, containerSequence);
-      int stampSequence = Get.stampService()
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, nid, containerSequence);
+      final int stampSequence = Get.stampService()
                              .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
 
       conceptChronology.createMutableVersion(stampSequence);
 
-      byte[]                data               = conceptChronology.getDataToWrite();
-      ByteArrayDataBuffer   buffer             = new ByteArrayDataBuffer(data);
-      ConceptChronologyImpl conceptChronology2 = ConceptChronologyImpl.make(buffer);
+      final byte[]                data               = conceptChronology.getDataToWrite();
+      final ByteArrayDataBuffer   buffer             = new ByteArrayDataBuffer(data);
+      final ConceptChronologyImpl conceptChronology2 = ConceptChronologyImpl.make(buffer);
 
       Assert.assertEquals(conceptChronology, conceptChronology2);
 
-      ByteArrayDataBuffer externalBuffer = new ByteArrayDataBuffer();
+      final ByteArrayDataBuffer externalBuffer = new ByteArrayDataBuffer();
 
       externalBuffer.setExternalData(true);
       conceptChronology2.putExternal(externalBuffer);
       externalBuffer.clear();
 
-      ConceptChronologyImpl conceptChronology3 = ConceptChronologyImpl.make(externalBuffer);
+      final ConceptChronologyImpl conceptChronology3 = ConceptChronologyImpl.make(externalBuffer);
 
       Assert.assertEquals(conceptChronology, conceptChronology3);
    }
@@ -170,18 +169,18 @@ public class ConceptSuite {
    }
 
    private ConceptChronology createConcept(String conceptName, String uuidString, long time) {
-      String               semanticTag                             = "unit test";
-      ConceptSpecification defaultLanguageForDescriptions          = TermAux.ENGLISH_LANGUAGE;
-      ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
-      int                  statedAssemblageSequence = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getConceptSequence();
-      int                  inferredAssemblageSequence = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getConceptSequence();
-      int                  descriptionLogicProfileSequence = TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getConceptSequence();
-      int                  classifierSequence                      = TermAux.SNOROCKET_CLASSIFIER.getConceptSequence();
-      LogicCoordinate defaultLogicCoordinate = new LogicCoordinateImpl(statedAssemblageSequence,
+      final String               semanticTag                             = "unit test";
+      final ConceptSpecification defaultLanguageForDescriptions          = TermAux.ENGLISH_LANGUAGE;
+      final ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
+      final int                  statedAssemblageSequence = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getConceptSequence();
+      final int                  inferredAssemblageSequence = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getConceptSequence();
+      final int                  descriptionLogicProfileSequence = TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getConceptSequence();
+      final int                  classifierSequence                      = TermAux.SNOROCKET_CLASSIFIER.getConceptSequence();
+      final LogicCoordinate defaultLogicCoordinate = new LogicCoordinateImpl(statedAssemblageSequence,
                                                                        inferredAssemblageSequence,
                                                                        descriptionLogicProfileSequence,
                                                                        classifierSequence);
-      ConceptBuilderOchreImpl testConceptBuilder = new ConceptBuilderOchreImpl(conceptName,
+      final ConceptBuilderOchreImpl testConceptBuilder = new ConceptBuilderOchreImpl(conceptName,
                                                                                semanticTag,
                                                                                null,
                                                                                defaultLanguageForDescriptions,
@@ -190,15 +189,15 @@ public class ConceptSuite {
 
       testConceptBuilder.setPrimordialUuid(uuidString);
 
-      int authorSequence = TermAux.USER.getConceptSequence();
-      int moduleSequence = TermAux.ISAAC_MODULE.getConceptSequence();
-      int pathSequence   = TermAux.DEVELOPMENT_PATH.getConceptSequence();
-      int stampSequence = Get.stampService()
+      final int authorSequence = TermAux.USER.getConceptSequence();
+      final int moduleSequence = TermAux.ISAAC_MODULE.getConceptSequence();
+      final int pathSequence   = TermAux.DEVELOPMENT_PATH.getConceptSequence();
+      final int stampSequence = Get.stampService()
                              .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
-      List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
-      ConceptChronology                                concept = testConceptBuilder.build(stampSequence, builtObjects);
+      final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
+      final ConceptChronology                                concept = testConceptBuilder.build(stampSequence, builtObjects);
 
-      for (Object obj: builtObjects) {
+      for (final Object obj: builtObjects) {
          if (obj instanceof ConceptChronologyImpl) {
             Get.conceptService()
                .writeConcept((ConceptChronology<? extends ConceptVersion<?>>) obj);
@@ -214,7 +213,7 @@ public class ConceptSuite {
    }
 
    private void setupConcepts() {
-      long time = System.currentTimeMillis();
+      final long time = System.currentTimeMillis();
 
       createConcept(TermAux.ENGLISH_LANGUAGE, time);
       createConcept(TermAux.US_DIALECT_ASSEMBLAGE, time);
@@ -235,7 +234,7 @@ public class ConceptSuite {
       LOG.info("ModelSuiteManagement setup");
       System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/testdb");
 
-      java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+      final java.nio.file.Path dbFolderPath = Paths.get(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
 
       LOG.info("termstore folder path exists: " + dbFolderPath.toFile().exists());
       LookupService.startupIsaac();

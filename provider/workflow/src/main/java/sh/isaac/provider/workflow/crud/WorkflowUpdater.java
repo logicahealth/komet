@@ -103,13 +103,13 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 @Service
 @Singleton
 public class WorkflowUpdater {
-   private WorkflowProvider workflowProvider_;
+   private final WorkflowProvider workflowProvider_;
 
    //~--- constructors --------------------------------------------------------
 
    // For HK2
    private WorkflowUpdater() {
-      workflowProvider_ = LookupService.get()
+      this.workflowProvider_ = LookupService.get()
                                        .getService(WorkflowProvider.class);
    }
 
@@ -134,21 +134,21 @@ public class WorkflowUpdater {
    public void addCommitRecordToWorkflow(UUID processId, Optional<CommitRecord> commitRecord)
             throws Exception {
       if (commitRecord.isPresent()) {
-         ProcessDetail detail = workflowProvider_.getProcessDetailStore()
+         final ProcessDetail detail = this.workflowProvider_.getProcessDetailStore()
                                                  .get(processId);
-         OfInt conceptItr = Get.identifierService()
+         final OfInt conceptItr = Get.identifierService()
                                .getConceptNidsForConceptSequences(commitRecord.get()
                                      .getConceptsInCommit()
                                      .parallelStream())
                                .iterator();
-         OfInt sememeItr = Get.identifierService()
+         final OfInt sememeItr = Get.identifierService()
                               .getSememeNidsForSememeSequences(commitRecord.get()
                                     .getSememesInCommit()
                                     .parallelStream())
                               .iterator();
 
          while (conceptItr.hasNext()) {
-            int conNid = conceptItr.next();
+            final int conNid = conceptItr.next();
 
             if (isModifiableComponentInProcess(detail, conNid)) {
                addComponentToWorkflow(detail, conNid, commitRecord.get());
@@ -160,7 +160,7 @@ public class WorkflowUpdater {
          }
 
          while (sememeItr.hasNext()) {
-            int semNid = sememeItr.next();
+            final int semNid = sememeItr.next();
 
             if (isModifiableComponentInProcess(detail, semNid)) {
                addComponentToWorkflow(detail, semNid, commitRecord.get());
@@ -191,24 +191,24 @@ public class WorkflowUpdater {
       if (!process.getComponentToInitialEditMap()
                   .keySet()
                   .contains(compNid)) {
-         int   stampSeq       = commitRecord.getStampsInCommit()
+         final int   stampSeq       = commitRecord.getStampsInCommit()
                                             .getIntIterator()
                                             .next();
-         State status         = Get.stampService()
+         final State status         = Get.stampService()
                                    .getStatusForStamp(stampSeq);
-         long  time           = Get.stampService()
+         final long  time           = Get.stampService()
                                    .getTimeForStamp(stampSeq);
-         int   author         = Get.stampService()
+         final int   author         = Get.stampService()
                                    .getAuthorSequenceForStamp(stampSeq);
-         int   module         = Get.stampService()
+         final int   module         = Get.stampService()
                                    .getModuleSequenceForStamp(stampSeq);
-         int   path           = Get.stampService()
+         final int   path           = Get.stampService()
                                    .getPathSequenceForStamp(stampSeq);
-         Stamp componentStamp = new Stamp(status, time, author, module, path);
+         final Stamp componentStamp = new Stamp(status, time, author, module, path);
 
          process.getComponentToInitialEditMap()
                 .put(compNid, componentStamp);
-         workflowProvider_.getProcessDetailStore()
+         this.workflowProvider_.getProcessDetailStore()
                           .put(process.getId(), process);
       }
    }
@@ -244,24 +244,24 @@ public class WorkflowUpdater {
                                   EditCoordinate editCoordinate)
             throws Exception {
       // Get User Permissible actions
-      Set<AvailableAction> userPermissableActions = workflowProvider_.getWorkflowAccessor()
+      final Set<AvailableAction> userPermissableActions = this.workflowProvider_.getWorkflowAccessor()
                                                                      .getUserPermissibleActionsForProcess(processId,
                                                                            userId);
 
       // Advance Workflow
-      for (AvailableAction action: userPermissableActions) {
+      for (final AvailableAction action: userPermissableActions) {
          if (action.getAction()
                    .equals(actionRequested)) {
-            ProcessDetail process = workflowProvider_.getProcessDetailStore()
+            final ProcessDetail process = this.workflowProvider_.getProcessDetailStore()
                                                      .get(processId);
 
             // Update Process Details for launch, cancel, or conclude
-            if (workflowProvider_.getBPMNInfo()
+            if (this.workflowProvider_.getBPMNInfo()
                                  .getEndWorkflowTypeMap()
                                  .get(EndWorkflowType.CANCELED)
                                  .contains(action)) {
                // Request to cancel workflow
-               workflowProvider_.getWorkflowProcessInitializerConcluder()
+               this.workflowProvider_.getWorkflowProcessInitializerConcluder()
                                 .endWorkflowProcess(processId,
                                       action,
                                       userId,
@@ -270,23 +270,23 @@ public class WorkflowUpdater {
                                       editCoordinate);
             } else if (process.getStatus()
                               .equals(ProcessStatus.DEFINED)) {
-               for (AvailableAction startAction: workflowProvider_.getBPMNInfo()
+               for (final AvailableAction startAction: this.workflowProvider_.getBPMNInfo()
                      .getDefinitionStartActionMap()
                      .get(process.getDefinitionId())) {
                   if (startAction.getOutcomeState()
                                  .equals(action.getInitialState())) {
                      // Advancing request is to launch workflow
-                     workflowProvider_.getWorkflowProcessInitializerConcluder()
+                     this.workflowProvider_.getWorkflowProcessInitializerConcluder()
                                       .launchProcess(processId);
                      break;
                   }
                }
-            } else if (workflowProvider_.getBPMNInfo()
+            } else if (this.workflowProvider_.getBPMNInfo()
                                         .getEndWorkflowTypeMap()
                                         .get(EndWorkflowType.CONCLUDED)
                                         .contains(action)) {
                // Conclude Request made
-               workflowProvider_.getWorkflowProcessInitializerConcluder()
+               this.workflowProvider_.getWorkflowProcessInitializerConcluder()
                                 .endWorkflowProcess(processId,
                                       action,
                                       userId,
@@ -295,19 +295,19 @@ public class WorkflowUpdater {
                                       null);
             } else {
                // Generic Advancement.  Must still update Detail Store to automate releasing of instance
-               ProcessDetail entry = workflowProvider_.getProcessDetailStore()
+               final ProcessDetail entry = this.workflowProvider_.getProcessDetailStore()
                                                       .get(processId);
 
                entry.setOwnerId(BPMNInfo.UNOWNED_PROCESS);
-               workflowProvider_.getProcessDetailStore()
+               this.workflowProvider_.getProcessDetailStore()
                                 .put(processId, entry);
             }
 
             // Add to process history
-            ProcessHistory hx = workflowProvider_.getWorkflowAccessor()
+            final ProcessHistory hx = this.workflowProvider_.getWorkflowAccessor()
                                                  .getProcessHistory(processId)
                                                  .last();
-            ProcessHistory entry = new ProcessHistory(processId,
+            final ProcessHistory entry = new ProcessHistory(processId,
                                                       userId,
                                                       new Date().getTime(),
                                                       action.getInitialState(),
@@ -316,7 +316,7 @@ public class WorkflowUpdater {
                                                       comment,
                                                       hx.getHistorySequence() + 1);
 
-            workflowProvider_.getProcessHistoryStore()
+            this.workflowProvider_.getProcessHistoryStore()
                              .add(entry);
             return true;
          }
@@ -350,7 +350,7 @@ public class WorkflowUpdater {
          int compNid,
          EditCoordinate editCoordinate)
             throws Exception {
-      ProcessDetail detail = workflowProvider_.getProcessDetailStore()
+      final ProcessDetail detail = this.workflowProvider_.getProcessDetailStore()
                                               .get(processId);
 
       if (isModifiableComponentInProcess(detail, compNid)) {
@@ -363,7 +363,7 @@ public class WorkflowUpdater {
          revertChanges(Arrays.asList(compNid), processId, editCoordinate);
          detail.getComponentToInitialEditMap()
                .remove(compNid);
-         workflowProvider_.getProcessDetailStore()
+         this.workflowProvider_.getProcessDetailStore()
                           .put(processId, detail);
       } else {
          throw new Exception("Components may not be removed from Workflow: " + compNid);
@@ -375,15 +375,15 @@ public class WorkflowUpdater {
                                 EditCoordinate editCoordinate)
             throws Exception {
       if (editCoordinate != null) {
-         for (Integer compNid: compNidSet) {
-            StampedVersion version = workflowProvider_.getWorkflowAccessor()
+         for (final Integer compNid: compNidSet) {
+            final StampedVersion version = this.workflowProvider_.getWorkflowAccessor()
                                                       .getVersionPriorToWorkflow(processId, compNid);
 
             // add new version identical to version associated with
             // actualStampSeq
             if (Get.identifierService()
                    .getChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
-               ConceptChronology<?> conceptChron = Get.conceptService()
+               final ConceptChronology<?> conceptChron = Get.conceptService()
                                                       .getConcept(compNid);
 
                if (version != null) {
@@ -399,7 +399,7 @@ public class WorkflowUpdater {
                   .commit("Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
                           .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMEME) {
-               SememeChronology<?> semChron = Get.sememeService()
+               final SememeChronology<?> semChron = Get.sememeService()
                                                  .getSememe(compNid);
 
                if (version != null) {
@@ -409,15 +409,15 @@ public class WorkflowUpdater {
 
                   createdVersion = populateData(createdVersion, (SememeVersion<?>) version);
                } else {
-                  List<SememeVersion> list = (List<SememeVersion>) ((SememeChronology) semChron).getVersionList();
-                  SememeVersion lastVersion =
-                     (SememeVersion) list.toArray(new SememeVersion[list.size()])[list.size() - 1];
+                  final List<SememeVersion> list = ((SememeChronology) semChron).getVersionList();
+                  final SememeVersion lastVersion =
+                     list.toArray(new SememeVersion[list.size()])[list.size() - 1];
                   SememeVersion createdVersion =
                      ((SememeChronology) semChron).createMutableVersion(lastVersion.getClass(),
                                                                         State.INACTIVE,
                                                                         editCoordinate);
 
-                  createdVersion = populateData(createdVersion, (SememeVersion<?>) lastVersion);
+                  createdVersion = populateData(createdVersion, lastVersion);
                }
 
                Get.commitService()
@@ -520,10 +520,10 @@ public class WorkflowUpdater {
          throw new Exception("Cannot examine modification capability as the process doesn't exist");
       }
 
-      UUID processId = process.getId();
+      final UUID processId = process.getId();
 
       // Check if in Case A. If not, throw exception
-      if (workflowProvider_.getWorkflowAccessor().isComponentInActiveWorkflow(process.getDefinitionId(), compNid) &&
+      if (this.workflowProvider_.getWorkflowAccessor().isComponentInActiveWorkflow(process.getDefinitionId(), compNid) &&
             !process.getComponentToInitialEditMap().keySet().contains(compNid)) {
          // Can't do so because component is already in another active
          // workflow
@@ -538,11 +538,11 @@ public class WorkflowUpdater {
       } else {
          // Test Case C
          if (process.getStatus() == ProcessStatus.LAUNCHED) {
-            ProcessHistory latestHx = workflowProvider_.getWorkflowAccessor()
+            final ProcessHistory latestHx = this.workflowProvider_.getWorkflowAccessor()
                                                        .getProcessHistory(processId)
                                                        .last();
 
-            if (workflowProvider_.getBPMNInfo()
+            if (this.workflowProvider_.getBPMNInfo()
                                  .isEditState(process.getDefinitionId(), latestHx.getOutcomeState())) {
                canAddComponent = true;
             }
@@ -576,11 +576,11 @@ public class WorkflowUpdater {
     *            being released, to BPMNInfo.UNOWNED_PROCESS
     */
    public void setProcessOwner(UUID processId, UUID newOwner) {
-      ProcessDetail process = workflowProvider_.getProcessDetailStore()
+      final ProcessDetail process = this.workflowProvider_.getProcessDetailStore()
                                                .get(processId);
 
       process.setOwnerId(newOwner);
-      workflowProvider_.getProcessDetailStore()
+      this.workflowProvider_.getProcessDetailStore()
                        .put(process.getId(), process);
    }
 }

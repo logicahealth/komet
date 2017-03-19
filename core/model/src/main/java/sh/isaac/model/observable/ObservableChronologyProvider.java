@@ -103,7 +103,7 @@ public class ObservableChronologyProvider
 
    @Override
    public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
-      ObservableConceptChronology<?> occ = observableConceptMap.get(cc.getNid());
+      final ObservableConceptChronology<?> occ = this.observableConceptMap.get(cc.getNid());
 
       if (occ != null) {
          occ.handleChange(cc);
@@ -112,13 +112,13 @@ public class ObservableChronologyProvider
 
    @Override
    public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
-      ObservableSememeChronology<?> osc = observableSememeMap.get(sc.getNid());
+      final ObservableSememeChronology<?> osc = this.observableSememeMap.get(sc.getNid());
 
       if (osc != null) {
          osc.handleChange(sc);
       }
 
-      ObservableConceptChronology<?> assemblageOcc = observableConceptMap.get(sc.getAssemblageSequence());
+      final ObservableConceptChronology<?> assemblageOcc = this.observableConceptMap.get(sc.getAssemblageSequence());
 
       if (assemblageOcc != null) {
          assemblageOcc.handleChange(sc);
@@ -126,17 +126,17 @@ public class ObservableChronologyProvider
 
       // handle referenced component
       // Concept, description, or sememe
-      ObjectChronologyType     oct = Get.identifierService()
+      final ObjectChronologyType     oct = Get.identifierService()
                                         .getChronologyTypeForNid(sc.getReferencedComponentNid());
       ChronologyChangeListener referencedComponent = null;
 
       switch (oct) {
       case CONCEPT:
-         referencedComponent = observableConceptMap.get(sc.getReferencedComponentNid());
+         referencedComponent = this.observableConceptMap.get(sc.getReferencedComponentNid());
          break;
 
       case SEMEME:
-         referencedComponent = observableSememeMap.get(sc.getReferencedComponentNid());
+         referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
          break;
 
       default:
@@ -167,7 +167,7 @@ public class ObservableChronologyProvider
 
    @Override
    public UUID getListenerUuid() {
-      return listenerUuid;
+      return this.listenerUuid;
    }
 
    @Override
@@ -177,7 +177,7 @@ public class ObservableChronologyProvider
                  .getConceptNid(id);
       }
 
-      ObservableConceptChronology<?> occ = observableConceptMap.get(id);
+      final ObservableConceptChronology<?> occ = this.observableConceptMap.get(id);
 
       if (occ != null) {
          return occ;
@@ -193,7 +193,7 @@ public class ObservableChronologyProvider
                  .getConceptNid(id);
       }
 
-      ObservableSememeChronology<?> osc = observableSememeMap.get(id);
+      final ObservableSememeChronology<?> osc = this.observableSememeMap.get(id);
 
       if (osc != null) {
          return osc;

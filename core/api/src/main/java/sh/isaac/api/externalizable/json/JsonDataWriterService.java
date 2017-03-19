@@ -79,8 +79,8 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 @PerLookup
 public class JsonDataWriterService
          implements DataWriterService {
-   private Logger           logger     = LoggerFactory.getLogger(JsonDataWriterService.class);
-   private Semaphore        pauseBlock = new Semaphore(1);
+   private final Logger           logger     = LoggerFactory.getLogger(JsonDataWriterService.class);
+   private final Semaphore        pauseBlock = new Semaphore(1);
    private JsonWriter       json_;
    private FileOutputStream fos_;
    private Path             dataPath;
@@ -115,30 +115,30 @@ public class JsonDataWriterService
    public void close()
             throws IOException {
       try {
-         json_.close();
-         fos_.close();
+         this.json_.close();
+         this.fos_.close();
       } finally {
-         json_ = null;
-         fos_  = null;
+         this.json_ = null;
+         this.fos_  = null;
       }
    }
 
    @Override
    public void configure(Path path)
             throws IOException {
-      if (json_ != null) {
+      if (this.json_ != null) {
          throw new IOException("Reconfiguration not supported");
       }
 
-      Map<String, Object> args = new HashMap<>();
+      final Map<String, Object> args = new HashMap<>();
 
       args.put(JsonWriter.PRETTY_PRINT, true);
-      dataPath = path;
-      fos_     = new FileOutputStream(path.toFile(), true);
-      json_    = new JsonWriter(new TimeFlushBufferedOutputStream(fos_), args);
-      json_.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
-      json_.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
-      logger.info("json changeset writer has been configured to write to " + dataPath.toAbsolutePath().toString());
+      this.dataPath = path;
+      this.fos_     = new FileOutputStream(path.toFile(), true);
+      this.json_    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos_), args);
+      this.json_.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
+      this.json_.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
+      this.logger.info("json changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
    }
 
    /**
@@ -148,31 +148,31 @@ public class JsonDataWriterService
    @Override
    public void flush()
             throws IOException {
-      if (json_ != null) {
-         json_.flush();
+      if (this.json_ != null) {
+         this.json_.flush();
       }
    }
 
    @Override
    public void pause()
             throws IOException {
-      if (json_ == null) {
-         logger.warn("already paused!");
+      if (this.json_ == null) {
+         this.logger.warn("already paused!");
          return;
       }
 
-      pauseBlock.acquireUninterruptibly();
+      this.pauseBlock.acquireUninterruptibly();
       close();
-      logger.debug("json writer paused");
+      this.logger.debug("json writer paused");
    }
 
    @Override
    public void put(OchreExternalizable ochreObject) {
       try {
-         pauseBlock.acquireUninterruptibly();
-         json_.write(ochreObject);
+         this.pauseBlock.acquireUninterruptibly();
+         this.json_.write(ochreObject);
       } finally {
-         pauseBlock.release();
+         this.pauseBlock.release();
       }
    }
 
@@ -182,34 +182,34 @@ public class JsonDataWriterService
     */
    public void put(String string) {
       try {
-         pauseBlock.acquireUninterruptibly();
-         json_.write(string);
+         this.pauseBlock.acquireUninterruptibly();
+         this.json_.write(string);
       } finally {
-         pauseBlock.release();
+         this.pauseBlock.release();
       }
    }
 
    @Override
    public void resume()
             throws IOException {
-      if (pauseBlock.availablePermits() == 1) {
-         logger.warn("asked to resume, but not paused?");
+      if (this.pauseBlock.availablePermits() == 1) {
+         this.logger.warn("asked to resume, but not paused?");
          return;
       }
 
-      if (json_ == null) {
-         configure(dataPath);
+      if (this.json_ == null) {
+         configure(this.dataPath);
       }
 
-      pauseBlock.release();
-      logger.debug("json writer resumed");
+      this.pauseBlock.release();
+      this.logger.debug("json writer resumed");
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public Path getCurrentPath() {
-      return dataPath;
+      return this.dataPath;
    }
 }
 

@@ -76,9 +76,9 @@ public class And
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet results = NidSet.of(incomingComponents.stream());
+      final NidSet results = NidSet.of(incomingComponents.stream());
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          results.and(clause.computeComponents(incomingComponents));
       }
 
@@ -87,7 +87,7 @@ public class And
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      NidSet results = NidSet.of(incomingPossibleComponents.stream());
+      final NidSet results = NidSet.of(incomingPossibleComponents.stream());
 
       getChildren().stream().forEach((clause) -> {
                                results.and(clause.computePossibleComponents(incomingPossibleComponents));
@@ -99,11 +99,11 @@ public class And
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.AND);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

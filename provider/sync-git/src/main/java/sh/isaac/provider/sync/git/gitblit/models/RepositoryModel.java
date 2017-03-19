@@ -104,25 +104,25 @@ public class RepositoryModel
 
    public void addOwner(String username) {
       if (!StringUtils.isEmpty(username)) {
-         String name = username.toLowerCase();
+         final String name = username.toLowerCase();
 
          // a set would be more efficient, but this complicates JSON
          // deserialization so we enforce uniqueness with an arraylist
-         if (!owners.contains(name)) {
-            owners.add(name);
+         if (!this.owners.contains(name)) {
+            this.owners.add(name);
          }
       }
    }
 
    @Override
    public int compareTo(RepositoryModel o) {
-      return StringUtils.compareRepositoryNames(name, o.name);
+      return StringUtils.compareRepositoryNames(this.name, o.name);
    }
 
    @Override
    public boolean equals(Object o) {
       if (o instanceof RepositoryModel) {
-         return name.equals(((RepositoryModel) o).name);
+         return this.name.equals(((RepositoryModel) o).name);
       }
 
       return false;
@@ -130,16 +130,16 @@ public class RepositoryModel
 
    @Override
    public int hashCode() {
-      return name.hashCode();
+      return this.name.hashCode();
    }
 
    @Override
    public String toString() {
-      if (displayName == null) {
-         displayName = StringUtils.stripDotGit(name);
+      if (this.displayName == null) {
+         this.displayName = StringUtils.stripDotGit(this.name);
       }
 
-      return displayName;
+      return this.displayName;
    }
 }
 

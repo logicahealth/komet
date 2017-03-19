@@ -50,7 +50,7 @@ public enum LuceneDescriptionType {
    DEFINITION;
 
    public static LuceneDescriptionType fromOrdinal(int ordinal) {
-      for (LuceneDescriptionType ldt: LuceneDescriptionType.values()) {
+      for (final LuceneDescriptionType ldt: LuceneDescriptionType.values()) {
          if (ordinal == ldt.ordinal()) {
             return ldt;
          }
@@ -60,7 +60,7 @@ public enum LuceneDescriptionType {
    }
 
    public static LuceneDescriptionType parse(String descriptionType) {
-      for (LuceneDescriptionType ldt: LuceneDescriptionType.values()) {
+      for (final LuceneDescriptionType ldt: LuceneDescriptionType.values()) {
          if (ldt.name()
                 .equalsIgnoreCase(descriptionType)) {
             return ldt;

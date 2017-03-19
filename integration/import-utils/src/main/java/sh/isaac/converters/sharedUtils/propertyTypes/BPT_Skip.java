@@ -64,9 +64,9 @@ public abstract class BPT_Skip
 
    protected void addSkipListEntries(List<String>[] skipLists) {
       if (skipLists != null) {
-         for (List<String> skipList: skipLists) {
+         for (final List<String> skipList: skipLists) {
             if (skipList != null) {
-               for (String s: skipList) {
+               for (final String s: skipList) {
                   addProperty(s);
                }
             }

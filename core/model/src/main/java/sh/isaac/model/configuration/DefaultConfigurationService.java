@@ -109,24 +109,24 @@ public class DefaultConfigurationService
 
    @Override
    public boolean inBootstrapMode() {
-      return bootstrapMode;
+      return this.bootstrapMode;
    }
 
    @Override
    public boolean inDBBuildMode() {
-      return dbBuildMode;
+      return this.dbBuildMode;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setBootstrapMode() {
-      bootstrapMode = true;
+      this.bootstrapMode = true;
    }
 
    @Override
    public void setDBBuildMode() {
-      dbBuildMode = true;
+      this.dbBuildMode = true;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -137,42 +137,42 @@ public class DefaultConfigurationService
     */
    @Override
    public Optional<Path> getDataStoreFolderPath() {
-      if ((dataStoreFolderPath_ == null) &&!initComplete_) {
+      if ((this.dataStoreFolderPath_ == null) &&!this.initComplete_) {
          synchronized (this) {
-            if ((dataStoreFolderPath_ == null) &&!initComplete_) {
+            if ((this.dataStoreFolderPath_ == null) &&!this.initComplete_) {
                // This hacking is to prevent fortify from flagging an external data source path
-               StringBuilder dataStoreRootFolder = new StringBuilder();
+               final StringBuilder dataStoreRootFolder = new StringBuilder();
 
                System.getProperty(Constants.DATA_STORE_ROOT_LOCATION_PROPERTY)
                      .chars()
                      .forEach(c -> dataStoreRootFolder.append((char) c));
 
                if (!StringUtils.isBlank(dataStoreRootFolder.toString())) {
-                  dataStoreFolderPath_ = Paths.get(dataStoreRootFolder.toString());
+                  this.dataStoreFolderPath_ = Paths.get(dataStoreRootFolder.toString());
 
-                  if (!Files.exists(dataStoreFolderPath_)) {
+                  if (!Files.exists(this.dataStoreFolderPath_)) {
                      try {
-                        Files.createDirectories(dataStoreFolderPath_);
-                     } catch (IOException e) {
+                        Files.createDirectories(this.dataStoreFolderPath_);
+                     } catch (final IOException e) {
                         throw new RuntimeException("Failure creating dataStoreRootFolder folder: " +
-                                                   dataStoreFolderPath_.toString(),
+                                                   this.dataStoreFolderPath_.toString(),
                                                    e);
                      }
                   }
 
-                  if (!Files.isDirectory(dataStoreFolderPath_)) {
+                  if (!Files.isDirectory(this.dataStoreFolderPath_)) {
                      throw new IllegalStateException(
                          "The specified path to the db folder appears to be a file, rather than a folder, as expected.  " +
-                         " Found: " + dataStoreFolderPath_.toAbsolutePath().toString());
+                         " Found: " + this.dataStoreFolderPath_.toAbsolutePath().toString());
                   }
                }
 
-               initComplete_ = true;
+               this.initComplete_ = true;
             }
          }
       }
 
-      return Optional.ofNullable(dataStoreFolderPath_);
+      return Optional.ofNullable(this.dataStoreFolderPath_);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -194,120 +194,120 @@ public class DefaultConfigurationService
       if (Files.exists(dataStoreFolderPath) &&!Files.isDirectory(dataStoreFolderPath)) {
          throw new IllegalArgumentException(
              "The specified path to the db folder appears to be a file, rather than a folder, as expected.  " +
-             " Found: " + dataStoreFolderPath_.toAbsolutePath().toString());
+             " Found: " + this.dataStoreFolderPath_.toAbsolutePath().toString());
       }
 
       try {
          Files.createDirectories(dataStoreFolderPath);
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException("Failure creating dataStoreFolderPath folder: " + dataStoreFolderPath.toString(),
                                     e);
       }
 
-      dataStoreFolderPath_ = dataStoreFolderPath;
+      this.dataStoreFolderPath_ = dataStoreFolderPath;
    }
 
    @Override
    public void setDefaultClassifier(int conceptId) {
-      defaultCoordinateProvider_.setDefaultClassifier(conceptId);
+      this.defaultCoordinateProvider_.setDefaultClassifier(conceptId);
    }
 
    @Override
    public void setDefaultDescriptionLogicProfile(int conceptId) {
-      defaultCoordinateProvider_.setDefaultDescriptionLogicProfile(conceptId);
+      this.defaultCoordinateProvider_.setDefaultDescriptionLogicProfile(conceptId);
    }
 
    @Override
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      defaultCoordinateProvider_.setDefaultDescriptionTypePreferenceList(descriptionTypePreferenceList);
+      this.defaultCoordinateProvider_.setDefaultDescriptionTypePreferenceList(descriptionTypePreferenceList);
    }
 
    @Override
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
-      defaultCoordinateProvider_.setDefaultDialectAssemblagePreferenceList(dialectAssemblagePreferenceList);
+      this.defaultCoordinateProvider_.setDefaultDialectAssemblagePreferenceList(dialectAssemblagePreferenceList);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public ObservableEditCoordinate getDefaultEditCoordinate() {
-      return defaultCoordinateProvider_.getDefaultEditCoordinate();
+      return this.defaultCoordinateProvider_.getDefaultEditCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setDefaultInferredAssemblage(int conceptId) {
-      defaultCoordinateProvider_.setDefaultInferredAssemblage(conceptId);
+      this.defaultCoordinateProvider_.setDefaultInferredAssemblage(conceptId);
    }
 
    @Override
    public void setDefaultLanguage(int conceptId) {
-      defaultCoordinateProvider_.setDefaultLanguage(conceptId);
+      this.defaultCoordinateProvider_.setDefaultLanguage(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public ObservableLanguageCoordinate getDefaultLanguageCoordinate() {
-      return defaultCoordinateProvider_.getDefaultLanguageCoordinate();
+      return this.defaultCoordinateProvider_.getDefaultLanguageCoordinate();
    }
 
    @Override
    public ObservableLogicCoordinate getDefaultLogicCoordinate() {
-      return defaultCoordinateProvider_.getDefaultLogicCoordinate();
+      return this.defaultCoordinateProvider_.getDefaultLogicCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setDefaultModule(int conceptId) {
-      defaultCoordinateProvider_.setDefaultModule(conceptId);
+      this.defaultCoordinateProvider_.setDefaultModule(conceptId);
    }
 
    @Override
    public void setDefaultPath(int conceptId) {
-      defaultCoordinateProvider_.setDefaultPath(conceptId);
+      this.defaultCoordinateProvider_.setDefaultPath(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public ObservableStampCoordinate getDefaultStampCoordinate() {
-      return defaultCoordinateProvider_.getDefaultStampCoordinate();
+      return this.defaultCoordinateProvider_.getDefaultStampCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setDefaultStatedAssemblage(int conceptId) {
-      defaultCoordinateProvider_.setDefaultStatedAssemblage(conceptId);
+      this.defaultCoordinateProvider_.setDefaultStatedAssemblage(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate() {
-      return defaultCoordinateProvider_.getDefaultTaxonomyCoordinate();
+      return this.defaultCoordinateProvider_.getDefaultTaxonomyCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setDefaultTime(long timeInMs) {
-      defaultCoordinateProvider_.setDefaultTime(timeInMs);
+      this.defaultCoordinateProvider_.setDefaultTime(timeInMs);
    }
 
    @Override
    public void setDefaultUser(int conceptId) {
-      defaultCoordinateProvider_.setDefaultUser(conceptId);
+      this.defaultCoordinateProvider_.setDefaultUser(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public Optional<RemoteServiceInfo> getGitConfiguration() {
-      return Optional.ofNullable(gitConfigInfo);
+      return Optional.ofNullable(this.gitConfigInfo);
    }
 
    //~--- set methods ---------------------------------------------------------

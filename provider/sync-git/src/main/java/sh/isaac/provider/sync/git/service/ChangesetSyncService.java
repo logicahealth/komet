@@ -101,10 +101,10 @@ public class ChangesetSyncService {
 
    @PostConstruct
    private void startMe() {
-      Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
+      final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
                                                  .getGitConfiguration();
 
-      if (!gitConfig.isPresent() || StringUtils.isBlank(gitConfig.get().getURL())) {
+      if (!gitConfig.isPresent() || org.apache.commons.lang3.StringUtils.isBlank(gitConfig.get().getURL())) {
          LOG.info("No git configuration is available - Changeset sync service will not be started.");
          return;
       }
@@ -116,7 +116,7 @@ public class ChangesetSyncService {
                               .getURL(), gitConfig.get()
                                     .getUsername());
 
-                        Set<String> remoteRepos = GitBlitUtils.readRepositories(gitConfig.get()
+                        final Set<String> remoteRepos = GitBlitUtils.readRepositories(gitConfig.get()
                                                                                          .getURL(),
                                                                                 gitConfig.get()
                                                                                       .getUsername(),
@@ -125,7 +125,7 @@ public class ChangesetSyncService {
 
                         LOG.debug("Read {} repositories", remoteRepos.size());
 
-                        String changeSetRepo = "db-changesets-" + Get.conceptService().getDataStoreId().toString() +
+                        final String changeSetRepo = "db-changesets-" + Get.conceptService().getDataStoreId().toString() +
                                                ".git";
 
                         if (!remoteRepos.contains(changeSetRepo)) {
@@ -141,26 +141,26 @@ public class ChangesetSyncService {
                                  false);
                         }
 
-                        ssg = new SyncServiceGIT();
-                        ssg.setReadmeFileContent("ISAAC Changeset Storage \r" + "=== \r" +
+                        this.ssg = new SyncServiceGIT();
+                        this.ssg.setReadmeFileContent("ISAAC Changeset Storage \r" + "=== \r" +
                         "This is a repository for storing ISAAC changesets.\r" +
                         "It is highly recommended that you do not make changes to this repository manually - ISAAC interfaces with this.");
-                        ssg.setGitIgnoreContent(syncJSONFiles ? ""
+                        this.ssg.setGitIgnoreContent(syncJSONFiles ? ""
                   : "*.json");
 
-                        ChangeSetWriterService csw = LookupService.get()
+                        final ChangeSetWriterService csw = LookupService.get()
                                                                   .getService(ChangeSetWriterService.class);
 
-                        ssg.setRootLocation(csw.getWriteFolder()
+                        this.ssg.setRootLocation(csw.getWriteFolder()
                                                .toFile());
                         csw.pause();
                         LOG.debug("Attempting to link and fetch from remote GIT repository");
 
-                        String targetUrl = GitBlitUtils.adjustBareUrlForGitBlit(gitConfig.get()
+                        final String targetUrl = GitBlitUtils.adjustBareUrlForGitBlit(gitConfig.get()
                                                                                          .getURL()) + "r/" +
                                                                                             changeSetRepo;
 
-                        ssg.linkAndFetchFromRemote(targetUrl,
+                        this.ssg.linkAndFetchFromRemote(targetUrl,
                               gitConfig.get()
                                        .getUsername(),
                               gitConfig.get()
@@ -173,10 +173,10 @@ public class ChangesetSyncService {
 
                         LOG.debug("Read {} files", loaded);
                         LOG.debug("Adding untracked local files");
-                        ssg.addUntrackedFiles();
+                        this.ssg.addUntrackedFiles();
                         LOG.debug("Committing and Pushing");
 
-                        Set<String> changedFiles = ssg.updateCommitAndPush("Synchronizing changesets",
+                        final Set<String> changedFiles = this.ssg.updateCommitAndPush("Synchronizing changesets",
                                                                            gitConfig.get()
                                                                                  .getUsername(),
                                                                            gitConfig.get()
@@ -194,10 +194,10 @@ public class ChangesetSyncService {
 
                         LOG.info(
                             "Initial sync with remote repository successful.  Scheduling remote and local checks.");
-                        scheduledCheck = Get.workExecutors()
+                        this.scheduledCheck = Get.workExecutors()
                                             .getScheduledThreadPoolExecutor()
                                             .scheduleAtFixedRate(() -> syncCheck(), 5, 5, TimeUnit.MINUTES);
-                     } catch (Exception e) {
+                     } catch (final Exception e) {
                         LOG.error(
                         "Unexpected error initializing remote repository sync.  Automated repository sync will not execute.",
                         e);
@@ -206,7 +206,7 @@ public class ChangesetSyncService {
                            LookupService.get()
                                         .getService(ChangeSetWriterService.class)
                                         .resume();
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                            LOG.warn("Unexpected", e);
                         }
                      }
@@ -217,18 +217,18 @@ public class ChangesetSyncService {
 
    @PreDestroy
    private void stopMe() {
-      if (scheduledCheck != null) {
-         scheduledCheck.cancel(true);
+      if (this.scheduledCheck != null) {
+         this.scheduledCheck.cancel(true);
       }
 
-      ssg = null;
+      this.ssg = null;
       LOG.info("Finished ChangesetSyncService Provider preDestroy.");
    }
 
    private void syncCheck() {
       LOG.info("Launching sync check in background thread");
       Get.workExecutors().getExecutor().execute(() -> {
-                     Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
+                     final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
                                                                 .getGitConfiguration();
 
                      if (!gitConfig.isPresent()) {
@@ -241,10 +241,10 @@ public class ChangesetSyncService {
                                      .getService(ChangeSetWriterService.class)
                                      .pause();
                         LOG.debug("Adding untracked local files");
-                        ssg.addUntrackedFiles();
+                        this.ssg.addUntrackedFiles();
                         LOG.debug("Committing and Syncing");
 
-                        Set<String> changedFiles = ssg.updateCommitAndPush("Synchronizing changesets",
+                        final Set<String> changedFiles = this.ssg.updateCommitAndPush("Synchronizing changesets",
                                                                            gitConfig.get()
                                                                                  .getUsername(),
                                                                            gitConfig.get()
@@ -255,7 +255,7 @@ public class ChangesetSyncService {
                         if (changedFiles.size() != 0) {
                            LOG.debug("Commit pulled {} more files - reading newly arrived files", changedFiles.size());
 
-                           int loaded = LookupService.get()
+                           final int loaded = LookupService.get()
                                                      .getService(ChangeSetLoadService.class)
                                                      .readChangesetFiles();
 
@@ -263,14 +263,14 @@ public class ChangesetSyncService {
                         }
 
                         LOG.info("Sync with remote successful.");
-                     } catch (Exception e) {
+                     } catch (final Exception e) {
                         LOG.error("Unexpected error while doing remote sync.", e);
                      } finally {
                         try {
                            LookupService.get()
                                         .getService(ChangeSetWriterService.class)
                                         .resume();
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                            LOG.warn("Unexpected", e);
                         }
                      }

@@ -64,14 +64,14 @@ public class RelationshipKey
 
    @Override
    public int compareTo(RelationshipKey o) {
-      return conceptsReferencedAtNodeOrBelow.compareTo(o.conceptsReferencedAtNodeOrBelow);
+      return this.conceptsReferencedAtNodeOrBelow.compareTo(o.conceptsReferencedAtNodeOrBelow);
    }
 
    private void addNodes(int nodeId, LogicalExpressionOchreImpl expression) {
-      LogicNode logicNode = expression.getNode(nodeId);
+      final LogicNode logicNode = expression.getNode(nodeId);
 
       expression.getNode(nodeId)
-                .addConceptsReferencedByNode(conceptsReferencedAtNodeOrBelow);
+                .addConceptsReferencedByNode(this.conceptsReferencedAtNodeOrBelow);
       logicNode.getChildStream()
                .forEach((childNode) -> addNodes(childNode.getNodeIndex(), expression));
    }

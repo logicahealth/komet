@@ -53,7 +53,7 @@ public interface StampPosition
         extends Comparable<StampPosition> {
    @Override
    default int compareTo(StampPosition o) {
-      int comparison = Long.compare(this.getTime(), o.getTime());
+      final int comparison = Long.compare(this.getTime(), o.getTime());
 
       if (comparison != 0) {
          return comparison;

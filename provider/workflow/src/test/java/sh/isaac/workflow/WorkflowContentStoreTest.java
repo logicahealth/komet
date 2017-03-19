@@ -101,7 +101,7 @@ public class WorkflowContentStoreTest {
    @Test
    public void testAvailableActionStore()
             throws Exception {
-      AvailableAction createdEntry1 = new AvailableAction(UUID.randomUUID(),
+      final AvailableAction createdEntry1 = new AvailableAction(UUID.randomUUID(),
                                                           "EDIT",
                                                           "REVIEW",
                                                           "REVIEW",
@@ -113,7 +113,7 @@ public class WorkflowContentStoreTest {
                                                                                 .getAvailableActionStore();
 
       // Add new entry
-      UUID key1 = availableActionStore.add(createdEntry1);
+      final UUID key1 = availableActionStore.add(createdEntry1);
 
       LookupService.setRunLevel(LookupService.WORKERS_STARTED_RUNLEVEL);  // bring down the metacontent store
       LookupService.startupMetadataStore();
@@ -123,13 +123,13 @@ public class WorkflowContentStoreTest {
             .getService(WorkflowProvider.class)
             .getAvailableActionStore();
 
-      AvailableAction pulledEntry1 = availableActionStore.get(key1);
+      final AvailableAction pulledEntry1 = availableActionStore.get(key1);
 
       Assert.assertEquals(availableActionStore.size(), 1);
       Assert.assertEquals(createdEntry1, pulledEntry1);
 
       // Add second entry
-      AvailableAction createdEntry2 = new AvailableAction(UUID.randomUUID(),
+      final AvailableAction createdEntry2 = new AvailableAction(UUID.randomUUID(),
                                                           "REVIEW",
                                                           "APPROVE",
                                                           "APPROVE",
@@ -150,7 +150,7 @@ public class WorkflowContentStoreTest {
       Assert.assertTrue(allEntries.contains(createdEntry2));
 
       // Test update of an entry
-      AvailableAction updatedEntry2 = new AvailableAction(createdEntry2.getDefinitionId(),
+      final AvailableAction updatedEntry2 = new AvailableAction(createdEntry2.getDefinitionId(),
                                                           "REVIEW",
                                                           "Ready for Approval",
                                                           "APPROVE",
@@ -195,13 +195,13 @@ public class WorkflowContentStoreTest {
    @Test
    public void testDefinitionDetailsStore()
             throws Exception {
-      Set<UserRole> roles1 = new HashSet<>();
+      final Set<UserRole> roles1 = new HashSet<>();
 
       roles1.add(UserRole.EDITOR);
       roles1.add(UserRole.REVIEWER);
 
-      String description = "This is the description for this unit test";
-      DefinitionDetail createdEntry1 = new DefinitionDetail("BPMN2 ID-X",
+      final String description = "This is the description for this unit test";
+      final DefinitionDetail createdEntry1 = new DefinitionDetail("BPMN2 ID-X",
                                                             "JUnit BPMN2",
                                                             "Testing",
                                                             "1.0",
@@ -214,7 +214,7 @@ public class WorkflowContentStoreTest {
                                                                                   .getDefinitionDetailStore();
 
       // Add new entry
-      UUID key1 = definitionDetailStore.add(createdEntry1);
+      final UUID key1 = definitionDetailStore.add(createdEntry1);
 
       LookupService.setRunLevel(LookupService.WORKERS_STARTED_RUNLEVEL);  // bring down the metacontent store
       LookupService.startupMetadataStore();
@@ -224,18 +224,18 @@ public class WorkflowContentStoreTest {
             .getService(WorkflowProvider.class)
             .getDefinitionDetailStore();
 
-      DefinitionDetail pulledEntry1 = definitionDetailStore.get(key1);
+      final DefinitionDetail pulledEntry1 = definitionDetailStore.get(key1);
 
       Assert.assertEquals(definitionDetailStore.size(), 1);
       Assert.assertEquals(createdEntry1, pulledEntry1);
 
       // Add second entry
-      Set<UserRole> roles2 = new HashSet<>();
+      final Set<UserRole> roles2 = new HashSet<>();
 
       roles2.add(UserRole.EDITOR);
       roles2.add(UserRole.APPROVER);
 
-      DefinitionDetail createdEntry2 = new DefinitionDetail("BPMN2 ID-Y",
+      final DefinitionDetail createdEntry2 = new DefinitionDetail("BPMN2 ID-Y",
                                                             "JUnit BPMN2",
                                                             "Testing",
                                                             "1.0",
@@ -258,7 +258,7 @@ public class WorkflowContentStoreTest {
       Thread.sleep(1);
 
       // Test update of an entry
-      DefinitionDetail updatedEntry2 = new DefinitionDetail(createdEntry2.getBpmn2Id(),
+      final DefinitionDetail updatedEntry2 = new DefinitionDetail(createdEntry2.getBpmn2Id(),
                                                             createdEntry2.getName(),
                                                             createdEntry2.getNamespace(),
                                                             "2.0",
@@ -306,7 +306,7 @@ public class WorkflowContentStoreTest {
    @Test
    public void testHistoricalWorkflowStore()
             throws Exception {
-      ProcessHistory createdEntry1 = new ProcessHistory(UUID.randomUUID(),
+      final ProcessHistory createdEntry1 = new ProcessHistory(UUID.randomUUID(),
                                                         UUID.randomUUID(),
                                                         new Date().getTime(),
                                                         "Edit",
@@ -319,7 +319,7 @@ public class WorkflowContentStoreTest {
                                                                                   .getProcessHistoryStore();
 
       // Add new entry
-      UUID key1 = historicalWorkflowStore.add(createdEntry1);
+      final UUID key1 = historicalWorkflowStore.add(createdEntry1);
 
       LookupService.setRunLevel(LookupService.WORKERS_STARTED_RUNLEVEL);  // bring down the metacontent store
       LookupService.startupMetadataStore();
@@ -329,13 +329,13 @@ public class WorkflowContentStoreTest {
             .getService(WorkflowProvider.class)
             .getProcessHistoryStore();
 
-      ProcessHistory pulledEntry1 = historicalWorkflowStore.get(key1);
+      final ProcessHistory pulledEntry1 = historicalWorkflowStore.get(key1);
 
       Assert.assertEquals(historicalWorkflowStore.size(), 1);
       Assert.assertEquals(createdEntry1, pulledEntry1);
 
       // Add second entry
-      ProcessHistory createdEntry2 = new ProcessHistory(UUID.randomUUID(),
+      final ProcessHistory createdEntry2 = new ProcessHistory(UUID.randomUUID(),
                                                         UUID.randomUUID(),
                                                         new Date().getTime(),
                                                         "Commit",
@@ -359,7 +359,7 @@ public class WorkflowContentStoreTest {
       Assert.assertTrue(allEntries.contains(createdEntry2));
 
       // Test update of an entry
-      ProcessHistory updatedEntry2 = new ProcessHistory(createdEntry2.getProcessId(),
+      final ProcessHistory updatedEntry2 = new ProcessHistory(createdEntry2.getProcessId(),
                                                         createdEntry2.getUserId(),
                                                         createdEntry2.getTimeAdvanced(),
                                                         "Commit",
@@ -410,9 +410,9 @@ public class WorkflowContentStoreTest {
    @Test
    public void testProcessInstanceStore()
             throws Exception {
-      String name        = "Process Name";
-      String description = "Process Description";
-      ProcessDetail createdEntry1 = new ProcessDetail(UUID.randomUUID(),
+      final String name        = "Process Name";
+      final String description = "Process Description";
+      final ProcessDetail createdEntry1 = new ProcessDetail(UUID.randomUUID(),
                                                       UUID.randomUUID(),
                                                       new Date().getTime(),
                                                       ProcessStatus.DEFINED,
@@ -423,7 +423,7 @@ public class WorkflowContentStoreTest {
                                                                               .getProcessDetailStore();
 
       // Add new entry
-      UUID key1 = processInstanceStore.add(createdEntry1);
+      final UUID key1 = processInstanceStore.add(createdEntry1);
 
       LookupService.setRunLevel(LookupService.WORKERS_STARTED_RUNLEVEL);  // bring down the metacontent store
       LookupService.startupMetadataStore();
@@ -433,14 +433,14 @@ public class WorkflowContentStoreTest {
             .getService(WorkflowProvider.class)
             .getProcessDetailStore();
 
-      AbstractStorableWorkflowContents pulledEntry1 = processInstanceStore.get(key1);
+      final AbstractStorableWorkflowContents pulledEntry1 = processInstanceStore.get(key1);
 
       Assert.assertEquals(processInstanceStore.size(), 1);
       Assert.assertEquals(createdEntry1.getCreatorId(), createdEntry1.getCreatorId());
       Assert.assertEquals(createdEntry1, pulledEntry1);
 
       // Add second entry
-      ProcessDetail createdEntry2 = new ProcessDetail(UUID.randomUUID(),
+      final ProcessDetail createdEntry2 = new ProcessDetail(UUID.randomUUID(),
                                                       UUID.randomUUID(),
                                                       new Date().getTime(),
                                                       ProcessStatus.DEFINED,
@@ -462,7 +462,7 @@ public class WorkflowContentStoreTest {
       Assert.assertTrue(allEntries.contains(createdEntry2));
 
       // Test update of an entry
-      ProcessDetail updatedEntry2 = new ProcessDetail(createdEntry2.getDefinitionId(),
+      final ProcessDetail updatedEntry2 = new ProcessDetail(createdEntry2.getDefinitionId(),
                                                       createdEntry2.getCreatorId(),
                                                       createdEntry2.getTimeCreated(),
                                                       ProcessStatus.DEFINED,

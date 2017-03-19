@@ -64,7 +64,7 @@ public class DynamicSememeBooleanImpl
 
    public DynamicSememeBooleanImpl(boolean b) {
       super();
-      data_ = (b ? new byte[] { 1 }
+      this.data_ = (b ? new byte[] { 1 }
                  : new byte[] { 0 });
    }
 
@@ -83,7 +83,7 @@ public class DynamicSememeBooleanImpl
     */
    @Override
    public boolean getDataBoolean() {
-      return (data_[0] == 1) ? true
+      return (this.data_[0] == 1) ? true
                              : false;
    }
 
@@ -92,11 +92,11 @@ public class DynamicSememeBooleanImpl
     */
    @Override
    public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

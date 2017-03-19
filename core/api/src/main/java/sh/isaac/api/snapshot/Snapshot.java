@@ -91,18 +91,18 @@ public class Snapshot {
 
    public <V extends SememeVersion<?>> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
       return Get.sememeService()
-                .getSnapshot(type, stampCoordinate);
+                .getSnapshot(type, this.stampCoordinate);
    }
 
    public TaxonomySnapshotService getTaxonomySnapshotService() {
       return Get.taxonomyService()
-                .getSnapshot(taxonomyCoordinate);
+                .getSnapshot(this.taxonomyCoordinate);
    }
 
    public <V extends StampedVersion> Stream<? extends V> getVisible(ObjectChronology<V> chronicle) {
       return chronicle.getVersionList()
                       .stream()
-                      .filter(version -> positionCalculator.onRoute(version));
+                      .filter(version -> this.positionCalculator.onRoute(version));
    }
 }
 

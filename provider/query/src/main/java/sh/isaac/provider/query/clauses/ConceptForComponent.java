@@ -81,11 +81,11 @@ public class ConceptForComponent
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet incomingPossibleComponentNids = NidSet.of(incomingComponents.stream());
-      NidSet outgoingPossibleConceptNids   = new NidSet();
+      final NidSet incomingPossibleComponentNids = NidSet.of(incomingComponents.stream());
+      final NidSet outgoingPossibleConceptNids   = new NidSet();
 
-      for (Clause childClause: getChildren()) {
-         NidSet childPossibleComponentNids = childClause.computeComponents(incomingPossibleComponentNids);
+      for (final Clause childClause: getChildren()) {
+         final NidSet childPossibleComponentNids = childClause.computeComponents(incomingPossibleComponentNids);
 
          outgoingPossibleConceptNids.or(childPossibleComponentNids);
       }
@@ -95,12 +95,12 @@ public class ConceptForComponent
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleConceptNids) {
-      NidSet incomingPossibleComponentNids = NidSet.of(incomingPossibleConceptNids.stream());
-      NidSet outgoingPossibleConceptNids   = new NidSet();
+      final NidSet incomingPossibleComponentNids = NidSet.of(incomingPossibleConceptNids.stream());
+      final NidSet outgoingPossibleConceptNids   = new NidSet();
 
-      for (Clause childClause: getChildren()) {
-         NidSet childPossibleComponentNids = childClause.computePossibleComponents(incomingPossibleComponentNids);
-         ConceptSequenceSet conceptSet     = ConceptSequenceSet.of(childPossibleComponentNids);
+      for (final Clause childClause: getChildren()) {
+         final NidSet childPossibleComponentNids = childClause.computePossibleComponents(incomingPossibleComponentNids);
+         final ConceptSequenceSet conceptSet     = ConceptSequenceSet.of(childPossibleComponentNids);
 
          outgoingPossibleConceptNids.or(NidSet.of(conceptSet));
       }
@@ -117,11 +117,11 @@ public class ConceptForComponent
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_FOR_COMPONENT);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

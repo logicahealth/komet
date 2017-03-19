@@ -81,12 +81,12 @@ public class DescriptionActiveLuceneMatch
 
    @Override
    public final NidSet computeComponents(NidSet incomingComponents) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                      .get(this.viewCoordinateKey);
 
       getResultsCache().and(incomingComponents);
       incomingComponents.stream().forEach((nid) -> {
-                                    Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
+                                    final Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
                                        Get.identifiedObjectService()
                                           .getIdentifiedObjectChronology(nid);
 
@@ -111,13 +111,13 @@ public class DescriptionActiveLuceneMatch
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_ACTIVE_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(luceneMatchKey);
+                 .add(this.luceneMatchKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

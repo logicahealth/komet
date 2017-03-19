@@ -91,11 +91,11 @@ public class UuidT3Generator {
     * @return the generated uuid
     */
    public static UUID fromSNOMED(String id) {
-      String name = "org.snomed." + id;
+      final String name = "org.snomed." + id;
 
       try {
          return UUID.nameUUIDFromBytes(name.getBytes(encoding));
-      } catch (UnsupportedEncodingException e) {
+      } catch (final UnsupportedEncodingException e) {
          throw new RuntimeException(e);
       }
    }

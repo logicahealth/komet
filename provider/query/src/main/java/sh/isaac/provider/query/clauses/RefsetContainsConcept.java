@@ -130,15 +130,15 @@ public class RefsetContainsConcept
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REFSET_CONTAINS_CONCEPT);
       whereClause.getLetKeys()
-                 .add(refsetSpecKey);
+                 .add(this.refsetSpecKey);
       whereClause.getLetKeys()
-                 .add(conceptSpecKey);
+                 .add(this.conceptSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

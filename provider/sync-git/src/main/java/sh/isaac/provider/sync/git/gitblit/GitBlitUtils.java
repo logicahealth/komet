@@ -117,20 +117,20 @@ public class GitBlitUtils {
          boolean allowRead)
             throws IOException {
       try {
-         RepositoryModel rm = new RepositoryModel(repoName, repoDesc, username, new Date());
+         final RepositoryModel rm = new RepositoryModel(repoName, repoDesc, username, new Date());
 
          if (allowRead) {
             rm.accessRestriction = AccessRestrictionType.PUSH.toString();
          }
 
-         boolean status = RpcUtils.createRepository(rm, adjustBareUrlForGitBlit(baseRemoteAddress), username, password);
+         final boolean status = RpcUtils.createRepository(rm, adjustBareUrlForGitBlit(baseRemoteAddress), username, password);
 
          log.info("Repository: " + repoName + ", create successfully: " + status);
 
          if (!status) {
             throw new IOException("Create of repo '" + repoName + "' failed");
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Failed to create repository: " + repoName + ", Unexpected Error: ", e);
          throw new IOException("Failed to create repository: " + repoName + ", Internal error", e);
       }
@@ -145,9 +145,9 @@ public class GitBlitUtils {
     */
    public static String parseBaseRemoteAddress(String url)
             throws IOException {
-      Pattern p =
+      final Pattern p =
          Pattern.compile("(?i)(https?:\\/\\/[a-zA-Z0-9\\.\\-_]+:?\\d*\\/[a-zA-Z0-9\\-_]+\\/)r\\/[a-zA-Z0-9\\-_]+.git$");
-      Matcher m = p.matcher(url);
+      final Matcher m = p.matcher(url);
 
       if (m.find()) {
          return m.group(1);
@@ -160,7 +160,7 @@ public class GitBlitUtils {
          String username,
          char[] password)
             throws IOException {
-      HashSet<String> results = new HashSet<>();
+      final HashSet<String> results = new HashSet<>();
 
       RpcUtils.getRepositories(adjustBareUrlForGitBlit(baseRemoteAddress), username, password)
               .forEach((name, value) -> results.add((String) value.get("name")));

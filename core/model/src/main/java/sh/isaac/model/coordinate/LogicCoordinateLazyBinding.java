@@ -130,54 +130,55 @@ public class LogicCoordinateLazyBinding
 
    @Override
    public String toString() {
-      return "LogicCoordinateLazyBinding{" + "statedAssemblageProxy=" + statedAssemblageProxy +
-             ", inferredAssemblageProxy=" + inferredAssemblageProxy + ", descriptionLogicProfileProxy=" +
-             descriptionLogicProfileProxy + ", classifierProxy=" + classifierProxy + '}';
+      return "LogicCoordinateLazyBinding{" + "statedAssemblageProxy=" + this.statedAssemblageProxy +
+             ", inferredAssemblageProxy=" + this.inferredAssemblageProxy + ", descriptionLogicProfileProxy=" +
+             this.descriptionLogicProfileProxy + ", classifierProxy=" + this.classifierProxy + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getClassifierSequence() {
-      if (classifierSequence == Integer.MAX_VALUE) {
-         classifierSequence = classifierProxy.getConceptSequence();
+      if (this.classifierSequence == Integer.MAX_VALUE) {
+         this.classifierSequence = this.classifierProxy.getConceptSequence();
       }
 
-      return classifierSequence;
+      return this.classifierSequence;
    }
 
    @Override
    public int getDescriptionLogicProfileSequence() {
-      if (descriptionLogicProfileSequence == Integer.MAX_VALUE) {
-         descriptionLogicProfileSequence = descriptionLogicProfileProxy.getConceptSequence();
+      if (this.descriptionLogicProfileSequence == Integer.MAX_VALUE) {
+         this.descriptionLogicProfileSequence = this.descriptionLogicProfileProxy.getConceptSequence();
       }
 
-      return descriptionLogicProfileSequence;
+      return this.descriptionLogicProfileSequence;
    }
 
    @Override
    public int getInferredAssemblageSequence() {
-      if (inferredAssemblageSequence == Integer.MAX_VALUE) {
-         inferredAssemblageSequence = inferredAssemblageProxy.getConceptSequence();
+      if (this.inferredAssemblageSequence == Integer.MAX_VALUE) {
+         this.inferredAssemblageSequence = this.inferredAssemblageProxy.getConceptSequence();
       }
 
-      return inferredAssemblageSequence;
+      return this.inferredAssemblageSequence;
    }
 
    @Override
    public int getStatedAssemblageSequence() {
-      if (statedAssemblageSequence == Integer.MAX_VALUE) {
-         statedAssemblageSequence = statedAssemblageProxy.getConceptSequence();
+      if (this.statedAssemblageSequence == Integer.MAX_VALUE) {
+         this.statedAssemblageSequence = this.statedAssemblageProxy.getConceptSequence();
       }
 
-      return statedAssemblageSequence;
+      return this.statedAssemblageSequence;
    }
 
    //~--- inner classes -------------------------------------------------------
 
    private static class ConceptProxyAdapter
            extends XmlAdapter<UUID[], ConceptProxy> {
-      public UUID[] marshal(ConceptProxy c) {
+      @Override
+	public UUID[] marshal(ConceptProxy c) {
          return c.getUuidList()
                  .toArray(new UUID[c.getUuidList().size()]);
       }

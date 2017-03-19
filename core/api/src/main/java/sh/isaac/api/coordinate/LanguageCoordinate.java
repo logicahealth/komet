@@ -82,7 +82,7 @@ public interface LanguageCoordinate {
     * @return
     */
    public default boolean isFSNPreferred() {
-      for (int descType: getDescriptionTypePreferenceList()) {
+      for (final int descType: getDescriptionTypePreferenceList()) {
          if (descType ==
                Get.identifierService().getConceptSequenceForUuids(
                    TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid())) {

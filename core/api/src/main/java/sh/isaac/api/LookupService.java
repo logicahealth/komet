@@ -163,7 +163,7 @@ public class LookupService {
          // If database is validated, startup remaining run levels
          setRunLevel(ISAAC_STARTED_RUNLEVEL);
          setRunLevel(ISAAC_DEPENDENTS_RUNLEVEL);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          // Will inform calling routines that database is corrupt
          throw e;
       } finally {
@@ -185,7 +185,7 @@ public class LookupService {
    public static void startupIsaac(BiConsumer<Boolean, Exception> callWhenStartComplete) {
       LOG.info("Background starting ISAAC services");
 
-      Thread backgroundLoad = new Thread(() -> {
+      final Thread backgroundLoad = new Thread(() -> {
                                             try {
                                                startupIsaac();
                                                LOG.info("Background start complete - runlevel now " +
@@ -194,7 +194,7 @@ public class LookupService {
                                                if (callWhenStartComplete != null) {
                                                   callWhenStartComplete.accept(isIsaacStarted(), null);
                                                }
-                                            } catch (Exception e) {
+                                            } catch (final Exception e) {
                                                LOG.warn("Background start failed - runlevel now " +
                                                getService(RunLevelController.class).getCurrentRunLevel(),
                                                      e);
@@ -275,31 +275,31 @@ public class LookupService {
             if (looker == null) {
                startupFxPlatform();
 
-               ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh.isaac",
+               final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh.isaac",
                                                                                   "org.ihtsdo",
                                                                                   "org.glassfish",
                                                                                   "com.informatics"));
-               boolean readInhabitantFiles = Boolean.valueOf(System.getProperty(Constants.READ_INHABITANT_FILES,
+               final boolean readInhabitantFiles = Boolean.valueOf(System.getProperty(Constants.READ_INHABITANT_FILES,
                                                                                 "false"));
 
                if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
-                  String[] extraPackagesToSearch = System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH)
+                  final String[] extraPackagesToSearch = System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH)
                                                          .split(";");
 
                   packagesToSearch.addAll(Arrays.asList(extraPackagesToSearch));
                }
 
                try {
-                  String[] packages = packagesToSearch.toArray(new String[] {});
+                  final String[] packages = packagesToSearch.toArray(new String[] {});
 
                   LOG.info("Looking for HK2 annotations " + (readInhabitantFiles ? "from inhabitant files"
                         : "skipping inhabitant files") + "; and scanning in the packages: " +
                         Arrays.toString(packages));
 
-                  ServiceLocator temp = HK2RuntimeInitializer.init("ISAAC", readInhabitantFiles, packages);
+                  final ServiceLocator temp = HK2RuntimeInitializer.init("ISAAC", readInhabitantFiles, packages);
 
                   if (looker != null) {
-                     RuntimeException e =
+                     final RuntimeException e =
                         new RuntimeException(
                             "RECURSIVE Lookup Service Reference!  Ensure that there are no static variables " +
                             "objects utilizing the LookupService during their init!");
@@ -318,8 +318,8 @@ public class LookupService {
 
                try {
                   LookupService.startupWorkExecutors();
-               } catch (Exception e) {
-                  RuntimeException ex =
+               } catch (final Exception e) {
+                  final RuntimeException ex =
                      new RuntimeException(
                          "Unexpected error trying to come up to the work executors level, possible classpath problems!",
                          e);
@@ -371,7 +371,7 @@ public class LookupService {
    //~--- set methods ---------------------------------------------------------
 
    public static void setRunLevel(int runLevel) {
-      int current = getService(RunLevelController.class).getCurrentRunLevel();
+      final int current = getService(RunLevelController.class).getCurrentRunLevel();
 
       if (current > runLevel) {
          get().getAllServiceHandles(OchreCache.class).forEach(handle -> {
@@ -396,7 +396,7 @@ public class LookupService {
     * @see ServiceLocator#getService(Class, Annotation...)
     */
    public static <T> T getService(Class<T> contractOrImpl) {
-      T service = get().getService(contractOrImpl, new Annotation[0]);
+      final T service = get().getService(contractOrImpl, new Annotation[0]);
 
       LOG.debug("LookupService returning {} for {}", ((service != null) ? service.getClass()
             .getName()
@@ -418,7 +418,7 @@ public class LookupService {
          throw new IllegalArgumentException("You must specify a service name to use this method");
       }
 
-      T service = get().getService(contractOrService, name, new Annotation[0]);
+      final T service = get().getService(contractOrService, name, new Annotation[0]);
 
       LOG.debug("LookupService returning {} for {} with name={}", ((service != null) ? service.getClass()
             .getName()

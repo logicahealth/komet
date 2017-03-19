@@ -100,9 +100,9 @@ public class GitPublish {
          String gitUserName,
          char[] gitPassword)
             throws IOException {
-      String      baseUrl  = GitBlitUtils.parseBaseRemoteAddress(gitRepository);
-      Set<String> repos    = GitBlitUtils.readRepositories(baseUrl, gitUserName, gitPassword);
-      String      repoName = gitRepository.substring(gitRepository.lastIndexOf("/") + 1);
+      final String      baseUrl  = GitBlitUtils.parseBaseRemoteAddress(gitRepository);
+      final Set<String> repos    = GitBlitUtils.readRepositories(baseUrl, gitUserName, gitPassword);
+      final String      repoName = gitRepository.substring(gitRepository.lastIndexOf("/") + 1);
 
       if (!repos.contains(repoName)) {
          LOG.info("Requested repository '" + gitRepository + "' does not exist - creating");
@@ -135,18 +135,18 @@ public class GitPublish {
                 gitRepository,
                 tagToCreate);
 
-      String correctedURL = constructChangesetRepositoryURL(gitRepository);
+      final String correctedURL = constructChangesetRepositoryURL(gitRepository);
 
       createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
 
-      SyncServiceGIT svc = new SyncServiceGIT();
+      final SyncServiceGIT svc = new SyncServiceGIT();
 
       svc.setReadmeFileContent(
           "ISAAC Dataprocessing Configuration Storage\n====\nIt is highly recommended you do not manually interact with this repository.");
       svc.setGitIgnoreContent("");
 
-      boolean ignoreExists = new File(folderWithProject, ".gitignore").exists();
-      boolean readmeExists = new File(folderWithProject, "README.md").exists();
+      final boolean ignoreExists = new File(folderWithProject, ".gitignore").exists();
+      final boolean readmeExists = new File(folderWithProject, "README.md").exists();
 
       svc.setRootLocation(folderWithProject);
       svc.linkAndFetchFromRemote(correctedURL, gitUserName, gitPassword);
@@ -176,16 +176,16 @@ public class GitPublish {
    public static int readHighestRevisionNumber(ArrayList<String> existingTags, String tagWithoutRevNumber) {
       int highestBuildRevision = -1;
 
-      for (String s: existingTags) {
+      for (final String s: existingTags) {
          if (s.equals("refs/tags/" + tagWithoutRevNumber)) {
             if (0 > highestBuildRevision) {
                highestBuildRevision = 0;
             }
          } else if (s.startsWith("refs/tags/" + tagWithoutRevNumber + "-")) {
-            String revNumber = s.substring(("refs/tags/" + tagWithoutRevNumber + "-").length(), s.length());
+            final String revNumber = s.substring(("refs/tags/" + tagWithoutRevNumber + "-").length(), s.length());
 
             if (NumericUtils.isInt(revNumber)) {
-               int parsed = Integer.parseInt(revNumber);
+               final int parsed = Integer.parseInt(revNumber);
 
                if (parsed > highestBuildRevision) {
                   highestBuildRevision = parsed;
@@ -209,22 +209,22 @@ public class GitPublish {
          String gitUserName,
          char[] gitPassword)
             throws Exception {
-      String correctedURL = constructChangesetRepositoryURL(gitRepository);
+      final String correctedURL = constructChangesetRepositoryURL(gitRepository);
 
       createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
 
-      SyncServiceGIT svc        = new SyncServiceGIT();
-      File           tempFolder = Files.createTempDirectory("tagRead")
+      final SyncServiceGIT svc        = new SyncServiceGIT();
+      final File           tempFolder = Files.createTempDirectory("tagRead")
                                        .toFile();
 
       svc.setRootLocation(tempFolder);
       svc.linkAndFetchFromRemote(correctedURL, gitUserName, gitPassword);
 
-      ArrayList<String> temp = svc.readTags(gitUserName, gitPassword);
+      final ArrayList<String> temp = svc.readTags(gitUserName, gitPassword);
 
       try {
          FileUtil.recursiveDelete(tempFolder);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          LOG.error("Problem cleaning up temp folder " + tempFolder, e);
       }
 

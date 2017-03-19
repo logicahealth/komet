@@ -63,15 +63,15 @@ public class SememeSerializer
    public SememeChronologyImpl<?> merge(SememeChronologyImpl<? extends SememeVersion<?>> a,
          SememeChronologyImpl<? extends SememeVersion<?>> b,
          int writeSequence) {
-      byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
-      ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
+      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
+      final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
 
       return SememeChronologyImpl.make(db);
    }
 
    @Override
    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl<? extends SememeVersion<?>> a) {
-      byte[] data = a.getDataToWrite();
+      final byte[] data = a.getDataToWrite();
 
       d.put(data, 0, data.length);
    }

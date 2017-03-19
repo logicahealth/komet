@@ -105,24 +105,24 @@ public class WriteConceptChronicle
             throws Exception {
       try {
          Get.conceptService()
-            .writeConcept(cc);
-         uncommittedTracking.accept(cc, false);
+            .writeConcept(this.cc);
+         this.uncommittedTracking.accept(this.cc, false);
          updateProgress(1, 2);
-         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getConceptSequence()));
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
+         this.changeListeners.forEach((listenerRef) -> {
+                                    final ChronologyChangeListener listener = listenerRef.get();
 
                                     if (listener == null) {
-                                       changeListeners.remove(listenerRef);
+                                       this.changeListeners.remove(listenerRef);
                                     } else {
-                                       listener.handleChange(cc);
+                                       listener.handleChange(this.cc);
                                     }
                                  });
          updateProgress(2, 2);
-         updateMessage("complete: " + Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("complete: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

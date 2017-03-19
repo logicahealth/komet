@@ -88,7 +88,7 @@ public class UpdateTaxonomyAfterCommitTask
       this.taxonomyService                    = taxonomyService;
       this.totalWork                          = sememeSequencesForUnhandledChanges.size();
       this.updateTitle("Update taxonomy after commit");
-      this.updateProgress(workDone, totalWork);
+      this.updateProgress(this.workDone, this.totalWork);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -96,24 +96,24 @@ public class UpdateTaxonomyAfterCommitTask
    @Override
    protected Void call()
             throws Exception {
-      long stamp = lock.writeLock();
+      final long stamp = this.lock.writeLock();
 
       try {
-         AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
+         final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
 
-         sememeSequencesForUnhandledChanges.stream().forEach((sememeSequence) -> {
+         this.sememeSequencesForUnhandledChanges.stream().forEach((sememeSequence) -> {
                   try {
-                     workDone++;
-                     this.updateProgress(workDone, totalWork);
+                     this.workDone++;
+                     this.updateProgress(this.workDone, this.totalWork);
 
-                     if (commitRecord.getSememesInCommit()
+                     if (this.commitRecord.getSememesInCommit()
                                      .contains(sememeSequence)) {
                         this.updateMessage("Updating taxonomy for: " + sememeSequence);
-                        taxonomyService.updateTaxonomy((SememeChronology<LogicGraphSememe<?>>) Get.sememeService()
+                        this.taxonomyService.updateTaxonomy((SememeChronology<LogicGraphSememe<?>>) Get.sememeService()
                               .getSememe(sememeSequence));
-                        sememeSequencesForUnhandledChanges.remove(sememeSequence);
+                        this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
                      }
-                  } catch (Exception e) {
+                  } catch (final Exception e) {
                      log.error("Error handling update taxonomy after commit on sememe " + sememeSequence, e);
                      atLeastOneFailed.set(true);
                   }
@@ -126,7 +126,7 @@ public class UpdateTaxonomyAfterCommitTask
          this.updateMessage("complete");
          return null;
       } finally {
-         lock.unlockWrite(stamp);
+         this.lock.unlockWrite(stamp);
          Get.activeTasks()
             .remove(this);
       }
@@ -147,7 +147,7 @@ public class UpdateTaxonomyAfterCommitTask
          CommitRecord commitRecord,
          ConcurrentSkipListSet<Integer> unhandledChanges,
          StampedLock lock) {
-      UpdateTaxonomyAfterCommitTask task = new UpdateTaxonomyAfterCommitTask(taxonomyService,
+      final UpdateTaxonomyAfterCommitTask task = new UpdateTaxonomyAfterCommitTask(taxonomyService,
                                                                              commitRecord,
                                                                              unhandledChanges,
                                                                              lock);

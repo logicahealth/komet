@@ -83,24 +83,9 @@ import sh.isaac.utility.Frills;
 public class MappingSet
         extends MappingObject {
    private static final Logger                LOG            = LoggerFactory.getLogger(MappingSet.class);
-   public static final Comparator<MappingSet> nameComparator = new Comparator<MappingSet>() {
-      @Override
-      public int compare(MappingSet o1, MappingSet o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getName(), o2.getName());
-      }
-   };
-   public static final Comparator<MappingSet> purposeComparator = new Comparator<MappingSet>() {
-      @Override
-      public int compare(MappingSet o1, MappingSet o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getPurpose(), o2.getPurpose());
-      }
-   };
-   public static final Comparator<MappingSet> descriptionComparator = new Comparator<MappingSet>() {
-      @Override
-      public int compare(MappingSet o1, MappingSet o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getDescription(), o2.getDescription());
-      }
-   };
+   public static final Comparator<MappingSet> nameComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getName(), o2.getName());
+   public static final Comparator<MappingSet> purposeComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPurpose(), o2.getPurpose());
+   public static final Comparator<MappingSet> descriptionComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getDescription(), o2.getDescription());
 
    //~--- fields --------------------------------------------------------------
 
@@ -130,10 +115,10 @@ public class MappingSet
 
    private void readFromRefex(DynamicSememe<?> refex, StampCoordinate stampCoord)
             throws RuntimeException {
-      Optional<ConceptVersion<?>> mappingConcept = MappingSetDAO.getMappingConcept(refex, stampCoord);
+      final Optional<ConceptVersion<?>> mappingConcept = MappingSetDAO.getMappingConcept(refex, stampCoord);
 
       if (mappingConcept.isPresent()) {
-         primordialUUID = mappingConcept.get()
+         this.primordialUUID = mappingConcept.get()
                                         .getPrimordialUuid();
          readStampDetails(mappingConcept.get());
 
@@ -148,12 +133,13 @@ public class MappingSet
                            // noop... sigh... can't short-circuit in a forEach....
                         } else {
                            @SuppressWarnings({ "rawtypes", "unchecked" })
+						final
                            Optional<LatestVersion<DescriptionSememe<?>>> latest =
                               ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class, stampCoord);
 
                            // TODO handle contradictions
                            if (latest.isPresent()) {
-                              DescriptionSememe<?> ds = latest.get()
+                              final DescriptionSememe<?> ds = latest.get()
                                                               .value();
 
                               if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM.getConceptSequence()) {
@@ -183,7 +169,7 @@ public class MappingSet
                         }
                      });
       } else {
-         String error = "cannot read mapping concept!";
+         final String error = "cannot read mapping concept!";
 
          LOG.error(error);
          throw new RuntimeException(error);
@@ -205,7 +191,7 @@ public class MappingSet
     * @return - The user specified description of the mapping set.
     */
    public String getDescription() {
-      return descriptionProperty.get();
+      return this.descriptionProperty.get();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -220,14 +206,14 @@ public class MappingSet
    //~--- get methods ---------------------------------------------------------
 
    public SimpleStringProperty getDescriptionProperty() {
-      return descriptionProperty;
+      return this.descriptionProperty;
    }
 
    /**
     * @return - The inverse name of the mapping set - may return null
     */
    public String getInverseName() {
-      return inverseNameProperty.get();
+      return this.inverseNameProperty.get();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -242,7 +228,7 @@ public class MappingSet
    //~--- get methods ---------------------------------------------------------
 
    public SimpleStringProperty getInverseNameProperty() {
-      return inverseNameProperty;
+      return this.inverseNameProperty;
    }
 
    public List<MappingItem> getMappingItems(StampCoordinate stampCoord) {
@@ -250,7 +236,7 @@ public class MappingSet
 
       try {
          mappingItems = MappingItemDAO.getMappingItems(this.getPrimordialUUID(), stampCoord);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          LOG.error("Error retrieving Mapping Items for " + this.getName(), e);
          mappingItems = new ArrayList<MappingItem>();
       }
@@ -262,7 +248,7 @@ public class MappingSet
     * @return the name of the mapping set
     */
    public String getName() {
-      return nameProperty.get();
+      return this.nameProperty.get();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -277,21 +263,21 @@ public class MappingSet
    //~--- get methods ---------------------------------------------------------
 
    public SimpleStringProperty getNameProperty() {
-      return nameProperty;
+      return this.nameProperty;
    }
 
    /**
     * @return the identifier of this mapping set
     */
    public UUID getPrimordialUUID() {
-      return primordialUUID;
+      return this.primordialUUID;
    }
 
    /**
     * @return - the 'purpose' of the mapping set - may be null
     */
    public String getPurpose() {
-      return purposeProperty.get();
+      return this.purposeProperty.get();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -300,13 +286,13 @@ public class MappingSet
     * @param purpose - The 'purpose' of the mapping set. May specify null.
     */
    public void setPurpose(String purpose) {
-      purposeProperty.set(purpose);
+      this.purposeProperty.set(purpose);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public SimpleStringProperty getPurposeProperty() {
-      return purposeProperty;
+      return this.purposeProperty;
    }
 
    /**

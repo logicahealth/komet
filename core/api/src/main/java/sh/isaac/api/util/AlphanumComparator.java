@@ -77,7 +77,7 @@ public class AlphanumComparator
 
    //~--- fields --------------------------------------------------------------
 
-   private boolean ignoreCase_;
+   private final boolean ignoreCase_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -104,15 +104,15 @@ public class AlphanumComparator
 
       int thisMarker = 0;
       int thatMarker = 0;
-      int s1Length   = s1.length();
-      int s2Length   = s2.length();
+      final int s1Length   = s1.length();
+      final int s2Length   = s2.length();
 
       while ((thisMarker < s1Length) && (thatMarker < s2Length)) {
-         String thisChunk = getChunk(s1, s1Length, thisMarker);
+         final String thisChunk = getChunk(s1, s1Length, thisMarker);
 
          thisMarker += thisChunk.length();
 
-         String thatChunk = getChunk(s2, s2Length, thatMarker);
+         final String thatChunk = getChunk(s2, s2Length, thatMarker);
 
          thatMarker += thatChunk.length();
 
@@ -125,7 +125,7 @@ public class AlphanumComparator
 
             // 0 pad the shorter array, so that they have the same length.
             if (thisChunkInt.length > thatChunkInt.length) {
-               int[] temp         = new int[thisChunkInt.length];
+               final int[] temp         = new int[thisChunkInt.length];
                int   insertOffset = thisChunkInt.length - thatChunkInt.length;
 
                for (int i = 0; i < thatChunkInt.length; i++) {
@@ -135,7 +135,7 @@ public class AlphanumComparator
                thatChunkInt = temp;
             } else {
                if (thisChunkInt.length < thatChunkInt.length) {
-                  int[] temp         = new int[thatChunkInt.length];
+                  final int[] temp         = new int[thatChunkInt.length];
                   int   insertOffset = thatChunkInt.length - thisChunkInt.length;
 
                   for (int i = 0; i < thisChunkInt.length; i++) {
@@ -158,7 +158,7 @@ public class AlphanumComparator
                }
             }
          } else {
-            if (ignoreCase_) {
+            if (this.ignoreCase_) {
                result = thisChunk.compareToIgnoreCase(thatChunk);
             } else {
                result = thisChunk.compareTo(thatChunk);
@@ -184,7 +184,7 @@ public class AlphanumComparator
     * For example, 45600000000524566874861567 would be returned as : [456000000,005245668,74861567]
     */
    private int[] subChunkNumeric(String numericChunk) {
-      int[] result = new int[(int) Math.ceil(numericChunk.length() / 9.0)];
+      final int[] result = new int[(int) Math.ceil(numericChunk.length() / 9.0)];
       int   s      = 0;
       int   e      = ((9 > numericChunk.length()) ? numericChunk.length()
             : 9);
@@ -227,7 +227,7 @@ public class AlphanumComparator
     * Length of string is passed in for improved efficiency (only need to calculate it once) 
     */
    private String getChunk(String s, int slength, int marker) {
-      StringBuilder chunk = new StringBuilder();
+      final StringBuilder chunk = new StringBuilder();
       char          c     = s.charAt(marker);
 
       chunk.append(c);

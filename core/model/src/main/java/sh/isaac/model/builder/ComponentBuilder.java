@@ -78,16 +78,16 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    @Override
    public ComponentBuilder<T> addSememe(SememeBuilder<?> sememeBuilder) {
-      sememeBuilders.add(sememeBuilder);
+      this.sememeBuilders.add(sememeBuilder);
       return this;
    }
 
    @Override
    public IdentifiedComponentBuilder<T> addUuids(UUID... uuids) {
       if (uuids != null) {
-         for (UUID uuid: uuids) {
-            if (!uuid.equals(primordialUuid)) {
-               additionalUuids.add(uuid);
+         for (final UUID uuid: uuids) {
+            if (!uuid.equals(this.primordialUuid)) {
+               this.additionalUuids.add(uuid);
             }
          }
       }
@@ -150,20 +150,20 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    @Override
    public List<UUID> getUuidList() {
-      Stream.Builder<UUID> builder = Stream.builder();
+      final Stream.Builder<UUID> builder = Stream.builder();
 
       builder.accept(getPrimordialUuid());
-      additionalUuids.forEach((uuid) -> builder.accept(uuid));
+      this.additionalUuids.forEach((uuid) -> builder.accept(uuid));
       return builder.build()
                     .collect(Collectors.toList());
    }
 
    @Override
    public UUID[] getUuids() {
-      Stream.Builder<UUID> builder = Stream.builder();
+      final Stream.Builder<UUID> builder = Stream.builder();
 
       builder.accept(getPrimordialUuid());
-      additionalUuids.forEach((uuid) -> builder.accept(uuid));
+      this.additionalUuids.forEach((uuid) -> builder.accept(uuid));
       return builder.build()
                     .toArray((int length) -> new UUID[length]);
    }

@@ -119,7 +119,7 @@ public class ConceptChronologyImpl
 
    @Override
    public ConceptVersionImpl createMutableVersion(int stampSequence) {
-      ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
 
       addVersion(newVersion);
       return newVersion;
@@ -127,20 +127,20 @@ public class ConceptChronologyImpl
 
    @Override
    public ConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
-      int stampSequence = Get.stampService()
+      final int stampSequence = Get.stampService()
                              .getStampSequence(state,
                                    Long.MAX_VALUE,
                                    ec.getAuthorSequence(),
                                    ec.getModuleSequence(),
                                    ec.getPathSequence());
-      ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
 
       addVersion(newVersion);
       return newVersion;
    }
 
    public static ConceptChronologyImpl make(ByteArrayDataBuffer data) {
-      ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl();
+      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl();
 
       conceptChronology.readData(data);
       return conceptChronology;
@@ -148,7 +148,7 @@ public class ConceptChronologyImpl
 
    @Override
    public String toString() {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
       builder.append("ConceptChronologyImpl{");
       builder.append(toUserString());
@@ -161,7 +161,7 @@ public class ConceptChronologyImpl
 
    @Override
    public String toUserString() {
-      List<SememeChronology<? extends DescriptionSememe<?>>> descList = getConceptDescriptionList();
+      final List<SememeChronology<? extends DescriptionSememe<?>>> descList = getConceptDescriptionList();
 
       if (descList.isEmpty()) {
          return "no description for concept: " + getUuidList() + " " + getConceptSequence() + " " + getNid();
@@ -245,7 +245,7 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
       }
 
-      Optional<?> optional = Get.sememeService()
+      final Optional<?> optional = Get.sememeService()
                                 .getSnapshot(LogicGraphSememe.class, stampCoordinate)
                                 .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
                                 .findFirst();
@@ -265,14 +265,14 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
       }
 
-      Optional<SememeChronology<? extends SememeVersion<?>>> definitionChronologyOptional = Get.sememeService()
+      final Optional<SememeChronology<? extends SememeVersion<?>>> definitionChronologyOptional = Get.sememeService()
                                                                                                .getSememesForComponentFromAssemblage(
                                                                                                   getNid(),
                                                                                                         assemblageSequence)
                                                                                                .findFirst();
 
       if (definitionChronologyOptional.isPresent()) {
-         Collection<LogicGraphSememeImpl> versions =
+         final Collection<LogicGraphSememeImpl> versions =
             (Collection<LogicGraphSememeImpl>) definitionChronologyOptional.get()
                                                                            .getVisibleOrderedVersionList(
                                                                               stampCoordinate);
@@ -281,7 +281,7 @@ public class ConceptChronologyImpl
 //       for (LogicGraphSememeImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
 //           
 //       }
-         StringBuilder builder = new StringBuilder();
+         final StringBuilder builder = new StringBuilder();
 
          builder.append("_______________________________________________________________________\n");
          builder.append("  Encountered concept '")
@@ -294,8 +294,8 @@ public class ConceptChronologyImpl
          int               version         = 0;
          LogicalExpression previousVersion = null;
 
-         for (LogicGraphSememeImpl lgmv: versions) {
-            LogicalExpression lg = lgmv.getLogicalExpression();
+         for (final LogicGraphSememeImpl lgmv: versions) {
+            final LogicalExpression lg = lgmv.getLogicalExpression();
 
             builder.append(" Version ")
                    .append(version++)
@@ -307,7 +307,7 @@ public class ConceptChronologyImpl
             if (previousVersion == null) {
                builder.append(lg);
             } else {
-               IsomorphicResults solution = lg.findIsomorphisms(previousVersion);
+               final IsomorphicResults solution = lg.findIsomorphisms(previousVersion);
 
                builder.append(solution);
             }
@@ -336,57 +336,57 @@ public class ConceptChronologyImpl
 
    @Override
    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept() {
-      if (conceptOriginRelationshipList == null) {
-         conceptOriginRelationshipList = new ArrayList<>();
+      if (this.conceptOriginRelationshipList == null) {
+         this.conceptOriginRelationshipList = new ArrayList<>();
          Get.logicService()
             .getRelationshipAdaptorsOriginatingWithConcept(this)
             .forEach((relAdaptor) -> {
-                        conceptOriginRelationshipList.add((RelationshipAdaptorChronologyImpl) relAdaptor);
+                        this.conceptOriginRelationshipList.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                      });
       }
 
-      return conceptOriginRelationshipList;
+      return this.conceptOriginRelationshipList;
    }
 
    @Override
    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept(
            LogicCoordinate logicCoordinate) {
-      if (conceptOriginRelationshipList == null) {
-         conceptOriginRelationshipList = new ArrayList<>();
+      if (this.conceptOriginRelationshipList == null) {
+         this.conceptOriginRelationshipList = new ArrayList<>();
          Get.logicService().getRelationshipAdaptorsOriginatingWithConcept(this, logicCoordinate).forEach((relAdaptor) -> {
-                        conceptOriginRelationshipList.add((RelationshipAdaptorChronologyImpl) relAdaptor);
+                        this.conceptOriginRelationshipList.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                      });
       }
 
-      return conceptOriginRelationshipList;
+      return this.conceptOriginRelationshipList;
    }
 
    @Override
    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination() {
-      if (relationshipListWithConceptAsDestinationListDefaltCoordinate == null) {
-         relationshipListWithConceptAsDestinationListDefaltCoordinate = new ArrayList<>();
+      if (this.relationshipListWithConceptAsDestinationListDefaltCoordinate == null) {
+         this.relationshipListWithConceptAsDestinationListDefaltCoordinate = new ArrayList<>();
          Get.logicService()
             .getRelationshipAdaptorsWithConceptAsDestination(this)
             .forEach((relAdaptor) -> {
-                        relationshipListWithConceptAsDestinationListDefaltCoordinate.add(
+                        this.relationshipListWithConceptAsDestinationListDefaltCoordinate.add(
                             (RelationshipAdaptorChronologyImpl) relAdaptor);
                      });
       }
 
-      return relationshipListWithConceptAsDestinationListDefaltCoordinate;
+      return this.relationshipListWithConceptAsDestinationListDefaltCoordinate;
    }
 
    @Override
    public List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(
            LogicCoordinate logicCoordinate) {
-      if (relationshipListWithConceptAsDestination == null) {
-         relationshipListWithConceptAsDestination = new ArrayList<>();
+      if (this.relationshipListWithConceptAsDestination == null) {
+         this.relationshipListWithConceptAsDestination = new ArrayList<>();
          Get.logicService().getRelationshipAdaptorsWithConceptAsDestination(this, logicCoordinate).forEach((relAdaptor) -> {
-                        relationshipListWithConceptAsDestination.add((RelationshipAdaptorChronologyImpl) relAdaptor);
+                        this.relationshipListWithConceptAsDestination.add((RelationshipAdaptorChronologyImpl) relAdaptor);
                      });
       }
 
-      return relationshipListWithConceptAsDestination;
+      return this.relationshipListWithConceptAsDestination;
    }
 }
 

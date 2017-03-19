@@ -177,33 +177,32 @@ public abstract class Query {
     */
    public NidSet compute() {
       setup();
-      forSet = For();
+      this.forSet = For();
       getLetDeclarations();
-      rootClause[0] = Where();
+      this.rootClause[0] = Where();
 
-      NidSet possibleComponents = rootClause[0].computePossibleComponents(forSet);
+      final NidSet possibleComponents = this.rootClause[0].computePossibleComponents(this.forSet);
 
-      if (computeTypes.contains(ClauseComputeType.ITERATION)) {
-         NidSet conceptsToIterateOver = NidSet.of(Get.identifierService()
+      if (this.computeTypes.contains(ClauseComputeType.ITERATION)) {
+         final NidSet conceptsToIterateOver = NidSet.of(Get.identifierService()
                                                      .getConceptSequencesForConceptNids(possibleComponents));
-         ConceptSequenceSet conceptSequences = Get.identifierService()
+         final ConceptSequenceSet conceptSequences = Get.identifierService()
                                                   .getConceptSequencesForConceptNids(conceptsToIterateOver);
 
          Get.conceptService()
             .getParallelConceptChronologyStream(conceptSequences)
             .forEach((concept) -> {
-                        ConceptVersion mutable =
-                           concept.createMutableVersion(
-                               concept.getNid());  // TODO needs to return a mutable version, not a ConceptVersion
-                        ConceptChronology cch = (ConceptChronology) concept;
-                        Optional<LatestVersion<ConceptVersion<?>>> latest =
-                           cch.getLatestVersion(ConceptVersion.class, taxonomyCoordinate.getStampCoordinate());
+                        concept.createMutableVersion(
+                               concept.getNid());
+                        final ConceptChronology cch = concept;
+                        final Optional<LatestVersion<ConceptVersion<?>>> latest =
+                           cch.getLatestVersion(ConceptVersion.class, this.taxonomyCoordinate.getStampCoordinate());
 
                         // Optional<LatestVersion<ConceptVersion<?>>> latest
                         // = ((ConceptChronology<ConceptVersion<?>>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);
 
                         if (latest.isPresent()) {
-                           rootClause[0].getChildren().stream().forEach((c) -> {
+                           this.rootClause[0].getChildren().stream().forEach((c) -> {
                                                     c.getQueryMatches(latest.get()
                                                           .value());
                                                  });
@@ -211,21 +210,21 @@ public abstract class Query {
                      });
       }
 
-      return rootClause[0].computeComponents(possibleComponents);
+      return this.rootClause[0].computeComponents(possibleComponents);
    }
 
    public void let(String key, Object object) {
-      letDeclarations.put(key, object);
+      this.letDeclarations.put(key, object);
    }
 
    public void setup() {
       getLetDeclarations();
-      rootClause[0] = Where();
+      this.rootClause[0] = Where();
 
-      ForSetSpecification forSetSpec = ForSetSpecification();
+      final ForSetSpecification forSetSpec = ForSetSpecification();
 
-      forCollectionTypes = forSetSpec.getForCollectionTypes();
-      customCollection   = forSetSpec.getCustomCollection();
+      this.forCollectionTypes = forSetSpec.getForCollectionTypes();
+      this.customCollection   = forSetSpec.getCustomCollection();
    }
 
    protected And And(Clause... clauses) {
@@ -355,25 +354,25 @@ public abstract class Query {
     * @return the <code>NativeIdSetBI</code> of the set that will be queried
     */
    protected final NidSet For() {
-      forSet = new NidSet();
+      this.forSet = new NidSet();
 
-      for (ComponentCollectionTypes collection: forCollectionTypes) {
+      for (final ComponentCollectionTypes collection: this.forCollectionTypes) {
          switch (collection) {
          case ALL_COMPONENTS:
-            forSet.or(NidSet.ofAllComponentNids());
+            this.forSet.or(NidSet.ofAllComponentNids());
             break;
 
          case ALL_CONCEPTS:
-            forSet.or(NidSet.of(ConceptSequenceSet.ofAllConceptSequences()));
+            this.forSet.or(NidSet.of(ConceptSequenceSet.ofAllConceptSequences()));
             break;
 
          case ALL_SEMEMES:
-            forSet.or(NidSet.of(SememeSequenceSet.ofAllSememeSequences()));
+            this.forSet.or(NidSet.of(SememeSequenceSet.ofAllSememeSequences()));
             break;
 
          case CUSTOM_SET:
-            customCollection.stream().forEach((uuid) -> {
-                                        forSet.add(Get.identifierService()
+            this.customCollection.stream().forEach((uuid) -> {
+                                        this.forSet.add(Get.identifierService()
                                               .getNidForUuids(uuid));
                                      });
             break;
@@ -383,7 +382,7 @@ public abstract class Query {
          }
       }
 
-      return forSet;
+      return this.forSet;
    }
 
    protected abstract ForSetSpecification ForSetSpecification();
@@ -491,7 +490,7 @@ public abstract class Query {
     * @return an <code>EnumSet</code> of the compute types required
     */
    public EnumSet<ClauseComputeType> getComputePhases() {
-      return computeTypes;
+      return this.computeTypes;
    }
 
    /**
@@ -501,22 +500,22 @@ public abstract class Query {
     * searched in the query
     */
    public NidSet getForSet() {
-      return forSet;
+      return this.forSet;
    }
 
    public LanguageCoordinate getLanguageCoordinate() {
-      return taxonomyCoordinate.getLanguageCoordinate();
+      return this.taxonomyCoordinate.getLanguageCoordinate();
    }
 
    public HashMap<String, Object> getLetDeclarations() {
-      if (letDeclarations == null) {
-         letDeclarations = new HashMap<>();
+      if (this.letDeclarations == null) {
+         this.letDeclarations = new HashMap<>();
 
-         if (!letDeclarations.containsKey(currentTaxonomyCoordinateKey)) {
-            if (taxonomyCoordinate != null) {
-               letDeclarations.put(currentTaxonomyCoordinateKey, taxonomyCoordinate);
+         if (!this.letDeclarations.containsKey(currentTaxonomyCoordinateKey)) {
+            if (this.taxonomyCoordinate != null) {
+               this.letDeclarations.put(currentTaxonomyCoordinateKey, this.taxonomyCoordinate);
             } else {
-               letDeclarations.put(currentTaxonomyCoordinateKey,
+               this.letDeclarations.put(currentTaxonomyCoordinateKey,
                                    Get.configurationService()
                                       .getDefaultTaxonomyCoordinate());
             }
@@ -525,15 +524,15 @@ public abstract class Query {
          Let();
       }
 
-      return letDeclarations;
+      return this.letDeclarations;
    }
 
    public LogicCoordinate getLogicCoordinate() {
-      return taxonomyCoordinate.getLogicCoordinate();
+      return this.taxonomyCoordinate.getLogicCoordinate();
    }
 
    public PremiseType getPremiseType() {
-      return premiseType;
+      return this.premiseType;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -553,7 +552,7 @@ public abstract class Query {
     * @return the <code>StampCoordinate</code> in the query
     */
    public StampCoordinate getStampCoordinate() {
-      return taxonomyCoordinate.getStampCoordinate();
+      return this.taxonomyCoordinate.getStampCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------

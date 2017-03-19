@@ -94,35 +94,35 @@ public class CommitRecord {
 
    @Override
    public String toString() {
-      return "CommitRecord{" + "commitTime=" + commitTime + ", stampsInCommit=" + stampsInCommit + ", stampAliases=" +
-             stampAliases + ", commitComment=" + commitComment + ", conceptsInCommit=" + conceptsInCommit +
-             ", sememesInCommit=" + sememesInCommit + '}';
+      return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit + ", stampAliases=" +
+             this.stampAliases + ", commitComment=" + this.commitComment + ", conceptsInCommit=" + this.conceptsInCommit +
+             ", sememesInCommit=" + this.sememesInCommit + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getCommitComment() {
-      return commitComment;
+      return this.commitComment;
    }
 
    public Instant getCommitTime() {
-      return commitTime;
+      return this.commitTime;
    }
 
    public ConceptSequenceSet getConceptsInCommit() {
-      return conceptsInCommit;
+      return this.conceptsInCommit;
    }
 
    public SememeSequenceSet getSememesInCommit() {
-      return sememesInCommit;
+      return this.sememesInCommit;
    }
 
    public AbstractIntIntMap getStampAliases() {
-      return stampAliases;
+      return this.stampAliases;
    }
 
    public StampSequenceSet getStampsInCommit() {
-      return stampsInCommit;
+      return this.stampsInCommit;
    }
 }
 

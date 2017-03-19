@@ -98,8 +98,8 @@ public class TemplateNodeWithUuids
                                 DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      templateConceptUuid   = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
-      assemblageConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.templateConceptUuid   = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.assemblageConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
 
    public TemplateNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
@@ -131,21 +131,21 @@ public class TemplateNodeWithUuids
          return false;
       }
 
-      TemplateNodeWithUuids that = (TemplateNodeWithUuids) o;
+      final TemplateNodeWithUuids that = (TemplateNodeWithUuids) o;
 
-      if (!assemblageConceptUuid.equals(that.assemblageConceptUuid)) {
+      if (!this.assemblageConceptUuid.equals(that.assemblageConceptUuid)) {
          return false;
       }
 
-      return templateConceptUuid.equals(that.templateConceptUuid);
+      return this.templateConceptUuid.equals(that.templateConceptUuid);
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + templateConceptUuid.hashCode();
-      result = 31 * result + assemblageConceptUuid.hashCode();
+      result = 31 * result + this.templateConceptUuid.hashCode();
+      result = 31 * result + this.assemblageConceptUuid.hashCode();
       return result;
    }
 
@@ -157,8 +157,8 @@ public class TemplateNodeWithUuids
    @Override
    public String toString(String nodeIdSuffix) {
       return "TemplateNode[" + getNodeIndex() + nodeIdSuffix + "] " + "assemblage: " +
-             Get.conceptService().getConcept(assemblageConceptUuid).toUserString() + ", template: " +
-             Get.conceptService().getConcept(templateConceptUuid).toUserString() + super.toString(nodeIdSuffix);
+             Get.conceptService().getConcept(this.assemblageConceptUuid).toUserString() + ", template: " +
+             Get.conceptService().getConcept(this.templateConceptUuid).toUserString() + super.toString(nodeIdSuffix);
    }
 
    @Override
@@ -167,14 +167,14 @@ public class TemplateNodeWithUuids
       switch (dataTarget) {
       case EXTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeLong(templateConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(templateConceptUuid.getLeastSignificantBits());
-         dataOutput.writeLong(assemblageConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(assemblageConceptUuid.getLeastSignificantBits());
+         dataOutput.writeLong(this.templateConceptUuid.getMostSignificantBits());
+         dataOutput.writeLong(this.templateConceptUuid.getLeastSignificantBits());
+         dataOutput.writeLong(this.assemblageConceptUuid.getMostSignificantBits());
+         dataOutput.writeLong(this.assemblageConceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:
-         TemplateNodeWithSequences internalForm = new TemplateNodeWithSequences(this);
+         final TemplateNodeWithSequences internalForm = new TemplateNodeWithSequences(this);
 
          internalForm.writeNodeData(dataOutput, dataTarget);
          break;
@@ -186,25 +186,25 @@ public class TemplateNodeWithUuids
 
    @Override
    protected int compareFields(LogicNode o) {
-      TemplateNodeWithUuids that = (TemplateNodeWithUuids) o;
+      final TemplateNodeWithUuids that = (TemplateNodeWithUuids) o;
 
-      if (!assemblageConceptUuid.equals(that.assemblageConceptUuid)) {
-         return assemblageConceptUuid.compareTo(that.assemblageConceptUuid);
+      if (!this.assemblageConceptUuid.equals(that.assemblageConceptUuid)) {
+         return this.assemblageConceptUuid.compareTo(that.assemblageConceptUuid);
       }
 
-      return templateConceptUuid.compareTo(that.templateConceptUuid);
+      return this.templateConceptUuid.compareTo(that.templateConceptUuid);
    }
 
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                                 templateConceptUuid.toString() + assemblageConceptUuid.toString());
+                                 this.templateConceptUuid.toString() + this.assemblageConceptUuid.toString());
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public UUID getAssemblageConceptUuid() {
-      return assemblageConceptUuid;
+      return this.assemblageConceptUuid;
    }
 
    @Override
@@ -218,7 +218,7 @@ public class TemplateNodeWithUuids
    }
 
    public UUID getTemplateConceptUuid() {
-      return templateConceptUuid;
+      return this.templateConceptUuid;
    }
 }
 

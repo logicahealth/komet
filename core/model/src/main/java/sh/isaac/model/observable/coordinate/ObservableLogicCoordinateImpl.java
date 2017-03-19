@@ -97,104 +97,104 @@ public class ObservableLogicCoordinateImpl
 
    @Override
    public IntegerProperty classifierSequenceProperty() {
-      if (classifierSequenceProperty == null) {
-         classifierSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.classifierSequenceProperty == null) {
+         this.classifierSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.CLASSIFIER_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
                getClassifierSequence());
-         addListenerReference(logicCoordinate.setClassifierSequenceProperty(classifierSequenceProperty));
+         addListenerReference(this.logicCoordinate.setClassifierSequenceProperty(this.classifierSequenceProperty));
       }
 
-      return classifierSequenceProperty;
+      return this.classifierSequenceProperty;
    }
 
    @Override
    public IntegerProperty descriptionLogicProfileSequenceProperty() {
-      if (descriptionLogicProfileSequenceProperty == null) {
-         descriptionLogicProfileSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.descriptionLogicProfileSequenceProperty == null) {
+         this.descriptionLogicProfileSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
                getDescriptionLogicProfileSequence());
          addListenerReference(
-             logicCoordinate.setDescriptionLogicProfileSequenceProperty(descriptionLogicProfileSequenceProperty));
+             this.logicCoordinate.setDescriptionLogicProfileSequenceProperty(this.descriptionLogicProfileSequenceProperty));
       }
 
-      return descriptionLogicProfileSequenceProperty;
+      return this.descriptionLogicProfileSequenceProperty;
    }
 
    @Override
    public boolean equals(Object obj) {
-      return logicCoordinate.equals(obj);
+      return this.logicCoordinate.equals(obj);
    }
 
    @Override
    public int hashCode() {
-      return logicCoordinate.hashCode();
+      return this.logicCoordinate.hashCode();
    }
 
    @Override
    public IntegerProperty inferredAssemblageSequenceProperty() {
-      if (inferredAssemblageSequenceProperty == null) {
-         inferredAssemblageSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.inferredAssemblageSequenceProperty == null) {
+         this.inferredAssemblageSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.INFERRED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
                getInferredAssemblageSequence());
       }
 
-      addListenerReference(logicCoordinate.setInferredAssemblageSequenceProperty(inferredAssemblageSequenceProperty));
-      return inferredAssemblageSequenceProperty;
+      addListenerReference(this.logicCoordinate.setInferredAssemblageSequenceProperty(this.inferredAssemblageSequenceProperty));
+      return this.inferredAssemblageSequenceProperty;
    }
 
    @Override
    public IntegerProperty statedAssemblageSequenceProperty() {
-      if (statedAssemblageSequenceProperty == null) {
-         statedAssemblageSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.statedAssemblageSequenceProperty == null) {
+         this.statedAssemblageSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
                getStatedAssemblageSequence());
-         addListenerReference(logicCoordinate.setStatedAssemblageSequenceProperty(statedAssemblageSequenceProperty));
+         addListenerReference(this.logicCoordinate.setStatedAssemblageSequenceProperty(this.statedAssemblageSequenceProperty));
       }
 
-      return statedAssemblageSequenceProperty;
+      return this.statedAssemblageSequenceProperty;
    }
 
    @Override
    public String toString() {
-      return "ObservableLogicCoordinateImpl{" + logicCoordinate.toString() + '}';
+      return "ObservableLogicCoordinateImpl{" + this.logicCoordinate.toString() + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getClassifierSequence() {
-      if (classifierSequenceProperty != null) {
-         return classifierSequenceProperty.get();
+      if (this.classifierSequenceProperty != null) {
+         return this.classifierSequenceProperty.get();
       }
 
-      return logicCoordinate.getClassifierSequence();
+      return this.logicCoordinate.getClassifierSequence();
    }
 
    @Override
    public int getDescriptionLogicProfileSequence() {
-      if (descriptionLogicProfileSequenceProperty != null) {
-         return descriptionLogicProfileSequenceProperty.get();
+      if (this.descriptionLogicProfileSequenceProperty != null) {
+         return this.descriptionLogicProfileSequenceProperty.get();
       }
 
-      return logicCoordinate.getDescriptionLogicProfileSequence();
+      return this.logicCoordinate.getDescriptionLogicProfileSequence();
    }
 
    @Override
    public int getInferredAssemblageSequence() {
-      if (inferredAssemblageSequenceProperty != null) {
-         return inferredAssemblageSequenceProperty.get();
+      if (this.inferredAssemblageSequenceProperty != null) {
+         return this.inferredAssemblageSequenceProperty.get();
       }
 
-      return logicCoordinate.getInferredAssemblageSequence();
+      return this.logicCoordinate.getInferredAssemblageSequence();
    }
 
    @Override
    public int getStatedAssemblageSequence() {
-      if (statedAssemblageSequenceProperty != null) {
-         return statedAssemblageSequenceProperty.get();
+      if (this.statedAssemblageSequenceProperty != null) {
+         return this.statedAssemblageSequenceProperty.get();
       }
 
-      return logicCoordinate.getStatedAssemblageSequence();
+      return this.logicCoordinate.getStatedAssemblageSequence();
    }
 }
 

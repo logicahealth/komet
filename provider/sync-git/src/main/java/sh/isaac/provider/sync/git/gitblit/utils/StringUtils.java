@@ -64,8 +64,8 @@ public class StringUtils {
       r1 = r1.toLowerCase(Locale.ENGLISH);
       r2 = r2.toLowerCase(Locale.ENGLISH);
 
-      int s1 = r1.indexOf('/');
-      int s2 = r2.indexOf('/');
+      final int s1 = r1.indexOf('/');
+      final int s2 = r2.indexOf('/');
 
       if ((s1 == -1) && (s2 == -1)) {
          // neither grouped
@@ -89,7 +89,7 @@ public class StringUtils {
     * @return properly escaped url
     */
    public static String encodeURL(String inStr) {
-      StringBuilder retStr = new StringBuilder();
+      final StringBuilder retStr = new StringBuilder();
       int           i      = 0;
 
       while (i < inStr.length()) {

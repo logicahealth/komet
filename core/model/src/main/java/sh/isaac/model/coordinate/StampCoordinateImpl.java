@@ -168,38 +168,38 @@ public class StampCoordinateImpl
 
    @Override
    public StampCoordinateImpl makeAnalog(long stampPositionTime) {
-      StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
-                                                                 stampPosition.getStampPathSequence());
+      final StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
+                                                                 this.stampPosition.getStampPathSequence());
 
-      return new StampCoordinateImpl(stampPrecedence, anotherStampPosition, moduleSequences, allowedStates);
+      return new StampCoordinateImpl(this.stampPrecedence, anotherStampPosition, this.moduleSequences, this.allowedStates);
    }
 
    @Override
    public StampCoordinateImpl makeAnalog(State... states) {
-      EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
+      final EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
 
       newAllowedStates.addAll(Arrays.asList(states));
-      return new StampCoordinateImpl(stampPrecedence, stampPosition, moduleSequences, newAllowedStates);
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, newAllowedStates);
    }
 
    @Override
    public String toString() {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
       builder.append("Stamp Coordinate{")
-             .append(stampPrecedence)
+             .append(this.stampPrecedence)
              .append(", ")
-             .append(stampPosition)
+             .append(this.stampPosition)
              .append(", modules: ");
 
-      if (moduleSequences.isEmpty()) {
+      if (this.moduleSequences.isEmpty()) {
          builder.append("all, ");
       } else {
-         builder.append(Get.conceptDescriptionTextList(moduleSequences))
+         builder.append(Get.conceptDescriptionTextList(this.moduleSequences))
                 .append(", ");
       }
 
-      builder.append(allowedStates)
+      builder.append(this.allowedStates)
              .append('}');
       return builder.toString();
    }
@@ -208,17 +208,17 @@ public class StampCoordinateImpl
 
    @Override
    public EnumSet<State> getAllowedStates() {
-      return allowedStates;
+      return this.allowedStates;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public SetChangeListener<State> setAllowedStatesProperty(SetProperty<State> allowedStatesProperty) {
-      SetChangeListener<State> listener = (change) -> {
+      final SetChangeListener<State> listener = (change) -> {
                if (change.wasAdded()) {
-                  allowedStates.add(change.getElementAdded());
+                  this.allowedStates.add(change.getElementAdded());
                } else {
-                  allowedStates.remove(change.getElementRemoved());
+                  this.allowedStates.remove(change.getElementRemoved());
                }
             };
 
@@ -230,18 +230,18 @@ public class StampCoordinateImpl
 
    @Override
    public ConceptSequenceSet getModuleSequences() {
-      return moduleSequences;
+      return this.moduleSequences;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ArrayChangeListener<ObservableIntegerArray> setModuleSequencesProperty(
            ObjectProperty<ObservableIntegerArray> moduleSequencesProperty) {
-      ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
+      final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
                                                               boolean sizeChanged,
                                                               int from,
                                                               int to) -> {
-               moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
+               this.moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
             };
 
       moduleSequencesProperty.getValue()
@@ -253,15 +253,15 @@ public class StampCoordinateImpl
 
    @Override
    public StampPosition getStampPosition() {
-      return stampPosition;
+      return this.stampPosition;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<ObservableStampPosition> setStampPositionProperty(
            ObjectProperty<ObservableStampPosition> stampPositionProperty) {
-      ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
-               stampPosition = newValue;
+      final ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
+               this.stampPosition = newValue;
             };
 
       stampPositionProperty.addListener(new WeakChangeListener<>(listener));
@@ -272,15 +272,15 @@ public class StampCoordinateImpl
 
    @Override
    public StampPrecedence getStampPrecedence() {
-      return stampPrecedence;
+      return this.stampPrecedence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<StampPrecedence> setStampPrecedenceProperty(
            ObjectProperty<StampPrecedence> stampPrecedenceProperty) {
-      ChangeListener<StampPrecedence> listener = (observable, oldValue, newValue) -> {
-               stampPrecedence = newValue;
+      final ChangeListener<StampPrecedence> listener = (observable, oldValue, newValue) -> {
+               this.stampPrecedence = newValue;
             };
 
       stampPrecedenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -291,7 +291,8 @@ public class StampCoordinateImpl
 
    private static class ConceptSequenceSetAdapter
            extends XmlAdapter<int[], ConceptSequenceSet> {
-      public int[] marshal(ConceptSequenceSet c) {
+      @Override
+	public int[] marshal(ConceptSequenceSet c) {
          return c.asArray();
       }
 
@@ -305,14 +306,15 @@ public class StampCoordinateImpl
 
    private static class EnumSetAdapter
            extends XmlAdapter<State[], EnumSet<State>> {
-      public State[] marshal(EnumSet<State> c) {
+      @Override
+	public State[] marshal(EnumSet<State> c) {
          return c.toArray(new State[c.size()]);
       }
 
       @Override
       public EnumSet<State> unmarshal(State[] v)
                throws Exception {
-         EnumSet<State> s = EnumSet.noneOf(State.class);
+         final EnumSet<State> s = EnumSet.noneOf(State.class);
 
          s.addAll(Arrays.asList(v));
          return s;

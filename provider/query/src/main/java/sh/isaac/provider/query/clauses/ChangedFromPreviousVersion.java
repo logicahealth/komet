@@ -119,8 +119,8 @@ public class ChangedFromPreviousVersion
 
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      TaxonomyCoordinate previousViewCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                     .get(previousViewCoordinateKey);
+      this.enclosingQuery.getLetDeclarations()
+                                                                                     .get(this.previousViewCoordinateKey);
 
       throw new UnsupportedOperationException();
 
@@ -136,11 +136,11 @@ public class ChangedFromPreviousVersion
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CHANGED_FROM_PREVIOUS_VERSION);
       whereClause.getLetKeys()
-                 .add(previousViewCoordinateKey);
+                 .add(this.previousViewCoordinateKey);
       return whereClause;
    }
 }

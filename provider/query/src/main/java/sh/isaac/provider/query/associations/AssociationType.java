@@ -81,7 +81,7 @@ public class AssociationType {
 
    //~--- fields --------------------------------------------------------------
 
-   private int              associationSequence_;
+   private final int              associationSequence_;
    private String           associationName_;
    private Optional<String> associationInverseName_;
    private String           description_;
@@ -117,12 +117,12 @@ public class AssociationType {
          StampCoordinate stampCoord,
          EditCoordinate editCoord) {
       try {
-         EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
+         final EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
                                                                    .getDefaultEditCoordinate()
                : editCoord);
 
          // We need to create a new concept - which itself is defining a dynamic sememe - so set that up here.
-         DynamicSememeUsageDescription rdud = Frills.createNewDynamicSememeUsageDescriptionConcept(associationName,
+         final DynamicSememeUsageDescription rdud = Frills.createNewDynamicSememeUsageDescriptionConcept(associationName,
                                                                                                    associationName,
                                                                                                    StringUtils.isBlank(description)
                                                                                                    ? "Defines the association type " +
@@ -148,14 +148,14 @@ public class AssociationType {
                                rdud.getDynamicSememeUsageDescriptorSequence(),
                                new Integer[] { 0 },
                                true);
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                            log.error("Unexpected error enabling the index on newly created association!", e);
                         }
                      });
 
          // Then add the inverse name, if present.
          if (!StringUtils.isBlank(associationInverseName)) {
-            ObjectChronology<?> builtDesc = LookupService.get()
+            final ObjectChronology<?> builtDesc = LookupService.get()
                                                          .getService(DescriptionBuilderService.class)
                                                          .getDescriptionBuilder(associationInverseName,
                                                                rdud.getDynamicSememeUsageDescriptorSequence(),
@@ -191,7 +191,7 @@ public class AssociationType {
          return read(rdud.getDynamicSememeUsageDescriptorSequence(),
                      stampCoord,
                      LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected error creating association", e);
          throw new RuntimeException(e);
       }
@@ -206,13 +206,13 @@ public class AssociationType {
     */
    @SuppressWarnings({ "unchecked", "rawtypes" })
    public static AssociationType read(int conceptNidOrSequence, StampCoordinate stamp, LanguageCoordinate language) {
-      AssociationType    at            = new AssociationType(conceptNidOrSequence);
-      int                conceptNid    = Get.identifierService()
+      final AssociationType    at            = new AssociationType(conceptNidOrSequence);
+      final int                conceptNid    = Get.identifierService()
                                             .getConceptNid(at.getAssociationTypeSequenece());
-      StampCoordinate    localStamp    = ((stamp == null) ? Get.configurationService()
+      final StampCoordinate    localStamp    = ((stamp == null) ? Get.configurationService()
                                                                .getDefaultStampCoordinate()
             : stamp);
-      LanguageCoordinate localLanguage = ((language == null) ? Get.configurationService()
+      final LanguageCoordinate localLanguage = ((language == null) ? Get.configurationService()
                                                                   .getDefaultLanguageCoordinate()
             : language);
 
@@ -221,7 +221,7 @@ public class AssociationType {
                                .conceptDescriptionText(conceptNid);
 
       // Find the inverse name
-      for (DescriptionSememe<?> desc: Frills.getDescriptionsOfType(conceptNid,
+      for (final DescriptionSememe<?> desc: Frills.getDescriptionsOfType(conceptNid,
             MetaData.SYNONYM,
             localStamp.makeAnalog(State.ACTIVE))) {
          if (Get.sememeService()
@@ -242,7 +242,7 @@ public class AssociationType {
       }
 
       // find the description
-      for (DescriptionSememe<?> desc: Frills.getDescriptionsOfType(Get.identifierService()
+      for (final DescriptionSememe<?> desc: Frills.getDescriptionsOfType(Get.identifierService()
             .getConceptNid(at.getAssociationTypeSequenece()),
             MetaData.DEFINITION_DESCRIPTION_TYPE,
             localStamp.makeAnalog(State.ACTIVE))) {
@@ -277,11 +277,11 @@ public class AssociationType {
     * @return the inverse name of the association (if present) (Read from the association type concept)
     */
    public Optional<String> getAssociationInverseName() {
-      return associationInverseName_;
+      return this.associationInverseName_;
    }
 
    public String getAssociationName() {
-      return associationName_;
+      return this.associationName_;
    }
 
    /**
@@ -289,18 +289,18 @@ public class AssociationType {
     */
    public ConceptChronology<? extends ConceptVersion<?>> getAssociationTypeConcept() {
       return Get.conceptService()
-                .getConcept(associationSequence_);
+                .getConcept(this.associationSequence_);
    }
 
    /**
     * @return the concept sequence of the association type concept
     */
    public int getAssociationTypeSequenece() {
-      return associationSequence_;
+      return this.associationSequence_;
    }
 
    public String getDescription() {
-      return description_;
+      return this.description_;
    }
 }
 

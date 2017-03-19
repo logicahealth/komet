@@ -64,20 +64,20 @@ public class DynamicSememeStringTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
+      final String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
 
-      for (String i: testValues) {
+      for (final String i: testValues) {
          test(i);
       }
    }
 
    private void test(String value)
             throws PropertyVetoException, IOException {
-      DynamicSememeStringImpl i = new DynamicSememeStringImpl(value);
+      final DynamicSememeStringImpl i = new DynamicSememeStringImpl(value);
 
       assertEquals(value, i.getDataString());
-      assertEquals(value, (String) i.getDataObject());
-      assertEquals(value, (String) i.getDataObjectProperty()
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
                                     .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.STRING);
    }

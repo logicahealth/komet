@@ -72,7 +72,7 @@ public class DynamicSememeLongImpl
 
    public DynamicSememeLongImpl(long l) {
       super();
-      data_ = ByteBuffer.allocate(8)
+      this.data_ = ByteBuffer.allocate(8)
                         .putLong(l)
                         .array();
    }
@@ -88,7 +88,7 @@ public class DynamicSememeLongImpl
     */
    @Override
    public long getDataLong() {
-      return ByteBuffer.wrap(data_)
+      return ByteBuffer.wrap(this.data_)
                        .getLong();
    }
 
@@ -97,11 +97,11 @@ public class DynamicSememeLongImpl
     */
    @Override
    public ReadOnlyObjectProperty<Long> getDataLongProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

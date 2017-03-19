@@ -70,12 +70,12 @@ public class QuerySerializer {
       // JAXBContext ctx = JaxbForQuery.get();
       q.setup();
 
-      Marshaller marshaller = JaxbForQuery.get()
+      final Marshaller marshaller = JaxbForQuery.get()
                                           .createMarshaller();
 
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-      StringWriter builder = new StringWriter();
+      final StringWriter builder = new StringWriter();
 
       marshaller.marshal(q, builder);
       return builder.toString();
@@ -86,8 +86,8 @@ public class QuerySerializer {
                    ParserConfigurationException,
                    Exception,
                    Throwable {
-      JAXBContext  ctx          = JaxbForQuery.get();
-      Unmarshaller unmarshaller = ctx.createUnmarshaller();
+      final JAXBContext  ctx          = JaxbForQuery.get();
+      final Unmarshaller unmarshaller = ctx.createUnmarshaller();
 
       // Query query = (Query) unmarshaller.unmarshal(xmlData);
 
@@ -95,15 +95,15 @@ public class QuerySerializer {
       // an XML source directly as java.io.File, java.io.Reader or java.io.InputStream.
       // Parse the document with a securely configured parser and use an unmarshal method
       // that takes the secure parser as the XML source
-      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+      final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
       domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
       domFactory.setExpandEntityReferences(false);
 
-      DocumentBuilder db       = domFactory.newDocumentBuilder();
-      InputSource     source   = new InputSource(xmlData);
-      Document        document = db.parse(source);
-      Query           query    = (Query) unmarshaller.unmarshal(document);
+      final DocumentBuilder db       = domFactory.newDocumentBuilder();
+      final InputSource     source   = new InputSource(xmlData);
+      final Document        document = db.parse(source);
+      final Query           query    = (Query) unmarshaller.unmarshal(document);
 
       return query;
    }

@@ -72,7 +72,7 @@ public class ExpressionReader {
 
    public static Stream<ParseTree> read(File file)
             throws IOException {
-      AtomicInteger lineCount = new AtomicInteger(0);
+      final AtomicInteger lineCount = new AtomicInteger(0);
 
       return Files.lines(file.toPath())
                   .filter(line -> {
@@ -83,7 +83,7 @@ public class ExpressionReader {
                              }
 
                              if (line.startsWith("id")) {
-                                String[] strTokens = line.split("\t");
+                                final String[] strTokens = line.split("\t");
 
                                 if (!(strTokens[6].equals("mapTarget") &&
                                       (strTokens[7].equals("Expression") &&
@@ -98,7 +98,7 @@ public class ExpressionReader {
                           })
                   .map(line -> {
                           try {
-                             String[] strTokens = line.split("\t");
+                             final String[] strTokens = line.split("\t");
 
                  //          34353-3  works
                  //          43734-3  works
@@ -110,7 +110,7 @@ public class ExpressionReader {
                              System.out.println("\n\nLOINC EXPRESSION SERVICE> " + lineCount + ". LOINC CODE " +
                              strTokens[6] + " = " + strTokens[7] + "; STATUS = " + strTokens[8] + "\n");
 
-                             String definitionSctid = strTokens[8];
+                             final String definitionSctid = strTokens[8];
 
                              if (definitionSctid.equals(sufficientSctid)) {
                                 return SNOMEDCTParserUtil.parseExpression(strTokens[7]);
@@ -120,7 +120,7 @@ public class ExpressionReader {
                                 throw new RuntimeException("Unexpected definition status: " + definitionSctid +
                                 " on line " + lineCount);
                              }
-                          } catch (Exception e) {
+                          } catch (final Exception e) {
                              throw new RuntimeException(e);
                           }
                        });

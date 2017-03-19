@@ -80,7 +80,7 @@ public class ConverterOptionParamTest {
    @Test
    public void testJson()
             throws Exception {
-      ConverterOptionParam foo = new ConverterOptionParam("cc",
+      final ConverterOptionParam foo = new ConverterOptionParam("cc",
                                                           "a",
                                                           "b",
                                                           true,
@@ -97,7 +97,7 @@ public class ConverterOptionParamTest {
       Assert.assertEquals("f", foo.getSuggestedPickListValues()[1]
                                   .getDescription());
 
-      ConverterOptionParam foo2 = new ConverterOptionParam("33",
+      final ConverterOptionParam foo2 = new ConverterOptionParam("33",
                                                            "1",
                                                            "2",
                                                            true,
@@ -107,7 +107,7 @@ public class ConverterOptionParamTest {
 
       ConverterOptionParam.serialize(new ConverterOptionParam[] { foo, foo2 }, new File("foo.json"));
 
-      ConverterOptionParam[] foo3 = ConverterOptionParam.fromFile(new File("foo.json"));
+      final ConverterOptionParam[] foo3 = ConverterOptionParam.fromFile(new File("foo.json"));
 
       Assert.assertEquals(foo3[0], foo);
       Assert.assertEquals(foo3[1], foo2);

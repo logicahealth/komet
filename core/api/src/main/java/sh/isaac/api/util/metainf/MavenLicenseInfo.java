@@ -80,7 +80,7 @@ public class MavenLicenseInfo {
 
    @Override
    public String toString() {
-      return "MavenLicenseInfo [name=" + name + ", url=" + url + ", comments=" + comments + "]";
+      return "MavenLicenseInfo [name=" + this.name + ", url=" + this.url + ", comments=" + this.comments + "]";
    }
 }
 

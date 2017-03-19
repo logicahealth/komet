@@ -80,8 +80,8 @@ public class BinaryDataWriterProvider
 
    //~--- fields --------------------------------------------------------------
 
-   private Logger      logger     = LoggerFactory.getLogger(BinaryDataWriterProvider.class);
-   private Semaphore   pauseBlock = new Semaphore(1);
+   private final Logger      logger     = LoggerFactory.getLogger(BinaryDataWriterProvider.class);
+   private final Semaphore   pauseBlock = new Semaphore(1);
    ByteArrayDataBuffer buffer     = new ByteArrayDataBuffer(BUFFER_SIZE);
    Path                dataPath;
    DataOutputStream    output;
@@ -110,10 +110,10 @@ public class BinaryDataWriterProvider
    public void close()
             throws IOException {
       try {
-         output.flush();
-         output.close();
+         this.output.flush();
+         this.output.close();
       } finally {
-         output = null;
+         this.output = null;
       }
    }
 
@@ -124,19 +124,19 @@ public class BinaryDataWriterProvider
          throw new RuntimeException("Reconfiguration is not supported");
       }
 
-      dataPath = path;
-      output   = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(dataPath.toFile(), true)));
-      buffer.setExternalData(true);
-      logger.info("ibdf changeset writer has been configured to write to " + dataPath.toAbsolutePath().toString());
+      this.dataPath = path;
+      this.output   = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), true)));
+      this.buffer.setExternalData(true);
+      this.logger.info("ibdf changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
 
       if (!Get.configurationService()
               .inDBBuildMode()) {
          // record this file as already being in the database if we are in 'normal' run mode.
-         MetaContentService mcs = LookupService.get()
+         final MetaContentService mcs = LookupService.get()
                                                .getService(MetaContentService.class);
 
          if (mcs != null) {
-            ConcurrentMap<String, Boolean> processedChangesets = mcs.<String, Boolean>openStore("processedChangesets");
+            final ConcurrentMap<String, Boolean> processedChangesets = mcs.<String, Boolean>openStore("processedChangesets");
 
             processedChangesets.put(path.getFileName()
                                         .toString(), true);
@@ -151,64 +151,64 @@ public class BinaryDataWriterProvider
    @Override
    public void flush()
             throws IOException {
-      if (output != null) {
-         output.flush();
+      if (this.output != null) {
+         this.output.flush();
       }
    }
 
    @Override
    public void pause()
             throws IOException {
-      if (output == null) {
-         logger.warn("already paused!");
+      if (this.output == null) {
+         this.logger.warn("already paused!");
          return;
       }
 
-      pauseBlock.acquireUninterruptibly();
+      this.pauseBlock.acquireUninterruptibly();
       close();
-      logger.debug("ibdf writer paused");
+      this.logger.debug("ibdf writer paused");
    }
 
    @Override
    public void put(OchreExternalizable ochreObject)
             throws RuntimeException {
       try {
-         pauseBlock.acquireUninterruptibly();
-         buffer.clear();
-         ochreObject.putExternal(buffer);
-         output.writeByte(ochreObject.getOchreObjectType()
+         this.pauseBlock.acquireUninterruptibly();
+         this.buffer.clear();
+         ochreObject.putExternal(this.buffer);
+         this.output.writeByte(ochreObject.getOchreObjectType()
                                      .getToken());
-         output.writeByte(ochreObject.getDataFormatVersion());
-         output.writeInt(buffer.getLimit());
-         output.write(buffer.getData(), 0, buffer.getLimit());
-      } catch (IOException e) {
+         this.output.writeByte(ochreObject.getDataFormatVersion());
+         this.output.writeInt(this.buffer.getLimit());
+         this.output.write(this.buffer.getData(), 0, this.buffer.getLimit());
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       } finally {
-         pauseBlock.release();
+         this.pauseBlock.release();
       }
    }
 
    @Override
    public void resume()
             throws IOException {
-      if (pauseBlock.availablePermits() == 1) {
-         logger.warn("asked to resume, but not paused?");
+      if (this.pauseBlock.availablePermits() == 1) {
+         this.logger.warn("asked to resume, but not paused?");
          return;
       }
 
-      if (output == null) {
-         configure(dataPath);
+      if (this.output == null) {
+         configure(this.dataPath);
       }
 
-      pauseBlock.release();
-      logger.debug("ibdf writer resumed");
+      this.pauseBlock.release();
+      this.logger.debug("ibdf writer resumed");
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public Path getCurrentPath() {
-      return dataPath;
+      return this.dataPath;
    }
 }
 

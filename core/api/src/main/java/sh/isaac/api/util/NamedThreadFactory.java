@@ -53,8 +53,8 @@ public class NamedThreadFactory
          implements ThreadFactory {
    private ThreadGroup threadGroup      = null;
    private String      threadNamePrefix = null;
-   private int         threadPriority;
-   private boolean     daemon;
+   private final int         threadPriority;
+   private final boolean     daemon;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,13 +100,13 @@ public class NamedThreadFactory
 
    @Override
    public Thread newThread(Runnable r) {
-      Thread t = (threadGroup == null) ? new Thread(r)
-                                       : new Thread(threadGroup, r);
+      final Thread t = (this.threadGroup == null) ? new Thread(r)
+                                       : new Thread(this.threadGroup, r);
 
-      t.setName(((threadNamePrefix == null) ? ""
-            : threadNamePrefix + " ") + t.getId());
-      t.setPriority(threadPriority);
-      t.setDaemon(daemon);
+      t.setName(((this.threadNamePrefix == null) ? ""
+            : this.threadNamePrefix + " ") + t.getId());
+      t.setPriority(this.threadPriority);
+      t.setDaemon(this.daemon);
       return t;
    }
 }

@@ -81,8 +81,8 @@ public class ConnectionUtils {
 
    public static URLConnection openConnection(String url, String username, char[] password)
             throws IOException {
-      URL           urlObject = new URL(url);
-      URLConnection conn      = urlObject.openConnection();
+      final URL           urlObject = new URL(url);
+      final URLConnection conn      = urlObject.openConnection();
 
       setAuthorization(conn, username, password);
       conn.setUseCaches(false);
@@ -92,17 +92,17 @@ public class ConnectionUtils {
 
    public static URLConnection openReadConnection(String url, String username, char[] password)
             throws IOException {
-      URLConnection conn = openConnection(url, username, password);
+      final URLConnection conn = openConnection(url, username, password);
 
       conn.setRequestProperty("Accept-Charset", ConnectionUtils.CHARSET);
       return conn;
    }
 
    private static byte[] toBytes(char[] chars) {
-      CharBuffer charBuffer = CharBuffer.wrap(chars);
-      ByteBuffer byteBuffer = Charset.forName("UTF-8")
+      final CharBuffer charBuffer = CharBuffer.wrap(chars);
+      final ByteBuffer byteBuffer = Charset.forName("UTF-8")
                                      .encode(charBuffer);
-      byte[]     bytes      = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
+      final byte[]     bytes      = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
 
       Arrays.fill(charBuffer.array(), '\u0000');  // clear sensitive data
       Arrays.fill(byteBuffer.array(), (byte) 0);  // clear sensitive data

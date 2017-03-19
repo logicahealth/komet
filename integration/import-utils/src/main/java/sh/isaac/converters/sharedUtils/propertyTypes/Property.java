@@ -71,18 +71,18 @@ public class Property {
    private UUID                      propertyUUID                = null;
    private UUID                      useWBPropertyTypeInstead    = null;  // see comments in setter
    private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex_ = null;
-   private String                    sourcePropertyNameFSN_;
-   private String                    sourcePropertyAltName_;
-   private String                    sourcePropertyDefinition_;
+   private final String                    sourcePropertyNameFSN_;
+   private final String                    sourcePropertyAltName_;
+   private final String                    sourcePropertyDefinition_;
    private PropertyType              owner_;
 
    //~--- constructors --------------------------------------------------------
 
    public Property(PropertyType owner, ConceptSpecification cs) {
       this(owner, cs.getConceptDescriptionText(), null, null, false, Integer.MAX_VALUE, null);
-      propertyUUID = cs.getPrimordialUuid();
+      this.propertyUUID = cs.getPrimordialUuid();
       ConverterUUID.addMapping(cs.getConceptDescriptionText(), cs.getPrimordialUuid());
-      isFromConceptSpec_ = true;
+      this.isFromConceptSpec_ = true;
    }
 
    public Property(PropertyType owner, String sourcePropertyNameFSN) {
@@ -127,22 +127,22 @@ public class Property {
       // if owner is null, have to delay this until the setOwner call
       // leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
       // at the time this code runs.  We make sure it is set down below, in the getter.
-      if ((columnInforForDynamicRefex == null) && (owner != null) && (owner_.getDefaultColumnInfo() != null)) {
+      if ((columnInforForDynamicRefex == null) && (owner != null) && (this.owner_.getDefaultColumnInfo() != null)) {
          // Create a single required column, with the column name just set to 'value'
-         dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+         this.dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
                0,
                DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-               owner_.getDefaultColumnInfo(),
+               this.owner_.getDefaultColumnInfo(),
                null,
                true,
                null,
                null,
                true) };
       } else {
-         dataColumnsForDynamicRefex_ = columnInforForDynamicRefex;
+         this.dataColumnsForDynamicRefex_ = columnInforForDynamicRefex;
       }
 
-      if ((dataColumnsForDynamicRefex_ != null) && (owner_ != null) &&!owner_.createAsDynamicRefex()) {
+      if ((this.dataColumnsForDynamicRefex_ != null) && (this.owner_ != null) &&!this.owner_.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic sememe data where it isn't allowed.");
       }
    }
@@ -150,21 +150,21 @@ public class Property {
    //~--- get methods ---------------------------------------------------------
 
    public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
-      if ((dataColumnsForDynamicRefex_ != null) &&
-            (dataColumnsForDynamicRefex_.length == 1) &&
-            (dataColumnsForDynamicRefex_[0].getAssemblageConcept() == null)) {
-         dataColumnsForDynamicRefex_[0].setAssemblageConcept(getUUID());
+      if ((this.dataColumnsForDynamicRefex_ != null) &&
+            (this.dataColumnsForDynamicRefex_.length == 1) &&
+            (this.dataColumnsForDynamicRefex_[0].getAssemblageConcept() == null)) {
+         this.dataColumnsForDynamicRefex_[0].setAssemblageConcept(getUUID());
       }
 
-      return dataColumnsForDynamicRefex_;
+      return this.dataColumnsForDynamicRefex_;
    }
 
    public boolean isDisabled() {
-      return isDisabled_;
+      return this.isDisabled_;
    }
 
    public boolean isFromConceptSpec() {
-      return isFromConceptSpec_;
+      return this.isFromConceptSpec_;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -172,14 +172,14 @@ public class Property {
    protected void setOwner(PropertyType owner) {
       this.owner_ = owner;
 
-      if ((dataColumnsForDynamicRefex_ == null) && (owner_.getDefaultColumnInfo() != null)) {
+      if ((this.dataColumnsForDynamicRefex_ == null) && (this.owner_.getDefaultColumnInfo() != null)) {
          // Create a single required column, with the column name concept tied back to the assemblage concept itself.
          // leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
          // at the time this code runs.  We make sure it is set down below, in the getter.
-         dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+         this.dataColumnsForDynamicRefex_ = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
                0,
                getUUID(),
-               owner_.getDefaultColumnInfo(),
+               this.owner_.getDefaultColumnInfo(),
                null,
                true,
                null,
@@ -187,7 +187,7 @@ public class Property {
                true) };
       }
 
-      if ((dataColumnsForDynamicRefex_ != null) &&!owner_.createAsDynamicRefex()) {
+      if ((this.dataColumnsForDynamicRefex_ != null) &&!this.owner_.createAsDynamicRefex()) {
          throw new RuntimeException("Tried to attach dynamic sememe data where it isn't allowed.");
       }
    }
@@ -195,7 +195,7 @@ public class Property {
    //~--- get methods ---------------------------------------------------------
 
    public int getPropertySubType() {
-      return propertySubType_;
+      return this.propertySubType_;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -207,27 +207,27 @@ public class Property {
    //~--- get methods ---------------------------------------------------------
 
    public PropertyType getPropertyType() {
-      return owner_;
+      return this.owner_;
    }
 
    public String getSourcePropertyAltName() {
-      return sourcePropertyAltName_;
+      return this.sourcePropertyAltName_;
    }
 
    public String getSourcePropertyDefinition() {
-      return sourcePropertyDefinition_;
+      return this.sourcePropertyDefinition_;
    }
 
    public String getSourcePropertyNameFSN() {
-      return sourcePropertyNameFSN_;
+      return this.sourcePropertyNameFSN_;
    }
 
    public UUID getUUID() {
-      if (propertyUUID == null) {
-         propertyUUID = owner_.getPropertyUUID(this.sourcePropertyNameFSN_);
+      if (this.propertyUUID == null) {
+         this.propertyUUID = this.owner_.getPropertyUUID(this.sourcePropertyNameFSN_);
       }
 
-      return propertyUUID;
+      return this.propertyUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -244,7 +244,7 @@ public class Property {
    //~--- get methods ---------------------------------------------------------
 
    public UUID getWBTypeUUID() {
-      return useWBPropertyTypeInstead;
+      return this.useWBPropertyTypeInstead;
    }
 }
 

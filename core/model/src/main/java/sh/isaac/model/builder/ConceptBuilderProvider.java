@@ -92,9 +92,9 @@ public class ConceptBuilderProvider
       return new ConceptBuilderOchreImpl(conceptName,
                                          semanticTag,
                                          logicalExpression,
-                                         defaultLanguageForDescriptions,
-                                         defaultDialectAssemblageForDescriptions,
-                                         defaultLogicCoordinate);
+                                         this.defaultLanguageForDescriptions,
+                                         this.defaultDialectAssemblageForDescriptions,
+                                         this.defaultLogicCoordinate);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -110,12 +110,12 @@ public class ConceptBuilderProvider
 
    @Override
    public ConceptSpecification getDefaultDialectForDescriptions() {
-      return defaultDialectAssemblageForDescriptions;
+      return this.defaultDialectAssemblageForDescriptions;
    }
 
    @Override
    public ConceptSpecification getDefaultLanguageForDescriptions() {
-      return defaultLanguageForDescriptions;
+      return this.defaultLanguageForDescriptions;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -131,7 +131,7 @@ public class ConceptBuilderProvider
 
    @Override
    public LogicCoordinate getDefaultLogicCoordinate() {
-      return defaultLogicCoordinate;
+      return this.defaultLogicCoordinate;
    }
 
    //~--- set methods ---------------------------------------------------------

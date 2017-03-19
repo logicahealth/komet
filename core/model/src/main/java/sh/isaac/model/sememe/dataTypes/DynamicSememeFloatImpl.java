@@ -68,7 +68,7 @@ public class DynamicSememeFloatImpl
 
    public DynamicSememeFloatImpl(float f) {
       super();
-      data_ = DynamicSememeIntegerImpl.intToByteArray(Float.floatToIntBits(f));
+      this.data_ = DynamicSememeIntegerImpl.intToByteArray(Float.floatToIntBits(f));
    }
 
    protected DynamicSememeFloatImpl(byte[] data, int assemblageSequence, int columnNumber) {
@@ -82,7 +82,7 @@ public class DynamicSememeFloatImpl
     */
    @Override
    public float getDataFloat() {
-      return Float.intBitsToFloat(DynamicSememeIntegerImpl.getIntFromByteArray(data_));
+      return Float.intBitsToFloat(DynamicSememeIntegerImpl.getIntFromByteArray(this.data_));
    }
 
    /**
@@ -90,11 +90,11 @@ public class DynamicSememeFloatImpl
     */
    @Override
    public ReadOnlyObjectProperty<Float> getDataFloatProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataFloat());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataFloat());
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

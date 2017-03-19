@@ -97,7 +97,7 @@ public class PasswordHasher {
     */
    public static boolean check(String password, String stored)
             throws Exception {
-      String[] saltAndPass = stored.split("\\$\\$\\$");
+      final String[] saltAndPass = stored.split("\\$\\$\\$");
 
       if (saltAndPass.length != 2) {
          return false;
@@ -107,7 +107,7 @@ public class PasswordHasher {
          return false;
       }
 
-      String hashOfInput = hash(password, Base64.getUrlDecoder()
+      final String hashOfInput = hash(password, Base64.getUrlDecoder()
                                                 .decode(saltAndPass[0]));
 
       return hashOfInput.equals(saltAndPass[1]);
@@ -115,14 +115,14 @@ public class PasswordHasher {
 
    public static byte[] decrypt(String password, String encryptedData)
             throws Exception {
-      long     startTime   = System.currentTimeMillis();
-      String[] saltAndPass = encryptedData.split("\\$\\$\\$");
+      final long     startTime   = System.currentTimeMillis();
+      final String[] saltAndPass = encryptedData.split("\\$\\$\\$");
 
       if (saltAndPass.length != 2) {
          throw new Exception("Invalid encrypted data, can't find salt");
       }
 
-      byte[] result = decrypt(password, Base64.getUrlDecoder()
+      final byte[] result = decrypt(password, Base64.getUrlDecoder()
                                               .decode(saltAndPass[0]), saltAndPass[1]);
 
       log_.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
@@ -136,13 +136,13 @@ public class PasswordHasher {
 
    public static String encrypt(String password, byte[] data)
             throws Exception {
-      long   startTime = System.currentTimeMillis();
-      byte[] salt      = new byte[saltLen];
+      final long   startTime = System.currentTimeMillis();
+      final byte[] salt      = new byte[saltLen];
 
       secureRandom.nextBytes(salt);
 
       // store the salt with the password
-      String result = Base64.getUrlEncoder()
+      final String result = Base64.getUrlEncoder()
                             .encodeToString(salt) + "$$$" + encrypt(password, salt, data);
 
       log_.debug("Encrypt Time {} ms", System.currentTimeMillis() - startTime);
@@ -171,15 +171,15 @@ public class PasswordHasher {
     */
    public static String hash(String password, byte[] salt, int iterationCount, int keyLength)
             throws Exception {
-      long startTime = System.currentTimeMillis();
+      final long startTime = System.currentTimeMillis();
 
       if ((password == null) || (password.length() == 0)) {
          throw new IllegalArgumentException("Empty passwords are not supported.");
       }
 
-      SecretKeyFactory f      = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
-      SecretKey        key = f.generateSecret(new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength));
-      String           result = Base64.getUrlEncoder()
+      final SecretKeyFactory f      = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final SecretKey        key = f.generateSecret(new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength));
+      final String           result = Base64.getUrlEncoder()
                                       .encodeToString(key.getEncoded());
 
       log_.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
@@ -188,12 +188,12 @@ public class PasswordHasher {
 
    private static byte[] decrypt(String password, byte[] salt, String data)
             throws Exception {
-      SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
-      SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray(),
+      final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray(),
                                                                salt,
                                                                iterations,
                                                                desiredKeyLen));
-      Cipher pbeCipher = Cipher.getInstance(cipherAlgorithm);
+      final Cipher pbeCipher = Cipher.getInstance(cipherAlgorithm);
 
       pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(salt, iterations));
 
@@ -202,7 +202,7 @@ public class PasswordHasher {
       try {
          decrypted = pbeCipher.doFinal(Base64.getUrlDecoder()
                .decode(data));
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new Exception("Invalid decryption password");
       }
 
@@ -210,9 +210,9 @@ public class PasswordHasher {
          Locale.setDefault(Locale.US);  // ensure .equals below is using same Locale. (Fortify)
 
          // The last 40 bytes should be the SHA1 Sum
-         String checkSum = new String(Arrays.copyOfRange(decrypted, decrypted.length - 40, decrypted.length));
-         byte[] userData = Arrays.copyOf(decrypted, decrypted.length - 40);
-         String computed = ChecksumGenerator.calculateChecksum("SHA1", userData);
+         final String checkSum = new String(Arrays.copyOfRange(decrypted, decrypted.length - 40, decrypted.length));
+         final byte[] userData = Arrays.copyOf(decrypted, decrypted.length - 40);
+         final String computed = ChecksumGenerator.calculateChecksum("SHA1", userData);
 
          if (!checkSum.equals(computed)) {
             throw new Exception("Invalid decryption password, or truncated data");
@@ -226,19 +226,19 @@ public class PasswordHasher {
 
    private static String encrypt(String password, byte[] salt, byte[] data)
             throws Exception {
-      SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
-      SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray(),
+      final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray(),
                                                                salt,
                                                                iterations,
                                                                desiredKeyLen));
-      Cipher pbeCipher = Cipher.getInstance(cipherAlgorithm);
+      final Cipher pbeCipher = Cipher.getInstance(cipherAlgorithm);
 
       pbeCipher.init(Cipher.ENCRYPT_MODE, key, new PBEParameterSpec(salt, iterations));
 
       // attach a sha1 checksum to the end of the data, so we know if we decrypted it properly.
-      byte[]     dataCheckSum = ChecksumGenerator.calculateChecksum("SHA1", data)
+      final byte[]     dataCheckSum = ChecksumGenerator.calculateChecksum("SHA1", data)
                                                  .getBytes();
-      ByteBuffer temp         = ByteBuffer.allocate(data.length + dataCheckSum.length);
+      final ByteBuffer temp         = ByteBuffer.allocate(data.length + dataCheckSum.length);
 
       temp.put(data);
       temp.put(dataCheckSum);
@@ -254,13 +254,13 @@ public class PasswordHasher {
     */
    public static String getSaltedHash(String password)
             throws Exception {
-      long   startTime = System.currentTimeMillis();
-      byte[] salt      = new byte[saltLen];
+      final long   startTime = System.currentTimeMillis();
+      final byte[] salt      = new byte[saltLen];
 
       secureRandom.nextBytes(salt);
 
       // store the salt with the password
-      String result = Base64.getUrlEncoder()
+      final String result = Base64.getUrlEncoder()
                             .encodeToString(salt) + "$$$" + hash(password, salt);
 
       log_.debug("Compute Salted Hash time {} ms", System.currentTimeMillis() - startTime);

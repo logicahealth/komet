@@ -82,15 +82,15 @@ public class SearchResultsIntersectionFilter
    public SearchResultsIntersectionFilter(Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>>... passedFilters) {
       if (passedFilters != null) {
-         for (Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: passedFilters) {
-            filters.add(filter);
+         for (final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: passedFilters) {
+            this.filters.add(filter);
          }
       }
    }
 
    public SearchResultsIntersectionFilter(List<Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>>> passedFilters) {
-      filters.addAll(passedFilters);
+      this.filters.addAll(passedFilters);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -102,8 +102,8 @@ public class SearchResultsIntersectionFilter
    public List<CompositeSearchResult> apply(List<CompositeSearchResult> results) {
       List<CompositeSearchResult> filteredResults = results;
 
-      for (Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: filters) {
-         int numResultsToFilter = filteredResults.size();
+      for (final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: this.filters) {
+         final int numResultsToFilter = filteredResults.size();
 
          LOG.debug("Applying SearchResultsFilter " + filter + " to " + numResultsToFilter + " search results");
          filteredResults = filter.apply(filteredResults);
@@ -116,13 +116,13 @@ public class SearchResultsIntersectionFilter
 
    @Override
    public String toString() {
-      return "SearchResultsIntersectionFilter [filters=" + Arrays.toString(filters.toArray()) + "]";
+      return "SearchResultsIntersectionFilter [filters=" + Arrays.toString(this.filters.toArray()) + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public Collection<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> getFilters() {
-      return filters;
+      return this.filters;
    }
 }
 

@@ -74,10 +74,10 @@ import sh.isaac.api.UserRoleService;
 public class SimpleUserRoleService
          implements UserRoleService {
    /** The user role map  (for Unit Testing) */
-   private Map<UUID, Set<UserRole>> userRoleMap = new HashMap<>();
+   private final Map<UUID, Set<UserRole>> userRoleMap = new HashMap<>();
 
    /** The definition roles. */
-   private Set<UserRole> definitionRoles = new HashSet<>();
+   private final Set<UserRole> definitionRoles = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
 
@@ -91,11 +91,11 @@ public class SimpleUserRoleService
    //~--- methods -------------------------------------------------------------
 
    public void addRole(UserRole roleName) {
-      definitionRoles.add(roleName);
+      this.definitionRoles.add(roleName);
    }
 
    public void addUser(UUID user, Set<UserRole> roles) {
-      userRoleMap.put(user, roles);
+      this.userRoleMap.put(user, roles);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -106,7 +106,7 @@ public class SimpleUserRoleService
     */
    @Override
    public Set<UserRole> getAllUserRoles() {
-      return definitionRoles;
+      return this.definitionRoles;
    }
 
    /**
@@ -115,7 +115,7 @@ public class SimpleUserRoleService
     */
    @Override
    public Set<UserRole> getUserRoles(UUID userId) {
-      return userRoleMap.get(userId);
+      return this.userRoleMap.get(userId);
    }
 }
 

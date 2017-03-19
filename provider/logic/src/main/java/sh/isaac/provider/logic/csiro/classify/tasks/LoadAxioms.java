@@ -76,7 +76,7 @@ public class LoadAxioms
       LookupService.getService(MemoryManagementService.class)
                    .setMemoryConfiguration(MemoryConfigurations.CLASSIFY);
 
-      ClassifierData cd = ClassifierData.get(stampCoordinate, logicCoordinate);
+      final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
 
       cd.loadAxioms();
       return null;

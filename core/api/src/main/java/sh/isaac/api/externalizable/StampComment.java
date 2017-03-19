@@ -60,12 +60,12 @@ public class StampComment
    //~--- constructors --------------------------------------------------------
 
    public StampComment(ByteArrayDataBuffer in) {
-      byte version = in.getByte();
+      final byte version = in.getByte();
 
       if (version == getDataFormatVersion()) {
-         stampSequence = StampUniversal.get(in)
+         this.stampSequence = StampUniversal.get(in)
                                        .getStampSequence();
-         comment       = in.readUTF();
+         this.comment       = in.readUTF();
       } else {
          throw new UnsupportedOperationException("Can't handle version: " + version);
       }
@@ -81,20 +81,20 @@ public class StampComment
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
       out.putByte(getDataFormatVersion());
-      StampUniversal.get(stampSequence)
+      StampUniversal.get(this.stampSequence)
                     .writeExternal(out);
-      out.putUTF(comment);
+      out.putUTF(this.comment);
    }
 
    @Override
    public String toString() {
-      return "StampComment{" + "comment='" + comment + '\'' + ", stampSequence=" + stampSequence + '}';
+      return "StampComment{" + "comment='" + this.comment + '\'' + ", stampSequence=" + this.stampSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getComment() {
-      return comment;
+      return this.comment;
    }
 
    @Override
@@ -108,7 +108,7 @@ public class StampComment
    }
 
    public int getStampSequence() {
-      return stampSequence;
+      return this.stampSequence;
    }
 }
 

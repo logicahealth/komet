@@ -70,7 +70,7 @@ public class LiteralNodeInteger
                              DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      literalValue = dataInputStream.readInt();
+      this.literalValue = dataInputStream.readInt();
    }
 
    public LiteralNodeInteger(LogicalExpressionOchreImpl logicGraphVersion, int literalValue) {
@@ -94,16 +94,16 @@ public class LiteralNodeInteger
          return false;
       }
 
-      LiteralNodeInteger that = (LiteralNodeInteger) o;
+      final LiteralNodeInteger that = (LiteralNodeInteger) o;
 
-      return literalValue == that.literalValue;
+      return this.literalValue == that.literalValue;
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + literalValue;
+      result = 31 * result + this.literalValue;
       return result;
    }
 
@@ -114,32 +114,32 @@ public class LiteralNodeInteger
 
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Integer literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+      return "Integer literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
 
    @Override
    protected int compareFields(LogicNode o) {
-      LiteralNodeInteger that = (LiteralNodeInteger) o;
+      final LiteralNodeInteger that = (LiteralNodeInteger) o;
 
       return that.literalValue - this.literalValue;
    }
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Integer.toString(literalValue));
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Integer.toString(this.literalValue));
    }
 
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeInt(literalValue);
+      dataOutput.writeInt(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getLiteralValue() {
-      return literalValue;
+      return this.literalValue;
    }
 
    @Override

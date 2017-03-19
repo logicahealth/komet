@@ -98,12 +98,12 @@ public class ConceptIsDescendentOf
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      ConceptSpecification descendentOfSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                                   .get(descendentOfSpecKey);
-      int parentNid = descendentOfSpec.getNid();
-      ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                      .get(this.viewCoordinateKey);
+      final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                   .get(this.descendentOfSpecKey);
+      final int parentNid = descendentOfSpec.getNid();
+      final ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
                                                       .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
 
       descendentOfSequenceSet.remove(parentNid);
@@ -125,13 +125,13 @@ public class ConceptIsDescendentOf
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_IS_DESCENDENT_OF);
       whereClause.getLetKeys()
-                 .add(descendentOfSpecKey);
+                 .add(this.descendentOfSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

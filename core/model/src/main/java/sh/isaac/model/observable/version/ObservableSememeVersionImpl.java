@@ -63,22 +63,22 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
 
    @Override
    public int getAssemblageSequence() {
-      return stampedVersion.getAssemblageSequence();
+      return this.stampedVersion.getAssemblageSequence();
    }
 
    @Override
    public ObservableSememeChronology<V> getChronology() {
-      return (ObservableSememeChronology<V>) chronology;
+      return (ObservableSememeChronology<V>) this.chronology;
    }
 
    @Override
    public int getReferencedComponentNid() {
-      return stampedVersion.getReferencedComponentNid();
+      return this.stampedVersion.getReferencedComponentNid();
    }
 
    @Override
    public int getSememeSequence() {
-      return stampedVersion.getSememeSequence();
+      return this.stampedVersion.getSememeSequence();
    }
 }
 

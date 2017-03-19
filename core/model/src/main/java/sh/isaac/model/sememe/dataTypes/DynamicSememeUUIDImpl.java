@@ -79,11 +79,11 @@ public class DynamicSememeUUIDImpl
          throw new RuntimeException("The uuid value cannot be null", null);
       }
 
-      ByteBuffer b = ByteBuffer.allocate(16);
+      final ByteBuffer b = ByteBuffer.allocate(16);
 
       b.putLong(uuid.getMostSignificantBits());
       b.putLong(uuid.getLeastSignificantBits());
-      data_ = b.array();
+      this.data_ = b.array();
    }
 
    protected DynamicSememeUUIDImpl(byte[] data, int assemblageSequence, int columnNumber) {
@@ -113,9 +113,9 @@ public class DynamicSememeUUIDImpl
     */
    @Override
    public UUID getDataUUID() {
-      ByteBuffer b     = ByteBuffer.wrap(data_);
-      long       most  = b.getLong();
-      long       least = b.getLong();
+      final ByteBuffer b     = ByteBuffer.wrap(this.data_);
+      final long       most  = b.getLong();
+      final long       least = b.getLong();
 
       return new UUID(most, least);
    }
@@ -126,11 +126,11 @@ public class DynamicSememeUUIDImpl
     */
    @Override
    public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
       }
 
-      return property_;
+      return this.property_;
    }
 }
 

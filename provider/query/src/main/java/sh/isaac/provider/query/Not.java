@@ -90,13 +90,13 @@ public class Not
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      this.forSet = enclosingQuery.getForSet();
-      assert forSet != null;
+      this.forSet = this.enclosingQuery.getForSet();
+      assert this.forSet != null;
 
-      ConceptSequenceSet activeSet = new ConceptSequenceSet();
+      final ConceptSequenceSet activeSet = new ConceptSequenceSet();
 
       Get.conceptService().getConceptChronologyStream(ConceptSequenceSet.of(incomingComponents)).forEach((ConceptChronology cc) -> {
-                     Optional<ConceptVersion> latestVersion =
+                     final Optional<ConceptVersion> latestVersion =
                         cc.getLatestVersion(ConceptVersion.class, getEnclosingQuery().getStampCoordinate());
 
                      if (latestVersion.isPresent()) {
@@ -104,22 +104,22 @@ public class Not
                      }
                   });
       getChildren().stream().forEach((c) -> {
-                               notSet.or(c.computeComponents(incomingComponents));
+                               this.notSet.or(c.computeComponents(incomingComponents));
                             });
-      forSet = NidSet.of(activeSet);
-      forSet.andNot(notSet);
-      return forSet;
+      this.forSet = NidSet.of(activeSet);
+      this.forSet.andNot(this.notSet);
+      return this.forSet;
    }
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       this.notSet = new NidSet();
 
-      for (Clause c: getChildren()) {
-         for (ClauseComputeType cp: c.getComputePhases()) {
+      for (final Clause c: getChildren()) {
+         for (final ClauseComputeType cp: c.getComputePhases()) {
             switch (cp) {
             case PRE_ITERATION:
-               notSet.or(c.computePossibleComponents(incomingPossibleComponents));
+               this.notSet.or(c.computePossibleComponents(incomingPossibleComponents));
                break;
 
             case ITERATION:
@@ -140,11 +140,11 @@ public class Not
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.NOT);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

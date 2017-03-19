@@ -85,15 +85,15 @@ public class PreferredNameForConcept
 
    @Override
    public NidSet computeComponents(NidSet incomingConcepts) {
-      LanguageCoordinate languageCoordinate    = getEnclosingQuery().getLanguageCoordinate();
-      StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
-      NidSet             outgoingPreferredNids = new NidSet();
+      final LanguageCoordinate languageCoordinate    = getEnclosingQuery().getLanguageCoordinate();
+      final StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
+      final NidSet             outgoingPreferredNids = new NidSet();
 
       getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> ConceptSequenceSet.of(childPossibleComponentNids)).forEach((conceptSequenceSet) -> {
                                Get.conceptService()
                                   .getConceptChronologyStream(conceptSequenceSet)
                                   .forEach((conceptChronology) -> {
-                                              Optional<LatestVersion<DescriptionSememe<?>>> desc =
+                                              final Optional<LatestVersion<DescriptionSememe<?>>> desc =
                                                  conceptChronology.getPreferredDescription(
                                                     languageCoordinate, stampCoordinate);
 
@@ -121,7 +121,7 @@ public class PreferredNameForConcept
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.PREFERRED_NAME_FOR_CONCEPT);
       getChildren().stream().forEach((clause) -> {

@@ -86,7 +86,7 @@ public class ConceptNodeWithUuids
                                DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      conceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.conceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
 
    public ConceptNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID conceptUuid) {
@@ -115,16 +115,16 @@ public class ConceptNodeWithUuids
          return false;
       }
 
-      ConceptNodeWithUuids that = (ConceptNodeWithUuids) o;
+      final ConceptNodeWithUuids that = (ConceptNodeWithUuids) o;
 
-      return conceptUuid.equals(that.conceptUuid);
+      return this.conceptUuid.equals(that.conceptUuid);
    }
 
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + conceptUuid.hashCode();
+      result = 31 * result + this.conceptUuid.hashCode();
       return result;
    }
 
@@ -136,7 +136,7 @@ public class ConceptNodeWithUuids
    @Override
    public String toString(String nodeIdSuffix) {
       return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" +
-             Get.conceptService().getConcept(conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
+             Get.conceptService().getConcept(this.conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
    }
 
    @Override
@@ -144,12 +144,12 @@ public class ConceptNodeWithUuids
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
-         dataOutput.writeLong(conceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(conceptUuid.getLeastSignificantBits());
+         dataOutput.writeLong(this.conceptUuid.getMostSignificantBits());
+         dataOutput.writeLong(this.conceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:
-         ConceptNodeWithSequences internalForm = new ConceptNodeWithSequences(this);
+         final ConceptNodeWithSequences internalForm = new ConceptNodeWithSequences(this);
 
          internalForm.writeNodeData(dataOutput, dataTarget);
          break;
@@ -161,12 +161,12 @@ public class ConceptNodeWithUuids
 
    @Override
    protected int compareFields(LogicNode o) {
-      return conceptUuid.compareTo(((ConceptNodeWithUuids) o).conceptUuid);
+      return this.conceptUuid.compareTo(((ConceptNodeWithUuids) o).conceptUuid);
    }
 
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), conceptUuid.toString());
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.conceptUuid.toString());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -177,7 +177,7 @@ public class ConceptNodeWithUuids
    }
 
    public UUID getConceptUuid() {
-      return conceptUuid;
+      return this.conceptUuid;
    }
 
    @Override

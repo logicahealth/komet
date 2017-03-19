@@ -86,7 +86,7 @@ public class MappingUtils {
    //~--- get methods ---------------------------------------------------------
 
    public static List<SimpleDisplayConcept> getCodeSystems() {
-      List<SimpleDisplayConcept> codeSystems = new ArrayList<SimpleDisplayConcept>();
+      final List<SimpleDisplayConcept> codeSystems = new ArrayList<SimpleDisplayConcept>();
 
       CODE_SYSTEM_CONCEPTS.entrySet()
                           .forEach((item) -> codeSystems.add(new SimpleDisplayConcept(item.getKey(),
@@ -100,9 +100,9 @@ public class MappingUtils {
 
    public static List<SimpleDisplayConcept> getQualifierConcepts()
             throws IOException {
-      ArrayList<SimpleDisplayConcept> result = new ArrayList<>();
+      final ArrayList<SimpleDisplayConcept> result = new ArrayList<>();
 
-      for (Integer conSequence: Frills.getAllChildrenOfConcept(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES
+      for (final Integer conSequence: Frills.getAllChildrenOfConcept(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES
             .getSequence(),
             true,
             false)) {
@@ -116,7 +116,7 @@ public class MappingUtils {
    public static List<SimpleDisplayConcept> getStatusConcepts()
             throws IOException {
       // TODO why is this commented out / broken?
-      ArrayList<SimpleDisplayConcept> result = new ArrayList<>();
+      final ArrayList<SimpleDisplayConcept> result = new ArrayList<>();
 
 //    for (Integer conSequence : Frills.getAllChildrenOfConcept(IsaacMappingConstants.get().MAPPING_STATUS.getSequence(), true, false))
 //    {

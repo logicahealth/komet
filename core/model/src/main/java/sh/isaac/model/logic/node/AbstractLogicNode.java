@@ -91,7 +91,7 @@ public abstract class AbstractLogicNode
    public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion,
                             DataInputStream dataInputStream)
             throws IOException {
-      nodeIndex              = dataInputStream.readShort();
+      this.nodeIndex              = dataInputStream.readShort();
       this.logicGraphVersion = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }
@@ -139,9 +139,9 @@ public abstract class AbstractLogicNode
 
    @Override
    public String fragmentToString(String nodeIdSuffix) {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
-      logicGraphVersion.processDepthFirst(this,
+      this.logicGraphVersion.processDepthFirst(this,
             (LogicNode logicNode,
              TreeNodeVisitData graphVisitData) -> {
                for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
@@ -156,7 +156,7 @@ public abstract class AbstractLogicNode
 
    @Override
    public int hashCode() {
-      return (int) nodeIndex;
+      return this.nodeIndex;
    }
 
    @Override
@@ -190,14 +190,14 @@ public abstract class AbstractLogicNode
    public byte[] getBytes(DataTarget dataTarget) {
       try {
          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            DataOutputStream output = new DataOutputStream(outputStream);
+            final DataOutputStream output = new DataOutputStream(outputStream);
 
             output.writeByte(getNodeSemantic().ordinal());
-            output.writeShort(nodeIndex);
+            output.writeShort(this.nodeIndex);
             writeNodeData(output, dataTarget);
             return outputStream.toByteArray();
          }
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
@@ -207,14 +207,14 @@ public abstract class AbstractLogicNode
 
    @Override
    public AbstractLogicNode[] getDescendents() {
-      List<AbstractLogicNode> descendents = new ArrayList<>();
+      final List<AbstractLogicNode> descendents = new ArrayList<>();
 
       getDescendents(this, descendents);
       return descendents.toArray(new AbstractLogicNode[descendents.size()]);
    }
 
    private void getDescendents(AbstractLogicNode parent, List<AbstractLogicNode> descendents) {
-      for (AbstractLogicNode child: parent.getChildren()) {
+      for (final AbstractLogicNode child: parent.getChildren()) {
          descendents.add(child);
          getDescendents(child, descendents);
       }
@@ -222,7 +222,7 @@ public abstract class AbstractLogicNode
 
    @Override
    public short getNodeIndex() {
-      return nodeIndex;
+      return this.nodeIndex;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -242,11 +242,11 @@ public abstract class AbstractLogicNode
    //~--- get methods ---------------------------------------------------------
 
    protected UUID getNodeUuid() {
-      if (nodeUuid == null) {
-         nodeUuid = initNodeUuid();
+      if (this.nodeUuid == null) {
+         this.nodeUuid = initNodeUuid();
       }
 
-      return nodeUuid;
+      return this.nodeUuid;
    }
 
    ;
@@ -254,12 +254,12 @@ public abstract class AbstractLogicNode
    //~--- get methods ---------------------------------------------------------
 
    public SortedSet<UUID> getNodeUuidSetForDepth(int depth) {
-      SortedSet<UUID> uuidSet = new TreeSet<>();
+      final SortedSet<UUID> uuidSet = new TreeSet<>();
 
       uuidSet.add(getNodeUuid());
 
       if (depth > 1) {
-         for (AbstractLogicNode child: getChildren()) {
+         for (final AbstractLogicNode child: getChildren()) {
             uuidSet.addAll(child.getNodeUuidSetForDepth(depth - 1));
          }
       }

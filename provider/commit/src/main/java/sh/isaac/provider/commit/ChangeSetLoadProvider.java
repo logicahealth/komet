@@ -120,20 +120,20 @@ public class ChangeSetLoadProvider
    @Override
    public int readChangesetFiles()
             throws IOException {
-      AtomicInteger loaded  = new AtomicInteger();
-      AtomicInteger skipped = new AtomicInteger();
+      final AtomicInteger loaded  = new AtomicInteger();
+      final AtomicInteger skipped = new AtomicInteger();
 
-      LOG.debug("Looking for .ibdf file in {}.", changesetPath.toAbsolutePath());
+      LOG.debug("Looking for .ibdf file in {}.", this.changesetPath.toAbsolutePath());
 
-      CommitService commitService = Get.commitService();
+      final CommitService commitService = Get.commitService();
 
-      Files.newDirectoryStream(changesetPath, path -> path.toFile().isFile() && path.toString().endsWith(".ibdf"))
+      Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile() && path.toString().endsWith(".ibdf"))
            .forEach(path -> {
                        LOG.debug("File {}", path.toAbsolutePath());
 
                        try {
-                          if ((processedChangesets !=
-                               null) && processedChangesets.containsKey(path.getFileName().toString())) {
+                          if ((this.processedChangesets !=
+                               null) && this.processedChangesets.containsKey(path.getFileName().toString())) {
                              skipped.incrementAndGet();
                              LOG.debug("Skipping already processed changeset file");
                           } else {
@@ -144,12 +144,12 @@ public class ChangeSetLoadProvider
                                          });
                              commitService.postProcessImportNoChecks();
 
-                             if (processedChangesets != null) {
-                                processedChangesets.put(path.getFileName()
+                             if (this.processedChangesets != null) {
+                                this.processedChangesets.put(path.getFileName()
                                       .toString(), true);
                              }
                           }
-                       } catch (FileNotFoundException e) {
+                       } catch (final FileNotFoundException e) {
                           LOG.error("Change Set Load Provider failed to load file {}", path.toAbsolutePath());
                           throw new RuntimeException(e);
                        }
@@ -161,14 +161,14 @@ public class ChangeSetLoadProvider
    }
 
    private UUID readSememeDbId() {
-      Optional<SememeChronology<? extends SememeVersion<?>>> sdic = Get.sememeService()
+      final Optional<SememeChronology<? extends SememeVersion<?>>> sdic = Get.sememeService()
                                                                        .getSememesForComponentFromAssemblage(
                                                                           TermAux.ISAAC_ROOT.getNid(),
                                                                                 TermAux.DATABASE_UUID.getConceptSequence())
                                                                        .findFirst();
 
       if (sdic.isPresent()) {
-         Optional<LatestVersion<StringSememe>> sdi =
+         final Optional<LatestVersion<StringSememe>> sdi =
             ((SememeChronology) sdic.get()).getLatestVersion(StringSememe.class,
                                                              StampCoordinates.getDevelopmentLatest());
 
@@ -177,7 +177,7 @@ public class ChangeSetLoadProvider
                return UUID.fromString(sdi.get()
                                          .value()
                                          .getString());
-            } catch (Exception e) {
+            } catch (final Exception e) {
                LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
             }
          }
@@ -192,17 +192,17 @@ public class ChangeSetLoadProvider
          LOG.info("Loading change set files.");
          databasePath  = LookupService.getService(ConfigurationService.class)
                                       .getDataStoreFolderPath();
-         changesetPath = databasePath.get()
+         this.changesetPath = databasePath.get()
                                      .resolve(CHANGESETS);
-         Files.createDirectories(changesetPath);
+         Files.createDirectories(this.changesetPath);
 
-         if (!changesetPath.toFile()
+         if (!this.changesetPath.toFile()
                            .isDirectory()) {
             throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
-                                       changesetPath.toAbsolutePath());
+                                       this.changesetPath.toAbsolutePath());
          }
 
-         UUID chronicleDbId = Get.conceptService()
+         final UUID chronicleDbId = Get.conceptService()
                                  .getDataStoreId();
 
          if (chronicleDbId == null) {
@@ -210,19 +210,19 @@ public class ChangeSetLoadProvider
          }
 
          UUID changesetsDbId   = null;
-         Path changesetsIdPath = changesetPath.resolve(CHANGESETS_ID);
+         final Path changesetsIdPath = this.changesetPath.resolve(CHANGESETS_ID);
 
          if (changesetsIdPath.toFile()
                              .exists()) {
             try {
                changesetsDbId = UUID.fromString(new String(Files.readAllBytes(changesetsIdPath)));
-            } catch (Exception e) {
+            } catch (final Exception e) {
                LOG.warn("The " + CHANGESETS_ID + " file does not contain a valid UUID!", e);
             }
          }
 
          try {
-            Path mavenMetadataIdentityPath = changesetPath.resolve(MAVEN_ARTIFACT_IDENTITY);
+            final Path mavenMetadataIdentityPath = this.changesetPath.resolve(MAVEN_ARTIFACT_IDENTITY);
 
             if (!mavenMetadataIdentityPath.toFile()
                                           .exists()) {
@@ -231,7 +231,7 @@ public class ChangeSetLoadProvider
                      .toString()
                      .getBytes());
             }
-         } catch (Exception e) {
+         } catch (final Exception e) {
             LOG.error("Error writing maven artifact identity file", e);
          }
 
@@ -239,7 +239,7 @@ public class ChangeSetLoadProvider
 
          if (((sememeDbId != null) &&!sememeDbId.equals(chronicleDbId)) ||
                ((changesetsDbId != null) &&!changesetsDbId.equals(chronicleDbId))) {
-            StringBuilder msg = new StringBuilder();
+            final StringBuilder msg = new StringBuilder();
 
             msg.append("Database identity mismatch!  ChronicleDbId: ")
                .append(chronicleDbId);
@@ -261,13 +261,13 @@ public class ChangeSetLoadProvider
          // files that "appear" in this folder via the git integration, for example, we will need to process - but files that we create
          // during normal operation do not need to be reprocessed.  The BinaryDataWriterProvider also automatically updates this list with the
          // files as it writes them.
-         MetaContentService mcs = LookupService.get()
+         final MetaContentService mcs = LookupService.get()
                                                .getService(MetaContentService.class);
 
-         processedChangesets = (mcs == null) ? null
+         this.processedChangesets = (mcs == null) ? null
                : mcs.<String, Boolean>openStore("processedChangesets");
 
-         int loaded = readChangesetFiles();
+         final int loaded = readChangesetFiles();
 
          if (sememeDbId == null) {
             sememeDbId = readSememeDbId();
@@ -287,7 +287,7 @@ public class ChangeSetLoadProvider
                   .commit("Storing database ID on root concept");
             }
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          LOG.error("Error ", e);
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Change Set Load Provider", e);

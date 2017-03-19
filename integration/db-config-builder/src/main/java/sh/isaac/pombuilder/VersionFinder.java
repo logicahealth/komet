@@ -73,12 +73,12 @@ public class VersionFinder {
    public static String findProjectVersion() {
       try (InputStream is =
             VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.modules/db-config-builder/pom.xml");) {
-         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+         final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
          // added to avoid XXE injections
          domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
-         DocumentBuilder builder = domFactory.newDocumentBuilder();
+         final DocumentBuilder builder = domFactory.newDocumentBuilder();
          Document        dDoc;
 
          if (is != null) {
@@ -87,13 +87,13 @@ public class VersionFinder {
             dDoc = builder.parse(new File("pom.xml"));  // running in eclipse, this should work.
          }
 
-         XPath  xPath = XPathFactory.newInstance()
+         final XPath  xPath = XPathFactory.newInstance()
                                     .newXPath();
-         String temp  = ((Node) xPath.evaluate("/project/parent/version", dDoc, XPathConstants.NODE)).getTextContent();
+         final String temp  = ((Node) xPath.evaluate("/project/parent/version", dDoc, XPathConstants.NODE)).getTextContent();
 
          LOG.debug("VersionFinder finds {} (for the version of this release of the converter library)", temp);
          return temp;
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException(e);
       }
    }

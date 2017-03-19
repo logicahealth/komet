@@ -70,7 +70,7 @@ public class WeakArrayChangeListener
 
    @Override
    public void onChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
-      ArrayChangeListener<ObservableIntegerArray> listener = ref.get();
+      final ArrayChangeListener<ObservableIntegerArray> listener = this.ref.get();
 
       if (listener != null) {
          listener.onChanged(observableArray, sizeChanged, from, to);
@@ -84,7 +84,7 @@ public class WeakArrayChangeListener
 
    @Override
    public boolean wasGarbageCollected() {
-      return (ref.get() == null);
+      return (this.ref.get() == null);
    }
 }
 

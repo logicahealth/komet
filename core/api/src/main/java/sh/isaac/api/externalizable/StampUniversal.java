@@ -88,8 +88,8 @@ public class StampUniversal {
    }
 
    public StampUniversal(int stamp) {
-      StampService      stampService = Get.stampService();
-      IdentifierService idService    = Get.identifierService();
+      final StampService      stampService = Get.stampService();
+      final IdentifierService idService    = Get.identifierService();
 
       this.status     = stampService.getStatusForStamp(stamp);
       this.time       = stampService.getTimeForStamp(stamp);
@@ -105,7 +105,7 @@ public class StampUniversal {
 
    public void writeExternal(ByteArrayDataBuffer out) {
       out.putBoolean(this.status.getBoolean());
-      out.putLong(time);
+      out.putLong(this.time);
       out.putLong(this.authorUuid.getMostSignificantBits());
       out.putLong(this.authorUuid.getLeastSignificantBits());
       out.putLong(this.moduleUuid.getMostSignificantBits());
@@ -117,7 +117,7 @@ public class StampUniversal {
    //~--- get methods ---------------------------------------------------------
 
    public UUID getAuthorUuid() {
-      return authorUuid;
+      return this.authorUuid;
    }
 
    public static StampUniversal get(ByteArrayDataBuffer in) {
@@ -129,30 +129,30 @@ public class StampUniversal {
    }
 
    public UUID getModuleUuid() {
-      return moduleUuid;
+      return this.moduleUuid;
    }
 
    public UUID getPathUuid() {
-      return pathUuid;
+      return this.pathUuid;
    }
 
    public int getStampSequence() {
-      IdentifierService idService = Get.identifierService();
+      final IdentifierService idService = Get.identifierService();
 
       return Get.stampService()
-                .getStampSequence(status,
-                                  time,
+                .getStampSequence(this.status,
+                                  this.time,
                                   idService.getConceptSequenceForUuids(this.authorUuid),
                                   idService.getConceptSequenceForUuids(this.moduleUuid),
                                   idService.getConceptSequenceForUuids(this.pathUuid));
    }
 
    public State getStatus() {
-      return status;
+      return this.status;
    }
 
    public long getTime() {
-      return time;
+      return this.time;
    }
 }
 

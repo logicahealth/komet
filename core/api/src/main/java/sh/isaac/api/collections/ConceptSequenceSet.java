@@ -106,7 +106,7 @@ public class ConceptSequenceSet
 
    @Override
    public void addAll(IntStream intStream) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       super.addAll(intStream.map((item) -> {
                                     return sp.getConceptSequence(item);
@@ -114,7 +114,7 @@ public class ConceptSequenceSet
    }
 
    public void addAll(OpenIntHashSet conceptsReferencedAtNodeOrAbove) {
-      IdentifierService ids = Get.identifierService();
+      final IdentifierService ids = Get.identifierService();
 
       conceptsReferencedAtNodeOrAbove.forEachKey((id) -> {
                super.add(ids.getConceptSequence(id));
@@ -133,7 +133,7 @@ public class ConceptSequenceSet
    }
 
    public static ConceptSequenceSet of(Collection<Integer> members) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new ConceptSequenceSet(members.stream().mapToInt((id) -> sp.getConceptSequence(id)));
    }
@@ -143,7 +143,7 @@ public class ConceptSequenceSet
    }
 
    public static ConceptSequenceSet of(int... members) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new ConceptSequenceSet(Arrays.stream(members).map((id) -> sp.getConceptSequence(id)));
    }
@@ -153,7 +153,7 @@ public class ConceptSequenceSet
    }
 
    public static ConceptSequenceSet of(NidSet nidSet) {
-      IdentifierService ids = Get.identifierService();
+      final IdentifierService ids = Get.identifierService();
 
       return new ConceptSequenceSet(nidSet.stream().map((nid) -> ids.getConceptSequence(nid)));
    }

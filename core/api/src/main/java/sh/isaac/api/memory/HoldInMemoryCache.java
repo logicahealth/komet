@@ -63,20 +63,20 @@ public class HoldInMemoryCache {
    //~--- methods -------------------------------------------------------------
 
    public static void addToCache(MemoryManagedReference newRef) {
-      Set<MemoryManagedReference> cache = cacheRef.get();
+      final Set<MemoryManagedReference> cache = cacheRef.get();
 
       if (!cache.contains(newRef)) {
          newRef.cacheEntry();
          cache.add(newRef);
 
-         int count = cacheCount.incrementAndGet();
+         final int count = cacheCount.incrementAndGet();
 
          if (count > CACHE_SIZE) {
             if (cacheRef.compareAndSet(cache, new ConcurrentSkipListSet<>())) {
                queue.addFirst(cache);
 
                while (queue.size() > GENERATIONS) {
-                  Set<MemoryManagedReference> oldCache = queue.removeLast();
+                  final Set<MemoryManagedReference> oldCache = queue.removeLast();
 
                   oldCache.stream().forEach(memoryManagedReference -> {
                                       memoryManagedReference.cacheExit();

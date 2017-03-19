@@ -98,12 +98,12 @@ public class ConceptIsChildOf
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      ConceptSpecification childOfSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                              .get(childOfSpecKey);
-      int                  parentNid = childOfSpec.getNid();
-      ConceptSequenceSet childrenOfSequenceSet = Get.taxonomyService()
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                      .get(this.viewCoordinateKey);
+      final ConceptSpecification childOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                              .get(this.childOfSpecKey);
+      final int                  parentNid = childOfSpec.getNid();
+      final ConceptSequenceSet childrenOfSequenceSet = Get.taxonomyService()
                                                     .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
 
       getResultsCache().or(NidSet.of(childrenOfSequenceSet));
@@ -124,13 +124,13 @@ public class ConceptIsChildOf
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_IS_CHILD_OF);
       whereClause.getLetKeys()
-                 .add(childOfSpecKey);
+                 .add(this.childOfSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

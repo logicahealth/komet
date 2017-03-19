@@ -171,8 +171,8 @@ public class IsaacMetadataAuxiliary
          createConcept(TermAux.PATH);
          pushParent(current());
 
-         ConceptBuilder developmentPath = createConcept(TermAux.DEVELOPMENT_PATH);
-         ConceptBuilder masterPath      = createConcept(TermAux.MASTER_PATH);
+         final ConceptBuilder developmentPath = createConcept(TermAux.DEVELOPMENT_PATH);
+         final ConceptBuilder masterPath      = createConcept(TermAux.MASTER_PATH);
 
          masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));  // UUID from WB_AUX_PATH
          popParent();
@@ -250,13 +250,13 @@ public class IsaacMetadataAuxiliary
          createConcept("assemblage related to path management");
          pushParent(current());
 
-         ConceptBuilder paths = createConcept("paths assemblage");
+         final ConceptBuilder paths = createConcept("paths assemblage");
 
          paths.mergeFromSpec(TermAux.PATH_ASSEMBLAGE);
          addPath(paths, masterPath);
          addPath(paths, developmentPath);
 
-         ConceptBuilder pathOrigins = createConcept("path origins assemblage");
+         final ConceptBuilder pathOrigins = createConcept("path origins assemblage");
 
          pathOrigins.mergeFromSpec(TermAux.PATH_ORIGIN_ASSEMBLAGE);
 
@@ -276,7 +276,7 @@ public class IsaacMetadataAuxiliary
          createConcept("axiom origin");
          pushParent(current());
 
-         ConceptBuilder stated = createConcept("stated");
+         final ConceptBuilder stated = createConcept("stated");
 
          stated.setPrimordialUuid(
              UUID.fromString(
@@ -285,7 +285,7 @@ public class IsaacMetadataAuxiliary
              UUID.fromString(
                  "3fde38f6-e079-3cdc-a819-eda3ec74732d"));  // merge with "stated (defining characteristic type)"
 
-         ConceptBuilder inferred = createConcept("inferred");
+         final ConceptBuilder inferred = createConcept("inferred");
 
          inferred.setPrimordialUuid(
              "1290e6ba-48d0-31d2-8d62-e133373c63f5");  // merge with "Inferred" SCT ID:    900000000000011006
@@ -294,12 +294,12 @@ public class IsaacMetadataAuxiliary
          createConcept("description type");
          pushParent(current());
 
-         ConceptBuilder fsn = createConcept("fully specified name");
+         final ConceptBuilder fsn = createConcept("fully specified name");
 
          fsn.mergeFromSpec(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE);
          fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66"));       // RF1 FSN
 
-         ConceptBuilder syn = createConcept(TermAux.SYNONYM_DESCRIPTION_TYPE);
+         final ConceptBuilder syn = createConcept(TermAux.SYNONYM_DESCRIPTION_TYPE);
 
          syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
          createConcept("definition description type").mergeFromSpec(TermAux.DEFINITION_DESCRIPTION_TYPE);
@@ -322,7 +322,7 @@ public class IsaacMetadataAuxiliary
          createConcept("taxonomy operator");
          pushParent(current());
 
-         ConceptBuilder isa = createConcept("is-a");
+         final ConceptBuilder isa = createConcept("is-a");
 
          isa.setPrimordialUuid(TermAux.IS_A.getPrimordialUuid());
          isa.addUuids(
@@ -477,7 +477,7 @@ public class IsaacMetadataAuxiliary
          // breaks things in interesting ways when we have ibdf files that references the UUIDs from a
          // MetaData file....
          generateStableUUIDs();
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
          Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
                .log(Level.SEVERE, null, ex);
       }
@@ -487,7 +487,7 @@ public class IsaacMetadataAuxiliary
 
    public static void main(String[] args) {
       try {
-         IsaacMetadataAuxiliary aux = new IsaacMetadataAuxiliary();
+         final IsaacMetadataAuxiliary aux = new IsaacMetadataAuxiliary();
 
          aux.export(new DataOutputStream(new ByteArrayOutputStream(10240)));
       } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {

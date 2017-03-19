@@ -148,17 +148,17 @@ public class IBDFCreationUtility {
    //~--- fields --------------------------------------------------------------
 
    private ComponentReference                       module_                  = null;
-   private HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();
-   private HashSet<UUID>                            conceptHasStatedGraph    = new HashSet<>();
-   private HashSet<UUID>                            conceptHasInferredGraph  = new HashSet<>();
+   private final HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();
+   private final HashSet<UUID>                            conceptHasStatedGraph    = new HashSet<>();
+   private final HashSet<UUID>                            conceptHasInferredGraph  = new HashSet<>();
    private LoadStats                                ls_                      = new LoadStats();
    private final int                                authorSeq_;
    private final int                                terminologyPathSeq_;
    private final long                               defaultTime_;
-   private ConceptBuilderService                    conceptBuilderService_;
-   private LogicalExpressionBuilderService          expressionBuilderService_;
-   private SememeBuilderService<?>                  sememeBuilderService_;
-   private DataWriterService                        writer_;
+   private final ConceptBuilderService                    conceptBuilderService_;
+   private final LogicalExpressionBuilderService          expressionBuilderService_;
+   private final SememeBuilderService<?>                  sememeBuilderService_;
+   private final DataWriterService                        writer_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -229,7 +229,7 @@ public class IBDFCreationUtility {
             throws Exception {
       UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 5000000;
 
-      File file = new File(outputDirectory, "isaac-db");
+      final File file = new File(outputDirectory, "isaac-db");
 
       // make sure this is empty
       FileUtils.deleteDirectory(file);
@@ -239,7 +239,7 @@ public class IBDFCreationUtility {
       if ((ibdfPreLoadFiles != null) && (ibdfPreLoadFiles.length > 0)) {
          ConsoleUtil.println("Loading ibdf files");
 
-         LoadTermstore lt = new LoadTermstore();
+         final LoadTermstore lt = new LoadTermstore();
 
          lt.setLog(new SystemStreamLog());
          lt.setibdfFiles(ibdfPreLoadFiles);
@@ -255,8 +255,8 @@ public class IBDFCreationUtility {
          new IndexTermstore().execute();
       }
 
-      authorSeq_          = MetaData.USER.getConceptSequence();
-      terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();
+      this.authorSeq_          = MetaData.USER.getConceptSequence();
+      this.terminologyPathSeq_ = MetaData.DEVELOPMENT_PATH.getConceptSequence();
 
       // TODO automate this somehow....
       registerDynamicSememeColumnInfo(DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION
@@ -304,15 +304,15 @@ public class IBDFCreationUtility {
                                             null,
                                             true,
                                             true) });
-      conceptBuilderService_ = Get.conceptBuilderService();
-      conceptBuilderService_.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
-      conceptBuilderService_.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
-      conceptBuilderService_.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
-      expressionBuilderService_ = Get.logicalExpressionBuilderService();
-      sememeBuilderService_     = Get.sememeBuilderService();
-      defaultTime_              = defaultTime;
+      this.conceptBuilderService_ = Get.conceptBuilderService();
+      this.conceptBuilderService_.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
+      this.conceptBuilderService_.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
+      this.conceptBuilderService_.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
+      this.expressionBuilderService_ = Get.logicalExpressionBuilderService();
+      this.sememeBuilderService_     = Get.sememeBuilderService();
+      this.defaultTime_              = defaultTime;
 
-      StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
                                                           MetaData.DEVELOPMENT_PATH.getConceptSequence());
 
       readBackStamp_ = new StampCoordinateImpl(StampPrecedence.PATH,
@@ -320,7 +320,7 @@ public class IBDFCreationUtility {
             ConceptSequenceSet.EMPTY,
             State.ANY_STATE_SET);
 
-      UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC,
+      final UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(UuidT5Generator.PATH_ID_FROM_FS_DESC,
                                                                          moduleToCreate.get())
             : preExistingModule.get()
                                .getPrimordialUuid();
@@ -333,16 +333,16 @@ public class IBDFCreationUtility {
 
       // tack the version onto the end of the ibdf file, so that when multiple ibdf files for a single type of content, such as
       // loinc 2.52, loinc 2.54 - we don't have a file name collision during the ibdf build.
-      String outputName = outputArtifactId + (StringUtils.isBlank(outputArtifactClassifier) ? ""
+      final String outputName = outputArtifactId + (StringUtils.isBlank(outputArtifactClassifier) ? ""
             : "-" + outputArtifactClassifier) + "-" + outputArtifactVersion;
 
-      writer_ = new MultipleDataWriterService(outputGson ? Optional.of(new File(outputDirectory,
+      this.writer_ = new MultipleDataWriterService(outputGson ? Optional.of(new File(outputDirectory,
             outputName + ".json").toPath())
             : Optional.empty(),
             Optional.of(new File(outputDirectory, outputName + ".ibdf").toPath()));
 
       if (moduleToCreate.isPresent()) {
-         module_ = ComponentReference.fromConcept(moduleUUID);
+         this.module_ = ComponentReference.fromConcept(moduleUUID);
          createConcept(moduleUUID,
                        moduleToCreate.get(),
                        true,
@@ -350,13 +350,13 @@ public class IBDFCreationUtility {
                              .getPrimordialUuid()
                : MetaData.MODULE.getPrimordialUuid());
       } else {
-         module_ = ComponentReference.fromConcept(preExistingModule.get()
+         this.module_ = ComponentReference.fromConcept(preExistingModule.get()
                .getPrimordialUuid(),
                preExistingModule.get()
                                 .getConceptSequence());
       }
 
-      ConsoleUtil.println("Loading with module '" + module_.getPrimordialUuid() + "' (" + module_.getNid() +
+      ConsoleUtil.println("Loading with module '" + this.module_.getPrimordialUuid() + "' (" + this.module_.getNid() +
                           ") on DEVELOPMENT path");
    }
 
@@ -444,21 +444,22 @@ public class IBDFCreationUtility {
       validateDataTypes(refexDynamicTypeUuid, values);
 
       @SuppressWarnings("rawtypes")
-      SememeBuilder sb = sememeBuilderService_.getDynamicSememeBuilder(referencedComponent.getNid(),
+	final
+      SememeBuilder sb = this.sememeBuilderService_.getDynamicSememeBuilder(referencedComponent.getNid(),
                                                                        Get.identifierService()
                                                                              .getConceptSequenceForUuids(
                                                                                 refexDynamicTypeUuid),
                                                                        values);
 
       if (uuidForCreatedAnnotation == null) {
-         StringBuilder temp = new StringBuilder();
+         final StringBuilder temp = new StringBuilder();
 
          temp.append(refexDynamicTypeUuid.toString());
          temp.append(referencedComponent.getPrimordialUuid()
                                         .toString());
 
          if (values != null) {
-            for (DynamicSememeData d: values) {
+            for (final DynamicSememeData d: values) {
                if (d == null) {
                   temp.append("null");
                } else {
@@ -474,24 +475,24 @@ public class IBDFCreationUtility {
 
       sb.setPrimordialUuid(uuidForCreatedAnnotation);
 
-      ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
-      SememeChronology<DynamicSememe<?>> sc = (SememeChronology<DynamicSememe<?>>) sb.build(createStamp(state,
+      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final SememeChronology<DynamicSememe<?>> sc = (SememeChronology<DynamicSememe<?>>) sb.build(createStamp(state,
                                                                                                         selectTime(time,
                                                                                                               referencedComponent),
                                                                                                         module),
                                                                                             builtObjects);
 
-      for (OchreExternalizable ochreObject: builtObjects) {
-         writer_.put(ochreObject);
+      for (final OchreExternalizable ochreObject: builtObjects) {
+         this.writer_.put(ochreObject);
       }
 
       if ((values == null) || (values.length == 0)) {
-         ls_.addRefsetMember(getOriginStringForUuid(refexDynamicTypeUuid));
+         this.ls_.addRefsetMember(getOriginStringForUuid(refexDynamicTypeUuid));
       } else {
          if (BPT_Associations.isAssociation(refexDynamicTypeUuid)) {
-            ls_.addAssociation(getOriginStringForUuid(refexDynamicTypeUuid));
+            this.ls_.addAssociation(getOriginStringForUuid(refexDynamicTypeUuid));
          } else {
-            ls_.addAnnotation(((referencedComponent.getTypeString()
+            this.ls_.addAnnotation(((referencedComponent.getTypeString()
                   .length() == 0) ? getOriginStringForUuid(referencedComponent.getPrimordialUuid())
                                   : referencedComponent.getTypeString()), getOriginStringForUuid(refexDynamicTypeUuid));
          }
@@ -629,8 +630,9 @@ public class IBDFCreationUtility {
       }
 
       @SuppressWarnings({ "rawtypes" })
+	final
       SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder =
-         sememeBuilderService_.getDescriptionSememeBuilder(Get.identifierService()
+         this.sememeBuilderService_.getDescriptionSememeBuilder(Get.identifierService()
                                                               .getConceptSequenceForUuids((caseSignificant == null)
                                                                  ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE.getPrimordialUuid()
             : caseSignificant),
@@ -643,8 +645,8 @@ public class IBDFCreationUtility {
 
       descBuilder.setPrimordialUuid(descriptionPrimordialUUID);
 
-      List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
-      SememeChronology<DescriptionSememe<?>> newDescription =
+      final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
+      final SememeChronology<DescriptionSememe<?>> newDescription =
          (SememeChronology<DescriptionSememe<?>>) descBuilder.build(createStamp(state,
                                                                                 selectTime(time,
                                                                                       concept),
@@ -654,24 +656,24 @@ public class IBDFCreationUtility {
       if (preferred == null) {
          // noop
       } else {
-         SememeBuilder<?> acceptabilityTypeBuilder = sememeBuilderService_.getComponentSememeBuilder(preferred
+         final SememeBuilder<?> acceptabilityTypeBuilder = this.sememeBuilderService_.getComponentSememeBuilder(preferred
                                                         ? TermAux.PREFERRED.getNid()
                : TermAux.ACCEPTABLE.getNid(), newDescription.getNid(), Get.identifierService()
                      .getConceptSequenceForUuids(dialect));
-         UUID acceptabilityTypePrimordialUUID =
+         final UUID acceptabilityTypePrimordialUUID =
             ConverterUUID.createNamespaceUUIDFromStrings(descriptionPrimordialUUID.toString(),
                                                          dialect.toString());
 
          acceptabilityTypeBuilder.setPrimordialUuid(acceptabilityTypePrimordialUUID);
          acceptabilityTypeBuilder.build(createStamp(state, selectTime(time, concept), module), builtObjects);
-         ls_.addAnnotation("Description", getOriginStringForUuid(dialect));
+         this.ls_.addAnnotation("Description", getOriginStringForUuid(dialect));
       }
 
-      for (OchreExternalizable ochreObject: builtObjects) {
-         writer_.put(ochreObject);
+      for (final OchreExternalizable ochreObject: builtObjects) {
+         this.writer_.put(ochreObject);
       }
 
-      ls_.addDescription(wbDescriptionType.name() + ((sourceDescriptionTypeUUID == null) ? ""
+      this.ls_.addDescription(wbDescriptionType.name() + ((sourceDescriptionTypeUUID == null) ? ""
             : ":" + getOriginStringForUuid(sourceDescriptionTypeUUID)));
 
       if (sourceDescriptionTypeUUID != null) {
@@ -706,8 +708,10 @@ public class IBDFCreationUtility {
          Long time,
          UUID module) {
       @SuppressWarnings("rawtypes")
+	final
       SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
       @SuppressWarnings("rawtypes")
+	final
       SememeBuilder        sb = sememeBuilderService.getComponentSememeBuilder(preferred ? TermAux.PREFERRED.getNid()
             : TermAux.ACCEPTABLE.getNid(), description.getNid(), Get.identifierService()
                   .getConceptSequenceForUuids(dialectRefset));
@@ -722,8 +726,9 @@ public class IBDFCreationUtility {
 
       sb.setPrimordialUuid(acceptabilityPrimordialUUID);
 
-      ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
+	final
       SememeChronology<ComponentNidSememe<?>> sc = (SememeChronology<ComponentNidSememe<?>>) sb.build(createStamp(state,
                                                                                                                   selectTime(
                                                                                                                      time,
@@ -731,11 +736,11 @@ public class IBDFCreationUtility {
                                                                                                                   module),
                                                                                                       builtObjects);
 
-      for (OchreExternalizable ochreObject: builtObjects) {
-         writer_.put(ochreObject);
+      for (final OchreExternalizable ochreObject: builtObjects) {
+         this.writer_.put(ochreObject);
       }
 
-      ls_.addAnnotation("Description", getOriginStringForUuid(dialectRefset));
+      this.ls_.addAnnotation("Description", getOriginStringForUuid(dialectRefset));
       return sc;
    }
 
@@ -745,7 +750,7 @@ public class IBDFCreationUtility {
     */
    public List<SememeChronology<DescriptionSememe<?>>> addDescriptions(ComponentReference concept,
          List<? extends ValuePropertyPair> descriptions) {
-      ArrayList<SememeChronology<DescriptionSememe<?>>> result = new ArrayList<>(descriptions.size());
+      final ArrayList<SememeChronology<DescriptionSememe<?>>> result = new ArrayList<>(descriptions.size());
 
       Collections.sort(descriptions);
 
@@ -753,7 +758,7 @@ public class IBDFCreationUtility {
       boolean havePreferredSynonym    = false;
       boolean havePreferredDefinition = false;
 
-      for (ValuePropertyPair vpp: descriptions) {
+      for (final ValuePropertyPair vpp: descriptions) {
          DescriptionType descriptionType = null;
          boolean         preferred;
 
@@ -861,18 +866,18 @@ public class IBDFCreationUtility {
          UUID[] targetUuid,
          UUID sourceRelTypeUUID,
          Long time) {
-      if (conceptHasStatedGraph.contains(concept.getPrimordialUuid())) {
+      if (this.conceptHasStatedGraph.contains(concept.getPrimordialUuid())) {
          throw new RuntimeException(
              "Can only call addParent once!  Must utilize addRelationshipGraph for more complex objects.  " +
              "Parents: " + Arrays.toString(targetUuid) + " Child: " + concept.getPrimordialUuid());
       }
 
-      conceptHasStatedGraph.add(concept.getPrimordialUuid());
+      this.conceptHasStatedGraph.add(concept.getPrimordialUuid());
 
-      LogicalExpressionBuilder leb = expressionBuilderService_.getLogicalExpressionBuilder();
+      final LogicalExpressionBuilder leb = this.expressionBuilderService_.getLogicalExpressionBuilder();
 
       // We are only building isA here, choose necessary set over sufficient.
-      ConceptAssertion[] cas = new ConceptAssertion[targetUuid.length];
+      final ConceptAssertion[] cas = new ConceptAssertion[targetUuid.length];
 
       for (int i = 0; i < targetUuid.length; i++) {
          cas[i] = ConceptAssertion(Get.identifierService()
@@ -881,11 +886,12 @@ public class IBDFCreationUtility {
 
       NecessarySet(And(cas));
 
-      LogicalExpression logicalExpression = leb.build();
+      final LogicalExpression logicalExpression = leb.build();
       @SuppressWarnings("rawtypes")
-      SememeBuilder sb = sememeBuilderService_.getLogicalExpressionSememeBuilder(logicalExpression,
+	final
+      SememeBuilder sb = this.sememeBuilderService_.getLogicalExpressionSememeBuilder(logicalExpression,
                                                                                  concept.getNid(),
-                                                                                 conceptBuilderService_.getDefaultLogicCoordinate()
+                                                                                 this.conceptBuilderService_.getDefaultLogicCoordinate()
                                                                                        .getStatedAssemblageSequence());
 
       sb.setPrimordialUuid((relPrimordialUuid != null) ? relPrimordialUuid
@@ -894,16 +900,17 @@ public class IBDFCreationUtility {
                   Arrays.toString(targetUuid),
                   isARelUuid_.toString()));
 
-      ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
+	final
       SememeChronology<LogicGraphSememe<?>> sci =
          (SememeChronology<LogicGraphSememe<?>>) sb.build(createStamp(State.ACTIVE,
                                                                       selectTime(time,
                                                                             concept)),
                                                           builtObjects);
 
-      for (OchreExternalizable ochreObject: builtObjects) {
-         writer_.put(ochreObject);
+      for (final OchreExternalizable ochreObject: builtObjects) {
+         this.writer_.put(ochreObject);
       }
 
       if (sourceRelTypeUUID != null) {
@@ -911,9 +918,9 @@ public class IBDFCreationUtility {
                            sourceRelTypeUUID,
                            DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE
                                  .getPrimordialUuid());
-         ls_.addRelationship(getOriginStringForUuid(isARelUuid_) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
+         this.ls_.addRelationship(getOriginStringForUuid(isARelUuid_) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
       } else {
-         ls_.addRelationship(getOriginStringForUuid(isARelUuid_));
+         this.ls_.addRelationship(getOriginStringForUuid(isARelUuid_));
       }
 
       return sci;
@@ -938,8 +945,8 @@ public class IBDFCreationUtility {
          boolean stated,
          Long time,
          UUID module) {
-      HashSet<UUID> temp = stated ? conceptHasStatedGraph
-                                  : conceptHasInferredGraph;
+      final HashSet<UUID> temp = stated ? this.conceptHasStatedGraph
+                                  : this.conceptHasInferredGraph;
 
       if (temp.contains(concept.getPrimordialUuid())) {
          throw new RuntimeException("Already have a " + (stated ? "stated"
@@ -949,24 +956,25 @@ public class IBDFCreationUtility {
       temp.add(concept.getPrimordialUuid());
 
       @SuppressWarnings("rawtypes")
-      SememeBuilder sb = sememeBuilderService_.getLogicalExpressionSememeBuilder(logicalExpression,
+	final
+      SememeBuilder sb = this.sememeBuilderService_.getLogicalExpressionSememeBuilder(logicalExpression,
                                                                                  concept.getNid(),
                                                                                  stated
-                                                                                 ? conceptBuilderService_.getDefaultLogicCoordinate()
+                                                                                 ? this.conceptBuilderService_.getDefaultLogicCoordinate()
                                                                                        .getStatedAssemblageSequence()
-            : conceptBuilderService_.getDefaultLogicCoordinate()
+            : this.conceptBuilderService_.getDefaultLogicCoordinate()
                                     .getInferredAssemblageSequence());
 
       // Build a LogicGraph UUID seed based on concept & logicExpression.getData(EXTERNAL)
-      StringBuilder byteString = new StringBuilder();
-      byte[][]      byteArray  = logicalExpression.getData(DataTarget.EXTERNAL);
+      final StringBuilder byteString = new StringBuilder();
+      final byte[][]      byteArray  = logicalExpression.getData(DataTarget.EXTERNAL);
 
       for (int i = 0; i < byteArray.length; i++) {
          byteString.append(Arrays.toString(byteArray[i]));
       }
 
       // Create UUID from seed and assign SesemeBuilder the value
-      UUID generatedGraphPrimordialUuid = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid()
+      final UUID generatedGraphPrimordialUuid = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid()
                                                                                               .toString(),
                                                                                        "" + stated,
                                                                                        byteString.toString());
@@ -974,8 +982,9 @@ public class IBDFCreationUtility {
       sb.setPrimordialUuid((graphPrimordialUuid != null) ? graphPrimordialUuid
             : generatedGraphPrimordialUuid);
 
-      ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
+	final
       SememeChronology<LogicGraphSememe<?>> sci =
          (SememeChronology<LogicGraphSememe<?>>) sb.build(createStamp(State.ACTIVE,
                                                                       selectTime(time,
@@ -983,11 +992,11 @@ public class IBDFCreationUtility {
                                                                       module),
                                                           builtObjects);
 
-      for (OchreExternalizable ochreObject: builtObjects) {
-         writer_.put(ochreObject);
+      for (final OchreExternalizable ochreObject: builtObjects) {
+         this.writer_.put(ochreObject);
       }
 
-      ls_.addGraph();
+      this.ls_.addGraph();
       return sci;
    }
 
@@ -999,11 +1008,12 @@ public class IBDFCreationUtility {
          UUID refsetUuid,
          State state) {
       @SuppressWarnings("rawtypes")
-      SememeBuilder sb = sememeBuilderService_.getStringSememeBuilder(annotationValue,
+	final
+      SememeBuilder sb = this.sememeBuilderService_.getStringSememeBuilder(annotationValue,
                                                                       referencedComponent.getNid(),
                                                                       Get.identifierService()
                                                                             .getConceptSequenceForUuids(refsetUuid));
-      StringBuilder temp = new StringBuilder();
+      final StringBuilder temp = new StringBuilder();
 
       temp.append(annotationValue);
       temp.append(refsetUuid.toString());
@@ -1011,18 +1021,19 @@ public class IBDFCreationUtility {
                                      .toString());
       sb.setPrimordialUuid(ConverterUUID.createNamespaceUUIDFromString(temp.toString()));
 
-      ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
+	final
       SememeChronology<StringSememe<?>> sc = (SememeChronology<StringSememe<?>>) sb.build(createStamp(state,
                                                                                                       selectTime(null,
                                                                                                             referencedComponent)),
                                                                                           builtObjects);
 
-      for (OchreExternalizable ochreObject: builtObjects) {
-         writer_.put(ochreObject);
+      for (final OchreExternalizable ochreObject: builtObjects) {
+         this.writer_.put(ochreObject);
       }
 
-      ls_.addAnnotation((referencedComponent.getTypeString()
+      this.ls_.addAnnotation((referencedComponent.getTypeString()
             .length() > 0) ? referencedComponent.getTypeString()
                            : getOriginStringForUuid(referencedComponent.getPrimordialUuid()),
                          getOriginStringForUuid(refsetUuid));
@@ -1066,11 +1077,11 @@ public class IBDFCreationUtility {
     * Add an alternate ID to the concept.
     */
    public void addUUID(UUID existingUUID, UUID newUUID) {
-      ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
+      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
                                                                            .getConcept(existingUUID);
 
       conceptChronology.addAdditionalUuids(newUUID);
-      writer_.put(conceptChronology);
+      this.writer_.put(conceptChronology);
    }
 
    /**
@@ -1087,7 +1098,7 @@ public class IBDFCreationUtility {
    }
 
    public void clearLoadStats() {
-      ls_ = new LoadStats();
+      this.ls_ = new LoadStats();
    }
 
    /**
@@ -1096,8 +1107,9 @@ public class IBDFCreationUtility {
     * @param inverseName
     * @deprecated - Better to set things up as {@link BPT_Associations}
     */
-   public void configureConceptAsAssociation(UUID associationTypeConcept, String inverseName) {
-      DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
+   @Deprecated
+public void configureConceptAsAssociation(UUID associationTypeConcept, String inverseName) {
+      final DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
                                                                                                       DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
                                                                                                       DynamicSememeDataType.UUID,
                                                                                                       null,
@@ -1116,7 +1128,7 @@ public class IBDFCreationUtility {
                           null);
 
       if (!StringUtils.isBlank(inverseName)) {
-         SememeChronology<DescriptionSememe<?>> inverseDesc =
+         final SememeChronology<DescriptionSememe<?>> inverseDesc =
             addDescription(ComponentReference.fromConcept(associationTypeConcept),
                            inverseName,
                            DescriptionType.SYNONYM,
@@ -1147,7 +1159,7 @@ public class IBDFCreationUtility {
       // Add the special synonym to establish this as an assemblage concept
 
       // Need a custom UUID, otherwise duplicates are likely
-      UUID temp = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid()
+      final UUID temp = ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid()
                                                                       .toString(),
                                                                refexDescription,
                                                                DescriptionType.DEFINITION.name(),
@@ -1157,7 +1169,7 @@ public class IBDFCreationUtility {
                                                                      .toString(),
                                                                new Boolean("true").toString(),
                                                                "DynamicSememeMarker");
-      SememeChronology<DescriptionSememe<?>> desc = addDescription(concept,
+      final SememeChronology<DescriptionSememe<?>> desc = addDescription(concept,
                                                                    temp,
                                                                    refexDescription,
                                                                    DescriptionType.DEFINITION,
@@ -1176,8 +1188,8 @@ public class IBDFCreationUtility {
 
       // define the data columns (if any)
       if ((columns != null) && (columns.length > 0)) {
-         for (DynamicSememeColumnInfo col: columns) {
-            DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+         for (final DynamicSememeColumnInfo col: columns) {
+            final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
                                                     .configureDynamicSememeDefinitionDataForColumn(col);
 
             addAnnotation(concept,
@@ -1190,7 +1202,7 @@ public class IBDFCreationUtility {
                           null);
          }
 
-         DynamicSememeArray<DynamicSememeData> indexInfo = LookupService.getService(DynamicSememeUtility.class)
+         final DynamicSememeArray<DynamicSememeData> indexInfo = LookupService.getService(DynamicSememeUtility.class)
                                                                         .configureColumnIndexInfo(columns);
 
          if (indexInfo != null) {
@@ -1208,7 +1220,7 @@ public class IBDFCreationUtility {
       registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
 
       // Add the restriction information (if any)
-      DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+      final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
                                               .configureDynamicSememeRestrictionData(referencedComponentTypeRestriction,
                                                     referencedComponentTypeSubRestriction);
 
@@ -1242,7 +1254,7 @@ public class IBDFCreationUtility {
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn,
          boolean createSynonymFromFSN,
          UUID parentConceptPrimordial) {
-      ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(fsn, createSynonymFromFSN);
+      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(fsn, createSynonymFromFSN);
 
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
@@ -1271,12 +1283,12 @@ public class IBDFCreationUtility {
          Long time,
          State status,
          UUID module) {
-      ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
+      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
                                                                            .getConcept(conceptPrimordialUuid);
 
       conceptChronology.createMutableVersion(createStamp(status, time, module));
-      writer_.put(conceptChronology);
-      ls_.addConcept();
+      this.writer_.put(conceptChronology);
+      this.ls_.addConcept();
       return conceptChronology;
    }
 
@@ -1287,7 +1299,7 @@ public class IBDFCreationUtility {
          String fsn,
          boolean createSynonymFromFSN,
          UUID relParentPrimordial) {
-      ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(conceptPrimordialUuid,
+      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(conceptPrimordialUuid,
                                                                              fsn,
                                                                              createSynonymFromFSN);
 
@@ -1305,8 +1317,8 @@ public class IBDFCreationUtility {
          boolean createSynonymFromFSN,
          Long time,
          State status) {
-      ConceptChronology<? extends ConceptVersion<?>> cc      = createConcept(conceptPrimordialUuid, time, status, null);
-      ComponentReference                             concept = ComponentReference.fromConcept(cc);
+      final ConceptChronology<? extends ConceptVersion<?>> cc      = createConcept(conceptPrimordialUuid, time, status, null);
+      final ComponentReference                             concept = ComponentReference.fromConcept(cc);
 
       addFullySpecifiedName(concept, fsn);
 
@@ -1341,13 +1353,13 @@ public class IBDFCreationUtility {
          String definition,
          UUID relParentPrimordial,
          UUID secondParent) {
-      ConceptChronology<? extends ConceptVersion<?>> concept = createConcept((primordial == null)
+      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept((primordial == null)
                                                                   ? ConverterUUID.createNamespaceUUIDFromString(fsnName)
             : primordial,
                                                                               fsnName,
                                                                               StringUtils.isEmpty(preferredName) ? true
             : false);
-      LogicalExpressionBuilder leb = expressionBuilderService_.getLogicalExpressionBuilder();
+      final LogicalExpressionBuilder leb = this.expressionBuilderService_.getLogicalExpressionBuilder();
 
       if (secondParent == null) {
          NecessarySet(And(ConceptAssertion(Get.identifierService()
@@ -1361,7 +1373,7 @@ public class IBDFCreationUtility {
                                 .getConceptSequenceForUuids(secondParent), leb)));
       }
 
-      LogicalExpression logicalExpression = leb.build();
+      final LogicalExpression logicalExpression = leb.build();
 
       addRelationshipGraph(ComponentReference.fromConcept(concept), null, logicalExpression, true, null, null);
 
@@ -1407,7 +1419,7 @@ public class IBDFCreationUtility {
    public Property createMultiColumnDynamicStringSememe(String sememeName,
          String[] columnNames,
          DynamicSememeDataType[] columnTypes) {
-      DynamicSememeColumnInfo[] cols = new DynamicSememeColumnInfo[columnNames.length];
+      final DynamicSememeColumnInfo[] cols = new DynamicSememeColumnInfo[columnNames.length];
 
       for (int i = 0; i < cols.length; i++) {
          String                colName;
@@ -1422,7 +1434,7 @@ public class IBDFCreationUtility {
                                             : columnTypes[i];
          }
 
-         UUID descriptionConcept = createConcept(colName,
+         final UUID descriptionConcept = createConcept(colName,
                                                  true,
                                                  DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMNS
                                                        .getPrimordialUuid()).getPrimordialUuid();
@@ -1453,13 +1465,13 @@ public class IBDFCreationUtility {
       return Get.stampService()
                 .getStampSequence((state == null) ? State.ACTIVE
             : state,
-                                   (time == null) ? defaultTime_
+                                   (time == null) ? this.defaultTime_
             : time.longValue(),
-                                   authorSeq_,
-                                   ((module == null) ? module_.getSequence()
+                                   this.authorSeq_,
+                                   ((module == null) ? this.module_.getSequence()
             : Get.identifierService()
                  .getConceptSequenceForUuids(module)),
-                                   terminologyPathSeq_);
+                                   this.terminologyPathSeq_);
    }
 
    /**
@@ -1467,7 +1479,7 @@ public class IBDFCreationUtility {
     */
    public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial)
             throws Exception {
-      for (PropertyType pt: propertyTypes) {
+      for (final PropertyType pt: propertyTypes) {
          if (pt instanceof BPT_Skip) {
             continue;
          }
@@ -1492,14 +1504,14 @@ public class IBDFCreationUtility {
                   (BPT_DualParentPropertyType) pt);
          }
 
-         for (Property p: pt.getProperties()) {
+         for (final Property p: pt.getProperties()) {
             if (p.isFromConceptSpec()) {
                // This came from a conceptSpecification (metadata in ISAAC), and we don't need to create it.
                // Just need to add one relationship to the existing concept.
                addParent(ComponentReference.fromConcept(p.getUUID()), pt.getPropertyTypeUUID());
             } else {
                // don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
-               ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(p.getUUID(),
+               final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(p.getUUID(),
                                                                                       p.getSourcePropertyNameFSN() +
                                                                                       metadataSemanticTag_,
                                                                                       p.getSourcePropertyNameFSN(),
@@ -1521,7 +1533,7 @@ public class IBDFCreationUtility {
                } else if (p instanceof PropertyAssociation) {
                   // TODO need to migrate code from api-util (AssociationType, etc) down into the ISAAC packages... integrate here, at least at doc level
                   // associations return false for "createAsDynamicRefex"
-                  PropertyAssociation item = (PropertyAssociation) p;
+                  final PropertyAssociation item = (PropertyAssociation) p;
 
                   // Make this a dynamic refex - with the association column info
                   configureConceptAsDynamicRefex(ComponentReference.fromConcept(concept),
@@ -1539,7 +1551,7 @@ public class IBDFCreationUtility {
 
                   // add the inverse name, if it has one
                   if (!StringUtils.isBlank(item.getAssociationInverseName())) {
-                     SememeChronology<DescriptionSememe<?>> inverseDesc =
+                     final SememeChronology<DescriptionSememe<?>> inverseDesc =
                         addDescription(ComponentReference.fromConcept(concept),
                                        item.getAssociationInverseName(),
                                        DescriptionType.SYNONYM,
@@ -1565,7 +1577,7 @@ public class IBDFCreationUtility {
     */
    public void loadMetaDataItems(PropertyType propertyType, UUID parentPrimordial)
             throws Exception {
-      ArrayList<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+      final ArrayList<PropertyType> propertyTypes = new ArrayList<PropertyType>();
 
       propertyTypes.add(propertyType);
       loadMetaDataItems(propertyTypes, parentPrimordial);
@@ -1607,7 +1619,7 @@ public class IBDFCreationUtility {
    }
 
    public void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo) {
-      refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
+      this.refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
    }
 
    /**
@@ -1625,14 +1637,14 @@ public class IBDFCreationUtility {
 
    public void shutdown()
             throws IOException {
-      writer_.close();
+      this.writer_.close();
       LookupService.shutdownSystem();
       ConverterUUID.clearCache();
       clearLoadStats();
    }
 
    private String findFirstNotEmptyString(String... strings) {
-      for (String s: strings) {
+      for (final String s: strings) {
          if (StringUtils.isNotEmpty(s)) {
             return s;
          }
@@ -1649,7 +1661,7 @@ public class IBDFCreationUtility {
 
       // Create the terminology specific refset type as a child - this is just an organization concept
       // under description type in source terminology or relationship type in source terminology
-      UUID temp = createConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getSecondParentName(), true),
+      final UUID temp = createConcept(ConverterUUID.createNamespaceUUIDFromString(pt.getSecondParentName(), true),
                                 pt.getSecondParentName() + metadataSemanticTag_,
                                 true,
                                 refsetValueParent).getPrimordialUuid();
@@ -1665,18 +1677,18 @@ public class IBDFCreationUtility {
    private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicSememeData[] values) {
       // TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in
       // generateMetadataEConcepts - need to enforce the restrictions defined in the columns in the validators
-      if (!refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid)) {
+      if (!this.refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid)) {
          throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
       }
 
-      DynamicSememeColumnInfo[] colInfo = refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
+      final DynamicSememeColumnInfo[] colInfo = this.refexAllowedColumnTypes_.get(refexDynamicTypeUuid);
 
       if ((values != null) && (values.length > 0)) {
          if (colInfo != null) {
             for (int i = 0; i < values.length; i++) {
                DynamicSememeColumnInfo column = null;
 
-               for (DynamicSememeColumnInfo x: colInfo) {
+               for (final DynamicSememeColumnInfo x: colInfo) {
                   if (x.getColumnOrder() == i) {
                      column = x;
                      break;
@@ -1700,7 +1712,7 @@ public class IBDFCreationUtility {
             throw new RuntimeException("Column count mismatch - this dynamic sememe doesn't allow columns!");
          }
       } else if (colInfo != null) {
-         for (DynamicSememeColumnInfo ci: colInfo) {
+         for (final DynamicSememeColumnInfo ci: colInfo) {
             if (ci.isColumnRequired()) {
                throw new RuntimeException("Missing column data for column " + ci.getColumnName());
             }
@@ -1711,22 +1723,22 @@ public class IBDFCreationUtility {
    //~--- get methods ---------------------------------------------------------
 
    private boolean isConfiguredAsDynamicSememe(UUID refexDynamicTypeUuid) {
-      return refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid);
+      return this.refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid);
    }
 
    public LoadStats getLoadStats() {
-      return ls_;
+      return this.ls_;
    }
 
    public ComponentReference getModule() {
-      return module_;
+      return this.module_;
    }
 
    private String getOriginStringForUuid(UUID uuid) {
-      String temp = ConverterUUID.getUUIDCreationString(uuid);
+      final String temp = ConverterUUID.getUUIDCreationString(uuid);
 
       if (temp != null) {
-         String[] parts = temp.split(":");
+         final String[] parts = temp.split(":");
 
          if ((parts != null) && (parts.length > 1)) {
             return parts[parts.length - 1];

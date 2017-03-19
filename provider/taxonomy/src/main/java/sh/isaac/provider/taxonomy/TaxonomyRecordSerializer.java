@@ -59,16 +59,16 @@ public class TaxonomyRecordSerializer
          implements WaitFreeMergeSerializer<TaxonomyRecordPrimitive> {
    @Override
    public TaxonomyRecordPrimitive deserialize(ByteArrayDataBuffer di) {
-      int   writeSequence = di.getInt();
-      int[] result        = di.getIntArray();
+      final int   writeSequence = di.getInt();
+      final int[] result        = di.getIntArray();
 
       return new TaxonomyRecordPrimitive(result, writeSequence);
    }
 
    @Override
    public TaxonomyRecordPrimitive merge(TaxonomyRecordPrimitive a, TaxonomyRecordPrimitive b, int writeSequence) {
-      TaxonomyRecordUnpacked aRecords = a.getTaxonomyRecordUnpacked();
-      TaxonomyRecordUnpacked bRecords = b.getTaxonomyRecordUnpacked();
+      final TaxonomyRecordUnpacked aRecords = a.getTaxonomyRecordUnpacked();
+      final TaxonomyRecordUnpacked bRecords = b.getTaxonomyRecordUnpacked();
 
       aRecords.merge(bRecords);
       return new TaxonomyRecordPrimitive(aRecords.pack(), writeSequence);

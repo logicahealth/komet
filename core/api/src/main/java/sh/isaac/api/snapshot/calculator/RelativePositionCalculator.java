@@ -121,21 +121,21 @@ public class RelativePositionCalculator
    public RelativePosition fastRelativePosition(int stampSequence1,
          int stampSequence2,
          StampPrecedence precedencePolicy) {
-      long ss1Time           = Get.stampService()
+      final long ss1Time           = Get.stampService()
                                   .getTimeForStamp(stampSequence1);
-      int  ss1ModuleSequence = Get.stampService()
+      final int  ss1ModuleSequence = Get.stampService()
                                   .getModuleSequenceForStamp(stampSequence1);
-      int  ss1PathSequence   = Get.stampService()
+      final int  ss1PathSequence   = Get.stampService()
                                   .getPathSequenceForStamp(stampSequence1);
-      long ss2Time           = Get.stampService()
+      final long ss2Time           = Get.stampService()
                                   .getTimeForStamp(stampSequence2);
-      int  ss2ModuleSequence = Get.stampService()
+      final int  ss2ModuleSequence = Get.stampService()
                                   .getModuleSequenceForStamp(stampSequence2);
-      int  ss2PathSequence   = Get.stampService()
+      final int  ss2PathSequence   = Get.stampService()
                                   .getPathSequenceForStamp(stampSequence2);
 
       if (ss1PathSequence == ss2PathSequence) {
-         Segment seg = (Segment) pathSequenceSegmentMap.get(ss1PathSequence);
+         final Segment seg = this.pathSequenceSegmentMap.get(ss1PathSequence);
 
          if (seg.containsPosition(ss1PathSequence, ss1ModuleSequence, ss1Time) &&
                seg.containsPosition(ss2PathSequence, ss2ModuleSequence, ss2Time)) {
@@ -155,8 +155,8 @@ public class RelativePositionCalculator
          return RelativePosition.UNREACHABLE;
       }
 
-      Segment seg1 = (Segment) pathSequenceSegmentMap.get(ss1PathSequence);
-      Segment seg2 = (Segment) pathSequenceSegmentMap.get(ss2PathSequence);
+      final Segment seg1 = this.pathSequenceSegmentMap.get(ss1PathSequence);
+      final Segment seg2 = this.pathSequenceSegmentMap.get(ss2PathSequence);
 
       if ((seg1 == null) || (seg2 == null)) {
          return RelativePosition.UNREACHABLE;
@@ -196,10 +196,10 @@ public class RelativePositionCalculator
          StampedVersion v2,
          StampPrecedence precedencePolicy) {
       if (v1.getPathSequence() == v2.getPathSequence()) {
-         Segment seg = (Segment) pathSequenceSegmentMap.get(v1.getPathSequence());
+         final Segment seg = this.pathSequenceSegmentMap.get(v1.getPathSequence());
 
          if (seg == null) {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
 
             builder.append("Segment cannot be null.");
             builder.append("\nv1: ")
@@ -207,7 +207,7 @@ public class RelativePositionCalculator
             builder.append("\nv2: ")
                    .append(v1);
             builder.append("\nno segment in map: ")
-                   .append(pathSequenceSegmentMap);
+                   .append(this.pathSequenceSegmentMap);
             throw new IllegalStateException(builder.toString());
          }
 
@@ -229,8 +229,8 @@ public class RelativePositionCalculator
          return RelativePosition.UNREACHABLE;
       }
 
-      Segment seg1 = (Segment) pathSequenceSegmentMap.get(v1.getPathSequence());
-      Segment seg2 = (Segment) pathSequenceSegmentMap.get(v2.getPathSequence());
+      final Segment seg1 = this.pathSequenceSegmentMap.get(v1.getPathSequence());
+      final Segment seg2 = this.pathSequenceSegmentMap.get(v2.getPathSequence());
 
       if ((seg1 == null) || (seg2 == null)) {
          return RelativePosition.UNREACHABLE;
@@ -267,7 +267,7 @@ public class RelativePositionCalculator
    }
 
    public boolean onRoute(int stampSequence) {
-      Segment seg = (Segment) pathSequenceSegmentMap.get(Get.stampService()
+      final Segment seg = this.pathSequenceSegmentMap.get(Get.stampService()
                                                             .getPathSequenceForStamp(stampSequence));
 
       if (seg != null) {
@@ -283,7 +283,7 @@ public class RelativePositionCalculator
    }
 
    public boolean onRoute(StampedVersion v) {
-      Segment seg = (Segment) pathSequenceSegmentMap.get(v.getPathSequence());
+      final Segment seg = this.pathSequenceSegmentMap.get(v.getPathSequence());
 
       if (seg != null) {
          return seg.containsPosition(v.getPathSequence(), v.getModuleSequence(), v.getTime());
@@ -316,7 +316,7 @@ public class RelativePositionCalculator
 
    @Override
    public String toString() {
-      return "RelativePositionCalculator{" + coordinate + '}';
+      return "RelativePositionCalculator{" + this.coordinate + '}';
    }
 
    // recursively called method
@@ -324,7 +324,7 @@ public class RelativePositionCalculator
          OpenIntObjectHashMap<Segment> pathNidSegmentMap,
          AtomicInteger segmentSequence,
          RoaringBitmap precedingSegments) {
-      Segment segment = new Segment(segmentSequence.getAndIncrement(),
+      final Segment segment = new Segment(segmentSequence.getAndIncrement(),
                                     destination.getStampPathSequence(),
                                     destination.getTime(),
                                     precedingSegments);
@@ -343,10 +343,10 @@ public class RelativePositionCalculator
       // create a list of values so we don't have any
       // concurrent modification issues with removing/adding
       // items to the partsForPosition.
-      List<V> partsToCompare = new ArrayList<>(partsForPosition);
+      final List<V> partsToCompare = new ArrayList<>(partsForPosition);
 
-      for (V prevPartToTest: partsToCompare) {
-         switch (fastRelativePosition(part, prevPartToTest, coordinate.getStampPrecedence())) {
+      for (final V prevPartToTest: partsToCompare) {
+         switch (fastRelativePosition(part, prevPartToTest, this.coordinate.getStampPrecedence())) {
          case AFTER:
             partsForPosition.remove(prevPartToTest);
             partsForPosition.add(part);
@@ -370,9 +370,9 @@ public class RelativePositionCalculator
             }
 
             // Duplicate values encountered.
-            errorCount++;
+            this.errorCount++;
 
-            if (errorCount < 5) {
+            if (this.errorCount < 5) {
                log.warn("{} should never happen. " +
                         "Data is malformed. stampSequence: {} Part:\n{} \n  Part to test: \n{}",
                         new Object[] { RelativePosition.EQUAL, part.getStampSequence(), part, prevPartToTest });
@@ -402,11 +402,11 @@ public class RelativePositionCalculator
       // create a list of values so we don't have any
       // concurrent modification issues with removing/adding
       // items to the stampsForPosition.
-      StampSequenceSet stampsToCompare = StampSequenceSet.of(stampsForPosition);
+      final StampSequenceSet stampsToCompare = StampSequenceSet.of(stampsForPosition);
 
       stampsToCompare.stream().forEach((prevStamp) -> {
                                  switch (
-                                    fastRelativePosition(stampSequence, prevStamp, coordinate.getStampPrecedence())) {
+                                    fastRelativePosition(stampSequence, prevStamp, this.coordinate.getStampPrecedence())) {
                                  case AFTER:
                                     stampsForPosition.remove(prevStamp);
                                     stampsForPosition.add(stampSequence);
@@ -430,9 +430,9 @@ public class RelativePositionCalculator
                                     }
 
                                     // Duplicate values encountered.
-                                    errorCount++;
+                                    this.errorCount++;
 
-                                    if (errorCount < 20) {
+                                    if (this.errorCount < 20) {
                                        log.warn("{} should never happen. " +
                                                 "\n  Data is malformed. stamp: {}  Part to test: {}",
                                                 new Object[] { RelativePosition.EQUAL, stampSequence, prevStamp });
@@ -449,18 +449,18 @@ public class RelativePositionCalculator
                                     throw new UnsupportedOperationException("Can't handle: " +
                                     fastRelativePosition(stampSequence,
                                           prevStamp,
-                                          coordinate.getStampPrecedence()));
+                                          this.coordinate.getStampPrecedence()));
                                  }
                               });
    }
 
    private OpenIntObjectHashMap<Segment> setupPathSequenceSegmentMap(StampPosition destination) {
-      OpenIntObjectHashMap<Segment> pathSequenceSegmentMapToSetup = new OpenIntObjectHashMap<>();
-      AtomicInteger                 segmentSequence               = new AtomicInteger(0);
+      final OpenIntObjectHashMap<Segment> pathSequenceSegmentMapToSetup = new OpenIntObjectHashMap<>();
+      final AtomicInteger                 segmentSequence               = new AtomicInteger(0);
 
       // the sequence of the preceding segments is set in the recursive
       // call.
-      RoaringBitmap precedingSegments = new RoaringBitmap();
+      final RoaringBitmap precedingSegments = new RoaringBitmap();
 
       // call to recursive method...
       addOriginsToPathSequenceSegmentMap(destination,
@@ -481,7 +481,7 @@ public class RelativePositionCalculator
 
       calculator = new RelativePositionCalculator(coordinate);
 
-      RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, calculator);
+      final RelativePositionCalculator existing = CALCULATOR_CACHE.putIfAbsent(coordinate, calculator);
 
       if (existing != null) {
          calculator = existing;
@@ -491,7 +491,7 @@ public class RelativePositionCalculator
    }
 
    public StampPosition getDestination() {
-      return coordinate.getStampPosition();
+      return this.coordinate.getStampPosition();
    }
 
 // private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
@@ -519,12 +519,12 @@ public class RelativePositionCalculator
    }
 
    public StampSequenceSet getLatestStampSequencesAsSet(IntStream stampSequenceStream) {
-      StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
+      final StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
                                                             new LatestStampAccumulator(),
                                                             new LatestStampCombiner());
 
       return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
-               return coordinate.getAllowedStates()
+               return this.coordinate.getAllowedStates()
                                 .contains(Get.stampService()
                                       .getStatusForStamp(stampSequence));
             }));
@@ -532,7 +532,7 @@ public class RelativePositionCalculator
 
    public <C extends ObservableChronology<V>,
            V extends ObservableVersion> Optional<LatestVersion<V>> getLatestVersion(C chronicle) {
-      HashSet<V> latestVersionSet = new HashSet<>();
+      final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
                .stream()
@@ -546,7 +546,7 @@ public class RelativePositionCalculator
                            }
                         });
 
-      List<V> latestVersionList = new ArrayList<>(latestVersionSet);
+      final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
          return Optional.empty();
@@ -562,7 +562,7 @@ public class RelativePositionCalculator
 
    public <C extends ObjectChronology<V>,
            V extends StampedVersion> Optional<LatestVersion<V>> getLatestVersion(C chronicle) {
-      HashSet<V> latestVersionSet = new HashSet<>();
+      final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
                .stream()
@@ -576,9 +576,9 @@ public class RelativePositionCalculator
                            }
                         });
 
-      if (coordinate.getAllowedStates()
+      if (this.coordinate.getAllowedStates()
                     .equals(State.ACTIVE_ONLY_SET)) {
-         HashSet<V> inactiveVersions = new HashSet<>();
+         final HashSet<V> inactiveVersions = new HashSet<>();
 
          latestVersionSet.stream().forEach((version) -> {
                                      if (version.getState() != State.ACTIVE) {
@@ -588,7 +588,7 @@ public class RelativePositionCalculator
          latestVersionSet.removeAll(inactiveVersions);
       }
 
-      List<V> latestVersionList = new ArrayList<>(latestVersionSet);
+      final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
          return Optional.empty();
@@ -664,16 +664,16 @@ public class RelativePositionCalculator
 
       @Override
       public String toString() {
-         return "Segment{" + segmentSequence + ", pathConcept=" + Get.conceptDescriptionText(pathConceptSequence) +
-                "<" + pathConceptSequence + ">, endTime=" + Instant.ofEpochMilli(endTime) + ", precedingSegments=" +
-                precedingSegments + '}';
+         return "Segment{" + this.segmentSequence + ", pathConcept=" + Get.conceptDescriptionText(this.pathConceptSequence) +
+                "<" + this.pathConceptSequence + ">, endTime=" + Instant.ofEpochMilli(this.endTime) + ", precedingSegments=" +
+                this.precedingSegments + '}';
       }
 
       private boolean containsPosition(int pathConceptSequence, int moduleConceptSequence, long time) {
-         if (coordinate.getModuleSequences().isEmpty() ||
-               coordinate.getModuleSequences().contains(moduleConceptSequence)) {
+         if (RelativePositionCalculator.this.coordinate.getModuleSequences().isEmpty() ||
+               RelativePositionCalculator.this.coordinate.getModuleSequences().contains(moduleConceptSequence)) {
             if ((this.pathConceptSequence == pathConceptSequence) && (time != Long.MIN_VALUE)) {
-               return time <= endTime;
+               return time <= this.endTime;
             }
          }
 

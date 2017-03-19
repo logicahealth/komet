@@ -73,13 +73,13 @@ public class Setup
     * See {@link ConfigurationService#setDBBuildMode()} for details on this option.
     */
    @Parameter(required = false)
-   private boolean dbBuildMode = false;
+   private final boolean dbBuildMode = false;
 
    /**
     * See {@link ConfigurationService#setBootstrapMode()} for details on this option.
     */
    @Parameter(required = false)
-   private boolean bootstrapMode = false;
+   private final boolean bootstrapMode = false;
 
    /**
     * See {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should
@@ -114,31 +114,31 @@ public class Setup
          // Make sure the service Locator comes up ok
          LookupService.get();
 
-         if (dbBuildMode) {
+         if (this.dbBuildMode) {
             Get.configurationService()
                .setDBBuildMode();
          }
 
-         if (bootstrapMode) {
+         if (this.bootstrapMode) {
             Get.configurationService()
                .setBootstrapMode();
          }
 
-         dataStoreLocation = DBLocator.findDBFolder(dataStoreLocation);
+         this.dataStoreLocation = DBLocator.findDBFolder(this.dataStoreLocation);
 
-         if (!dataStoreLocation.exists()) {
+         if (!this.dataStoreLocation.exists()) {
             throw new MojoExecutionException("Couldn't find a data store from the input of '" +
-                                             dataStoreLocation.getAbsoluteFile().getAbsolutePath() + "'");
+                                             this.dataStoreLocation.getAbsoluteFile().getAbsolutePath() + "'");
          }
 
-         if (!dataStoreLocation.isDirectory()) {
-            throw new IOException("The specified data store: '" + dataStoreLocation.getAbsolutePath() +
+         if (!this.dataStoreLocation.isDirectory()) {
+            throw new IOException("The specified data store: '" + this.dataStoreLocation.getAbsolutePath() +
                                   "' is not a folder");
          }
 
          LookupService.getService(ConfigurationService.class)
-                      .setDataStoreFolderPath(dataStoreLocation.toPath());
-         getLog().info("  Setup AppContext, data store location = " + dataStoreLocation.getCanonicalPath());
+                      .setDataStoreFolderPath(this.dataStoreLocation.toPath());
+         getLog().info("  Setup AppContext, data store location = " + this.dataStoreLocation.getCanonicalPath());
          LookupService.startupIsaac();
          getLog().info("Done setting up ISAAC");
       } catch (IllegalStateException | IllegalArgumentException | IOException e) {
@@ -149,11 +149,11 @@ public class Setup
    //~--- set methods ---------------------------------------------------------
 
    public void setDataStoreLocation(File inputBdbFolderlocation) {
-      dataStoreLocation = inputBdbFolderlocation;
+      this.dataStoreLocation = inputBdbFolderlocation;
    }
 
    public void setUserProfileFolderLocation(File inputUserProfileLocation) {
-      userProfileFolderLocation = inputUserProfileLocation;
+      this.userProfileFolderLocation = inputUserProfileLocation;
    }
 }
 

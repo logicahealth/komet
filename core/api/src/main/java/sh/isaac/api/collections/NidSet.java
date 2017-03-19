@@ -80,7 +80,7 @@ public class NidSet
    }
 
    public static NidSet of(ConceptSequenceSet conceptSequenceSet) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new NidSet(conceptSequenceSet.stream().map((sequence) -> sp.getConceptNid(sequence)));
    }
@@ -98,7 +98,7 @@ public class NidSet
    }
 
    public static NidSet of(SememeSequenceSet sememeSequenceSet) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new NidSet(sememeSequenceSet.stream().map((sequence) -> sp.getSememeNid(sequence)));
    }

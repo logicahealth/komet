@@ -46,10 +46,10 @@ package sh.isaac.pombuilder.artifacts;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class Artifact {
-   private String groupId_;
-   private String artifactId_;
-   private String version_;
-   private String classifier_;
+   private final String groupId_;
+   private final String artifactId_;
+   private final String version_;
+   private final String classifier_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -58,32 +58,32 @@ public abstract class Artifact {
    }
 
    public Artifact(String groupId, String artifactId, String version, String classifier) {
-      groupId_    = groupId;
-      artifactId_ = artifactId;
-      version_    = version;
-      classifier_ = classifier;
+      this.groupId_    = groupId;
+      this.artifactId_ = artifactId;
+      this.version_    = version;
+      this.classifier_ = classifier;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public String toString() {
-      return "Artifact [groupId_=" + groupId_ + ", artifactId_=" + artifactId_ + ", version_=" + version_ +
-             ", classifier_=" + classifier_ + "]";
+      return "Artifact [groupId_=" + this.groupId_ + ", artifactId_=" + this.artifactId_ + ", version_=" + this.version_ +
+             ", classifier_=" + this.classifier_ + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getArtifactId() {
-      return artifactId_;
+      return this.artifactId_;
    }
 
    public String getClassifier() {
-      return classifier_;
+      return this.classifier_;
    }
 
    public boolean hasClassifier() {
-      if ((classifier_ == null) || (classifier_.trim().length() == 0)) {
+      if ((this.classifier_ == null) || (this.classifier_.trim().length() == 0)) {
          return false;
       }
 
@@ -91,11 +91,11 @@ public abstract class Artifact {
    }
 
    public String getGroupId() {
-      return groupId_;
+      return this.groupId_;
    }
 
    public String getVersion() {
-      return version_;
+      return this.version_;
    }
 }
 

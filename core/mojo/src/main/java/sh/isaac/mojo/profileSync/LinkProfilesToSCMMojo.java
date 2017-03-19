@@ -82,11 +82,11 @@ public class LinkProfilesToSCMMojo
       }
 
       try {
-         getLog().info("Configuring " + userProfileFolderLocation.getAbsolutePath() + " for SCM management");
-         userProfileFolderLocation.mkdirs();
+         getLog().info("Configuring " + this.userProfileFolderLocation.getAbsolutePath() + " for SCM management");
+         this.userProfileFolderLocation.mkdirs();
          getProfileSyncImpl().linkAndFetchFromRemote(getURL(), getUsername(), getPassword());
          getLog().info("Done Configuring SCM for profiles");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException("Unexpected error configuring SCM for the profiles", e);
       }
    }

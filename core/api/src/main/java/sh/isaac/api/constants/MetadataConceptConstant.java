@@ -65,19 +65,19 @@ public abstract class MetadataConceptConstant
    //~--- constructors --------------------------------------------------------
 
    protected MetadataConceptConstant(String primaryName, UUID uuid) {
-      primaryName_ = primaryName;
-      uuid_        = uuid;
+      this.primaryName_ = primaryName;
+      this.uuid_        = uuid;
    }
 
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition) {
-      primaryName_ = primaryName;
-      uuid_        = uuid;
+      this.primaryName_ = primaryName;
+      this.uuid_        = uuid;
       addDefinition(definition);
    }
 
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition, ConceptSpecification parent) {
-      primaryName_ = primaryName;
-      uuid_        = uuid;
+      this.primaryName_ = primaryName;
+      this.uuid_        = uuid;
       addDefinition(definition);
       setParent(parent);
    }
@@ -85,11 +85,11 @@ public abstract class MetadataConceptConstant
    //~--- methods -------------------------------------------------------------
 
    protected void addDefinition(String definition) {
-      definitions_.add(definition);
+      this.definitions_.add(definition);
    }
 
    protected void addSynonym(String synonym) {
-      synonyms_.add(synonym);
+      this.synonyms_.add(synonym);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -100,33 +100,34 @@ public abstract class MetadataConceptConstant
     */
    @Override
    public String getConceptDescriptionText() {
-      return primaryName_;
+      return this.primaryName_;
    }
 
    /**
     * @return The descriptions for this concept (if any). Will not return null.
     */
    public List<String> getDefinitions() {
-      return definitions_;
+      return this.definitions_;
    }
 
    /**
     * @return The nid for the concept.
     */
-   public int getNid() {
+   @Override
+public int getNid() {
       return Get.conceptService()
                 .getConcept(getUUID())
                 .getNid();
    }
 
    public ConceptSpecification getParent() {
-      return parent_;
+      return this.parent_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    protected void setParent(ConceptSpecification parent) {
-      parent_ = parent;
+      this.parent_ = parent;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -136,7 +137,7 @@ public abstract class MetadataConceptConstant
     * This method is identical to {@link #getConceptDescriptionText()}
     */
    public String getPrimaryName() {
-      return primaryName_;
+      return this.primaryName_;
    }
 
    @Override
@@ -158,19 +159,19 @@ public abstract class MetadataConceptConstant
     * include the preferred synonym. Will not return null.
     */
    public List<String> getSynonyms() {
-      return synonyms_;
+      return this.synonyms_;
    }
 
    /**
     * @return The UUID for the concept
     */
    public UUID getUUID() {
-      return uuid_;
+      return this.uuid_;
    }
 
    @Override
    public List<UUID> getUuidList() {
-      return Arrays.asList(new UUID[] { uuid_ });
+      return Arrays.asList(new UUID[] { this.uuid_ });
    }
 }
 

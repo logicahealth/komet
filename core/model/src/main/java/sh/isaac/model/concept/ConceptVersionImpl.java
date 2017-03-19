@@ -61,7 +61,7 @@ public class ConceptVersionImpl
 
    @Override
    public ConceptChronologyImpl getChronology() {
-      return chronicle;
+      return this.chronicle;
    }
 }
 

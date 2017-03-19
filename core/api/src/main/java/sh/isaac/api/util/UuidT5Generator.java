@@ -81,7 +81,7 @@ public class UuidT5Generator {
 
    public static UUID get(UUID namespace, String name) {
       try {
-         MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
+         final MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
 
          // Generate the digest.
          sha1Algorithm.reset();
@@ -92,7 +92,7 @@ public class UuidT5Generator {
 
          sha1Algorithm.update(name.getBytes(encoding));
 
-         byte[] sha1digest = sha1Algorithm.digest();
+         final byte[] sha1digest = sha1Algorithm.digest();
 
          sha1digest[6] &= 0x0f;  /* clear version */
          sha1digest[6] |= 0x50;  /* set to version 5 */
@@ -124,8 +124,8 @@ public class UuidT5Generator {
     * @return
     */
    public static byte[] getRawBytes(UUID uid) {
-      String id       = uid.toString();
-      byte[] rawBytes = new byte[16];
+      final String id       = uid.toString();
+      final byte[] rawBytes = new byte[16];
 
       for (int i = 0, j = 0; i < 36; ++j) {
          // Need to bypass hyphens:
@@ -170,7 +170,7 @@ public class UuidT5Generator {
          throw new NumberFormatException("UUID must be 16 bytes");
       }
 
-      ByteBuffer raw = ByteBuffer.wrap(byteArray);
+      final ByteBuffer raw = ByteBuffer.wrap(byteArray);
 
       return new UUID(raw.getLong(raw.position()), raw.getLong(raw.position() + 8));
    }

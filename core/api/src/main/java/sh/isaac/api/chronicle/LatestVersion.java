@@ -63,22 +63,22 @@ public final class LatestVersion<V> {
    //~--- constructors --------------------------------------------------------
 
    public LatestVersion(Class<V> versionType) {
-      contradictions = Optional.empty();
+      this.contradictions = Optional.empty();
    }
 
    public LatestVersion(List<V> versions) {
       this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
 
       if (versions.size() < 2) {
-         contradictions = Optional.empty();
+         this.contradictions = Optional.empty();
       } else {
-         contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
+         this.contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
       }
    }
 
    public LatestVersion(V latest) {
       this.value     = Objects.requireNonNull(latest, "latest version cannot be null");
-      contradictions = Optional.empty();
+      this.contradictions = Optional.empty();
    }
 
    public LatestVersion(V latest, Collection<V> contradictions) {
@@ -97,40 +97,40 @@ public final class LatestVersion<V> {
       if (this.value == null) {
          this.value = value;
       } else {
-         if (!contradictions.isPresent()) {
-            contradictions = Optional.of(new HashSet<V>());
+         if (!this.contradictions.isPresent()) {
+            this.contradictions = Optional.of(new HashSet<V>());
          }
 
-         contradictions.get()
+         this.contradictions.get()
                        .add(value);
       }
    }
 
    public Optional<Set<V>> contradictions() {
-      return contradictions;
+      return this.contradictions;
    }
 
    @Override
    public String toString() {
-      return "LatestVersion{" + "value=" + value + ", contradictions=" + contradictions + '}';
+      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + this.contradictions + '}';
    }
 
    public V value() {
-      return value;
+      return this.value;
    }
 
    public Stream<V> versionStream() {
-      Stream.Builder<V> builder = Stream.builder();
+      final Stream.Builder<V> builder = Stream.builder();
 
-      if (value == null) {
+      if (this.value == null) {
          return Stream.<V>builder()
                       .build();
       }
 
-      builder.accept(value);
+      builder.accept(this.value);
 
-      if (contradictions.isPresent()) {
-         contradictions.get().forEach((contradiction) -> {
+      if (this.contradictions.isPresent()) {
+         this.contradictions.get().forEach((contradiction) -> {
                                    builder.add(contradiction);
                                 });
       }

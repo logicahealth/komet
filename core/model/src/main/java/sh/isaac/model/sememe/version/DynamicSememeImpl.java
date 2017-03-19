@@ -98,29 +98,29 @@ public class DynamicSememeImpl
       super(container, stampSequence, versionSequence);
 
       // read the following format - dataFieldCount [dataFieldType dataFieldBytes] [dataFieldType dataFieldBytes] ...
-      int colCount = data.getInt();
+      final int colCount = data.getInt();
 
-      data_ = new DynamicSememeData[colCount];
+      this.data_ = new DynamicSememeData[colCount];
 
       for (int i = 0; i < colCount; i++) {
-         DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(data.getInt());
+         final DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(data.getInt());
 
          if (dt == DynamicSememeDataType.UNKNOWN) {
-            data_[i] = null;
+            this.data_[i] = null;
          } else {
             if (data.isExternalData() && (dt == DynamicSememeDataType.NID)) {
-               UUID temp =
+               final UUID temp =
                   ((DynamicSememeUUIDImpl) DynamicSememeTypeToClassUtility.typeToClass(DynamicSememeDataType.UUID,
                                                                                        data.getByteArrayField(),
                                                                                        0,
                                                                                        0)).getDataUUID();
 
-               data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
+               this.data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
                      new DynamicSememeNidImpl(Get.identifierService().getNidForUuids(temp)).getData(),
                      getAssemblageSequence(),
                      i);
             } else {
-               data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
+               this.data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
                      data.getByteArrayField(),
                      getAssemblageSequence(),
                      i);
@@ -138,11 +138,11 @@ public class DynamicSememeImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{DynamicSememeData≤");
 
-      DynamicSememeData[] data = getData();
+      final DynamicSememeData[] data = getData();
 
       // make sure the column numbers are set, so lookups can happen for column names.
       for (int i = 0; i < data.length; i++) {
@@ -166,7 +166,7 @@ public class DynamicSememeImpl
       if (getData() != null) {
          data.putInt(getData().length);
 
-         for (DynamicSememeData column: getData()) {
+         for (final DynamicSememeData column: getData()) {
             if (column == null) {
                data.putInt(DynamicSememeDataType.UNKNOWN.getTypeToken());
             } else {
@@ -174,7 +174,7 @@ public class DynamicSememeImpl
                                  .getTypeToken());
 
                if (data.isExternalData() && (column.getDynamicSememeDataType() == DynamicSememeDataType.NID)) {
-                  DynamicSememeUUIDImpl temp = new DynamicSememeUUIDImpl(
+                  final DynamicSememeUUIDImpl temp = new DynamicSememeUUIDImpl(
                                                    Get.identifierService().getUuidPrimordialForNid(
                                                       ((DynamicSememeNidImpl) column).getDataNid()).get());
 
@@ -196,8 +196,8 @@ public class DynamicSememeImpl
     */
    @Override
    public DynamicSememeData[] getData() {
-      return (data_ == null) ? new DynamicSememeData[] {}
-                             : data_;
+      return (this.data_ == null) ? new DynamicSememeData[] {}
+                             : this.data_;
    }
 
    @Override
@@ -209,7 +209,7 @@ public class DynamicSememeImpl
    @Override
    public DynamicSememeData getData(String columnName)
             throws InvalidNameException {
-      for (DynamicSememeColumnInfo ci: getDynamicSememeUsageDescription().getColumnInfo()) {
+      for (final DynamicSememeColumnInfo ci: getDynamicSememeUsageDescription().getColumnInfo()) {
          if (ci.getColumnName()
                .equals(columnName)) {
             return getData(ci.getColumnOrder());
@@ -223,21 +223,21 @@ public class DynamicSememeImpl
 
    @Override
    public void setData(DynamicSememeData[] data) {
-      if (data_ != null) {
+      if (this.data_ != null) {
          checkUncommitted();
       }
 
       // TODO while this checks basic sememe structure / column alignment, it can't fire certain validators, as those require coordinates.
       // The column-specific validators will have to be fired during commit.
       if (!bootstrapMode) {  // We can't run the validators when we are building the initial system.
-         DynamicSememeUsageDescription dsud = DynamicSememeUsageDescriptionImpl.read(getAssemblageSequence());
+         final DynamicSememeUsageDescription dsud = DynamicSememeUsageDescriptionImpl.read(getAssemblageSequence());
 
          LookupService.get()
                       .getService(DynamicSememeUtility.class)
                       .validate(dsud, data, getReferencedComponentNid(), null, null);
       }
 
-      data_ = (data == null) ? new DynamicSememeData[] {}
+      this.data_ = (data == null) ? new DynamicSememeData[] {}
                              : data;
    }
 

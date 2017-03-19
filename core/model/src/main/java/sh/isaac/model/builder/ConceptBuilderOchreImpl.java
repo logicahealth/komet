@@ -128,20 +128,20 @@ public class ConceptBuilderOchreImpl
 
    @Override
    public ConceptBuilder addDescription(DescriptionBuilder<?, ?> descriptionBuilder) {
-      descriptionBuilders.add(descriptionBuilder);
+      this.descriptionBuilders.add(descriptionBuilder);
       return this;
    }
 
    @Override
    public ConceptBuilder addDescription(String value, ConceptSpecification descriptionType) {
-      if ((defaultLanguageForDescriptions == null) || (defaultDialectAssemblageForDescriptions == null)) {
+      if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
          throw new IllegalStateException("language and dialect are required if a concept name is provided");
       }
 
-      if (!conceptName.equals(value)) {
-         descriptionBuilders.add(LookupService.getService(DescriptionBuilderService.class)
-               .getDescriptionBuilder(value, this, descriptionType, defaultLanguageForDescriptions)
-               .addAcceptableInDialectAssemblage(defaultDialectAssemblageForDescriptions));
+      if (!this.conceptName.equals(value)) {
+         this.descriptionBuilders.add(LookupService.getService(DescriptionBuilderService.class)
+               .getDescriptionBuilder(value, this, descriptionType, this.defaultLanguageForDescriptions)
+               .addAcceptableInDialectAssemblage(this.defaultDialectAssemblageForDescriptions));
       }
 
       return this;
@@ -163,44 +163,44 @@ public class ConceptBuilderOchreImpl
    public ConceptChronology build(int stampCoordinate,
                                   List<ObjectChronology<? extends StampedVersion>> builtObjects)
             throws IllegalStateException {
-      ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
+      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
                                                                            .getConcept(getUuids());
 
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
 
       if (getFullySpecifiedDescriptionBuilder() != null) {
-         descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
+         this.descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
       }
 
       if (getSynonymPreferredDescriptionBuilder() != null) {
-         descriptionBuilders.add(getSynonymPreferredDescriptionBuilder());
+         this.descriptionBuilders.add(getSynonymPreferredDescriptionBuilder());
       }
 
-      descriptionBuilders.forEach((builder) -> {
+      this.descriptionBuilders.forEach((builder) -> {
                                      builder.build(stampCoordinate, builtObjects);
                                   });
 
-      if ((defaultLogicCoordinate == null) &&
-            ((logicalExpressions.size() > 0) || (logicalExpressionBuilders.size() > 0))) {
+      if ((this.defaultLogicCoordinate == null) &&
+            ((this.logicalExpressions.size() > 0) || (this.logicalExpressionBuilders.size() > 0))) {
          throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
       }
 
-      SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
+      final SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
 
-      for (LogicalExpression logicalExpression: logicalExpressions) {
-         sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
+      for (final LogicalExpression logicalExpression: this.logicalExpressions) {
+         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
                this,
-               defaultLogicCoordinate.getStatedAssemblageSequence()));
+               this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
 
-      for (LogicalExpressionBuilder builder: logicalExpressionBuilders) {
-         sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
+      for (final LogicalExpressionBuilder builder: this.logicalExpressionBuilders) {
+         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
                this,
-               defaultLogicCoordinate.getStatedAssemblageSequence()));
+               this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
 
-      sememeBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
+      this.sememeBuilders.forEach((builder) -> builder.build(stampCoordinate, builtObjects));
       return conceptChronology;
    }
 
@@ -209,45 +209,45 @@ public class ConceptBuilderOchreImpl
          ChangeCheckerMode changeCheckerMode,
          List<ObjectChronology<? extends StampedVersion>> builtObjects)
             throws IllegalStateException {
-      ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
+      final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
+      final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
                                                                            .getConcept(getUuids());
 
-      conceptChronology.createMutableVersion(state, editCoordinate);
+      conceptChronology.createMutableVersion(this.state, editCoordinate);
       builtObjects.add(conceptChronology);
 
       if (getFullySpecifiedDescriptionBuilder() != null) {
-         descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
+         this.descriptionBuilders.add(getFullySpecifiedDescriptionBuilder());
       }
 
       if (getSynonymPreferredDescriptionBuilder() != null) {
-         descriptionBuilders.add(getSynonymPreferredDescriptionBuilder());
+         this.descriptionBuilders.add(getSynonymPreferredDescriptionBuilder());
       }
 
-      descriptionBuilders.forEach((builder) -> {
+      this.descriptionBuilders.forEach((builder) -> {
                                      nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects));
                                   });
 
-      if ((defaultLogicCoordinate == null) &&
-            ((logicalExpressions.size() > 0) || (logicalExpressionBuilders.size() > 0))) {
+      if ((this.defaultLogicCoordinate == null) &&
+            ((this.logicalExpressions.size() > 0) || (this.logicalExpressionBuilders.size() > 0))) {
          throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
       }
 
-      SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
+      final SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
 
-      for (LogicalExpression logicalExpression: logicalExpressions) {
-         sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
+      for (final LogicalExpression logicalExpression: this.logicalExpressions) {
+         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
                this,
-               defaultLogicCoordinate.getStatedAssemblageSequence()));
+               this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
 
-      for (LogicalExpressionBuilder builder: logicalExpressionBuilders) {
-         sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
+      for (final LogicalExpressionBuilder builder: this.logicalExpressionBuilders) {
+         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
                this,
-               defaultLogicCoordinate.getStatedAssemblageSequence()));
+               this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
 
-      sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
+      this.sememeBuilders.forEach((builder) -> nestedBuilders.add(builder.build(editCoordinate,
             changeCheckerMode,
             builtObjects)));
 
@@ -269,7 +269,7 @@ public class ConceptBuilderOchreImpl
       setPrimordialUuid(conceptSpec.getPrimordialUuid());
       addUuids(conceptSpec.getUuids());
 
-      if (!conceptName.equals(conceptSpec.getConceptDescriptionText())) {
+      if (!this.conceptName.equals(conceptSpec.getConceptDescriptionText())) {
          addDescription(conceptSpec.getConceptDescriptionText(), TermAux.SYNONYM_DESCRIPTION_TYPE);
       }
 
@@ -280,75 +280,75 @@ public class ConceptBuilderOchreImpl
 
    @Override
    public String getConceptDescriptionText() {
-      return conceptName;
+      return this.conceptName;
    }
 
    @Override
    public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
       synchronized (this) {
-         if ((fsnDescriptionBuilder == null) && StringUtils.isNotBlank(conceptName)) {
-            StringBuilder descriptionTextBuilder = new StringBuilder();
+         if ((this.fsnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
+            final StringBuilder descriptionTextBuilder = new StringBuilder();
 
-            descriptionTextBuilder.append(conceptName);
+            descriptionTextBuilder.append(this.conceptName);
 
-            if (StringUtils.isNotBlank(semanticTag)) {
-               if ((conceptName.lastIndexOf('(') > 0) && (conceptName.lastIndexOf(')') == conceptName.length() - 1)) {
+            if (StringUtils.isNotBlank(this.semanticTag)) {
+               if ((this.conceptName.lastIndexOf('(') > 0) && (this.conceptName.lastIndexOf(')') == this.conceptName.length() - 1)) {
                   throw new IllegalArgumentException(
                       "A semantic tag was passed, but this fsn description already appears to contain a semantic tag");
                }
 
                descriptionTextBuilder.append(" (");
-               descriptionTextBuilder.append(semanticTag);
+               descriptionTextBuilder.append(this.semanticTag);
                descriptionTextBuilder.append(")");
             }
 
-            if ((defaultLanguageForDescriptions == null) || (defaultDialectAssemblageForDescriptions == null)) {
+            if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
             }
 
-            fsnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
+            this.fsnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
                   .getDescriptionBuilder(descriptionTextBuilder.toString(),
                                          this,
                                          TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE,
-                                         defaultLanguageForDescriptions)
-                  .addPreferredInDialectAssemblage(defaultDialectAssemblageForDescriptions);
+                                         this.defaultLanguageForDescriptions)
+                  .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
          }
       }
 
-      return fsnDescriptionBuilder;
+      return this.fsnDescriptionBuilder;
    }
 
    @Override
    public DescriptionBuilder<?, ?> getSynonymPreferredDescriptionBuilder() {
       synchronized (this) {
-         if (preferredDescriptionBuilder == null) {
-            if ((defaultLanguageForDescriptions == null) || (defaultDialectAssemblageForDescriptions == null)) {
+         if (this.preferredDescriptionBuilder == null) {
+            if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
             }
 
             String prefName = null;
 
-            if (StringUtils.isNotBlank(semanticTag)) {
-               prefName = conceptName;
-            } else if ((conceptName.lastIndexOf('(') > 0) && (conceptName.lastIndexOf(')') == conceptName.length())) {
+            if (StringUtils.isNotBlank(this.semanticTag)) {
+               prefName = this.conceptName;
+            } else if ((this.conceptName.lastIndexOf('(') > 0) && (this.conceptName.lastIndexOf(')') == this.conceptName.length())) {
                // they didn't provide a stand-alone semantic tag.  If they included a semantic tag in what they provided, strip it.
                // If not, don't create a preferred term, as it would just be identical to the FSN.
-               prefName = conceptName.substring(0, conceptName.lastIndexOf('('))
+               prefName = this.conceptName.substring(0, this.conceptName.lastIndexOf('('))
                                      .trim();
             }
 
             if (prefName != null) {
-               preferredDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
+               this.preferredDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
                      .getDescriptionBuilder(prefName,
                                             this,
                                             TermAux.SYNONYM_DESCRIPTION_TYPE,
-                                            defaultLanguageForDescriptions)
-                     .addPreferredInDialectAssemblage(defaultDialectAssemblageForDescriptions);
+                                            this.defaultLanguageForDescriptions)
+                     .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
             }
          }
       }
 
-      return preferredDescriptionBuilder;
+      return this.preferredDescriptionBuilder;
    }
 }
 

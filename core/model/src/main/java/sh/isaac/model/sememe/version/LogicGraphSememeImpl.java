@@ -84,20 +84,20 @@ public class LogicGraphSememeImpl
                                ByteArrayDataBuffer data) {
       super(container, stampSequence, versionSequence);
 
-      int graphNodes = data.getInt();
+      final int graphNodes = data.getInt();
 
       this.graphData = new byte[graphNodes][];
 
       for (int i = 0; i < graphNodes; i++) {
          try {
             this.graphData[i] = data.getByteArrayField();
-         } catch (ArrayIndexOutOfBoundsException e) {
+         } catch (final ArrayIndexOutOfBoundsException e) {
             throw new RuntimeException(e);
          }
       }
 
       if (data.isExternalData()) {
-         graphData = getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.INTERNAL);
+         this.graphData = getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.INTERNAL);
       }
    }
 
@@ -105,11 +105,11 @@ public class LogicGraphSememeImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append(getSememeType().toString());
 
-      LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData,
+      final LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(this.graphData,
                                                                      DataSource.INTERNAL,
                                                                      Get.identifierService().getConceptSequence(
                                                                         getReferencedComponentNid()));
@@ -124,7 +124,7 @@ public class LogicGraphSememeImpl
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
 
-      byte[][] temp = graphData;
+      byte[][] temp = this.graphData;
 
       if (data.isExternalData()) {
          temp = getExternalGraphData();
@@ -132,7 +132,7 @@ public class LogicGraphSememeImpl
 
       data.putInt(temp.length);
 
-      for (byte[] graphDataElement: temp) {
+      for (final byte[] graphDataElement: temp) {
          data.putByteArrayField(graphDataElement);
       }
    }
@@ -151,12 +151,12 @@ public class LogicGraphSememeImpl
 
    @Override
    public byte[][] getExternalGraphData() {
-      return getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.EXTERNAL);
+      return getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.EXTERNAL);
    }
 
    @Override
    public byte[][] getGraphData() {
-      return graphData;
+      return this.graphData;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -174,7 +174,7 @@ public class LogicGraphSememeImpl
 
    @Override
    public LogicalExpression getLogicalExpression() {
-      return new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getReferencedComponentNid());
+      return new LogicalExpressionOchreImpl(this.graphData, DataSource.INTERNAL, getReferencedComponentNid());
    }
 
    @Override

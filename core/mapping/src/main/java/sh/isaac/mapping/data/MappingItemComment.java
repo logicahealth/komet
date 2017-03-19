@@ -73,18 +73,18 @@ public class MappingItemComment
 
    private void read(DynamicSememe<?> commentRefex)
             throws RuntimeException {
-      commentText = commentRefex.getData()[0]
+      this.commentText = commentRefex.getData()[0]
                                 .getDataObject()
                                 .toString();
-      commentContext = (((commentRefex.getData().length > 1) &&
+      this.commentContext = (((commentRefex.getData().length > 1) &&
                          (commentRefex.getData()[1] != null)) ? commentRefex.getData()[1]
                                .getDataObject()
                                .toString()
             : null);
-      mappingItemUUID = Get.identifierService()
+      this.mappingItemUUID = Get.identifierService()
                            .getUuidPrimordialForNid(commentRefex.getReferencedComponentNid())
                            .get();
-      primoridalUUID  = commentRefex.getPrimordialUuid();
+      this.primoridalUUID  = commentRefex.getPrimordialUuid();
       readStampDetails(commentRefex);
    }
 
@@ -94,7 +94,7 @@ public class MappingItemComment
     * @return the commentContext
     */
    public String getCommentContext() {
-      return commentContext;
+      return this.commentContext;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -112,7 +112,7 @@ public class MappingItemComment
     * @return the commentText
     */
    public String getCommentText() {
-      return commentText;
+      return this.commentText;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -130,7 +130,7 @@ public class MappingItemComment
     * @return the mappingItemUUID - which is the identifier of the thing that the comment is attached to
     */
    public UUID getMappingItemUUID() {
-      return mappingItemUUID;
+      return this.mappingItemUUID;
    }
 
    /**
@@ -139,7 +139,7 @@ public class MappingItemComment
     * this variable and the creationDate to be globally unique.
     */
    public UUID getPrimordialUUID() {
-      return primoridalUUID;
+      return this.primoridalUUID;
    }
 }
 

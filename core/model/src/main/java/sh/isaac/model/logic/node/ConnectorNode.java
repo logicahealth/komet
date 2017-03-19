@@ -66,19 +66,19 @@ public abstract class ConnectorNode
 
    public ConnectorNode(AbstractLogicNode another) {
       super(another);
-      childIndices = new ShortArrayList(another.getChildren().length);
+      this.childIndices = new ShortArrayList(another.getChildren().length);
 
-      for (AbstractLogicNode child: another.getChildren()) {
-         childIndices.add(child.getNodeIndex());
+      for (final AbstractLogicNode child: another.getChildren()) {
+         this.childIndices.add(child.getNodeIndex());
       }
    }
 
    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion);
-      childIndices = new ShortArrayList(children.length);
+      this.childIndices = new ShortArrayList(children.length);
 
-      for (AbstractLogicNode child: children) {
-         childIndices.add(child.getNodeIndex());
+      for (final AbstractLogicNode child: children) {
+         this.childIndices.add(child.getNodeIndex());
       }
    }
 
@@ -87,12 +87,12 @@ public abstract class ConnectorNode
             throws IOException {
       super(logicGraphVersion, dataInputStream);
 
-      short childrenSize = dataInputStream.readShort();
+      final short childrenSize = dataInputStream.readShort();
 
-      childIndices = new ShortArrayList(childrenSize);
+      this.childIndices = new ShortArrayList(childrenSize);
 
       for (int index = 0; index < childrenSize; index++) {
-         childIndices.add(dataInputStream.readShort());
+         this.childIndices.add(dataInputStream.readShort());
       }
    }
 
@@ -100,8 +100,8 @@ public abstract class ConnectorNode
 
    @Override
    public void addChildren(LogicNode... children) {
-      for (LogicNode child: children) {
-         childIndices.add(child.getNodeIndex());
+      for (final LogicNode child: children) {
+         this.childIndices.add(child.getNodeIndex());
       }
 
       sort();
@@ -124,17 +124,17 @@ public abstract class ConnectorNode
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + childIndices.hashCode();
+      result = 31 * result + this.childIndices.hashCode();
       return result;
    }
 
    @Override
    public final void sort() {
-      childIndices.mergeSortFromTo(0,
-                                   childIndices.size() - 1,
+      this.childIndices.mergeSortFromTo(0,
+                                   this.childIndices.size() - 1,
                                    (short o1,
-                                    short o2) -> logicGraphVersion.getNode(o1)
-                                          .compareTo(logicGraphVersion.getNode(o2)));
+                                    short o2) -> this.logicGraphVersion.getNode(o1)
+                                          .compareTo(this.logicGraphVersion.getNode(o2)));
    }
 
    @Override
@@ -144,11 +144,11 @@ public abstract class ConnectorNode
 
    @Override
    public String toString(String nodeIdSuffix) {
-      if ((childIndices != null) &&!childIndices.isEmpty()) {
-         StringBuilder builder = new StringBuilder();
+      if ((this.childIndices != null) &&!this.childIndices.isEmpty()) {
+         final StringBuilder builder = new StringBuilder();
 
          builder.append("➞[");
-         childIndices.forEach((index) -> {
+         this.childIndices.forEach((index) -> {
                                  builder.append(index);
                                  builder.append(nodeIdSuffix);
                                  builder.append(", ");
@@ -176,9 +176,9 @@ public abstract class ConnectorNode
             throws IOException {
       sort();
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeShort(childIndices.size());
+      dataOutput.writeShort(this.childIndices.size());
 
-      for (short value: childIndices.elements()) {
+      for (final short value: this.childIndices.elements()) {
          dataOutput.writeShort(value);
       }
    }
@@ -191,10 +191,10 @@ public abstract class ConnectorNode
     */
    @Override
    public AbstractLogicNode[] getChildren() {
-      AbstractLogicNode[] childNodes = new AbstractLogicNode[childIndices.size()];
+      final AbstractLogicNode[] childNodes = new AbstractLogicNode[this.childIndices.size()];
 
       for (int i = 0; i < childNodes.length; i++) {
-         childNodes[i] = (AbstractLogicNode) logicGraphVersion.getNode(childIndices.get(i));
+         childNodes[i] = (AbstractLogicNode) this.logicGraphVersion.getNode(this.childIndices.get(i));
       }
 
       return childNodes;

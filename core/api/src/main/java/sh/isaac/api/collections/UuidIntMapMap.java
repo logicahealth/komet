@@ -101,13 +101,13 @@ public class UuidIntMapMap
       folder.mkdirs();
       this.folder = folder;
 
-      for (int i = 0; i < maps.length; i++) {
-         maps[i] = new MemoryManagedReference<>(null, new File(folder, i + "-uuid-nid.map"), SERIALIZER);
-         WriteToDiskCache.addToCache(maps[i]);
+      for (int i = 0; i < this.maps.length; i++) {
+         this.maps[i] = new MemoryManagedReference<>(null, new File(folder, i + "-uuid-nid.map"), SERIALIZER);
+         WriteToDiskCache.addToCache(this.maps[i]);
       }
 
       if (NID_TO_UUID_CACHE_SIZE > 0) {
-         nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
+         this.nidToPrimoridialCache = new LruCache<>(NID_TO_UUID_CACHE_SIZE);
       }
 
       LOG.debug("Created UuidIntMapMap: " + this);
@@ -122,8 +122,8 @@ public class UuidIntMapMap
     * @return
     */
    public boolean cacheContainsNid(int nid) {
-      if (nidToPrimoridialCache != null) {
-         return nidToPrimoridialCache.containsKey(nid);
+      if (this.nidToPrimoridialCache != null) {
+         return this.nidToPrimoridialCache.containsKey(nid);
       }
 
       return false;
@@ -147,16 +147,16 @@ public class UuidIntMapMap
    public boolean put(UUID uuidKey, int value) {
       updateCache(value, uuidKey);
 
-      int                        mapIndex   = getMapIndex(uuidKey);
-      long[]                     keyAsArray = UUIDUtil.convert(uuidKey);
-      ConcurrentUuidToIntHashMap map        = getMap(mapIndex);
-      long                       stamp      = map.getStampedLock()
+      final int                        mapIndex   = getMapIndex(uuidKey);
+      final long[]                     keyAsArray = UUIDUtil.convert(uuidKey);
+      final ConcurrentUuidToIntHashMap map        = getMap(mapIndex);
+      final long                       stamp      = map.getStampedLock()
                                                  .writeLock();
 
       try {
-         boolean returnValue = map.put(keyAsArray, value, stamp);
+         final boolean returnValue = map.put(keyAsArray, value, stamp);
 
-         maps[mapIndex].elementUpdated();
+         this.maps[mapIndex].elementUpdated();
          return returnValue;
       } finally {
          map.getStampedLock()
@@ -173,7 +173,7 @@ public class UuidIntMapMap
    public int size() {
       int size = 0;
 
-      for (int i = 0; i < maps.length; i++) {
+      for (int i = 0; i < this.maps.length; i++) {
          size += getMap(i).size();
       }
 
@@ -183,49 +183,49 @@ public class UuidIntMapMap
    public void write()
             throws IOException {
       for (int i = 0; i < NUMBER_OF_MAPS; i++) {
-         ConcurrentUuidToIntHashMap map = maps[i].get();
+         final ConcurrentUuidToIntHashMap map = this.maps[i].get();
 
-         if ((map != null) && maps[i].hasUnwrittenUpdate()) {
-            maps[i].write();
+         if ((map != null) && this.maps[i].hasUnwrittenUpdate()) {
+            this.maps[i].write();
          }
       }
    }
 
    protected void readMapFromDisk(int i)
             throws IOException {
-      lock.lock();
+      this.lock.lock();
 
       try {
-         if (maps[i].get() == null) {
-            File mapFile = new File(folder, i + "-uuid-nid.map");
+         if (this.maps[i].get() == null) {
+            final File mapFile = new File(this.folder, i + "-uuid-nid.map");
 
             if (mapFile.exists()) {
                DiskSemaphore.acquire();
 
                try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
-                  maps[i] = new MemoryManagedReference<>(SERIALIZER.deserialize(in), mapFile, SERIALIZER);
-                  WriteToDiskCache.addToCache(maps[i]);
+                  this.maps[i] = new MemoryManagedReference<>(SERIALIZER.deserialize(in), mapFile, SERIALIZER);
+                  WriteToDiskCache.addToCache(this.maps[i]);
                   LOG.debug("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
                } finally {
                   DiskSemaphore.release();
                }
             } else {
-               maps[i] = new MemoryManagedReference<>(new ConcurrentUuidToIntHashMap(DEFAULT_MAP_SIZE,
+               this.maps[i] = new MemoryManagedReference<>(new ConcurrentUuidToIntHashMap(DEFAULT_MAP_SIZE,
                      MIN_LOAD_FACTOR,
                      MAX_LOAD_FACTOR),
-                     new File(folder, i + "-uuid-nid.map"),
+                     new File(this.folder, i + "-uuid-nid.map"),
                      SERIALIZER);
-               WriteToDiskCache.addToCache(maps[i]);
+               WriteToDiskCache.addToCache(this.maps[i]);
             }
          }
       } finally {
-         lock.unlock();
+         this.lock.unlock();
       }
    }
 
    private void updateCache(int nid, UUID uuidKey) {
-      if (nidToPrimoridialCache != null) {
-         UUID[] temp = nidToPrimoridialCache.get(nid);
+      if (this.nidToPrimoridialCache != null) {
+         final UUID[] temp = this.nidToPrimoridialCache.get(nid);
          UUID[] temp1;
 
          if (temp == null) {
@@ -235,7 +235,7 @@ public class UuidIntMapMap
             temp1[temp.length] = uuidKey;
          }
 
-         nidToPrimoridialCache.put(nid, temp1);
+         this.nidToPrimoridialCache.put(nid, temp1);
       }
    }
 
@@ -247,17 +247,17 @@ public class UuidIntMapMap
    }
 
    public UUID[] getKeysForValue(int value) {
-      if (nidToPrimoridialCache != null) {
-         UUID[] cacheHit = nidToPrimoridialCache.get(value);
+      if (this.nidToPrimoridialCache != null) {
+         final UUID[] cacheHit = this.nidToPrimoridialCache.get(value);
 
          if ((cacheHit != null) && (cacheHit.length > 0)) {
             return cacheHit;
          }
       }
 
-      ArrayList<UUID> uuids = new ArrayList<>();
+      final ArrayList<UUID> uuids = new ArrayList<>();
 
-      for (int index = 0; index < maps.length; index++) {
+      for (int index = 0; index < this.maps.length; index++) {
          getMap(index).keysOf(value)
                       .stream()
                       .forEach(uuid -> {
@@ -265,10 +265,10 @@ public class UuidIntMapMap
                                });
       }
 
-      UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
+      final UUID[] temp = uuids.toArray(new UUID[uuids.size()]);
 
-      if ((nidToPrimoridialCache != null) && (temp.length > 0)) {
-         nidToPrimoridialCache.put(value, temp);
+      if ((this.nidToPrimoridialCache != null) && (temp.length > 0)) {
+         this.nidToPrimoridialCache.put(value, temp);
       }
 
       return temp;
@@ -276,19 +276,19 @@ public class UuidIntMapMap
 
    protected ConcurrentUuidToIntHashMap getMap(int index)
             throws RuntimeException {
-      ConcurrentUuidToIntHashMap result = maps[index].get();
+      ConcurrentUuidToIntHashMap result = this.maps[index].get();
 
       while (result == null) {
          try {
             readMapFromDisk(index);
-            result = maps[index].get();
-         } catch (IOException ex) {
+            result = this.maps[index].get();
+         } catch (final IOException ex) {
             throw new RuntimeException(ex);
          }
       }
 
-      maps[index].elementRead();
-      HoldInMemoryCache.addToCache(maps[index]);
+      this.maps[index].elementRead();
+      HoldInMemoryCache.addToCache(this.maps[index]);
       return result;
    }
 
@@ -297,13 +297,13 @@ public class UuidIntMapMap
          throw new IllegalStateException("UUIDs cannot be null. ");
       }
 
-      int index = getMapIndex(key);
+      final int index = getMapIndex(key);
 
       return getMap(index);
    }
 
    private int getMapIndex(UUID key) {
-      return ((int) ((byte) key.hashCode())) - Byte.MIN_VALUE;
+      return (((byte) key.hashCode())) - Byte.MIN_VALUE;
    }
 
    public static AtomicInteger getNextNidProvider() {
@@ -311,7 +311,7 @@ public class UuidIntMapMap
    }
 
    public boolean isShutdown() {
-      return shutdown;
+      return this.shutdown;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -323,16 +323,16 @@ public class UuidIntMapMap
    //~--- get methods ---------------------------------------------------------
 
    public int getWithGeneration(UUID uuidKey) {
-      long[] keyAsArray = UUIDUtil.convert(uuidKey);
-      int    mapIndex   = getMapIndex(uuidKey);
+      final long[] keyAsArray = UUIDUtil.convert(uuidKey);
+      final int    mapIndex   = getMapIndex(uuidKey);
       int    nid        = getMap(mapIndex).get(keyAsArray);
 
       if (nid != Integer.MAX_VALUE) {
          return nid;
       }
 
-      ConcurrentUuidToIntHashMap map   = getMap(mapIndex);
-      long                       stamp = map.getStampedLock()
+      final ConcurrentUuidToIntHashMap map   = getMap(mapIndex);
+      final long                       stamp = map.getStampedLock()
                                             .writeLock();
 
       try {
@@ -347,7 +347,7 @@ public class UuidIntMapMap
 //       if (nid == -2147483637) {
 //           System.out.println(nid + "->" + key);
 //       }
-         maps[mapIndex].elementUpdated();
+         this.maps[mapIndex].elementUpdated();
          map.put(keyAsArray, nid, stamp);
          updateCache(nid, uuidKey);
          return nid;

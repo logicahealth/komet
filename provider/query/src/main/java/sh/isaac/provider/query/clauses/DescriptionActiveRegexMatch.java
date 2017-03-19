@@ -76,9 +76,9 @@ public class DescriptionActiveRegexMatch
 
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      String                                      regex = (String) enclosingQuery.getLetDeclarations()
-                                                                                 .get(regexKey);
-      ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
+      final String                                      regex = (String) this.enclosingQuery.getLetDeclarations()
+                                                                                 .get(this.regexKey);
+      final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().stream().forEach((dc) -> {
                                    dc.getVersionList()
@@ -92,13 +92,13 @@ public class DescriptionActiveRegexMatch
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_ACTIVE_REGEX_MATCH);
       whereClause.getLetKeys()
-                 .add(regexKey);
+                 .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

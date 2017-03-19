@@ -62,27 +62,27 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
 
    @Override
    public int compareTo(ReferencedNidAssemblageSequenceSememeSequenceKey o) {
-      if (referencedNid != o.referencedNid) {
-         if (referencedNid < o.referencedNid) {
+      if (this.referencedNid != o.referencedNid) {
+         if (this.referencedNid < o.referencedNid) {
             return -1;
          }
 
          return 1;
       }
 
-      if (assemblageSequence != o.assemblageSequence) {
-         if (assemblageSequence < o.assemblageSequence) {
+      if (this.assemblageSequence != o.assemblageSequence) {
+         if (this.assemblageSequence < o.assemblageSequence) {
             return -1;
          }
 
          return 1;
       }
 
-      if (sememeSequence == o.sememeSequence) {
+      if (this.sememeSequence == o.sememeSequence) {
          return 0;
       }
 
-      if (sememeSequence < o.sememeSequence) {
+      if (this.sememeSequence < o.sememeSequence) {
          return -1;
       }
 
@@ -99,46 +99,46 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
          return false;
       }
 
-      ReferencedNidAssemblageSequenceSememeSequenceKey sememeKey = (ReferencedNidAssemblageSequenceSememeSequenceKey) o;
+      final ReferencedNidAssemblageSequenceSememeSequenceKey sememeKey = (ReferencedNidAssemblageSequenceSememeSequenceKey) o;
 
-      if (referencedNid != sememeKey.referencedNid) {
+      if (this.referencedNid != sememeKey.referencedNid) {
          return false;
       }
 
-      if (assemblageSequence != sememeKey.assemblageSequence) {
+      if (this.assemblageSequence != sememeKey.assemblageSequence) {
          return false;
       }
 
-      return sememeSequence == sememeKey.sememeSequence;
+      return this.sememeSequence == sememeKey.sememeSequence;
    }
 
    @Override
    public int hashCode() {
-      int result = referencedNid;
+      int result = this.referencedNid;
 
-      result = 31 * result + assemblageSequence;
-      result = 31 * result + sememeSequence;
+      result = 31 * result + this.assemblageSequence;
+      result = 31 * result + this.sememeSequence;
       return result;
    }
 
    @Override
    public String toString() {
-      return "Key{" + "referencedNid=" + referencedNid + ", assemblageSequence=" + assemblageSequence +
-             ", sememeSequence=" + sememeSequence + '}';
+      return "Key{" + "referencedNid=" + this.referencedNid + ", assemblageSequence=" + this.assemblageSequence +
+             ", sememeSequence=" + this.sememeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public int getAssemblageSequence() {
-      return assemblageSequence;
+      return this.assemblageSequence;
    }
 
    public int getReferencedNid() {
-      return referencedNid;
+      return this.referencedNid;
    }
 
    public int getSememeSequence() {
-      return sememeSequence;
+      return this.sememeSequence;
    }
 }
 

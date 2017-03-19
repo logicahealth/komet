@@ -151,18 +151,18 @@ public class DynamicSememeConstants
       new MetadataConceptConstantGroup("dynamic sememe column data types",
                                        UUID.fromString("61da7e50-f606-5ba0-a0df-83fd524951e7")) {
       {
-         addChild(DYNAMIC_SEMEME_DT_NID);
-         addChild(DYNAMIC_SEMEME_DT_BOOLEAN);
-         addChild(DYNAMIC_SEMEME_DT_LONG);
-         addChild(DYNAMIC_SEMEME_DT_BYTE_ARRAY);
-         addChild(DYNAMIC_SEMEME_DT_FLOAT);
-         addChild(DYNAMIC_SEMEME_DT_DOUBLE);
-         addChild(DYNAMIC_SEMEME_DT_POLYMORPHIC);
-         addChild(DYNAMIC_SEMEME_DT_ARRAY);
-         addChild(DYNAMIC_SEMEME_DT_STRING);
-         addChild(DYNAMIC_SEMEME_DT_INTEGER);
-         addChild(DYNAMIC_SEMEME_DT_UUID);
-         addChild(DYNAMIC_SEMEME_DT_SEQUENCE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_NID);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_BOOLEAN);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_LONG);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_BYTE_ARRAY);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_FLOAT);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_DOUBLE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_POLYMORPHIC);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_ARRAY);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_STRING);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_INTEGER);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_UUID);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DT_SEQUENCE);
       }
    };
 
@@ -274,21 +274,21 @@ public class DynamicSememeConstants
       new MetadataConceptConstantGroup("dynamic sememe columns",
                                        UUID.fromString("46ddb9a2-0e10-586a-8b54-8e66333e9b77")) {
       {
-         addChild(DYNAMIC_SEMEME_COLUMN_ORDER);
-         addChild(DYNAMIC_SEMEME_COLUMN_NAME);
-         addChild(DYNAMIC_SEMEME_COLUMN_TYPE);
-         addChild(DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE);
-         addChild(DYNAMIC_SEMEME_COLUMN_REQUIRED);
-         addChild(DYNAMIC_SEMEME_COLUMN_VALIDATOR);
-         addChild(DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA);
-         addChild(DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX);
-         addChild(DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE);
-         addChild(DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_SUBTYPE);
-         addChild(DYNAMIC_SEMEME_COLUMN_VALUE);
-         addChild(DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT);
-         addChild(DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT);
-         addChild(DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT);
-         addChild(DYNAMIC_SEMEME_COLUMN_BUSINESS_RULES);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_ORDER);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_NAME);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_TYPE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_REQUIRED);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_VALIDATOR);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_SUBTYPE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_VALUE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_BUSINESS_RULES);
       }
    };
 
@@ -300,7 +300,7 @@ public class DynamicSememeConstants
                                         "This concept is used as an assemblage for defining new Sememe extensions.  It annotates other sememe extensions to restrict the usage of a " +
                                         " sememe to a particular Component Type (Concept, Description, etc).  The attached data column specifies the allowed Component Type",
                                         new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                              DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE.getUUID(),
                                               DynamicSememeDataType.STRING,
                                               null,
                                               true,
@@ -312,7 +312,7 @@ public class DynamicSememeConstants
                                                     ObjectChronologyType.SEMEME) },
                                               false),
                                               new DynamicSememeColumnInfo(1,
-                                                    DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getUUID(),
+                                                    this.DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_SUBTYPE.getUUID(),
                                                     DynamicSememeDataType.STRING,
                                                     null,
                                                     false,
@@ -336,10 +336,10 @@ public class DynamicSememeConstants
       new MetadataConceptConstantGroup("dynamic sememe metadata",
                                        UUID.fromString("9769773c-7b70-523d-8fc5-b16621ffa57c")) {
       {
-         addChild(DYNAMIC_SEMEME_NAMESPACE);
-         addChild(DYNAMIC_SEMEME_COLUMNS);
-         addChild(DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION);
-         addChild(DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_NAMESPACE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMNS);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
 
          // no parent, this can attach to root
       }
@@ -356,32 +356,32 @@ public class DynamicSememeConstants
                                         "The attached data columns describe what columns are required to define a new Sememe.",
                                         new DynamicSememeColumnInfo[] {
       new DynamicSememeColumnInfo(0,
-                                  DYNAMIC_SEMEME_COLUMN_ORDER.getUUID(),
+                                  this.DYNAMIC_SEMEME_COLUMN_ORDER.getUUID(),
                                   DynamicSememeDataType.INTEGER,
                                   null,
                                   true,
                                   true), new DynamicSememeColumnInfo(1,
-                                        DYNAMIC_SEMEME_COLUMN_NAME.getUUID(),
+                                        this.DYNAMIC_SEMEME_COLUMN_NAME.getUUID(),
                                         DynamicSememeDataType.UUID,
                                         null,
                                         true,
                                         true), new DynamicSememeColumnInfo(2,
-                                              DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_TYPE.getUUID(),
                                               DynamicSememeDataType.STRING,
                                               null,
                                               true,
                                               true), new DynamicSememeColumnInfo(3,
-                                                    DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(),
+                                                    this.DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE.getUUID(),
                                                     DynamicSememeDataType.POLYMORPHIC,
                                                     null,
                                                     false,
                                                     true), new DynamicSememeColumnInfo(4,
-                                                          DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(),
+                                                          this.DYNAMIC_SEMEME_COLUMN_REQUIRED.getUUID(),
                                                           DynamicSememeDataType.BOOLEAN,
                                                           null,
                                                           false,
                                                           true), new DynamicSememeColumnInfo(5,
-                                                                DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(),
+                                                                this.DYNAMIC_SEMEME_COLUMN_VALIDATOR.getUUID(),
                                                                 DynamicSememeDataType.ARRAY,
                                                                 null,
                                                                 false,
@@ -403,7 +403,7 @@ public class DynamicSememeConstants
                                                                    DynamicSememeValidatorType.LESS_THAN_OR_EQUAL.name() +
                                                                    "|" + DynamicSememeValidatorType.REGEXP.name()),
                                                                 true), new DynamicSememeColumnInfo(6,
-                                                                      DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(),
+                                                                      this.DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA.getUUID(),
                                                                       DynamicSememeDataType.ARRAY,
                                                                       null,
                                                                       false,
@@ -437,7 +437,7 @@ public class DynamicSememeConstants
                                         "A Dynamic Sememe which contains the indexer configuration for Dynamic Sememes within ISAAC.  " +
                                         "The referenced component ID will be the assemblage being configured for indexing.",
                                         new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                              DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX.getUUID(),
                                               DynamicSememeDataType.ARRAY,
                                               null,
                                               false,
@@ -449,13 +449,13 @@ public class DynamicSememeConstants
                                         UUID.fromString("147832d4-b9b8-5062-8891-19f9c4e4760a"),
                                         "A Sememe used to store comments on arbitrary items (concepts, relationships, sememes, etc)",
                                         new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                              DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT.getUUID(),
                                               DynamicSememeDataType.STRING,
                                               null,
                                               true,
                                               true),
                                               new DynamicSememeColumnInfo(1,
-                                                    DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT.getUUID(),
+                                                    this.DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT.getUUID(),
                                                     DynamicSememeDataType.STRING,
                                                     null,
                                                     false,
@@ -489,7 +489,7 @@ public class DynamicSememeConstants
                                         UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"),
                                         "A Sememe used to store non-snomed description types when other terminologies are imported",
                                         new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                              DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
                                               DynamicSememeDataType.UUID,
                                               null,
                                               true,
@@ -505,7 +505,7 @@ public class DynamicSememeConstants
                                         "A Sememe used to store non-snomed relationship types when other terminologies are imported - especially when a relationship is mapped onto a " +
                                         "snomed relationship type (such as isa)",
                                         new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                              DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
                                               DynamicSememeDataType.UUID,
                                               null,
                                               true,
@@ -522,7 +522,7 @@ public class DynamicSememeConstants
                                         UUID.fromString("00e6cca4-3c5b-5f2e-b2d8-2c4a6f8f6b46"),
                                         "A Sememe used to store a PRISME user ID on a user/author concept",
                                         new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                              DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+                                              this.DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
                                               DynamicSememeDataType.STRING,
                                               null,
                                               true,
@@ -535,15 +535,15 @@ public class DynamicSememeConstants
       new MetadataConceptConstantGroup("dynamic sememe assemblages",
                                        UUID.fromString("e18265b7-5406-52b6-baf0-4cfb867829b4")) {
       {
-         addChild(DYNAMIC_SEMEME_EXTENSION_DEFINITION);
-         addChild(DYNAMIC_SEMEME_DEFINITION_DESCRIPTION);
-         addChild(DYNAMIC_SEMEME_INDEX_CONFIGURATION);
-         addChild(DYNAMIC_SEMEME_COMMENT_ATTRIBUTE);
-         addChild(DYNAMIC_SEMEME_ASSOCIATION_SEMEME);
-         addChild(DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME);
-         addChild(DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE);
-         addChild(DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE);
-         addChild(DYNAMIC_SEMEME_PRISME_USER_ID);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_EXTENSION_DEFINITION);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_INDEX_CONFIGURATION);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COMMENT_ATTRIBUTE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_ASSOCIATION_SEMEME);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE);
+         addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_PRISME_USER_ID);
          setParent(TermAux.ASSEMBLAGE);
       }
    };
@@ -558,7 +558,7 @@ public class DynamicSememeConstants
 
    @Override
    public MetadataConceptConstant[] getConstantsToCreate() {
-      return new MetadataConceptConstant[] { DYNAMIC_SEMEME_ASSEMBLAGES, DYNAMIC_SEMEME_METADATA };
+      return new MetadataConceptConstant[] { this.DYNAMIC_SEMEME_ASSEMBLAGES, this.DYNAMIC_SEMEME_METADATA };
    }
 
    public static DynamicSememeConstants get() {

@@ -71,11 +71,11 @@ public abstract class DynamicSememeDataImpl
    protected DynamicSememeDataImpl() {}
 
    protected DynamicSememeDataImpl(byte[] data) {
-      data_ = data;
+      this.data_ = data;
    }
 
    protected DynamicSememeDataImpl(byte[] data, int assemblageSequence, int columnNumber) {
-      data_ = data;
+      this.data_ = data;
       configureNameProvider(assemblageSequence, columnNumber);
    }
 
@@ -83,26 +83,26 @@ public abstract class DynamicSememeDataImpl
 
    @Override
    public void configureNameProvider(int assemblageSequence, int columnNumber) {
-      if (nameProvider_ == null) {
-         nameProvider_ = new Supplier<String>() {
+      if (this.nameProvider_ == null) {
+         this.nameProvider_ = new Supplier<String>() {
             private String nameCache_ = null;
             @Override
             public String get() {
-               if (nameCache_ == null) {
-                  DynamicSememeUtility ls = LookupService.get()
+               if (this.nameCache_ == null) {
+                  final DynamicSememeUtility ls = LookupService.get()
                                                          .getService(DynamicSememeUtility.class);
 
                   if (ls == null) {
                      throw new RuntimeException(
                          "An implementation of DynamicSememeUtility is not available on the classpath");
                   } else {
-                     nameCache_ = ls.readDynamicSememeUsageDescription(assemblageSequence)
+                     this.nameCache_ = ls.readDynamicSememeUsageDescription(assemblageSequence)
                                     .getColumnInfo()[columnNumber]
                                     .getColumnName();
                   }
                }
 
-               return nameCache_;
+               return this.nameCache_;
             }
          };
       }
@@ -125,7 +125,7 @@ public abstract class DynamicSememeDataImpl
       case ARRAY:
          String temp = "[";
 
-         for (DynamicSememeData dsdNest: ((DynamicSememeArray<?>) this).getDataArray()) {
+         for (final DynamicSememeData dsdNest: ((DynamicSememeArray<?>) this).getDataArray()) {
             temp += dsdNest.dataToString() + ", ";
          }
 
@@ -137,7 +137,7 @@ public abstract class DynamicSememeDataImpl
          return temp;
 
       case BYTEARRAY:
-         return "[-byte array size " + data_.length + "]";
+         return "[-byte array size " + this.data_.length + "]";
 
       case POLYMORPHIC:
       case UNKNOWN:
@@ -165,9 +165,9 @@ public abstract class DynamicSememeDataImpl
          return false;
       }
 
-      DynamicSememeDataImpl other = (DynamicSememeDataImpl) obj;
+      final DynamicSememeDataImpl other = (DynamicSememeDataImpl) obj;
 
-      if (!Arrays.equals(data_, other.data_)) {
+      if (!Arrays.equals(this.data_, other.data_)) {
          return false;
       }
 
@@ -182,7 +182,7 @@ public abstract class DynamicSememeDataImpl
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + Arrays.hashCode(data_);
+      result = prime * result + Arrays.hashCode(this.data_);
       return result;
    }
 
@@ -202,7 +202,7 @@ public abstract class DynamicSememeDataImpl
     */
    @Override
    public byte[] getData() {
-      return data_;
+      return this.data_;
    }
 
    /**
@@ -214,8 +214,8 @@ public abstract class DynamicSememeDataImpl
    }
 
    protected String getName() {
-      return ((nameProvider_ == null) ? "???"
-                                      : nameProvider_.get());
+      return ((this.nameProvider_ == null) ? "???"
+                                      : this.nameProvider_.get());
    }
 }
 

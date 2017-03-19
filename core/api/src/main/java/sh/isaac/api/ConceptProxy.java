@@ -72,7 +72,7 @@ public class ConceptProxy
    public ConceptProxy() {}
 
    public ConceptProxy(int conceptSequenceOrNid) {
-      ConceptChronology<?> cc = Get.conceptService()
+      final ConceptChronology<?> cc = Get.conceptService()
                                    .getConcept(conceptSequenceOrNid);
 
       this.uuids       = cc.getUuidList()
@@ -81,11 +81,11 @@ public class ConceptProxy
    }
 
    public ConceptProxy(String externalString) {
-      String[] parts = externalString.split(FIELD_SEPARATOR);
+      final String[] parts = externalString.split(FIELD_SEPARATOR);
 
       this.description = parts[0];
 
-      List<UUID> uuidList = new ArrayList<>(parts.length - 1);
+      final List<UUID> uuidList = new ArrayList<>(parts.length - 1);
 
       for (int i = 1; i < parts.length; i++) {
          uuidList.add(UUID.fromString(parts[i]));
@@ -124,7 +124,7 @@ public class ConceptProxy
 
       final ConceptProxy other = (ConceptProxy) obj;
 
-      return Arrays.stream(uuids).anyMatch((UUID objUuid) -> {
+      return Arrays.stream(this.uuids).anyMatch((UUID objUuid) -> {
                                 return Arrays.stream(other.uuids).anyMatch((otherUuid) -> {
                   return objUuid.equals(otherUuid);
                });
@@ -148,11 +148,11 @@ public class ConceptProxy
     */
    @Override
    public String toString() {
-      if (uuids != null) {
-         return "ConceptProxy{" + description + "; " + Arrays.asList(uuids) + "}";
+      if (this.uuids != null) {
+         return "ConceptProxy{" + this.description + "; " + Arrays.asList(this.uuids) + "}";
       }
 
-      return "ConceptProxy{" + description + "; null UUIDs}";
+      return "ConceptProxy{" + this.description + "; null UUIDs}";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -165,7 +165,7 @@ public class ConceptProxy
     */
    @Override
    public String getConceptDescriptionText() {
-      return description;
+      return this.description;
    }
 
    protected static int getConceptSequence(int nid) {
@@ -187,9 +187,10 @@ public class ConceptProxy
 
    //~--- get methods ---------------------------------------------------------
 
-   public int getNid() {
+   @Override
+public int getNid() {
       return Get.identifierService()
-                .getNidForUuids(uuids);
+                .getNidForUuids(this.uuids);
    }
 
    /**
@@ -201,16 +202,16 @@ public class ConceptProxy
    @XmlTransient
    @Override
    public UUID getPrimordialUuid() {
-      if ((uuids == null) || (uuids.length < 1)) {
+      if ((this.uuids == null) || (this.uuids.length < 1)) {
          return null;
       } else {
-         return uuids[0];
+         return this.uuids[0];
       }
    }
 
    @Override
    public List<UUID> getUuidList() {
-      return Arrays.asList(uuids);
+      return Arrays.asList(this.uuids);
    }
 
    /**
@@ -219,9 +220,10 @@ public class ConceptProxy
     *
     * @return
     */
-   @XmlTransient
+   @Override
+@XmlTransient
    public UUID[] getUuids() {
-      return uuids;
+      return this.uuids;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -246,10 +248,10 @@ public class ConceptProxy
     * @return
     */
    public String[] getUuidsAsString() {
-      String[] returnVal = new String[uuids.length];
+      final String[] returnVal = new String[this.uuids.length];
       int      i         = 0;
 
-      for (UUID uuid: uuids) {
+      for (final UUID uuid: this.uuids) {
          returnVal[i++] = uuid.toString();
       }
 
@@ -271,7 +273,7 @@ public class ConceptProxy
 
       int i = 0;
 
-      for (String uuid: uuids) {
+      for (final String uuid: uuids) {
          this.uuids[i++] = UUID.fromString(uuid);
       }
    }

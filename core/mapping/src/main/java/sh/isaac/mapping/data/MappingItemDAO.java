@@ -90,7 +90,7 @@ public class MappingItemDAO
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws RuntimeException {
-      SememeBuilder<? extends SememeChronology<?>> sb = Get.sememeBuilderService()
+      final SememeBuilder<? extends SememeChronology<?>> sb = Get.sememeBuilderService()
                                                            .getDynamicSememeBuilder(sourceConcept.getNid(),
                                                                  Get.identifierService()
                                                                        .getConceptSequenceForUuids(mappingSetID),
@@ -99,7 +99,7 @@ public class MappingItemDAO
             : new DynamicSememeUUIDImpl(targetConcept.getPrimordialUuid())), ((qualifierID == null) ? null
             : new DynamicSememeUUIDImpl(qualifierID)), ((editorStatusID == null) ? null
             : new DynamicSememeUUIDImpl(editorStatusID)) });
-      UUID mappingItemUUID = UuidT5Generator.get(IsaacMappingConstants.get().MAPPING_NAMESPACE
+      final UUID mappingItemUUID = UuidT5Generator.get(IsaacMappingConstants.get().MAPPING_NAMESPACE
                                                                       .getUUID(),
                                                  sourceConcept.getPrimordialUuid()
                                                        .toString() + "|" + mappingSetID.toString() + "|" +
@@ -117,19 +117,22 @@ public class MappingItemDAO
       sb.setPrimordialUuid(mappingItemUUID);
 
       @SuppressWarnings("rawtypes")
+	final
       SememeChronology             built = sb.build(editCoord, ChangeCheckerMode.ACTIVE)
                                              .getNoThrow();
       @SuppressWarnings("deprecation")
+	final
       Task<Optional<CommitRecord>> task  = Get.commitService()
                                               .commit("Added comment");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
 
       @SuppressWarnings({ "unchecked" })
+	final
       Optional<LatestVersion<DynamicSememe<?>>> latest = built.getLatestVersion(DynamicSememe.class,
                                                                                 stampCoord.makeAnalog(State.ACTIVE,
                                                                                       State.INACTIVE));
@@ -207,8 +210,8 @@ public class MappingItemDAO
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws IOException {
-      DynamicSememe<?>    rdv  = readCurrentRefex(mappingItem.getPrimordialUUID(), stampCoord);
-      DynamicSememeData[] data = rdv.getData();
+      final DynamicSememe<?>    rdv  = readCurrentRefex(mappingItem.getPrimordialUUID(), stampCoord);
+      final DynamicSememeData[] data = rdv.getData();
 
       data[2] = ((mappingItem.getEditorStatusConcept() != null)
                  ? new DynamicSememeUUIDImpl(mappingItem.getEditorStatusConcept())
@@ -218,12 +221,13 @@ public class MappingItemDAO
          .build(editCoord, ChangeCheckerMode.ACTIVE);
 
       @SuppressWarnings("deprecation")
+	final
       Task<Optional<CommitRecord>> task = Get.commitService()
                                              .commit("update mapping item");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
    }
@@ -239,11 +243,12 @@ public class MappingItemDAO
     */
    public static List<MappingItem> getMappingItems(UUID mappingSetID, StampCoordinate stampCoord)
             throws IOException {
-      ArrayList<MappingItem> result = new ArrayList<>();
+      final ArrayList<MappingItem> result = new ArrayList<>();
 
       Get.sememeService().getSememesFromAssemblage(Get.identifierService()
                                       .getNidForUuids(mappingSetID)).forEach(sememeC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
+					final
                      Optional<LatestVersion<DynamicSememe<?>>> latest =
                         ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class, stampCoord);
 

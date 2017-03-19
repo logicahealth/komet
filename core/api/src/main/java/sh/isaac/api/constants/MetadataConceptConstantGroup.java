@@ -49,7 +49,7 @@ import java.util.UUID;
 
 public abstract class MetadataConceptConstantGroup
         extends MetadataConceptConstant {
-   private List<MetadataConceptConstant> children_ = new ArrayList<>();
+   private final List<MetadataConceptConstant> children_ = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
@@ -64,7 +64,7 @@ public abstract class MetadataConceptConstantGroup
    //~--- methods -------------------------------------------------------------
 
    protected void addChild(MetadataConceptConstant child) {
-      children_.add(child);
+      this.children_.add(child);
       child.setParent(this);
    }
 
@@ -75,7 +75,7 @@ public abstract class MetadataConceptConstantGroup
     * taxonomy (if any). Will not return null.
     */
    public List<MetadataConceptConstant> getChildren() {
-      return children_;
+      return this.children_;
    }
 }
 

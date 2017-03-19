@@ -93,7 +93,7 @@ public class MappingItemCommentDAO
          throw new RuntimeException("The comment is required");
       }
 
-      SememeChronology<? extends DynamicSememe<?>> built = Get.sememeBuilderService()
+      final SememeChronology<? extends DynamicSememe<?>> built = Get.sememeBuilderService()
                                                               .getDynamicSememeBuilder(Get.identifierService()
                                                                     .getNidForUuids(pMappingItemUUID),
                                                                     DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
@@ -105,16 +105,18 @@ public class MappingItemCommentDAO
                                                               .build(editCoord, ChangeCheckerMode.ACTIVE)
                                                               .getNoThrow();
       @SuppressWarnings("deprecation")
+	final
       Task<Optional<CommitRecord>> task = Get.commitService()
                                              .commit("Added comment");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
+	final
       Optional<LatestVersion<DynamicSememe<?>>> latest =
          ((SememeChronology) built).getLatestVersion(DynamicSememe.class,
                                                      stampCoord.makeAnalog(State.ACTIVE,
@@ -154,7 +156,7 @@ public class MappingItemCommentDAO
                                     StampCoordinate stampCoord,
                                     EditCoordinate editCoord)
             throws IOException {
-      DynamicSememe<?> rdv = readCurrentRefex(comment.getPrimordialUUID(), stampCoord);
+      final DynamicSememe<?> rdv = readCurrentRefex(comment.getPrimordialUUID(), stampCoord);
 
       Get.sememeBuilderService()
          .getDynamicSememeBuilder(rdv.getReferencedComponentNid(),
@@ -166,12 +168,13 @@ public class MappingItemCommentDAO
          .build(editCoord, ChangeCheckerMode.ACTIVE);
 
       @SuppressWarnings("deprecation")
+	final
       Task<Optional<CommitRecord>> task = Get.commitService()
                                              .commit("Added comment");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
    }
@@ -187,13 +190,14 @@ public class MappingItemCommentDAO
    public static List<MappingItemComment> getComments(UUID mappingUUID,
          StampCoordinate stampCoord)
             throws RuntimeException {
-      List<MappingItemComment> comments = new ArrayList<MappingItemComment>();
+      final List<MappingItemComment> comments = new ArrayList<MappingItemComment>();
 
       Get.sememeService().getSememesForComponentFromAssemblage(Get.identifierService()
             .getNidForUuids(mappingUUID),
             DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
                                   .getSequence()).forEach(sememeC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
+					final
                      Optional<LatestVersion<DynamicSememe<?>>> latest = ((SememeChronology) sememeC).getLatestVersion(
                                                                            DynamicSememe.class, stampCoord.makeAnalog(
                                                                               State.ACTIVE, State.INACTIVE));

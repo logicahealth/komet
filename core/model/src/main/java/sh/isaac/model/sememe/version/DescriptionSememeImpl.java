@@ -84,27 +84,27 @@ public class DescriptionSememeImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{Description≤")
-        .append(text)
+        .append(this.text)
         .append(", rc: ")
         .append(getReferencedComponentNid())
         .append(" <")
         .append(Get.identifierService()
                    .getConceptSequence(getReferencedComponentNid()))
         .append(">, ")
-        .append(Get.conceptDescriptionText(caseSignificanceConceptSequence))
+        .append(Get.conceptDescriptionText(this.caseSignificanceConceptSequence))
         .append(" <")
-        .append(caseSignificanceConceptSequence)
+        .append(this.caseSignificanceConceptSequence)
         .append(">, ")
-        .append(Get.conceptDescriptionText(languageConceptSequence))
+        .append(Get.conceptDescriptionText(this.languageConceptSequence))
         .append(" <")
-        .append(languageConceptSequence)
+        .append(this.languageConceptSequence)
         .append(">, ")
-        .append(Get.conceptDescriptionText(descriptionTypeConceptSequence))
+        .append(Get.conceptDescriptionText(this.descriptionTypeConceptSequence))
         .append(" <")
-        .append(descriptionTypeConceptSequence)
+        .append(this.descriptionTypeConceptSequence)
         .append(">");
       toString(sb);
       sb.append("≥D}");
@@ -114,17 +114,17 @@ public class DescriptionSememeImpl
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putConceptSequence(caseSignificanceConceptSequence);
-      data.putConceptSequence(languageConceptSequence);
-      data.putUTF(text);
-      data.putConceptSequence(descriptionTypeConceptSequence);
+      data.putConceptSequence(this.caseSignificanceConceptSequence);
+      data.putConceptSequence(this.languageConceptSequence);
+      data.putUTF(this.text);
+      data.putConceptSequence(this.descriptionTypeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getCaseSignificanceConceptSequence() {
-      return caseSignificanceConceptSequence;
+      return this.caseSignificanceConceptSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -138,7 +138,7 @@ public class DescriptionSememeImpl
 
    @Override
    public int getDescriptionTypeConceptSequence() {
-      return descriptionTypeConceptSequence;
+      return this.descriptionTypeConceptSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -152,7 +152,7 @@ public class DescriptionSememeImpl
 
    @Override
    public int getLanguageConceptSequence() {
-      return languageConceptSequence;
+      return this.languageConceptSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -171,7 +171,7 @@ public class DescriptionSememeImpl
 
    @Override
    public String getText() {
-      return text;
+      return this.text;
    }
 
    //~--- set methods ---------------------------------------------------------

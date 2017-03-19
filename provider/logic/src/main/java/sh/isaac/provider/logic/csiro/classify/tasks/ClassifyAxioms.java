@@ -70,7 +70,7 @@ public class ClassifyAxioms
    @Override
    protected Void call()
             throws Exception {
-      ClassifierData cd = ClassifierData.get(stampCoordinate, logicCoordinate);
+      final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
 
       cd.classify();
       return null;

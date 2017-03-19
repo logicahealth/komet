@@ -197,7 +197,7 @@ public class DynamicSememeValidatorTypeImplTest {
                null,
                null));
          Assert.fail("Should have been an exception");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          // expected
       }
    }

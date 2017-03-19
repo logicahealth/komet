@@ -75,15 +75,15 @@ public class FullClassification
    public void execute()
             throws MojoExecutionException {
       try {
-         LogicService    logicService    = LookupService.getService(LogicService.class);
+         final LogicService    logicService    = LookupService.getService(LogicService.class);
          EditCoordinate  editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
-         LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
+         final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
 
          editCoordinate = new EditCoordinateImpl(logicCoordinate.getClassifierSequence(),
                editCoordinate.getModuleSequence(),
                editCoordinate.getModuleSequence());
 
-         Task<ClassifierResults> classifyTask =
+         final Task<ClassifierResults> classifyTask =
             logicService.getClassifierService(StampCoordinates.getDevelopmentLatest(),
                                               LogicCoordinates.getStandardElProfile(),
                                               editCoordinate)

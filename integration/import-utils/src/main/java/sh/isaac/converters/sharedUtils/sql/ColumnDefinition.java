@@ -40,30 +40,30 @@
 package sh.isaac.converters.sharedUtils.sql;
 
 public class ColumnDefinition {
-   private String   columnName_;
-   private DataType dataType_;
+   private final String   columnName_;
+   private final DataType dataType_;
 
    //~--- constructors --------------------------------------------------------
 
    public ColumnDefinition(String columnName, DataType dataType) {
-      columnName_ = columnName;
-      dataType_   = dataType;
+      this.columnName_ = columnName;
+      this.dataType_   = dataType;
    }
 
    //~--- methods -------------------------------------------------------------
 
    public String asH2() {
-      return columnName_ + " " + dataType_.asH2();
+      return this.columnName_ + " " + this.dataType_.asH2();
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public String getColumnName() {
-      return columnName_;
+      return this.columnName_;
    }
 
    public DataType getDataType() {
-      return dataType_;
+      return this.dataType_;
    }
 }
 

@@ -112,7 +112,7 @@ public class BinaryDataDifferProviderUtility {
    boolean                         diffOnAuthor;
    boolean                         diffOnModule;
    boolean                         diffOnPath;
-   private SememeBuilderService<?> sememeBuilderService_;
+   private final SememeBuilderService<?> sememeBuilderService_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -126,7 +126,7 @@ public class BinaryDataDifferProviderUtility {
       this.diffOnAuthor     = diffOnAuthor;
       this.diffOnModule     = diffOnModule;
       this.diffOnPath       = diffOnPath;
-      sememeBuilderService_ = Get.sememeBuilderService();
+      this.sememeBuilderService_ = Get.sememeBuilderService();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -134,7 +134,7 @@ public class BinaryDataDifferProviderUtility {
    public OchreExternalizable addNewInactiveVersion(OchreExternalizable oldChron,
          OchreExternalizableObjectType type,
          int inactiveStampSeq) {
-      LatestVersion<StampedVersion> latestVersion =
+      final LatestVersion<StampedVersion> latestVersion =
          ((ObjectChronology<StampedVersion>) oldChron).getLatestVersion(StampedVersion.class,
                                                                         StampCoordinates.getDevelopmentLatestActiveOnly())
                                                       .get();
@@ -143,7 +143,7 @@ public class BinaryDataDifferProviderUtility {
          ((ConceptVersion<?>) latestVersion.value()).getChronology()
                .createMutableVersion(inactiveStampSeq);
       } else if (type == OchreExternalizableObjectType.SEMEME) {
-         SememeVersion originalVersion = (SememeVersion) latestVersion.value();
+         final SememeVersion originalVersion = (SememeVersion) latestVersion.value();
          SememeVersion createdVersion = originalVersion.getChronology()
                                                        .createMutableVersion(
                                                           getSememeClass((SememeVersion) latestVersion.value()),
@@ -160,7 +160,7 @@ public class BinaryDataDifferProviderUtility {
                                    int stampSeq,
                                    OchreExternalizableObjectType type) {
       List<StampedVersion> oldVersions = null;
-      List<StampedVersion> newVersions = (List<StampedVersion>) newChron.getVersionList();
+      final List<StampedVersion> newVersions = (List<StampedVersion>) newChron.getVersionList();
 
       if (oldChron == null) {
          return createNewChronology(newChron, type, stampSeq);
@@ -170,10 +170,10 @@ public class BinaryDataDifferProviderUtility {
 
       oldVersions = (List<StampedVersion>) oldChron.getVersionList();
 
-      for (StampedVersion nv: newVersions) {
+      for (final StampedVersion nv: newVersions) {
          boolean equivalenceFound = false;
 
-         for (StampedVersion ov: oldVersions) {
+         for (final StampedVersion ov: oldVersions) {
             if (isEquivalent(ov, nv, type)) {
                equivalenceFound = true;
                break;
@@ -208,7 +208,7 @@ public class BinaryDataDifferProviderUtility {
 
             createdVersion = populateData(createdVersion, (SememeVersion<?>) newVersion, activeStampSeq);
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          e.printStackTrace();
       }
    }
@@ -220,20 +220,20 @@ public class BinaryDataDifferProviderUtility {
          if (type == OchreExternalizableObjectType.CONCEPT) {
             return newChron;
          } else if (type == OchreExternalizableObjectType.SEMEME) {
-            List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
+            final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
             SememeChronology<?>                              sememe       = null;
 
-            for (StampedVersion version: newChron.getVersionList()) {
-               SememeBuilder<?> builder = getBuilder((SememeVersion<?>) version);
+            for (final StampedVersion version: newChron.getVersionList()) {
+               final SememeBuilder<?> builder = getBuilder((SememeVersion<?>) version);
 
-               sememe = (SememeChronology<?>) builder.build(stampSeq, builtObjects);
+               sememe = builder.build(stampSeq, builtObjects);
             }
 
             return sememe;
          } else {
             throw new Exception("Unsupported OchreExternalizableObjectType: " + type);
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          e.printStackTrace();
       }
 
@@ -276,8 +276,8 @@ public class BinaryDataDifferProviderUtility {
          return newVer;
 
       case RELATIONSHIP_ADAPTOR:
-         RelationshipVersionAdaptorImpl origRelVer = (RelationshipVersionAdaptorImpl) originalVersion;
-         RelationshipAdaptorChronicleKeyImpl key =
+         final RelationshipVersionAdaptorImpl origRelVer = (RelationshipVersionAdaptorImpl) originalVersion;
+         final RelationshipAdaptorChronicleKeyImpl key =
             new RelationshipAdaptorChronicleKeyImpl(origRelVer.getOriginSequence(),
                                                     origRelVer.getDestinationSequence(),
                                                     origRelVer.getTypeSequence(),
@@ -306,17 +306,17 @@ public class BinaryDataDifferProviderUtility {
       switch (version.getChronology()
                      .getSememeType()) {
       case COMPONENT_NID:
-         ComponentNidSememe<?> compNidSememe = (ComponentNidSememe<?>) version;
+         final ComponentNidSememe<?> compNidSememe = (ComponentNidSememe<?>) version;
 
-         builder = sememeBuilderService_.getComponentSememeBuilder(compNidSememe.getComponentNid(),
+         builder = this.sememeBuilderService_.getComponentSememeBuilder(compNidSememe.getComponentNid(),
                compNidSememe.getReferencedComponentNid(),
                compNidSememe.getAssemblageSequence());
          break;
 
       case DESCRIPTION:
-         DescriptionSememe<?> descSememe = (DescriptionSememe<?>) version;
+         final DescriptionSememe<?> descSememe = (DescriptionSememe<?>) version;
 
-         builder = sememeBuilderService_.getDescriptionSememeBuilder(descSememe.getCaseSignificanceConceptSequence(),
+         builder = this.sememeBuilderService_.getDescriptionSememeBuilder(descSememe.getCaseSignificanceConceptSequence(),
                descSememe.getLanguageConceptSequence(),
                descSememe.getDescriptionTypeConceptSequence(),
                descSememe.getText(),
@@ -324,38 +324,38 @@ public class BinaryDataDifferProviderUtility {
          break;
 
       case DYNAMIC:
-         DynamicSememe<?> dynSememe = (DynamicSememe<?>) version;
+         final DynamicSememe<?> dynSememe = (DynamicSememe<?>) version;
 
-         builder = sememeBuilderService_.getDynamicSememeBuilder(dynSememe.getReferencedComponentNid(),
+         builder = this.sememeBuilderService_.getDynamicSememeBuilder(dynSememe.getReferencedComponentNid(),
                dynSememe.getAssemblageSequence(),
                dynSememe.getData());
          break;
 
       case LONG:
-         LongSememe<?> longSememe = (LongSememe<?>) version;
+         final LongSememe<?> longSememe = (LongSememe<?>) version;
 
-         builder = sememeBuilderService_.getLongSememeBuilder(longSememe.getLongValue(),
+         builder = this.sememeBuilderService_.getLongSememeBuilder(longSememe.getLongValue(),
                longSememe.getReferencedComponentNid(),
                longSememe.getAssemblageSequence());
          break;
 
       case MEMBER:
-         builder = sememeBuilderService_.getMembershipSememeBuilder(version.getReferencedComponentNid(),
+         builder = this.sememeBuilderService_.getMembershipSememeBuilder(version.getReferencedComponentNid(),
                version.getAssemblageSequence());
          break;
 
       case STRING:
-         StringSememe<?> stringSememe = (StringSememe<?>) version;
+         final StringSememe<?> stringSememe = (StringSememe<?>) version;
 
-         builder = sememeBuilderService_.getStringSememeBuilder(stringSememe.getString(),
+         builder = this.sememeBuilderService_.getStringSememeBuilder(stringSememe.getString(),
                stringSememe.getReferencedComponentNid(),
                stringSememe.getAssemblageSequence());
          break;
 
       case LOGIC_GRAPH:
-         LogicGraphSememe<?> logicGraphSememe = (LogicGraphSememe<?>) version;
+         final LogicGraphSememe<?> logicGraphSememe = (LogicGraphSememe<?>) version;
 
-         builder = sememeBuilderService_.getLogicalExpressionSememeBuilder(logicGraphSememe.getLogicalExpression(),
+         builder = this.sememeBuilderService_.getLogicalExpressionSememeBuilder(logicGraphSememe.getLogicalExpression(),
                logicGraphSememe.getReferencedComponentNid(),
                logicGraphSememe.getAssemblageSequence());
          break;
@@ -371,11 +371,11 @@ public class BinaryDataDifferProviderUtility {
    }
 
    private boolean isEquivalent(StampedVersion ov, StampedVersion nv, OchreExternalizableObjectType type) {
-      if ((diffOnStatus && (ov.getState() != nv.getState())) ||
-            (diffOnTimestamp && (ov.getTime() != nv.getTime())) ||
-            (diffOnAuthor && (ov.getAuthorSequence() != nv.getAuthorSequence())) ||
-            (diffOnModule && (ov.getModuleSequence() != nv.getModuleSequence())) ||
-            (diffOnPath && (ov.getPathSequence() != nv.getPathSequence()))) {
+      if ((this.diffOnStatus && (ov.getState() != nv.getState())) ||
+            (this.diffOnTimestamp && (ov.getTime() != nv.getTime())) ||
+            (this.diffOnAuthor && (ov.getAuthorSequence() != nv.getAuthorSequence())) ||
+            (this.diffOnModule && (ov.getModuleSequence() != nv.getModuleSequence())) ||
+            (this.diffOnPath && (ov.getPathSequence() != nv.getPathSequence()))) {
          return false;
       } else if (type == OchreExternalizableObjectType.CONCEPT) {
          // No other value to analyze equivalence for a concept, so return
@@ -383,8 +383,8 @@ public class BinaryDataDifferProviderUtility {
          return true;
       } else {
          // Analyze Sememe
-         DynamicSememeData[] oldData = getSememeData((SememeVersion<?>) ov);
-         DynamicSememeData[] newData = getSememeData((SememeVersion<?>) nv);
+         final DynamicSememeData[] oldData = getSememeData((SememeVersion<?>) ov);
+         final DynamicSememeData[] newData = getSememeData((SememeVersion<?>) nv);
 
          return isSememeDataEquivalent(oldData, newData);
       }
@@ -399,12 +399,12 @@ public class BinaryDataDifferProviderUtility {
    public void setNewImportDate(String importDate) {
       // Must be in format of 2005-10-06
       try {
-         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
          newImportDate = sdf.parse(importDate)
                             .getTime();
-      } catch (ParseException e) {
-         Date d = new Date();
+      } catch (final ParseException e) {
+         final Date d = new Date();
 
          newImportDate = d.getTime();
       }

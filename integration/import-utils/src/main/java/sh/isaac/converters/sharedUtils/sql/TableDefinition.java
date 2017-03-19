@@ -46,38 +46,38 @@ import java.util.LinkedHashMap;
 //~--- classes ----------------------------------------------------------------
 
 public class TableDefinition {
-   private LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
-   private String                                  tableName_;
+   private final LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
+   private final String                                  tableName_;
 
    //~--- constructors --------------------------------------------------------
 
    public TableDefinition(String tableName) {
-      tableName_ = tableName;
+      this.tableName_ = tableName;
    }
 
    //~--- methods -------------------------------------------------------------
 
    public void addColumn(ColumnDefinition cd) {
-      columns_.put(cd.getColumnName()
+      this.columns_.put(cd.getColumnName()
                      .toLowerCase(), cd);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public DataType getColDataType(String columnName) {
-      ColumnDefinition x = columns_.get(columnName.toLowerCase());
+      final ColumnDefinition x = this.columns_.get(columnName.toLowerCase());
 
       return (x == null) ? null
                          : x.getDataType();
    }
 
    public ColumnDefinition[] getColumns() {
-      return columns_.values()
-                     .toArray(new ColumnDefinition[columns_.size()]);
+      return this.columns_.values()
+                     .toArray(new ColumnDefinition[this.columns_.size()]);
    }
 
    public String getTableName() {
-      return tableName_;
+      return this.tableName_;
    }
 }
 

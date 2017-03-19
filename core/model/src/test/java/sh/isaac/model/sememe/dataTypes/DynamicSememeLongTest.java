@@ -62,18 +62,18 @@ public class DynamicSememeLongTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      long[] testValues = new long[] {
+      final long[] testValues = new long[] {
          Long.MIN_VALUE, Long.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532, 3289402830942309l, -9128934721874891l
       };
 
-      for (long l: testValues) {
+      for (final long l: testValues) {
          test(l);
       }
    }
 
    private void test(long value)
             throws PropertyVetoException, IOException {
-      DynamicSememeLongImpl l = new DynamicSememeLongImpl(value);
+      final DynamicSememeLongImpl l = new DynamicSememeLongImpl(value);
 
       assertEquals(value, l.getDataLong());
       assertEquals(value, ((Long) l.getDataObject()).longValue());

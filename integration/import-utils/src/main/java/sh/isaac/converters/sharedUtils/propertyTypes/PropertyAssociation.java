@@ -51,9 +51,9 @@ import sh.isaac.api.constants.DynamicSememeConstants;
 
 public class PropertyAssociation
         extends Property {
-   private String               associationInverseName_;
-   private ObjectChronologyType associationComponentTypeRestriction_;
-   private SememeType           associationComponentTypeSubRestriction_;
+   private final String               associationInverseName_;
+   private final ObjectChronologyType associationComponentTypeRestriction_;
+   private final SememeType           associationComponentTypeSubRestriction_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -93,28 +93,28 @@ public class PropertyAssociation
          throw new RuntimeException("association description is required");
       }
 
-      associationInverseName_                 = associationInverseName;
-      associationComponentTypeRestriction_    = associationComponentTypeRestriction;
-      associationComponentTypeSubRestriction_ = associationComponentTypeSubRestriction;
+      this.associationInverseName_                 = associationInverseName;
+      this.associationComponentTypeRestriction_    = associationComponentTypeRestriction;
+      this.associationComponentTypeSubRestriction_ = associationComponentTypeSubRestriction;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public ObjectChronologyType getAssociationComponentTypeRestriction() {
-      return associationComponentTypeRestriction_;
+      return this.associationComponentTypeRestriction_;
    }
 
    public SememeType getAssociationComponentTypeSubRestriction() {
-      return associationComponentTypeSubRestriction_;
+      return this.associationComponentTypeSubRestriction_;
    }
 
    public String getAssociationInverseName() {
-      return associationInverseName_;
+      return this.associationInverseName_;
    }
 
    @Override
    public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
-      DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
+      final DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
                                                                                                       DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
                                                                                                       DynamicSememeDataType.UUID,
                                                                                                       null,

@@ -71,7 +71,7 @@ public class AndNot
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet results = NidSet.of(incomingComponents.stream());
+      final NidSet results = NidSet.of(incomingComponents.stream());
 
       getChildren().stream().forEach((clause) -> {
                                results.andNot(clause.computeComponents(incomingComponents));
@@ -81,7 +81,7 @@ public class AndNot
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      NidSet results = NidSet.of(incomingPossibleComponents.stream());
+      final NidSet results = NidSet.of(incomingPossibleComponents.stream());
 
       getChildren().stream().forEach((clause) -> {
                                results.andNot(clause.computePossibleComponents(incomingPossibleComponents));
@@ -93,7 +93,7 @@ public class AndNot
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.AND_NOT);
       getChildren().stream().forEach((clause) -> {

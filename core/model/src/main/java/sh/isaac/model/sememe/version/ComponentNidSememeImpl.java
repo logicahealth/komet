@@ -85,36 +85,36 @@ public class ComponentNidSememeImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{Component Nid≤");
 
       switch (Get.identifierService()
-                 .getChronologyTypeForNid(componentNid)) {
+                 .getChronologyTypeForNid(this.componentNid)) {
       case CONCEPT:
-         sb.append(Get.conceptDescriptionText(componentNid));
+         sb.append(Get.conceptDescriptionText(this.componentNid));
          break;
 
       case SEMEME:
-         Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
+         final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
                                                                                               .getOptionalSememe(
-                                                                                                 componentNid);
+                                                                                                 this.componentNid);
 
          if (optionalSememe.isPresent()) {
             sb.append(optionalSememe.get()
                                     .getSememeType());
          } else {
             sb.append("no such sememe: ")
-              .append(componentNid);
+              .append(this.componentNid);
          }
 
          break;
 
       default:
          sb.append(Get.identifierService()
-                      .getChronologyTypeForNid(componentNid))
+                      .getChronologyTypeForNid(this.componentNid))
            .append(" ")
-           .append(componentNid)
+           .append(this.componentNid)
            .append(" ");
       }
 
@@ -126,14 +126,14 @@ public class ComponentNidSememeImpl
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putNid(componentNid);
+      data.putNid(this.componentNid);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getComponentNid() {
-      return componentNid;
+      return this.componentNid;
    }
 
    //~--- set methods ---------------------------------------------------------

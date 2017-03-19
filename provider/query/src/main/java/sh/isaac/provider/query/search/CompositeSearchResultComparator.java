@@ -91,7 +91,7 @@ public class CompositeSearchResultComparator
       }
 
       // sort on text
-      int textComparison = ObjectUtils.compare(o1.getContainingConcept()
+      final int textComparison = ObjectUtils.compare(o1.getContainingConcept()
                                                  .get()
                                                  .getConceptDescriptionText(),
                                                o2.getContainingConcept()
@@ -103,11 +103,11 @@ public class CompositeSearchResultComparator
       }
 
       // else same score and FSN and preferred description - sort on type
-      String comp1String = o1.getMatchingComponents()
+      final String comp1String = o1.getMatchingComponents()
                              .iterator()
                              .next()
                              .toUserString();
-      String comp2String = o2.getMatchingComponents()
+      final String comp2String = o2.getMatchingComponents()
                              .iterator()
                              .next()
                              .toUserString();

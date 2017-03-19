@@ -84,42 +84,42 @@ public class MockConceptService
 
    @Override
    public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
-      conceptsMap.put(concept.getConceptSequence(), concept);
+      this.conceptsMap.put(concept.getConceptSequence(), concept);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId) {
-      return conceptsMap.get(Get.identifierService()
+      return this.conceptsMap.get(Get.identifierService()
                                 .getConceptSequence(conceptId));
    }
 
    @Override
    public ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids) {
-      int conceptNid      = Get.identifierService()
+      final int conceptNid      = Get.identifierService()
                                .getNidForUuids(conceptUuids);
-      int conceptSequence = Get.identifierService()
+      final int conceptSequence = Get.identifierService()
                                .getConceptSequence(conceptNid);
 
-      if (conceptsMap.containsKey(conceptSequence)) {
-         return conceptsMap.get(Get.identifierService()
+      if (this.conceptsMap.containsKey(conceptSequence)) {
+         return this.conceptsMap.get(Get.identifierService()
                                    .getConceptSequenceForUuids(conceptUuids));
       }
 
-      ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
+      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
 
       if (conceptUuids.length > 1) {
          concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));
       }
 
-      conceptsMap.put(conceptSequence, concept);
+      this.conceptsMap.put(conceptSequence, concept);
       return concept;
    }
 
    @Override
    public boolean hasConcept(int conceptId) {
-      return conceptsMap.containsKey(Get.identifierService()
+      return this.conceptsMap.containsKey(Get.identifierService()
                                         .getConceptSequence(conceptId));
    }
 
@@ -130,7 +130,7 @@ public class MockConceptService
 
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
-      return conceptsMap.values()
+      return this.conceptsMap.values()
                         .stream();
    }
 
@@ -142,26 +142,26 @@ public class MockConceptService
 
    @Override
    public int getConceptCount() {
-      return conceptsMap.size();
+      return this.conceptsMap.size();
    }
 
    @Override
    public IntStream getConceptKeyParallelStream() {
-      return conceptsMap.keySet()
+      return this.conceptsMap.keySet()
                         .parallelStream()
                         .mapToInt(i -> i);
    }
 
    @Override
    public IntStream getConceptKeyStream() {
-      return conceptsMap.keySet()
+      return this.conceptsMap.keySet()
                         .stream()
                         .mapToInt(i -> i);
    }
 
    @Override
    public UUID getDataStoreId() {
-      return dbId;
+      return this.dbId;
    }
 
    @Override
@@ -186,7 +186,7 @@ public class MockConceptService
 
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
-      return conceptsMap.values()
+      return this.conceptsMap.values()
                         .parallelStream();
    }
 

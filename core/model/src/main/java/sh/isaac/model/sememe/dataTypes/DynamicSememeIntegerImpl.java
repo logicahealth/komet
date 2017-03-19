@@ -68,7 +68,7 @@ public class DynamicSememeIntegerImpl
 
    public DynamicSememeIntegerImpl(int integer) {
       super();
-      data_ = intToByteArray(integer);
+      this.data_ = intToByteArray(integer);
    }
 
    protected DynamicSememeIntegerImpl(byte[] data, int assemblageSequence, int columnNumber) {
@@ -81,7 +81,7 @@ public class DynamicSememeIntegerImpl
     * Returns a 4 byte array
     */
    protected static byte[] intToByteArray(int integer) {
-      byte[] bytes = new byte[4];
+      final byte[] bytes = new byte[4];
 
       bytes[0] = (byte) (integer >> 24);
       bytes[1] = (byte) (integer >> 16);
@@ -97,7 +97,7 @@ public class DynamicSememeIntegerImpl
     */
    @Override
    public int getDataInteger() {
-      return getIntFromByteArray(data_);
+      return getIntFromByteArray(this.data_);
    }
 
    /**
@@ -105,11 +105,11 @@ public class DynamicSememeIntegerImpl
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
+      if (this.property_ == null) {
+         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
       }
 
-      return property_;
+      return this.property_;
    }
 
    /**

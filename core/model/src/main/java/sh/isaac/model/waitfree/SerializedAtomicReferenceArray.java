@@ -61,7 +61,11 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  */
 public class SerializedAtomicReferenceArray
         extends AtomicReferenceArray<byte[]> {
-   WaitFreeMergeSerializer isaacSerializer;
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+WaitFreeMergeSerializer isaacSerializer;
    int                     segment;
 
    //~--- constructors --------------------------------------------------------
@@ -81,18 +85,18 @@ public class SerializedAtomicReferenceArray
     */
    @Override
    public String toString() {
-      int iMax = length() - 1;
+      final int iMax = length() - 1;
 
       if (iMax == -1) {
          return "{Bytes≤≥B}";
       }
 
-      StringBuilder b = new StringBuilder();
+      final StringBuilder b = new StringBuilder();
 
       for (int i = 0; ; i++) {
          b.append("{Bytes≤");
 
-         int sequence = segment * length() + i;
+         final int sequence = this.segment * length() + i;
 
          b.append(sequence);
          b.append(": ");
@@ -101,12 +105,12 @@ public class SerializedAtomicReferenceArray
          b.append(Get.conceptDescriptionText(sequence));
          b.append(" ");
 
-         byte[] byteData = get(i);
+         final byte[] byteData = get(i);
 
          if (byteData != null) {
-            ByteArrayDataBuffer db = new ByteArrayDataBuffer(byteData);
+            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(byteData);
 
-            b.append(isaacSerializer.deserialize(db));
+            b.append(this.isaacSerializer.deserialize(db));
          } else {
             b.append("null");
          }
@@ -123,7 +127,7 @@ public class SerializedAtomicReferenceArray
    //~--- get methods ---------------------------------------------------------
 
    public int getSegment() {
-      return segment;
+      return this.segment;
    }
 }
 

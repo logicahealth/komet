@@ -70,7 +70,7 @@ public class SearchBuilder {
 
    // Concept search builder factory methods
    public static SearchBuilder conceptDescriptionSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(false);
@@ -79,7 +79,7 @@ public class SearchBuilder {
    }
 
    public static SearchBuilder conceptPrefixSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(true);
@@ -88,7 +88,7 @@ public class SearchBuilder {
    }
 
    public static SearchBuilder descriptionPrefixSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(true);
@@ -98,7 +98,7 @@ public class SearchBuilder {
 
    // Description search builder factory methods
    public static SearchBuilder descriptionSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(false);
@@ -112,7 +112,7 @@ public class SearchBuilder {
     * @return the callback
     */
    public TaskCompleteCallback getCallback() {
-      return callback;
+      return this.callback;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -130,7 +130,7 @@ public class SearchBuilder {
     * @return the comparator
     */
    public Comparator<CompositeSearchResult> getComparator() {
-      return comparator;
+      return this.comparator;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -148,7 +148,7 @@ public class SearchBuilder {
     * @return the filter
     */
    public Function<List<CompositeSearchResult>, List<CompositeSearchResult>> getFilter() {
-      return filter;
+      return this.filter;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -166,7 +166,7 @@ public class SearchBuilder {
     * @return the mergeResultsOnConcept
     */
    public boolean getMergeResultsOnConcept() {
-      return mergeResultsOnConcept;
+      return this.mergeResultsOnConcept;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -184,7 +184,7 @@ public class SearchBuilder {
     * @return the prefixSearch
     */
    public boolean isPrefixSearch() {
-      return prefixSearch;
+      return this.prefixSearch;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -202,7 +202,7 @@ public class SearchBuilder {
     * @return the query
     */
    public String getQuery() {
-      return query;
+      return this.query;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -220,7 +220,7 @@ public class SearchBuilder {
     * @return the sizeLimit
     */
    public Integer getSizeLimit() {
-      return sizeLimit;
+      return this.sizeLimit;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -238,7 +238,7 @@ public class SearchBuilder {
     * @return the taskId
     */
    public Integer getTaskId() {
-      return taskId;
+      return this.taskId;
    }
 
    //~--- set methods ---------------------------------------------------------

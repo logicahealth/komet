@@ -61,7 +61,7 @@ public class Where {
    //~--- get methods ---------------------------------------------------------
 
    public WhereClause getRootClause() {
-      return rootClause;
+      return this.rootClause;
    }
 
    //~--- set methods ---------------------------------------------------------

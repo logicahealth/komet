@@ -57,15 +57,15 @@ public class MergeFailure
 
    //~--- fields --------------------------------------------------------------
 
-   private Set<String> filesWithMergeFailures_;
-   private Set<String> filesChangedDuringMergeAttempt_;
+   private final Set<String> filesWithMergeFailures_;
+   private final Set<String> filesChangedDuringMergeAttempt_;
 
    //~--- constructors --------------------------------------------------------
 
    public MergeFailure(Set<String> filesWithMergeFailures, Set<String> filesChangedDuringMergeAttempt) {
       super("Merge Failure");
-      filesWithMergeFailures_         = filesWithMergeFailures;
-      filesChangedDuringMergeAttempt_ = filesChangedDuringMergeAttempt;
+      this.filesWithMergeFailures_         = filesWithMergeFailures;
+      this.filesChangedDuringMergeAttempt_ = filesChangedDuringMergeAttempt;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -74,7 +74,7 @@ public class MergeFailure
     * @return All files that were changed (successfully or not) during the merge.
     */
    public Set<String> getFilesChangedDuringMergeAttempt() {
-      return filesChangedDuringMergeAttempt_;
+      return this.filesChangedDuringMergeAttempt_;
    }
 
    /**
@@ -82,15 +82,15 @@ public class MergeFailure
     */
    @Override
    public String getLocalizedMessage() {
-      return super.getLocalizedMessage() + " on " + filesWithMergeFailures_ + " while updating the files " +
-             filesChangedDuringMergeAttempt_;
+      return super.getLocalizedMessage() + " on " + this.filesWithMergeFailures_ + " while updating the files " +
+             this.filesChangedDuringMergeAttempt_;
    }
 
    /**
     * @return The files that were left in a conflicted, unusable state - much be corrected with a call to resolveMergeFailures.
     */
    public Set<String> getMergeFailures() {
-      return filesWithMergeFailures_;
+      return this.filesWithMergeFailures_;
    }
 }
 

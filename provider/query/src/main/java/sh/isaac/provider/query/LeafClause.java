@@ -96,13 +96,14 @@ public abstract class LeafClause
 
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      resultsCache.and(incomingComponents);
-      return resultsCache;
+      this.resultsCache.and(incomingComponents);
+      return this.resultsCache;
    }
 
    //~--- get methods ---------------------------------------------------------
 
-   public List<Clause> getChildren() {
+   @Override
+public List<Clause> getChildren() {
       return Collections.emptyList();
    }
 
@@ -113,7 +114,7 @@ public abstract class LeafClause
     * specified in the LeafClause.
     */
    public NidSet getResultsCache() {
-      return resultsCache;
+      return this.resultsCache;
    }
 }
 

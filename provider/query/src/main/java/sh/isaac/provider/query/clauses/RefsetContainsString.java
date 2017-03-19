@@ -138,15 +138,15 @@ public class RefsetContainsString
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REFSET_CONTAINS_STRING);
       whereClause.getLetKeys()
-                 .add(refsetSpecKey);
+                 .add(this.refsetSpecKey);
       whereClause.getLetKeys()
-                 .add(queryText);
+                 .add(this.queryText);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

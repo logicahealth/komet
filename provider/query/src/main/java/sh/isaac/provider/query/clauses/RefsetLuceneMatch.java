@@ -93,12 +93,12 @@ public class RefsetLuceneMatch
 
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      String        luceneMatch = (String) enclosingQuery.getLetDeclarations()
-                                                         .get(luceneMatchKey);
-      NidSet        nids        = new NidSet();
-      SememeIndexer si          = LookupService.get()
+      this.enclosingQuery.getLetDeclarations()
+                                                                                      .get(this.viewCoordinateKey);
+      this.enclosingQuery.getLetDeclarations()
+                                                         .get(this.luceneMatchKey);
+      final NidSet        nids        = new NidSet();
+      final SememeIndexer si          = LookupService.get()
                                                .getService(SememeIndexer.class);
 
       if (si == null) {
@@ -140,11 +140,11 @@ public class RefsetLuceneMatch
 
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REFSET_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(luceneMatchKey);
+                 .add(this.luceneMatchKey);
       return whereClause;
    }
 }

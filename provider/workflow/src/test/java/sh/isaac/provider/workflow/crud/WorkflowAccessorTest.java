@@ -118,7 +118,7 @@ public class WorkflowAccessorTest
       Assert.assertEquals(0, info.size());
 
       // Create first process-Main definition (role is Editor)
-      UUID firstProcessId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID firstProcessId = createFirstWorkflowProcess(mainDefinitionId);
 
       info = wp_.getWorkflowAccessor()
                 .getAdvanceableProcessInformation(mainDefinitionId, RoleConfigurator.getFirstTestUser());
@@ -175,7 +175,7 @@ public class WorkflowAccessorTest
 
       // Create second process-Main definition. (first process role is
       // Approver and second process role is Editor)
-      UUID secondProcessId = createSecondWorkflowProcess(mainDefinitionId);
+      final UUID secondProcessId = createSecondWorkflowProcess(mainDefinitionId);
 
       // Create testing collections
       Set<ProcessDetail> mainDefProcesses =
@@ -191,7 +191,7 @@ public class WorkflowAccessorTest
       Assert.assertEquals(2, info.size());
       Assert.assertEquals(info.keySet(), mainDefProcesses);
 
-      for (ProcessDetail process: info.keySet()) {
+      for (final ProcessDetail process: info.keySet()) {
          Assert.assertTrue(mainDefProcessHistory.contains(info.get(process)));
       }
 
@@ -214,7 +214,7 @@ public class WorkflowAccessorTest
       Assert.assertEquals(2, info.size());
       Assert.assertEquals(info.keySet(), mainDefProcesses);
 
-      for (ProcessDetail process: info.keySet()) {
+      for (final ProcessDetail process: info.keySet()) {
          Assert.assertTrue(mainDefProcessHistory.contains(info.get(process)));
       }
 
@@ -245,10 +245,10 @@ public class WorkflowAccessorTest
       // Thus mainDef: (role is editor for first and no role for second) and
       // secondDef: (role is
       // editor)
-      UUID secondDefinitionId = createSecondaryDefinition();
+      final UUID secondDefinitionId = createSecondaryDefinition();
 
       // test first definition
-      UUID thirdProcessId = createFirstWorkflowProcess(secondDefinitionId);
+      final UUID thirdProcessId = createFirstWorkflowProcess(secondDefinitionId);
 
       info = wp_.getWorkflowAccessor()
                 .getAdvanceableProcessInformation(mainDefinitionId, RoleConfigurator.getFirstTestUser());
@@ -295,9 +295,9 @@ public class WorkflowAccessorTest
    @Test
    public void testGetDefinitionDetails()
             throws Exception {
-      DefinitionDetail entry         = wp_.getWorkflowAccessor()
+      final DefinitionDetail entry         = wp_.getWorkflowAccessor()
                                           .getDefinitionDetails(mainDefinitionId);
-      Set<UserRole>    expectedRoles = new HashSet<>();
+      final Set<UserRole>    expectedRoles = new HashSet<>();
 
       expectedRoles.add(UserRole.EDITOR);
       expectedRoles.add(UserRole.REVIEWER);
@@ -319,7 +319,7 @@ public class WorkflowAccessorTest
    @Test
    public void testGetProcessDetails()
             throws Exception {
-      UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
       ProcessDetail entry     = wp_.getWorkflowAccessor()
                                    .getProcessDetails(processId);
 
@@ -360,7 +360,7 @@ public class WorkflowAccessorTest
    @Test
    public void testGetProcessHistory()
             throws Exception {
-      UUID                      processId      = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID                      processId      = createFirstWorkflowProcess(mainDefinitionId);
       SortedSet<ProcessHistory> processHistory = wp_.getWorkflowAccessor()
                                                     .getProcessHistory(processId);
 
@@ -395,7 +395,7 @@ public class WorkflowAccessorTest
    @Test
    public void testGetUserPermissibleActionsForProcess()
             throws Exception {
-      UUID firstProcessId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID firstProcessId = createFirstWorkflowProcess(mainDefinitionId);
 
       // Create Process (Is in Ready_To_Edit State)
       Set<AvailableAction> firstProcessFirstUserActions = wp_.getWorkflowAccessor()
@@ -404,7 +404,7 @@ public class WorkflowAccessorTest
 
       Assert.assertEquals(2, firstProcessFirstUserActions.size());
 
-      for (AvailableAction act: firstProcessFirstUserActions) {
+      for (final AvailableAction act: firstProcessFirstUserActions) {
          Assert.assertEquals(mainDefinitionId, act.getDefinitionId());
          Assert.assertEquals("Ready for Edit", act.getInitialState());
          Assert.assertEquals(UserRole.EDITOR, act.getRole());
@@ -440,7 +440,7 @@ public class WorkflowAccessorTest
                                                RoleConfigurator.getSecondTestUser());
       Assert.assertEquals(3, firstProcessSecondUserActions.size());
 
-      for (AvailableAction act: firstProcessSecondUserActions) {
+      for (final AvailableAction act: firstProcessSecondUserActions) {
          Assert.assertEquals(mainDefinitionId, act.getDefinitionId());
          Assert.assertEquals("Ready for Review", act.getInitialState());
          Assert.assertEquals(UserRole.REVIEWER, act.getRole());
@@ -463,14 +463,14 @@ public class WorkflowAccessorTest
       }
 
       // Create Process (Is in Ready_To_Edit State)
-      UUID secondProcessId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID secondProcessId = createFirstWorkflowProcess(mainDefinitionId);
       Set<AvailableAction> secondProcessFirstUserActions = wp_.getWorkflowAccessor()
                                                               .getUserPermissibleActionsForProcess(secondProcessId,
                                                                     RoleConfigurator.getFirstTestUser());
 
       Assert.assertEquals(2, secondProcessFirstUserActions.size());
 
-      for (AvailableAction act: secondProcessFirstUserActions) {
+      for (final AvailableAction act: secondProcessFirstUserActions) {
          Assert.assertEquals(mainDefinitionId, act.getDefinitionId());
          Assert.assertEquals("Ready for Edit", act.getInitialState());
          Assert.assertEquals(UserRole.EDITOR, act.getRole());
@@ -517,7 +517,7 @@ public class WorkflowAccessorTest
             .getUserPermissibleActionsForProcess(secondProcessId, RoleConfigurator.getSecondTestUser());
       Assert.assertEquals(3, secondProcessSecondUserActions.size());
 
-      for (AvailableAction act: secondProcessSecondUserActions) {
+      for (final AvailableAction act: secondProcessSecondUserActions) {
          Assert.assertEquals(mainDefinitionId, act.getDefinitionId());
          Assert.assertEquals("Ready for Review", act.getInitialState());
          Assert.assertEquals(UserRole.REVIEWER, act.getRole());
@@ -560,7 +560,7 @@ public class WorkflowAccessorTest
                                                RoleConfigurator.getFirstTestUser());
       Assert.assertEquals(4, secondProcessFirstUserActions.size());
 
-      for (AvailableAction act: secondProcessFirstUserActions) {
+      for (final AvailableAction act: secondProcessFirstUserActions) {
          Assert.assertEquals(mainDefinitionId, act.getDefinitionId());
          Assert.assertEquals("Ready for Approve", act.getInitialState());
          Assert.assertEquals(UserRole.APPROVER, act.getRole());
@@ -641,7 +641,7 @@ public class WorkflowAccessorTest
 
       Assert.assertEquals(2, roles.size());
 
-      for (UserRole role: roles) {
+      for (final UserRole role: roles) {
          Assert.assertTrue((role == UserRole.EDITOR) || (role == UserRole.APPROVER));
       }
 
@@ -649,7 +649,7 @@ public class WorkflowAccessorTest
                  .getUserRoles(RoleConfigurator.getSecondTestUser());
       Assert.assertEquals(1, roles.size());
 
-      UserRole role = roles.iterator()
+      final UserRole role = roles.iterator()
                            .next();
 
       Assert.assertEquals(UserRole.REVIEWER, role);

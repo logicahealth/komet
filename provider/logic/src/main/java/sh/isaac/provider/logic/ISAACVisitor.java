@@ -85,16 +85,12 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
  */
 public class ISAACVisitor
         extends SNOMEDCTExpressionBaseVisitor<Object> {
-   private static final String PC_IRI        = "http://snomed.org/postcoord/";
-   private static final String SCTID_IRI     = "http://snomed.info/id/";
-   private static final String ROLEGROUP_IRI = "http://snomed.info/id/609096000";
    static Logger               logger        = LogManager.getLogger(ISAACVisitor.class);
 
    //~--- fields --------------------------------------------------------------
 
-   private ConceptChronology<?>     definiendum_;
-   private boolean                  defaultToPrimitive_;
-   private LogicalExpressionBuilder defBuilder_;
+   private final boolean                  defaultToPrimitive_;
+   private final LogicalExpressionBuilder defBuilder_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -108,9 +104,8 @@ public class ISAACVisitor
 
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c, boolean defaultToPrimitive) {
       super();
-      this.definiendum_        = c;
       this.defaultToPrimitive_ = defaultToPrimitive;
-      defBuilder_              = defBuilder;
+      this.defBuilder_              = defBuilder;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -124,16 +119,16 @@ public class ISAACVisitor
       if (ctx.attributeValue()
              .getChild(0)
              .getClass() == SNOMEDCTExpressionParser.ConceptReferenceContext.class) {
-         ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
-         ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
+         final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
+         final ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
                                                                                       .conceptReference());
 
-         role = SomeRole(property, ConceptAssertion(value, defBuilder_));
+         role = SomeRole(property, ConceptAssertion(value, this.defBuilder_));
       } else if (ctx.attributeValue()
                     .getChild(0)
                     .getClass() == SNOMEDCTExpressionParser.NestedExpressionContext.class) {
-         ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
-         Assertion            result   = (Assertion) visit(ctx.attributeValue()
+         final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
+         final Assertion            result   = (Assertion) visit(ctx.attributeValue()
                                                               .nestedExpression()
                                                               .subExpression());
 
@@ -161,7 +156,7 @@ public class ISAACVisitor
    public Object visitConceptReference(ConceptReferenceContext ctx) {
       logger.debug("visitConceptReference: " + ctx.getText());
 
-      Optional<Integer> nid = Frills.getNidForSCTID(Long.parseLong(ctx.getText()));
+      final Optional<Integer> nid = Frills.getNidForSCTID(Long.parseLong(ctx.getText()));
 
       if (!nid.isPresent()) {
          throw new RuntimeException(("LOINC EXPRESSION SERVICE> Missing nid for sctid: " + ctx.getText()));
@@ -175,9 +170,9 @@ public class ISAACVisitor
    public Object visitExpression(ExpressionContext ctx) {
       logger.debug("visitExpression: " + ctx.getText());
 
-      Object subExpression = visit(ctx.subExpression());
+      final Object subExpression = visit(ctx.subExpression());
 
-      if (((ctx.definitionStatus() == null) && (defaultToPrimitive_ == true)) ||
+      if (((ctx.definitionStatus() == null) && (this.defaultToPrimitive_ == true)) ||
             (((ctx.definitionStatus() != null) &&
               (ctx.definitionStatus().start.getType() == SNOMEDCTExpressionLexer.SC_OF)))) {
          return NecessarySet((And) subExpression);
@@ -202,8 +197,8 @@ public class ISAACVisitor
    public Object visitNonGroupedAttributeSet(NonGroupedAttributeSetContext ctx) {
       logger.debug("visitNonGroupedAttributeSet: " + ctx.getText());
 
-      int         childCount = ctx.getChildCount();
-      Assertion[] assertions = new Assertion[(childCount + 1) / 2];
+      final int         childCount = ctx.getChildCount();
+      final Assertion[] assertions = new Assertion[(childCount + 1) / 2];
 
       for (int i = 0; i < childCount; i = i + 2) {  // Use an iterator
          assertions[(i + 1) / 2] = (SomeRole) visitAttribute((AttributeContext) ctx.getChild(i));
@@ -225,14 +220,14 @@ public class ISAACVisitor
       Object result;
 
       if (ctx.getChildCount() > 1) {
-         Assertion[] refinementAssertions = (Assertion[]) visit(ctx.refinement());
-         Assertion[] assertions           = new Assertion[refinementAssertions.length + 1];
+         final Assertion[] refinementAssertions = (Assertion[]) visit(ctx.refinement());
+         final Assertion[] assertions           = new Assertion[refinementAssertions.length + 1];
 
-         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), defBuilder_);
+         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder_);
          System.arraycopy(refinementAssertions, 0, assertions, 1, refinementAssertions.length);
          result = And(assertions);
       } else {
-         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), defBuilder_);
+         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder_);
       }
 
       return result;

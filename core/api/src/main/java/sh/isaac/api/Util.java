@@ -67,7 +67,7 @@ public class Util {
                    .add(task);
 
       try {
-         T returnValue = task.get();
+         final T returnValue = task.get();
 
          return returnValue;
       } finally {
@@ -79,7 +79,7 @@ public class Util {
    }
 
    public static Path[] stringArrayToPathArray(String... strings) {
-      Path[] paths = new Path[strings.length];
+      final Path[] paths = new Path[strings.length];
 
       for (int i = 0; i < paths.length; i++) {
          paths[i] = Paths.get(strings[i]);

@@ -67,7 +67,7 @@ public class ComponentSearchResult
 
    @Override
    public int getNid() {
-      return nid;
+      return this.nid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -80,7 +80,7 @@ public class ComponentSearchResult
 
    @Override
    public float getScore() {
-      return score;
+      return this.score;
    }
 
    //~--- set methods ---------------------------------------------------------

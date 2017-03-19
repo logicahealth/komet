@@ -75,10 +75,10 @@ public class LongSememeImpl
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{Long≤");
-      sb.append(longValue);
+      sb.append(this.longValue);
       toString(sb);
       sb.append("≥L}");
       return sb.toString();
@@ -87,7 +87,7 @@ public class LongSememeImpl
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putLong(longValue);
+      data.putLong(this.longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

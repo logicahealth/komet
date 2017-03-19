@@ -346,8 +346,8 @@ public enum LanguageCode {
     */
    public String getFormatedLanguageCode() {
       String   result    = "";
-      String   name      = this.name();
-      String[] nameArray = name.split("_");
+      final String   name      = this.name();
+      final String[] nameArray = name.split("_");
 
       if (nameArray.length == 1) {
          result = nameArray[0].toLowerCase();
@@ -364,8 +364,8 @@ public enum LanguageCode {
     * @return a two character string representing the language code with no dialect code
     */
    public String getFormatedLanguageNoDialectCode() {
-      String   name      = this.name();
-      String[] nameArray = name.split("_");
+      final String   name      = this.name();
+      final String[] nameArray = name.split("_");
 
       return nameArray[0].toLowerCase();
    }
@@ -378,7 +378,7 @@ public enum LanguageCode {
     */
    public static LanguageCode getLangCode(String name) {
       String   result    = null;
-      String[] nameArray = name.split("-");
+      final String[] nameArray = name.split("-");
 
       if (nameArray.length == 1) {
          result = nameArray[0].toUpperCase();

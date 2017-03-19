@@ -59,7 +59,8 @@ import sh.isaac.api.Get;
 )
 public class CountConcepts
         extends AbstractMojo {
-   public void execute()
+   @Override
+public void execute()
             throws MojoExecutionException {
       getLog().info("Concept count: " + Get.conceptService().getConceptCount());
    }

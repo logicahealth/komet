@@ -139,12 +139,12 @@ public class LanguageMap {
    }
 
    public static Optional<LanguageCode> getLanguageCodeForUUID(UUID uuid) {
-      for (LanguageCode lc: LanguageCode.values()) {
+      for (final LanguageCode lc: LanguageCode.values()) {
          if (lc == LanguageCode.ZZ) {
             continue;
          }
 
-         for (UUID itemUuid: getConceptForLanguageCode(lc).getUuids()) {
+         for (final UUID itemUuid: getConceptForLanguageCode(lc).getUuids()) {
             if (itemUuid.equals(uuid)) {
                return Optional.of(lc);
             }

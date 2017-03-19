@@ -83,65 +83,65 @@ public class ObservableStampPositionImpl
 
    @Override
    public IntegerProperty stampPathSequenceProperty() {
-      if (stampPathSequenceProperty == null) {
-         stampPathSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.stampPathSequenceProperty == null) {
+         this.stampPathSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_SEQUENCE_FOR_STAMP_POSITION.toExternalString(),
                getStampPathSequence());
-         addListenerReference(stampPosition.setStampPathSequenceProperty(stampPathSequenceProperty));
+         addListenerReference(this.stampPosition.setStampPathSequenceProperty(this.stampPathSequenceProperty));
       }
 
-      return stampPathSequenceProperty;
+      return this.stampPathSequenceProperty;
    }
 
    @Override
    public LongProperty timeProperty() {
-      if (timeProperty == null) {
-         timeProperty = new SimpleLongProperty(this,
+      if (this.timeProperty == null) {
+         this.timeProperty = new SimpleLongProperty(this,
                ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(),
                getTime());
-         addListenerReference(stampPosition.setTimeProperty(timeProperty));
+         addListenerReference(this.stampPosition.setTimeProperty(this.timeProperty));
       }
 
-      return timeProperty;
+      return this.timeProperty;
    }
 
    @Override
    public String toString() {
-      return "ObservableStampPositionImpl{" + stampPosition + '}';
+      return "ObservableStampPositionImpl{" + this.stampPosition + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public StampPath getStampPath() {
-      return stampPosition.getStampPath();
+      return this.stampPosition.getStampPath();
    }
 
    @Override
    public int getStampPathSequence() {
-      if (stampPathSequenceProperty != null) {
-         return stampPathSequenceProperty.get();
+      if (this.stampPathSequenceProperty != null) {
+         return this.stampPathSequenceProperty.get();
       }
 
-      return stampPosition.getStampPathSequence();
+      return this.stampPosition.getStampPathSequence();
    }
 
    @Override
    public long getTime() {
-      if (timeProperty != null) {
-         return timeProperty.get();
+      if (this.timeProperty != null) {
+         return this.timeProperty.get();
       }
 
-      return stampPosition.getTime();
+      return this.stampPosition.getTime();
    }
 
    @Override
    public Instant getTimeAsInstant() {
-      if (timeProperty != null) {
-         return Instant.ofEpochMilli(timeProperty.get());
+      if (this.timeProperty != null) {
+         return Instant.ofEpochMilli(this.timeProperty.get());
       }
 
-      return stampPosition.getTimeAsInstant();
+      return this.stampPosition.getTimeAsInstant();
    }
 }
 

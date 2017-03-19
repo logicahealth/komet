@@ -102,28 +102,28 @@ public class ClassifierData
    //~--- methods -------------------------------------------------------------
 
    public IReasoner classify() {
-      loadedConcepts = allGraphsToAxiomTranslator.getLoadedConcepts();
-      allGraphsToAxiomTranslator.clear();
-      lastClassifyInstant = Instant.now();
+      this.loadedConcepts = this.allGraphsToAxiomTranslator.getLoadedConcepts();
+      this.allGraphsToAxiomTranslator.clear();
+      this.lastClassifyInstant = Instant.now();
 
-      if (lastClassifyType == null) {
-         lastClassifyType   = ClassificationType.COMPLETE;
-         incrementalAllowed = true;
+      if (this.lastClassifyType == null) {
+         this.lastClassifyType   = ClassificationType.COMPLETE;
+         this.incrementalAllowed = true;
       } else {
-         if (incrementalAllowed) {
-            lastClassifyType = ClassificationType.INCREMENTAL;
-            incrementalToAxiomTranslator.clear();
+         if (this.incrementalAllowed) {
+            this.lastClassifyType = ClassificationType.INCREMENTAL;
+            this.incrementalToAxiomTranslator.clear();
          } else {
-            lastClassifyType = ClassificationType.COMPLETE;
+            this.lastClassifyType = ClassificationType.COMPLETE;
          }
       }
 
-      return reasoner.classify();
+      return this.reasoner.classify();
    }
 
    public void clearAxioms() {
-      allGraphsToAxiomTranslator.clear();
-      incrementalToAxiomTranslator.clear();
+      this.allGraphsToAxiomTranslator.clear();
+      this.incrementalToAxiomTranslator.clear();
    }
 
    @Override
@@ -133,29 +133,29 @@ public class ClassifierData
 
    @Override
    public void handleChange(SememeChronology sc) {
-      if (sc.getAssemblageSequence() == logicCoordinate.getStatedAssemblageSequence()) {
+      if (sc.getAssemblageSequence() == this.logicCoordinate.getStatedAssemblageSequence()) {
          log.info("Stated form change: " + sc);
 
          // only process if incremental is a possibility.
-         if (incrementalAllowed) {
-            Optional<LatestVersion<LogicGraphSememeImpl>> optionalLatest =
+         if (this.incrementalAllowed) {
+            final Optional<LatestVersion<LogicGraphSememeImpl>> optionalLatest =
                sc.getLatestVersion(LogicGraphSememeImpl.class,
-                                   stampCoordinate);
+                                   this.stampCoordinate);
 
             if (optionalLatest.isPresent()) {
-               LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
+               final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
 
                // get stampCoordinate for last classify.
-               StampCoordinate stampToCompare = stampCoordinate.makeAnalog(lastClassifyInstant.toEpochMilli());
+               final StampCoordinate stampToCompare = this.stampCoordinate.makeAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
-               Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
+               final Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
                   sc.getLatestVersion(LogicGraphSememeImpl.class,
                                       stampToCompare);
 
                if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
-                  LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
+                  final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
                   boolean                             deletions = false;
 
                   if (latest.value()
@@ -167,16 +167,16 @@ public class ClassifierData
                   }
 
                   if (deletions) {
-                     incrementalAllowed = false;
-                     incrementalToAxiomTranslator.clear();
-                     reasoner = new SnorocketReasoner();
+                     this.incrementalAllowed = false;
+                     this.incrementalToAxiomTranslator.clear();
+                     this.reasoner = new SnorocketReasoner();
                   } else {
                      // Otherwise add axioms...
-                     incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
                   }
                } else {
                   // Otherwise add axioms...
-                  incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
                }
             }
          }
@@ -189,36 +189,36 @@ public class ClassifierData
    }
 
    public void loadAxioms() {
-      if (incrementalAllowed) {
-         reasoner.loadAxioms(incrementalToAxiomTranslator.getAxioms());
-         loadedConcepts = incrementalToAxiomTranslator.getLoadedConcepts();
+      if (this.incrementalAllowed) {
+         this.reasoner.loadAxioms(this.incrementalToAxiomTranslator.getAxioms());
+         this.loadedConcepts = this.incrementalToAxiomTranslator.getLoadedConcepts();
       } else {
-         reasoner.loadAxioms(allGraphsToAxiomTranslator.getAxioms());
-         loadedConcepts = allGraphsToAxiomTranslator.getLoadedConcepts();
+         this.reasoner.loadAxioms(this.allGraphsToAxiomTranslator.getAxioms());
+         this.loadedConcepts = this.allGraphsToAxiomTranslator.getLoadedConcepts();
       }
    }
 
    @Override
    public String toString() {
-      return "ClassifierData{" + "graphToAxiomTranslator=" + allGraphsToAxiomTranslator +
-             ",\n incrementalToAxiomTranslator=" + incrementalToAxiomTranslator + ",\n reasoner=" + reasoner +
-             ",\n lastClassifyInstant=" + lastClassifyInstant + ",\n lastClassifyType=" + lastClassifyType +
-             ",\n stampCoordinate=" + stampCoordinate + ",\n logicCoordinate=" + logicCoordinate + '}';
+      return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator +
+             ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner=" + this.reasoner +
+             ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType=" + this.lastClassifyType +
+             ",\n stampCoordinate=" + this.stampCoordinate + ",\n logicCoordinate=" + this.logicCoordinate + '}';
    }
 
    public void translate(LogicGraphSememeImpl lgs) {
-      allGraphsToAxiomTranslator.convertToAxiomsAndAdd(lgs);
+      this.allGraphsToAxiomTranslator.convertToAxiomsAndAdd(lgs);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public ConceptSequenceSet getAffectedConceptSequenceSet() {
-      ConceptSequenceSet affectedConceptSequences = new ConceptSequenceSet();
+      final ConceptSequenceSet affectedConceptSequences = new ConceptSequenceSet();
 
-      if (lastClassifyType == ClassificationType.INCREMENTAL) {
+      if (this.lastClassifyType == ClassificationType.INCREMENTAL) {
          // not returning loaded concepts here, because incremental classification
          // can affect concepts other than what was loaded.
-         reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
+         this.reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
                              if (node != null) {  // TODO why does the classifier include null in the affected node set.
                                 node.getEquivalentConcepts()
                                     .forEach(
@@ -226,18 +226,18 @@ public class ClassifierData
                              }
                           });
       } else {
-         return loadedConcepts;
+         return this.loadedConcepts;
       }
 
       return affectedConceptSequences;
    }
 
    public boolean isClassified() {
-      return reasoner.isClassified();
+      return this.reasoner.isClassified();
    }
 
    public Ontology getClassifiedOntology() {
-      return reasoner.getClassifiedOntology();
+      return this.reasoner.getClassifiedOntology();
    }
 
    public static ClassifierData get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
@@ -251,7 +251,7 @@ public class ClassifierData
             Get.commitService()
                .removeChangeListener(classifierData);
 
-            ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
+            final ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
 
             singletonReference.compareAndSet(classifierData, newClassifierData);
             classifierData = singletonReference.get();
@@ -264,7 +264,7 @@ public class ClassifierData
    }
 
    public boolean isIncrementalAllowed() {
-      return incrementalAllowed;
+      return this.incrementalAllowed;
    }
 
    public Instant getLastClassifyInstant() {
@@ -273,7 +273,7 @@ public class ClassifierData
 
    @Override
    public UUID getListenerUuid() {
-      return listenerUuid;
+      return this.listenerUuid;
    }
 }
 

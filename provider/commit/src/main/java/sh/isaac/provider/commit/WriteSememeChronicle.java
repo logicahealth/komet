@@ -105,24 +105,24 @@ public class WriteSememeChronicle
             throws Exception {
       try {
          Get.sememeService()
-            .writeSememe(sc);
-         uncommittedTracking.accept(sc, false);
+            .writeSememe(this.sc);
+         this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
-         updateMessage("notifying: " + sc.getAssemblageSequence());
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying: " + this.sc.getAssemblageSequence());
+         this.changeListeners.forEach((listenerRef) -> {
+                                    final ChronologyChangeListener listener = listenerRef.get();
 
                                     if (listener == null) {
-                                       changeListeners.remove(listenerRef);
+                                       this.changeListeners.remove(listenerRef);
                                     } else {
-                                       listener.handleChange(sc);
+                                       listener.handleChange(this.sc);
                                     }
                                  });
          updateProgress(2, 2);
-         updateMessage("complete: " + sc.getSememeType() + " " + sc.getSememeSequence());
+         updateMessage("complete: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

@@ -103,8 +103,9 @@ public abstract class ParentClause
 
    //~--- get methods ---------------------------------------------------------
 
-   public List<Clause> getChildren() {
-      return children;
+   @Override
+public List<Clause> getChildren() {
+      return this.children;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -112,7 +113,7 @@ public abstract class ParentClause
    public void setChildren(List<Clause> children) {
       this.children = children;
 
-      for (Clause child: children) {
+      for (final Clause child: children) {
          child.setParent(this);
       }
    }
@@ -126,7 +127,7 @@ public abstract class ParentClause
 
    @Override
    public final void getQueryMatches(ConceptVersion conceptVersion) {
-      children.stream().forEach((c) -> {
+      this.children.stream().forEach((c) -> {
                           c.getQueryMatches(conceptVersion);
                        });
    }

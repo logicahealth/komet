@@ -147,9 +147,9 @@ public class LanguageCoordinateImpl
 
    @Override
    public String toString() {
-      return "Language Coordinate{" + Get.conceptDescriptionText(languageConceptSequence) + ", dialect preference: " +
-             Get.conceptDescriptionTextList(dialectAssemblagePreferenceList) + ", type preference: " +
-             Get.conceptDescriptionTextList(descriptionTypePreferenceList) + '}';
+      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptSequence) + ", dialect preference: " +
+             Get.conceptDescriptionTextList(this.dialectAssemblagePreferenceList) + ", type preference: " +
+             Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -164,18 +164,18 @@ public class LanguageCoordinateImpl
 
    @Override
    public int[] getDescriptionTypePreferenceList() {
-      return descriptionTypePreferenceList;
+      return this.descriptionTypePreferenceList;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(
            ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
-      ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
+      final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
                                                               boolean sizeChanged,
                                                               int from,
                                                               int to) -> {
-               descriptionTypePreferenceList = observableArray.toArray(descriptionTypePreferenceList);
+               this.descriptionTypePreferenceList = observableArray.toArray(this.descriptionTypePreferenceList);
             };
 
       descriptionTypePreferenceListProperty.getValue()
@@ -187,18 +187,18 @@ public class LanguageCoordinateImpl
 
    @Override
    public int[] getDialectAssemblagePreferenceList() {
-      return dialectAssemblagePreferenceList;
+      return this.dialectAssemblagePreferenceList;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(
            ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
-      ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
+      final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
                                                               boolean sizeChanged,
                                                               int from,
                                                               int to) -> {
-               dialectAssemblagePreferenceList = observableArray.toArray(dialectAssemblagePreferenceList);
+               this.dialectAssemblagePreferenceList = observableArray.toArray(this.dialectAssemblagePreferenceList);
             };
 
       dialectAssemblagePreferenceListProperty.getValue()
@@ -222,16 +222,16 @@ public class LanguageCoordinateImpl
 
    @Override
    public int getLanguageConceptSequence() {
-      return languageConceptSequence;
+      return this.languageConceptSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty languageConceptSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
                                          Number newValue) -> {
-                                           languageConceptSequence = newValue.intValue();
+                                           this.languageConceptSequence = newValue.intValue();
                                         };
 
       languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));

@@ -117,33 +117,33 @@ public class WriteAndCheckSememeChronicle
             throws Exception {
       try {
          Get.sememeService()
-            .writeSememe(sc);
-         uncommittedTracking.accept(sc, true);
+            .writeSememe(this.sc);
+         this.uncommittedTracking.accept(this.sc, true);
          updateProgress(1, 3);
-         updateMessage("checking: " + sc.getSememeType() + " " + sc.getSememeSequence());
+         updateMessage("checking: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
 
-         if (sc.getCommitState() == CommitStates.UNCOMMITTED) {
-            checkers.stream().forEach((check) -> {
-                                check.check(sc, alertCollection, CheckPhase.ADD_UNCOMMITTED);
+         if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
+            this.checkers.stream().forEach((check) -> {
+                                check.check(this.sc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
                              });
          }
 
          updateProgress(2, 3);
-         updateMessage("notifying: " + sc.getSememeType() + " " + sc.getSememeSequence());
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
+         this.changeListeners.forEach((listenerRef) -> {
+                                    final ChronologyChangeListener listener = listenerRef.get();
 
                                     if (listener == null) {
-                                       changeListeners.remove(listenerRef);
+                                       this.changeListeners.remove(listenerRef);
                                     } else {
-                                       listener.handleChange(sc);
+                                       listener.handleChange(this.sc);
                                     }
                                  });
          updateProgress(3, 3);
-         updateMessage("completed change: " + sc.getSememeType() + " " + sc.getSememeSequence());
+         updateMessage("completed change: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

@@ -180,7 +180,7 @@ public abstract class LuceneIndexer
 
    private File                                                        indexFolder_               = null;
    private final HashMap<String, AtomicInteger>                        indexedComponentStatistics = new HashMap<>();
-   private Semaphore indexedComponentStatisticsBlock                                              = new Semaphore(1);
+   private final Semaphore indexedComponentStatisticsBlock                                              = new Semaphore(1);
    private final ConcurrentHashMap<Integer, IndexedGenerationCallable> componentNidLatch = new ConcurrentHashMap<>();
    private boolean                                                     enabled_                   = true;
    private Boolean                                                     dbBuildMode                = null;
@@ -198,31 +198,31 @@ public abstract class LuceneIndexer
    protected LuceneIndexer(String indexName)
             throws IOException {
       try {
-         indexName_          = indexName;
-         luceneWriterService = LookupService.getService(WorkExecutors.class)
+         this.indexName_          = indexName;
+         this.luceneWriterService = LookupService.getService(WorkExecutors.class)
                                             .getIOExecutor();
-         luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
+         this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
                new NamedThreadFactory(indexName + " Lucene future checker", false));
 
-         Path searchFolder     = LookupService.getService(ConfigurationService.class)
+         final Path searchFolder     = LookupService.getService(ConfigurationService.class)
                                               .getSearchFolderPath();
-         File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
+         final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
 
          luceneRootFolder.mkdirs();
-         indexFolder_ = new File(luceneRootFolder, indexName);
+         this.indexFolder_ = new File(luceneRootFolder, indexName);
 
-         if (!indexFolder_.exists()) {
-            databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+         if (!this.indexFolder_.exists()) {
+            this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
             log.info("Index folder missing: " + this.indexFolder_.getAbsolutePath());
-         } else if (indexFolder_.list().length > 0) {
-            databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+         } else if (this.indexFolder_.list().length > 0) {
+            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
 
-         indexFolder_.mkdirs();
-         log.info("Index: " + indexFolder_.getAbsolutePath());
+         this.indexFolder_.mkdirs();
+         log.info("Index: " + this.indexFolder_.getAbsolutePath());
 
-         Directory indexDirectory =
-            new MMapDirectory(indexFolder_);  // switch over to MMapDirectory - in theory - this gives us back some
+         final Directory indexDirectory =
+            new MMapDirectory(this.indexFolder_);  // switch over to MMapDirectory - in theory - this gives us back some
 
          // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
          // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
@@ -230,47 +230,47 @@ public abstract class LuceneIndexer
 
          indexDirectory.clearLock("write.lock");
 
-         IndexWriterConfig config = new IndexWriterConfig(luceneVersion, new PerFieldAnalyzer());
+         final IndexWriterConfig config = new IndexWriterConfig(luceneVersion, new PerFieldAnalyzer());
 
          config.setRAMBufferSizeMB(256);
 
-         MergePolicy mergePolicy = new LogByteSizeMergePolicy();
+         final MergePolicy mergePolicy = new LogByteSizeMergePolicy();
 
          config.setMergePolicy(mergePolicy);
          config.setSimilarity(new ShortTextSimilarity());
 
-         IndexWriter indexWriter = new IndexWriter(indexDirectory, config);
+         final IndexWriter indexWriter = new IndexWriter(indexDirectory, config);
 
-         trackingIndexWriter = new TrackingIndexWriter(indexWriter);
+         this.trackingIndexWriter = new TrackingIndexWriter(indexWriter);
 
-         boolean applyAllDeletes = false;
+         final boolean applyAllDeletes = false;
 
-         searcherManager = new SearcherManager(indexWriter, applyAllDeletes, null);
+         this.searcherManager = new SearcherManager(indexWriter, applyAllDeletes, null);
 
          // [3]: Create the ControlledRealTimeReopenThread that reopens the index periodically taking into
          // account the changes made to the index and tracked by the TrackingIndexWriter instance
          // The index is refreshed every 60sc when nobody is waiting
          // and every 100 millis whenever is someone waiting (see search method)
          // (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
-         reopenThread = new ControlledRealTimeReopenThread<>(trackingIndexWriter, searcherManager, 60.00, 0.1);
+         this.reopenThread = new ControlledRealTimeReopenThread<>(this.trackingIndexWriter, this.searcherManager, 60.00, 0.1);
          this.startThread();
 
          // Register for commits:
          log.info("Registering indexer " + getIndexerName() + " for commits");
-         changeListenerRef_ = new ChronologyChangeListener() {
+         this.changeListenerRef_ = new ChronologyChangeListener() {
             @Override
             public void handleCommit(CommitRecord commitRecord) {
-               if (dbBuildMode == null) {
-                  dbBuildMode = Get.configurationService()
+               if (LuceneIndexer.this.dbBuildMode == null) {
+                  LuceneIndexer.this.dbBuildMode = Get.configurationService()
                                    .inDBBuildMode();
                }
 
-               if (dbBuildMode) {
+               if (LuceneIndexer.this.dbBuildMode) {
                   log.debug("Ignore commit due to db build mode");
                   return;
                }
 
-               int size = commitRecord.getSememesInCommit()
+               final int size = commitRecord.getSememesInCommit()
                                       .size();
 
                if (size < 100) {
@@ -281,7 +281,7 @@ public abstract class LuceneIndexer
                }
 
                commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
-                                       SememeChronology<?> sc = Get.sememeService()
+                                       final SememeChronology<?> sc = Get.sememeService()
                                                                    .getSememe(sememeId);
 
                                        index(sc);
@@ -301,8 +301,8 @@ public abstract class LuceneIndexer
             }
          };
          Get.commitService()
-            .addChangeListener(changeListenerRef_);
-      } catch (Exception e) {
+            .addChangeListener(this.changeListenerRef_);
+      } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure(indexName, e);
          throw e;
@@ -314,33 +314,33 @@ public abstract class LuceneIndexer
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
-      databaseValidity = DatabaseValidity.NOT_SET;
+      this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
    @Override
    public final void clearIndex() {
       try {
-         trackingIndexWriter.deleteAll();
-      } catch (IOException ex) {
+         this.trackingIndexWriter.deleteAll();
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
    @Override
    public void clearIndexedStatistics() {
-      indexedComponentStatistics.clear();
+      this.indexedComponentStatistics.clear();
    }
 
    @Override
    public final void closeWriter() {
       try {
-         reopenThread.close();
+         this.reopenThread.close();
 
          // We don't shutdown the writer service we are using, because it is the core isaac thread pool.
          // waiting for the future checker service is sufficient to ensure that all write operations are complete.
-         luceneWriterFutureCheckerService.shutdown();
-         luceneWriterFutureCheckerService.awaitTermination(15, TimeUnit.MINUTES);
-         trackingIndexWriter.getIndexWriter()
+         this.luceneWriterFutureCheckerService.shutdown();
+         this.luceneWriterFutureCheckerService.awaitTermination(15, TimeUnit.MINUTES);
+         this.trackingIndexWriter.getIndexWriter()
                             .close();
       } catch (IOException | InterruptedException ex) {
          throw new RuntimeException(ex);
@@ -350,10 +350,10 @@ public abstract class LuceneIndexer
    @Override
    public final void commitWriter() {
       try {
-         trackingIndexWriter.getIndexWriter()
+         this.trackingIndexWriter.getIndexWriter()
                             .commit();
-         searcherManager.maybeRefreshBlocking();
-      } catch (IOException ex) {
+         this.searcherManager.maybeRefreshBlocking();
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -361,10 +361,10 @@ public abstract class LuceneIndexer
    @Override
    public void forceMerge() {
       try {
-         trackingIndexWriter.getIndexWriter()
+         this.trackingIndexWriter.getIndexWriter()
                             .forceMerge(1);
-         searcherManager.maybeRefreshBlocking();
-      } catch (IOException ex) {
+         this.searcherManager.maybeRefreshBlocking();
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -376,11 +376,11 @@ public abstract class LuceneIndexer
 
    @Override
    public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult) {
-      HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
-      List<ConceptSearchResult>             result = new ArrayList<>();
+      final HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
+      final List<ConceptSearchResult>             result = new ArrayList<>();
 
-      for (SearchResult sr: searchResult) {
-         int conSequence = Frills.findConcept(sr.getNid());
+      for (final SearchResult sr: searchResult) {
+         final int conSequence = Frills.findConcept(sr.getNid());
 
          if (conSequence < 0) {
             log.error("Failed to find a concept that references nid " + sr.getNid());
@@ -388,7 +388,7 @@ public abstract class LuceneIndexer
             merged.get(conSequence)
                   .merge(sr);
          } else {
-            ConceptSearchResult csr = new ConceptSearchResult(conSequence, sr.getNid(), sr.getScore());
+            final ConceptSearchResult csr = new ConceptSearchResult(conSequence, sr.getNid(), sr.getScore());
 
             merged.put(conSequence, csr);
             result.add(csr);
@@ -478,9 +478,9 @@ public abstract class LuceneIndexer
 
    @Override
    public HashMap<String, Integer> reportIndexedItems() {
-      HashMap<String, Integer> result = new HashMap<String, Integer>();
+      final HashMap<String, Integer> result = new HashMap<String, Integer>();
 
-      indexedComponentStatistics.forEach((name, value) -> {
+      this.indexedComponentStatistics.forEach((name, value) -> {
                                             result.put(name, value.get());
                                          });
       return result;
@@ -490,13 +490,13 @@ public abstract class LuceneIndexer
 
    protected Query buildPrefixQuery(String searchString, String field, Analyzer analyzer)
             throws IOException {
-      StringReader textReader  = new StringReader(searchString);
-      TokenStream  tokenStream = analyzer.tokenStream(field, textReader);
+      final StringReader textReader  = new StringReader(searchString);
+      final TokenStream  tokenStream = analyzer.tokenStream(field, textReader);
 
       tokenStream.reset();
 
-      List<String>      terms             = new ArrayList<>();
-      CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+      final List<String>      terms             = new ArrayList<>();
+      final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 
       while (tokenStream.incrementToken()) {
          terms.add(charTermAttribute.toString());
@@ -506,10 +506,10 @@ public abstract class LuceneIndexer
       tokenStream.close();
       analyzer.close();
 
-      BooleanQuery bq = new BooleanQuery();
+      final BooleanQuery bq = new BooleanQuery();
 
       if ((terms.size() > 0) &&!searchString.endsWith(" ")) {
-         String last = terms.remove(terms.size() - 1);
+         final String last = terms.remove(terms.size() - 1);
 
          bq.add(new PrefixQuery((new Term(field, last))), Occur.MUST);
       }
@@ -527,26 +527,26 @@ public abstract class LuceneIndexer
     */
    protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch) {
       try {
-         BooleanQuery bq = new BooleanQuery();
+         final BooleanQuery bq = new BooleanQuery();
 
          if (prefixSearch) {
             bq.add(buildPrefixQuery(query, field, new PerFieldAnalyzer()), Occur.SHOULD);
             bq.add(buildPrefixQuery(query, field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, new PerFieldAnalyzer()),
                    Occur.SHOULD);
          } else {
-            QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
+            final QueryParser qp1 = new QueryParser(field, new PerFieldAnalyzer());
 
             qp1.setAllowLeadingWildcard(true);
             bq.add(qp1.parse(query), Occur.SHOULD);
 
-            QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
+            final QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
                                               new PerFieldAnalyzer());
 
             qp2.setAllowLeadingWildcard(true);
             bq.add(qp2.parse(query), Occur.SHOULD);
          }
 
-         BooleanQuery wrap = new BooleanQuery();
+         final BooleanQuery wrap = new BooleanQuery();
 
          wrap.add(bq, Occur.MUST);
          return wrap;
@@ -556,19 +556,19 @@ public abstract class LuceneIndexer
    }
 
    protected void incrementIndexedItemCount(String name) {
-      AtomicInteger temp = indexedComponentStatistics.get(name);
+      AtomicInteger temp = this.indexedComponentStatistics.get(name);
 
       if (temp == null) {
          try {
-            indexedComponentStatisticsBlock.acquireUninterruptibly();
-            temp = indexedComponentStatistics.get(name);
+            this.indexedComponentStatisticsBlock.acquireUninterruptibly();
+            temp = this.indexedComponentStatistics.get(name);
 
             if (temp == null) {
                temp = new AtomicInteger(0);
-               indexedComponentStatistics.put(name, temp);
+               this.indexedComponentStatistics.put(name, temp);
             }
          } finally {
-            indexedComponentStatisticsBlock.release();
+            this.indexedComponentStatisticsBlock.release();
          }
       }
 
@@ -578,7 +578,7 @@ public abstract class LuceneIndexer
    protected abstract boolean indexChronicle(ObjectChronology<?> chronicle);
 
    protected void releaseLatch(int latchNid, long indexGeneration) {
-      IndexedGenerationCallable latch = componentNidLatch.remove(latchNid);
+      final IndexedGenerationCallable latch = this.componentNidLatch.remove(latchNid);
 
       if (latch != null) {
          latch.setIndexGeneration(indexGeneration);
@@ -586,10 +586,10 @@ public abstract class LuceneIndexer
    }
 
    protected Query restrictToSememe(Query query, Integer[] sememeConceptSequence) {
-      ArrayList<Integer> nullSafe = new ArrayList<>();
+      final ArrayList<Integer> nullSafe = new ArrayList<>();
 
       if (sememeConceptSequence != null) {
-         for (Integer i: sememeConceptSequence) {
+         for (final Integer i: sememeConceptSequence) {
             if (i != null) {
                nullSafe.add(i);
             }
@@ -597,14 +597,14 @@ public abstract class LuceneIndexer
       }
 
       if (nullSafe.size() > 0) {
-         BooleanQuery outerWrap = new BooleanQuery();
+         final BooleanQuery outerWrap = new BooleanQuery();
 
          outerWrap.add(query, Occur.MUST);
 
-         BooleanQuery wrap = new BooleanQuery();
+         final BooleanQuery wrap = new BooleanQuery();
 
          // or together the sememeConceptSequences, but require at least one of them to match.
-         for (int i: nullSafe) {
+         for (final int i: nullSafe) {
             wrap.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
          }
 
@@ -631,30 +631,30 @@ public abstract class LuceneIndexer
       try {
          if ((targetGeneration != null) && (targetGeneration != Long.MIN_VALUE)) {
             if (targetGeneration == Long.MAX_VALUE) {
-               searcherManager.maybeRefreshBlocking();
+               this.searcherManager.maybeRefreshBlocking();
             } else {
                try {
-                  reopenThread.waitForGeneration(targetGeneration);
-               } catch (InterruptedException e) {
+                  this.reopenThread.waitForGeneration(targetGeneration);
+               } catch (final InterruptedException e) {
                   throw new RuntimeException(e);
                }
             }
          }
 
-         IndexSearcher searcher = searcherManager.acquire();
+         final IndexSearcher searcher = this.searcherManager.acquire();
 
          try {
             log.debug("Running query: {}", q.toString());
 
             // Since the index carries some duplicates by design, which we will remove - get a few extra results up front.
             // so we are more likely to come up with the requested number of results
-            long    limitWithExtras = sizeLimit + (long) ((double) sizeLimit * 0.25d);
-            int     adjustedLimit   = ((limitWithExtras > Integer.MAX_VALUE) ? sizeLimit
+            final long    limitWithExtras = sizeLimit + (long) (sizeLimit * 0.25d);
+            final int     adjustedLimit   = ((limitWithExtras > Integer.MAX_VALUE) ? sizeLimit
                   : (int) limitWithExtras);
             TopDocs topDocs;
 
             if (filter != null) {
-               TopDocsFilteredCollector tdf = new TopDocsFilteredCollector(adjustedLimit, q, searcher, filter);
+               final TopDocsFilteredCollector tdf = new TopDocsFilteredCollector(adjustedLimit, q, searcher, filter);
 
                searcher.search(q, tdf);
                topDocs = tdf.getTopDocs();
@@ -662,14 +662,14 @@ public abstract class LuceneIndexer
                topDocs = searcher.search(q, adjustedLimit);
             }
 
-            List<SearchResult> results               = new ArrayList<>(topDocs.totalHits);
-            HashSet<Integer>   includedComponentNids = new HashSet<>();
+            final List<SearchResult> results               = new ArrayList<>(topDocs.totalHits);
+            final HashSet<Integer>   includedComponentNids = new HashSet<>();
 
-            for (ScoreDoc hit: topDocs.scoreDocs) {
+            for (final ScoreDoc hit: topDocs.scoreDocs) {
                log.debug("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
 
-               Document doc          = searcher.doc(hit.doc);
-               int      componentNid = doc.getField(FIELD_COMPONENT_NID)
+               final Document doc          = searcher.doc(hit.doc);
+               final int      componentNid = doc.getField(FIELD_COMPONENT_NID)
                                           .numericValue()
                                           .intValue();
 
@@ -688,9 +688,9 @@ public abstract class LuceneIndexer
             log.debug("Returning {} results from query", results.size());
             return results;
          } finally {
-            searcherManager.release(searcher);
+            this.searcherManager.release(searcher);
          }
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -698,15 +698,15 @@ public abstract class LuceneIndexer
    private Future<Long> index(Supplier<AddDocument> documentSupplier,
                               BooleanSupplier indexChronicle,
                               int chronicleNid) {
-      if (!enabled_) {
+      if (!this.enabled_) {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
          return null;
       }
 
       if (indexChronicle.getAsBoolean()) {
-         Future<Long> future = luceneWriterService.submit(documentSupplier.get());
+         final Future<Long> future = this.luceneWriterService.submit(documentSupplier.get());
 
-         luceneWriterFutureCheckerService.execute(new FutureChecker(future));
+         this.luceneWriterFutureCheckerService.execute(new FutureChecker(future));
          return future;
       } else {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
@@ -721,11 +721,11 @@ public abstract class LuceneIndexer
    }
 
    private void startThread() {
-      reopenThread.setName("Lucene " + indexName_ + " Reopen Thread");
-      reopenThread.setPriority(Math.min(Thread.currentThread()
+      this.reopenThread.setName("Lucene " + this.indexName_ + " Reopen Thread");
+      this.reopenThread.setPriority(Math.min(Thread.currentThread()
             .getPriority() + 2, Thread.MAX_PRIORITY));
-      reopenThread.setDaemon(true);
-      reopenThread.start();
+      this.reopenThread.setDaemon(true);
+      this.reopenThread.start();
    }
 
    @PreDestroy
@@ -739,24 +739,24 @@ public abstract class LuceneIndexer
 
    @Override
    public Path getDatabaseFolder() {
-      return indexFolder_.toPath();
+      return this.indexFolder_.toPath();
    }
 
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
-      return databaseValidity;
+      return this.databaseValidity;
    }
 
    @Override
    public boolean isEnabled() {
-      return enabled_;
+      return this.enabled_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setEnabled(boolean enabled) {
-      enabled_ = enabled;
+      this.enabled_ = enabled;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -771,8 +771,8 @@ public abstract class LuceneIndexer
     */
    @Override
    public IndexedGenerationCallable getIndexedGenerationCallable(int nid) {
-      IndexedGenerationCallable indexedLatch         = new IndexedGenerationCallable();
-      IndexedGenerationCallable existingIndexedLatch = componentNidLatch.putIfAbsent(nid, indexedLatch);
+      final IndexedGenerationCallable indexedLatch         = new IndexedGenerationCallable();
+      final IndexedGenerationCallable existingIndexedLatch = this.componentNidLatch.putIfAbsent(nid, indexedLatch);
 
       if (existingIndexedLatch != null) {
          return existingIndexedLatch;
@@ -783,12 +783,12 @@ public abstract class LuceneIndexer
 
    @Override
    public File getIndexerFolder() {
-      return indexFolder_;
+      return this.indexFolder_;
    }
 
    @Override
    public String getIndexerName() {
-      return indexName_;
+      return this.indexName_;
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -808,12 +808,12 @@ public abstract class LuceneIndexer
       @Override
       public Long call()
                throws Exception {
-         Document doc = new Document();
+         final Document doc = new Document();
 
          doc.add(new IntField(FIELD_COMPONENT_NID,
-                              chronicle.getNid(),
+                              this.chronicle.getNid(),
                               LuceneIndexer.FIELD_TYPE_INT_STORED_NOT_INDEXED));
-         addFields(chronicle, doc);
+         addFields(this.chronicle, doc);
 
          // Note that the addDocument operation could cause duplicate documents to be
          // added to the index if a new luceneVersion is added after initial index
@@ -825,7 +825,7 @@ public abstract class LuceneIndexer
          // because the new versions are additive (we don't allow deletion of content)
          // so the search results will be the same. Duplicates can be removed
          // by regenerating the index.
-         long indexGeneration = trackingIndexWriter.addDocument(doc);
+         final long indexGeneration = LuceneIndexer.this.trackingIndexWriter.addDocument(doc);
 
          releaseLatch(getNid(), indexGeneration);
          return indexGeneration;
@@ -834,7 +834,7 @@ public abstract class LuceneIndexer
       //~--- get methods ------------------------------------------------------
 
       public int getNid() {
-         return chronicle.getNid();
+         return this.chronicle.getNid();
       }
    }
 
@@ -849,7 +849,7 @@ public abstract class LuceneIndexer
       //~--- constructors -----------------------------------------------------
 
       public FutureChecker(Future<Long> future) {
-         future_ = future;
+         this.future_ = future;
       }
 
       //~--- methods ----------------------------------------------------------
@@ -857,7 +857,7 @@ public abstract class LuceneIndexer
       @Override
       public void run() {
          try {
-            future_.get();
+            this.future_.get();
          } catch (InterruptedException | ExecutionException ex) {
             log.fatal("Unexpected error in future checker!", ex);
          }

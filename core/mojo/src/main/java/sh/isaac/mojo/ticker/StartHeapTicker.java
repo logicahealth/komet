@@ -68,7 +68,7 @@ public class StartHeapTicker
    @Override
    public void execute()
             throws MojoExecutionException {
-      HeapUseTicker.start(Integer.parseInt(intervalInSeconds));
+      HeapUseTicker.start(Integer.parseInt(this.intervalInSeconds));
    }
 }
 

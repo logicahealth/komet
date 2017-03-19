@@ -66,20 +66,20 @@ public class DynamicSememeUUIDTest {
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
+      final UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
-      for (UUID uuid: testValues) {
+      for (final UUID uuid: testValues) {
          test(uuid);
       }
    }
 
    private void test(UUID value)
             throws PropertyVetoException, IOException {
-      DynamicSememeUUIDImpl uuid = new DynamicSememeUUIDImpl(value);
+      final DynamicSememeUUIDImpl uuid = new DynamicSememeUUIDImpl(value);
 
       assertEquals(value, uuid.getDataUUID());
-      assertEquals(value, (UUID) uuid.getDataObject());
-      assertEquals(value, (UUID) uuid.getDataObjectProperty()
+      assertEquals(value, uuid.getDataObject());
+      assertEquals(value, uuid.getDataObjectProperty()
                                      .get());
       assertEquals(uuid.getDynamicSememeDataType(), DynamicSememeDataType.UUID);
    }

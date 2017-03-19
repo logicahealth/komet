@@ -62,16 +62,16 @@ public class Ticker {
 
    public void start(int intervalInSeconds, Consumer consumer) {
       stop();
-      tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))
+      this.tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))
                                      .subscribe(tick -> {
                consumer.accept(tick);
             });
    }
 
    public void stop() {
-      if (tickSubscription != null) {
-         tickSubscription.unsubscribe();
-         tickSubscription = null;
+      if (this.tickSubscription != null) {
+         this.tickSubscription.unsubscribe();
+         this.tickSubscription = null;
       }
    }
 }

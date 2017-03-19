@@ -72,80 +72,80 @@ public class HashTreeWithBitSets
    //~--- constructors --------------------------------------------------------
 
    public HashTreeWithBitSets() {
-      conceptSequencesWithParents  = new ConceptSequenceSet();
-      conceptSequencesWithChildren = new ConceptSequenceSet();
-      conceptSequences             = new ConceptSequenceSet();
+      this.conceptSequencesWithParents  = new ConceptSequenceSet();
+      this.conceptSequencesWithChildren = new ConceptSequenceSet();
+      this.conceptSequences             = new ConceptSequenceSet();
    }
 
    public HashTreeWithBitSets(int initialSize) {
-      conceptSequencesWithParents  = new ConceptSequenceSet();
-      conceptSequencesWithChildren = new ConceptSequenceSet();
-      conceptSequences             = new ConceptSequenceSet();
+      this.conceptSequencesWithParents  = new ConceptSequenceSet();
+      this.conceptSequencesWithChildren = new ConceptSequenceSet();
+      this.conceptSequences             = new ConceptSequenceSet();
    }
 
    //~--- methods -------------------------------------------------------------
 
    public void addChildren(int parentSequence, int[] childSequenceArray) {
-      maxSequence = Math.max(parentSequence, maxSequence);
+      this.maxSequence = Math.max(parentSequence, this.maxSequence);
 
       if (childSequenceArray.length > 0) {
-         if (!parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-            parentSequence_ChildSequenceArray_Map.put(parentSequence, childSequenceArray);
+         if (!this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+            this.parentSequence_ChildSequenceArray_Map.put(parentSequence, childSequenceArray);
          } else {
-            OpenIntHashSet combinedSet = new OpenIntHashSet();
+            final OpenIntHashSet combinedSet = new OpenIntHashSet();
 
-            Arrays.stream(parentSequence_ChildSequenceArray_Map.get(parentSequence))
+            Arrays.stream(this.parentSequence_ChildSequenceArray_Map.get(parentSequence))
                   .forEach((sequence) -> combinedSet.add(sequence));
             Arrays.stream(childSequenceArray)
                   .forEach((sequence) -> combinedSet.add(sequence));
-            parentSequence_ChildSequenceArray_Map.put(parentSequence, combinedSet.keys()
+            this.parentSequence_ChildSequenceArray_Map.put(parentSequence, combinedSet.keys()
                   .elements());
          }
 
          IntStream.of(childSequenceArray).forEach((int sequence) -> {
-                              conceptSequences.add(sequence);
+                              this.conceptSequences.add(sequence);
                            });
-         maxSequence = Math.max(IntStream.of(childSequenceArray)
+         this.maxSequence = Math.max(IntStream.of(childSequenceArray)
                                          .max()
-                                         .getAsInt(), maxSequence);
-         conceptSequencesWithChildren.add(parentSequence);
+                                         .getAsInt(), this.maxSequence);
+         this.conceptSequencesWithChildren.add(parentSequence);
       }
    }
 
    public void addParents(int childSequence, int[] parentSequenceArray) {
-      maxSequence = Math.max(childSequence, maxSequence);
+      this.maxSequence = Math.max(childSequence, this.maxSequence);
 
       if (parentSequenceArray.length > 0) {
-         if (!childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-            childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
+         if (!this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
+            this.childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
          } else {
-            OpenIntHashSet combinedSet = new OpenIntHashSet();
+            final OpenIntHashSet combinedSet = new OpenIntHashSet();
 
-            Arrays.stream(childSequence_ParentSequenceArray_Map.get(childSequence))
+            Arrays.stream(this.childSequence_ParentSequenceArray_Map.get(childSequence))
                   .forEach((sequence) -> combinedSet.add(sequence));
             Arrays.stream(parentSequenceArray)
                   .forEach((sequence) -> combinedSet.add(sequence));
-            childSequence_ParentSequenceArray_Map.put(childSequence, combinedSet.keys()
+            this.childSequence_ParentSequenceArray_Map.put(childSequence, combinedSet.keys()
                   .elements());
          }
 
-         childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
+         this.childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
          IntStream.of(parentSequenceArray).forEach((int sequence) -> {
-                              conceptSequences.add(sequence);
+                              this.conceptSequences.add(sequence);
                            });
-         maxSequence = Math.max(IntStream.of(parentSequenceArray)
+         this.maxSequence = Math.max(IntStream.of(parentSequenceArray)
                                          .max()
-                                         .getAsInt(), maxSequence);
-         conceptSequencesWithParents.add(childSequence);
+                                         .getAsInt(), this.maxSequence);
+         this.conceptSequencesWithParents.add(childSequence);
       }
    }
 
    public int conceptSequencesWithChildrenCount() {
-      return conceptSequencesWithChildren.size();
+      return this.conceptSequencesWithChildren.size();
    }
 
    public int conceptSequencesWithParentsCount() {
-      return conceptSequencesWithParents.size();
+      return this.conceptSequencesWithParents.size();
    }
 
    @Override
@@ -156,27 +156,27 @@ public class HashTreeWithBitSets
    //~--- get methods ---------------------------------------------------------
 
    public IntStream getLeafSequences() {
-      SequenceSet leavesSet = new SequenceSet<>();
+      final SequenceSet leavesSet = new SequenceSet<>();
 
-      leavesSet.or(conceptSequencesWithParents);
-      leavesSet.andNot(conceptSequencesWithChildren);
+      leavesSet.or(this.conceptSequencesWithParents);
+      leavesSet.andNot(this.conceptSequencesWithChildren);
       return leavesSet.stream();
    }
 
    public int getMaxSequence() {
-      return maxSequence;
+      return this.maxSequence;
    }
 
    public SequenceSet<?> getNodeSequences() {
-      return conceptSequences;
+      return this.conceptSequences;
    }
 
    @Override
    public IntStream getRootSequenceStream() {
-      SequenceSet rootSet = new SequenceSet<>();
+      final SequenceSet rootSet = new SequenceSet<>();
 
-      rootSet.or(conceptSequencesWithChildren);
-      rootSet.andNot(conceptSequencesWithParents);
+      rootSet.or(this.conceptSequencesWithChildren);
+      rootSet.andNot(this.conceptSequencesWithParents);
       return rootSet.stream();
    }
 

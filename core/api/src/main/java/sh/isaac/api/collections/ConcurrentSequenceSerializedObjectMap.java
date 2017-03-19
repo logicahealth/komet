@@ -91,43 +91,43 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       this.dbFolderPath = dbFolderPath;
       this.folder       = folder;
       this.suffix       = suffix;
-      objectByteList[0] = new byte[SEGMENT_SIZE][];
-      objectListList.add(new Object[SEGMENT_SIZE]);
-      changed[0] = false;
+      this.objectByteList[0] = new byte[SEGMENT_SIZE][];
+      this.objectListList.add(new Object[SEGMENT_SIZE]);
+      this.changed[0] = false;
    }
 
    //~--- methods -------------------------------------------------------------
 
    public boolean containsKey(int sequence) {
-      int segmentIndex   = sequence / SEGMENT_SIZE;
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int segmentIndex   = sequence / SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
-      if (segmentIndex >= objectByteList.length) {
+      if (segmentIndex >= this.objectByteList.length) {
          return false;
       }
 
-      return objectByteList[segmentIndex][indexInSegment] != null;
+      return this.objectByteList[segmentIndex][indexInSegment] != null;
    }
 
    public boolean put(int sequence, T value) {
-      maxSequence.set(Math.max(sequence, maxSequence.get()));
+      this.maxSequence.set(Math.max(sequence, this.maxSequence.get()));
 
-      int segmentIndex = sequence / SEGMENT_SIZE;
+      final int segmentIndex = sequence / SEGMENT_SIZE;
 
       expandMap(segmentIndex);
 
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
       if (storeObjects) {
-         objectListList.get(segmentIndex)[indexInSegment] = value;
+         this.objectListList.get(segmentIndex)[indexInSegment] = value;
          return true;
       } else {
          try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            serializer.serialize(new DataOutputStream(byteArrayOutputStream), value);
-            objectByteList[segmentIndex][indexInSegment] = byteArrayOutputStream.toByteArray();
-            changed[segmentIndex]                        = true;
+            this.serializer.serialize(new DataOutputStream(byteArrayOutputStream), value);
+            this.objectByteList[segmentIndex][indexInSegment] = byteArrayOutputStream.toByteArray();
+            this.changed[segmentIndex]                        = true;
             return true;
-         } catch (IOException e) {
+         } catch (final IOException e) {
             throw new RuntimeException(e);
          }
       }
@@ -138,26 +138,26 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       int segments = 1;
 
       while (segment < segments) {
-         File segmentFile = new File(dbFolderPath.toFile(), folder + segment + suffix);
+         final File segmentFile = new File(this.dbFolderPath.toFile(), this.folder + segment + this.suffix);
 
          try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(segmentFile)))) {
             segments = input.readInt();
 
-            int segmentIndex       = input.readInt();
-            int segmentArrayLength = input.readInt();
-            int offset             = segmentIndex * segmentArrayLength;
+            final int segmentIndex       = input.readInt();
+            final int segmentArrayLength = input.readInt();
+            final int offset             = segmentIndex * segmentArrayLength;
 
             for (int i = 0; i < segmentArrayLength; i++) {
-               int byteArrayLength = input.readInt();
+               final int byteArrayLength = input.readInt();
 
                if (byteArrayLength > 0) {
-                  byte[] bytes = new byte[byteArrayLength];
+                  final byte[] bytes = new byte[byteArrayLength];
 
                   input.read(bytes);
                   put(offset + i, bytes);
                }
             }
-         } catch (IOException ex) {
+         } catch (final IOException ex) {
             throw new RuntimeException(ex);
          }
 
@@ -168,15 +168,15 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
    public void readSegment(Path dbFolderPath, String folder, String suffix) {}
 
    public void write() {
-      int segments = objectByteList.length;
+      final int segments = this.objectByteList.length;
 
       for (int segmentIndex = 0; segmentIndex < segments; segmentIndex++) {
-         File segmentFile = new File(dbFolderPath.toFile(), folder + segmentIndex + suffix);
+         final File segmentFile = new File(this.dbFolderPath.toFile(), this.folder + segmentIndex + this.suffix);
 
          segmentFile.getParentFile()
                     .mkdirs();
 
-         byte[][] segmentArray = objectByteList[segmentIndex];
+         final byte[][] segmentArray = this.objectByteList[segmentIndex];
 
          try (DataOutputStream output =
                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(segmentFile)))) {
@@ -184,7 +184,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
             output.writeInt(segmentIndex);
             output.writeInt(segmentArray.length);
 
-            for (byte[] indexValue: segmentArray) {
+            for (final byte[] indexValue: segmentArray) {
                if (indexValue == null) {
                   output.writeInt(-1);
                } else {
@@ -192,7 +192,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
                   output.write(indexValue);
                }
             }
-         } catch (IOException ex) {
+         } catch (final IOException ex) {
             throw new RuntimeException(ex);
          }
       }
@@ -201,60 +201,60 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
    public void writeSegment(Path dbFolderPath, String folder, String suffix) {}
 
    private void expandMap(int segmentIndex) {
-      if (segmentIndex >= objectByteList.length) {
-         lock.lock();
+      if (segmentIndex >= this.objectByteList.length) {
+         this.lock.lock();
 
          try {
-            while (segmentIndex >= objectByteList.length) {
-               changed                        = Arrays.copyOf(changed, objectByteList.length + 1);
-               changed[objectByteList.length] = false;
+            while (segmentIndex >= this.objectByteList.length) {
+               this.changed                        = Arrays.copyOf(this.changed, this.objectByteList.length + 1);
+               this.changed[this.objectByteList.length] = false;
 
-               byte[][][] tempObjByteList = Arrays.copyOf(objectByteList, objectByteList.length + 1);
+               final byte[][][] tempObjByteList = Arrays.copyOf(this.objectByteList, this.objectByteList.length + 1);
 
                tempObjByteList[tempObjByteList.length - 1] = new byte[SEGMENT_SIZE][];
-               objectListList.add(new Object[SEGMENT_SIZE]);
-               objectByteList = tempObjByteList;
+               this.objectListList.add(new Object[SEGMENT_SIZE]);
+               this.objectByteList = tempObjByteList;
             }
          } finally {
-            lock.unlock();
+            this.lock.unlock();
          }
       }
    }
 
    private boolean put(int sequence, byte[] value) {
-      maxSequence.set(Math.max(sequence, maxSequence.get()));
+      this.maxSequence.set(Math.max(sequence, this.maxSequence.get()));
 
-      int segmentIndex = sequence / SEGMENT_SIZE;
+      final int segmentIndex = sequence / SEGMENT_SIZE;
 
       expandMap(segmentIndex);
 
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
-      objectByteList[segmentIndex][indexInSegment] = value;
+      this.objectByteList[segmentIndex][indexInSegment] = value;
       return true;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    public Optional<T> get(int sequence) {
-      int segmentIndex = sequence / SEGMENT_SIZE;
+      final int segmentIndex = sequence / SEGMENT_SIZE;
 
-      if (segmentIndex >= objectByteList.length) {
+      if (segmentIndex >= this.objectByteList.length) {
          return Optional.empty();
       }
 
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
       if (storeObjects) {
-         return Optional.ofNullable((T) objectListList.get(segmentIndex)[indexInSegment]);
+         return Optional.ofNullable((T) this.objectListList.get(segmentIndex)[indexInSegment]);
       }
 
-      byte[] objectBytes = objectByteList[segmentIndex][indexInSegment];
+      final byte[] objectBytes = this.objectByteList[segmentIndex][indexInSegment];
 
       if (objectBytes != null) {
          try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(objectBytes))) {
-            return Optional.of(serializer.deserialize(dis));
-         } catch (IOException e) {
+            return Optional.of(this.serializer.deserialize(dis));
+         } catch (final IOException e) {
             throw new RuntimeException(e);
          }
       }
@@ -263,7 +263,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
    }
 
    public Stream<T> getParallelStream() {
-      IntStream sequences = IntStream.rangeClosed(0, maxSequence.get())
+      final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get())
                                      .parallel();
 
       return sequences.filter(sequence -> containsKey(sequence))
@@ -271,7 +271,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
    }
 
    public Stream<T> getParallelStream(IntPredicate sequenceFilter) {
-      IntStream sequences = IntStream.rangeClosed(0, maxSequence.get())
+      final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get())
                                      .parallel();
 
       return sequences.filter(sequenceFilter)
@@ -287,43 +287,43 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
     * @return
     */
    public T getQuick(int sequence) {
-      int segmentIndex   = sequence / SEGMENT_SIZE;
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int segmentIndex   = sequence / SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
       if (storeObjects) {
-         return (T) objectListList.get(segmentIndex)[indexInSegment];
+         return (T) this.objectListList.get(segmentIndex)[indexInSegment];
       }
 
-      if (segmentIndex >= objectByteList.length) {
+      if (segmentIndex >= this.objectByteList.length) {
          return null;
       }
 
-      byte[] objectBytes = objectByteList[segmentIndex][indexInSegment];
+      final byte[] objectBytes = this.objectByteList[segmentIndex][indexInSegment];
 
       if (objectBytes == null) {
          return null;
       }
 
       try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(objectBytes))) {
-         return serializer.deserialize(dis);
-      } catch (IOException e) {
+         return this.serializer.deserialize(dis);
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
 
    public int getSize() {
-      return maxSequence.get() + 1;  // sequences start at zero, so size = max + 1...
+      return this.maxSequence.get() + 1;  // sequences start at zero, so size = max + 1...
    }
 
    public Stream<T> getStream() {
-      IntStream sequences = IntStream.rangeClosed(0, maxSequence.get());
+      final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get());
 
       return sequences.filter(sequence -> containsKey(sequence))
                       .mapToObj(sequence -> getQuick(sequence));
    }
 
    public Stream<T> getStream(IntPredicate sequenceFilter) {
-      IntStream sequences = IntStream.rangeClosed(0, maxSequence.get());
+      final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get());
 
       return sequences.filter(sequenceFilter)
                       .filter(sequence -> containsKey(sequence))

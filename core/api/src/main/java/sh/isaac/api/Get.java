@@ -220,7 +220,7 @@ public class Get
     * {@code "No desc for: " + conceptId;} will be returned.
     */
    public static String conceptDescriptionText(int conceptId) {
-      Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
+      final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
          conceptSnapshot().getDescriptionOptional(conceptId);
 
       if (descriptionOptional.isPresent()) {
@@ -238,7 +238,7 @@ public class Get
 
    public static String conceptDescriptionTextList(int[] conceptIds) {
       if ((conceptIds != null) && (conceptIds.length > 0)) {
-         StringBuilder builder = new StringBuilder();
+         final StringBuilder builder = new StringBuilder();
 
          builder.append("[");
          Arrays.stream(conceptIds).forEach((conceptId) -> {
@@ -469,7 +469,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
            @SuppressWarnings("unchecked") Class<? extends IndexServiceBI>... indexersToReindex) {
-      GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
+      final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)
                    .getExecutor()
@@ -510,7 +510,7 @@ public class Get
    //~--- get methods ---------------------------------------------------------
 
    private static <T> T getService(Class<T> clazz) {
-      T service = LookupService.getService(clazz);
+      final T service = LookupService.getService(clazz);
 
       if (service == null) {
          throw new RuntimeException("No service for contract '" + clazz.getName() +

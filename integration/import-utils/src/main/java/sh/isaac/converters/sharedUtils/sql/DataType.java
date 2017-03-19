@@ -55,52 +55,52 @@ public class DataType {
 
    public DataType(String sql92Type, Boolean allowsNull) {
       if (sql92Type.startsWith("varchar")) {
-         type_ = SUPPORTED_DATA_TYPE.STRING;
+         this.type_ = SUPPORTED_DATA_TYPE.STRING;
       } else if (sql92Type.startsWith("numeric")) {
-         type_ = SUPPORTED_DATA_TYPE.BIGDECIMAL;
+         this.type_ = SUPPORTED_DATA_TYPE.BIGDECIMAL;
       } else if (sql92Type.startsWith("integer")) {
-         type_ = SUPPORTED_DATA_TYPE.INTEGER;
+         this.type_ = SUPPORTED_DATA_TYPE.INTEGER;
       } else if (sql92Type.startsWith("char")) {
-         type_ = SUPPORTED_DATA_TYPE.STRING;
+         this.type_ = SUPPORTED_DATA_TYPE.STRING;
       } else {
          throw new RuntimeException("Not yet mapped - " + sql92Type);
       }
 
-      int index = sql92Type.indexOf('(');
+      final int index = sql92Type.indexOf('(');
 
-      if ((index > 0) && (type_ == SUPPORTED_DATA_TYPE.STRING)) {
-         dataSize_ = Integer.parseInt(sql92Type.substring((index + 1), sql92Type.indexOf(')', index)));
+      if ((index > 0) && (this.type_ == SUPPORTED_DATA_TYPE.STRING)) {
+         this.dataSize_ = Integer.parseInt(sql92Type.substring((index + 1), sql92Type.indexOf(')', index)));
       }
 
-      if ((index > 0) && (type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL)) {
-         int commaPos = sql92Type.indexOf(',', index);
+      if ((index > 0) && (this.type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL)) {
+         final int commaPos = sql92Type.indexOf(',', index);
 
          if (commaPos > 0) {
-            dataSize_ = Integer.parseInt(sql92Type.substring(index + 1, commaPos));
-            scale_    = Integer.parseInt(sql92Type.substring((commaPos + 1), sql92Type.indexOf(')', commaPos)));
+            this.dataSize_ = Integer.parseInt(sql92Type.substring(index + 1, commaPos));
+            this.scale_    = Integer.parseInt(sql92Type.substring((commaPos + 1), sql92Type.indexOf(')', commaPos)));
          } else {
-            dataSize_ = Integer.parseInt(sql92Type.substring((index + 1), sql92Type.indexOf(')', index)));
+            this.dataSize_ = Integer.parseInt(sql92Type.substring((index + 1), sql92Type.indexOf(')', index)));
          }
       }
 
       if (allowsNull == null) {
-         allowsNull_ = true;
+         this.allowsNull_ = true;
       } else {
-         allowsNull_ = allowsNull.booleanValue();
+         this.allowsNull_ = allowsNull.booleanValue();
       }
    }
 
    public DataType(SUPPORTED_DATA_TYPE type, Integer size, Boolean allowsNull) {
-      type_ = type;
+      this.type_ = type;
 
       if (size != null) {
-         dataSize_ = size;
+         this.dataSize_ = size;
       }
 
       if (allowsNull == null) {
-         allowsNull_ = true;
+         this.allowsNull_ = true;
       } else {
-         allowsNull_ = allowsNull.booleanValue();
+         this.allowsNull_ = allowsNull.booleanValue();
       }
    }
 
@@ -114,7 +114,7 @@ public class DataType {
       BIGDECIMAL;
 
       public static SUPPORTED_DATA_TYPE parse(String value) {
-         for (SUPPORTED_DATA_TYPE s: SUPPORTED_DATA_TYPE.values()) {
+         for (final SUPPORTED_DATA_TYPE s: SUPPORTED_DATA_TYPE.values()) {
             if (value.toUpperCase(Locale.ENGLISH)
                      .equals(s.name())) {
                return s;
@@ -130,31 +130,31 @@ public class DataType {
    //~--- methods -------------------------------------------------------------
 
    public String asH2() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
-      if (type_ == SUPPORTED_DATA_TYPE.STRING) {
+      if (this.type_ == SUPPORTED_DATA_TYPE.STRING) {
          sb.append("VARCHAR ");
 
-         if (dataSize_ > 0) {
-            sb.append("(" + dataSize_ + ") ");
+         if (this.dataSize_ > 0) {
+            sb.append("(" + this.dataSize_ + ") ");
          }
-      } else if (type_ == SUPPORTED_DATA_TYPE.INTEGER) {
+      } else if (this.type_ == SUPPORTED_DATA_TYPE.INTEGER) {
          sb.append("INT ");
-      } else if (type_ == SUPPORTED_DATA_TYPE.LONG) {
+      } else if (this.type_ == SUPPORTED_DATA_TYPE.LONG) {
          sb.append("BIGINT ");
-      } else if (type_ == SUPPORTED_DATA_TYPE.BOOLEAN) {
+      } else if (this.type_ == SUPPORTED_DATA_TYPE.BOOLEAN) {
          sb.append("BOOLEAN ");
-      } else if (type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL) {
-         if (scale_ > 0) {
-            sb.append("NUMERIC (" + dataSize_ + ", " + scale_ + ") ");
+      } else if (this.type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL) {
+         if (this.scale_ > 0) {
+            sb.append("NUMERIC (" + this.dataSize_ + ", " + this.scale_ + ") ");
          } else {
-            sb.append("DECIMAL (" + dataSize_ + ") ");
+            sb.append("DECIMAL (" + this.dataSize_ + ") ");
          }
       } else {
          throw new RuntimeException("not implemented");
       }
 
-      if (!allowsNull_) {
+      if (!this.allowsNull_) {
          sb.append("NOT NULL");
       }
 
@@ -164,23 +164,23 @@ public class DataType {
    //~--- get methods ---------------------------------------------------------
 
    public boolean isBigDecimal() {
-      return type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL;
+      return this.type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL;
    }
 
    public boolean isBoolean() {
-      return type_ == SUPPORTED_DATA_TYPE.BOOLEAN;
+      return this.type_ == SUPPORTED_DATA_TYPE.BOOLEAN;
    }
 
    public boolean isInteger() {
-      return type_ == SUPPORTED_DATA_TYPE.INTEGER;
+      return this.type_ == SUPPORTED_DATA_TYPE.INTEGER;
    }
 
    public boolean isLong() {
-      return type_ == SUPPORTED_DATA_TYPE.LONG;
+      return this.type_ == SUPPORTED_DATA_TYPE.LONG;
    }
 
    public boolean isString() {
-      return type_ == SUPPORTED_DATA_TYPE.STRING;
+      return this.type_ == SUPPORTED_DATA_TYPE.STRING;
    }
 }
 

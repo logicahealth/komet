@@ -78,14 +78,14 @@ public class ExtractAxioms
    @Override
    protected Void call()
             throws Exception {
-      AtomicInteger  logicGraphMembers = new AtomicInteger();
-      ClassifierData cd                = ClassifierData.get(stampCoordinate, logicCoordinate);
+      final AtomicInteger  logicGraphMembers = new AtomicInteger();
+      final ClassifierData cd                = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
 
       if (cd.isIncrementalAllowed()) {
          // axioms are already extracted.
       } else {
          cd.clearAxioms();
-         processAllStatedAxioms(stampCoordinate, logicCoordinate, cd, logicGraphMembers);
+         processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
       }
 
       return null;
@@ -95,14 +95,14 @@ public class ExtractAxioms
          LogicCoordinate logicCoordinate,
          ClassifierData cd,
          AtomicInteger logicGraphMembers) {
-      SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
+      final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
                                                                       .getSnapshot(LogicGraphSememeImpl.class,
                                                                             stampCoordinate);
 
       sememeSnapshot.getLatestSememeVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence(), this)
                     .forEach((LatestVersion<LogicGraphSememeImpl> latest) -> {
-                                LogicGraphSememeImpl lgs = latest.value();
-                                int conceptSequence      = Get.identifierService()
+                                final LogicGraphSememeImpl lgs = latest.value();
+                                final int conceptSequence      = Get.identifierService()
                                                               .getConceptSequence(lgs.getReferencedComponentNid());
 
                                 if (Get.conceptService()
