@@ -41,14 +41,11 @@ package sh.isaac.model.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.Transient;
-
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

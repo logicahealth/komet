@@ -49,7 +49,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
@@ -70,6 +69,7 @@ import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexerConfiguration;
 import sh.isaac.utility.Frills;

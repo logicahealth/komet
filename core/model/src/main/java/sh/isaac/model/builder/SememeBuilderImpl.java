@@ -52,7 +52,6 @@ import javafx.concurrent.Task;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.State;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.sememe.SememeBuilder;

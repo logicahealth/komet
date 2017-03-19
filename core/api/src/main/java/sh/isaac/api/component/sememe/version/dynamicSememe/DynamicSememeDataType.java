@@ -51,8 +51,18 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.*;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBoolean;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArray;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNid;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphic;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequence;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.constants.DynamicSememeConstants;
 
 //~--- enums ------------------------------------------------------------------

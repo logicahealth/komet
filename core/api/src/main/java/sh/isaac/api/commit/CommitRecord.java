@@ -56,7 +56,6 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.externalizable.OchreExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 

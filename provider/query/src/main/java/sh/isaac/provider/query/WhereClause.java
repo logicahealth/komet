@@ -41,8 +41,6 @@ package sh.isaac.provider.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
 

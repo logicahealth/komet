@@ -62,8 +62,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
@@ -73,6 +71,7 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;

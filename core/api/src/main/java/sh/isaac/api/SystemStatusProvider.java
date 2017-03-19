@@ -51,8 +51,6 @@ import javafx.util.Pair;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.SystemStatusService;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -88,7 +86,7 @@ public class SystemStatusProvider
          this.configurationFailures = new ArrayList<>();
       }
 
-      this.configurationFailures.add(new Pair<String, Exception>(serviceName, failureDetails));
+      this.configurationFailures.add(new Pair<>(serviceName, failureDetails));
    }
 
    //~--- get methods ---------------------------------------------------------

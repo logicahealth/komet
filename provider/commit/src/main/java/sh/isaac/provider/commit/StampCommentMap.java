@@ -56,7 +56,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.Optional;
-import java.util.Spliterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -65,7 +64,6 @@ import java.util.stream.StreamSupport;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
 
 import sh.isaac.api.externalizable.StampComment;

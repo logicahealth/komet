@@ -41,10 +41,7 @@ package sh.isaac.provider.sync.git;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.junit.Assert;
 import org.junit.Test;
-
-import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 

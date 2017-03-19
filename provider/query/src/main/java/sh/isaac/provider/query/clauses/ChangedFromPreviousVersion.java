@@ -52,7 +52,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.provider.query.ClauseComputeType;
 import sh.isaac.provider.query.ClauseSemantic;
 import sh.isaac.provider.query.LeafClause;

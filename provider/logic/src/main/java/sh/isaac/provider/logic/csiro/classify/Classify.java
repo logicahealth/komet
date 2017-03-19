@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 
 import org.apache.mahout.math.set.OpenIntHashSet;
 
-import au.csiro.ontology.Ontology;
 import au.csiro.ontology.classification.IReasoner;
 import au.csiro.ontology.model.Axiom;
 import au.csiro.snorocket.core.SnorocketReasoner;

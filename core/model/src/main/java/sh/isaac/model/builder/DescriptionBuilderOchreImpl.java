@@ -46,8 +46,6 @@ import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.concurrent.Task;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;

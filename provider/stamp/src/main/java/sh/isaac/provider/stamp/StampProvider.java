@@ -41,14 +41,23 @@ package sh.isaac.provider.stamp;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.time.Instant;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,15 +82,17 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.*;
-import sh.isaac.api.DatabaseServices.DatabaseValidity;
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.State;
+import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConcurrentObjectIntMap;
 import sh.isaac.api.collections.ConcurrentSequenceSerializedObjectMap;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.TimedTask;
 
 //~--- classes ----------------------------------------------------------------

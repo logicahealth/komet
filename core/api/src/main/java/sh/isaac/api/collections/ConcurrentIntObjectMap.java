@@ -41,7 +41,11 @@ package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;

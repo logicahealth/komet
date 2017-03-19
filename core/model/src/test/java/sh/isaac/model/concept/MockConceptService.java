@@ -54,7 +54,6 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.DatabaseServices.DatabaseValidity;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;

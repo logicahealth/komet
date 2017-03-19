@@ -45,7 +45,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.OchreExternalizable;
 
 //~--- interfaces -------------------------------------------------------------
 

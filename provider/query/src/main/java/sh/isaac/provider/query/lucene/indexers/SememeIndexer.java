@@ -74,7 +74,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.ConceptSequenceSet;

@@ -54,7 +54,6 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.State;
-import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 

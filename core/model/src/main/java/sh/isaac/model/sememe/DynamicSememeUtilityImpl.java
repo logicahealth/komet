@@ -51,24 +51,14 @@ import javax.inject.Singleton;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBoolean;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArray;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNid;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequence;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeArrayImpl;

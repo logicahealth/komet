@@ -55,9 +55,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.State;
-import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- classes ----------------------------------------------------------------
 

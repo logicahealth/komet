@@ -42,7 +42,6 @@ package sh.isaac.provider.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,8 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
-import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.ClauseComputeType;
 import sh.isaac.provider.query.ClauseSemantic;
 import sh.isaac.provider.query.LeafClause;

@@ -42,7 +42,6 @@ package sh.isaac.api.util;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- classes ----------------------------------------------------------------
 

@@ -41,8 +41,6 @@ package sh.isaac.provider.observable;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;

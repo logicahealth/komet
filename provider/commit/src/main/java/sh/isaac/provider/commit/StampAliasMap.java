@@ -55,7 +55,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import java.util.Spliterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -63,18 +62,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.IMMUTABLE;
-import static java.util.Spliterator.NONNULL;
-import static java.util.Spliterator.SIZED;
-
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.list.IntArrayList;
 
 import sh.isaac.api.collections.NativeIntIntHashMap;
 import sh.isaac.api.externalizable.StampAlias;
-import sh.isaac.api.externalizable.StampComment;
 
 //~--- classes ----------------------------------------------------------------
 

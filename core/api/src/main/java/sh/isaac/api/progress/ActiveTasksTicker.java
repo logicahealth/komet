@@ -51,7 +51,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.ticker.Ticker;
 
 //~--- classes ----------------------------------------------------------------

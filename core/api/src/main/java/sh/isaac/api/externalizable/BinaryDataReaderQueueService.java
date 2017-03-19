@@ -42,7 +42,6 @@ package sh.isaac.api.externalizable;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.BlockingQueue;
-import java.util.stream.Stream;
 
 //~--- interfaces -------------------------------------------------------------
 

@@ -54,8 +54,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import sh.isaac.MetaData;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;

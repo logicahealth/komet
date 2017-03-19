@@ -41,7 +41,12 @@ package sh.isaac.api.memory;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;

@@ -91,7 +91,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
-import sh.isaac.provider.concept.ConceptSerializer;
 
 //~--- classes ----------------------------------------------------------------
 

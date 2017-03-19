@@ -48,7 +48,6 @@ import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.util.StringUtils;
 import sh.isaac.pombuilder.FileUtil;
 
 //~--- enums ------------------------------------------------------------------

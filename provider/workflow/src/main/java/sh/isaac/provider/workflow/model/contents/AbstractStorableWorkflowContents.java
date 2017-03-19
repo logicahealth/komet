@@ -41,8 +41,6 @@ package sh.isaac.provider.workflow.model.contents;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.text.SimpleDateFormat;
-
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------

@@ -41,8 +41,6 @@ package sh.isaac.mapping.data;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -55,8 +53,8 @@ import javafx.beans.property.SimpleStringProperty;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import sh.isaac.MetaData;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -65,7 +63,6 @@ import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.util.StringUtils;

@@ -57,7 +57,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;

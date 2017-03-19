@@ -86,7 +86,6 @@ import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
-import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT5Generator;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;

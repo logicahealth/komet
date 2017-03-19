@@ -43,9 +43,6 @@ package sh.isaac.api.memory;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.memory.MemoryConfigurations;
-import sh.isaac.api.memory.MemoryManagementService;
-
 //~--- classes ----------------------------------------------------------------
 
 /**

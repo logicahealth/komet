@@ -49,8 +49,6 @@ import java.util.stream.IntStream;
 
 import org.apache.mahout.math.list.IntArrayList;
 
-import sh.isaac.api.commit.StampService;
-
 //~--- classes ----------------------------------------------------------------
 
 /**

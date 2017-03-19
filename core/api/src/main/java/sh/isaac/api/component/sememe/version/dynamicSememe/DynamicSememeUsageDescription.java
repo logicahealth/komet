@@ -47,6 +47,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphic;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
+import sh.isaac.api.constants.DynamicSememeConstants;
 
 //~--- interfaces -------------------------------------------------------------
 

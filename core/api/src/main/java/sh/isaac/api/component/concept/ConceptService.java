@@ -51,7 +51,6 @@ import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
-import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;

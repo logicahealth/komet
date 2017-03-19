@@ -39,6 +39,12 @@
 
 package sh.isaac.api.collections.uuidnidmap;
 
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.Comparator;
+
+//~--- classes ----------------------------------------------------------------
+
 /**
  * The Class UuidSorting.
  *

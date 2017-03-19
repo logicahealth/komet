@@ -52,8 +52,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import sh.isaac.MetaData;
+
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;

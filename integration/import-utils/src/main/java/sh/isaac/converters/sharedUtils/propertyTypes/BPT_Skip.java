@@ -43,10 +43,6 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 
 import java.util.List;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
-
 //~--- classes ----------------------------------------------------------------
 
 /**

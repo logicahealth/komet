@@ -47,7 +47,6 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.externalizable.OchreExternalizable;
 
 //~--- interfaces -------------------------------------------------------------
 

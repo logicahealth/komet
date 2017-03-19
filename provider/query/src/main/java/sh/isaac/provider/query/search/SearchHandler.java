@@ -61,7 +61,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.ObjectChronology;
@@ -73,6 +72,7 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;

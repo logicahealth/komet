@@ -58,7 +58,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
@@ -75,6 +74,7 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.MetaData;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;

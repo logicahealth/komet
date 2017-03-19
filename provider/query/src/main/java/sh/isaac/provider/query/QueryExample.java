@@ -43,8 +43,6 @@ package sh.isaac.provider.query;
 
 import java.io.IOException;
 
-import java.util.UUID;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.ConceptProxy;

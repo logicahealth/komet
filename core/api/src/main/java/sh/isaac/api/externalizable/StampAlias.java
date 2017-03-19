@@ -39,15 +39,6 @@
 
 package sh.isaac.api.externalizable;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
-
-//~--- classes ----------------------------------------------------------------
-
 /**
  * The Class StampAlias.
  *

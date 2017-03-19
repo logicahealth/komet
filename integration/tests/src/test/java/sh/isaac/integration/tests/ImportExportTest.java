@@ -62,14 +62,16 @@ import org.jvnet.testing.hk2testng.HK2;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
@@ -77,6 +79,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.MetaData;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 

@@ -48,7 +48,6 @@ import java.util.UUID;
 
 import sh.isaac.api.LookupService;
 import sh.isaac.api.UserRole;
-import sh.isaac.provider.workflow.user.SimpleUserRoleService;
 
 //~--- classes ----------------------------------------------------------------
 

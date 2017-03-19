@@ -41,8 +41,6 @@ package sh.isaac.provider.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +63,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -81,9 +78,14 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
-import sh.isaac.api.logic.*;
+import sh.isaac.api.logic.IsomorphicResults;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.relationship.RelationshipAdaptorChronicleKey;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
+import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 import sh.isaac.model.logic.node.AndNode;

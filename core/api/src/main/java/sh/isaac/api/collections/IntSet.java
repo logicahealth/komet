@@ -48,14 +48,7 @@ package sh.isaac.api.collections;
 
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.set.OpenIntHashSet;
-
-import org.roaringbitmap.IntIterator;
 
 //~--- interfaces -------------------------------------------------------------
 

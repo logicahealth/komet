@@ -43,10 +43,10 @@ package sh.isaac.utility;
 
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.MetaData;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.MetaData;
 import sh.isaac.api.LanguageCode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 

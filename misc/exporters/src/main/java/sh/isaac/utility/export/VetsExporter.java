@@ -102,6 +102,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
+import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;

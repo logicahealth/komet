@@ -64,7 +64,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.sync.MergeFailOption;
-import sh.isaac.api.util.StringUtils;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 

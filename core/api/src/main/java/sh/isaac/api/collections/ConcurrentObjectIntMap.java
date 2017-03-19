@@ -48,7 +48,6 @@ import java.util.function.ObjIntConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.function.ObjectIntProcedure;
 import org.apache.mahout.math.map.OpenObjectIntHashMap;
 
 //~--- classes ----------------------------------------------------------------

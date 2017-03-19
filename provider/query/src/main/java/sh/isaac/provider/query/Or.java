@@ -41,8 +41,6 @@ package sh.isaac.provider.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------

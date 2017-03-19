@@ -52,12 +52,12 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
+import sh.isaac.MetaData;
 
 //~--- classes ----------------------------------------------------------------
 

@@ -39,12 +39,6 @@
 
 package sh.isaac.api.component.sememe.version.dynamicSememe;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.util.function.Supplier;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ReadOnlyObjectProperty;

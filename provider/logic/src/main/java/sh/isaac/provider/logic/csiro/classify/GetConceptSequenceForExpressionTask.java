@@ -49,7 +49,6 @@ import java.util.concurrent.ExecutionException;
 
 import javafx.concurrent.Task;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -65,6 +64,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
+import sh.isaac.MetaData;
 import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 

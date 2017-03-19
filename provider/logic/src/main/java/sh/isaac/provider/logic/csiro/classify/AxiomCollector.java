@@ -41,7 +41,12 @@ package sh.isaac.provider.logic.csiro.classify;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;

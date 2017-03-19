@@ -41,8 +41,6 @@ package sh.isaac.provider.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.EnumSet;
 
 import javax.xml.bind.annotation.XmlAccessType;

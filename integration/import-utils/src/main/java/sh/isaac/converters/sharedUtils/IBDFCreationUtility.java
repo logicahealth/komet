@@ -61,7 +61,6 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 
 import org.codehaus.plexus.util.FileUtils;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -116,6 +115,7 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
+import sh.isaac.MetaData;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;

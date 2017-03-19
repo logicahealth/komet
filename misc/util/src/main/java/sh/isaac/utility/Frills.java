@@ -71,8 +71,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.MetaData;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
