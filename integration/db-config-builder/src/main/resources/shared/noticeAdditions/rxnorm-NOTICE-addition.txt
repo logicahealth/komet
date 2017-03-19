@@ -1,0 +1,12 @@
+==========================================================================
+
+This material includes RxNorm which is used by permission of the National 
+Library of Medicine, Department of Health and Human Services (NLM). 
+All rights reserved.
+
+Some material in the UMLS Metathesaurus is from copyrighted sources of the
+respective copyright holders. Users of the UMLS Metathesaurus are solely
+responsible for compliance with any copyright, patent or trademark
+restrictions and are referred to the copyright, patent or trademark
+notices appearing in the original sources, all of which are hereby
+incorporated by reference

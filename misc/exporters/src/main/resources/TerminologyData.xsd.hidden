@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- edited with XMLSpy v2010 rel. 2 (http://www.altova.com) by Brent Jacox (Department of Veterans Affairs) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="MapSetType">
+		<xs:complexContent>
+			<xs:extension base="ConceptType">
+				<xs:sequence>
+					<xs:element name="SourceCodeSystem">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+								<xs:pattern value="[\w\S][\s\S]*"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="SourceVersionName">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+								<xs:pattern value="[\w\d][\s\S]*"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="TargetCodeSystem">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+								<xs:pattern value="[\w\S][\s\S]*"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="TargetVersionName">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+								<xs:pattern value="[\w\d][\s\S]*"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="MapEntryType">
+		<xs:sequence>
+			<xs:element name="Action" type="ActionType"/>
+			<xs:element name="VUID" type="xs:long" minOccurs="0"/>
+			<xs:element name="SourceCode">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+						<xs:pattern value="[\w\d][\s\S]*"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="TargetCode">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+						<xs:pattern value="[\w\d%/\[\]][\s\S]*"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Grouping" minOccurs="0"/>
+			<xs:element name="Sequence" type="xs:int"/>
+			<xs:element name="EffectiveDate" type="xs:date" minOccurs="0"/>
+			<xs:element name="Active" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Terminology" abstract="false">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Types" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Type" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="TypeType"/>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Subsets" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Subset" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="SubsetType"/>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="CodeSystem">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="CodeSystemType">
+								<xs:sequence>
+									<xs:element name="Version" minOccurs="0">
+										<xs:complexType>
+											<xs:complexContent>
+												<xs:extension base="VersionType">
+													<xs:sequence>
+														<xs:element name="CodedConcepts" minOccurs="0">
+															<xs:complexType>
+																<xs:sequence>
+																	<xs:element name="CodedConcept" minOccurs="0" maxOccurs="unbounded">
+																		<xs:complexType>
+																			<xs:complexContent>
+																				<xs:extension base="ConceptType">
+																					<xs:sequence>
+																						<xs:element name="Designations" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Designation" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="DesignationType">
+																													<xs:sequence>
+																														<xs:element name="Properties" minOccurs="0">
+																															<xs:complexType>
+																																<xs:sequence>
+																																	<xs:element name="Property" type="PropertyType" maxOccurs="unbounded"/>
+																																</xs:sequence>
+																															</xs:complexType>
+																														</xs:element>
+																														<xs:element name="SubsetMemberships" minOccurs="0">
+																															<xs:complexType>
+																																<xs:sequence>
+																																	<xs:element name="SubsetMembership" minOccurs="0" maxOccurs="unbounded">
+																																		<xs:complexType>
+																																			<xs:complexContent>
+																																				<xs:extension base="DesignationSubsetType"/>
+																																			</xs:complexContent>
+																																		</xs:complexType>
+																																	</xs:element>
+																																</xs:sequence>
+																															</xs:complexType>
+																														</xs:element>
+																													</xs:sequence>
+																												</xs:extension>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																						<xs:element name="Properties" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Property" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="PropertyType"/>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																						<xs:element name="Relationships" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Relationship" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="RelationshipType"/>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																				</xs:extension>
+																			</xs:complexContent>
+																		</xs:complexType>
+																	</xs:element>
+																</xs:sequence>
+															</xs:complexType>
+														</xs:element>
+														<xs:element name="MapSets" minOccurs="0">
+															<xs:complexType>
+																<xs:sequence>
+																	<xs:element name="MapSet" minOccurs="0" maxOccurs="unbounded">
+																		<xs:complexType>
+																			<xs:complexContent>
+																				<xs:extension base="MapSetType">
+																					<xs:sequence>
+																						<xs:element name="Designations" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Designation" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="DesignationType"/>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																						<xs:element name="Properties" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Property" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="PropertyType"/>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																						<xs:element name="Relationships" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="Relationship" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="RelationshipType"/>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																						<xs:element name="MapEntries" minOccurs="0">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="MapEntry" minOccurs="0" maxOccurs="unbounded">
+																										<xs:complexType>
+																											<xs:complexContent>
+																												<xs:extension base="MapEntryType">
+																													<xs:sequence>
+																														<xs:element name="Designations" minOccurs="0">
+																															<xs:complexType>
+																																<xs:sequence>
+																																	<xs:element name="Designation" minOccurs="0" maxOccurs="unbounded">
+																																		<xs:complexType>
+																																			<xs:complexContent>
+																																				<xs:extension base="DesignationType"/>
+																																			</xs:complexContent>
+																																		</xs:complexType>
+																																	</xs:element>
+																																</xs:sequence>
+																															</xs:complexType>
+																														</xs:element>
+																														<xs:element name="Properties" minOccurs="0">
+																															<xs:complexType>
+																																<xs:sequence>
+																																	<xs:element name="Property" minOccurs="0" maxOccurs="unbounded">
+																																		<xs:complexType>
+																																			<xs:complexContent>
+																																				<xs:extension base="PropertyType"/>
+																																			</xs:complexContent>
+																																		</xs:complexType>
+																																	</xs:element>
+																																</xs:sequence>
+																															</xs:complexType>
+																														</xs:element>
+																														<xs:element name="Relationships" minOccurs="0">
+																															<xs:complexType>
+																																<xs:sequence>
+																																	<xs:element name="Relationship" minOccurs="0" maxOccurs="unbounded">
+																																		<xs:complexType>
+																																			<xs:complexContent>
+																																				<xs:extension base="RelationshipType"/>
+																																			</xs:complexContent>
+																																		</xs:complexType>
+																																	</xs:element>
+																																</xs:sequence>
+																															</xs:complexType>
+																														</xs:element>
+																													</xs:sequence>
+																												</xs:extension>
+																											</xs:complexContent>
+																										</xs:complexType>
+																									</xs:element>
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																				</xs:extension>
+																			</xs:complexContent>
+																		</xs:complexType>
+																	</xs:element>
+																</xs:sequence>
+															</xs:complexType>
+														</xs:element>
+													</xs:sequence>
+												</xs:extension>
+											</xs:complexContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Type">
+		<xs:annotation>
+			<xs:documentation>Perhaps rename this to avoid confusion with XSD type.</xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+	<xs:simpleType name="ActionType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="add"/>
+			<xs:enumeration value="update"/>
+			<xs:enumeration value="none"/>
+			<xs:enumeration value="remove"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ConceptType">
+		<xs:sequence>
+			<xs:element name="Action" type="ActionType"/>
+			<xs:element name="Code" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Name" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="3000"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="VUID" type="xs:long" minOccurs="0"/>
+			<xs:element name="Active" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PropertyType">
+		<xs:sequence>
+			<xs:element name="Action" type="ActionType"/>
+			<xs:element name="TypeName">
+				<xs:simpleType>
+					<xs:restriction base="SpecialCharFilter">
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ValueOld" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="SpecialCharFilter">
+						<xs:maxLength value="2000"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ValueNew" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="SpecialCharFilter">
+						<xs:maxLength value="2000"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Active" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="VersionType">
+		<xs:sequence>
+			<xs:element name="Append" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Name">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Description" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="EffectiveDate" type="xs:date" minOccurs="0"/>
+			<xs:element name="ReleaseDate" type="xs:date" minOccurs="0"/>
+			<xs:element name="Source" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DesignationType">
+		<xs:complexContent>
+			<xs:extension base="Type">
+				<xs:sequence>
+					<xs:element name="Action" type="ActionType"/>
+					<xs:element name="Code" type="xs:string" minOccurs="0"/>
+					<xs:element name="TypeName">
+						<xs:simpleType>
+							<xs:restriction base="SpecialCharFilter">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="VUID" type="xs:long" minOccurs="0"/>
+					<xs:element name="ValueNew" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="SpecialCharFilter">
+								<xs:maxLength value="3000"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ValueOld" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="SpecialCharFilter">
+								<xs:maxLength value="3000"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="Active" type="xs:boolean" minOccurs="0"/>
+					<xs:element name="MoveFromConceptCode" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RelationshipType">
+		<xs:complexContent>
+			<xs:extension base="Type">
+				<xs:sequence>
+					<xs:element name="Action" type="ActionType"/>
+					<xs:element name="TypeName">
+						<xs:simpleType>
+							<xs:restriction base="SpecialCharFilter">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="OldTargetCode" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="NewTargetCode" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="Active" type="xs:boolean" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DesignationSubsetType">
+		<xs:complexContent>
+			<xs:extension base="Type">
+				<xs:sequence>
+					<xs:element name="Action" type="ActionType"/>
+					<xs:element name="VUID" type="xs:long"/>
+					<xs:element name="Active" type="xs:boolean" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CodeSystemType">
+		<xs:complexContent>
+			<xs:extension base="Type">
+				<xs:sequence>
+					<xs:element name="Action" type="ActionType"/>
+					<xs:element name="Name">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="VUID" type="xs:long" minOccurs="0"/>
+					<xs:element name="Description" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="Copyright" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="CopyrightURL" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="PreferredDesignationType" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="KindType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="PropertyType"/>
+			<xs:enumeration value="DesignationType"/>
+			<xs:enumeration value="RelationshipType"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="TypeType">
+		<xs:sequence>
+			<xs:element name="Kind" type="KindType"/>
+			<xs:element name="Name" type="SpecialCharFilter"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SubsetType">
+		<xs:sequence>
+			<xs:element name="Action" type="ActionType"/>
+			<xs:element name="Name" type="SpecialCharFilter"/>
+			<xs:element name="VUID" type="xs:long" minOccurs="0"/>
+			<xs:element name="Active" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="SpecialCharFilter">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[^\|]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

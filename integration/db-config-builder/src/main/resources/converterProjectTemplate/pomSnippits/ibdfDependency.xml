@@ -1,0 +1,8 @@
+		<dependency>
+			<groupId>#GROUPID#</groupId>
+			<artifactId>#ARTIFACTID#</artifactId>
+			<classifier>#CLASSIFIER#</classifier>
+			<version>#VERSION#</version>
+			<type>ibdf.zip</type>
+			<optional>true</optional> <!-- Not needed at runtime / transitively -->
+		</dependency>

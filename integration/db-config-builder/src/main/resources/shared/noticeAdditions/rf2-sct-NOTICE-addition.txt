@@ -1,0 +1,8 @@
+==========================================================================
+
+This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used 
+by permission of the International Health Terminology Standards Development
+Organisation (IHTSDO). All rights reserved.
+
+SNOMED CT®, was originally created by The College of American Pathologists. 
+"SNOMED" and "SNOMED CT" are registered trademarks of the IHTSDO.

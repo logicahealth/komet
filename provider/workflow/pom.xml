@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>sh.isaac</groupId>
+        <artifactId>provider</artifactId>
+		<version>4.1-SNAPSHOT</version>
+	</parent>
+	<groupId>sh.isaac.provider</groupId>
+	<artifactId>workflow</artifactId>
+	<packaging>jar</packaging>
+	<name>ISAAC: Workflow Provider</name>
+	<description>Provides the ISAAC application with modeling workflow capabilities</description>
+	
+	<dependencies>
+		<dependency>
+			<groupId>sh.isaac.modules</groupId>
+			<artifactId>metacontent</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<!-- Metacontent-store requires a configuration service - only one is in ochre-model -->
+		<dependency>
+			<groupId>sh.isaac.core</groupId>
+			<artifactId>model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sh.isaac.provider</groupId>
+			<artifactId>stamp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sh.isaac.misc</groupId>
+			<artifactId>util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<!-- KIE Stuff -->
+		
+		<dependency>
+			<groupId>org.jbpm</groupId>
+			<artifactId>jbpm-kie-services</artifactId>
+			<version>${jbpm.version}</version>
+			<exclusions>  <!-- This pulls in a mess of out of date / uneeded stuff -->
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+			<version>${jbpm.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jbpm</groupId>
+			<artifactId>jbpm-bpmn2</artifactId>
+			<version>${jbpm.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jbpm</groupId>
+			<artifactId>jbpm-services-api</artifactId>
+			<version>${jbpm.version}</version>
+		</dependency>
+
+	</dependencies>
+</project>
+ 

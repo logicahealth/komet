@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: ${java.version} (${java.vendor})
+Implementation-Title: ${project.name}
+Implementation-Version: ${project.version}${resultArtifactClassifierWithLeadingHyphen}
+Implementation-Vendor: ${project.organization.name}

@@ -1,0 +1,11 @@
+					<execution>
+						<id>unpack-ibdf</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeArtifactIds>#UNPACK_ARTIFACTS#</includeArtifactIds>
+							<outputDirectory>${project.build.directory}/generated-resources/src/ibdf</outputDirectory>
+						</configuration>
+					</execution>

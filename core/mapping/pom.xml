@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>core</artifactId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>sh.isaac.modules</groupId>
+    <artifactId>mapping</artifactId>
+    <packaging>jar</packaging>
+    <name>ISAAC: Mapping</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>mapping-constants</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,18 @@
+==========================================================================
+
+© 2002-2015 The International Health Terminology Standards Development
+Organisation (IHTSDO).  All Rights Reserved.  SNOMED CT® was originally 
+created by The College of American Pathologists.  "SNOMED" and "SNOMED CT"
+are registered trademarks of the IHTSDO.
+
+SNOMED CT has been created by combining SNOMED RT and a computer based
+nomenclature and classification known as Clinical Terms Version 3, formerly
+known as Read Codes Version 3, which was created on behalf of the UK 
+Department of Health and is Crown copyright.
+
+This material contains content from LOINC® (http://loinc.org) that is used
+by permission from the Regenstrief Institute. The LOINC table, LOINC 
+codes, and LOINC panels and forms file are copyright © 1995-2015, 
+Regenstrief Institute, Inc. and the Logical Observation Identifiers Names 
+and Codes (LOINC) Committee and available in perpetuity at no cost under 
+the license at http://loinc.org/terms-of-use.

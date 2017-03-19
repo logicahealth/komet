@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>isaac</artifactId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>core</artifactId>
+    <name>ISAAC: core (MMP)</name>
+    <description>Aggrigator project for core ISAAC modules</description>
+    <packaging>pom</packaging>
+    <modules>
+       <module>api</module>
+       <module>log-config</module>
+       <module>mapping</module>
+       <module>mapping-constants</module>
+       <module>metadata</module>
+       <module>metadata-source</module>
+       <module>model</module>
+       <module>mojo</module>
+    </modules>
+</project>

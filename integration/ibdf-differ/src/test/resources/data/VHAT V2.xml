@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Terminology>
+	<Types>
+		<Type>
+			<Kind>DesignationType</Kind>
+			<Name>Abbreviation</Name>
+		</Type>
+		<Type>
+			<Kind>DesignationType</Kind>
+			<Name>Fully Specified Name</Name>
+		</Type>
+		<Type>
+			<Kind>DesignationType</Kind>
+			<Name>Preferred Name</Name>
+		</Type>
+		<Type>
+			<Kind>DesignationType</Kind>
+			<Name>Synonym</Name>
+		</Type>
+		<Type>
+			<Kind>RelationshipType</Kind>
+			<Name>has_parent</Name>
+		</Type>
+		<Type>
+			<Kind>PropertyType</Kind>
+			<Name>Description</Name>
+		</Type>
+	  </Types>
+	<Subsets>
+		<Subset>
+			<Action>add</Action>
+			<Name>Allergy Types</Name>
+			<VUID>4712474</VUID>
+			<Active>true</Active>
+		</Subset>
+	</Subsets>
+	<CodeSystem>
+		<Action>none</Action>
+		<Name>VHAT</Name>
+		<VUID>4707199</VUID>
+		<Description>VHA Terminology</Description>
+		<Copyright>2007</Copyright>
+		<CopyrightURL />
+		<PreferredDesignationType>Preferred Name</PreferredDesignationType>
+		<Version>
+			<Append>true</Append>
+			<Name>Authoring Version</Name>
+			<Description>This is the version that is given to authoring changes before they are finalized.</Description>
+			<EffectiveDate>2011-02-16</EffectiveDate>
+			<ReleaseDate>2011-02-16</ReleaseDate>
+			<Source />
+			<CodedConcepts>
+			<!-- No child pointing so should be able to retire
+				<CodedConcept>
+					<Action>add</Action>
+					<Code>4516261</Code>
+					<Name>Enterprise Clinical Terms</Name>
+					<VUID>4516261</VUID>
+					<Active>true</Active>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>4775680</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>4775680</VUID>
+							<ValueNew>Enterprise Clinical Terms</ValueNew>
+							<Active>true</Active>
+						</Designation>
+					</Designations>
+					<Relationships>
+						<Relationship>
+							<Action>add</Action>
+							<TypeName>has_parent</TypeName>
+							<NewTargetCode>4712493</NewTargetCode>
+							<Active>true</Active>
+						</Relationship>
+					</Relationships>
+				</CodedConcept>
+					-->
+				<CodedConcept>
+					<Action>add</Action>
+					<Code>4522046</Code>
+					<Name>SNOMED CT</Name>
+					<VUID>4522046</VUID>
+					<Active>true</Active>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>4775682</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>4775682</VUID>
+							<ValueNew>SNOMED CT</ValueNew>
+							<Active>true</Active>
+						</Designation>
+						<!-- Removing  1 Designation 
+						
+						<Designation>
+							<Action>add</Action>
+							<Code>4775674</Code>
+							<TypeName>Fully Specified Name</TypeName>
+							<VUID>4775674</VUID>
+							<ValueNew>Systematized Nomenclature of Medicine-Clinical Terms</ValueNew>
+							<Active>true</Active>
+						</Designation>
+						-->
+					</Designations>
+					<Relationships>
+						<Relationship>
+							<Action>add</Action>
+							<TypeName>has_parent</TypeName>
+							<NewTargetCode>4712493</NewTargetCode>
+							<Active>true</Active>
+						</Relationship>
+					</Relationships>
+				</CodedConcept>
+				<!--  New Concept -->
+				<CodedConcept>
+					<Action>add</Action>
+					<Code>4707999</Code>
+					<Name>VHAT New Child</Name>
+					<VUID>4707999</VUID>
+					<Active>true</Active>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>9997999</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>9997999</VUID>
+							<ValueNew>My VHAT New Child</ValueNew>
+							<Active>true</Active>
+						</Designation>
+					</Designations>
+					<Relationships>
+						<Relationship>
+							<Action>add</Action>
+							<TypeName>has_parent</TypeName>
+							<NewTargetCode>4707199</NewTargetCode>
+							<Active>true</Active>
+						</Relationship>
+					</Relationships>
+				</CodedConcept>
+				
+				<CodedConcept>
+					<Action>add</Action>
+					<Code>4712493</Code>
+					<Name>Standard Code Systems</Name>
+					<VUID>4712493</VUID>
+					<Active>true</Active>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>4775684</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>4775684</VUID>
+							<ValueNew>Standard Code Systems</ValueNew>
+							<Active>true</Active>
+						</Designation>
+						<!--  New Designation -->
+						<Designation>
+							<Action>add</Action>
+							<Code>9992493</Code>
+							<TypeName>Synonym</TypeName>
+							<VUID>9992493</VUID>
+							<ValueNew>My New Designation</ValueNew>
+							<Active>true</Active>
+						</Designation>
+					</Designations>
+					<Relationships>
+						<Relationship>
+							<Action>add</Action>
+							<TypeName>has_parent</TypeName>
+							<NewTargetCode>4707199</NewTargetCode>
+							<Active>true</Active>
+						</Relationship>
+					</Relationships>
+				</CodedConcept>
+				<CodedConcept>
+					<Action>add</Action>
+					<Code>4707199</Code>
+					<Name>VHAT</Name>
+					<VUID>4707199</VUID>
+					<Active>true</Active>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>4708043</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>4708043</VUID>
+							<ValueNew>VHAT</ValueNew>
+							<Active>true</Active>
+						</Designation>
+					</Designations>
+				</CodedConcept>
+
+		        <CodedConcept>
+		          <Action>add</Action>
+		          <Code>4522047</Code>
+		          <Name>ICD-9-CM</Name>
+		          <VUID>4522047</VUID>
+		          <Active>true</Active>
+		          <Designations>
+		            <Designation>
+		              <Action>add</Action>
+		              <Code>4775670</Code>
+		              <TypeName>Preferred Name</TypeName>
+		              <VUID>4775670</VUID>
+		              <ValueNew>My Updated CD-9-CM</ValueNew>
+		              <Active>true</Active>
+		            </Designation>
+		            <Designation>
+		              <Action>add</Action>
+		              <Code>4775673</Code>
+		              <TypeName>Fully Specified Name</TypeName>
+		              <VUID>4775673</VUID>
+		              <ValueNew>International Classification of Diseases, Ninth Revision, Clinical Modification</ValueNew>
+		              <Active>true</Active>
+		            </Designation>
+		          </Designations>
+		          <Relationships>
+		            <Relationship>
+		              <Action>add</Action>
+		              <TypeName>has_parent</TypeName>
+		              <NewTargetCode>4522046</NewTargetCode>
+		              <Active>true</Active>
+		            </Relationship>
+		          </Relationships>
+		        </CodedConcept>
+
+			</CodedConcepts>
+			<MapSets>
+				<MapSet>
+					<Action>add</Action>
+					<Code>4712465</Code>
+					<Name>NHIN Gender</Name>
+					<VUID>4712465</VUID>
+					<Active>true</Active>
+					<SourceCodeSystem>VHAT</SourceCodeSystem>
+					<SourceVersionName>5</SourceVersionName>
+					<TargetCodeSystem>HL7 Administrative Gender</TargetCodeSystem>
+					<TargetVersionName>V3NE08</TargetVersionName>
+					<Designations>
+						<Designation>
+							<Action>add</Action>
+							<Code>4762641</Code>
+							<TypeName>Preferred Name</TypeName>
+							<VUID>4762641</VUID>
+							<ValueNew>NHIN Gender</ValueNew>
+							<Active>true</Active>
+						</Designation>
+						<Designation>
+							<Action>add</Action>
+							<Code>4762640</Code>
+							<TypeName>Fully Specified Name</TypeName>
+							<VUID>4762640</VUID>
+							<ValueNew>VHAT 5 to HL7 Administrative Gender V3NE08 02-May-2011 04:19:59</ValueNew>
+							<Active>true</Active>
+						</Designation>
+					</Designations>
+					<Properties>
+						<Property>
+							<Action>add</Action>
+							<TypeName>Description</TypeName>
+							<ValueNew>Data Exchange with NHIN</ValueNew>
+							<Active>true</Active>
+						</Property>
+					</Properties>
+					<MapEntries>
+						<MapEntry>
+							<Action>add</Action>
+							<VUID>4762642</VUID>
+							<SourceCode>4712532</SourceCode>
+							<TargetCode>M</TargetCode>
+							<Sequence>1</Sequence>
+							<Active>true</Active>
+						</MapEntry>
+						<MapEntry>
+							<Action>add</Action>
+							<VUID>4762643</VUID>
+							<SourceCode>4712531</SourceCode>
+							<TargetCode>F</TargetCode>
+							<Sequence>1</Sequence>
+							<Active>true</Active>
+						</MapEntry>
+					</MapEntries>
+				</MapSet>	  
+			</MapSets>
+		</Version>
+	</CodeSystem>
+</Terminology>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>misc</artifactId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+    <groupId>sh.isaac.misc</groupId>
+    <artifactId>util</artifactId>
+    <packaging>jar</packaging>
+    <name>ISAAC: Util</name>
+    
+    <description>
+        Shared code built on top of the low-level ISAAC APIs that is useful for users of ISAAC, but doesn't rise to the level 
+        of being part of the core APIs.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.modules</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>mapping-constants</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

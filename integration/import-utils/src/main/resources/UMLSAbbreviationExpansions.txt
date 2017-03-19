@@ -1,0 +1,178 @@
+#Abbreviation (RRF name)	expansion	description [optional]
+
+#UMLS Attribute Types
+ACTIVE	Active	
+ALT_SORT_CODE	Alt Sort Code	
+AQ	Allowable Qualifier	SNOMED CT "allowable qualifier" attribute for representing certain relationships (those having a characteristic type of "Qualifier" and a refinability of "Mandatory") which indicate one of several allowable types of qualifiers, such as laterality or severity, that a concept may have
+CASE_SIGNIFICANCE_ID	Case significance ID	
+CHARACTERISTICTYPE	Characteristic Type	SNOMED CT indication of whether a relationship specifies a defining characteristic of the source concept or a possible qualification of that Concept.
+CHARACTERISTIC_TYPE_ID	Characteristic type ID	
+CODE_ALSO	Code Also	Instructs that 2 codes may be required to fully describe a condition but the sequencing of the two codes is discretionary, depending on the severity of the conditions and the reason for the encounter.
+CODE_FIRST	Code First	Certain conditions have both an underlying etiology and multiple body system manifestations due to the underlying etiology. ICD-10-CM has a coding convention that requires the underlying condition be sequenced first followed by the manifestation. Wherever such a combination exists there is a "code first" note at the manifestation code. These instructional notes indicate the proper sequencing order of the codes, etiology followed by manifestation. In most cases the manifestation codes will have in the code title, "in diseases classified elsewhere." Codes with this title are a component of the etiology/manifestation convention. The code title indicates that it is a manifestation code. "In diseases classified elsewhere" codes are never permitted to be used as first listed or principle diagnosis codes. They must be used in conjunction with an underlying condition code and they must be listed following the underlying condition.
+CONCEPTSTATUS	Concept Status	SNOMED CT status which indicates whether a concept is in active use and, if not, indicates the reason it is inactive.
+CONCEPTSTATUS	Concept Status	SNOMED CT status which indicates whether a concept is in active use and, if not, indicates the reason it is inactive.
+CPF	CPT Full Description	Complete text of the CPT full description, in cases where the CPT term in the "STR" field of MRCON has been trimmed from its original form.
+CPT_CLINICIAN_DESC_ID	CPT Clinician Descriptor identifier	
+CPTDTK_CONCEPT_ID	CPT DTK concept identifier	
+CTV3ID	CTV3 Read Code	The Read Code for a SNOMED CT concept taken from the United Kingdom's Clinical Terms Version 3 terminology.
+CV_ALGORITHM	Content view algorithm
+CV_CATEGORY	Content view category
+CV_CLASS	Content view class
+CV_CODE	Content view code
+CV_CONTRIBUTOR	Content view contributor
+CV_CONTRIBUTOR_DATE	Content View Contributor Date	Date corresponding to the contributor version of this concept view
+CV_CONTRIBUTOR_URL	Content View Contributor URL	URL corresponding to the contributor version of this concept view
+CV_CONTRIBUTOR_VERSION	Content View Contributor Version	Version of this content view submitted by the contributor
+CV_DESCRIPTION	Content view description
+CV_INCLUDE_OBSOLETE	Content view includes obsolete data	Y/N
+CV_IS_GENERATED	Content view generated	Y/N
+CV_MAINTAINER	Content view maintainer
+CV_MAINTAINER_DATE	Content View Maintainer Date	Date corresponding to the maintainer version of this concept view
+CV_MAINTAINER_URL	Content View Maintainer URL	URL corresponding to the maintainer version of this concept view
+CV_MAINTAINER_VERSION	Content View Maintainer Version	Version of this content view submitted by the maintainer
+CV_MEMBER	Content View Member	Describes the membership for an atom belonging to a particular content view. The value for this attribute is a tilde-delimited microsyntax. The first field is the content view bitflag (e.g. 2048), followed by field name-value pairs describing the member.
+CV_PREVIOUS_META	Content View Previous Meta Version	Previous UMLS Metathesaurus version used to generate content view. A null value means the content view is generated based on current UMLS Metathesaurus version.
+DA	Metathesaurus Date of entry	YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus.
+DESCRIPTIONSTATUS	Description Status	SNOMED CT description status which indicates whether a description (concept name) is in active use and, if not, the reason it is inactive.
+DESCRIPTIONTYPE	Description Type	SNOMED CT term type, indicating whether the term is the Preferred Term, Synonym or the Fully Specified Name for the associated concept.
+DEFAULT_MODULE_ID	Default module ID	
+DEFINITION_STATUS_ID	Definition status ID
+DESCRIPTION_FORMAT	Description format	
+DESCRIPTION_LENGTH	Description length	
+EXCLUDES1	Not Coded Here	A pure excludes. It means "NOT CODED HERE!" Indicates that the code excluded should never be used at the same time as the code above the Excludes1 note. Used for when two conditions cannot occur together, such as a congenital form versus an acquired form of the same condition.
+EXCLUDES2	Not Included Here	Represents "Not included here". Indicates that the condition excluded is not part of the condition it is excluded from but a patient may have both conditions at the same time. When an Excludes2 note appears under a code it is acceptable to use both the code and the excluded code together.
+FROMRSAB	From Root Source Abbreviation	Root source abbreviation for the "from" identifiers of a map set
+FROMVSAB	From Versioned Source Abbreviation	Versioned source abbreviation for the "from" identifiers of a map set
+HAC	HCPCS Action Code	code denoting the change made to a procedure or modifier code within the HCPCS system.
+HAD	HCPCS Action Effective Date	effective date of action to a procedure or modifier code.
+HAQ	HCPCS Anesthesia Base Unit Quantity	base unit represents the level of intensity for anesthesia procedure services that reflects all activities except time.
+HBT	HCPCS Berenson-Eggers Type of Service Code	BETOS for the procedure code based on generally agreed upon clinically meaningful groupings of procedures and services.
+HCC	HCPCS Coverage Code	code denoting Medicare coverage status. There are two subelements separated by "=".
+HCD	HCPCS Code Added Date	year the HCPCS code was added to the HCFA Common Procedure Coding System.
+HIR	HCPCS Coverage Issues Manual Reference Section Number	number identifying the Reference Section of the Coverage Issues Manual.
+HLC	HCPCS Lab Certification Code	code used to classify laboratory procedures according to the specialty certification categories listed by CMS(formerly HCFA).
+HMP	HCPCS Multiple Pricing Indicator Code	code used to identify instances where a procedure could be priced.
+HMR	HCPCS Medicare Carriers Manual reference section number	number identifying a section of the Medicare Carriers Manual.
+HPD	HCPCS ASC payment group effective date	date the procedure is assigned to the ASC payment group.
+HPG	HCPCS ASC payment group code	represents the dollar amount of the facility charge payable by Medicare for the procedure.
+HPI	HCPCS Pricing Indicator Code	used to identify the appropriate methodology for developing unique pricing amounts under Part B.
+HPN	HCPCS processing note number	Identifies the processing note contained in Appendix A of the HCPCS Manual.
+HSN	HCPCS Statute Number	Identifies statute reference for coverage or noncoverage of procedure or service.
+HTD	HCPCS Termination Date	last date for which a procedure or code may be used by Medicare Providers.
+HTS	HCPCS Type of Service Code	carrier assigned HCFA Type of Service which describes the particular kind(s) of service represented by the procedure code.
+HXR	HCPCS Cross reference code	an explicit reference crosswalking a deleted code or a code that is not valid for Medicare to a valid current code (or range of codes).
+ICA	ICD Additional Codes Note	an ICD-9-CM instruction to signal the coder that an additional code should be used if the information is available to provide a more complete picture of that diagnoses or procedure.
+ICC	ICD Code Also Note	an ICD-9-CM instruction to signal the coder to code additional information.
+ICD-O-3_CODE	ICD-O-3 Code	
+ICE	ICD Entry Term	(e.g. Diarrhea:{dysenteric; epidemic}; Infectious diarrheal disease)
+ICF	ICD Fifth-digit Code Note	instruction to coders indicating use of a fifth-digit code.
+INACTIVATION_INDICATOR	Inactivation indicator	
+ICN	ICD Note	instruction providing additional coding information.
+INITIALCAPITALSTATUS	Initial Capital Status	SNOMED CT capital status, indicating whether the capitalization of the first character of the SNOMED CT term is significant.
+ISPRIMITIVE	Is Primitive	SNOMED CT indicator of whether concept is primitive or fully defined by its defining characteristics.
+LANGUAGECODE	Language Code	SNOMED CT string identifying a language and, if appropriate, a dialect in which this description is valid.
+LT	Tradename Indicator	Indicates if a chemicals or medical device is a tradename (present in older versions of the Metathesaurus and was discontinued, then brought back starting in 2002AD)
+MAPSETGRAMMAR	Map Set Grammar	Grammar used to describe boolean expressions used in a map set
+MAPSETNAME	Map Set Name	Official name of a map set
+MAPSETREALMID	Map Set Realm ID	Identifier of a "Realm" to which a source is mapped, within which this cross mapping table is applicable. Used in cases where Realm specific business rules or guidelines alter the acceptable mappings. Realm is the same as used in SNOMED CT subsets. It includes a four character ISO6523 identifier followed by an optional series of concatenated subdivision codes defined by the registered organization.
+MAPSETRSAB	Root source abbreviation for a map set	
+MAPSETRULETYPE	Map Set Rule Type	Indicates the types of rules used in a map set and cross map targets to which a source is mapped.
+MAPSETSCHEMEID	Map Set Scheme ID	Standard identifier for the scheme to which a map set belongs. This may be an International Coding Scheme Identifier (ISO7826) or an Object Identifier (OID) used as specified by HL7.
+MAPSETSCHEMENAME	Map Set Scheme Name	Full name of the target scheme in a map set.
+MAPSETSCHEMEVERSION	Map Set Scheme Version	Version number of the target scheme (as published by the issuing organization) in a map set.
+MAPSETSEPARATORCODE	Map Set Separator Code	XML entity code (for example, "&#7c;" to represent the vertical-bar character) for the character used as a separator between the individual codes in the target codes field in a map set.
+MAPSETSID	Map Set ID	Source asserted identifier for a map set
+MAPSETTYPE	Map Set Type	Indicates the nature of a map set. Its value is map set specific. It can be used to indicate the inclusion of one to one, one to many and choices of maps.
+MAPSETVERSION	Version of the map set	
+MAPSETVERSION	Map Set Version	Version of the map set
+MAPSETVSAB	Versioned source abbreviation for a map set	
+MAPSETVSAB	Map Set Versioned Source Identifier	Versioned source abbreviation for a map set
+MAPSETXRTARGETID	Map set target identifier used for XR mappings.	
+MAPSETXRTARGETID	Map Set XR Target ID	Map set target identifier used for XR mappings.
+MODIFIER_ID	Modifier ID	
+MODULE_ID	Module ID	
+MR	Major revision date	YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content.
+MTH_CODE_FIRST	MTH Code First	Certain conditions have both an underlying etiology and multiple body system manifestations due to the underlying etiology.
+MTH_EXCLUDES1	MTH Not Coded Here	pure excludes
+MTH_EXCLUDES2	MTH Not Included Here	
+MTH_MAPFROMCOMPLEXITY	MTH Map From Complexity	Indicates the complexity of "from" expressions used in a map set
+MTH_MAPFROMEXHAUSTIVE	MTH Map From Exhaustive	Indicates whether or not the "from" source of a map set is completely mapped
+MTH_MAPSETCOMPLEXITY	MTH Map Set Complexity	Indicates the overall complexity of a map set
+MTH_MAPTOCOMPLEXITY	MTH Map To Complexity	Indicates the complexity of "to" expressions in a map set
+MTH_MAPTOEXHAUSTIVE	MTH Map To Exhaustive	Indicates whether or not the "to" source is completely mapped
+NOTE	Note	
+ORDER_NO	Order Number	
+REFINABILITY	Refinability	Indicates whether it is possible or mandatory to refine the atom when this relationship is used as a template for clinical data entry.
+REFSET_PATTERN	Refset pattern	
+SNOMEDID	SNOMED ID	SNOMED RT identifier for a SNOMED CT concept	
+SOS	Scope Statement	
+SOURCE_EFFECTIVE_TIME	Source effective time	
+ST	Concept Attributes Status	Valid values: R Reviewed, U Unreviewed
+SUBSETCONTEXTID	Subset Context ID	SNOMED CT identifier of a subset
+SUBSETLANGUAGECODE	Subset Language Code	SNOMED CT identifier of a language and, if appropriate, a dialect to which a subset applies.
+SUBSETMEMBER	Subset Member	Indicates the subset(s) to which an atom belongs and its status (e.g., active, inactive) in the subset(s).
+SUBSET_MEMBER	Subset member	
+SUBSETORIGINALID	Subset Original ID	SNOMED CT identifier for the first version of the subset on which this subset is based.
+SUBSETREALMID	Subset Realm ID	“Realm" or context in which a SNOMED CT subset is used, e.g., nation, speciality, institution, etc. to which it applies. A four-character ISO6523 identifier followed by an optional series of concatenated subdivisions codes defined by the registered organization.
+SUBSETTYPE	Subset Type	Single digit integer indicating the nature of a SNOMED CT subset and the type of SNOMED CT component that may be a member of the subset. The meaning of the non-zero values can be found in the SNOMED CT documentation; a value of 0 is not defined as a type.
+SUBSETVERSION	Subset Version	SNOMED CT identifier for the version of a subset. An integer increased for each revised release.
+TARGETSCHEMEID	Target Scheme ID	Identifier for the target scheme in the map set. This may be an International Coding Scheme Identifier (ISO7826) or an Object Identifier (OID) used as specified by HL7.
+TARGET_EFFECTIVE_TIME	Target effective time	
+TORSAB	To Root Source Abbreviation	Root source abbreviation for the "to" identifiers of a map set
+TOVSAB	To Versioned Source Abbreviations	Versioned source abbreviation for the "to" identifiers of a map set
+TYPE_ID	Type ID	
+UMLSREL	UMLS Metathesaurus REL Relationship	The UMLS Metathesaurus REL relationship (SY, CHD, RN, RB, RO) assigned to SNOMED CT relationship identifiers.
+UMLSRELA	UMLS Relationship Attribute	
+USE_ADDITIONAL	Use Additional	Certain conditions have both an underlying etiology and multiple body system manifestations due to the underlying etiology. ICD-10-CM has a coding convention that requires the underlying condition be sequenced first followed by the manifestation. Wherever such a combination exists there is a "use additional code" note at the etiology code. These instructional notes indicate the proper sequencing order of the codes, etiology followed by manifestation. In most cases the manifestation codes will have in the code title, "in diseases classified elsewhere." Codes with this title are a component of the etiology/ manifestation convention. The code title indicates that it is a manifestation code. "In diseases classified elsewhere" codes are never permitted to be used as first listed or principle diagnosis codes. They must be used in conjunction with an underlying condition code and they must be listed following the underlying condition.
+
+# UMLS Descriptions
+AB	Abbreviation in any source vocabulary
+AM	Short form of modifier
+CV	Content View
+DT	Definitional Term	Present in the Metathesaurus because of its connection to a Dorland's definition or to a definition created especially for the Metathesaurus
+ET	Entry term
+ETCF	Entry term, consumer friendly description
+ETCLIN	Entry term, clinician description
+FN	Full form of descriptor
+HT	Hierarchical term
+IS	Obsolete Synonym
+IS	Obsolete Synonym
+MP	Preferred names of modifiers
+MTH_AB	MTH abbreviation
+MTH_ET	Metathesaurus entry term
+MTH_FN	MTH Full form of descriptor
+MTH_HT	MTH Hierarchical term
+MTH_IS	Metathesaurus-supplied form of obsolete synonym
+MTH_OAF	Metathesaurus-supplied form of obsolete active fully specified name
+MTH_OAP	Metathesaurus-supplied form of obsolete active preferred term
+MTH_OAS	Metathesaurus-supplied form of obsolete active synonym
+MTH_OF	Metathesaurus-supplied form of obsolete fully specified name
+MTH_OP	Metathesaurus obsolete preferred term
+MTH_PT	Metathesaurus preferred term
+MTH_PTGB	Metathesaurus-supplied form of British preferred term
+MTH_SY	MTH Designated synonym
+MTH_SYGB	Metathesaurus-supplied form of British synonym
+OA	Obsolete abbreviation
+OAF	Obsolete active fully specified name
+OAM	Obsolete Modifier Abbreviation
+OAP	Obsolete active preferred term
+OAS	Obsolete active synonym
+OF	Obsolete fully specified name
+OM	Obsolete modifiers in HCPCS
+OP	Obsolete preferred name
+PN	Metathesaurus Preferred Name
+PT	Designated preferred name
+PTGB	British preferred term
+RAB	Root abbreviation
+RHT	Root hierarchical term
+RPT	Root preferred term
+RSY	Root synonym
+RT	Related to Preferred Term	Term that is related to, but often considered non-synonymous with, the preferred term
+SB	Named subset of a source
+SSN	Source short name, used in the UMLS Knowledge Source Server
+SY	Designated synonym
+SYGB	British synonym
+VAB	Versioned abbreviation
+VPT	Versioned preferred term
+VSY	Versioned synonym
+XM	Cross mapping set

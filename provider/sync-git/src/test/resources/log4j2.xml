@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Log4j2 configuration file -->
+<Configuration>
+
+	<Appenders>
+		<!-- Only prints INFO and worse -->
+		<File name="FILE-NORMAL" fileName="isaac.log">
+			<PatternLayout pattern = "%date %-5level [%thread] [%logger{30}] %file:%line - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="INFO"/>
+			</Filters>
+		</File>
+
+		<!-- Prints everything -->
+		<File name="FILE-DEBUG" fileName="isaac-debug.log">
+			<PatternLayout pattern = "%date %-5level [%thread][%logger{30}] %file:%line - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="ALL"/>
+			</Filters>
+		</File>
+
+		<!-- Errors to console -->
+		<Console name="STDERR" target="SYSTEM_ERR">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%thread] %file:%line - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="WARN"/>
+			</Filters>
+		</Console>
+
+		<!-- A Console appender that prints DEBUG -->
+		<Console name="STDOUT-DEBUG" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%thread] %file:%line - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="DEBUG" />
+				<ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL" />
+			</Filters>
+		</Console>
+
+		<!-- A Console appender that prints INFO -->
+		<Console name="STDOUT-INFO" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%thread] %file:%line - %msg%n"/>
+			<Filters>
+				<ThresholdFilter level="INFO" />
+				<ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL" />
+			</Filters>
+		</Console>
+	</Appenders>
+	
+	<Loggers>
+		<!-- By default, all loggers in the system are set to WARN or worse.  To enable more verbose logging
+		for a specific logger, or a logger package - define a 'logger' configuration as below, with the desired level. -->
+		<logger name="sh.isaac" level="TRACE" />
+		<logger name="gov.va.legoEdit" level="TRACE" />
+		<!--logger name="gov.va.oia" level="TRACE"/-->
+		<logger name="org.ihtsdo" level="INFO" />
+		<logger name="gov.vha" level="INFO" />
+		<logger name="css" level="ERROR" /> <!-- JavaFX has some bugs that are causing it to be noisy about css errors... -->
+		<logger name="com.mchange.v2.c3p0" level="INFO"/>
+		<Logger name="org.jvnet.hk2.logger" level="OFF"/>  <!-- HK2 is logging a debug message that is being mis-translated into an error by LOG4J2 https://issues.apache.org/jira/browse/LOG4J2-1003 -->
+		
+		<!-- Set the root logger (all loggers not specified above) at a WARN level -->
+		<Root level="WARN">
+			<!--AppenderRef ref="FILE-DEBUG" /-->
+			<!--AppenderRef ref="FILE-NORMAL" /-->
+			<AppenderRef ref="STDERR" />
+			<!-- The two appenders below can be enabled if you desire INFO or DEBUG log output on the console. -->
+			<AppenderRef ref="STDOUT-DEBUG" />
+			<AppenderRef ref="STDOUT-INFO" />
+		</Root>
+	</Loggers>
+
+</Configuration>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>#CLASSIFIER#.ibdf</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>${project.build.directory}</directory>
+			<includes>
+				<include>*#CLASSIFIER#.ibdf</include>
+			</includes>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}</directory>
+			<includes>
+				<include>ConsoleOutput.txt</include>
+			</includes>
+			<outputDirectory>/Stats_and_Debug/</outputDirectory>
+		</fileSet>
+	</fileSets>
+	<files>
+		<!-- Files to reproduce the build -->
+		<!-- Root folder -->
+		<file>
+			<source>${basedir}/pom.xml</source>
+			<outputDirectory>META-INF/maven/${groupId}/${artifactId}/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		<file>
+			<source>${basedir}/LICENSE.txt</source>
+			<outputDirectory>META-INF/maven/${groupId}/${artifactId}/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		<file>
+			<source>${basedir}/NOTICE.txt</source>
+			<outputDirectory>META-INF/maven/${groupId}/${artifactId}/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		<file>
+			<source>${basedir}/target/pom.properties</source>
+			<outputDirectory>META-INF/maven/${groupId}/${artifactId}/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		<!-- assembly folder -->
+#ASSEMBLY_FILES#
+		<file>
+			<source>${basedir}/src/assembly/MANIFEST.MF</source>
+			<outputDirectory>META-INF/maven/${groupId}/${artifactId}/src/assembly/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		
+		<!-- License files and manifest info for this release -->
+		<file>
+			<source>${basedir}/LICENSE.txt</source>
+			<outputDirectory>META-INF/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		
+		<file>
+			<source>${basedir}/NOTICE.txt</source>
+			<outputDirectory>META-INF/</outputDirectory>
+			<filtered>false</filtered>
+		</file>
+		<file>
+			<source>${basedir}/src/assembly/MANIFEST.MF</source>
+			<outputDirectory>META-INF/</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+	</files>
+	<includeBaseDirectory>false</includeBaseDirectory>
+</assembly>

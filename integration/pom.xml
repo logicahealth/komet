@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>isaac</artifactId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>integration</artifactId>
+    <name>ISAAC: integration (MMP)</name>
+    <description>Aggrigator project for integration ISAAC modules</description>
+    <packaging>pom</packaging>
+    <modules>
+        <module>db-builder</module>
+        <module>db-config-builder</module>
+        <module>import-utils</module>
+       <module>tests</module>
+    </modules>
+    <profiles>
+        <profile>
+            <id>ibdf-differ</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>ibdf-differ</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

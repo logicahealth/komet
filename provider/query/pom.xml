@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>provider</artifactId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+    <groupId>sh.isaac.provider</groupId>
+    <artifactId>query</artifactId>
+    <packaging>jar</packaging>
+    <name>ISAAC: Query provider</name>
+    <properties>
+       <org.apache.lucene.version>4.10.3</org.apache.lucene.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${org.apache.lucene.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${org.apache.lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${org.apache.lucene.version}</version>
+        </dependency>
+     </dependencies>
+</project>
